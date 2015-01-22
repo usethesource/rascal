@@ -111,7 +111,7 @@ import experiments::Compiler::Examples::Extending;
 import experiments::Compiler::Examples::FunctionWithVarargsAndKeyword;
 import experiments::Compiler::Examples::ModuleVarInitWithRange;
 
-loc base = |rascal:///experiments/Compiler/Examples/|;
+loc base = |std:///experiments/Compiler/Examples/|;
 
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =

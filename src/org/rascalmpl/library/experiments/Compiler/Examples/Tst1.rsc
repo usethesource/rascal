@@ -1,7 +1,10 @@
 module experiments::Compiler::Examples::Tst1
 
-lexical IntegerLiteral = [0-9]+;           
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Abstract::Eval;
+import demo::lang::Exp::Combined::Automatic::Load;
 
-start syntax Exp = con: IntegerLiteral;
+public int eval(str txt) = eval(load(txt));
 
-data Exp = con(int n);
+value main(list[value] args) = eval("7"); // == 7;
+

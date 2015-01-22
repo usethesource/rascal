@@ -8,7 +8,6 @@ import Set;
 import Relation;
 import util::Reflective;
 import util::ValueUI;
-
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -190,7 +189,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         addFunctionToModule(muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body));   	                                       
+         addFunctionToModule(muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|std:///|,[],(),body));   	                                       
    	 }
    	 				  
    	  translateModule(M);
@@ -410,13 +409,17 @@ private str resolveLibOverriding(str lib){
 	if(lib in overriddenLibs) return "<lib>Compiled";
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |rascal:///| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    rlib2 = |project://rascal/src/org/rascalmpl/library/| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    
+    println("rlib1 = <rlib1>, rlib2 = <rlib2>");
   
 	if(exists(rlib2)){
 	   overriddenLibs += lib;
+	   println("resolveLibOverriding <lib> =\> <lib>Compiled");
 	   return "<lib>Compiled";
 	} else {
 		notOverriddenLibs += lib;
+		println("resolveLibOverriding <lib> =\> <lib>");
 		return lib;
 	}
 }
@@ -458,11 +461,11 @@ private list[str] translateModifiers(FunctionModifiers modifiers){
 /********************************************************************/
 /*                  Translate the tests in a module                 */
 /********************************************************************/
-
+ 
 private void generate_tests(str module_name, loc src){
    code = muBlock([ muCallPrim3("testreport_open", [], src), *tests, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code));
+   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |std:///|, [], (), code));
 }
