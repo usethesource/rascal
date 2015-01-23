@@ -7,6 +7,7 @@ public class Coroutine {
 	
 	boolean suspended = false;
 	boolean isInitialized = false;
+	public Frame entryFrame;
 	
 	public Coroutine(Frame frame) {
 		this.start = frame;

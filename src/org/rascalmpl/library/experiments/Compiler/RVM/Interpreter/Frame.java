@@ -21,6 +21,8 @@ public class Frame {
 	final Function function;
 	
 	final boolean isCoroutine;
+	public int hotEntryPoint;
+	public Frame nextFrame;
 		
 	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);

@@ -45,7 +45,7 @@ public class RascalExecutionContext {
 	
 	private String currentModuleName;
 	//private ILocationCollector locationReporter;
-	private RVM rvm;
+	private IRVM rvm;
 	private boolean coverage;
 	
 	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
@@ -86,9 +86,9 @@ public class RascalExecutionContext {
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
-	public RVM getRVM(){ return rvm; }
+	public IRVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ this.rvm = rvm; }
+	void setRVM(IRVM rvm){ this.rvm = rvm; }
 	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
