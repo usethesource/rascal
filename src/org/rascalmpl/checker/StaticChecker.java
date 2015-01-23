@@ -89,7 +89,7 @@ public class StaticChecker {
 		IMapWriter mw = VF.mapWriter();
 		
 		for (IValue i : imports) {
-			URI uri = URIUtil.createRascalModule(((IString) i).getValue());
+			URI uri = eval.getRascalResolver().resolveModule(((IString) i).getValue());
 			mw.put(i, VF.sourceLocation(uri));
 		}
 		
