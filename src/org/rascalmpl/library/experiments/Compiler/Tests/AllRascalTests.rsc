@@ -91,7 +91,7 @@ list[str] libraryTests = [
 "TypeTests",
 "ValueIOTests",
 "analysis/statistics/DescriptiveTests",
-"analysis/statistics/RangeUtilsTests",
+"analysis/statistics/RangeUtils",
 "lang/csv/CSVIOTests",      // OK
 "lang/json/JSONIOTests"    // OK
 ];

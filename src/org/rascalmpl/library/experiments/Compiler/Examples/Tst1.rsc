@@ -1,14 +1,6 @@
 module experiments::Compiler::Examples::Tst1
 
-import lang::rascal::tests::imports::M1;
+bool b1 = true;
+bool b2 = false;
 
-//test bool Test11() = lang::rascal::tests::imports::M1::f(3) == 6;
-//
-//@ignore{}
-//test bool Test12() = f(3) == 6;
-
- 
-value main(list[value] args) { 
-	int f(int n) {return 3 * n;} 
-	return f(3) == 9;
-}
+value main(list[value] args) = (b1 ==> b2); // <==> !(b1 && !b2);
