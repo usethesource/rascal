@@ -1,10 +1,12 @@
 module experiments::Compiler::Rascal2muRascal::TypeReifier
 
 /*
-* This module handles the mapping between types and reified types. It defines two functions:
-*     (1) map[Symbol,Production] getGrammar(Configuration) (extracts only a syntax definition)
-*     (2) type[value]            symbolToValue(Symbol) (extracts a type definition)
-*/
+ * This module handles the mapping between types and reified types. It defines the following functions:
+ *	   (1) void 				  resetTypeReifier()			Reset the global state of this module
+ *     (2) map[Symbol,Production] getGrammar() 					Extract only syntax definitions
+  *    (3) map[Symbol,Production] getDefinitions() 				Extract all defined symbols
+ *     (4) type[value]            symbolToValue(Symbol) 		Compute the reified type for a symbol
+ */
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -44,7 +46,6 @@ public void resetTypeReifier() {
 // - symbolToValue
 
 public void getDeclarationInfo(Configuration config){
-	//println("Start getDeclarationInfo");
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
@@ -84,13 +85,11 @@ public void getDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
-   	//println("End getDeclarationInfo");
 }
 
 // Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar() {
-	//println("Start getGrammar");
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
@@ -106,14 +105,12 @@ public map[Symbol,Production] getGrammar() {
  	//for(s <- definitions) println("<s>: <definitions[s]>,");
  	//println(")\n----------");
  	
- 	//println("End getGrammar");
  	return definitions;
 }
 
 // Extract all declared symbols from a type checker configuration
 
 public map[Symbol,Production] getDefinitions() {
-	println("Start getDefinitions");
    	// Collect all symbols
    	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
    	
@@ -125,14 +122,11 @@ public map[Symbol,Production] getDefinitions() {
    	// and find their definitions
    	//iprintln(TreeDefinitions);
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
- 	
- 	println("End getDefinitions");
+ 
  	//iprintln(definitions);
  	
  	return definitions;
 }
-
-
 
 public type[value] symbolToValue(Symbol symbol) {
    	
@@ -165,7 +159,7 @@ public type[value] symbolToValue(Symbol symbol) {
 }
 
 // primitive
-public map[Symbol,Production] reify(Symbol symbol, /*Configuration config,*/ map[Symbol,Production] definitions) 
+public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
 	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
 					   isStrType(symbol) || isNumType(symbol) || isNodeType(symbol) || isVoidType(symbol) ||
 					   isValueType(symbol) || isLocType(symbol) || isDateTimeType(symbol);
@@ -388,4 +382,3 @@ private Symbol regulars(Symbol s, Symbol l) {
     case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
   }
 }
-

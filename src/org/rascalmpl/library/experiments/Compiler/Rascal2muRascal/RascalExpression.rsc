@@ -119,7 +119,7 @@ MuExp translateComposeFunction(Expression e){
   //println("lhsReceiver: <lhsReceiver>");
   //println("rhsReceiver: <rhsReceiver>");
   
-  str ofqname = "<lhsReceiver.fuid>_o_<rhsReceiver.fuid>#<e@\loc.offset>";  // name of composition
+  str ofqname = "<lhsReceiver.fuid>_o_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of composition
   
   if(hasOverloadingResolver(ofqname)){
     return muOFun(ofqname);
@@ -130,7 +130,7 @@ MuExp translateComposeFunction(Expression e){
     
   // Generate and add a function COMPOSED_FUNCTIONS_<i>
   str scopeId = topFunctionScope();
-  str comp_name = "COMPOSED_FUNCTIONS_<e@\loc.offset>";
+  str comp_name = "COMPOSED_FUNCTIONS_<e@\loc.offset>_<e@\loc.length>";
   str comp_fuid = scopeId + "/" + comp_name;
   
   Symbol comp_ftype;  
@@ -171,12 +171,12 @@ MuExp add(Expression e){
 }
 
 MuExp translateAddFunction(Expression e){
-
+  //println("translateAddFunction: <e>");
   lhsType = getType(e.lhs@\loc);
   rhsType = getType(e.rhs@\loc);
   
   str2uid = invertUnique(uid2str);
-  
+
   MuExp lhsReceiver = translate(e.lhs);
   OFUN lhsOf;
   
@@ -201,7 +201,7 @@ MuExp translateAddFunction(Expression e){
  
   OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>";  // name of addition
+  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
  
   addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
@@ -1056,7 +1056,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-   println("translate: <e>");
+   //println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1085,7 +1085,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)#<e@\loc.offset>";
+       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)#<e@\loc.offset>_<e@\loc.length>";
        // Resolve alternatives for this specific call
        OFUN of = getOverloadedFunction(receiver.fuid);
        
@@ -1198,16 +1198,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
      
-       println("ftype = <ftype>, of.alts = <of.alts>");
+       //println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
-           	   println("alt <alt> matches");
+           	   //println("alt <alt> matches");
                resolved += alt;
            }
        }
-       println("resolved = <resolved>");
+       //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];
@@ -1783,7 +1783,9 @@ MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = ma
 
 MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("or", lhs, rhs);
 
-MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) = makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("implies", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) {
+	println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
+	return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); }//translateBoolBinaryOp("implies", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
 

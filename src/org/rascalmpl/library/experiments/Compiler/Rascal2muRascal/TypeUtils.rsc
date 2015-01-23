@@ -132,8 +132,8 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		n = size (overloadedFunctions);
 		overloadedFunctions += fundescr;
 	}
-	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	//assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 }
 
@@ -225,6 +225,9 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
+      if(uid == 66){
+      	println("66: <item>");
+      }
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -259,7 +262,7 @@ void extractScopes(Configuration c){
 		     } 
     	}
         case variable(_,_,_,inScope,src):  { 
-        	 //println("<uid>: <item>");
+        	 println("<uid>: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
@@ -412,7 +415,11 @@ void extractScopes(Configuration c){
 
 	// Fill in mapping of function uids to qualified names (enables invert mapping)
 	for(UID uid <- functions + constructors) {
-		uid2str[uid] = convert2fuid(uid);
+		if(!uid2str[uid]?){
+			uid2str[uid] = convert2fuid(uid);
+		} else {
+			throw "extractScopes: Duplicate entry in uid2str for <uid>, <convert2fuid(uid)>";
+		}	
 	}
 	
 	//println("constructors: <constructors>");
@@ -528,6 +535,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
+	//println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
@@ -535,12 +543,16 @@ int declareGeneratedFunction(str name, Symbol rtype){
      
     // Fill in uid2name
     //name = getFUID(name,rtype);
-//println("name = <name>");
+	//println("name = <name>");
      
     uid2name[uid] = name;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
-    uid2str[uid] = name;
+    if(!uid2str[uid]?){
+    	uid2str[uid] = name;
+    } else {
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    }
     return uid;
 }
 
@@ -751,9 +763,12 @@ list[int] sortOverloadedFunctions(set[int] items){
 
 MuExp mkVar(str name, loc l) {
   //name = unescape(name);
-  //println("mkVar: <name>, <l>");
+  println("mkVar: <name>, <l>");
   uid = loc2uid[l];
+  println("uid = <uid>");
+  iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
+  println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
@@ -777,6 +792,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
+  println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 
