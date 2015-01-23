@@ -43,8 +43,6 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-//private map[Symbol,Production] TreeDefinitions = #Tree.definitions;
-
 public void getDeclarationInfo(Configuration config){
 	//println("Start getDeclarationInfo");
     resetTypeReifier();
@@ -53,7 +51,9 @@ public void getDeclarationInfo(Configuration config){
     // TODO: simplify
 	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
-            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype };
+            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
+            + { <"Tree", adt("Tree",[])> }
+            ;
     
 
 	// Collect all the constructors of the adt types in the type environment
@@ -113,7 +113,7 @@ public map[Symbol,Production] getGrammar() {
 // Extract all declared symbols from a type checker configuration
 
 public map[Symbol,Production] getDefinitions() {
-	//println("Start getDefinitions");
+	println("Start getDefinitions");
    	// Collect all symbols
    	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
    	
@@ -126,7 +126,7 @@ public map[Symbol,Production] getDefinitions() {
    	//iprintln(TreeDefinitions);
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
- 	//println("End getDefinitions");
+ 	println("End getDefinitions");
  	//iprintln(definitions);
  	
  	return definitions;
@@ -138,7 +138,7 @@ public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
-	//println("symbolToValue: <symbol>");
+	println("symbolToValue: <symbol>");
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){

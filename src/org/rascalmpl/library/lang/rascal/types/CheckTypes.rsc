@@ -39,6 +39,7 @@ import lang::rascal::types::Util;
 extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
+import ParseTree;
 
 //
 // TODOs
@@ -802,7 +803,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 	        		}  
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else {
-					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>"));
+					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp@\loc));
 				}
         	} else if (size(finalDefaultMatches) == 1) {
 				finalMatch = getOneFrom(finalDefaultMatches);
@@ -3129,6 +3130,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			
 			case callOrTreeNode(pth, ptargs, kpargs) : {
 				< pth, c > = assignInitialPatternTypes(pth, c);
+				if (pth is nameNode && isInferredType(pth@rtype)) {
+					failures += makeFailType("The declaration for constructor or production <prettyPrintName(pth.name)> is not in scope.", pth@\at);
+				}
 				list[PatternTree] ptres = [ ];
 				for (pti <- ptargs) {
 					< pti, c > = assignInitialPatternTypes(pti, c);
@@ -5769,7 +5773,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         
         // Add the alias into the type environment
         // TODO: Check to make sure this is possible
-        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\alias(utypeName,utypeParams,Symbol::\void()));
+        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\alias(utypeName,utypeParams,convertType(t)));
     }
 
     // If we can descend, process the aliased type as well, assigning it into

@@ -138,9 +138,9 @@ public abstract class Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URIUtil.rootScheme("rascal");
+						ur = URIUtil.rootScheme("cwd");
 					} else {
-						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
+						ur = eval.getRascalResolver().getRootForModule(moduleEnvName);
 					}
 					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
 					String modulePath = moduleName.replaceAll("::", "/");
@@ -281,7 +281,11 @@ public abstract class Import {
     }
     
     try {
-      Module module = buildModule(name, env, eval);
+    	URI uri = eval.getRascalResolver().resolveModule(name);
+    	if (uri == null) {
+    		throw new ModuleImport(name, "can not find in search path", x);
+    	}
+      Module module = buildModule(uri, env, eval);
 
       if (isDeprecated(module)) {
         eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
@@ -332,8 +336,8 @@ public abstract class Import {
     return "";
   }
   
-  private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name));
+  private static Module buildModule(URI uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
+	IConstructor tree = eval.parseModule(eval, uri);
     return getBuilder().buildModule(tree);
   }
   

@@ -39,11 +39,6 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 	}
 
 	@Override
-	public URI getResourceURI(URI uri) {
-		return URIUtil.invalidURI();
-	}
-
-	@Override
 	public boolean supportsHost() {
 		return false;
 	}
