@@ -20,6 +20,6 @@ public class Throw extends Instruction {
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnTHROW");
-		codeblock.addCode0(opcode.getOpcode());
+		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}
 }
