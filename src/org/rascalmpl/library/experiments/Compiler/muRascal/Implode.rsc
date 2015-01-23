@@ -2,8 +2,14 @@ module experiments::Compiler::muRascal::Implode
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-import Prelude;
-import ParseTree;
+import IO;
+import ValueIO;
+import Set;
+import List;
+import String;
+import Type;
+//import ParseTree;
+import Map;
 //import Ambiguity;
 
 import experiments::Compiler::muRascal::MuAllMuOr;
@@ -25,7 +31,7 @@ private str nextLabel() {
   return "<nLabel>";
 }
 
-MuModule preprocess(Module pmod){
+MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    global_functions = {};
    vardefs = ();
    functions_in_module = [];
@@ -98,7 +104,7 @@ str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
 str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
 	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
-MuFunction preprocess(Function f, str modName) {
+MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modName) {
    uid = getUID(modName,f.funNames,f.name,size(f.formals));
    
    // Collects all the declared reference parameters
@@ -254,7 +260,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
                case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
                case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
-               case orig_exp: muCall(preVar(mvar("make_tuple")), list[MuExp] exps)				=> muCallPrim3("tuple_create", exps, org_exp@location)
+               case org_exp: muCall(preVar(mvar("make_tuple")), list[MuExp] exps)				=> muCallPrim3("tuple_create", exps, org_exp@location)
                case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
                case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)						
                case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)

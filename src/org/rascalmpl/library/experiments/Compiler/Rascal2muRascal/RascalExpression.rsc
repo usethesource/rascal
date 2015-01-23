@@ -2,6 +2,14 @@
 module experiments::Compiler::Rascal2muRascal::RascalExpression
 
 import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -193,7 +201,7 @@ MuExp translateAddFunction(Expression e){
  
   OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>"; //#<e@\loc.offset>";  // name of addition
+  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>";  // name of addition
  
   addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
@@ -306,9 +314,15 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					]   );
 }
                     
-private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString(removeMargins("<constant>")));
 
-private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
+private str removeMargins(str s) {
+	if(findFirst(s, "\n") < 0){
+		return s;
+	} else {
+		return visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
+	}
+}
 
 private str computeIndent(str s) {
    lines = split("\n", removeMargins(s)); 
@@ -564,7 +578,8 @@ MuExp translateConcreteParsed(Tree e, loc src){
            return muVar("ConcreteVar", fuid, pos);
         } 
         MuExp translated_elems;
-        if(any(arg <- args, isConcreteListVar(arg))){       
+        if(any(arg <- args, isConcreteListVar(arg))){ 
+           println("splice in concrete list");      
            str fuid = topFunctionScope();
            writer = nextTmp();
         
@@ -1041,7 +1056,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-   //println("translate: <e>");
+   println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1075,6 +1090,30 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        OFUN of = getOverloadedFunction(receiver.fuid);
        
        list[int] resolved = [];
+       
+       bool isVarArgs(Symbol ftype) = ftype@isVarArgs? ? ftype@isVarArgs : false;
+       
+       // match function use and def, taking varargs into account
+       bool function_subtype(Symbol fuse, Symbol fdef){
+       	upar = fuse.parameters;
+       	dpar = fdef.parameters;
+       	if(isVarArgs(fdef) && !isVarArgs(fuse)){
+       		un = size(upar);
+       		dn = size(dpar);
+       		var_elm_type = dpar[-1][0];
+       		i = un - 1;
+       		while(i > 0){
+       			if(subtype(upar[i], var_elm_type)){
+       				i -= 1;
+       			} else {
+       				break;
+       			}
+       		}
+       		upar = upar[0 .. i + 1] + dpar[-1];
+       	}
+       
+       	return subtype(upar, dpar);
+       }
        
        bool matches(Symbol t) {
        	   //println("matches: <ftype>, <t>");
@@ -1122,9 +1161,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
-               //println("matches returns: <subtype(ftype.parameters, t.parameters)>");
+               //println("matches returns: <function_subtype(ftype, t)>");
                //return t == ftype;
-               return subtype(ftype.parameters, t.parameters);
+               return function_subtype(ftype, t);
            }           
            if(isOverloadedType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
@@ -1153,22 +1192,22 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    return false;
            	   }
                //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
-               return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters));
+               return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
        
      
-       //println("ftype = <ftype>, of.alts = <of.alts>");
+       println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
-           	   //println("alt <alt> matches");
+           	   println("alt <alt> matches");
                resolved += alt;
            }
        }
-       //println("resolved = <resolved>");
+       println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];

@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
@@ -55,7 +54,7 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		URI uri = rex.getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
+		URI uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RascalRuntimeException.io(modulePath, null);
 		}
@@ -64,33 +63,33 @@ public class ReflectiveCompiled extends Reflective {
 	
 	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
 		String value = path.getValue();
-		
+
 		if (path.length() == 0) {
 			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
 		}
-		
+
 		if (!value.startsWith("/")) {
 			value = "/" + value;
 		}
-		
+
 		try {
-			URI uri = rex.getRascalResolver().resolve(URIUtil.create("rascal", "", value));
+			URI uri = rex.getRascalResolver().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
-				
+
 				if (parent == null) {
 					// if the parent does not exist we are at the root and we look up the first path contributor:
-					parent = rex.getRascalResolver().resolve(URIUtil.create("rascal", "", "/")); 
+					parent = URIUtil.createFile("/"); 
 				}
-				
+
 				// here we recurse on the parent to see if it might exist
 				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), rex);
-				
+
 				if (result != null) {
 					String child = URIUtil.getURIName(URIUtil.createFile(value));
 					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
 				}
-				
+
 				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
 			}
 
@@ -99,4 +98,5 @@ public class ReflectiveCompiled extends Reflective {
 			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
 		}
 	}
+
 }

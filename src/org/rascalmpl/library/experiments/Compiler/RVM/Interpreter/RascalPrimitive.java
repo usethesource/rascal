@@ -708,8 +708,12 @@ public enum RascalPrimitive {
 			IString template = (IString) stack[sp - arity];
 			String indent = $getCurrentIndent();
 			for(int i = 1; i < arity; i++){
-				String arg_s = ((IString) stack[sp - arity + i]).getValue();
-				String [] lines = $removeMargins(arg_s).split("\n");
+				IString iarg_s = ((IString) stack[sp - arity + i]);
+				int len = iarg_s.length();
+				boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
+				String arg_s = iarg_s.getValue();
+				arg_s = $removeMargins(arg_s);
+				String [] lines = arg_s.split("\n");
 				if(lines.length <= 1){
 					template = template.concat(vf.string(arg_s));
 				} else {
@@ -718,6 +722,8 @@ public enum RascalPrimitive {
 					for(int j = 1; j < lines.length; j++){
 						sb.append("\n").append(indent).append(lines[j]);
 					}
+					if(endsWithNL)
+						sb.append("\n");
 					String res = sb.toString();
 					template = template.concat(vf.string(res));
 				}
@@ -4438,12 +4444,29 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IListWriter writer = (IListWriter)stack[sp - 2];
 			IConstructor nonterm = (IConstructor) stack[sp - 1];
-			IList non_termargs = (IList) nonterm.get("args");
-			IConstructor iter = (IConstructor) non_termargs.get(0);
-			IList iter_args = (IList) iter.get("args");
-			for(IValue v : iter_args) {
-				writer.append(v);
+//			stdout.println("nonterm = " + nonterm);
+			
+			IList nonterm_args = (IList) nonterm.get("args");
+//			stdout.println("nonterm_args = " + nonterm_args);
+			
+			if($getIter((IConstructor) ((IConstructor) nonterm.get("prod")).get(0)) >= 0){
+				for(IValue v : nonterm_args) {
+//					stdout.println("append: " + v);
+					writer.append(v);
+				}
+			} else {
+				IConstructor iter = (IConstructor) nonterm_args.get(0);
+//				stdout.println("iter = " + iter);
+				
+				IList iter_args = (IList) iter.get("args");
+//				stdout.println("iter_args = " + iter_args);
+				
+				for(IValue v : iter_args) {
+//					stdout.println("append: " + v);
+					writer.append(v);
+				}
 			}
+			
 			stack[sp - 2] = writer;
 			return sp - 1;
 		}
@@ -5091,9 +5114,14 @@ public enum RascalPrimitive {
 			assert arity == 3;
 			IString module_name = (IString) stack[sp - 3];
 			IConstructor type = (IConstructor) stack[sp - 2];
-			IString s = ((IString) stack[sp - 1]);
-
-			stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+			IValue source = (IValue) stack[sp - 1];
+			if(source.getType().isString()){
+				IString s = (IString) source;
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+			} else {
+				ISourceLocation s = (ISourceLocation) source;
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+			}
 			return sp - 2;
 		}
 

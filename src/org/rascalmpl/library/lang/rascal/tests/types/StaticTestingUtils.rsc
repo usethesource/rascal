@@ -157,6 +157,7 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 	check(stmts, [
 		"Cannot import module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
+
 	
 void makeModule(str name, str body){
 	mloc = |tmp:///<name>.rsc|;

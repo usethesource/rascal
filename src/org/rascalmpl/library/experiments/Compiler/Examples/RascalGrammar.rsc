@@ -148,7 +148,7 @@ lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-
 
 value main(list[value] args) { 
 	t = cpuTime(); 
-	//newGenerate("RascalGrammar", "Rascal", Rascal); 
-	usedSymbols(Rascal);
+	newGenerate("RascalGrammar", "Rascal", Rascal); 
+//	usedSymbols(Rascal);
 	return cpuTime() - t;
 }	

@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.commons.compress.compressors.FileNameUtil;
 
 public class CompressedStreamResolver implements IURIInputOutputResolver {
 	
@@ -158,10 +157,5 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	@Override
 	public boolean supportsHost() {
 		return true;
-	}
-	
-	@Override
-	public URI getResourceURI(URI uri) throws IOException {
-		return ctx.getResourceURI(getActualURI(uri));
 	}
 }

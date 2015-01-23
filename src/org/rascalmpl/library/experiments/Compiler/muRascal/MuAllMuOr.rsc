@@ -1,9 +1,9 @@
 module experiments::Compiler::muRascal::MuAllMuOr
 
+import List;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import Prelude;
 
 
 /*

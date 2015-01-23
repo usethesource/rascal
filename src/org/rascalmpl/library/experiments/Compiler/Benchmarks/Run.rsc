@@ -8,7 +8,14 @@ module experiments::Compiler::Benchmarks::Run
  * - Go and drink 99 bottles of beer :-(
  */
  
-import Prelude;
+
+import IO;
+import DateTime;
+import Relation;
+import Map;
+import List;
+import Set;
+import ValueIO;
 import util::Benchmark;
 import util::Math;
 import analysis::statistics::Descriptive;
@@ -106,7 +113,7 @@ map[str name,  value(list[value]) job] jobs = (
 "BSudoku":					experiments::Compiler::Benchmarks::BSudoku::main
 );
 
-loc base = |rascal:///experiments/Compiler/Benchmarks/|;
+loc base = |std:///experiments/Compiler/Benchmarks/|;
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
