@@ -58,7 +58,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: arity < function.nformals 
 	 */
-	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
+	public static FunctionInstance applyPartial(Function function, Frame env, IRVM rvm, int arity, Object[] stack, int sp) {
 		assert arity < function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {

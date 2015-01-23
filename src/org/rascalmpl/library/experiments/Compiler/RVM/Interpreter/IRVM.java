@@ -25,4 +25,6 @@ public interface IRVM {
 	public PrintWriter getStdErr();
 	public IEvaluatorContext getEvaluatorContext();
 	public IValueFactory     getValueFactory() ;
+	public void resetLocationCollector();
+	public void setLocationCollector(ILocationCollector collector);
 }
