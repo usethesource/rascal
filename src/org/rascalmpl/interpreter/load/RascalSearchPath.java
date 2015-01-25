@@ -33,9 +33,9 @@ public class RascalSearchPath {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
 	private final URIResolverRegistry reg;
 	
-	public RascalSearchPath(URIResolverRegistry ctx) {
+	public RascalSearchPath() {
 		this.contributors = new ArrayList<IRascalSearchPathContributor>();
-		this.reg = ctx;
+		this.reg = URIResolverRegistry.getInstance();
 	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {

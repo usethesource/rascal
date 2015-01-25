@@ -10,8 +10,8 @@ import org.rascalmpl.uri.URIUtil;
 public class RascalProjectInput extends ClassResourceInput {
 	private static String projectPrefix = "/src/org/rascalmpl/library";
 
-	public RascalProjectInput(URIResolverRegistry registry, Class<?> clazz) {
-		super(registry, "project", clazz, "/org/rascalmpl/library");
+	public RascalProjectInput(Class<?> clazz) {
+		super("project", clazz, "/org/rascalmpl/library");
 	}
 	
 	@Override

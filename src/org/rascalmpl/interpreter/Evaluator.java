@@ -187,7 +187,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath(new URIResolverRegistry()));
+		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
 	}
 
 	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
@@ -234,13 +234,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInputOutput(cwd);
 
-		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
+		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
 		resolverRegistry.registerInput(library);
 
-		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
@@ -270,10 +270,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses"));
+		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
+		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInput(tutor);
 		
 		// default event trigger to swallow events
@@ -464,11 +464,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	public JavaBridge getJavaBridge() {
 		return javaBridge;
-	}
-
-	@Override	
-	public URIResolverRegistry getResolverRegistry() {
-		return resolverRegistry;
 	}
 
 	@Override

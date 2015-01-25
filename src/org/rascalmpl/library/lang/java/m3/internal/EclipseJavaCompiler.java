@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 @SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
@@ -207,7 +208,7 @@ public class EclipseJavaCompiler {
     Reader textStream = null;
 
     try {
-      textStream = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
+      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI());
       data = InputConverter.toChar(textStream);
     } finally {
       if (textStream != null) {

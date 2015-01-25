@@ -161,7 +161,7 @@ public class RVM {
 					
 	}
 	
-	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
+	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
 	
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
@@ -1387,7 +1387,6 @@ public class RVM {
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					@SuppressWarnings("unchecked")
 					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
 					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
 					continue NEXT_INSTRUCTION;

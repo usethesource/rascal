@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -45,6 +44,7 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -1589,7 +1589,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
 				s = uri.getHost();
@@ -1640,7 +1640,7 @@ public enum RascalPrimitive {
 					IListWriter w = vf.listWriter();
 
 					Object[] fakeStack = new Object[2];
-					for (String elem : rvm.rex.getResolverRegistry().listEntries(resolved.getURI())) {
+					for (String elem : URIResolverRegistry.getInstance().listEntries(resolved.getURI())) {
 						fakeStack[0] = resolved;	// TODO
 						fakeStack[1] = vf.string(elem);
 						loc_add_str.execute(fakeStack, 2, 2, currentFrame);
@@ -1687,7 +1687,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
 				s = uri.getUserInfo();
@@ -1696,7 +1696,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				int n = uri.getPort();
@@ -6169,7 +6169,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
 				uri = URIUtil.changeHost(uri, newStringValue);
@@ -6260,7 +6260,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
 				if (uri.getHost() != null) {
@@ -6272,7 +6272,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				uri = sloc.getURI();
-				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				if (uri.getHost() != null) {

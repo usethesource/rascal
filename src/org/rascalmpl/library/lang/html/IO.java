@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class IO {
 	private final IValueFactory factory;
@@ -39,7 +40,7 @@ public class IO {
 	}
 	
 	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
-		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(file.getURI())) {
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(file.getURI())) {
 			Constructor cons = new Constructor();
       new ParserDelegator().parse(reader, cons, true);
 			return cons.getValue();
