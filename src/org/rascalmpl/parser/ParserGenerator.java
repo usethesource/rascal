@@ -110,30 +110,6 @@ public class ParserGenerator {
 		}
 	}
 
-	/**
-	 * Uses the user defined syntax definitions to generate a parser for Rascal that can deal
-	 * with embedded concrete syntax fragments
-	 * 
-	 * Note that this method works under the assumption that a normal parser was generated before!
-	 * The class that this parser generates will inherit from that previously generated parser.
-	 */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(IRascalMonitor monitor, URI loc, String name, IMap definition, IGTD<IConstructor, IConstructor, ISourceLocation> objectParser) {
-		try {
-			monitor.event("Importing and normalizing grammar: " + name, 10);
-			IConstructor grammar = getGrammar(monitor, name, definition);
-			String normName = name.replaceAll("::", "_");
-			monitor.event("Generating java source code for Rascal parser:" + name, 10);
-			IString classString = (IString) evaluator.call(monitor, "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
-			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/metaParser.java");
-			monitor.event("compiling generated java code: " + name, 10);
-			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
-		}  catch (ClassCastException e) {
-			throw new ImplementationError("meta parser generator:" + e.getMessage(), e);
-		} catch (Throw e) {
-			throw new ImplementationError("meta parser generator: " + e.getMessage() + e.getTrace());
-		}
-	}
-
 	private void debugOutput(String classString, String file) {
 		if (debug) {
 			FileOutputStream s = null;
