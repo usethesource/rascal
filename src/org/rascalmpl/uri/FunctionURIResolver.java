@@ -22,7 +22,7 @@ public class FunctionURIResolver implements IURIInputOutputResolver {
 	public FunctionURIResolver(String scheme, ICallableValue function) {
 		this.scheme = scheme;
 		this.function = function;
-		this.reg = function.getEval().getResolverRegistry();
+		this.reg = URIResolverRegistry.getInstance();
 	}
 	
 	public URI resolve(URI uri) {

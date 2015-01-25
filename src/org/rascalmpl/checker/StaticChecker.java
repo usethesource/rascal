@@ -29,9 +29,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.IURIOutputStreamResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -124,18 +121,6 @@ public class StaticChecker {
 		eval.addRascalSearchPath(uri);
 	}
 	
-	public void registerInputResolver(IURIInputStreamResolver resolver) {
-		eval.getResolverRegistry().registerInput(resolver);
-	}
-	
-	public void registerOutputResolver(IURIOutputStreamResolver resolver) {
-		eval.getResolverRegistry().registerOutput(resolver);
-	}
-
-	public URIResolverRegistry getResolverRegistry() {
-		return eval.getResolverRegistry();
-	}
-
 	public void addClassLoader(ClassLoader classLoader) {
 		eval.addClassLoader(classLoader);
 	}

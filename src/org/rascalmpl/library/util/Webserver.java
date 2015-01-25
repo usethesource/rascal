@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -96,7 +97,7 @@ public class Webserver {
         
         Response response;
         try {
-          response = new Response(Status.OK, mimeType.getValue(), ctx.getResolverRegistry().getInputStream(uri));
+          response = new Response(Status.OK, mimeType.getValue(),URIResolverRegistry.getInstance().getInputStream(uri));
           addHeaders(response, header);
           return response;
         } catch (IOException e) {

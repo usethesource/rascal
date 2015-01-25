@@ -136,13 +136,13 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
 		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
 		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
+		resolverRegistry.registerInput(new ClassResourceInput("benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");

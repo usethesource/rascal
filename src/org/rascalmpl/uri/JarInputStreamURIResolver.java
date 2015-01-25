@@ -16,14 +16,13 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 public class JarInputStreamURIResolver implements IURIInputStreamResolver {
-	private URIResolverRegistry registry;
+	private URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	private URI jarURI;
 	private String scheme;
 	private Map<String, Integer> index;
 
-	public JarInputStreamURIResolver(URI jarURI, URIResolverRegistry registry) {
+	public JarInputStreamURIResolver(URI jarURI) {
 		this.jarURI = jarURI;
-		this.registry = registry;
 		this.scheme = "jarstream+" + UUID.randomUUID();
 		buildIndex();
 	}

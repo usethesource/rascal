@@ -13,6 +13,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class JarConverter extends M3Converter {
 	JarConverter(TypeStore typeStore) {
@@ -21,7 +22,7 @@ public class JarConverter extends M3Converter {
 	
 	public void convert(ISourceLocation jarLoc, IEvaluatorContext ctx) {
 		try {
-			ClassReader cr = new ClassReader(ctx.getResolverRegistry().getInputStream(jarLoc.getURI()));
+			ClassReader cr = new ClassReader(URIResolverRegistry.getInstance().getInputStream(jarLoc.getURI()));
 			cr.accept(new JarConverter.ASMClassConverter(Opcodes.ASM4, jarLoc), 0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

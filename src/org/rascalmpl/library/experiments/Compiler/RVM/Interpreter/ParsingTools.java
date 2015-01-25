@@ -36,6 +36,7 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -69,10 +70,6 @@ public class ParsingTools {
 		stderr = rex.getStdErr();
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
 		classLoaders = rex.getClassLoaders();
-	}
-	
-	private IRascalMonitor getMonitor() {
-		return monitor;
 	}
 	
 	private IRascalMonitor setMonitor(IRascalMonitor monitor2) {
@@ -172,7 +169,7 @@ public class ParsingTools {
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = vf.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -313,7 +310,7 @@ public class ParsingTools {
 		Reader textStream = null;
 		
 		try {
-			textStream = rex.getResolverRegistry().getCharacterReader(location);
+			textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
 			data = InputConverter.toChar(textStream);
 		}
 		finally{

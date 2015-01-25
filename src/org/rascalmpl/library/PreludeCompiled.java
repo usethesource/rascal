@@ -47,6 +47,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -66,14 +67,14 @@ public class PreludeCompiled extends Prelude {
 	
 	public IValue exists(ISourceLocation sloc, RascalExecutionContext rex) {
 		sloc = rex.resolveSourceLocation(sloc);
-		return values.bool(rex.getResolverRegistry().exists(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().exists(sloc.getURI()));
 	}
 	
 	public IValue lastModified(ISourceLocation sloc, RascalExecutionContext rex) {
 		sloc = rex.resolveSourceLocation(sloc);
 
 		try {
-			return values.datetime(rex.getResolverRegistry().lastModified(sloc.getURI()));
+			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc.getURI()));
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
@@ -84,18 +85,18 @@ public class PreludeCompiled extends Prelude {
 	
 	public IValue isDirectory(ISourceLocation sloc, RascalExecutionContext rex) {
 		sloc = rex.resolveSourceLocation(sloc);
-		return values.bool(rex.getResolverRegistry().isDirectory(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc.getURI()));
 	}
 	
 	public IValue isFile(ISourceLocation sloc, RascalExecutionContext rex) {
 		sloc = rex.resolveSourceLocation(sloc);
-		return values.bool(rex.getResolverRegistry().isFile(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isFile(sloc.getURI()));
 	}
 	
 	public void remove(ISourceLocation sloc, RascalExecutionContext rex) {
 		try {
 			sloc = rex.resolveSourceLocation(sloc);
-			rex.getResolverRegistry().remove(sloc.getURI());
+			URIResolverRegistry.getInstance().remove(sloc.getURI());
 		}
 		catch (IOException e) {
 			RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -105,7 +106,7 @@ public class PreludeCompiled extends Prelude {
 	public void mkDirectory(ISourceLocation sloc, RascalExecutionContext rex) {
 		try {
 			sloc = rex.resolveSourceLocation(sloc);
-			rex.getResolverRegistry().mkDirectory(sloc.getURI());
+			URIResolverRegistry.getInstance().mkDirectory(sloc.getURI());
 		}
 		catch (IOException e) {
 			RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -116,7 +117,7 @@ public class PreludeCompiled extends Prelude {
 		sloc = rex.resolveSourceLocation(sloc);
 
 		try {
-			java.lang.String [] entries = rex.getResolverRegistry().listEntries(sloc.getURI());
+			java.lang.String [] entries = URIResolverRegistry.getInstance().listEntries(sloc.getURI());
 			IListWriter w = values.listWriter();
 			for(java.lang.String entry : entries){
 				w.append(values.string(entry));
@@ -134,12 +135,12 @@ public class PreludeCompiled extends Prelude {
 		Reader reader = null;
 
 		try {
-			Charset c = rex.getResolverRegistry().getCharset(sloc.getURI());
+			Charset c = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 			if (c != null) {
 				return readFileEnc(sloc, values.string(c.name()), rex);
 			}
 			sloc = rex.resolveSourceLocation(sloc);
-			reader = rex.getResolverRegistry().getCharacterReader(sloc.getURI());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
 			return consumeInputStream(sloc, reader, rex);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
@@ -161,7 +162,7 @@ public class PreludeCompiled extends Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, RascalExecutionContext rex){
 		sloc = rex.resolveSourceLocation(sloc);
 
-		try (Reader reader = rex.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue())){
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(), charset.getValue())){
 			return consumeInputStream(sloc, reader, rex);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
@@ -248,7 +249,7 @@ public class PreludeCompiled extends Prelude {
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc, RascalExecutionContext rex){
-		try (InputStream in = rex.getResolverRegistry().getInputStream(sloc.getURI())){
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI())){
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] buf = new byte[4096];
 			int count;
@@ -289,9 +290,9 @@ public class PreludeCompiled extends Prelude {
 			InputStream in = null;
 			Charset detected = null;
 			try {
-				detected = rex.getResolverRegistry().getCharset(sloc.getURI());
+				detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 				if (detected == null) {
-					in = rex.getResolverRegistry().getInputStream(sloc.getURI());
+					in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
 					detected = UnicodeDetector.estimateCharset(in);
 				}
 			}catch(FileNotFoundException fnfex){
@@ -327,7 +328,7 @@ public class PreludeCompiled extends Prelude {
 		}
 
 		try{
-			out = new UnicodeOutputStreamWriter(rex.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
+			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
@@ -359,7 +360,7 @@ public class PreludeCompiled extends Prelude {
 		sloc = rex.resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
 		try{
-			OutputStream stream = rex.getResolverRegistry().getOutputStream(sloc.getURI(), false);
+			OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), false);
 			out = new BufferedOutputStream(stream);
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
@@ -397,11 +398,11 @@ public class PreludeCompiled extends Prelude {
 		  Reader reader = null;
 		  
 			try {
-				Charset detected = rex.getResolverRegistry().getCharset(sloc.getURI());
+				Charset detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 				if (detected != null) {
 					return readFileLinesEnc(sloc, values.string(detected.name()), rex);
 				}
-				reader = rex.getResolverRegistry().getCharacterReader(sloc.getURI());
+				reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
 	      return consumeInputStreamLines(sloc, reader, rex);
 			}catch(MalformedURLException e){
 			    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
@@ -424,7 +425,7 @@ public class PreludeCompiled extends Prelude {
 		  sloc = rex.resolveSourceLocation(sloc);
 		  
 			try {
-				return consumeInputStreamLines(sloc, rex.getResolverRegistry().getCharacterReader(sloc.getURI(),charset.getValue()), rex);
+				return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(),charset.getValue()), rex);
 			}catch(MalformedURLException e){
 			    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 			}catch(FileNotFoundException e){
@@ -497,7 +498,7 @@ public class PreludeCompiled extends Prelude {
 		
 		BufferedInputStream in = null;
 		try{
-			InputStream stream = rex.getResolverRegistry().getInputStream(sloc.getURI());
+			InputStream stream = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
 			in = new BufferedInputStream(stream);
 			int read;
 			final int size = 256;
@@ -937,7 +938,7 @@ public class PreludeCompiled extends Prelude {
 
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(rex.getResolverRegistry().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
 			return new BinaryValueReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -964,7 +965,7 @@ public class PreludeCompiled extends Prelude {
 
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(rex.getResolverRegistry().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
 			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1003,7 +1004,7 @@ public class PreludeCompiled extends Prelude {
 
 		OutputStream out = null;
 		try{
-			out = rex.getResolverRegistry().getOutputStream(loc.getURI(), false); 
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false); 
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
@@ -1023,7 +1024,7 @@ public class PreludeCompiled extends Prelude {
 
 		OutputStream out = null;
 		try{
-			out = rex.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
 			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}
 		catch(IOException e) {

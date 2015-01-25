@@ -30,11 +30,10 @@ import java.nio.charset.Charset;
 public class ClassResourceInput implements IURIInputStreamResolver {
 	protected final Class<?> clazz;
 	protected final String scheme;
-	protected final URIResolverRegistry registry;
+	protected final URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	protected final String prefix;
 
-	public ClassResourceInput(URIResolverRegistry registry, String scheme, Class<?> clazz, String prefix) {
-		this.registry = registry;
+	public ClassResourceInput(String scheme, Class<?> clazz, String prefix) {
 		this.clazz = clazz;
 		this.scheme = scheme;
 		this.prefix = normalizePrefix(prefix);
