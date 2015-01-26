@@ -59,7 +59,6 @@ import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
 import org.jgll.sppf.SPPFNode;
-import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.util.Configuration;
 import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
@@ -67,7 +66,7 @@ import org.jgll.util.Visualization;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public class RascalGrammarLoader {
+public class RascalToIguanaGrammarConverter {
 	
 	private final IValueFactory vf;
 
@@ -85,46 +84,8 @@ public class RascalGrammarLoader {
 
 	private IMap definitions;
 
-	public RascalGrammarLoader(IValueFactory vf) {
+	public RascalToIguanaGrammarConverter(IValueFactory vf) {
 		this.vf = vf;
-	}
-
-	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
-		
-		if (grammar == null) {
-			return null;
-		}
-		
-		Configuration config = Configuration.DEFAULT;
-
-		input = Input.fromString(str.getValue(), loc.getURI());
-		parser = ParserFactory.getParser(config, input, grammar);
-
-		startSymbol = SymbolAdapter.toString(symbol, true);
-
-		GrammarGraph grammarGraph = grammar.toGrammarGraph(input, config);
-		grammarGraph.reset(input);
-		ParseResult result = parser.parse(input, grammarGraph, Nonterminal.withName(startSymbol));
-
-		if (result.isParseSuccess()) {
-			SPPFNode sppf = result.asParseSuccess().getRoot();
-			sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammarGraph));
-//			log.info("Flattening: %d ms ", (end - start) / 1000_000);
-
-//			return ((Result<IConstructor>) sppf.getObject()).getObject();
-			return null;
-		} else {
-			ParseError e = result.asParseError();
-			throw RuntimeExceptionFactory.parseError(
-					   vf.sourceLocation(loc, 
-					   e.getInputIndex(), 
-					   1,
-					   input.getLineNumber(e.getInputIndex()),
-					   input.getLineNumber(e.getInputIndex()),
-					   input.getColumnNumber(e.getInputIndex()) - 1,
-					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);			
-		}
-		
 	}
 
 	public void generateGrammar(IConstructor rascalGrammar) {
@@ -364,7 +325,10 @@ public class RascalGrammarLoader {
 				return Epsilon.getInstance();
 				
 			case "token":
-	
+
+			case "layouts":
+				return null;
+				
 			default:
 				throw new UnsupportedOperationException(symbol.toString());
 		}
