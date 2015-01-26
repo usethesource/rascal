@@ -121,8 +121,34 @@ Synopsis: Choice between alternative productions.
 Description:
 Nested choice is flattened.
 }
-public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
-  = choice(s, a+b);
+public Production choice(Symbol s, set[Production] choices){
+	if(!any(choice(Symbol t, set[Production] b)  <- choices)){
+	   fail;
+	} else {   
+	    // TODO: this does not work in interpreter and typechcker crashes on it
+	    //return choice(s, { *(choice(Symbol t, set[Production] b) := ch ? b : {ch}) | ch <- choices });
+	    changed = false;
+	    new_choices = {};
+	    for(ch <- choices){
+	    	if(choice(Symbol t, set[Production] b) := ch){
+	    		changed = true;
+	    		new_choices += b;
+	    	} else {
+	    		new_choices += ch;
+	    	}
+	    }
+	    if(changed){
+	    	return choice(s, new_choices);
+	    } else {
+	    	fail;
+	    }
+   }
+}
+
+//TODO:COMPILER
+//the above code replaces the following code for performance reasons in compiled code
+//public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
+//  = choice(s, a+b);
   
 
 @doc{Functions with variable argument lists are normalized to normal functions}
