@@ -98,10 +98,10 @@ public class RascalJUnitTestRunner extends Runner {
 			for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
 				if (ent.getPath().endsWith(".rsc")) {
 					if (prefix.isEmpty()) {
-						result.add(ent.getPath().replace(".rsc", ""));
+						result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
 					}
 					else {
-						result.add(prefix + "::" + ent.getPath().replace(".rsc", ""));
+						result.add(prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
 					}
 				}
 				else {

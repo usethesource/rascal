@@ -170,7 +170,7 @@ public class URIUtil {
 	}
 	
 	private static String getCorrectAuthority(ISourceLocation uri) {
-		if (uri.getAuthority() == null) {
+		if (!uri.hasAuthority()) {
 			return "";
 		}
 		return uri.getAuthority();
@@ -262,7 +262,7 @@ public class URIUtil {
 		File childFile = new File(file, child);
 		
 		try {
-			return vf.sourceLocation(loc.getScheme(), loc.getAuthority(), childFile.getPath(), loc.getQuery(), loc.getFragment());
+			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childFile.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
 		} catch (URISyntaxException e) {
 			assert false;
 			return loc;
