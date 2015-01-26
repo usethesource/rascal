@@ -208,7 +208,7 @@ public class EclipseJavaCompiler {
     Reader textStream = null;
 
     try {
-      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI());
+      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc);
       data = InputConverter.toChar(textStream);
     } finally {
       if (textStream != null) {

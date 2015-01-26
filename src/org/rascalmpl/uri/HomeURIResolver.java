@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.net.URI;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class HomeURIResolver extends FileURIResolver {
 	@Override
@@ -20,7 +20,7 @@ public class HomeURIResolver extends FileURIResolver {
 	}
 	
 	@Override
-	protected String getPath(URI uri) {
+	protected String getPath(ISourceLocation uri) {
 		String path = super.getPath(uri);
 		return System.getProperty("user.home") + (path.startsWith("/") ? path : ("/" + path));
 	}

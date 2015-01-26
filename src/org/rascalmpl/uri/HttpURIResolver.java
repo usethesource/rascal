@@ -15,22 +15,26 @@ package org.rascalmpl.uri;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 
-public class HttpURIResolver implements IURIInputStreamResolver {
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-	public InputStream getInputStream(URI uri) throws IOException {
-		return new BufferedInputStream(uri.toURL().openStream());
+public class HttpURIResolver implements ISourceLocationInput {
+
+	@Override
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
+		return new BufferedInputStream(uri.getURI().toURL().openStream());
 	}
 
+	@Override
 	public String scheme() {
 		return "http";
 	}
 
-	public boolean exists(URI uri) {
+	@Override
+	public boolean exists(ISourceLocation uri) {
 		try {
-			uri.toURL().openConnection();
+			uri.getURI().toURL().openConnection();
 			return true;
 		}
 		catch (IOException e) {
@@ -38,40 +42,40 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 		}
 	}
 
-	public boolean isDirectory(URI uri) {
+	@Override
+	public boolean isDirectory(ISourceLocation uri) {
 		return false;
 	}
 
-	public boolean isFile(URI uri) {
-		return exists(uri);
+	@Override
+	public boolean isFile(ISourceLocation uri) {
+		return true;
 	}
 
-	public long lastModified(URI uri) {
+	@Override
+	public long lastModified(ISourceLocation uri) {
 		try {
-			return uri.toURL().openConnection().getLastModified();
+			return uri.getURI().toURL().openConnection().getLastModified();
 		}
 		catch (IOException e) {
 			return 0L;
 		}
 	}
 
-	public String[] listEntries(URI uri) {
-		String [] ls = {};
-		return ls;
+	@Override
+	public ISourceLocation[] list(ISourceLocation uri) {
+		return new ISourceLocation[] { };
 	}
 
-	public String absolutePath(URI uri) {
-		return uri.getPath();
-	}
-
+	@Override
 	public boolean supportsHost() {
 		return true;
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		try {
-			String encoding = uri.toURL().openConnection().getContentEncoding();
+			String encoding = uri.getURI().toURL().openConnection().getContentEncoding();
 			if (encoding != null && Charset.isSupported(encoding)) {
 				return Charset.forName(encoding);
 			}

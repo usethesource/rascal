@@ -1639,12 +1639,8 @@ public enum RascalPrimitive {
 					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
 					IListWriter w = vf.listWriter();
 
-					Object[] fakeStack = new Object[2];
-					for (String elem : URIResolverRegistry.getInstance().listEntries(resolved.getURI())) {
-						fakeStack[0] = resolved;	// TODO
-						fakeStack[1] = vf.string(elem);
-						loc_add_str.execute(fakeStack, 2, 2, currentFrame);
-						w.append((ISourceLocation)fakeStack[0]);
+					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
+						w.append(elem);
 					}
 
 					v = w.done();
@@ -5136,7 +5132,7 @@ public enum RascalPrimitive {
 			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 			IMap grammar = (IMap) stack[sp - 1];
 
-			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc.getURI(), grammar);
+			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc, grammar);
 			stack[sp - 5] = tree;
 			return sp - 4;
 		}

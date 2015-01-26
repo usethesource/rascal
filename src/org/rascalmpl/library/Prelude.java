@@ -993,7 +993,7 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(URIResolverRegistry.getInstance().exists(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().exists(sloc));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
@@ -1001,7 +1001,7 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc.getURI()));
+			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
@@ -1013,20 +1013,20 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(URIResolverRegistry.getInstance().isFile(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
       sloc = ctx.getHeap().resolveSourceLocation(sloc);
-      URIResolverRegistry.getInstance().remove(sloc.getURI());
+      URIResolverRegistry.getInstance().remove(sloc);
     }
     catch (IOException e) {
       RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1037,7 +1037,7 @@ public class Prelude {
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
 	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
-	    URIResolverRegistry.getInstance().mkDirectory(sloc.getURI());
+	    URIResolverRegistry.getInstance().mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
 	    RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1049,12 +1049,12 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			java.lang.String [] entries = URIResolverRegistry.getInstance().listEntries(sloc.getURI());
+			ISourceLocation [] entries = URIResolverRegistry.getInstance().list(sloc);
 			IListWriter w = values.listWriter();
-			for(java.lang.String entry : entries){
-				w.append(values.string(entry));
+			for(ISourceLocation entry : entries) {
+				w.append(values.string(URIUtil.getLocationName(entry)));
 			}
-			return w.done();
+			return w.done(); 
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		} catch (IOException e) {
@@ -1076,12 +1076,12 @@ public class Prelude {
 	  Reader reader = null;
 	  
 		try {
-			Charset c = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
+			Charset c = URIResolverRegistry.getInstance().getCharset(sloc);
 			if (c != null) {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			}
 			sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		  reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
+		  reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);
       return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
@@ -1104,7 +1104,7 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(), charset.getValue())){
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
@@ -1193,7 +1193,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue md5HashFile(ISourceLocation sloc, IEvaluatorContext ctx){
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI())){
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)){
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] buf = new byte[4096];
 			int count;
@@ -1237,9 +1237,9 @@ public class Prelude {
 			InputStream in = null;
 			Charset detected = null;
 			try {
-				detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
+				detected = URIResolverRegistry.getInstance().getCharset(sloc);
 				if (detected == null) {
-					in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
+					in = URIResolverRegistry.getInstance().getInputStream(sloc);
 					detected = UnicodeDetector.estimateCharset(in);
 				}
 			}catch(FileNotFoundException fnfex){
@@ -1280,7 +1280,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
+			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc, append), charset.getValue(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
@@ -1314,7 +1314,7 @@ public class Prelude {
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
 		try{
-			OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), false);
+			OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(sloc, false);
 			out = new BufferedOutputStream(stream);
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
@@ -1356,11 +1356,11 @@ public class Prelude {
 	  Reader reader = null;
 	  
 		try {
-			Charset detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
+			Charset detected = URIResolverRegistry.getInstance().getCharset(sloc);
 			if (detected != null) {
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
 			}
-			reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);
       return consumeInputStreamLines(sloc, reader, ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
@@ -1384,7 +1384,7 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
+			return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
@@ -1459,7 +1459,7 @@ public class Prelude {
 		
 		BufferedInputStream in = null;
 		try{
-			InputStream stream = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
+			InputStream stream = URIResolverRegistry.getInstance().getInputStream(sloc);
 			in = new BufferedInputStream(stream);
 			int read;
 			final int size = 256;
@@ -2221,14 +2221,7 @@ public class Prelude {
 		IConstructor startSort = checkPreconditions(start, reified);
 		
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getURI());
-
-//			if (TreeAdapter.isAppl(pt)) {
-//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-//				}
-//			}
-			return pt;
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input);
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2295,14 +2288,14 @@ public class Prelude {
 	
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
 		
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
 		
 		
-		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile.getURI(), false)) {
+		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
 			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile.getURI() + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return ctx.getValueFactory().string(parserClass.getName());
 
@@ -3391,7 +3384,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
-		if (g.getURI().getScheme().equals("file")) {
+		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
 			if (!f.exists() || f.isDirectory()) { 
 				throw new IOException(g.toString());
@@ -3422,7 +3415,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc));
 			return new BinaryValueReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3493,7 +3486,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc));
 			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3534,7 +3527,7 @@ public class Prelude {
 	  
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false); 
+			out = URIResolverRegistry.getInstance().getOutputStream(loc, false); 
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
@@ -3555,7 +3548,7 @@ public class Prelude {
 	  
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
+			out = URIResolverRegistry.getInstance().getOutputStream(loc, false);
 			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}
 		 catch(IOException e) {

@@ -16,7 +16,6 @@ package org.rascalmpl.library.util;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -54,11 +53,11 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		URI uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
+		ISourceLocation uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RascalRuntimeException.io(modulePath, null);
 		}
-		return values.sourceLocation(uri);
+		return uri;
 	}
 	
 	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
@@ -73,7 +72,7 @@ public class ReflectiveCompiled extends Reflective {
 		}
 
 		try {
-			URI uri = rex.getRascalResolver().resolvePath(value);
+			ISourceLocation uri = rex.getRascalResolver().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 
@@ -87,13 +86,13 @@ public class ReflectiveCompiled extends Reflective {
 
 				if (result != null) {
 					String child = URIUtil.getURIName(URIUtil.createFile(value));
-					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
+					return URIUtil.getChildLocation(result, child);
 				}
 
 				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
 			}
 
-			return values.sourceLocation(uri);
+			return uri;
 		} catch (URISyntaxException e) {
 			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
 		}
