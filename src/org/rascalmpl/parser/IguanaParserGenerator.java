@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.grammar.GrammarGraph;
+import org.jgll.grammar.Grammar;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -73,9 +73,9 @@ public class IguanaParserGenerator {
 		return gr;
 	}
 	
-	public GrammarGraph generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
+	public Grammar generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
-	    return new RascalGrammarLoader(vf).convert(main, gr).toGrammarGraph();
+	    return new RascalGrammarLoader(vf).convert(main, gr);
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {

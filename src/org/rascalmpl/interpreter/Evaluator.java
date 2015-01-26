@@ -19,7 +19,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
+import static org.rascalmpl.semantics.dynamic.Import.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,6 +38,7 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -50,7 +51,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.jgll.grammar.GrammarGraph;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -95,11 +95,15 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IguanaParserGenerator;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
+import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.CompressedStreamResolver;
@@ -720,12 +724,61 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return func.call(getMonitor(), types, args, kwArgs).getValue();
   }
 	
+  private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc){
+		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
+	}
 	
+  /**
+	 * This converts a map from productions to character classes to
+	 * two pair-wise arrays, with char-classes unfolded as lists of ints.
+	 */
+	private void initializeRecovery(IMap robust, int[][] lookaheads, IConstructor[] robustProds) {
+		int i = 0;
+		
+		for (IValue prod : robust) {
+			robustProds[i] = (IConstructor) prod;
+			List<Integer> chars = new LinkedList<Integer>();
+			IList ranges = (IList) robust.get(prod);
+			
+			for (IValue range : ranges) {
+				int from = ((IInteger) ((IConstructor) range).get("begin")).intValue();
+				int to = ((IInteger) ((IConstructor) range).get("end")).intValue();
+				
+				for (int j = from; j <= to; j++) {
+					chars.add(j);
+				}
+			}
+			
+			lookaheads[i] = new int[chars.size()];
+			for (int k = 0; k < chars.size(); k++) {
+				lookaheads[i][k] = chars.get(k);
+			}
+			
+			i++;
+		}
+	}
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
-		GrammarGraph gr = org.rascalmpl.semantics.dynamic.Import.getIguanaParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), location, false);
-		return new Parser(getClassLoaders()).parseObject(gr, SymbolAdapter.toString(startSort), input, location);
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
+		String name = "";
+		if (SymbolAdapter.isStartSort(startSort)) {
+			name = "start__";
+			startSort = SymbolAdapter.getStart(startSort);
+		}
+		
+		if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
+			name += SymbolAdapter.getName(startSort);
+		}
+
+		int[][] lookaheads = new int[robust.size()][];
+		IConstructor[] robustProds = new IConstructor[robust.size()];
+		initializeRecovery(robust, lookaheads, robustProds);
+		
+		__setInterrupt(false);
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
+		
+		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
 	}
 	
 	@Override
@@ -762,24 +815,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
+	private ParserGenerator parserGenerator;
+	
+	@Override
+	public ParserGenerator getParserGenerator() {
+		startJob("Loading parser generator", 40);
+		if(parserGenerator == null ){
+		  if (isBootstrapper()) {
+		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		  }
+			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+		}
+		endJob(true);
+		return parserGenerator;
+	}
+	
 	@Override
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-	}
-	
-	@Override
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			IguanaParserGenerator pgen = getParserGenerator();
-			String main = uri.getAuthority();
-			ModuleEnvironment env = getHeap().getModule(main);
-			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-		}
-		finally {
-			setMonitor(old);
-		}
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
@@ -795,7 +849,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			IguanaParserGenerator pgen = getParserGenerator();
+			ParserGenerator pgen = getParserGenerator();
 			String main = uri.getAuthority();
 			ModuleEnvironment env = getHeap().getModule(main);
 			monitor.startJob("Expanding Grammar");
@@ -810,7 +864,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			IguanaParserGenerator pgen = getParserGenerator();
+			ParserGenerator pgen = getParserGenerator();
 			return pgen.getNestingRestrictions(monitor, g);
 		}
 		finally {
@@ -818,18 +872,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	private IguanaParserGenerator parserGenerator;
+	private IguanaParserGenerator iparserGenerator;
 	
-	public IguanaParserGenerator getParserGenerator() {
+	public IguanaParserGenerator getIguanaParserGenerator() {
 		startJob("Loading parser generator", 40);
-		if(parserGenerator == null ){
+		if(iparserGenerator == null ){
 		  if (isBootstrapper()) {
 		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
-			parserGenerator = new IguanaParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+			iparserGenerator = new IguanaParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
 		}
 		endJob(true);
-		return parserGenerator;
+		return iparserGenerator;
 	}
 
 	@Override	

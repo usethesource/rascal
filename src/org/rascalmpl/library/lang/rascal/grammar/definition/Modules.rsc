@@ -46,7 +46,7 @@ public GrammarDefinition modules2definition(str main, set[Module] modules) {
   are visible locally, or via import and extend.
 }
 public Grammar fuse(GrammarDefinition def) {
-  result = grammar({},(),());
+  result = grammar({},());
   todo = {def.main};
   done = {};
   

@@ -15,7 +15,7 @@ import String;
 import IO;
 
 public Grammar literals(Grammar g) {
-  return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}, ()));
+  return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
 }
 
 public Production literal(str s) = prod(lit(s),str2syms(s),{});

@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.jgll.grammar.GrammarGraph;
+import org.jgll.grammar.Grammar;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -202,15 +202,15 @@ public class GlobalEnvironment {
 		return current;
 	}
 	
-	public GrammarGraph getObjectParser(String module, IMap productions) {
-		return getIguanaParser(module, productions);
+	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String module, IMap productions) {
+		return getParser(objectParsersForModules, module, productions);
 	}
 	
 	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
-	public GrammarGraph getIguanaParser(String module, IMap productions) {
+	public Grammar getIguanaParser(String module, IMap productions) {
 		IguanaParserTuple parser = iguanaGrammarForModules.get(module);
 		if(parser != null && parser.getProductions().isEqual(productions)) {
 			return parser.getParser();
@@ -235,15 +235,15 @@ public class GlobalEnvironment {
 		return null;
 	}
 	
-	public void storeObjectParser(String module, IMap productions, GrammarGraph parser) {
-		storeIguanaParser(module, productions, parser);
+	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>>  parser) {
+		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
 	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
 		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
-	public void storeIguanaParser(String module, IMap productions, GrammarGraph grammar ) {
+	public void storeIguanaParser(String module, IMap productions, Grammar grammar ) {
 		iguanaGrammarForModules.put(module, new IguanaParserTuple(productions, grammar));
 	}
 	
@@ -308,9 +308,9 @@ public class GlobalEnvironment {
 	
 	private static class IguanaParserTuple {
 		private final IMap production;
-		private final GrammarGraph parser;
+		private final Grammar parser;
 
-		public IguanaParserTuple(IMap productions, GrammarGraph parser) {
+		public IguanaParserTuple(IMap productions, Grammar parser) {
 			this.production = productions;
 			this.parser = parser;
 		}
@@ -319,7 +319,7 @@ public class GlobalEnvironment {
 			return production;
 		}
 		
-		public GrammarGraph getParser() {
+		public Grammar getParser() {
 			return parser;
 		}
 	}
