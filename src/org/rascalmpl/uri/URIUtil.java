@@ -181,7 +181,7 @@ public class URIUtil {
 	}
 	
 	public static ISourceLocation changeScheme(ISourceLocation loc, String newScheme) throws URISyntaxException {
-		ISourceLocation newLoc = vf.sourceLocation(newScheme, loc.getAuthority(), loc.getPath(), loc.getQuery(), loc.getFragment());
+		ISourceLocation newLoc = vf.sourceLocation(newScheme, getCorrectAuthority(loc), loc.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
 		
 		if (loc.hasLineColumn()) {
 			newLoc = vf.sourceLocation(newLoc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
@@ -247,7 +247,7 @@ public class URIUtil {
 		
 		if (parent != null && !parent.getName().isEmpty()) {
 			try {
-				return vf.sourceLocation(loc.getScheme(), loc.getAuthority(), parent.getPath(), loc.getQuery(), loc.getFragment());
+				return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), parent.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
 			} catch (URISyntaxException e) {
 				assert false;
 				return loc;
