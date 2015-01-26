@@ -33,11 +33,11 @@ public set[Production] expand(Symbol s) {
     case \opt(t) : 
       return {choice(s,{prod(label("absent",s),[],{}),prod(label("present",s),[t],{})})};
     case \iter(t) : 
-      return {choice(s,{prod(label("single",s),[t],{}),prod(label("multiple",s),[s,t],{})})};
+      return {choice(s,{prod(label("single",s),[t],{}),prod(label("multiple",s),[t,s],{})})};
     case \iter-star(t) : 
       return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter(t)],{})})} + expand(\iter(t));
     case \iter-seps(t,list[Symbol] seps) : 
-      return {choice(s, {prod(label("single",s),[t],{}),prod(label("multiple",s),[s,*seps,t],{})})};
+      return {choice(s, {prod(label("single",s),[t],{}),prod(label("multiple",s),[t,*seps,s],{})})};
     case \iter-star-seps(t, list[Symbol] seps) : 
       return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-seps(t,seps)],{})})} 
              + expand(\iter-seps(t,seps));
@@ -53,13 +53,13 @@ public set[Production] expand(Symbol s) {
 }
 
 public Grammar makeRegularStubs(Grammar g) {
-  prods = {g.rules[nont] | Symbol nont <- g.rules, label(_,\token(_)) !:= nont, \token(_) !:= nont};
+  prods = {g.rules[nont] | Symbol nont <- g.rules};
   stubs = makeRegularStubs(prods);
-  return compose(g, grammar({},stubs, ()));
+  return compose(g, grammar({},stubs));
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {
-  return {regular(empty()), *{regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym)}};
+  return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
 }
 
 private set[Symbol] getRegular(Symbol s) = { t | /Symbol t := s, isRegular(t) }; 

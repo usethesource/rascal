@@ -13,24 +13,26 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
 import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.grammar.GrammarGraph;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.jgll.grammar.Grammar;
+import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
-import org.jgll.traversal.ModelBuilderVisitor;
+import org.jgll.util.Configuration;
 import org.jgll.util.Input;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -39,7 +41,7 @@ public class Parser {
 	public static final String START_COMMANDS = "start__Commands";
 	public static final String START_MODULE = "start__Module";
 	private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private GrammarGraph rascalGrammar;
+	private Grammar rascalGrammar;
 	private final List<ClassLoader> loaders;
 	
 	public Parser(List<ClassLoader> loaders) {
@@ -47,7 +49,7 @@ public class Parser {
 		this.loaders = loaders;
 	}
 	
-	public GrammarGraph getRascalGrammar() {
+	public Grammar getRascalGrammar() {
 		return rascalGrammar;
 	}
 	
@@ -57,10 +59,11 @@ public class Parser {
   		return parseObject(rascalGrammar, "start[Module]", data, location);
 	}
 	
-	public IConstructor parseObject(GrammarGraph grammar, String nt, char[] data, URI location) {
+	public IConstructor parseObject(Grammar grammar, String nt, char[] data, URI location) {
 		Input input = Input.fromCharArray(data, location);
-  		GLLParser parser = ParserFactory.newParser();
-		ParseResult result = parser.parse(input, grammar, nt);
+		
+  		GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);
+		ParseResult result = parser.parse(input, grammar, Nonterminal.withName(nt));
 
   		if (result.isParseError()) {
   			ParseError e = result.asParseError();
@@ -74,40 +77,22 @@ public class Parser {
 		}
 
   		// TODO: parse tree builder has to call rascal normalization/filtering functions
-		return result.asParseSuccess().build(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
+		return null; // result.asParseSuccess().build(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
 	}
 
-	private GrammarGraph initRascalGrammar() {
+	private Grammar initRascalGrammar() {
 		if (rascalGrammar != null) {
 			return rascalGrammar;
 		}
 		
 		try {
-			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(getClass().getResourceAsStream("/org/rascalmpl/library/lang/rascal/syntax/RascalGrammar.igr"))) {
-
-				@Override
-				protected Class< ? > resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException {
-
-					for (ClassLoader cl : loaders) {
-						try {
-							return  cl.loadClass(desc.getName());
-						}
-						catch (ClassNotFoundException e) {
-							// continue search
-						} catch (Exception e) {
-							throw new ImplementationError("failed to load Rascal grammar", e);
-						}
-					}
-
-					// Fallback (for void and primitives)
-					return super.resolveClass(desc);
-				}
-			};
-			
-			return (GrammarGraph) in.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			throw new ImplementationError("failed to load Rascal grammar", e);
+			IConstructor g = (IConstructor) new StandardTextReader().read(vf, URIResolverRegistry.getInstance().getCharacterReader(URIUtil.assumeCorrect("std", "", "/lang/rascal/syntax/Rascal.grammar")));
+			return new RascalGrammarLoader(vf).convert("rascal-bootstrap", g);
+		} catch (FactTypeUseException | IOException e1) {
+			assert false;
+			throw new ImplementationError("can not get bootstrap parser", e1);
 		}
+		
 	}
 	
 }

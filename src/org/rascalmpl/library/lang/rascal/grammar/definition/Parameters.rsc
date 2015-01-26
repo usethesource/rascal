@@ -18,7 +18,7 @@ import List;
 import Set;
 
 public Grammar expandParameterizedSymbols(Grammar g) {
-  return grammar(g.starts, expand({g.rules[nt] | nt <- g.rules}), g.about);
+  return grammar(g.starts, expand({g.rules[nt] | nt <- g.rules}));
 } 
 
 private Symbol delabel(Symbol l) {
