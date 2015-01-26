@@ -81,7 +81,7 @@ public class IguanaParserGenerator {
 	
 	public Grammar generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
-	    return new RascalGrammarLoader(vf).convert(main, gr);
+	    return new RascalToIguanaGrammarConverter(vf).convert(main, gr);
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {

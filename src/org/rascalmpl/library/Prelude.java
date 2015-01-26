@@ -2228,19 +2228,17 @@ public class Prelude {
 	
 	public void iparse(IValue grammar, ISourceLocation input, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
-		
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
-		
 		try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(input.getURI())) {
 			char[] data = InputConverter.toChar(textStream);
 			Input in = Input.fromCharArray(data, input.getURI());
 			GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
-			ParseResult result = parser.parse(in, g, Nonterminal.withName(pg.getNonterminalName((IConstructor) ((IConstructor) grammar).get("symbol"))));
+			Nonterminal startSymbol = Nonterminal.withName(((IString)((IConstructor)((IConstructor) grammar).get("symbol")).get("name")).getValue());
+			ParseResult result = parser.parse(in, g, startSymbol);
 			ctx.getStdErr().println(result);
 		} catch (IOException e) {
 			RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
-		
 	}
 	
 	public void iparse(IValue grammar, IString input, IEvaluatorContext ctx) {
