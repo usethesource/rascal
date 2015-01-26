@@ -2245,12 +2245,12 @@ public class Prelude {
 	
 	public void iparse(IValue grammar, IString input, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
-		
-			Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
 		char[] data = input.getValue().toCharArray();
 		Input in = Input.fromCharArray(data, URIUtil.rootScheme("TODO"));
 		GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
-		ParseResult result = parser.parse(in, g, Nonterminal.withName(pg.getNonterminalName((IConstructor) ((IConstructor) grammar).get("symbol"))));
+		Nonterminal startSymbol = Nonterminal.withName(((IString)((IConstructor)((IConstructor) grammar).get("symbol")).get("name")).getValue());
+		ParseResult result = parser.parse(in, g, startSymbol);
 		ctx.getStdErr().println(result);
 	}
 	
