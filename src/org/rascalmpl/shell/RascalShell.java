@@ -261,12 +261,11 @@ public class RascalShell {
 			return;
 		}
 		List<String> roots = mf.getSourceRoots(RascalShell.class);
-		URIResolverRegistry reg = eval.getResolverRegistry();
 
 		int count = 0;
 		for (String root : roots) {
 			String scheme = "root" + count;
-			reg.registerInput(new ClassResourceInput(reg, scheme, RascalShell.class, "/" + root));
+			URIResolverRegistry.getInstance().registerInput(new ClassResourceInput(scheme, RascalShell.class, "/" + root));
 			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
 		}
 	}
