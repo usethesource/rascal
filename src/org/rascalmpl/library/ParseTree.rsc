@@ -287,9 +287,18 @@ public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 
+ 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, loc input);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses information about syntax definitions at call site}
+public java void iparse(type[&T<:Tree] begin, loc input);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses information about syntax definitions at call site}
+public java void iparse(type[&T<:Tree] begin, str input);
 
 @doc{
 Synopsis: Yield the string of characters that form the leafs of the given parse tree.

@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -68,9 +69,14 @@ public class IguanaParserGenerator {
 	}
 	
 	private IConstructor getPreprocessedGrammar(IRascalMonitor monitor, String main, IMap definition) {
-		IConstructor gr = (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
-		gr = (IConstructor) evaluator.call(monitor, "preprocess", gr);
-		return gr;
+		try {
+			return (IConstructor) evaluator.call(monitor, "preprocess", definition);
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+			throw e;
+		}
 	}
 	
 	public Grammar generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {

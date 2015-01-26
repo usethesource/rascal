@@ -1,18 +1,19 @@
-module lang::rascal::iguana::IguanaParserGenerator
-
+module lang::rascal::grammar::IguanaParserGenerator
+ 
 import Grammar;
 import ParseTree;
-import lang::rascal::iguana::definition::Literals;
-import lang::rascal::iguana::definition::Priorities;
-import lang::rascal::iguana::definition::Regular;
-import lang::rascal::iguana::definition::Parameters;
-import lang::rascal::iguana::definition::Tokens;  
-import lang::rascal::iguana::definition::Keywords;
-import lang::rascal::iguana::ConcreteSyntax;
+import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Priorities;
+import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Tokens;  
+import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::grammar::ConcreteSyntax;
 import IO;
   
-public Grammar preprocess(Grammar gr) {
-iprintln("gr before: <gr.rules<0>>");
+public Grammar preprocess(map[Symbol,Production] definitions) {
+  gr = grammar({}, definitions);
+iprintln("gr before: <gr>");
   gr = literals(gr);
   gr = flattenTokens(gr);
   gr = addHoles(gr);
