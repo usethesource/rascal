@@ -37,7 +37,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
       starts += st.val;
   }
   
-  return grammar(starts, prods, ());
+  return grammar(starts, prods);
 }
 
 public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
