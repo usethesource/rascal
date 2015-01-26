@@ -92,7 +92,16 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.jgll.grammar.Grammar;
+import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.parser.GLLParser;
+import org.jgll.parser.ParseResult;
+import org.jgll.parser.ParserFactory;
+import org.jgll.util.Configuration;
+import org.jgll.util.Input;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -102,8 +111,10 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.IguanaParserGenerator;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -2213,6 +2224,34 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
+	}
+	
+	public void iparse(IValue grammar, ISourceLocation input, IEvaluatorContext ctx) {
+		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		
+		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		
+		try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(input.getURI())) {
+			char[] data = InputConverter.toChar(textStream);
+			Input in = Input.fromCharArray(data, input.getURI());
+			GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
+			ParseResult result = parser.parse(in, g, Nonterminal.withName(pg.getNonterminalName((IConstructor) ((IConstructor) grammar).get("symbol"))));
+			ctx.getStdErr().println(result);
+		} catch (IOException e) {
+			RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		
+	}
+	
+	public void iparse(IValue grammar, IString input, IEvaluatorContext ctx) {
+		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		
+			Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		char[] data = input.getValue().toCharArray();
+		Input in = Input.fromCharArray(data, URIUtil.rootScheme("TODO"));
+		GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
+		ParseResult result = parser.parse(in, g, Nonterminal.withName(pg.getNonterminalName((IConstructor) ((IConstructor) grammar).get("symbol"))));
+		ctx.getStdErr().println(result);
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
