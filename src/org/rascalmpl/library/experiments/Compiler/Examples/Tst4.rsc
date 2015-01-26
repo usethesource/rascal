@@ -1,4 +1,10 @@
 module experiments::Compiler::Examples::Tst4
 
-alias Person = tuple[str name, int age];
-Person merge() = ( <"X", 3> | <it.name, it.age + i> | i <- [0..10]); 
+import IO;
+
+value main(list[value] args) {
+	return
+	"<for(i <- [0..5]){>
+	'  <for(j <- [0..5]){><i>/<j><}><}>
+	";
+}
