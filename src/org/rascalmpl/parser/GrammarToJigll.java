@@ -31,8 +31,8 @@ import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
 import org.jgll.grammar.symbol.Character;
-import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.CharacterRange;
+import org.jgll.grammar.symbol.Epsilon;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
@@ -353,6 +353,9 @@ public class GrammarToJigll {
 							.addPostConditions(getPostConditions(symbol))
 							.build();
 				
+			case "empty":
+				return Epsilon.getInstance();
+				
 			case "token":
 	
 			default:
@@ -360,9 +363,8 @@ public class GrammarToJigll {
 		}
 	}
 
-	private CharacterClass getCharacterClass(IConstructor symbol) {
-		List<CharacterRange> targetRanges = buildRanges(symbol);
-		return new CharacterClass.Builder(targetRanges).build();
+	private Alt<CharacterRange> getCharacterClass(IConstructor symbol) {
+		return Alt.builder(buildRanges(symbol)).build();
 	}
 	
 	private Set<Condition> getPostConditions(IConstructor symbol) {
@@ -423,7 +425,7 @@ public class GrammarToJigll {
 	
 				case "not-precede":
 					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.notPrecede((RegularExpression) notPrecede));
+					set.add(RegularExpressionCondition.notPrecede((RegularExpression) getSymbol(notPrecede)));
 					break;
 	
 				case "start-of-line":
@@ -432,7 +434,7 @@ public class GrammarToJigll {
 	
 				case "precede":
 					IConstructor precede = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.precede((RegularExpression) precede));
+					set.add(RegularExpressionCondition.precede((RegularExpression) getSymbol(precede)));
 					break;
 				}
 		}
@@ -449,7 +451,7 @@ public class GrammarToJigll {
 	}
 	
 	private String getLabel(IConstructor symbol) {
-		return ((IString) symbol.get("label")).getValue();
+		return ((IString) symbol.get("name")).getValue();
 	}
 
 	private IConstructor getSymbolCons(IConstructor symbol) {
