@@ -75,8 +75,13 @@ For every position in the production that is restricted, and for every restricti
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), g.rules[s]?, except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
-  
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
+ 
+
+//TODO: compiler issues when  g.rules[s]? is inlined
+bool isdef(Grammar g, Symbol s) = g.rules[s]?;
+
+
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
