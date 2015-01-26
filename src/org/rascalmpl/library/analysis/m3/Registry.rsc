@@ -68,7 +68,6 @@ Description:
 
 Note that specific languages should declare they own resolvers, delegating immediately to [resolveM3].   
 }
-@resolver{m3}
 loc resolveM3(loc name) {
   str project = name.authority;
   if (isEmpty(project)) {

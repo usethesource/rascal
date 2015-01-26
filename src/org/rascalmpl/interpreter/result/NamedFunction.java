@@ -44,7 +44,6 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final boolean isTest;
     protected final boolean isStatic;
     protected final String resourceScheme;
-    protected final String resolverScheme;
     protected final Map<String, IValue> tags;
 
     private SoftReference<MemoizationCache> memoization;
@@ -61,12 +60,10 @@ abstract public class NamedFunction extends AbstractFunction {
         if (ast instanceof FunctionDeclaration) {
             tags = parseTags((FunctionDeclaration) ast);
             this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
-            this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
             this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
         } else {
             tags = new HashMap<String, IValue>();
             this.resourceScheme = null;
-            this.resolverScheme = null;
             this.hasMemoization = false;
         }
     }
@@ -269,15 +266,4 @@ abstract public class NamedFunction extends AbstractFunction {
     public boolean hasResourceScheme() {
         return this.resourceScheme != null;
     }
-
-    @Override
-    public boolean hasResolverScheme() {
-        return this.resolverScheme != null;
-    }
-
-    @Override
-    public String getResolverScheme() {
-        return this.resolverScheme;
-    }
-
 }

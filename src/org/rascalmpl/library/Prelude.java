@@ -106,6 +106,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.FunctionURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
@@ -133,6 +134,10 @@ public class Prelude {
 		random = new Random();
 	}
 
+	public void registerResolver(IString scheme, IValue resolver) {
+		URIResolverRegistry.getInstance().registerInput(new FunctionURIResolver(scheme.getValue(), (ICallableValue) resolver));
+	}
+	
 	/*
 	 * Boolean
 	 */
@@ -992,13 +997,11 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(URIResolverRegistry.getInstance().exists(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
 			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc.getURI()));
@@ -1012,20 +1015,17 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(URIResolverRegistry.getInstance().isFile(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
-      sloc = ctx.getHeap().resolveSourceLocation(sloc);
       URIResolverRegistry.getInstance().remove(sloc.getURI());
     }
     catch (IOException e) {
@@ -1036,7 +1036,6 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
-	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	    URIResolverRegistry.getInstance().mkDirectory(sloc.getURI());
 	  }
 	  catch (IOException e) {
@@ -1046,7 +1045,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
 			java.lang.String [] entries = URIResolverRegistry.getInstance().listEntries(sloc.getURI());
@@ -1072,7 +1070,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  Reader reader = null;
 	  
 		try {
@@ -1080,7 +1077,6 @@ public class Prelude {
 			if (c != null) {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			}
-			sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		  reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
       return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
@@ -1102,7 +1098,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(), charset.getValue())){
 			return consumeInputStream(sloc, reader, ctx);
@@ -1229,7 +1224,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		IString charset = values.string("UTF8");
 		if (append) {
@@ -1271,7 +1265,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		OutputStreamWriter out = null;
 		
@@ -1311,7 +1304,6 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	
 	public void writeFileBytes(ISourceLocation sloc, IList blist, IEvaluatorContext ctx){
-		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
 		try{
 			OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), false);
@@ -1352,7 +1344,6 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  Reader reader = null;
 	  
 		try {
@@ -1381,7 +1372,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
 			return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
@@ -1455,7 +1445,6 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
 		IListWriter w = values.listWriter();
-		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		
 		BufferedInputStream in = null;
 		try{
@@ -3418,7 +3407,6 @@ public class Prelude {
 //			store.importStore(pt.getStore());
 //		}
 		Type start = tr.valueToType((IConstructor) type, store);
-		loc = ctx.getHeap().resolveSourceLocation(loc);
 		
 		InputStream in = null;
 		try{
@@ -3486,7 +3474,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
-	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
@@ -3530,7 +3517,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression, IEvaluatorContext ctx){
-	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
 		OutputStream out = null;
 		try{
@@ -3551,8 +3537,6 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public void writeTextValueFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
-	  loc = ctx.getHeap().resolveSourceLocation(loc);
-	  
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);

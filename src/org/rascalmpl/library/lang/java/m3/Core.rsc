@@ -85,6 +85,7 @@ public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites
     setEnvironmentOptions(classPaths, findRoots(sourcePaths));
     m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
     M3 result = composeJavaM3(project, m3s);
+    registerResolver("java", resolveJava);
     registerProject(project, result);
     return result;
 }

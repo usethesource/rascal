@@ -495,14 +495,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 	
-	public String getResolverScheme() {
-		return null;
-	}
-	
-	public boolean hasResolverScheme() {
-		return false;
-	}
-
 	@Override
 	public boolean isAnnotatable() {
 		return false;
