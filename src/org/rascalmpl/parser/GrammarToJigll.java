@@ -333,7 +333,7 @@ public class GrammarToJigll {
 				return Star.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-star-seps":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
+				return Star.builder(getSymbol(getSymbolCons(symbol))).build();
 	
 			case "opt":
 				return Opt.from(getSymbol(getSymbolCons(symbol)));
