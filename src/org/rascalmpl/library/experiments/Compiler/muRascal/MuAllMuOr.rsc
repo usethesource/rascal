@@ -83,7 +83,6 @@ tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ], loc src) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
 
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps, loc src) {
-    println("makeMu");
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
         list[MuExp] expressions = [];

@@ -132,7 +132,7 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		n = size (overloadedFunctions);
 		overloadedFunctions += fundescr;
 	}
-	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
 	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 }
@@ -225,9 +225,7 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      if(uid == 66){
-      	println("66: <item>");
-      }
+      
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -262,7 +260,7 @@ void extractScopes(Configuration c){
 		     } 
     	}
         case variable(_,_,_,inScope,src):  { 
-        	 println("<uid>: <item>");
+        	 //println("<uid>: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
@@ -763,12 +761,12 @@ list[int] sortOverloadedFunctions(set[int] items){
 
 MuExp mkVar(str name, loc l) {
   //name = unescape(name);
-  println("mkVar: <name>, <l>");
+  //println("mkVar: <name>, <l>");
   uid = loc2uid[l];
-  println("uid = <uid>");
-  iprintln(uid2addr);
+  //println("uid = <uid>");
+  //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  println("addr = <addr>");
+  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
@@ -792,7 +790,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
-  println("return : <muVar(name, addr.fuid, addr.pos)>");
+  //println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 

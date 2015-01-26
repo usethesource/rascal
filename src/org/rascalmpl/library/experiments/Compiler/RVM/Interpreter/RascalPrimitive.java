@@ -3946,7 +3946,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
+			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 			return sp - 1;
 		}	
 
