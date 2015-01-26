@@ -118,6 +118,17 @@ public DoNotNest doNotNestIguana(Grammar g) {
 
 public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];
 
+public DoNotNest exceptPatterns(Grammar g)  = {*except(p, g) | /Production p <- g, p is prod || p is regular};
+
+
+@doc{
+  Simply replace the structures for priority and associativity by normal alternatives, ceteris paribus.
+}
+public Grammar prioAssocToChoice(Grammar g) = visit(g) {
+  case \priority(def, list[Production] levels) => choice(def, {*levels})
+  case \associativity(def, _, alts)            => choice(def, alts)
+};
+
 public Grammar addNotAllowedSets(Grammar g) {
  g.notAllowed = getNotAllowed(g);
  g.excepts = getExceptPatterns(g);
