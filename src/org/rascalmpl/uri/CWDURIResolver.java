@@ -13,14 +13,12 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.File;
-
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 /**
  * For reading and writing files relative to the current working directory.
  */
-public class CWDURIResolver extends FileURIResolver {
+public class CWDURIResolver implements ILogicalSourceLocationResolver {
 
 	@Override
 	public String scheme() {
@@ -28,7 +26,12 @@ public class CWDURIResolver extends FileURIResolver {
 	}
 	
 	@Override
-	protected String getPath(ISourceLocation uri) {
-		return new File(new File(System.getProperty("user.dir")), uri.getPath()).getAbsolutePath();
+	public ISourceLocation resolve(ISourceLocation input) {
+		return URIUtil.getChildLocation(FileURIResolver.constructFileURI(System.getProperty("user.dir")), input.getPath());
+	}
+
+	@Override
+	public String authority() {
+		return "";
 	}
 }

@@ -227,7 +227,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInput(https);
 
 		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerInputOutput(cwd);
+		resolverRegistry.registerLogical(cwd);
 
 		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
 		resolverRegistry.registerInput(library);
