@@ -67,8 +67,8 @@ public DoNotNest doNotNest(Grammar g) {
     } 
   }
   
-  return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
+  return result 
+       + {*except(p, g) | /Production p <- g, p is prod || p is regular};
 }
 
 public DoNotNest doNotNestIguana(Grammar g) {
@@ -113,8 +113,7 @@ public DoNotNest doNotNestIguana(Grammar g) {
     } 
   }
   
-  return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
+  return result;
 }
 
 public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];

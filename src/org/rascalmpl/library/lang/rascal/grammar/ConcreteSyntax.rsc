@@ -24,7 +24,7 @@ import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::format::Escape;
 
-public Grammar addHoles(Grammar object) = compose(object, grammar({}, { *holes(object),  regular(iter(\char-class([range(48,57)])))}, ()));
+public Grammar addHoles(Grammar object) = compose(object, grammar({}, { *holes(object),  regular(iter(\char-class([range(48,57)])))}));
 
 @doc{
   For every non-terminal in the grammar we create a rule that can recognize its hole syntax. Each hole
