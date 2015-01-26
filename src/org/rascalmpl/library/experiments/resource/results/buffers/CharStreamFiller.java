@@ -35,7 +35,7 @@ public class CharStreamFiller implements ILazyFiller {
 	public IValue[] refill(int pageSize) {
 		try {
 			if (is == null) {
-				is = URIResolverRegistry.getInstance().getCharacterReader(source.getURI());
+				is = URIResolverRegistry.getInstance().getCharacterReader(source);
 				br = new BufferedReader(is);
 			}
 			ArrayList<String> al = new ArrayList<String>();

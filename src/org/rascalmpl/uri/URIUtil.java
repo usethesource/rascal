@@ -14,7 +14,12 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 public class URIUtil {
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	/**
 	 * Create a new URI, non-encoded input is assumed.
 	 * @throws URISyntaxException
@@ -46,6 +51,10 @@ public class URIUtil {
 	public static URI createFile(String path) throws URISyntaxException {
 		path = fixWindowsPath(path);
 		return fixUnicode(new URI("file","", path, null));
+	}
+	
+	public static ISourceLocation createFileLocation(String path) throws URISyntaxException {
+		return vf.sourceLocation(createFile(path));
 	}
 	
 	private static String fixWindowsPath(String path) {
@@ -96,13 +105,35 @@ public class URIUtil {
 		}
 	}
 	
+	public static ISourceLocation correctLocation(String scheme, String authority, String path) {
+		try {
+			return createLocation(scheme, authority, path);
+		} catch (URISyntaxException e) {
+			IllegalArgumentException y = new IllegalArgumentException();
+		    y.initCause(e);
+		    throw y;
+		}
+	}
+	
+	private static ISourceLocation createLocation(String scheme, String authority,
+			String path) throws URISyntaxException {
+		return vf.sourceLocation(scheme, authority, path);
+	}
+
 	private static final URI invalidURI = URI.create("file://-");
+	
 	/**
 	 * Returns an URI which cannot be read/write to.
 	 * @return
 	 */
 	public static URI invalidURI() {
 		return invalidURI;
+	}
+	
+	private static final ISourceLocation invalidLocation = vf.sourceLocation(invalidURI);
+	
+	public static ISourceLocation invalidLocation() {
+		return invalidLocation;
 	}
 	
 	/**
@@ -114,6 +145,15 @@ public class URIUtil {
 		return URI.create(scheme + ":///");
 	}
 	
+	public static ISourceLocation rootLocation(String scheme) {
+		try {
+			return vf.sourceLocation(scheme, "", "/");
+		} catch (URISyntaxException e) {
+			assert false;
+			return null;
+		} 
+	}
+	
 	/**
 	 * In case you want to use an external URI not created by this class, call this method to ensure RFC compliant unicode support.
 	 * @throws URISyntaxException
@@ -123,19 +163,46 @@ public class URIUtil {
 	}	
 	
 	private static String getCorrectAuthority(URI uri) {
-		if (uri.getAuthority() == null)
+		if (uri.getAuthority() == null) {
 			return "";
+		}
+		return uri.getAuthority();
+	}
+	
+	private static String getCorrectAuthority(ISourceLocation uri) {
+		if (uri.getAuthority() == null) {
+			return "";
+		}
 		return uri.getAuthority();
 	}
 	
 	public static URI changeScheme(URI uri, String newScheme) throws URISyntaxException {
 		return create(newScheme, getCorrectAuthority(uri), uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
+	
+	public static ISourceLocation changeScheme(ISourceLocation loc, String newScheme) throws URISyntaxException {
+		ISourceLocation newLoc = vf.sourceLocation(newScheme, loc.getAuthority(), loc.getPath(), loc.getQuery(), loc.getFragment());
+		
+		if (loc.hasLineColumn()) {
+			newLoc = vf.sourceLocation(newLoc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+		}
+		else if (loc.hasOffsetLength()) {
+			newLoc = vf.sourceLocation(newLoc, loc.getOffset(), loc.getLength());
+		}
+		
+		return newLoc;
+	}
+	
 	public static URI changeAuthority(URI uri, String newAuthority) throws URISyntaxException {
 		return create(uri.getScheme(), newAuthority == null ? "" : newAuthority, uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
+	
 	public static URI changePath(URI uri, String newPath) throws URISyntaxException {
 		return create(uri.getScheme(), getCorrectAuthority(uri), newPath, uri.getQuery(), uri.getFragment());
+	}
+	
+	public static ISourceLocation changePath(ISourceLocation uri, String newPath) throws URISyntaxException {
+		return  vf.sourceLocation(uri.getScheme(), getCorrectAuthority(uri), newPath, uri.getQuery(), uri.getFragment());
 	}
 
 	public static URI changeQuery(URI uri, String newQuery) throws URISyntaxException {
@@ -173,6 +240,35 @@ public class URIUtil {
 		
 		return null; // there is no parent;
 	}
+	
+	public static ISourceLocation getParentLocation(ISourceLocation loc) {
+		File file = new File(loc.getPath());
+		File parent = file.getParentFile();
+		
+		if (parent != null && !parent.getName().isEmpty()) {
+			try {
+				return vf.sourceLocation(loc.getScheme(), loc.getAuthority(), parent.getPath(), loc.getQuery(), loc.getFragment());
+			} catch (URISyntaxException e) {
+				assert false;
+				return loc;
+			}
+		}
+		
+		return loc;
+	}
+	
+	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
+		File file = new File(loc.getPath());
+		File childFile = new File(file, child);
+		
+		try {
+			return vf.sourceLocation(loc.getScheme(), loc.getAuthority(), childFile.getPath(), loc.getQuery(), loc.getFragment());
+		} catch (URISyntaxException e) {
+			assert false;
+			return loc;
+		}
+	}
+	
 	public static URI getChildURI(URI uri, String child) {
 		File file = new File(uri.getPath());
 		File childFile = new File(file, child);
@@ -186,6 +282,11 @@ public class URIUtil {
 		return null; // there is no child?;
 	}
 	public static String getURIName(URI uri) {
+		File file = new File(uri.getPath());
+		return file.getName();
+	}
+	
+	public static String getLocationName(ISourceLocation uri) {
 		File file = new File(uri.getPath());
 		return file.getName();
 	}

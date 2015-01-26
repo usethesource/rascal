@@ -252,16 +252,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		case "ls": {
 			try {
 				ISourceLocation resolved = ctx.getHeap().resolveSourceLocation(value);
-				if (!URIResolverRegistry.getInstance().isDirectory(resolved.getURI())) {
+				if (!URIResolverRegistry.getInstance().isDirectory(resolved)) {
 					throw RuntimeExceptionFactory.io(vf.string("You can only access ls on a directory, or a container."), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
-				Result<IValue> resRes = makeResult(getType(), resolved, ctx);
 
 				IListWriter w = ctx.getValueFactory().listWriter();
-				Type stringType = tf.stringType();
 
-				for (String elem : URIResolverRegistry.getInstance().listEntries(resolved.getURI())) {
-					w.append(resRes.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
+				for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
+					w.append(elem);
 				}
 
 				IList result = w.done();

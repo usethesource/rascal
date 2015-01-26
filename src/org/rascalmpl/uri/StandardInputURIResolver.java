@@ -14,15 +14,16 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 
-public class StandardInputURIResolver implements IURIInputStreamResolver {
-	public boolean exists(URI uri) {
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
+public class StandardInputURIResolver implements ISourceLocationInput {
+	public boolean exists(ISourceLocation uri) {
 		return true;
 	}
 
-	public InputStream getInputStream(URI uri) throws IOException {
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		return System.in;
 	}
 
@@ -30,24 +31,23 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 		return "stdin";
 	}
 
-	public boolean isDirectory(URI uri) {
+	public boolean isDirectory(ISourceLocation uri) {
 		return false;
 	}
 
-	public boolean isFile(URI uri) {
+	public boolean isFile(ISourceLocation uri) {
 		return false;
 	}
 
-	public long lastModified(URI uri) {
+	public long lastModified(ISourceLocation uri) {
 		return 0L;
 	}
 
-	public String[] listEntries(URI uri) {
-		String [] ls = {};
-		return ls;
+	public ISourceLocation[] list(ISourceLocation uri) {
+		return new ISourceLocation[] { };
 	}
 
-	public String absolutePath(URI uri) {
+	public String absolutePath(ISourceLocation uri) {
 		return "stdin";
 	}
 	
@@ -56,7 +56,7 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
 	}
 }

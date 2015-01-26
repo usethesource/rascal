@@ -19,18 +19,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
 public class URIResolverRegistry {
-	private final Map<String,IURIInputStreamResolver> inputResolvers = new HashMap<String, IURIInputStreamResolver>();
-	private final Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
+	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<String, ISourceLocationInput>();
+	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<String, ISourceLocationOutput>();
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -42,13 +42,13 @@ public class URIResolverRegistry {
 		return InstanceHolder.sInstance;
 	}
 	
-	public void registerInput(IURIInputStreamResolver resolver) {
+	public void registerInput(ISourceLocationInput resolver) {
 		synchronized (inputResolvers) {
 			inputResolvers.put(resolver.scheme(), resolver);
 		}
 	}
 
-	public void registerOutput(IURIOutputStreamResolver resolver) {
+	public void registerOutput(ISourceLocationOutput resolver) {
 		synchronized (outputResolvers) {
 			outputResolvers.put(resolver.scheme(), resolver);
 		}
@@ -56,9 +56,9 @@ public class URIResolverRegistry {
 
 	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
 
-	private IURIInputStreamResolver getInputResolver(String scheme) {
+	private ISourceLocationInput getInputResolver(String scheme) {
 		synchronized (inputResolvers) {
-			IURIInputStreamResolver result = inputResolvers.get(scheme);
+			ISourceLocationInput result = inputResolvers.get(scheme);
 			if (result == null) {
 				Matcher m = splitScheme.matcher(scheme);
 				if (m.find()) {
@@ -70,9 +70,9 @@ public class URIResolverRegistry {
 		}
 	}
 
-	private IURIOutputStreamResolver getOutputResolver(String scheme) {
+	private ISourceLocationOutput getOutputResolver(String scheme) {
 		synchronized (outputResolvers) {
-			IURIOutputStreamResolver result = outputResolvers.get(scheme);
+			ISourceLocationOutput result = outputResolvers.get(scheme);
 			if (result == null) {
 				Matcher m = splitScheme.matcher(scheme);
 				if (m.find()) {
@@ -92,15 +92,15 @@ public class URIResolverRegistry {
 		return getOutputResolver(scheme) != null;
 	}
 
-	public void registerInputOutput(IURIInputOutputResolver resolver) {
+	public void registerInputOutput(ISourceLocationInputOutput resolver) {
 		registerInput(resolver);
 		registerOutput(resolver);
 	}
 
 	public boolean supportsHost(URI uri) {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 		if (resolver == null) {
-			IURIOutputStreamResolver resolverOther = getOutputResolver(uri.getScheme());
+			ISourceLocationOutput resolverOther = getOutputResolver(uri.getScheme());
 			if (resolverOther == null) {
 				return false;
 			}
@@ -109,8 +109,8 @@ public class URIResolverRegistry {
 		return resolver.supportsHost();
 	}
 
-	public boolean exists(URI uri) {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public boolean exists(ISourceLocation uri) {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			return false;
@@ -119,8 +119,8 @@ public class URIResolverRegistry {
 		return resolver.exists(uri);
 	}
 
-	public boolean isDirectory(URI uri) {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public boolean isDirectory(ISourceLocation uri) {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			return false;
@@ -128,8 +128,8 @@ public class URIResolverRegistry {
 		return resolver.isDirectory(uri);
 	}
 
-	public void mkDirectory(URI uri) throws IOException {
-		IURIOutputStreamResolver resolver = getOutputResolver(uri.getScheme());
+	public void mkDirectory(ISourceLocation uri) throws IOException {
+		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -140,29 +140,24 @@ public class URIResolverRegistry {
 		resolver.mkDirectory(uri);
 	}
 
-	public void remove(URI uri) throws IOException {
-		IURIOutputStreamResolver out = getOutputResolver(uri.getScheme());
+	public void remove(ISourceLocation uri) throws IOException {
+		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
 		if (out == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
-		try {
-			if (isDirectory(uri)) { 
-				for (String element : listEntries(uri)) {
-					remove(URIUtil.changePath(uri, uri.getPath() + "/" + element));
-				}
-			}
-
-			out.remove(uri);
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException("unexpected URI syntax error", e);
+		if (isDirectory(uri)) { 
+			for (ISourceLocation element : list(uri)) {
+				remove(element);
+			} 
 		}
+
+		out.remove(uri);
 	}
 
-	public boolean isFile(URI uri) {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public boolean isFile(ISourceLocation uri) {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			return false;
@@ -170,8 +165,8 @@ public class URIResolverRegistry {
 		return resolver.isFile(uri);
 	}
 
-	public long lastModified(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public long lastModified(ISourceLocation uri) throws IOException {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -179,30 +174,31 @@ public class URIResolverRegistry {
 		return resolver.lastModified(uri);
 	}
 
-	public String[] listEntries(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.listEntries(uri);
+		return resolver.list(uri);
 	}
 
 
-	public Reader getCharacterReader(URI uri) throws IOException {
+	public Reader getCharacterReader(ISourceLocation uri) throws IOException {
 		return getCharacterReader(uri, getCharset(uri));
 	}
 
-	public Reader getCharacterReader(URI uri, String encoding) throws IOException {
+	public Reader getCharacterReader(ISourceLocation uri, String encoding) throws IOException {
 		return getCharacterReader(uri, Charset.forName(encoding));
 	}
 
-	public Reader getCharacterReader(URI uri, Charset encoding) throws IOException {
+	public Reader getCharacterReader(ISourceLocation uri, Charset encoding) throws IOException {
 		return new UnicodeInputStreamReader(getInputStream(uri), encoding);
 
 	}
-	public InputStream getInputStream(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -211,8 +207,8 @@ public class URIResolverRegistry {
 		return resolver.getInputStream(uri);
 	}
 
-	public Charset getCharset(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
+	public Charset getCharset(ISourceLocation uri) throws IOException {
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -221,8 +217,8 @@ public class URIResolverRegistry {
 		return resolver.getCharset(uri);
 	}
 
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		IURIOutputStreamResolver resolver = getOutputResolver(uri.getScheme());
+	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
+		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -237,8 +233,8 @@ public class URIResolverRegistry {
 		return resolver.getOutputStream(uri, append);
 	}
 
-	private void mkParentDir(URI uri) throws IOException {
-		URI parentURI = URIUtil.getParentURI(uri);
+	private void mkParentDir(ISourceLocation uri) throws IOException {
+		ISourceLocation parentURI = URIUtil.getParentLocation(uri);
 
 		if (parentURI != null && !exists(parentURI)) {
 			mkDirectory(parentURI);

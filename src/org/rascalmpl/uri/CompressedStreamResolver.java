@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
@@ -13,8 +12,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-public class CompressedStreamResolver implements IURIInputOutputResolver {
+public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	private final URIResolverRegistry ctx;
 
@@ -27,7 +27,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 		return "compressed";
 	}
 	
-	private URI getActualURI(URI wrappedURI) throws IOException {
+	private ISourceLocation getActualURI(ISourceLocation wrappedURI) throws IOException {
 		String scheme = wrappedURI.getScheme();
 		if (scheme.length() <= "compressed+".length()) {
 			throw new IOException("Invalid scheme: \"" + scheme +"\"");
@@ -41,7 +41,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public InputStream getInputStream(URI uri) throws IOException {
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		InputStream result = ctx.getInputStream(getActualURI(uri));
 		if (result != null) {
 			try {
@@ -60,7 +60,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public OutputStream getOutputStream(URI uri, boolean append)
+	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
 		OutputStream result = ctx.getOutputStream(getActualURI(uri), append);
 		if (result != null) {
@@ -81,7 +81,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	
 	
 	private final Pattern getExtension = Pattern.compile("\\.([a-zA-Z0-9\\-]*)$");
-	private String detectCompression(URI uri) throws IOException {
+	private String detectCompression(ISourceLocation uri) throws IOException {
 		Matcher m = getExtension.matcher(uri.getPath());
 		if (m.find()) {
 			switch (m.group(1)) {
@@ -103,7 +103,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 
 	@Override
-	public boolean exists(URI uri) {
+	public boolean exists(ISourceLocation uri) {
 		try {
 			return ctx.exists(getActualURI(uri));
 		} catch (IOException e) {
@@ -112,12 +112,12 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return ctx.getCharset(getActualURI(uri));
 	}
 	
 	@Override
-	public boolean isDirectory(URI uri) {
+	public boolean isDirectory(ISourceLocation uri) {
 		try {
 			return ctx.isDirectory(getActualURI(uri));
 		} catch (IOException e) {
@@ -126,7 +126,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public boolean isFile(URI uri) {
+	public boolean isFile(ISourceLocation uri) {
 		try {
 			return ctx.isFile(getActualURI(uri));
 		} catch (IOException e) {
@@ -135,22 +135,22 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public long lastModified(URI uri) throws IOException {
+	public long lastModified(ISourceLocation uri) throws IOException {
 		return ctx.lastModified(getActualURI(uri));
 	}
 	
 	@Override
-	public String[] listEntries(URI uri) throws IOException {
-		return ctx.listEntries(getActualURI(uri));
+	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+		return ctx.list(getActualURI(uri));
 	}
 	
 	@Override
-	public void mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(ISourceLocation uri) throws IOException {
 		ctx.mkDirectory(getActualURI(uri));
 	}
 	
 	@Override
-	public void remove(URI uri) throws IOException {
+	public void remove(ISourceLocation uri) throws IOException {
 		ctx.remove(getActualURI(uri));
 	}
 	

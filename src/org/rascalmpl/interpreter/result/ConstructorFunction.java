@@ -71,12 +71,12 @@ public class ConstructorFunction extends NamedFunction {
 		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		IWithKeywordParameters<IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
-		Environment resultEnv = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
+		Environment resultEnv = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
 		
 		// first we compute the keyword parameters for the abstract data-type:
 		for (GenericKeywordParameters gkw : kws) {
 			// for hygiene's sake, each list of generic params needs to be evaluated in its declaring environment
-			Environment env = new Environment(gkw.getEnv(), vf.sourceLocation(URIUtil.rootScheme("initializer")), "kwp initializer");
+			Environment env = new Environment(gkw.getEnv(), URIUtil.rootLocation("initializer"), "kwp initializer");
 			
 			try {
 				ctx.setCurrentEnvt(env);
