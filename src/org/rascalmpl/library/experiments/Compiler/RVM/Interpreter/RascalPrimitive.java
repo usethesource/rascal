@@ -5271,7 +5271,7 @@ public enum RascalPrimitive {
 					for(int i = 0; i < indexArity; i++){
 						if(indices[i] != null){
 							IValue v = tup.get(i);
-							if(indices[i].getType().isSet()){
+							if(indices[i].getType().isSet() && !rel.getElementType().getFieldType(i).isSet()){
 								ISet s = (ISet) indices[i];
 								if(!s.contains(v)){
 									continue NextTuple;
