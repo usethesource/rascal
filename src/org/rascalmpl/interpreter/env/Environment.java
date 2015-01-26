@@ -555,10 +555,6 @@ public class Environment {
 					((ModuleEnvironment)getRoot()).addResourceImporter(function);
 				}
 			}
-
-			if (function.hasResolverScheme()) {
-				getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
-			}
 		}
 	}
 

@@ -10,25 +10,35 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 
 public class FunctionURIResolver implements IURIInputOutputResolver {
 	private final ICallableValue function;
 	private final Type[] types = new Type[] { TypeFactory.getInstance().sourceLocationType() };
 	private final IValue[] args = new IValue[] { null };
-	private final URIResolverRegistry reg;
+	private final URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	private final String scheme;
 	
 	public FunctionURIResolver(String scheme, ICallableValue function) {
 		this.scheme = scheme;
 		this.function = function;
-		this.reg = URIResolverRegistry.getInstance();
 	}
 	
-	public URI resolve(URI uri) {
-		args[0] = function.getEval().getValueFactory().sourceLocation(uri);
-		ISourceLocation result = (ISourceLocation) function.call(types, args, null);
-		return result.getURI();
+	public URI resolve(URI uri) throws IOException {
+		try {
+			IEvaluator<Result<IValue>> eval = function.getEval();
+			synchronized (eval) {
+				args[0] = eval.getValueFactory().sourceLocation(uri);
+				ISourceLocation result = (ISourceLocation) function.call(types, args, null).getValue();
+				return result.getURI();
+			}
+		}
+		catch (Throw e) {
+			throw new IOException(e.toString());
+		}
 	}
 	
 	@Override
@@ -43,7 +53,11 @@ public class FunctionURIResolver implements IURIInputOutputResolver {
 
 	@Override
 	public boolean exists(URI uri) {
-		return reg.exists(resolve(uri));
+		try {
+			return reg.exists(resolve(uri));
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -53,12 +67,20 @@ public class FunctionURIResolver implements IURIInputOutputResolver {
 
 	@Override
 	public boolean isDirectory(URI uri) {
-		return reg.isDirectory(resolve(uri));
+		try {
+			return reg.isDirectory(resolve(uri));
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	@Override
 	public boolean isFile(URI uri) {
-		return reg.isFile(resolve(uri));
+		try {
+			return reg.isFile(resolve(uri));
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	@Override

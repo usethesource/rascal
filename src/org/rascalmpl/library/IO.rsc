@@ -85,22 +85,6 @@ public bool bprintln(value arg)
   return true;
 }
 
-
-/*
- The following functions are identical to printExp and printlnExp, I have removed them -- Paul
-@doc{Synopsis: Prints message and returns the value.}
-public &T discardPrintExp(str s, &T t){
-	print(s);
-	return t;
-}
-
-@doc{Synopsis: Prints message on a line and returns the value.}
-public &T discardPrintlnExp(str s, &T t){
-	println(s);
-	return t;
-}
-*/
-
 @doc{
 Synopsis: Check whether a given location exists.
 
@@ -577,6 +561,9 @@ public void touch(loc file)
 throws PathNotFound(loc file), IO(str msg){
   appendToFile(file);
 }
+
+@javaClass{org.rascalmpl.library.Prelude}	
+java void registerResolver(str scheme, loc (loc) resolver);
 
 @doc{
 Synopsis: Read the contents of a location and return its MD5 hash.

@@ -25,14 +25,10 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -52,60 +48,18 @@ public class GlobalEnvironment {
 	private final HashMap<String, URI> moduleLocations = new HashMap<String,URI>();
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
-	/**
-	 * Source location resolvers map user defined schemes to primitive schemes
-	 */
-	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
-	
 	/** Keeping track of generated parsers */
 	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
 	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
 
-  private boolean bootstrapper;
+	private boolean bootstrapper;
 	
 	public void clear() {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
 		locationModules.clear();
-		sourceResolvers.clear();
 		objectParsersForModules.clear();
 		rascalParsersForModules.clear();
-	}
-	
-	/**
-	 * Register a source resolver for a specific scheme. Will overwrite the previously
-	 * registered source resolver for this scheme.
-	 * 
-	 * @param scheme   intended be a scheme name without + or :
-	 * @param function a Rascal function of type `loc (loc)`
-	 */
-	public void registerSourceResolver(String scheme, ICallableValue function) {
-		sourceResolvers.put(scheme, function);
-	}
-	
-	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
-		int pos;
-		
-		ICallableValue resolver = sourceResolvers.get(scheme);
-		if (resolver == null) {
-			for (char sep : new char[] {'+',':'}) {
-				pos = scheme.indexOf(sep);
-				if (pos != -1) {
-					scheme = scheme.substring(0, pos);
-				}
-			}
-
-			resolver = sourceResolvers.get(scheme);
-			if (resolver == null) {
-				return loc;
-			}
-		}
-		
-		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-		IValue[] argValues = new IValue[] { loc };
-		
-		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
 	
 	/**
