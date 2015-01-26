@@ -1,19 +1,17 @@
- module lang::rascal::tests::functionality::ComprehensionTests
- /*******************************************************************************
-   * Copyright (c) 2009-2011 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse Public License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
+@license{
+ Copyright (c) 2009-2011 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+ }
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::ComprehensionTests
+ 
 import Exception;
 import List;
   	
@@ -324,8 +322,11 @@ test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
 // emptyTupleGenerator
-// TODO:? @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
-// TODO:? @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError2() = {<X,Y> | <int X, int Y> <- []} == {} ;
+
+// @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
+
+// @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError2() = {<X,Y> | <int X, int Y> <- []} == {} ;
+
 test bool emptyTupleGeneratorError3() = {<X,Y> | int X <- {}, int Y <- {}} == {};
 test bool emptyTupleGeneratorError4() = {<X,Y> | int X <- [], int Y <- []} == {};
   

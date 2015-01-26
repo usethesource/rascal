@@ -99,7 +99,6 @@ public class Factory {
 	
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
-	public static final Type Symbol_START = tf.constructor(uptr, Symbol, "START");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", str, "string");
 	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", str, "string");
 	public static final Type Symbol_Empty = tf.constructor(uptr, Symbol, "empty");

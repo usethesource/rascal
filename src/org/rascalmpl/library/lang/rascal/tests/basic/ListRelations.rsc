@@ -16,7 +16,7 @@ test bool composition(lrel[int, str]X, lrel[str, int] Y) =
   all(<x, y> <- X o Y, z <- range(X), <x, z> in X, <z, y> in Y);
 
 test bool selection(lrel[&A fa, &B fb] X) =
-  X.fa == domain(X) && X.fb == range(X) && X.fa == X<0> && X.fb == X<1>;
+  domain(X) <= X.fa && range(X) <= X.fb && X.fa == X<0> && X.fb == X<1>;
   
 test bool \join(lrel[&A, &B]X, lrel[&B, &C, &D] Y) =
   isEmpty(X) ==> size(X join Y) == size(Y) ||
@@ -64,6 +64,7 @@ test bool tst_carrierX(lrel[int, int] X) {
 }
 
 test bool tst_complement(lrel[int, int] X) = 
+   isEmpty(X) ||
    isEmpty(complement(X)) || 
    complement(X) <= domain(X) * range(X) && all(<a, b> <- complement(X), <a, b> notin X);
    

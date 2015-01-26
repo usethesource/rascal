@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,34 +10,24 @@ module lang::rascal::grammar::definition::Names
 import ParseTree;
 import Grammar;
 
-import IO;
-
-Grammar resolve(Grammar g) {
-  def = resolve(\definition("main", ("main": \module("main", { }, { }, g))));
-  return /Grammar g := def ? g : "should not happen"; 
-}
-
 @doc{All uses of names are initially labeled 'sort', while declarations put
 them in four classes: normal, lex, keywords and layout. This function will
 mark all uses accordingly such that the proper interpretation can be done
 by semantic processing of parse trees
 }
-public GrammarDefinition resolve(GrammarDefinition d) {
-  cd = {n | m <- d.modules, \sort(n) <- d.modules[m].grammar.rules};
-  pcd = {n | m <- d.modules, \parameterized-sort(n,_) <- d.modules[m].grammar.rules};
-  lx = {n | m <- d.modules, \lex(n) <- d.modules[m].grammar.rules};
-  tk = {n | m <- d.modules, \token(n) <- d.modules[m].grammar.rules};
-  plx = {n | m <- d.modules, \parameterized-lex(n,_) <- d.modules[m].grammar.rules};
-  ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
-  ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
+public Grammar resolve(Grammar d) {
+  cd = {n | \sort(n) <- d.rules};
+  pcd = {n | \parameterized-sort(n,_) <- d.rules};
+  lx = {n | \lex(n) <- d.rules};
+  plx = {n | \parameterized-lex(n,_) <- d.rules};
+  ks = {n | \keywords(n) <- d.rules};
+  ls = {n | \layouts(n) <- d.rules};
   
-  println("tk: <tk>");
   return visit(d) {
     case sort(n) : {
       if (n in lx) insert \lex(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
-      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-sort(n,ps) : {
@@ -48,18 +38,10 @@ public GrammarDefinition resolve(GrammarDefinition d) {
       if (n in cd) insert \sort(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
-      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-lex(n,ps) : {
       if (n in pcd) insert \parameterized-sort(n,ps);
-      fail;
-    }
-    case \token(n) : {
-      if (n in cd) insert \sort(n);
-      if (n in ks) insert \keywords(n);
-      if (n in ls) insert \layouts(n);
-      if (n in lx) insert \lex(n);
       fail;
     }
   }

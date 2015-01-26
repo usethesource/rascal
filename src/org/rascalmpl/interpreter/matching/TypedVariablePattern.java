@@ -94,9 +94,9 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 
 		// isSubtypeOf does not know about concrete syntax types
 		// so deal with it here explicitly
-		if (declaredType instanceof NonTerminalType) {
-			Type subjectType = subject.getValue().getType(); 
-			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
+		if (declaredType instanceof NonTerminalType && subject.getValue().getType().isAbstractData()) {
+			IConstructor subjectTree = (IConstructor) subject.getValue();
+			if (TreeAdapter.isAppl(subjectTree) || TreeAdapter.isAmb(subjectTree)) {
 				IConstructor tree = (IConstructor)subject.getValue();
 
 				NonTerminalType nt = (NonTerminalType)declaredType;

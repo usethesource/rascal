@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ public Figure blockHand(num x, num y) = box(shrink(0.1, 0.7), align(x,y));
 
 public Figure mirror(Figure fig) = 
   visit (fig) {
-    case halign(x) => halign(1.0 - x)
+    case halign(num x) => halign(1.0 - x)
   };
 
 

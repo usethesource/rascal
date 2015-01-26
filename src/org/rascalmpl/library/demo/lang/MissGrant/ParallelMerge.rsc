@@ -13,8 +13,8 @@ import List;
 
 public Controller parMerge(Controller ctl1, Controller ctl2) =
    controller(dup(ctl1.events + ctl2.events),
-	unique(ctl1.resets + ctl2.resets),
-	unique(ctl1.commands + ctl2.commands),
+	dup(ctl1.resets + ctl2.resets),
+	dup(ctl1.commands + ctl2.commands),
 		mergeStates(ctl1, ctl2));
 
 private list[State] mergeStates(Controller ctl1, Controller ctl2) {

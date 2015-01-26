@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -13,8 +13,8 @@ start syntax Main = Boxx WhitespaceAndComment*;
 
 syntax Boxx
         = StrCon
-        | BoxOperator operator "[" Boxx* list "]"
-        | FontOperator operator "[" Boxx* list "]"
+        | BoxOperator box_operator "[" Boxx* list "]"
+        | FontOperator font_operator "[" Boxx* list "]"
         | "LBL" "[" StrCon "," Boxx "]"
         | "REF" "[" StrCon "," Boxx "]"
         | "CNT" "[" StrCon "," StrCon "]"

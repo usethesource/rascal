@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -307,7 +307,7 @@ public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && ! ( (allLabeled(l) && allLabeled(r)) || (allLabeled(l) && noneLabeled(r)) || (noneLabeled(l) && allLabeled(r)));
 
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
@@ -315,26 +315,30 @@ public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbo
 public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
 public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
 
-public Symbol lub(\bag(Symbol s), \bag(Symbol t)) = \bag(lub(s, t));
-public Symbol lub(\adt(str n, list[Symbol] _), \node()) = \node();
-public Symbol lub(\node(), \adt(str n, list[Symbol] _)) = \node();
-public Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, addParamLabels(lub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-public Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, lub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
-public Symbol lub(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp)) = \node() when n != m;
-public Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = lub(\adt(ln,lp),b);
+public Symbol lub(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(lub(s, t));
+public Symbol lub(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
+public Symbol lub(Symbol::\node(), \adt(str n, list[Symbol] _)) = Symbol::\node();
+public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, addParamLabels(lub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
+public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, lub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
+public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(str m, list[Symbol] rp)) = Symbol::\node() when n != m;
+public Symbol lub(Symbol::\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = lub(Symbol::\adt(ln,lp),b);
 
 public Symbol lub(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _)) = lub(la,ra);
-public Symbol lub(Symbol::\cons(Symbol a, _, list[Symbol] lp), \adt(str n, list[Symbol] rp)) = lub(a,\adt(n,rp));
-public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), \node()) = \node();
+public Symbol lub(Symbol::\cons(Symbol a, _, list[Symbol] lp), Symbol::\adt(str n, list[Symbol] rp)) = lub(a,Symbol::\adt(n,rp));
+public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), Symbol::\node()) = Symbol::\node();
 
-public Symbol lub(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
+public Symbol lub(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
 public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
 
-public Symbol lub(\parameter(str _, Symbol bound), Symbol r) = lub(bound, r);
-public Symbol lub(Symbol l, \parameter(str _, Symbol bound)) = lub(l, bound);
+public bool keepParams(Symbol::\parameter(str s1, Symbol bound1), Symbol::\parameter(str s2, Symbol bound2)) = s1 == s2 && equivalent(bound1,bound2);
 
-public Symbol lub(\reified(Symbol l), \reified(Symbol r)) = \reified(lub(l,r));
-public Symbol lub(\reified(Symbol l), \node()) = \node();
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = l when keepParams(l,r);
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = lub(bound1,bound2) when !keepParams(l,r);
+public Symbol lub(Symbol::\parameter(str _, Symbol bound), Symbol r) = lub(bound, r) when !(isTypeVar(r));
+public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bound) when !(isTypeVar(l));
+
+public Symbol lub(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(lub(l,r));
+public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
 	lubReturn = lub(lr,rr);
@@ -342,24 +346,24 @@ public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbo
 	if (isTupleType(lubParams))
 		return \func(lubReturn, lubParams.symbols);
 	else
-		return \value();
+		return Symbol::\value();
 }
 
-public Symbol lub(\label(_,Symbol l), Symbol r) = lub(l,r);
-public Symbol lub(Symbol l, \label(_,Symbol r)) = lub(l,r);
+public Symbol lub(Symbol::\label(_,Symbol l), Symbol r) = lub(l,r);
+public Symbol lub(Symbol l, Symbol::\label(_,Symbol r)) = lub(l,r);
 
 public list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [lub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
 public default list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [\value()]; 
 
-private bool allLabeled(list[Symbol] l) = all(li <- l, \label(_,_) := li);
-private bool noneLabeled(list[Symbol] l) = all(li <- l, \label(_,_) !:= li);
-private list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
-private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ \label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
+private bool allLabeled(list[Symbol] l) = all(li <- l, Symbol::\label(_,_) := li);
+private bool noneLabeled(list[Symbol] l) = all(li <- l, Symbol::\label(_,_) !:= li);
+private list[str] getLabels(list[Symbol] l) = [ s | li <- l, Symbol::\label(s,_) := li ];
+private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ Symbol::\label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
 private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; }
-private list[Symbol] stripLabels(list[Symbol] l) = [ (\label(_,v) := li) ? v : li | li <- l ]; 
+private list[Symbol] stripLabels(list[Symbol] l) = [ (Symbol::\label(_,v) := li) ? v : li | li <- l ]; 
 
-private list[str] getParamLabels(list[Symbol] l) = [ s | li <- l, \parameter(s,_) := li ];
-private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ \parameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
+private list[str] getParamLabels(list[Symbol] l) = [ s | li <- l, Symbol::\parameter(s,_) := li ];
+private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ Symbol::\parameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
 private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
 
 @doc{
@@ -464,7 +468,7 @@ public &T typeCast(type[&T] typ, value v) {
 }
 
 @doc{
-Synopsis: instantiate an ADT constructor of a given type with the given children
+Synopsis: instantiate an ADT constructor of a given type with the given children and optional keyword arguments
 
 Description:
 
@@ -472,6 +476,9 @@ This function will build a constructor if the definition exists and throw an exc
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
+
+@javaClass{org.rascalmpl.library.Type}
+public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
 
 @doc{
 Synopsis: returns the dynamic type of a value as a reified type

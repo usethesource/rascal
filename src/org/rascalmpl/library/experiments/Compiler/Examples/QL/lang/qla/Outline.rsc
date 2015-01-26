@@ -9,6 +9,9 @@ import List;
 import String;
 import Node;
 
+anno loc node@\loc;
+anno str node@\label;
+
 str type2str(QType t) = getName(t);
 
 node outline(Form f) {

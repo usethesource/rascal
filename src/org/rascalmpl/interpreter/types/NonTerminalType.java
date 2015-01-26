@@ -232,6 +232,6 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String toString() {
-		return SymbolAdapter.toString(symbol, true);
+		return SymbolAdapter.toString(symbol, false);
 	}
 }

@@ -267,8 +267,6 @@ test bool assignStep11() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L
 test bool assignStep12() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
 test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
 
-// TODO: The following tests fail in the interpreter
-
 @ignoreInterpreter{} test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
 @ignoreInterpreter{} test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
 @ignoreInterpreter{} test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
@@ -413,7 +411,7 @@ test bool tstSplit(list[&T] L) {
   return L1 + L2 == L;
 }
 
-test bool tstSum(list[int] L) = sum(L) == (0 | it + x | x <- L);
+test bool tstSum(list[int] L) = isEmpty(L) || sum(L) == (0 | it + x | x <- L);
 
 test bool tstTail(list[&T] L) = isEmpty(L) || (tail(L) == (size(L) == 1 ? [] : L[1..]));
 
@@ -449,10 +447,15 @@ test bool tstTakeWhile(list[int] L){
   return takeWhile(L, isEven) == takeEven(L);
 }
 
-test bool tstToMap(list[tuple[&A, &B]] L) = toMap(L) == toMap(toSet(L));
+test bool tstToMap(lrel[&A, &B] L)
+{
+	mapFromLRel = ListRelation::toMap(L);
+	mapFromRel = toMap(toSet(L));
+	return (k:toSet(mapFromLRel[k]) | k <- mapFromLRel) == mapFromRel;
+}
 
 test bool tstToMapUnique(list[tuple[&A, &B]] L) =
-  (size(domain(L)) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
+  (size(L<0>) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
 
 test bool tstTop(list[&T] L) = isEmpty(L) || top(L) == elementAt(L,0);
 

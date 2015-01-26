@@ -495,7 +495,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			  
 				if (hasKeywordArguments()) {
 				  KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
-				  Type kwFormals = function.getKeywordArgumentTypes();
+				  Type kwFormals = function.getKeywordArgumentTypes(eval.getCurrentEnvt());
 				
 				  if (keywordArgs.isDefault()){
 				    kwActuals = new HashMap<String,IValue>();
@@ -1047,20 +1047,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
-			if (!result.getType().isSubtypeOf(TF.stringType())) {
+			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
-			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
+			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
+				IConstructor tree = null;
+				
+				if (result.getType().isString()) {
+					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
 						this.getLocation().getURI(),
 						((IString) result.getValue()).getValue().toCharArray());
+				}
+				else if (result.getType().isSourceLocation()) {
+					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
+							((ISourceLocation) result.getValue()).getURI());
+				}
+				
+				assert tree != null; // because we checked earlier
 
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);
@@ -1757,7 +1767,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {
-					throw new ImplementationError(null);
+					throw new UnsupportedOperation("splicing match", type, this);
+//					throw new ImplementationError(null);
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
 			}

@@ -1,16 +1,21 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
-import Prelude;
+import IO;
+import Set;
+import Map;
+import Node;
+import Relation;
+import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckTypes; 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
+import experiments::Compiler::Rascal2muRascal::TypeReifier; 
+import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
 
 /*
  * This module provides a bridge to the "Configuration" delivered by the type checker
@@ -38,10 +43,10 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifie
 
 // A set of global values to represent the extracted information
 
-private Configuration config;
+private Configuration config;						// Config returned by the type checker
 
-alias UID = int;                                       // A UID is a unique identifier in the type checker configuration
-                                                       // with (integer) values in domain(config.store)
+alias UID = int;                                    // A UID is a unique identifier in the type checker configuration
+                                                    // with (integer) values in domain(config.store)
 
 /*
  * We will use FUID (for Flexible UID) to create a readable string representation for 
@@ -61,16 +66,29 @@ public map[UID uid, tuple[FUID fuid, int pos] fuid2pos] uid2addr = ();
 													// map uids to FUIDs and positions
 public map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
 
-public set[UID] modules = {};
-public set[UID] functions = {};						// declared functions
-public set[UID] defaultFunctions = {};				// declared default functions
-public set[UID] constructors = {};					// declared constructors
+private set[UID] modules = {};
+
+private set[UID] functions = {};						// declared functions
+
+public bool isFunction(UID uid) = uid in functions;
+
+private set[UID] defaultFunctions = {};				// declared default functions
+
+public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
+
+private set[UID] constructors = {};					// declared constructors
+
+public bool isConstructor(UID uid) = uid in constructors;
+public set[UID] getConstructors() = constructors;
+
 public set[UID] variables = {};						// declared variables
 
-map[str,int] module_var_init_locals = ();	        // number of local variables in module variable initializations
+private map[str,int] module_var_init_locals = ();	        // number of local variables in module variable initializations
 
-int getModuleVarInitLocals(str mname) = module_var_init_locals[mname];
-
+int getModuleVarInitLocals(str mname) {
+	assert module_var_init_locals[mname]? : "getModuleVarInitLocals <mname>";
+	return module_var_init_locals[mname];
+}
 public set[UID] keywordParameters = {};				// declared keyword parameters
 public set[UID] ofunctions = {};					// declared overloaded functions
 
@@ -81,22 +99,57 @@ public set[str] moduleNames = {};					// encountered module names
 
 public map[UID uid,str name] uid2name = (); 		// map uid to simple names, used to recursively compute qualified names
 @doc{Counters for different scopes}
-public map[UID uid,map[str,int] name2n] cases = (); // number of functions with the same type within a scope
-public map[UID uid,int n] blocks = ();              // number of blocks within a scope
-public map[UID uid,int n] closures = ();            // number of closures within a scope
-public map[UID uid,int n] bscopes = ();             // number of boolean scopes within a scope
+
+private map[UID uid,int n] blocks = ();             // number of blocks within a scope
+private map[UID uid,int n] closures = ();           // number of closures within a scope
+private map[UID uid,int n] bool_scopes = ();        // number of boolean scopes within a scope
+private map[UID uid,int n] sig_scopes = ();         // number of signature scopes within a scope
 
 @doc{Handling nesting}
 public rel[UID,UID] declares = {};
 public rel[UID,UID] containment = {};
 
+//public map[UID,UID] declaredIn = ();
+//public map[UID,UID] containedIn = ();
+
+alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
 public map[UID,str] uid2str = ();					// map uids to str
 
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
-public map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-public lrel[str,set[UID]] overloadedFunctions = [];	// list of overloaded functions
+private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
+private list[OFUN] overloadedFunctions = [];	// list of overloaded functions
+
+str unescape(str name) = name[0] == "\\" ? name[1..] : name;
+
+void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
+
+void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
+   
+	int n = indexOf(overloadedFunctions, fundescr);
+	if(n < 0){
+		n = size (overloadedFunctions);
+		overloadedFunctions += fundescr;
+	}
+	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	overloadingResolver[fuid1] = n;
+}
+
+public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
+
+public map[str,int] getOverloadingResolver() = overloadingResolver;
+
+
+bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
+
+OFUN getOverloadedFunction(FUID fuid) {
+	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
+	resolver = overloadingResolver[fuid];
+	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	return overloadedFunctions[resolver];
+}
 
 // Reset the above global variables, when compiling the next module.
 
@@ -116,10 +169,10 @@ public void resetScopeExtraction() {
 	
 	uid2name = ();
 	
-	cases = ();
 	blocks = ();
 	closures = ();
-	bscopes = ();
+	bool_scopes = ();
+	sig_scopes = ();
 	declares = {};
 	containment = {};
 	
@@ -170,10 +223,14 @@ void extractScopes(Configuration c){
 
    config = c;	
    
-   for(uid <- config.store){
+   for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
+      if(uid == 66){
+      	println("66: <item>");
+      }
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
+         	 //println("<uid>: <item>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -181,18 +238,12 @@ void extractScopes(Configuration c){
                  loc2uid[l] = uid;
              }
              // Fill in uid2name
-             str name = getFUID(getSimpleName(rname),rtype);
-             if(cases[inScope]?) {
-                 if(cases[inScope][name]?) {
-                     cases[inScope][name] = cases[inScope][name] + 1;
-                 } else {
-                    cases[inScope] = cases[inScope] + (name:0);
-                 }
-             } else {
-                cases[inScope] = (name:0);
-             }
-             name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
-             uid2name[uid] = name;
+             
+             fname = getSimpleName(rname);
+             suffix = fname == "main" || endsWith(fname, "_init") || endsWith(fname, "testsuite") ? 0 : src.begin.line;
+  
+             uid2name[uid] = getFUID(getSimpleName(rname),rtype,suffix);;
+        	 
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
              // Check if the function is default
@@ -203,13 +254,15 @@ void extractScopes(Configuration c){
              }
         }
         case overload(_,_): {
+             //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
+		     	//println("add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
         case variable(_,_,_,inScope,src):  { 
-        	 //println("uid: <uid>, src:, <src>, variable: <item>");
+        	 println("<uid>: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
@@ -222,6 +275,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
+             //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -249,6 +303,7 @@ void extractScopes(Configuration c){
              }
         }
         case blockScope(inScope,src): { 
+             //println("<uid>: <item>");
 		     containment += {<inScope, uid>};
 			 loc2uid[src] = uid;
 			 // Fill in uid2name
@@ -266,15 +321,29 @@ void extractScopes(Configuration c){
 		     containment += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
 			 // Fill in uid2name
-			 if(bscopes[inScope]?) {
-			    bscopes[inScope] = bscopes[inScope] + 1;
+			 if(bool_scopes[inScope]?) {
+			    bool_scopes[inScope] = bool_scopes[inScope] + 1;
 			 } else {
-			    bscopes[inScope] = 0;
+			    bool_scopes[inScope] = 0;
 			 }
-			 uid2name[uid] = "bscope#<bscopes[inScope]>";
+			 uid2name[uid] = "bool_scope#<bool_scopes[inScope]>";
 			 if(inScope == 0){
 			 	outerScopes += uid;
 			 }
+        }
+        case signatureScope(inScope,src): {
+             //println("<uid>: <item>");
+             containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
+             // Fill in uid2name
+             if(sig_scopes[inScope]?) {
+                sig_scopes[inScope] = sig_scopes[inScope] + 1;
+             } else {
+                sig_scopes[inScope] = 0;
+             }
+            uid2name[uid] = "sig_scope#<sig_scopes[inScope]>";
+             if(inScope == 0){
+                outerScopes += uid;
+             }
         }
         case closure(rtype,keywordParams,inScope,src): {
              functions += {uid};
@@ -295,7 +364,7 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ;//println("extractScopes: skipping <uid>: <item>");
+        default: ; //println("extractScopes: skipping <uid>: <item>");
       }
     }
     
@@ -308,8 +377,6 @@ void extractScopes(Configuration c){
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
     	
-   		// println("topdecls1: <topdecls>");
- 		// println("outerScopes: <outerScopes>");
  		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
  		
     	for(i <- index(topdecls)) {
@@ -348,18 +415,31 @@ void extractScopes(Configuration c){
 
 	// Fill in mapping of function uids to qualified names (enables invert mapping)
 	for(UID uid <- functions + constructors) {
-		uid2str[uid] = convert2fuid(uid);
+		if(!uid2str[uid]?){
+			uid2str[uid] = convert2fuid(uid);
+		} else {
+			throw "extractScopes: Duplicate entry in uid2str for <uid>, <convert2fuid(uid)>";
+		}	
 	}
+	
+	//println("constructors: <constructors>");
+	//
+	//for(cns <- constructors){
+	//   println("constructor: <cns>, keyword parameters: <config.store[cns].keywordParams>");
+	//
+	//}
 	
     for(UID fuid1 <- functions) {
     	nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         innerScopes = {fuid1} + containmentPlus[fuid1];
         // First, fill in variables to get their positions right
         keywordParams = config.store[fuid1].keywordParams;
+        
         // Filter all the non-keyword variables within the function scope
         // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
         decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+        
         fuid_str = uid2str[fuid1];
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
@@ -374,11 +454,49 @@ void extractScopes(Configuration c){
         }
         // Then, functions
         decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
-        											  closure(_,_,_,_) := config.store[uid] ];
+        											  closure(_,_,_,_) := config.store[uid]
+        											   ];
         for(i <- index(decls)) {
-        	uid2addr[decls[i]] = <uid2str[fuid1], -1>;
+            uid2addr[decls[i]] = <uid2str[fuid1], -1>;
         }
     }
+    
+    for(UID fuid1 <- constructors){
+        nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
+        innerScopes = {fuid1} + containmentPlus[fuid1];
+        // First, fill in variables to get their positions right
+
+        if(config.store[fuid1] has keywordParams){
+            keywordParams = config.store[fuid1].keywordParams;
+            
+            if(size(keywordParams) > 0){
+                // There may be default expressions with variables, so introduce avariable ddresses inside the companion function
+               // println("fuid1 = <fuid1>, nformals = <nformals>, innerScopes = <innerScopes>, keywordParams = <keywordParams>");
+                // Filter all the non-keyword variables within the function scope
+                // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
+                // Sort variable declarations to ensure that formal parameters get first positions preserving their order
+                decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+                
+                fuid_str = getCompanionForUID(fuid1);
+                //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
+                for(int i <- index(decls_non_kwp)) {
+                    // Note: we need to reserve positions for variables that will replace formal parameter patterns
+                    // '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
+                    uid2addr[decls_non_kwp[i]] = <fuid_str, i>;
+                }
+                // Filter all the keyword variables (parameters) within the function scope
+                decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+                //println("decls_kwp: <decls_kwp>");
+                for(int i <- index(decls_kwp)) {
+                    keywordParameters += decls_kwp[i];
+                    uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+                }
+            }
+        }
+
+    }
+    
+    //println("ofunctions = <ofunctions>");
     
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
@@ -404,8 +522,12 @@ void extractScopes(Configuration c){
     }
     
     //for(int uid <- uid2addr){
-    //	println("uid2addr[<uid>] = <uid2addr[uid]>");
+    //	if(uid in ofunctions)
+    //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
+    
+ //   declaredIn = toMapUnique(invert(declares));
+	//containedIn = toMapUnique(invert(containment));
     
     // Finally, extract all declarations for the benefit of the type reifier
     
@@ -413,8 +535,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
-
-//println("declareGeneratedFunction: <name>, <rtype>");
+	//println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
@@ -422,12 +543,16 @@ int declareGeneratedFunction(str name, Symbol rtype){
      
     // Fill in uid2name
     //name = getFUID(name,rtype);
-//println("name = <name>");
+	//println("name = <name>");
      
     uid2name[uid] = name;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
-    uid2str[uid] = name;
+    if(!uid2str[uid]?){
+    	uid2str[uid] = name;
+    } else {
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    }
     return uid;
 }
 
@@ -443,10 +568,14 @@ str getType(Tree e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) { 
-	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
+    tp = getType(e@\loc);
+	if(parameter(str _, Symbol bound) := tp) {
 		return "<getName(bound)>";
 	}
-	return "<getName(getType(e@\loc))>";
+	if(label(_, Symbol sym) := tp){
+	   return "<getName(sym)>";
+	}
+	return "<getName(tp)>";
 }
 
 /* 
@@ -457,6 +586,7 @@ str getOuterType(Tree e) {
  * Alternatively, the type of a function can be looked up by its @loc;   
  */
 Symbol getFunctionType(loc l) { 
+   assert loc2uid[l]? : "getFunctionType <l>";
    UID uid = loc2uid[l];
    fun = config.store[uid];
    if(function(_,Symbol rtype,_,_,_,_,_,_) := fun) {
@@ -467,6 +597,7 @@ Symbol getFunctionType(loc l) {
 }
 
 Symbol getClosureType(loc l) {
+   assert loc2uid[l]? : "getClosureType <l>";
    UID uid = loc2uid[l];
    cls = config.store[uid];
    if(closure(Symbol rtype,_,_,_) := cls) {
@@ -492,6 +623,7 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //          	if(l1 == l) println("EQUAL");
   //          }
   //println(	loc2uid[l] );
+  assert loc2uid[l]? : "getVariableScope <l>";
   uid = loc2uid[l];
   //println(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -501,14 +633,19 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 // Create unique symbolic names for functions, constructors and productions
 
 str getFUID(str fname, Symbol \type) { 
-    return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    res = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    //println("getFUID: <fname>, <\type> =\> <res>");
+    return res;
 }
 
 str getField(Symbol::label(l, t)) = "<t> <l>";
 default str getField(Symbol t) = "<t>";
 
-str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
-str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+str getFUID(str fname, Symbol \type, int case_num) =
+  "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+  	
+str getFUID(str modName, str fname, Symbol \type, int case_num) = 
+	"<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 
 // NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
 str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><getField(p)>;<}>)";
@@ -517,9 +654,17 @@ str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cn
 str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 
+
+str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
+
+str qualifiedNameToPath(QualifiedName qname){
+    str path = replaceAll("<qname>", "::", "/");
+    return replaceAll(path, "\\","");
+}
+
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
-		throw "uid2str is not applicable!";
+		throw "uid2str is not applicable for <uid>!";
 	}
 	str name = uid2name[uid];
 	declaredIn = toMapUnique(invert(declares));
@@ -547,6 +692,7 @@ str convert2fuid(UID uid) {
         }
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
 	}
+	//println("convert2fuid(<uid>) =\> <name>");
 	return name;
 }
 
@@ -568,7 +714,7 @@ public bool hasField(Symbol s, str fieldName){
     }
     // TODO: this is too liberal, restrict to outer type.
     visit(s){
-       case label(fieldName, _):	return true;
+       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
     }
     return false;
 }
@@ -599,29 +745,45 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
  *       on the number of formal parameters has been removed 
  */
 public MuExp mkCallToLibFun(str modName, str fname)
-	= muFun("<modName>/<fname>");
+	= muFun1("<modName>/<fname>");
 
 // Generate a MuExp to access a variable
 
+// Sort available overloading alternatives as follows:
+// First non-default (most recent first), then defaults (also most recent first).
+
+bool funIdLess(int n, int m) = n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+
+list[int] sortOverloadedFunctions(set[int] items){
+
+	//println("sortOverloadedFunctions: <items>");
+	defaults = [i | i <- items, i in defaultFunctions];
+	return sort(toList(items) - defaults, funIdLess) + sort(defaults, funIdLess);
+}
+
 MuExp mkVar(str name, loc l) {
+  //name = unescape(name);
+  println("mkVar: <name>, <l>");
   uid = loc2uid[l];
+  println("uid = <uid>");
+  iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
+  println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
+    //println("config.store[<uid>] = <config.store[uid]>");
+    list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
+    //println("ofuids = <ofuids>");
+    //for(nnuid <- ofuids){
+    //	println("<nnuid>: <config.store[nnuid]>");
+    //}
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = convert2fuid(config.usedIn[l]) + "/use:" + name;
+    str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
-    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
-    int i = size(overloadedFunctions);
-    if(!exists) {
-    	overloadedFunctions += <addr.fuid,ofuids>;
-    } else {
-    	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
-    }   
-    overloadingResolver[ofuid] = i;
+ 
+    addOverloadedFunctionAndResolver(ofuid, <addr.fuid,ofuids>);
   	return muOFun(ofuid);
   }
   
@@ -630,6 +792,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
+  println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 
@@ -653,10 +816,13 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
-	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | MuFunction func <- getFunctionsInModule() ];
+	         ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	         : func 
+	       | MuFunction func <- functions 
+	       ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+
     return visit(body) {
 	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
@@ -667,7 +833,7 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
         case muAssignVarDeref(str name,fromScope,int pos,MuExp exp) 
         													   => muAssignVarDeref(name,toScope,newPos,exp)
                                                                   when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
-	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
+	    case muFun2(str fuid,fromScope)                         => muFun2(fuid,toScope)
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }

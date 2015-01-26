@@ -12,11 +12,11 @@ module CompareShortestPath
 
 import  analysis::graphs::Graph;/* currently contains a Java version of the algorithm below */
 import Relation;
-import PriorityQueue;
-import Benchmark;
+import util::PriorityQueue;
+import util::Benchmark;
 import IO;
 import List;
-import Real;
+import util::Math;
 
 private rel[int,int] Graph ={};
 private map[int, int] distance =();
@@ -79,14 +79,14 @@ private int extractMinimum()
      return min;
 }
   
-private list[int] extractPath(int start, int u)
+private list[int] extractPath(int \start, int u)
 {
     list[int] path = [u];
-    while(pred[u] != start){
+    while(pred[u] != \start){
           u = pred[u];
           path = [u] + path;
     }
-    return [start] + path;
+    return [\start] + path;
 }
   
 public rel[int,int] Graph1 = {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7,7>,<7,0>,<3,10>,

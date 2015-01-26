@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,8 +27,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
@@ -43,25 +40,6 @@ public class SystemAPI {
 		
 	}
 	
-	public ISourceLocation resolveLoc(ISourceLocation loc, IEvaluatorContext ctx) {
-		URI uri = _resolveLoc(loc, ctx);
-		return ctx.getValueFactory().sourceLocation(uri);
-	}
-	
-	private URI _resolveLoc(ISourceLocation loc, IEvaluatorContext ctx) {
-		URI inputUri = loc.getURI();
-		if (inputUri.getScheme().equals("http")) return inputUri;
-		try {
-			URI  resourceUri = ctx.getResolverRegistry().getResourceURI(inputUri);
-			return resourceUri;	
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		
-	}
-
 	public IValue getSystemProperty(IString v) {
 		return values.string(java.lang.System.getProperty(v.getValue()));
 	}
@@ -98,8 +76,7 @@ public class SystemAPI {
 		java.lang.String b = java.lang.String.valueOf(input);
 		java.lang.String[] d = regex_replacement.length == 0 ? b.split("\n")
 				: new java.lang.String[] { b };
-		IListWriter r = values.listWriter(TypeFactory.getInstance()
-				.stringType());
+		IListWriter r = values.listWriter();
 		Pattern p = Pattern.compile("\\(\\w*\\)[ \t]*$");
 		java.lang.String found = null;
 		for (java.lang.String e : d) {

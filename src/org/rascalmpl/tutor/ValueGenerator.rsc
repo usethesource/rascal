@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -30,8 +30,8 @@ private int maxSize = 5;
 private int maxReal = maxInt;
 private int minReal = -maxReal;
 
-private list[RascalType] baseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \num(minInt,maxInt), \str(), \loc(), \datetime()];
-private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \str()];
+private list[RascalType] baseTypes = [RascalType::\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \num(minInt,maxInt), RascalType::\str(), RascalType::\loc(), RascalType::\datetime()];
+private list[RascalType] reducedBaseTypes = [RascalType::\bool(), \int(minInt,maxInt), \real(minReal,maxReal), RascalType::\str()];
 
 
 public RascalType parseType(str txt){
@@ -147,14 +147,14 @@ test parseType("void") == \void();
 public str toString(RascalType t){
      switch (t) {
        case \bool(): 				return "bool";
-       case \int(int f, int t):		return "int";
-       case \real(int f, int t):	return "real";
-       case \num(int f, int t): 	return "num";
+       case \int(int f, int t1):	return "int";
+       case \real(int f, int t1):	return "real";
+       case \num(int f, int t1): 	return "num";
        case \str(): 				return "str";
        case \loc():					return "loc";
-       case \dateTime():			return "datetime";
-       case \list(et,int f, int t): return "list[<toString(et)>]";
-       case \set(et,int f, int t):	return "set[<toString(et)>]";
+       case \datetime():			return "datetime";
+       case \list(et,int f, int t1): return "list[<toString(et)>]";
+       case \set(et,int f, int t1):	return "set[<toString(et)>]";
        case \map(kt, vt):			return "map[<toString(kt)>,<toString(vt)>]";
        case \tuple(list[RascalType] ets):	
        								return "tuple[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
@@ -185,8 +185,8 @@ public RascalType generateType(RascalType t){
 public RascalType generateType(RascalType t, VarEnv env){
      //println("generateType(<t>, <env>)");
      switch(t){
-       case \list(RascalType et, int f, int t): 	return \list(generateType(et, env), f, t);
-       case \set(RascalType et,  int f, int t):		return \set(generateType(et, env), f, t);
+       case \list(RascalType et, int f, int t1): 	return \list(generateType(et, env), f, t1);
+       case \set(RascalType et,  int f, int t1):	return \set(generateType(et, env), f, t1);
        case \map(RascalType kt, RascalType vt):  	return \map(generateType(kt, env), generateType(vt, env));
        case \tuple(list[RascalType] ets):			return generateTupleType(ets, env);
        case \rel(list[RascalType] ets):				return generateRelType(ets, env);
@@ -505,7 +505,7 @@ public str subst(str txt, VarEnv env){
 
 public str toString(tuple[RascalType rtype, str rval] v){
   //println("toString(<v>)");
-  if(v.rtype == \str() && stringChar(charAt(v.rval, 0)) != "\"")
+  if(v.rtype == RascalType::\str() && stringChar(charAt(v.rval, 0)) != "\"")
      return "\"<escape(v.rval, ("\"" : "\\\""))>\"";
   return v.rval;
 }

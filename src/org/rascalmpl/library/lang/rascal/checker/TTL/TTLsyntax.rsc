@@ -74,7 +74,8 @@ start syntax Expect =
        
 data Symbol = LUB(Symbol l, Symbol r);
               
-public loc TTLRoot = |rascal:///lang/rascal/checker/TTL/|;         // where TTL resides
+// TODO: we can't write to library locations anymore, but I don't see where this may be done immediately:              
+public loc TTLRoot = |std:///lang/rascal/checker/TTL/|;         // where TTL resides
 public str modulePrefix = "lang::rascal::checker::TTL::generated"; // where modules defined in TTL files reside
 public str TTL = "ttl"; 											// TTL language extension
 

@@ -7,7 +7,6 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -35,6 +34,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Types;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class IOCompiled extends IO {
@@ -45,8 +45,10 @@ public class IOCompiled extends IO {
 	private final StandardTextReader pdbReader;
 	private int separator;  	// The separator to be used between fields
 	private boolean header;		// Does the file start with a line defining field names?
-
+	
 	private TypeReifier tr;
+	
+	private boolean printInferredType;
 	
 	public IOCompiled(IValueFactory values){
 		super(values);
@@ -59,48 +61,48 @@ public class IOCompiled extends IO {
 		this.pdbReader = new StandardTextReader();
 	}
 	
-	private void setOptions(IBool header, IString separator) {
+	private void setOptions(IBool header, IString separator, IBool printInferredType) {
 		this.separator = separator == null ? ',' : separator.charAt(0);
 		this.header = header == null ? true : header.getValue();
+		this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
-		return read(null, loc, header, separator, encoding, rex);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, RascalExecutionContext rex){
+		return read(null, loc, header, separator, encoding, printInferredType, rex);
 	}
 	
 	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
-		return read(result, loc, header, separator, encoding, rex);
+		return read(result, loc, header, separator, encoding, values.bool(false), rex);
 	}
 
 
 	/*
 	 * Calculate the type of a CSV file, returned as the string 
 	 */
-	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
+	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, RascalExecutionContext rex){
 		return computeType(loc, header, separator, encoding, rex);
 	}
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex) {
-		setOptions(header, separator);
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, RascalExecutionContext rex) {
+		setOptions(header, separator, printInferredType);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
 		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
 			resultType = tr.valueToType((IConstructor)resultTypeConstructor, store);
 		}
-		System.err.println("resultTypeConstructor = " + resultTypeConstructor);
-		System.err.println("resultType = " + resultType);
+		
 		Type actualType = resultType;
 		while (actualType.isAliased()) {
 			actualType = actualType.getAliased();
 		}
 		Reader reader = null;
 		try {
-			reader = rex.getResolverRegistry().getCharacterReader(loc.getURI(), encoding.getValue());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI(), encoding.getValue());
 			if (actualType.isTop()) {
 				return readInferAndBuild(reader, store, rex);
 			}
@@ -124,7 +126,7 @@ public class IOCompiled extends IO {
 
 
 	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex) {
-		IValue csvResult = this.read(null, loc, header, separator, encoding, rex);
+		IValue csvResult = this.read(null, loc, header, separator, encoding, values.bool(true), rex);
 		return types2.typeToValue(csvResult.getType(), rex);
 	}
 	
@@ -208,8 +210,10 @@ public class IOCompiled extends IO {
 		}
 		Type tupleType = types.tupleType(currentTypes, labels);
 		Type resultType = types.setType(tupleType);
-		rex.getStdOut().println("readCSV inferred the relation type: " + resultType);
-		rex.getStdOut().flush();
+		if (this.printInferredType) {
+			rex.getStdOut().println("readCSV inferred the relation type: " + resultType);
+			rex.getStdOut().flush();
+		}
 		
 		IWriter result = values.setWriter();
 		for (IValue[] rec : records) {
@@ -413,7 +417,7 @@ public class IOCompiled extends IO {
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = new UnicodeOutputStreamWriter(rex.getResolverRegistry().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
+			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
 			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;

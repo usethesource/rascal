@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -57,7 +56,6 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
@@ -74,7 +72,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -104,7 +102,9 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.HereURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.HttpsURIResolver;
@@ -176,7 +176,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
 	private final Stack<String> indentStack = new Stack<String>(); // not sharable
-	private final RascalURIResolver rascalPathResolver; // sharable if frozen
+	private final RascalSearchPath rascalPathResolver; // sharable if frozen
 
 	private final URIResolverRegistry resolverRegistry; // sharable
 
@@ -184,10 +184,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
+		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
 	}
 
-	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalURIResolver rascalPathResolver) {
+	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
 		super();
 		
 		this.vf = vf;
@@ -221,6 +221,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		HttpURIResolver http = new HttpURIResolver();
 		resolverRegistry.registerInput(http);
 		
+		HereURIResolver here = new HereURIResolver();
+		resolverRegistry.registerInput(here);
+		
 		//added
 		HttpsURIResolver https = new HttpsURIResolver();
 		resolverRegistry.registerInput(https);
@@ -228,21 +231,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInputOutput(cwd);
 
-		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
+		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
 		resolverRegistry.registerInput(library);
 
-		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
 
-		resolverRegistry.registerInputOutput(rascalPathResolver);
-
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		// here we have code that makes sure that courses can be edited by
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
@@ -264,10 +267,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses"));
+		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
+		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInput(tutor);
 		
 		// default event trigger to swallow events
@@ -466,13 +469,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return javaBridge;
 	}
 
-	@Override	
-	public URIResolverRegistry getResolverRegistry() {
-		return resolverRegistry;
-	}
-
 	@Override
-	public RascalURIResolver getRascalResolver() {
+	public RascalSearchPath getRascalResolver() {
 		return rascalPathResolver;
 	}
 	
@@ -569,13 +567,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       AbstractFunction main = func.getFunctions().get(0);
       
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", main);
+    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
       }
       
       if (main.getArity() == 1) {
         return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
-      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+      else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
         return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }
@@ -598,11 +596,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    Map<String, Expression> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
-    for (Entry<String, Expression> kwp : kwps.entrySet()) {
-      expectedTypes.put(kwp.getKey(), kwp.getValue().getType().typeOf(func.getEnv(), false, func.getEval()));
+    for (String kwp : kwTypes.getFieldNames()) {
+      expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
     }
 
     Map<String, IValue> params = new HashMap<String,IValue>();
@@ -1388,12 +1386,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
-	  // TODO remove this code and replace by facility in rascal-eclipse to retrieve the
-	  // correct file references from a rascal:// URI
-//	  URI resolved = rascalPathResolver.resolve(location);
-//	  if(resolved != null){
-//	    location = resolved;
-//	  }
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	

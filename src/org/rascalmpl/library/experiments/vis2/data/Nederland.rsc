@@ -28,6 +28,7 @@ alias record = lrel[str year,
 public map[str, lrel[str, num]] exampleNederland() {
    record v = 
       readCSV(#record, location, header=true);  
+   // println(v);
    map[str, lrel[str, num]] r =
    ("p1900": [<q,  getOneFrom(v[q])[0]>|q<-v<0>],
     "p1910": [<q,  getOneFrom(v[q])[1]>|q<-v<0>],
@@ -42,7 +43,15 @@ public map[str, lrel[str, num]] exampleNederland() {
     "p2000": [<q,  getOneFrom(v[q])[10]>|q<-v<0>],
     "p2010": [<q,  getOneFrom(v[q])[11]>|q<-v<0>]
    );
-   return r;
+   map[str, lrel[str, num]] m = ();
+   str s = getOneFrom(r);
+   for (z<-r[s]) m[z[0]] = [];
+   for (p<-r) {
+       for (q<-r[p]) {
+           m[q[0]] = m[q[0]]+ <p, q[1]>;
+           }
+       }
+   return m;
    }
 
 public void main() {   

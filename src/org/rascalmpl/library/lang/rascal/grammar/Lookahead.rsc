@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -421,10 +421,44 @@ test bool tSF8() = SF[lit(")")] == {\char-class([range(41,41)])};
 test bool tSF9() = SF[sort("STRING")] == {\char-class([range(97,97)])};
 test bool tSF10() = SF[sort("Fact")] == {\char-class([range(33,33)])};
      
-test bool testFollow() = follow(Session, first(Session)) >=
- 	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
- 	 sort("Session"):{\char-class([range(41,41)]),eoi()},
- 	 sort("Facts"):{\char-class([range(63,63)])},
- 	 sort("STRING"):{\char-class([range(33,33),range(41,41),range(63,63)]),eoi()},
- 	 sort("Fact"):{\char-class([range(33,33),range(63,63)])}
- 	 );
+test bool testFollow() = follow(Session, first(Session)) >=     
+     (
+  lit(")"):{
+    \char-class([range(63,63)]),
+    \char-class([range(40,40)]),
+    \char-class([range(33,33)])
+  },
+  lit("("):{
+    \char-class([range(63,63)]),
+    \char-class([range(40,40)]),
+    \char-class([range(33,33)])
+  },
+  sort("STRING"):{
+    \char-class([range(63,63)]),
+    eoi(),
+    \char-class([range(41,41)]),
+    \char-class([range(33,33)])
+  },
+  sort("Session"):{
+    eoi(),
+    \char-class([range(41,41)])
+  },
+  lit("?"):{\char-class([range(97,97)])},
+  sort("Fact"):{
+    \char-class([range(63,63)]),
+    \char-class([range(33,33)])
+  },
+  sort("Facts"):{\char-class([range(63,63)])},
+  sort("Question"):{
+    eoi(),
+    \char-class([range(41,41)])
+  },
+  lit("!"):{\char-class([range(97,97)])},
+  lit("a"):{
+    \char-class([range(63,63)]),
+    eoi(),
+    \char-class([range(41,41)]),
+    \char-class([range(33,33)])
+  }
+);
+ 	 

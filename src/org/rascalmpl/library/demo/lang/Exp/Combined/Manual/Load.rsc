@@ -4,7 +4,6 @@ import demo::lang::Exp::Concrete::WithLayout::Syntax;  /*1*/
 import demo::lang::Exp::Abstract::Syntax;              /*2*/
 import demo::lang::Exp::Combined::Manual::Parse;       /*3*/
 import String;
-import ParseTree;
 
 public demo::lang::Exp::Abstract::Syntax::Exp loadExp(str txt) = load(parseExp(txt));        /*4*/
      

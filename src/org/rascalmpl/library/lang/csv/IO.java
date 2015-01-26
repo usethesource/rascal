@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class IO {
@@ -46,7 +47,7 @@ public class IO {
 
 	private TypeReifier tr;
 
-	private boolean printInferedType;
+	private boolean printInferredType;
 	
 	public IO(IValueFactory values){
 		super();
@@ -58,17 +59,17 @@ public class IO {
 		this.pdbReader = new StandardTextReader();
 	}
 	
-	private void setOptions(IBool header, IString separator, IBool printInferedType) {
+	private void setOptions(IBool header, IString separator, IBool printInferredType) {
 		this.separator = separator == null ? ',' : separator.charAt(0);
 		this.header = header == null ? true : header.getValue();
-		this.printInferedType = printInferedType == null ? false : printInferedType.getValue();
+		this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx){
-		return read(null, loc, header, separator, encoding, printInferedType, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, encoding, printInferredType, ctx);
 	}
 	
 	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
@@ -85,8 +86,8 @@ public class IO {
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx) {
-		setOptions(header, separator, printInferedType);
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx) {
+		setOptions(header, separator, printInferredType);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
 		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
@@ -98,7 +99,7 @@ public class IO {
 		}
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), encoding.getValue());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI(), encoding.getValue());
 			if (actualType.isTop()) {
 				return readInferAndBuild(reader, store, ctx);
 			}
@@ -137,7 +138,7 @@ public class IO {
 		return new String[0];
 	}
 
-	private void collectFields(FieldReader reader, final String[] currentRecord, IEvaluatorContext ctx) throws IOException {
+	private void collectFields(FieldReader reader, final String[] currentRecord, IEvaluatorContext ctx, int currentRecordCount) throws IOException {
 		int recordIndex = 0;
 		while (reader.hasField()) {
 			if (recordIndex < currentRecord.length) {
@@ -148,7 +149,7 @@ public class IO {
 			}
 		}
 		if (recordIndex != currentRecord.length) {
-			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ")", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 
@@ -175,13 +176,14 @@ public class IO {
 		Arrays.fill(currentTypes, types.voidType());
 
 		List<IValue[]> records = new LinkedList<>();
+		int currentRecordCount = 1;
 
 		do {
 			if (first) {
 				first = false;
 				continue;
 			}
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, ctx, currentRecordCount++);
 
 			IValue[] tuple = new IValue[currentRecord.length];
 			parseRecordFields(currentRecord, expectedTypes, store, tuple, false, ctx);
@@ -206,7 +208,7 @@ public class IO {
 		}
 		Type tupleType = types.tupleType(currentTypes, labels);
 		Type resultType = types.setType(tupleType);
-		if (this.printInferedType) {
+		if (this.printInferredType) {
 			ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
 			ctx.getStdOut().flush();
 		}
@@ -241,10 +243,11 @@ public class IO {
 			expectedTypes[i] = tupleType.getFieldType(i);
 		}
 
+		int currentRecordCount = 1;
 		final String[] currentRecord = new String[expectedTypes.length];
 		final IValue[] tuple = new IValue[expectedTypes.length];
 		while (reader.hasRecord()) {
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, ctx, currentRecordCount++);
 			if (first) {
 				first = false;
 				continue;
@@ -313,7 +316,7 @@ public class IO {
 				catch (UnexpectedTypeException ute) {
 					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
-				catch (FactParseError ex) {
+				catch (FactParseError | NumberFormatException ex) {
 					if (currentType.isTop()) {
 						result[i] = values.string(field);
 					}
@@ -411,7 +414,7 @@ public class IO {
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
+			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
 			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;
