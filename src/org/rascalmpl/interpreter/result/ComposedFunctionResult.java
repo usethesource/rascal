@@ -202,8 +202,8 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public boolean hasKeywordArgs() {
-	  return right.hasKeywordArgs();
+	public boolean hasKeywordArguments() {
+	  return right.hasKeywordArguments();
 	}
 	
 	public static class NonDeterministic extends ComposedFunctionResult {

@@ -5,6 +5,7 @@ import Node;
 import String;
 import IO;
 import List;
+import ListRelation;
 import util::Cursor;
 import Type;
 import lang::json::IO;
@@ -37,6 +38,8 @@ str propsToJSON(Figure child, Figure parent){
 	if (!isEmpty(child.tooltip))   properties += "\"tooltip\":<strArg(child.tooltip)>";
 	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
 													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
+						
+properties += "\"padding_top\": <numArg(child.padding[0])>, \"padding_left\": <numArg(child.padding[1])>,  \"padding_bottom\": <numArg(child.padding[2])>, \"padding_right\": <numArg(child.padding[3])>";
 												  
 	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
 	if(child.height != parent.height) 				properties += "\"height\": <numArg(child.height)>";
@@ -256,7 +259,7 @@ str trCursor(value v, bool deep = false){
 
 str toJSNumber(num n) {
 	s = "<n>";
-	return s[-1] == "." ? "<s>0" : s;
+	return (s[-1] == "." ? "<s>0" : s);
 }
 
 str escape(str s) = escape(s, (	"\"" : "\\\"", 
@@ -542,15 +545,44 @@ str trNVSeries(str key, Datasets[&T] ds) {
 }
 
 // ---------- Vega output
+// sum(range(domainR(v,{1})));
 
-str trVegaDataset(Datasets ds) = 
-	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
+num getClass(num lo, num hi, int N, num v) {
+    num r = round(lo +  floor(N*(v-lo)/(hi-lo))*(hi-lo)/N, 0.01);
+    // println("getClassR:<lo> <hi> <N> <r>");
+    return r;
+    }
 
-str trVegaSeries(str key, lrel[num x, num y] xyData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- xyData ]);
+XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
+      XYData r =  [<getClass(min(x[1]), max(x[1]), x.nTickMarks, d), 1>|d <-x[1]];
+      // println(r);
+      return r;
+      }
 
-str trVegaSeries(str key, lrel[str label, num val] labeledData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- labeledData ]);
+XYData inject(XYData r, num(list[num]) f) {
+     if (f == nullFunction) {return r;}
+     return [<k, f([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+     
+LabeledData inject(LabeledData r, num(list[num]) f) {
+     if (f == nullFunction) {return r;}
+     return [<k, f([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+// LabeledData
+
+
+str trVegaDataset(Datasets ds, num(list[num]) f) = 
+	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key], f) | key <- ds ])> ]";
+
+str trVegaSeries(str key, lrel[num x, num y] xyData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- inject(xyData, f)]);
+
+str trVegaSeries(str key, lrel[str label, num val] labeledData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(labeledData, f) ]);
+	
+str trVegaSeries(str key, tuple[int nTickMarks, list[num] val] histogramData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(getHistogramData(histogramData), 
+	   f == nullFunction? sum: f) ]);
 
 str trVegaSeries(str key, Datasets[&T] ds) {
 	throw "trVegaSeries: not recognized: <ds>";
@@ -564,8 +596,7 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	}
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
-	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
-
+	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets, chart.aggregate);
 	return
 	"{\"figure\": \"<chartType>\",
 	' \"flavor\": \"<chart.flavor>\", 
@@ -577,15 +608,13 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 }
 
 str trVega(Figure chart, Figure parent) {
-    str variable = chart.variable;
     str modul    = chart.\module;
     str dataFile = chart.dataFile;
-    str datasets = trVegaDataset(chart.datasets); 
-    println("trVega:<modul> <variable>");
+    str datasets = trVegaDataset(chart.datasets, chart.aggregate); 
+    // println(datasets);
     return 
     "{\"figure\": \"vega\",
     ' \"module\": \"<modul>\",
-    ' \"variable\": \"<variable>\", 
     ' <isEmpty(dataFile)?datasets:"\"data\":\"<dataFile>\"">
     ' <propsToJSON(chart, parent)>
     '}";   
@@ -594,22 +623,23 @@ str trVega(Figure chart, Figure parent) {
 
 // ---------- barChart ----------
 
-str figToJSON(chart: barChart(), Figure parent) {
+//str figToJSON(chart: barChart(), Figure parent) {
+//
+//	if(chart.orientation notin {"vertical", "horizontal"}){
+//		throw "orientation has illegal value: <chart.orientation>";
+//	}
+//	return trChart("barChart", chart, parent, 
+//		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+//}
 
-	if(chart.orientation notin {"vertical", "horizontal"}){
-		throw "orientation has illegal value: <chart.orientation>";
-	}
-	return trChart("barChart", chart, parent, 
-		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
-}
 
-str figToJSON(chart: vega(), Figure parent) {
+str figToJSON(chart: vegaChart(), Figure parent) {
 	return trVega(chart, parent);
 }
 
 // ---------- lineChart ----------
 
-str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
 
 // ---------- graph ----------

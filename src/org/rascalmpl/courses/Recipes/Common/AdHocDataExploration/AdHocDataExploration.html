@@ -129,7 +129,7 @@ rascal> countTrailingZeros(i);
 int: 249
 </pre> OK, so we're making progress.  Let's define another function to help us explore the data space:
   <pre class="listing">public void printLastTwenty (int n){
-    for(int i &lt;- [n-19..n]) {
+    for(int i &lt;- [n-19..n+1]) {
         println ("&lt;i>! has &lt;countTrailingZeros(fact(i))> trailing zeros.");
     }
 }
@@ -164,7 +164,7 @@ ok
  <pre class="listing">// Printout all i in [0..n] where i! has more trailing zeros than (i-1)!
 public void findLumps (int n) {
     int iMinusOneFactZeros = 0;
-    for (int i &lt;- [1..n]) {
+    for (int i &lt;- [1..n+1]) {
         int iFactZeros = countTrailingZeros(fact(i));
         int diff = iFactZeros - iMinusOneFactZeros ;
         if (diff >= 1) {
@@ -222,7 +222,7 @@ ok
   <pre class="listing">// We can parameterize the threshold to look for jumps of 2, 3, or 4 zeros
 public void findLumps2 (int n, int tao) {
     int iMinusOneFactZeros = 0;
-    for (int i &lt;- [1..n]) {
+    for (int i &lt;- [1..n+1]) {
         int iFactZeros = countTrailingZeros(fact(i));
         int diff = iFactZeros - iMinusOneFactZeros ;
         if (diff >= tao) {
@@ -284,7 +284,7 @@ ok
  Start a counter at zero, call it nz
 <br/>
 <br/>
- We want to examine i &lt;- [1..N]
+ We want to examine i &lt;- [1..N+1]
 </li>
 <li> If i  is not divisible by 5, ignore it</li>
 <li> If  i  is divisible by 5, add 1 to nz</li>
@@ -296,9 +296,9 @@ ok
  <pre class="listing">public int predictZeros (int N) {
     int k = floorLogBase(N, 5);  // I wrote this
     int nz = 0;
-    for (int i &lt;- [1..N] ){
+    for (int i &lt;- [1..N+1] ){
 	int p5 = 1;
-        for (int j &lt;- [1..k]) {
+        for (int j &lt;- [1..k+1]) {
     	    p5 *= 5;
     	    if (i % p5 == 0) {
 		nz += 1;
@@ -315,7 +315,7 @@ ok
  <pre class="listing">public void verifyTheory (int N) {
     int checkInterval = 100; // for printing
     bool failed = false;
-    for (int i &lt;- [1..N]) {
+    for (int i &lt;- [1..N+1]) {
         ifact=fact(i);
     	int p = predictZeros(i);
     	int c = countTrailingZeros(ifact);

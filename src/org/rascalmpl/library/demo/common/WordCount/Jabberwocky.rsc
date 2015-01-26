@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought‚Äî",
+	"Long time the manxome foe he sought.",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",

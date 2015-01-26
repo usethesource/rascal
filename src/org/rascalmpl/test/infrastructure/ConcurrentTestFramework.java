@@ -134,13 +134,13 @@ public class ConcurrentTestFramework {
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
 
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
 
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
+		resolverRegistry.registerInput(new ClassResourceInput("benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 
 	}
 

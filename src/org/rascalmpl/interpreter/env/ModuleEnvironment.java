@@ -68,6 +68,7 @@ public class ModuleEnvironment extends Environment {
 	protected Set<String> extended;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
+	protected Map<Type, List<KeywordFormal>> generalKeywordParameters;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	private boolean initialized;
 	private boolean syntaxDefined;
@@ -86,6 +87,7 @@ public class ModuleEnvironment extends Environment {
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
+		this.generalKeywordParameters = new HashMap<Type,List<KeywordFormal>>();
 		this.typeStore = new TypeStore();
 		this.initialized = false;
 		this.syntaxDefined = false;
@@ -167,6 +169,13 @@ public class ModuleEnvironment extends Environment {
 	      this.extended = new HashSet<String>();
 	    }
 	    this.extended.addAll(other.extended);
+	  }
+	  
+	  if (other.generalKeywordParameters != null) {
+		  if (this.generalKeywordParameters == null) {
+			  this.generalKeywordParameters = new HashMap<>();
+		  }
+		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
 	  }
 	  
 	  extendTypeParams(other);
@@ -558,7 +567,7 @@ public class ModuleEnvironment extends Environment {
 			
 			if (lst != null) {
 				for (AbstractFunction func : lst) {
-					if (func.isPublic() && func.getReturnType().equivalent(returnType)) {
+					if (func.isPublic() && returnType.isSubtypeOf(func.getReturnType())) {
 						collection.add(func);
 					}
 				}
@@ -578,13 +587,13 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams) {
-	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams);
+	private Type makeTupleType(Type adt, String name, Type tupleType) {
+	  return TF.constructorFromTuple(typeStore, adt, name, tupleType);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
-		Type cons = makeTupleType(adt, name, tupleType, keywordParams);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordFormal> initializers) {
+		Type cons = makeTupleType(adt, name, tupleType);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
 		markNameFinal(name);
@@ -611,6 +620,79 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public void declareAnnotation(Type onType, String label, Type valueType) {
 		typeStore.declareAnnotation(onType, label, valueType);
+	}
+	
+	@Override
+	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
+		List<KeywordFormal> list = generalKeywordParameters.get(adt);
+		if (list == null) {
+			list = new LinkedList<KeywordFormal>();
+			generalKeywordParameters.put(adt, list);
+		}
+
+		// TODO: check for duplicates and throw exceptions somewhere
+		list.addAll(formals);
+		
+		for (String label : kwTypes.getFieldNames()) {
+			typeStore.declareKeywordParameter(adt, label, kwTypes.getFieldType(label));
+		}
+	}
+	
+	@Override
+	public Map<String, Type> getKeywordParameterTypes(Type ontype) {
+		return typeStore.getKeywordParameters(ontype);
+	}
+	
+	public static class GenericKeywordParameters {
+		// kw params with default expressions:
+		final List<KeywordFormal> formals;
+		// environment in which they are declared:
+		final ModuleEnvironment env; 
+		final Map<String, Type> types;
+		
+		public GenericKeywordParameters(ModuleEnvironment env, List<KeywordFormal> formals, Map<String,Type> types) {
+			this.env = env;
+			this.formals = formals;
+			this.types = types;
+		}
+		
+		public Map<String, Type> getTypes() {
+			return types;
+		}
+		
+		public ModuleEnvironment getEnv() {
+			return env;
+		}
+		
+		public List<KeywordFormal> getFormals() {
+			return formals;
+		}
+	}
+	
+	@Override
+	public Set<GenericKeywordParameters> lookupGenericKeywordParameters(Type adt) {
+		Set<GenericKeywordParameters> result = new HashSet<>();
+		List<KeywordFormal> list = generalKeywordParameters.get(adt);
+		if (list != null) {
+			result.add(new GenericKeywordParameters(this, list, getStore().getKeywordParameters(adt)));
+		}
+		
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			
+			list = mod.generalKeywordParameters.get(adt);
+			if (list != null) {
+				result.add(new GenericKeywordParameters(mod, list, mod.getStore().getKeywordParameters(adt)));
+			}
+		}
+		
+		return result;
+	}
+	
+	
+	@Override
+	public void declareConstructorKeywordParameter(Type onType, String label, Type valueType) {
+		typeStore.declareKeywordParameter(onType, label, valueType);
 	}
 	
 	@Override

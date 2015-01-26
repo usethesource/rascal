@@ -30,11 +30,10 @@ import java.nio.charset.Charset;
 public class ClassResourceInput implements IURIInputStreamResolver {
 	protected final Class<?> clazz;
 	protected final String scheme;
-	protected final URIResolverRegistry registry;
+	protected final URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	protected final String prefix;
 
-	public ClassResourceInput(URIResolverRegistry registry, String scheme, Class<?> clazz, String prefix) {
-		this.registry = registry;
+	public ClassResourceInput(String scheme, Class<?> clazz, String prefix) {
 		this.clazz = clazz;
 		this.scheme = scheme;
 		this.prefix = normalizePrefix(prefix);
@@ -50,7 +49,7 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		return prefix;
 	}
 	
-	private String getPath(URI uri) {
+	protected String getPath(URI uri) {
 		String path = uri.getPath();
 		while (path.startsWith("/")) {
 			path = path.substring(1);
@@ -132,18 +131,6 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		}
 	}
 	
-	private String getParent(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? "/" : path.substring(0, n);
-	}
-	
-	private String getChild(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? path : path.substring(n);
-	}
-
 	public boolean supportsHost() {
 		return false;
 	}

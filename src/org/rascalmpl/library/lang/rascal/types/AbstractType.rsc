@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -104,11 +104,6 @@ private str prettyPrintCond(Condition::\follow(Symbol symbol)) = "\>\> <prettyPr
 private str prettyPrintCond(Condition::\not-follow(Symbol symbol)) = "!\>\> <prettyPrintType(symbol)>";
 private str prettyPrintCond(Condition::\precede(Symbol symbol)) = "<prettyPrintType(symbol)> \<\<";
 private str prettyPrintCond(Condition::\not-precede(Symbol symbol)) = "<prettyPrintType(symbol)> !\<\<";
-private str prettyPrintCond(Condition::\far-follow(Symbol symbol)) = "\>\>\> <prettyPrintType(symbol)>";
-private str prettyPrintCond(Condition::\far-not-follow(Symbol symbol)) = "!\>\>\> <prettyPrintType(symbol)>";
-private str prettyPrintCond(Condition::\far-precede(Symbol symbol)) = "<prettyPrintType(symbol)> \<\<\<";
-private str prettyPrintCond(Condition::\far-not-precede(Symbol symbol)) = "<prettyPrintType(symbol)> !\<\<\<";
-
 private str prettyPrintCond(Condition::\delete(Symbol symbol)) = "???";
 private str prettyPrintCond(Condition::\at-column(int column)) = "@<column>";
 private str prettyPrintCond(Condition::\begin-of-line()) = "^";
@@ -689,7 +684,7 @@ public bool isElementType(Symbol t) =
 	isIntType(t) || isBoolType(t) || isRealType(t) || isRatType(t) || isStrType(t) || 
 	isNumType(t) || isNodeType(t) || isVoidType(t) || isValueType(t) || isLocType(t) || 
 	isDateTimeType(t) || isTupleType(t) || isADTType(t) || isConstructorType(t) ||
-	isFunctionType(t) || isReifiedType(t);
+	isFunctionType(t) || isReifiedType(t) || isNonTerminalType(t);
 
 @doc{Is this type a container type?}
 public bool isContainerType(Symbol t) =
@@ -738,6 +733,20 @@ public default Symbol getNonTerminalIterElement(Symbol i) {
 	throw "<prettyPrintType(i)> is not an iterable non-terminal type";
 }	
 
+public bool isNonTerminalOptType(\alias(_,_,Symbol at)) = isNonTerminalOptType(at);
+public bool isNonTerminalOptType(\parameter(_,Symbol tvb)) = isNonTerminalOptType(tvb);
+public bool isNonTerminalOptType(\label(_,Symbol lt)) = isNonTerminalOptType(lt);
+public bool isNonTerminalOptType(Symbol::\opt(Symbol ot)) = true;
+public default bool isNonTerminalOptType(Symbol _) = false;
+
+public Symbol getNonTerminalOptType(\alias(_,_,Symbol at)) = getNonTerminalOptType(at);
+public Symbol getNonTerminalOptType(\parameter(_,Symbol tvb)) = getNonTerminalOptType(tvb);
+public Symbol getNonTerminalOptType(\label(_,Symbol lt)) = getNonTerminalOptType(lt);
+public Symbol getNonTerminalOptType(Symbol::\opt(Symbol ot)) = ot;
+public default Symbol getNonTerminalOptType(Symbol ot) {
+	throw "<prettyPrintType(ot)> is not an optional non-terminal type";
+}
+
 public bool isStartNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
 public bool isStartNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
 public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
@@ -785,17 +794,40 @@ public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal pas
 //public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Get the type parameters of a nonterminal.}
+//public list[Symbol] getNonTerminalTypeParameters(Symbol t) = [ rt | / Symbol rt : \parameter(_,_) := t ];
 public list[Symbol] getNonTerminalTypeParameters(Symbol t) {
-	if (Symbol::\parameterized-sort(n,ps) := unwrapType(t)) return ps;
-	if (Symbol::\parameterized-lex(n,ps) := unwrapType(t)) return ps;
-	if (Symbol::\iter(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-star(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-star-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\opt(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\conditional(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
-    throw "getNonTerminalTypeParameters given type <prettyPrintType(t)>, expected non-terminal type";
+	t = unwrapType(t);
+	if (Symbol::\parameterized-sort(n,ps) := t) return ps;
+	if (Symbol::\parameterized-lex(n,ps) := t) return ps;
+	if (Symbol::\start(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\opt(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\conditional(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\prod(s,_,_,_) := t) return getNonTerminalTypeParameters(s);
+    return [ ];
+}
+
+public Symbol provideNonTerminalTypeParameters(Symbol t, list[Symbol] ps) {
+	// Note: this function assumes the length is proper -- that we are replacing
+	// a list of params with a list of types that is the same length. The caller
+	// needs to check this.
+	
+	t = unwrapType(t);
+	
+	if (Symbol::\parameterized-sort(n,ts) := t) return t[parameters=ps];
+	if (Symbol::\parameterized-lex(n,ts) := t) return t[parameters=ps];
+	if (Symbol::\start(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-star(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-star-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\opt(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\conditional(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\prod(s,_,_,_) := t) return t[\sort=provideNonTerminalTypeParameters(s,ps)];
+    return t;
 }
 
 @doc{Synopsis: Determine if the given type is a production.}
@@ -831,9 +863,9 @@ public Symbol getProductionSortType(Symbol pr) {
 
 public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 
-public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
-public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
-public bool subtype(Symbol t, \adt("Tree",[])) = true when isNonTerminalType(t);
-public bool subtype(Symbol t, \node()) = true when isNonTerminalType(t);
+public bool subtype(Symbol::deferred(Symbol t), Symbol s) = subtype(t,s);
+public bool subtype(Symbol t, Symbol::deferred(Symbol s)) = subtype(t,s); 
+public bool subtype(Symbol t, Symbol::\adt("Tree",[])) = true when isNonTerminalType(t);
+public bool subtype(Symbol t, Symbol::\node()) = true when isNonTerminalType(t);
 // TODO: Do we also want to consider the separator?
-public bool subtype(\iter-seps(Symbol s, _), \iter-star-seps(Symbol t, _)) = subtype(s,t);
+public bool subtype(Symbol::\iter-seps(Symbol s, _), Symbol::\iter-star-seps(Symbol t, _)) = subtype(s,t);

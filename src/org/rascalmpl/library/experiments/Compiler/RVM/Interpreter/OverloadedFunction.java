@@ -21,6 +21,23 @@ public class OverloadedFunction {
 		}
 	}
 	
+	// The next four members are needed bij the bytecode generator.
+	public int[] getFuntions() {
+		return functions;
+	}
+
+	public int[] getConstructors() {
+		return constructors;
+	}
+	
+	public int getScope() {
+		return scopeIn ;
+	}
+	
+	public String getScopeFun() {
+		return funIn ;
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder("Overloaded: ");
 		if(functions.length > 0){

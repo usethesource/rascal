@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -417,6 +417,14 @@ test: size(text) == <N>;
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(set[&T] st);
 
+
+public (&T <:num) sum(set[(&T <:num)] _:{}) {
+	throw ArithmeticException(
+		"For the emtpy set it is not possible to decide the correct precision to return.\n
+		'If you want to call sum on empty set, use sum({0.000}+st) or sum({0r} +st) or sum({0}+st) 
+		'to make the set non-empty and indicate the required precision for the sum of the empty set 
+		");
+}
 @doc{
 Synopsis: Sum the elements of a set.
 
@@ -442,13 +450,8 @@ hint: <H>
 test: sum(<S>)
 
 }
-
-public num sum(set[num] s) {
-  if(size(s) == 0)
-     return 0;
-  <f ,r> = takeOneFrom(s);
-  return (f | it + e | e <- r);
-}
+public default (&T <:num) sum({(&T <: num) e, *(&T <: num) r})
+	= (e | it + i | i <- r);
 
 
 @doc{

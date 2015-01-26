@@ -3,7 +3,7 @@
 
 @license{
 
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
      if(allowVars){
 	     if(arbInt(0,3) == 0){ // Use existing variable
 	        for(str var <- env){
-	            if(env[var].symbol == #t.symbol){          // TODO: maybe wrong
+	            if(env[var].symbol == t.symbol){
 	               return <var, env[var].val, nvars, env>;
 	             }
 	        } 

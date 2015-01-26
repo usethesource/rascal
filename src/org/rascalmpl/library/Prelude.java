@@ -47,7 +47,6 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -107,6 +106,8 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -992,7 +993,7 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(ctx.getResolverRegistry().exists(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().exists(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
@@ -1000,7 +1001,7 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
+			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc.getURI()));
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
@@ -1012,20 +1013,20 @@ public class Prelude {
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(ctx.getResolverRegistry().isDirectory(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
+		return values.bool(URIResolverRegistry.getInstance().isFile(sloc.getURI()));
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
 	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
       sloc = ctx.getHeap().resolveSourceLocation(sloc);
-      ctx.getResolverRegistry().remove(sloc.getURI());
+      URIResolverRegistry.getInstance().remove(sloc.getURI());
     }
     catch (IOException e) {
       RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1036,7 +1037,7 @@ public class Prelude {
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
 	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
-	    ctx.getResolverRegistry().mkDirectory(sloc.getURI());
+	    URIResolverRegistry.getInstance().mkDirectory(sloc.getURI());
 	  }
 	  catch (IOException e) {
 	    RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -1048,7 +1049,7 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
+			java.lang.String [] entries = URIResolverRegistry.getInstance().listEntries(sloc.getURI());
 			IListWriter w = values.listWriter();
 			for(java.lang.String entry : entries){
 				w.append(values.string(entry));
@@ -1075,12 +1076,12 @@ public class Prelude {
 	  Reader reader = null;
 	  
 		try {
-			Charset c = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			Charset c = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 			if (c != null) {
 				return readFileEnc(sloc, values.string(c.name()), ctx);
 			}
 			sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		  reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+		  reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
       return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
@@ -1103,7 +1104,7 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
-		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue())){
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(), charset.getValue())){
 			return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
@@ -1192,35 +1193,27 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue md5HashFile(ISourceLocation sloc, IEvaluatorContext ctx){
-		StringBuilder result = new StringBuilder(1024 * 1024);
-		
-		InputStream in = null;
-		try{
-			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI())){
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			in = new DigestInputStream(in, md);
 			byte[] buf = new byte[4096];
 			int count;
 
 			while((count = in.read(buf)) != -1){
-				result.append(new java.lang.String(buf, 0, count));
+				md.update(buf, 0, count);
 			}
 			
-			return values.string(new String(md.digest()));
+			byte[] hash = md.digest();
+			StringBuffer result = new StringBuffer();
+			for (int i = 0; i < hash.length; i++) {
+				result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			return values.string(result.toString());
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), ctx.getCurrentAST(), null);
-		}finally{
-			if(in != null){
-				try{
-					in.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
-				}
-			}
 		}
 	}
 
@@ -1244,9 +1237,9 @@ public class Prelude {
 			InputStream in = null;
 			Charset detected = null;
 			try {
-				detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+				detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 				if (detected == null) {
-					in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+					in = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
 					detected = UnicodeDetector.estimateCharset(in);
 				}
 			}catch(FileNotFoundException fnfex){
@@ -1287,7 +1280,7 @@ public class Prelude {
 		}
 		
 		try{
-			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
+			out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), append), charset.getValue(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
@@ -1321,7 +1314,7 @@ public class Prelude {
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
 		try{
-			OutputStream stream = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), false);
+			OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(sloc.getURI(), false);
 			out = new BufferedOutputStream(stream);
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
@@ -1363,11 +1356,11 @@ public class Prelude {
 	  Reader reader = null;
 	  
 		try {
-			Charset detected = ctx.getResolverRegistry().getCharset(sloc.getURI());
+			Charset detected = URIResolverRegistry.getInstance().getCharset(sloc.getURI());
 			if (detected != null) {
 				return readFileLinesEnc(sloc, values.string(detected.name()), ctx);
 			}
-			reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI());
       return consumeInputStreamLines(sloc, reader, ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
@@ -1391,7 +1384,7 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			return consumeInputStreamLines(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
+			return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc.getURI(),charset.getValue()), ctx);
 		}catch(MalformedURLException e){
 		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
@@ -1466,7 +1459,7 @@ public class Prelude {
 		
 		BufferedInputStream in = null;
 		try{
-			InputStream stream = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+			InputStream stream = URIResolverRegistry.getInstance().getInputStream(sloc.getURI());
 			in = new BufferedInputStream(stream);
 			int read;
 			final int size = 256;
@@ -2230,15 +2223,15 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getURI());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2256,16 +2249,16 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2283,16 +2276,16 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc);
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2319,7 +2312,7 @@ public class Prelude {
 		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
 	}
 	
-	private java.lang.String unescapedConsName(IConstructor tree) {
+	protected java.lang.String unescapedConsName(IConstructor tree) {
 		java.lang.String x = TreeAdapter.getConstructorName(tree);
 		if (x != null) {
 			x = x.replaceAll("\\\\", "");
@@ -2327,7 +2320,7 @@ public class Prelude {
 		return x;
 	}
 
-	private Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+	protected Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
 		Set<Type> constructors = new HashSet<Type>();
 		
 		for (Type constructor : store.lookupConstructor(type, constructorName)) {
@@ -3386,9 +3379,17 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
-		File f = new File(ctx.getResolverRegistry().getResourceURI(g.getURI()));
-		if (!f.exists() || f.isDirectory()) throw new IOException();
-		return values.integer(f.length());
+		if (g.getURI().getScheme().equals("file")) {
+			File f = new File(g.getURI());
+			if (!f.exists() || f.isDirectory()) { 
+				throw new IOException(g.toString());
+			}
+			
+			return values.integer(f.length());
+		}
+		else {
+			return values.integer(((IString) readFile(g, ctx)).getValue().getBytes().length);
+		}
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
@@ -3409,7 +3410,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(ctx.getResolverRegistry().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
 			return new BinaryValueReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3480,7 +3481,7 @@ public class Prelude {
 		
 		InputStream in = null;
 		try{
-			in = new BufferedInputStream(ctx.getResolverRegistry().getInputStream(loc.getURI()));
+			in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
 			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3520,8 +3521,8 @@ public class Prelude {
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
 		OutputStream out = null;
-		try {
-			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false); 
+		try{
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false); 
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		} catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
@@ -3542,7 +3543,7 @@ public class Prelude {
 	  
 		OutputStream out = null;
 		try{
-			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
 			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}
 		 catch(IOException e) {

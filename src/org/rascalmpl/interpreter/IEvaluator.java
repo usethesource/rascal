@@ -35,7 +35,7 @@ import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.IguanaParserGenerator;
@@ -107,7 +107,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public IConstructor getGrammar(Environment env);
 	
-	public RascalURIResolver getRascalResolver();
+	public RascalSearchPath getRascalResolver();
 
 	public IConstructor parseCommand(IRascalMonitor monitor, String command,
 			URI location);
@@ -131,8 +131,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public Result<IValue> evalMore(IRascalMonitor monitor, String commands,
 			URI location);
-
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri);
 
 	public IValue call(String name, IValue... args);
 	

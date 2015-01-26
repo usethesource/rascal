@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2014 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ data AbstractValue
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
     | blockScope(int containedIn, loc at)
+    | signatureScope(int containedIn, loc at)
     ;
 
 data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
@@ -111,6 +112,7 @@ data Configuration = config(set[Message] messages,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
+                            rel[int,loc] narrowedUses,
                             map[loc,int] usedIn,
                             rel[int,int] adtConstructors,
                             rel[int,int] nonterminalConstructors,
@@ -130,7 +132,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -200,7 +202,7 @@ public int definingContainer(Configuration c, int i) {
 public list[int] upToContainer(Configuration c, int i) {
 	// NOTE: The reason we do not need to check for overload here is because the current context can
 	// never be an overload -- it has to be some actual scope item that could be put on the stack.
-    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure || c.store[i] is signatureScope) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -664,6 +666,13 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		itemId = addAlias();
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
+	} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
+		if (c.store[c.typeEnv[n]].rtype == rt) {
+			c.definitions = c.definitions + < c.typeEnv[n], l >;
+		} else {
+			itemId = addAlias();
+			c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
+		}
 	} else if (n in c.typeEnv) {
 		// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
@@ -1060,7 +1069,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft2) <- prod.symbols) {
+	for(psym <- prod.symbols, \label(str fn, Symbol ft2) := removeConditional(psym)) {
 		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
@@ -1129,7 +1138,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
 
-    if (fullSortName notin c.typeEnv && registerName) {
+    if ((rn notin c.typeEnv && fullSortName notin c.typeEnv) && registerName) {
     	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
     	return c;
     }
@@ -1375,6 +1384,18 @@ public anno set[loc] Symbol@definedAt;
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
 private default Symbol stripLabel(Symbol t) = t;
 
+public Configuration enterSignature(Configuration c, loc l) {
+    c.store[c.nextLoc] = signatureScope(head(c.stack), l);
+    c.stack = c.nextLoc + c.stack;
+    c.nextLoc = c.nextLoc + 1;
+    return c;
+}
+
+public Configuration leaveSignature(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+    return recoverEnvironments(c,cOrig);
+}
+
 public Configuration enterBlock(Configuration c, loc l) {
     c.store[c.nextLoc] = blockScope(head(c.stack), l);
     c.stack = c.nextLoc + c.stack;
@@ -1401,3 +1422,21 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
+
+private bool ignoreDeclaration(Tags tags){
+    map[str,str] getTags(Tags tags){
+       m = ();
+       for(tg <- tags.tags){
+         str name = "<tg.name>";
+         if(tg is \default){
+            cont = "<tg.contents>"[1 .. -1];
+            m[name] = cont;
+         } else if (tg is empty)
+            m[name] = "";
+         else
+            m[name] = "<tg.expression>"[1 .. -1];
+       }
+       return m;
+    }
+    return !isEmpty(domain(getTags(tags)) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+}

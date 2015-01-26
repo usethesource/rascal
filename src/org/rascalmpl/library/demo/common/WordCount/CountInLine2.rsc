@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -22,3 +22,7 @@ public int countInLine2(str S){
   }
   return count;
 }
+
+test bool tstCountInLine2a() = countInLine2("") == 0;
+
+test bool tstCountInLine2b() = countInLine2("Jabberwocky by Lewis Carroll") == 4;

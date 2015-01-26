@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -169,22 +169,22 @@ public str reserved(str name) {
 }
 
 test bool noAttrs() = prod2rascal(prod(sort("ID-TYPE"), [sort("PICO-ID"),lit(":"),sort("TYPE")],{}))
-     == "PICO_ID \":\" TYPE ";
+     == "PICO-ID \":\" TYPE ";
 
 test bool AttrsAndCons() = prod2rascal(
      prod(label("decl",sort("ID-TYPE")), [sort("PICO-ID"), lit(":"), sort("TYPE")],
               {\assoc(left())})) ==
-               "left decl: PICO_ID \":\" TYPE ";
+               "left decl: PICO-ID \":\" TYPE ";
                
 test bool CC() = prod2rascal(
 	 prod(label("whitespace",sort("LAYOUT")),[\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],{})) ==
-	 "whitespace: [\\t\\n\\r\\ ] ";
+	 " whitespace: [\\t \\n \\a0D \\ ] ";
 
 test bool Prio() = prod2rascal(
 	priority(sort("EXP"),[prod(sort("EXP"),[sort("EXP"),lit("||"),sort("EXP")],{}),
 	                   prod(sort("EXP"),[sort("EXP"),lit("-"),sort("EXP")],{}),
 	                   prod(sort("EXP"),[sort("EXP"),lit("+"),sort("EXP")],{})])) ==
-	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";	
+	"EXP \"||\" EXP \n\> EXP \"-\" EXP \n\> EXP \"+\" EXP ";	
 
 public str attr2mod(Attr a) {
   switch(a) {
@@ -331,6 +331,9 @@ public str range2rascal(CharRange r) {
   switch (r) {
     case range(c,c) : return makeCharClassChar(c);
     case range(c,d) : return "<makeCharClassChar(c)>-<makeCharClassChar(d)>";
+    //TODO:
+    //case \empty-range():
+    //                  return "";
     default: throw "range2rascal: missing case <r>";
   }
 }

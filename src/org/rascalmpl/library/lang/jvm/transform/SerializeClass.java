@@ -54,6 +54,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SerializeClass {
@@ -64,7 +65,7 @@ public class SerializeClass {
 	
 	public void serialize(IConstructor c, ISourceLocation path,IEvaluatorContext ctx){
 		try {
-			OutputStream output = ctx.getResolverRegistry().getOutputStream(path.getURI(), false);
+			OutputStream output = URIResolverRegistry.getInstance().getOutputStream(path.getURI(), false);
 			new SerializeClassImplementation().serialize(c, output);
 		} catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(path, null, null);
