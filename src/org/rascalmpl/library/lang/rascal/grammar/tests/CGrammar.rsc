@@ -60,20 +60,21 @@ sort("StructDeclarator"): choice(sort("StructDeclarator"),{prod(sort("StructDecl
 )
 );
 
-str generateC() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
+loc CParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/CParser.java.gz|;
 
-void generateAndWriteC(){
-	writeFile(|home:///CParserCOMP.java|, generateC());
+str generateCParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
+
+void generateAndWriteCParser(){
+	writeFile(CParserLoc, generateCParser());
 }
 
-int generateAndTimeC() { 
-	println("GenerateAndTimeC");
+int generateAndTimeCParser() { 
+	println("GenerateAndTimeCParser");
 	t = cpuTime(); 
-	generateC();
+	generateCParser();
 	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) { generateAndWriteC(); return true; }
+value main(list[value] args) { return generateAndTimeCParser(); }
 
-test bool tstNewGenerateC() = 
-	sameLines(generateC(), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/CParser.java.gz|));
+test bool tstGenerateCParser() = sameLines(generateCParser(), readFile(CParserLoc));

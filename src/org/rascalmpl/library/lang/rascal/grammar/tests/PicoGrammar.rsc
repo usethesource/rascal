@@ -30,21 +30,20 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 
 );
 
-str generatePico() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
+loc PicoParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|;
 
-void generateAndWritePico(){
-	writeFile(|home:///PicoParser.java.gz|, generatePico());
+str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
+
+void generateAndWritePicoParser(){
+	writeFile(PicoParserLoc, generatePicoParser());
 }
 
-int generateAndTimePico() { 
+int generateAndTimePicoParser() { 
 	t = cpuTime(); 
-	n = size(split("\n", generatePico()));
-	dur = (cpuTime() - t)/1000000;;
-	println("<n> lines, <dur> msec");
-	return dur;
+	generatePicoParser();
+	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) = generateAndTimePico();
+value main(list[value] args) = generateAndTimePicoParser();
 
-test bool tstNewGeneratePico() = 
-	sameLines(generatePico(), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|));
+test bool tstgeneratePicoParser() = sameLines(generatePicoParser(), readFile(PicoParserLoc));
