@@ -15,6 +15,7 @@
 package org.rascalmpl.uri;
 
 import java.io.FileNotFoundException;
+import java.io.FilterReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -343,9 +344,68 @@ public class URIResolverRegistry {
 
 	public Reader getCharacterReader(ISourceLocation uri, Charset encoding) throws IOException {
 		uri = safeResolve(uri);
-		return new UnicodeInputStreamReader(getInputStream(uri), encoding);
-
+		Reader res = new UnicodeInputStreamReader(getInputStream(uri), encoding);
+		return uri.hasOffsetLength() ? new OffsetLengthReader(res, uri.getOffset(), uri.getLength()) : res;
 	}
+	
+	private static class OffsetLengthReader extends FilterReader {
+		private final int len;
+		private final int offset;
+		private int toRead;
+
+		protected OffsetLengthReader(Reader in, int offset, int len) {
+			super(in);
+			this.len = len;
+			this.offset = offset;
+			
+			try {
+				reset();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		
+		@Override
+		public int read(char[] cbuf, int off, int len) throws IOException {
+			int res = super.read(cbuf, off, Math.min(len, this.len));
+			if (res != -1) {
+				len -= res;
+			}
+			return res;
+		}
+		
+		@Override
+		public void reset() throws IOException {
+			toRead = len;
+			super.reset();
+			skip(offset);
+		}
+
+		@Override
+		public int read() throws IOException {
+			if (toRead > 0) {
+				return super.read();
+			}
+			
+			return -1;
+		}
+
+		@Override
+		public int read(char[] cbuf) throws IOException {
+			int res = super.read(cbuf);
+			if (res > toRead) {
+				res = toRead;
+				toRead = 0;
+				return res;
+			}
+			else {
+				toRead -= res;
+				return res;
+			}
+		}
+	}
+	
+	
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
