@@ -23,8 +23,6 @@ test bool tst() = run("{ z = \<1,2\>; \<x, y\> = z;  x + y; }") == { z = <1,2>; 
 
 test bool tst() = run("{x = [1,2,3]; z = \<10,20\>; \<x[2], y\> = z; x[2] + y; }") == {x = [1,2,3]; z = <10,20>; <x[2], y> = z;  x[2] + y; };
                        
-
-@Ignore{Treatment of undefined values}
 test bool tst() = run("{M = (1:10); M[1] ? 0 += 100; M;}") == {M = (1:10); M[1] ? 0 += 100; M;};
 test bool tst() = run("{M = (1:10); M[2] ? 0 += 100; M;}") == {M = (1:10); M[2] ? 0 += 100; M;};
 
@@ -38,8 +36,9 @@ test bool tst() = run("{M = (1:10); M[2] ?= 100; M;}") == {M = (1:10); M[2] ?= 1
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.s = \"b\"; d;}") == { d = d1(10, "a"); d.s = "b"; d;};
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.n *= 20; d;}") == { d = d1(10, "a"); d.n *= 20; d;};
 
-// Status of Constructor assignment is unclear, currently not supported
-/*fails*/ //test bool tst() = run("{d1(x, y) = d1(10, \"a\"); \<x, y\>;}") == { d1(x, y) = d1(10, "a"); <x, y>;};
+@ignore{Status of Constructor assignment is unclear, currently not supported}
+test bool tst() = run("{d1(x, y) = d1(10, \"a\"); \<x, y\>;}") == { d1(x, y) = d1(10, "a"); <x, y>;};
+
 test bool tst() = run("{ x = [0,1,2,3,4,5]; x[1..3] = [10]; x; }") == { x = [0,1,2,3,4,5]; x[1..3] = [10]; x; };
 test bool tst() = run("{ x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; }") == { x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; };
 
