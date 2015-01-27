@@ -2252,6 +2252,12 @@ public class Prelude {
 		ctx.getStdErr().println(result);
 	}
 	
+	public void generate(IValue grammar, IEvaluatorContext ctx) {
+		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		System.out.println(g.getConstructorCode());
+	}
+	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue parse(IValue start, IMap robust, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();

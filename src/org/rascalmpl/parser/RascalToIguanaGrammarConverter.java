@@ -282,7 +282,8 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName(getName(symbol));
 
 			case "char-class":
-				return getCharacterClass(symbol);
+				Alt<CharacterRange> charClass = getCharacterClass(symbol);
+				return charClass.isSingleChar() ? charClass.asSingleChar() : charClass;
 				
 			case "lit":
 				Sequence<Character> keyword = Sequence.from(getString(symbol));

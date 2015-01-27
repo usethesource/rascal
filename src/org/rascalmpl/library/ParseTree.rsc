@@ -298,6 +298,10 @@ public java void iparse(type[&T<:Tree] begin, loc input);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
+public java void generate(type[&T<:Tree] begin);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses information about syntax definitions at call site}
 public java void iparse(type[&T<:Tree] begin, str input);
 
 @doc{
