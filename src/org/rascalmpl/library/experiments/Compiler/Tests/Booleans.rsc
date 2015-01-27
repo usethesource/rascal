@@ -86,8 +86,8 @@ test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 6)") ==
 test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) ==> (y <- [5,6] && y == 7));
 
 @ignore{The semantics of ==> and <==> is not clear yet}
-//test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) ==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
-//    	               {for( ([*int x,*int y] := [1,2,3]) ==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) ==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
+    	               {for( ([*int x,*int y] := [1,2,3]) ==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
 
 // <==> with backtrackable arguments
 
@@ -97,9 +97,9 @@ test bool tst() = run("(x \<- [1,2] && x == 3) \<==\> (y \<- [5,6] && y == 6)") 
 test bool tst() = run("(x \<- [1,2] && x == 3) \<==\> (y \<- [5,6] && y == 7)") == (x <- [1,2] && x == 3) <==> (y <- [5,6] && y == 7);
 
 
-// The interpreter complains about undefined variable "x"
-/*fails*/ //test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) \<==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
-    	  //             {for( ([*int x,*int y] := [1,2,3]) <==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
+@ignore{The interpreter complains about undefined variable "x"}
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) \<==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
+    	               {for( ([*int x,*int y] := [1,2,3]) <==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
 
 // Miscellaneous
 
