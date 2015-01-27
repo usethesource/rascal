@@ -202,8 +202,6 @@ public class EclipseJavaCompiler {
   }
 
   private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
-    loc = ctx.getHeap().resolveSourceLocation(loc);
-
     char[] data;
     Reader textStream = null;
 
