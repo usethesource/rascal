@@ -148,21 +148,22 @@ sort("QualifiedName"): choice(sort("QualifiedName"),{prod(label("default",sort("
 sort("StringMiddle"): choice(sort("StringMiddle"),{prod(label("template",sort("StringMiddle")),[label("mid",lex("MidStringChars")),layouts("LAYOUTLIST"),label("template",sort("StringTemplate")),layouts("LAYOUTLIST"),label("tail",sort("StringMiddle"))],{}),prod(label("mid",sort("StringMiddle")),[label("mid",lex("MidStringChars"))],{}),prod(label("interpolated",sort("StringMiddle")),[label("mid",lex("MidStringChars")),layouts("LAYOUTLIST"),label("expression",sort("Expression")),layouts("LAYOUTLIST"),label("tail",sort("StringMiddle"))],{})}),
 lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,16777215)]))],{})}))
 );
-str generateRascal() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
 
-void generateAndWriteRascal(){
-	writeFile(|home:///RascalParser.java.gz|, generateRascal());
+str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
+
+loc RascalParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|;
+
+void generateAndWriteRascalParser(){
+	writeFile(RascalParserLoc, generateRascalParser());
 }
 
-int generateAndTimeRascal() { 
-	t = cpuTime(); 
-	n = size(split("\n", generateRascal()));
-	dur = (cpuTime() - t)/1000000;;
-	println("<n> lines, <dur> msec");
-	return dur;
+int generateAndTimeRascalParser() { 
+    println("GenerateAndTimeRascalParser");
+	t = cpuTime();
+	generateRascalParser();
+	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) = generateAndTimeRascal();
+value main(list[value] args) = generateAndTimeRascalParser();
 
-test bool tstNewGenerateRascal() = 
-	sameLines(generateRascal(), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|));
+test bool tstgenerateRascalParser() = sameLines(generateRascalParser(), readFile(RascalParserLoc));
