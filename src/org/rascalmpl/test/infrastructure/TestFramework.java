@@ -111,8 +111,8 @@ public class TestFramework {
 		}
 
 		@Override
-		public ISourceLocation[] list(ISourceLocation uri) {
-			return null;
+		public String[] list(ISourceLocation uri) {
+			return new String[0];
 		}
 
 		@Override

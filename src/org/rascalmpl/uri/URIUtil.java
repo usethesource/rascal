@@ -290,4 +290,21 @@ public class URIUtil {
 		File file = new File(uri.getPath());
 		return file.getName();
 	}
+	
+	public static ISourceLocation removeAuthority(ISourceLocation loc) {
+		try {
+		 ISourceLocation res = vf.sourceLocation(loc.getScheme(),"", loc.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment()? loc.getFragment() : null);
+		 if (loc.hasLineColumn()) {
+			 return vf.sourceLocation(res, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+		 }
+		 if (loc.hasOffsetLength()) {
+			 return vf.sourceLocation(res, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+		 }
+		 
+		 return res;
+		} catch (UnsupportedOperationException | URISyntaxException e) {
+			assert false; // can't happen
+			return loc;
+		} 
+	}
 }

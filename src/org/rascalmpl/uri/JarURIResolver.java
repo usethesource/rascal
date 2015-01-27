@@ -156,7 +156,7 @@ public class JarURIResolver implements ISourceLocationInput{
 	}
 	
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+	public String[] list(ISourceLocation uri) throws IOException {
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
@@ -167,7 +167,7 @@ public class JarURIResolver implements ISourceLocationInput{
 		JarFile jarFile = new JarFile(jar);
 		
 		Enumeration<JarEntry> entries =  jarFile.entries();
-		ArrayList<ISourceLocation> matchedEntries = new ArrayList<ISourceLocation>();
+		ArrayList<String> matchedEntries = new ArrayList<>();
 		while (entries.hasMoreElements()) {
 			JarEntry je = entries.nextElement();
 			String name = je.getName();
@@ -183,25 +183,25 @@ public class JarURIResolver implements ISourceLocationInput{
 				index = result.indexOf("/");
 				
 				if (index == -1) {
-					matchedEntries.add(URIUtil.getChildLocation(uri, result));
+					matchedEntries.add(result);
 				} else {
 					result = result.substring(0, index);
 					boolean entryPresent = false;
-					for (Iterator<ISourceLocation> it = matchedEntries.iterator(); it.hasNext(); ) {
-						if (result.equals(URIUtil.getLocationName(it.next()))) {
+					for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
+						if (result.equals(it.next())) {
 							entryPresent = true;
 							break;
 						}
 					}
 					if (!entryPresent) {
-						matchedEntries.add(URIUtil.getChildLocation(uri, result));
+						matchedEntries.add(result);
 					}
 				}
 			}
 		}
 		jarFile.close();
 		
-		ISourceLocation[] listedEntries = new ISourceLocation[matchedEntries.size()];
+		String[] listedEntries = new String[matchedEntries.size()];
 		return matchedEntries.toArray(listedEntries);
 	}
 	

@@ -140,8 +140,8 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 	
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
-		return ctx.list(getActualURI(uri));
+	public String[] list(ISourceLocation uri) throws IOException {
+		return ctx.listEntries(getActualURI(uri));
 	}
 	
 	@Override

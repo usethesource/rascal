@@ -106,6 +106,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
@@ -1049,10 +1050,10 @@ public class Prelude {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
 		try {
-			ISourceLocation [] entries = URIResolverRegistry.getInstance().list(sloc);
+			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
 			IListWriter w = values.listWriter();
-			for(ISourceLocation entry : entries) {
-				w.append(values.string(URIUtil.getLocationName(entry)));
+			for(String entry : entries) {
+				w.append(values.string(entry));
 			}
 			return w.done(); 
 		} catch(FileNotFoundException e){
@@ -3383,6 +3384,22 @@ public class Prelude {
 		}
 		else {
 			return values.integer(((IString) readFile(g, ctx)).getValue().getBytes().length);
+		}
+	}
+	
+	public void registerLocations(IString scheme, IString auth, IMap map) {
+		URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+	}
+	
+	public void unregisterLocations(IString scheme, IString auth) {
+		URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+	}
+	
+	public ISourceLocation resolveLocation(ISourceLocation loc) {
+		try {
+			return URIResolverRegistry.getInstance().logicalToPhysical(loc);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
 		}
 	}
 	

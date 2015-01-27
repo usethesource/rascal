@@ -63,8 +63,8 @@ public class HttpURIResolver implements ISourceLocationInput {
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) {
-		return new ISourceLocation[] { };
+	public String[] list(ISourceLocation uri) {
+		return new String[] { };
 	}
 
 	@Override

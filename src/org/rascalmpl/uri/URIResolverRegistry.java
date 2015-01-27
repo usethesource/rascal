@@ -42,17 +42,18 @@ public class URIResolverRegistry {
 		return InstanceHolder.sInstance;
 	}
 	
-	public void registerLogical(ILogicalSourceLocationResolver resolver) {
-		synchronized (logicalResolvers) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(resolver.scheme());
-			if (map == null) {
-				map = new HashMap<>();
-				logicalResolvers.put(resolver.scheme(), map);
-			}
-			map.put(resolver.authority(), resolver);
-		}
-	}
-	
+	/**
+	 * Translates a logical location (i.e. for a specific language
+	 * scheme) to a physical location. For this mapping the registered
+	 * {@link ILogicalSourceLocationResolver} collection is used. These
+	 * are indexed first by scheme and then by authority. If the scheme
+	 * is registered but the authority is not, then the same lookup is tried
+	 * again without authority.
+	 * 
+	 * @param loc logical source location
+	 * @return physical source location
+	 * @throws IOException when there is no registered resolver for the logical scheme provided
+	 */
 	public ISourceLocation logicalToPhysical(ISourceLocation loc) throws IOException {
 		ISourceLocation result = physicalLocation(loc);
 		if (result == null) {
@@ -75,6 +76,7 @@ public class URIResolverRegistry {
 				}
 				
 				if (noAuth != null && (loc == null || prev.equals(loc))) {
+					loc = URIUtil.removeAuthority(loc);
 				    loc = noAuth.resolve(loc);
 				}
 				
@@ -87,6 +89,19 @@ public class URIResolverRegistry {
 		return loc;
 	}
 	
+	private ISourceLocation safeResolve(ISourceLocation loc) {
+		ISourceLocation resolved = null;
+		
+		try {
+			resolved = physicalLocation(loc);
+		}
+		catch (Throwable e) {
+			// robustness
+		}
+		
+		return resolved != null ? resolved : loc;
+	}
+	
 	public void registerInput(ISourceLocationInput resolver) {
 		synchronized (inputResolvers) {
 			inputResolvers.put(resolver.scheme(), resolver);
@@ -96,6 +111,31 @@ public class URIResolverRegistry {
 	public void registerOutput(ISourceLocationOutput resolver) {
 		synchronized (outputResolvers) {
 			outputResolvers.put(resolver.scheme(), resolver);
+		}
+	}
+
+	public void registerInputOutput(ISourceLocationInputOutput resolver) {
+		registerInput(resolver);
+		registerOutput(resolver);
+	}
+
+	public void registerLogical(ILogicalSourceLocationResolver resolver) {
+		synchronized (logicalResolvers) {
+			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(resolver.scheme());
+			if (map == null) {
+				map = new HashMap<>();
+				logicalResolvers.put(resolver.scheme(), map);
+			}
+			map.put(resolver.authority(), resolver);
+		}
+	}
+
+	public void unregisterLogical(String scheme, String auth) {
+		synchronized (logicalResolvers) {
+			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme);
+			if (map != null) {
+				map.remove(auth);
+			}
 		}
 	}
 
@@ -137,13 +177,8 @@ public class URIResolverRegistry {
 		return getOutputResolver(scheme) != null;
 	}
 
-	public void registerInputOutput(ISourceLocationInputOutput resolver) {
-		registerInput(resolver);
-		registerOutput(resolver);
-	}
-
 	public boolean supportsHost(ISourceLocation uri) {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 		if (resolver == null) {
 			ISourceLocationOutput resolverOther = getOutputResolver(uri.getScheme());
@@ -156,7 +191,14 @@ public class URIResolverRegistry {
 	}
 
 	public boolean exists(ISourceLocation uri) {
-		uri = physicalLocation(uri);
+		if (logicalResolvers.containsKey(uri.getScheme())) {
+			uri = physicalLocation(uri);
+			
+			if (uri == null) {
+				return false;
+			}
+		}
+		
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -167,7 +209,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean isDirectory(ISourceLocation uri) {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -177,7 +219,7 @@ public class URIResolverRegistry {
 	}
 
 	public void mkDirectory(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -190,7 +232,7 @@ public class URIResolverRegistry {
 	}
 
 	public void remove(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
 		if (out == null) {
@@ -207,7 +249,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean isFile(ISourceLocation uri) {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -217,7 +259,7 @@ public class URIResolverRegistry {
 	}
 
 	public long lastModified(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -226,8 +268,8 @@ public class URIResolverRegistry {
 		return resolver.lastModified(uri);
 	}
 
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+	public String[] listEntries(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -235,26 +277,36 @@ public class URIResolverRegistry {
 		}
 		return resolver.list(uri);
 	}
+	
+	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+		String[] entries = listEntries(uri);
+		ISourceLocation[] list = new ISourceLocation[entries.length];
+		int i = 0;
+		for (String entry : entries) {
+			list[i++] = URIUtil.getChildLocation(uri, entry);
+		}
+		return list;
+	}
 
 
 	public Reader getCharacterReader(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		return getCharacterReader(uri, getCharset(uri));
 	}
 
 	public Reader getCharacterReader(ISourceLocation uri, String encoding) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		return getCharacterReader(uri, Charset.forName(encoding));
 	}
 
 	public Reader getCharacterReader(ISourceLocation uri, Charset encoding) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		return new UnicodeInputStreamReader(getInputStream(uri), encoding);
 
 	}
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -265,7 +317,7 @@ public class URIResolverRegistry {
 	}
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -276,7 +328,7 @@ public class URIResolverRegistry {
 	}
 
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -293,7 +345,7 @@ public class URIResolverRegistry {
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {
-		uri = physicalLocation(uri);
+		uri = safeResolve(uri);
 		ISourceLocation parentURI = URIUtil.getParentLocation(uri);
 
 		if (parentURI != null && !exists(parentURI)) {

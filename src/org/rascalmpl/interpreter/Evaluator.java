@@ -240,7 +240,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		resolverRegistry.registerInput(new JarURIResolver());
 
-		resolverRegistry.registerInputOutput(new HomeURIResolver());
+		resolverRegistry.registerLogical(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
 		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
