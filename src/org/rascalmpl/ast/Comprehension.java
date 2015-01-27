@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 353 * results.hashCode() + 101 * generators.hashCode() ; 
+      return 103 + 743 * results.hashCode() + 181 * generators.hashCode() ; 
     } 
   
     
@@ -159,7 +159,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 107 * from.hashCode() + 227 * to.hashCode() + 677 * generators.hashCode() ; 
+      return 401 + 37 * from.hashCode() + 73 * to.hashCode() + 641 * generators.hashCode() ; 
     } 
   
     
@@ -230,7 +230,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 + 463 * results.hashCode() + 701 * generators.hashCode() ; 
+      return 173 + 521 * results.hashCode() + 773 * generators.hashCode() ; 
     } 
   
     

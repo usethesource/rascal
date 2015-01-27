@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,7 +106,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 + 577 * modifiers.hashCode() + 29 * type.hashCode() + 487 * name.hashCode() + 359 * parameters.hashCode() ; 
+      return 313 + 101 * modifiers.hashCode() + 929 * type.hashCode() + 491 * name.hashCode() + 647 * parameters.hashCode() ; 
     } 
   
     
@@ -192,7 +192,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 877 * modifiers.hashCode() + 233 * type.hashCode() + 641 * name.hashCode() + 379 * parameters.hashCode() + 631 * exceptions.hashCode() ; 
+      return 137 + 787 * modifiers.hashCode() + 283 * type.hashCode() + 167 * name.hashCode() + 313 * parameters.hashCode() + 37 * exceptions.hashCode() ; 
     } 
   
     

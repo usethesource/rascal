@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,7 +111,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 571 * tags.hashCode() + 547 * visibility.hashCode() + 487 * signature.hashCode() ; 
+      return 997 + 337 * tags.hashCode() + 163 * visibility.hashCode() + 211 * signature.hashCode() ; 
     } 
   
     
@@ -188,7 +188,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 + 983 * tags.hashCode() + 709 * visibility.hashCode() + 211 * signature.hashCode() + 673 * expression.hashCode() + 353 * conditions.hashCode() ; 
+      return 433 + 661 * tags.hashCode() + 599 * visibility.hashCode() + 617 * signature.hashCode() + 409 * expression.hashCode() + 281 * conditions.hashCode() ; 
     } 
   
     
@@ -281,7 +281,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 991 * tags.hashCode() + 23 * visibility.hashCode() + 787 * signature.hashCode() + 181 * body.hashCode() ; 
+      return 163 + 239 * tags.hashCode() + 227 * visibility.hashCode() + 797 * signature.hashCode() + 53 * body.hashCode() ; 
     } 
   
     
@@ -365,7 +365,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 167 * tags.hashCode() + 331 * visibility.hashCode() + 103 * signature.hashCode() + 607 * expression.hashCode() ; 
+      return 607 + 397 * tags.hashCode() + 239 * visibility.hashCode() + 821 * signature.hashCode() + 991 * expression.hashCode() ; 
     } 
   
     

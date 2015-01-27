@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,7 +97,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 229 * mid.hashCode() + 643 * expression.hashCode() + 547 * tail.hashCode() ; 
+      return 421 + 773 * mid.hashCode() + 19 * expression.hashCode() + 727 * tail.hashCode() ; 
     } 
   
     
@@ -166,7 +166,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 773 * mid.hashCode() ; 
+      return 311 + 257 * mid.hashCode() ; 
     } 
   
     
@@ -221,7 +221,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 223 * mid.hashCode() + 617 * template.hashCode() + 11 * tail.hashCode() ; 
+      return 547 + 797 * mid.hashCode() + 617 * template.hashCode() + 773 * tail.hashCode() ; 
     } 
   
     

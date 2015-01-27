@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 359 + 769 * subject.hashCode() + 47 * cases.hashCode() ; 
+      return 53 + 109 * subject.hashCode() + 521 * cases.hashCode() ; 
     } 
   
     
@@ -152,7 +152,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 3 * strategy.hashCode() + 643 * subject.hashCode() + 661 * cases.hashCode() ; 
+      return 587 + 389 * strategy.hashCode() + 383 * subject.hashCode() + 683 * cases.hashCode() ; 
     } 
   
     

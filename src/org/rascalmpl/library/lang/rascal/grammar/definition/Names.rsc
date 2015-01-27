@@ -22,12 +22,14 @@ public Grammar resolve(Grammar d) {
   plx = {n | \parameterized-lex(n,_) <- d.rules};
   ks = {n | \keywords(n) <- d.rules};
   ls = {n | \layouts(n) <- d.rules};
+  tk = {n | \token(n) <- d.rules};
   
   return visit(d) {
     case sort(n) : {
       if (n in lx) insert \lex(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
+      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-sort(n,ps) : {
@@ -38,6 +40,7 @@ public Grammar resolve(Grammar d) {
       if (n in cd) insert \sort(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
+      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-lex(n,ps) : {

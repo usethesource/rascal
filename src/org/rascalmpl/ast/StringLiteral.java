@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,7 +104,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 313 * pre.hashCode() + 457 * expression.hashCode() + 947 * tail.hashCode() ; 
+      return 431 + 853 * pre.hashCode() + 811 * expression.hashCode() + 971 * tail.hashCode() ; 
     } 
   
     
@@ -173,7 +173,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 307 * constant.hashCode() ; 
+      return 503 + 787 * constant.hashCode() ; 
     } 
   
     
@@ -228,7 +228,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 839 * pre.hashCode() + 373 * template.hashCode() + 191 * tail.hashCode() ; 
+      return 103 + 109 * pre.hashCode() + 191 * template.hashCode() + 499 * tail.hashCode() ; 
     } 
   
     

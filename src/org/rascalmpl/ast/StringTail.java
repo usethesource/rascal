@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,7 +104,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 337 * mid.hashCode() + 991 * expression.hashCode() + 191 * tail.hashCode() ; 
+      return 71 + 733 * mid.hashCode() + 67 * expression.hashCode() + 431 * tail.hashCode() ; 
     } 
   
     
@@ -177,7 +177,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 331 * mid.hashCode() + 919 * template.hashCode() + 139 * tail.hashCode() ; 
+      return 31 + 127 * mid.hashCode() + 337 * template.hashCode() + 787 * tail.hashCode() ; 
     } 
   
     
@@ -246,7 +246,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 617 * post.hashCode() ; 
+      return 727 + 911 * post.hashCode() ; 
     } 
   
     

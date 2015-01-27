@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 677 * name.hashCode() + 2 * contents.hashCode() ; 
+      return 773 + 137 * name.hashCode() + 131 * contents.hashCode() ; 
     } 
   
     
@@ -148,7 +148,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 73 * name.hashCode() ; 
+      return 727 + 431 * name.hashCode() ; 
     } 
   
     
@@ -201,7 +201,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 941 * name.hashCode() + 271 * expression.hashCode() ; 
+      return 239 + 79 * name.hashCode() + 389 * expression.hashCode() ; 
     } 
   
     
