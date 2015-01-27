@@ -1528,9 +1528,11 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
 
 // -- has expression -----------------------------------------------
 
-MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) =
-  muCon(hasField(getType(expression@\loc), unescape("<name>")));   
-
+MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
+    outer = getOuterType(expression);
+    return (outer == "adt") ? muCallPrim3("adt_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc)
+  						    : muCon(hasField(getType(expression@\loc), unescape("<name>")));   
+}
 // -- transitive closure expression ---------------------------------
 
 MuExp translate(e:(Expression) `<Expression argument> +`) =
