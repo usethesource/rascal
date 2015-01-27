@@ -26,9 +26,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
 	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
@@ -70,18 +73,57 @@ public class URIResolverRegistry {
 				ILogicalSourceLocationResolver resolver = map.get(auth);
 				ILogicalSourceLocationResolver noAuth = map.get("");
 				ISourceLocation prev = loc;
+				boolean removedOffset = false;
 				
 				if (resolver != null) {
 					loc = resolver.resolve(loc);
 				}
 				
+				if (loc == null && prev.hasOffsetLength()) {
+					loc = resolver.resolve(URIUtil.removeOffset(prev));
+					removedOffset = true; 
+				}
+				
 				if (noAuth != null && (loc == null || prev.equals(loc))) {
-					loc = URIUtil.removeAuthority(loc);
+					loc = URIUtil.removeAuthority(prev);
 				    loc = noAuth.resolve(loc);
+				    
+				    if (loc == null && prev.hasOffsetLength()) {
+				    	loc = URIUtil.removeOffset(URIUtil.removeAuthority(prev));
+				    	loc = noAuth.resolve(loc);
+				    	removedOffset = true;
+				    }
 				}
 				
 				if (loc == null || prev.equals(loc)) {
 					return null;
+				}
+				
+				if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
+					if (prev.hasLineColumn()) {
+						loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(), prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
+					}
+					else if (prev.hasOffsetLength()) {
+						if (loc.hasOffsetLength()) {
+							loc = vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
+						}
+						else {
+							loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
+						}
+					}
+				}
+				else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly including line numbers
+					if (prev.hasLineColumn()) {
+						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(), loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1, loc.getBeginColumn(), loc.getEndColumn());
+					}
+					else if (prev.hasOffsetLength()) {
+						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+					}
+				}
+				else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
+					if (prev.hasOffsetLength()) {
+						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+					}
 				}
 			}
 		}

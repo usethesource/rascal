@@ -307,4 +307,7 @@ public class URIUtil {
 			return loc;
 		} 
 	}
+	public static ISourceLocation removeOffset(ISourceLocation prev) {
+		return vf.sourceLocation(prev.getURI());
+	}
 }
