@@ -80,8 +80,6 @@ public class RascalToIguanaGrammarConverter {
 
 	private Input input;
 	
-	private boolean saveObjects = false;
-
 	private IMap definitions;
 
 	public RascalToIguanaGrammarConverter(IValueFactory vf) {
@@ -145,42 +143,46 @@ public class RascalToIguanaGrammarConverter {
 
 			IConstructor constructor = (IConstructor) nonterminal;
 			
-			boolean ebnf = isEBNF(constructor);
-
-			Nonterminal head = Nonterminal.withName(SymbolAdapter.toString(constructor, true));
-			
-			IConstructor choice = (IConstructor) definitions.get(nonterminal);
-			assert choice.getName().equals("choice");
-			ISet alts = (ISet) choice.get("alternatives");
-
-			for (IValue alt : alts) {
-
-				IConstructor prod = (IConstructor) alt;
-
-				SerializableValue object = null;
-
-				if (saveObjects) {
-					if (ebnf) {
-						object = new SerializableValue(getRegularDefinition(alts));
-					} else {
-						object = new SerializableValue((IConstructor) alt);
-					}					
-				} 
-
-				if (!prod.getName().equals("regular")) {
-
-					IList rhs = (IList) prod.get("symbols");
-
-					List<Symbol> body = getSymbolList(rhs);
-					
-					Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).build();
-					rulesMap.put(prod, rule);
-					builder.addRule(rule);
-				}
+			if (constructor.getName().equals("layouts")) {
+				builder.addLayouts(getAlternatives(nonterminal));
+				continue;
 			}
+			
+			builder.addRules(getAlternatives(nonterminal));
 		}
 		
 		return builder.build();
+	}
+	
+	private List<Rule> getAlternatives(IValue nonterminal) {
+		
+		List<Rule> rules = new ArrayList<>();
+		
+		Nonterminal head = Nonterminal.withName(SymbolAdapter.toString((IConstructor) nonterminal, true));
+		
+		IConstructor choice = (IConstructor) definitions.get(nonterminal);
+		assert choice.getName().equals("choice");
+		ISet alts = (ISet) choice.get("alternatives");
+
+		for (IValue alt : alts) {
+
+			IConstructor prod = (IConstructor) alt;
+
+			SerializableValue object = null;
+
+			if (!prod.getName().equals("regular")) {
+
+				IList rhs = (IList) prod.get("symbols");
+
+				List<Symbol> body = getSymbolList(rhs);
+				
+				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).build();
+				rulesMap.put(prod, rule);
+				rules.add(rule);
+			}
+		}
+		
+		return rules;
 	}
 
 	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
@@ -296,13 +298,13 @@ public class RascalToIguanaGrammarConverter {
 				return Plus.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-seps":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
+				return Plus.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
 	
 			case "iter-star":
 				return Star.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-star-seps":
-				return Star.builder(getSymbol(getSymbolCons(symbol))).build();
+				return Star.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
 	
 			case "opt":
 				return Opt.from(getSymbol(getSymbolCons(symbol)));
@@ -438,17 +440,9 @@ public class RascalToIguanaGrammarConverter {
 	private IList getSymbols(IConstructor symbol) {
 		return (IList) symbol.get("symbols");
 	}
-
-	private boolean isEBNF(IConstructor value) {
-		return isEBNFList(value) || SymbolAdapter.isAlt(value)
-				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value);
-	}
-
-	private boolean isEBNFList(IConstructor value) {
-		return SymbolAdapter.isIterStarSeps(value)
-				|| SymbolAdapter.isIterStar(value)
-				|| SymbolAdapter.isIterPlus(value)
-				|| SymbolAdapter.isIterPlusSeps(value);
+	
+	public IList getSeparators(IConstructor symbol) {
+		return (IList) symbol.get("separators");
 	}
 
 	private IConstructor getRegularDefinition(ISet alts) {
