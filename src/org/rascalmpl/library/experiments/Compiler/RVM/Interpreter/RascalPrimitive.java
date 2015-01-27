@@ -1323,6 +1323,26 @@ public enum RascalPrimitive {
 	},
 	
 	/*
+	 * ..._has_field
+	 */
+	
+	adt_has_field {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons = (IConstructor) stack[sp - 2];
+			String fieldName = ((IString) stack[sp - 1]).getValue();
+			Type tp = cons.getConstructorType();
+			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
+				stack[sp - 2] = Rascal_TRUE;
+			} else {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
+	
+	/*
 	 * ..._field_access
 	 */
 	
