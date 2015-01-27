@@ -21,7 +21,7 @@ iprintln("gr before: <gr>");
   if (lexToTok) 
     gr = lexToToken(gr);
     
-  gr = literals(gr);
+  //gr = literals(gr);
   gr = flattenTokens(gr);
   //gr = addHoles(gr);
   //gr = expandKeywords(gr);
