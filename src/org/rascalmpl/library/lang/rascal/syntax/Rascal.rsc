@@ -166,7 +166,7 @@ syntax SyntaxDefinition
 	|  @Foldable \token   : "token" Sym defined "=" Prod production ";"
 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
-syntax Kind
+syntax Kind 
 	= function: "function" 
 	| variable: "variable" 
 	| \all: "all" 

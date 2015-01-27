@@ -91,8 +91,8 @@ public class RascalToIguanaGrammarConverter {
 	public void generateGrammar(IConstructor rascalGrammar) {
 		System.out.println("Iguana started.");
 		grammar = convert("inmemory", rascalGrammar);
-		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
-		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
+		IMap notAllowed = (IMap) ((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
+		IMap except = (IMap) ((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
 
 		assert notAllowed != null;
 		assert except != null;
@@ -326,6 +326,7 @@ public class RascalToIguanaGrammarConverter {
 				return Epsilon.getInstance();
 				
 			case "token":
+				return Nonterminal.withName(getName(symbol));
 
 			case "layouts":
 				return null;

@@ -518,7 +518,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public IValue call(String name, IValue... args) {
-	  return call(name, (Map<String,IValue>) null, args);
+	  return call(name, Collections.emptyMap(), args);
 	}
 	
 	/**
