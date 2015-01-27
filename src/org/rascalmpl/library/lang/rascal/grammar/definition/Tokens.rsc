@@ -5,6 +5,7 @@ import ParseTree;
 import Grammar;
 import IO;
 import lang::rascal::grammar::definition::Literals;
+//import lang::rascal::grammar::definition::Characters;
 
 Grammar flattenTokens(Grammar g) {
   deps = symbolDependencies(g)+;

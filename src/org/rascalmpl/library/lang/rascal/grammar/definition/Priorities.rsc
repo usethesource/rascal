@@ -135,10 +135,19 @@ public Grammar addNotAllowedSets(Grammar g) {
  return g;
 }
 
+public Grammar addNotAllowedSetsIguana(Grammar g) {
+ g.notAllowed = getNotAllowedIguana(g);
+ g.excepts = getExceptPatterns(g);
+ return g;
+}
+
 private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
 
 private NotAllowedSet getNotAllowed(Grammar g) 
  = (<father, index> : dnn[father,index] | dnn := doNotNest(g), <father, index, _> <- dnn);
+ 
+private NotAllowedSet getNotAllowedIguana(Grammar g) 
+ = (<father, index> : dnn[father,index] | dnn := doNotNestIguana(g), <father, index, _> <- dnn);
 
 private NotAllowedSet getExceptPatterns(Grammar g) 
  = (<father, index> : dnn[father,index] | dnn := exceptPatterns(g), <father, index, _> <- dnn);
