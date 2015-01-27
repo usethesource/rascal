@@ -1684,7 +1684,9 @@ public class RVM {
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
-			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*
 			 * 	TODO:

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -29,17 +30,20 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
 
 public class Reflective {
 	protected final IValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
+	protected final Prelude prelude;
 	private static final int maxCacheRounds = 500;
 
 	public Reflective(IValueFactory values){
 		super();
 		this.values = values;
+		prelude = new Prelude(values);
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
@@ -162,6 +166,41 @@ public class Reflective {
 		} catch (URISyntaxException e) {
 			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
 		}
+	}
+	
+	// Note -- copy in ReflectiveCompiled
+	
+	public IBool inCompiledMode() { return values.bool(false); }
+	
+	// REFLECT -- copy in ReflectiveCompiled
+	public IValue watch(IValue tp, IValue val, IString name, IEvaluatorContext ctx){
+		return watch(tp, val, name, values.string(""), ctx);
+	}
+	
+	protected String stripQuotes(IValue suffixVal){
+		String s1 = suffixVal.toString();
+		if(s1.startsWith("\"")){
+			s1 = s1.substring(1, s1.length() - 1);
+		}
+		return s1;
+	}
+	
+	
+	
+	// REFLECT -- copy in ReflectiveCompiled
+	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal, IEvaluatorContext ctx){
+		ISourceLocation watchLoc;
+		String suffix = stripQuotes(suffixVal);
+		String name1 = stripQuotes(name);
+
+		String path = "watchpoints/" + (suffix.length() == 0 ? name1 : (name1 + "-" + suffix)) + ".txt";
+		try {
+			watchLoc = values.sourceLocation("home", null, path, null, null);
+		} catch (URISyntaxException e) {
+			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
+		}
+		prelude.writeTextValueFile(watchLoc, val, ctx);
+		return val;
 	}
 
 }
