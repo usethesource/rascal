@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 173 * replacementExpression.hashCode() + 199 * conditions.hashCode() ; 
+      return 601 + 31 * replacementExpression.hashCode() + 149 * conditions.hashCode() ; 
     } 
   
     
@@ -141,7 +141,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 613 * replacementExpression.hashCode() ; 
+      return 283 + 29 * replacementExpression.hashCode() ; 
     } 
   
     

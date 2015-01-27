@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 193 * defined.hashCode() + 419 * production.hashCode() ; 
+      return 83 + 719 * defined.hashCode() + 149 * production.hashCode() ; 
     } 
   
     
@@ -159,7 +159,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 487 * start.hashCode() + 409 * defined.hashCode() + 163 * production.hashCode() ; 
+      return 569 + 359 * start.hashCode() + 193 * defined.hashCode() + 421 * production.hashCode() ; 
     } 
   
     
@@ -232,7 +232,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 953 * vis.hashCode() + 809 * defined.hashCode() + 37 * production.hashCode() ; 
+      return 23 + 911 * vis.hashCode() + 809 * defined.hashCode() + 293 * production.hashCode() ; 
     } 
   
     
@@ -303,7 +303,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 19 * defined.hashCode() + 503 * production.hashCode() ; 
+      return 277 + 107 * defined.hashCode() + 719 * production.hashCode() ; 
     } 
   
     
@@ -353,6 +353,20 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSyntaxDefinitionToken(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Token)) {
+        return false;
+      }        
+      Token tmp = (Token) o;
+      return true && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 757 + 739 * defined.hashCode() + 281 * production.hashCode() ; 
+    } 
   
     
     @Override

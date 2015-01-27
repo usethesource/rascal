@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,7 +97,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 23 * pre.hashCode() + 163 * expression.hashCode() + 947 * tail.hashCode() ; 
+      return 137 + 139 * pre.hashCode() + 137 * expression.hashCode() + 601 * tail.hashCode() ; 
     } 
   
     
@@ -166,7 +166,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 227 * pathChars.hashCode() ; 
+      return 307 + 239 * pathChars.hashCode() ; 
     } 
   
     

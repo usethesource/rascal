@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 619 * basic.hashCode() ; 
+      return 131 + 233 * basic.hashCode() ; 
     } 
   
     
@@ -172,7 +172,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 113 * type.hashCode() ; 
+      return 863 + 257 * type.hashCode() ; 
     } 
   
     
@@ -223,7 +223,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 89 * function.hashCode() ; 
+      return 47 + 827 * function.hashCode() ; 
     } 
   
     
@@ -274,7 +274,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 83 * selector.hashCode() ; 
+      return 619 + 727 * selector.hashCode() ; 
     } 
   
     
@@ -325,7 +325,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 173 * structured.hashCode() ; 
+      return 211 + 911 * structured.hashCode() ; 
     } 
   
     
@@ -376,7 +376,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 683 * symbol.hashCode() ; 
+      return 617 + 349 * symbol.hashCode() ; 
     } 
   
     
@@ -427,7 +427,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 719 * user.hashCode() ; 
+      return 701 + 137 * user.hashCode() ; 
     } 
   
     
@@ -478,7 +478,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 397 * typeVar.hashCode() ; 
+      return 919 + 167 * typeVar.hashCode() ; 
     } 
   
     

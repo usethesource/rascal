@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 223 * preStats.hashCode() + 277 * body.hashCode() + 37 * postStats.hashCode() + 823 * condition.hashCode() ; 
+      return 229 + 877 * preStats.hashCode() + 991 * body.hashCode() + 31 * postStats.hashCode() + 653 * condition.hashCode() ; 
     } 
   
     
@@ -239,7 +239,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 743 * generators.hashCode() + 379 * preStats.hashCode() + 383 * body.hashCode() + 631 * postStats.hashCode() ; 
+      return 673 + 263 * generators.hashCode() + 463 * preStats.hashCode() + 881 * body.hashCode() + 277 * postStats.hashCode() ; 
     } 
   
     
@@ -323,7 +323,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 103 * conditions.hashCode() + 691 * preStats.hashCode() + 67 * body.hashCode() + 373 * postStats.hashCode() ; 
+      return 653 + 677 * conditions.hashCode() + 827 * preStats.hashCode() + 383 * body.hashCode() + 971 * postStats.hashCode() ; 
     } 
   
     
@@ -413,7 +413,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 887 * conditions.hashCode() + 709 * preStatsThen.hashCode() + 809 * thenString.hashCode() + 467 * postStatsThen.hashCode() + 547 * preStatsElse.hashCode() + 19 * elseString.hashCode() + 727 * postStatsElse.hashCode() ; 
+      return 311 + 109 * conditions.hashCode() + 277 * preStatsThen.hashCode() + 317 * thenString.hashCode() + 683 * postStatsThen.hashCode() + 877 * preStatsElse.hashCode() + 107 * elseString.hashCode() + 997 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -524,7 +524,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 419 * condition.hashCode() + 5 * preStats.hashCode() + 857 * body.hashCode() + 311 * postStats.hashCode() ; 
+      return 151 + 19 * condition.hashCode() + 373 * preStats.hashCode() + 571 * body.hashCode() + 239 * postStats.hashCode() ; 
     } 
   
     

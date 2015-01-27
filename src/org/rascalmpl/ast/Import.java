@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,7 +93,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 461 * module.hashCode() ; 
+      return 461 + 193 * module.hashCode() ; 
     } 
   
     
@@ -144,7 +144,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 241 * module.hashCode() ; 
+      return 13 + 727 * module.hashCode() ; 
     } 
   
     
@@ -197,7 +197,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 997 * name.hashCode() + 929 * at.hashCode() ; 
+      return 433 + 463 * name.hashCode() + 607 * at.hashCode() ; 
     } 
   
     
@@ -257,7 +257,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 733 * syntax.hashCode() ; 
+      return 751 + 139 * syntax.hashCode() ; 
     } 
   
     

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 263 * lhs.hashCode() + 311 * rhs.hashCode() ; 
+      return 43 + 733 * lhs.hashCode() + 887 * rhs.hashCode() ; 
     } 
   
     
@@ -185,7 +185,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 991 * associativity.hashCode() + 167 * group.hashCode() ; 
+      return 617 + 997 * associativity.hashCode() + 67 * group.hashCode() ; 
     } 
   
     
@@ -247,7 +247,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 197 * lhs.hashCode() + 269 * rhs.hashCode() ; 
+      return 977 + 457 * lhs.hashCode() + 439 * rhs.hashCode() ; 
     } 
   
     
@@ -311,7 +311,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 599 * modifiers.hashCode() + 743 * name.hashCode() + 911 * syms.hashCode() ; 
+      return 883 + 401 * modifiers.hashCode() + 293 * name.hashCode() + 547 * syms.hashCode() ; 
     } 
   
     
@@ -378,7 +378,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 643 ; 
     } 
   
     	
@@ -420,7 +420,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 11 * referenced.hashCode() ; 
+      return 883 + 359 * referenced.hashCode() ; 
     } 
   
     
@@ -473,7 +473,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 761 + 337 * modifiers.hashCode() + 877 * syms.hashCode() ; 
+      return 353 + 431 * modifiers.hashCode() + 53 * syms.hashCode() ; 
     } 
   
     
