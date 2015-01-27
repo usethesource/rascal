@@ -15,6 +15,46 @@ module IO
 import Exception;
 
 @doc{
+Synopsis: register a logical file scheme including the resolution method via a table.
+
+Description:
+
+Logical source location schemes, such as `|java+interface://JRE/java/util/List|` are used for
+precise qualified names of artifacts while abstracting from their physical location in a specific part
+of a file on disk or from some webserver or source repository location.
+
+Using this function you can create your own schemes. The authority field is used for scoping the 
+names you wish to resolve to certain projects. This way one name can resolve to different locations 
+in different projects.
+
+
+Benefits:
+
+* Logical source locations are supported by IDE features such as hyperlinks
+* Logical source locations are supported by all [IO] functions as well
+
+Pitfalls:
+
+* repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
+* the registry is an intentional memory leak; so make sure you use it wisely.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void registerLocations(str scheme, str authority, map[loc,loc] m);
+
+@doc{
+Synopsis: undo the effect of [registerLocations]
+
+Description:
+
+For debugging or for memory management you may wish to remove a lookup table.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void unregisterLocations(str scheme, str authority);
+
+@javaClass{org.rascalmpl.library.Prelude}
+java loc resolveLocation(loc l);
+
+@doc{
 Synopsis: Append a value to a file.
 
 Description:

@@ -115,14 +115,8 @@ public class ClassResourceInput implements ISourceLocationInput {
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
-		ISourceLocation[] lst = registry.list(resolve(uri));
-		ISourceLocation[] res = new ISourceLocation[lst.length];
-		int i = 0;
-		for (ISourceLocation elem : lst) {
-			res[i++] = URIUtil.getChildLocation(uri, URIUtil.getLocationName(elem));
-		}
-		return res;
+	public String[] list(ISourceLocation uri) throws IOException {
+		return registry.listEntries(resolve(uri)); 
 	}
 	
 	public boolean supportsHost() {

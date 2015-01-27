@@ -25,7 +25,7 @@ public interface ISourceLocationInput {
 	long lastModified(ISourceLocation uri)  throws IOException; 
 	boolean isDirectory(ISourceLocation uri);  
 	boolean isFile(ISourceLocation uri) ;
-	ISourceLocation[] list(ISourceLocation uri)  throws IOException;
+	String[] list(ISourceLocation uri)  throws IOException;
 	String scheme();
 	boolean supportsHost();
 }

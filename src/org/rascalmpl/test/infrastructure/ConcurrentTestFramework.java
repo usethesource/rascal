@@ -111,8 +111,8 @@ public class ConcurrentTestFramework {
 		}
 
 		@Override
-		public ISourceLocation[] list(ISourceLocation uri) {
-			return null;
+		public String[] list(ISourceLocation uri) {
+			return new String[] { };
 		}
 
 		@Override

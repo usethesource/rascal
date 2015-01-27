@@ -49,16 +49,7 @@ public class FileURIResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-	  String path = getPath(uri);
-	  File file = new File(path);
-	  
-	  if (file.isDirectory()) {
-		  for (ISourceLocation element : list(uri)) {
-			  remove(element);
-		  }
-	  }
-	  
-	  file.delete();
+		new File(getPath(uri)).delete();
 	} 
 	
 	public String scheme() {
@@ -89,20 +80,8 @@ public class FileURIResolver implements ISourceLocationInputOutput {
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) {
-		String[] list = new File(getPath(uri)).list();
-		
-		if (list == null) {
-			return new ISourceLocation[] { };
-		} else {
-			ISourceLocation[] res = new ISourceLocation[list.length];
-			int i = 0;
-			for (String element : list) {
-				res[i++] = URIUtil.getChildLocation(uri, element);
-			}
-			
-			return res;
-		}
+	public String[] list(ISourceLocation uri) {
+		return new File(getPath(uri)).list();
 	}
 
 	public void mkDirectory(ISourceLocation uri) {

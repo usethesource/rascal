@@ -131,14 +131,14 @@ public class JarInputStreamURIResolver implements ISourceLocationInput {
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+	public String[] list(ISourceLocation uri) throws IOException {
 		String path = uri.getPath();
 
 		if (!path.endsWith("/") && !path.isEmpty()) {
 			path = path + "/";
 		}
 
-		ArrayList<ISourceLocation> matchedEntries = new ArrayList<ISourceLocation>();
+		ArrayList<String> matchedEntries = new ArrayList<>();
 
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			JarEntry je = null;
@@ -157,25 +157,25 @@ public class JarInputStreamURIResolver implements ISourceLocationInput {
 					index = result.indexOf("/");
 
 					if (index == -1) {
-						matchedEntries.add(URIUtil.getChildLocation(uri, result));
+						matchedEntries.add(result);
 					} else {
 						result = result.substring(0, index);
 						boolean entryPresent = false;
-						for (Iterator<ISourceLocation> it = matchedEntries.iterator(); it.hasNext(); ) {
-							if (result.equals(URIUtil.getLocationName(it.next()))) {
+						for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
+							if (result.equals(it.next())) {
 								entryPresent = true;
 								break;
 							}
 						}
 						if (!entryPresent) {
-							matchedEntries.add(URIUtil.getChildLocation(uri, result));
+							matchedEntries.add(result);
 						}
 					}
 				}
 			}
 		}
 
-		ISourceLocation[] listedEntries = new ISourceLocation[matchedEntries.size()];
+		String[] listedEntries = new String[matchedEntries.size()];
 		return matchedEntries.toArray(listedEntries);
 	}
 

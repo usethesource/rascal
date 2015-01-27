@@ -43,8 +43,8 @@ public class StandardInputURIResolver implements ISourceLocationInput {
 		return 0L;
 	}
 
-	public ISourceLocation[] list(ISourceLocation uri) {
-		return new ISourceLocation[] { };
+	public String[] list(ISourceLocation uri) {
+		return new String[] { };
 	}
 
 	public String absolutePath(ISourceLocation uri) {
