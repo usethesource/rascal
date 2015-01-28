@@ -72,7 +72,6 @@ public class URIResolverRegistry {
 				Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
 				String auth = loc.hasAuthority() ? loc.getAuthority() : "";
 				ILogicalSourceLocationResolver resolver = map.get(auth);
-				ILogicalSourceLocationResolver noAuth = map.get("");
 				ISourceLocation prev = loc;
 				boolean removedOffset = false;
 				
@@ -85,15 +84,22 @@ public class URIResolverRegistry {
 					removedOffset = true; 
 				}
 				
-				if (noAuth != null && (loc == null || prev.equals(loc))) {
-					loc = URIUtil.removeAuthority(prev);
-				    loc = noAuth.resolve(loc);
-				    
-				    if (loc == null && prev.hasOffsetLength()) {
-				    	loc = URIUtil.removeOffset(URIUtil.removeAuthority(prev));
-				    	loc = noAuth.resolve(loc);
-				    	removedOffset = true;
-				    }
+				if (loc == null || prev.equals(loc)) {
+					loc = prev;
+					
+					for (ILogicalSourceLocationResolver backup : map.values()) {
+						loc = backup.resolve(loc);
+						
+						if (loc == null && prev.hasOffsetLength()) {
+							loc = URIUtil.removeOffset(prev);
+							loc = backup.resolve(loc);
+							removedOffset = true;
+						}
+						
+						if (loc != null && !prev.equals(loc)) {
+							return loc;
+						}
+					}
 				}
 				
 				if (loc == null || prev.equals(loc)) {
