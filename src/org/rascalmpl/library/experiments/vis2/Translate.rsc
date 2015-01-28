@@ -19,7 +19,8 @@ private str site = ""; // localhost as string (for current translation)
  
  str figToJSON(Figure fig, str s){
  	site = s;
- 	return figToJSON(fig, emptyFigure());
+ 	// println(fig);
+ 	return r = figToJSON(fig, emptyFigure());
  }
  
  
@@ -627,11 +628,11 @@ str trVega(Figure chart, Figure parent) {
     str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts)]);
     str cmd = "ComboChart";
     return 
-    "{\"figure\": \"combo\",
-    ' \"options\": \"<trOptions(chart.options)>\"
+    "{\"figure\": \"google\",
+     '\"command\": \"<cmd>\",
+    ' \"options\": <trOptions(chart.options)>,
     ' \"data\": [<d>],
-    '\"columns\": [<c>] ,
-    '\"command\": \"<cmd>\"
+    '\"columns\": [<c>]  
     '}";   
    
     }
@@ -653,6 +654,7 @@ str trVega(Figure chart, Figure parent) {
 //}
 
 str figToJSON(chart: combo(), Figure parent) {
+    println("trCombo");
 	return trCombo(chart, parent);
 }
 

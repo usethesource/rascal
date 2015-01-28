@@ -3,7 +3,7 @@ module experiments::vis2::FigureNew
 import util::Math;
 import Prelude;
 import experiments::vis2::vega::Vega;
-import experiments::vis2::FigureServer; 
+
 
 /* Properties */
 
@@ -219,8 +219,8 @@ public data Figure(
 // More advanced figure elements
 
 // Charts
-//	| chart(Chart c, CHARTOPTIONS options = chartOptions())
-	| combo(list[Chart] charts =[], CHARTOPTIONS options = chartOptions())
+//	| chart(Chart c, ChartOptions options = chartOptions())
+	| combo(list[Chart] charts =[], ChartOptions options = chartOptions())
 
 /*
    
@@ -243,17 +243,17 @@ public data Figure(
    ;
  
 
-data AXIS(str title="",
+data Axis(str title="",
           int minValue = -1,
           int maxValue = -1,
-          VIEWWINDOW viewWindow = viewWindow(),
-          GRIDLINES gridlines = gridlines()) = axis()
+          ViewWindow viewWindow = viewWindow(),
+         GridLines gridlines = gridlines()) = axis()
           ;
           
-bool isEmpty (AXIS axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
+bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
      && isEmpty(axes.viewWindow);
 
-str trAxis(AXIS axis) {
+str trAxis(Axis axis) {
     str r = "{";
     if  (!isEmpty(axis.title)) r +="\"title\" : \"<axis.title>\",";
     if  (axis.minValue>=0) r+="\"minValue\" : <axis.minValue>,";
@@ -265,15 +265,15 @@ str trAxis(AXIS axis) {
     return r;
     }
                 
-data LEGEND (bool none = false,
+data Legend (bool none = false,
              str alignment = "",
              int maxLines = -1) = legend()
             ;
             
-bool isEmpty (LEGEND legend) = !legend.none && legend.alignment==""
+bool isEmpty (Legend legend) = !legend.none && legend.alignment==""
                 && legend.maxLines == -1;
 
-str trLegend(LEGEND legend) {
+str trLegend(Legend legend) {
     if (legend.none) return "\'none\'";
     str r = "{";
     if  (!isEmpty(legend.alignment)) r +="\"alignment\" : \"<legend.alignment>\",";
@@ -283,11 +283,11 @@ str trLegend(LEGEND legend) {
     return r;
     }
            
-data VIEWWINDOW(int max = -1, int min = -1) = viewWindow();
+data ViewWindow(int max = -1, int min = -1) = viewWindow();
 
-bool isEmpty(VIEWWINDOW w ) = w.max == -1 && w.min == -1;
+bool isEmpty(ViewWindow w ) = w.max == -1 && w.min == -1;
 
-str trViewWindow(VIEWWINDOW w) {
+str trViewWindow(ViewWindow w) {
     str r = "{";
     if  (w.min>=0) r+="\"min\" : <w.min>,";
     if  (w.max>=0) r+= "\"max\" : <w.max>,";
@@ -296,11 +296,11 @@ str trViewWindow(VIEWWINDOW w) {
     return r;
     }
 
-data GRIDLINES(str color = "", int count =-1) = gridlines();
+data GridLines(str color = "", int count =-1) = gridlines();
 
-bool isEmpty(GRIDLINES g) = isEmpty(g.color) && g.count == -1 ;
+bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
 
-str trGridlines(GRIDLINES g) {
+str trGridlines(GridLines g) {
     str r = "{";
     if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
     if  (g.count>=0) r+= "\"count\" : <g.count>,";
@@ -310,9 +310,9 @@ str trGridlines(GRIDLINES g) {
     }
 
 
-bool isEmpty(GRIDLINES g) = isEmpty(g.color) && g.count == -1 ;
+bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
 
-str trGridlines(GRIDLINES g) {
+str trGridlines(GridLines g) {
     str r = "{";
     if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
     if  (g.count>=0) r+= "\"count\" : <g.count>,";
@@ -321,7 +321,7 @@ str trGridlines(GRIDLINES g) {
     return r;
     }
 
-data SERIES (
+data Series (
     str color ="",
     str curveType = "",
     int lineWidth = -1,
@@ -330,11 +330,11 @@ data SERIES (
     str \type=""
     ) = series();
     
-bool isEmpty(SERIES s) = isEmpty(s.color) &&
+bool isEmpty(Series s) = isEmpty(s.color) &&
        isEmpty(s.curveType) &&  isEmpty(s.pointShape) && isEmpty(s.\type) 
             && s.lineWidth == -1 && s.pointSize == -1;
             
-str trSeries(SERIES s) {
+str trSeries(Series s) {
     str r = "{";
     if  (!isEmpty(s.color)) r+="\"color\" : \"<s.color>\",";
     if  (!isEmpty(s.curveType)) r+="\"curveType\" : \"<s.curveType>\",";
@@ -349,30 +349,30 @@ str trSeries(SERIES s) {
             
             
     
-data CHARTOPTIONS (str title = "",
-             AXIS hAxis = axis(),
-             AXIS vAxis = axis(),
+data ChartOptions (str title = "",
+             Axis hAxis = axis(),
+             Axis vAxis = axis(),
              int width=-1,
              int height = -1,
              bool forceIFrame = true,
-             LEGEND legend = legend(),
+             Legend legend = legend(),
              int lineWidth = -1,
              int pointSize = -1,
              bool interpolateNulls = false,
              str curveType = "",
              str seriesType = "",
              str pointShape = "",
-             list[SERIES] series = []
+             list[Series] series = []
              ) = chartOptions()
             ;
             
-str trOptions(CHARTOPTIONS options) {
+str trOptions(ChartOptions options) {
             str r = "{";
             if  (!isEmpty(options.title)) r +="\"title\" : \"<options.title>\",";
             if  (!isEmpty(options.hAxis)) r +="\"hAxis\" : <trAxis(options.hAxis)>,";
             if  (!isEmpty(options.vAxis)) r +="\"vAxis\" : <trAxis(options.vAxis)>,";
-            if  (options.width>=0) r+="\"width\" : \"<options.width>\",";
-            if  (options.height>=0) r+= "\"height\" : \"<options.height>\",";
+            if  (options.width>=0) r+="\"width\" : <options.width>,";
+            if  (options.height>=0) r+= "\"height\" : <options.height>,";
             r+= "\"forceIFrame\":<options.forceIFrame>,";
             if  (!isEmpty(options.legend)) r +="\"hAxis\" : <trLegend(options.legend)>,";
             if  (options.lineWidth>=0) r+="\"lineWidth\" : <options.lineWidth>,";
@@ -387,9 +387,9 @@ str trOptions(CHARTOPTIONS options) {
             return r;
       }
             
-data COLUMN  = column(str \type="", str label="", str role = "");      
+data Column  = column(str \type="", str label="", str role = "");      
 
-str trColumn(COLUMN c) {
+str trColumn(Column c) {
     return
     "{\"label\":\"<c.label>\",
     ' \"type\": \"<c.\type>\",
@@ -398,7 +398,8 @@ str trColumn(COLUMN c) {
     }
 
 
-data Chart(str name = "", str color = "black" /* add interpolate */)
+data Chart(str name = "", str color = "", str curveType = "",
+     int lineWidth = -1, str pointShape = "", int pointSize = -1)
     =
 	  line(XYData xydata) 
 	| line(XYLabeledData xylabeldata) 
@@ -407,7 +408,6 @@ data Chart(str name = "", str color = "black" /* add interpolate */)
 	| bar(XYLabeledData xylabeledData)
 	;
 	
-/*Examples*/
 
 lrel[value, value] tData(Chart c) {
      switch(c) {
@@ -418,49 +418,23 @@ lrel[value, value] tData(Chart c) {
      return [];
      }
 
-COLUMN cData(Chart c) {
+Column cData(Chart c) {
      switch(c) {
-        case line(XYData x): return column(\type="num");
-        case area(XYData y): return column(\type="num");
-        case bar(LabeledData labeledData): return column(\type="num");
+        case line(XYData x): return column(\type="number");
+        case area(XYData y): return column(\type="number");
+        case bar(LabeledData labeledData): return column(\type="number");
         }
      return column();
      }
      
-list[COLUMN] joinColumn(list[Chart] charts) {
-     list[COLUMN] r = [cData(c)|c<-charts];
-     return [column(\type="num")]+r;
+list[Column] joinColumn(list[Chart] charts) {
+     list[Column] r = [cData(c)|c<-charts];
+     return [column(\type="number")]+r;
      }
      
 list[list[value]] joinData(list[Chart] charts) {
    set[value] d = union({toSet(domain(tData(c)))|c <-charts});   
-   list[value] x = [i|i<-d];
+   list[value] x = sort([i|i<-d]);
    return [[z] +[(tData(c)[z]?)?tData(c)[z][0]:""|c<-charts]|z<-x];
    }
 	
-void sinAndCosChart(){
-        ex("sinAndCosChart", 
-        	combo(charts=[line([<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]], name="Sine Wave"),
-        		   line([<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]], name ="Cosine Wave"),
-        		   line([<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]], name= "Another sine wave")
-        			],
-        	options = chartOptions(curveType="function",
-           		hAxis = axis(title="Time (s)"), 
-           		vAxis = axis(title="Voltage(v)"),
-           		width=500,
-                height=200
-        	    )
-           
-        ));
-}
- 
-public list[Chart] q = 
-     [
-     line([<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]], name="Sine Wave"),
-     line([<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]], name ="Cosine Wave"),
-     line([<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]], name= "Another sine wave")
-     ];
-
-void ex(str title, Figure f){
-	render(title, f);
-}
