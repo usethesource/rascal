@@ -499,9 +499,7 @@ Pitfalls:
   you might get an decoding error or just strange looking characters.
 
 }
-
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str readFile(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -513,14 +511,8 @@ Return the contents (decoded using the Character set supplied) of a file locatio
 Also see [readFileLinesEnc].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str readFileEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
-
-@deprecated{Use @see str readFile(loc file)}
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[str] readFile(str filename)
-throws IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a file and return it as a list of bytes.

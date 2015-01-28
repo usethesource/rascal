@@ -21,7 +21,7 @@ public class FileResult extends ResourceResult {
 		super(type, value, ctx, fullURI, displayURI);
 		Prelude prelude = new Prelude(ctx.getValueFactory());
 		ISourceLocation uri = FileURIResolver.constructFileURI(fullURI.getURI().getPath());
-		this.value = prelude.readFile(uri, ctx);
+		this.value = prelude.readFile(uri);
 	}
 
 }

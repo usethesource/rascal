@@ -23,7 +23,6 @@ public value readValueFile(loc file) {
 
 @doc{Get length in bytes of a file.}
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java int getFileLength(loc file);
 
 @doc{Read a typed value from a binary file.}
