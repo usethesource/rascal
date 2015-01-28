@@ -199,7 +199,7 @@ public class Reflective {
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
 		}
-		prelude.writeTextValueFile(watchLoc, val, ctx);
+		prelude.writeTextValueFile(watchLoc, val);
 		return val;
 	}
 
