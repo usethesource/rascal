@@ -85,19 +85,17 @@ public class URIResolverRegistry {
 				}
 				
 				if (loc == null || prev.equals(loc)) {
-					loc = prev;
-					
 					for (ILogicalSourceLocationResolver backup : map.values()) {
-						loc = backup.resolve(loc);
+						removedOffset = false;
+						loc = backup.resolve(prev);
 						
 						if (loc == null && prev.hasOffsetLength()) {
-							loc = URIUtil.removeOffset(prev);
-							loc = backup.resolve(loc);
+							loc = backup.resolve(URIUtil.removeOffset(prev));
 							removedOffset = true;
 						}
 						
 						if (loc != null && !prev.equals(loc)) {
-							return loc;
+							break; // continue to offset/length handling below with found location
 						}
 					}
 				}
