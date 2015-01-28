@@ -24,6 +24,22 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	}
 	
 	@Override
+	public int read() throws IOException {
+		offset();
+		if (charsRead >= length) {
+			return -1;
+		}
+		
+		int res = super.read();
+		
+		if (res != -1 && !Character.isHighSurrogate((char) res)) {
+			charsRead++;
+		}
+		
+		return res;
+	}
+	
+	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
 		offset();
 		
