@@ -56,6 +56,7 @@ res = "\<html\>
         '   \<!-- NVD3 --\>
         '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"lib/nv.d3.js\"\>\</script\>
+        '   \<script src=\"https://www.google.com/jsapi\"\>\</script\>
         '	\<script src=\"lib/vega-min.js\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
@@ -188,7 +189,7 @@ private str get_initial_figure(str name){
 		f = descr.visualize("init", "all", makeCursor(descr.model));
 		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
-    	// println("get_initial_server: res = <res>");
+    	println("get_initial_server: res = <res>");
     	return res;
     } else {
     	throw "get_initial_figure: visualization <name> unknown";
