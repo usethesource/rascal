@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -139,26 +140,49 @@ public class RascalToIguanaGrammarConverter {
 		
 		rulesMap = new HashMap<>();
 		
+		Nonterminal layout = getLayoutNonterminal(rascalGrammar);
+		
 		for (IValue nonterminal : definitions) {
 
 			IConstructor constructor = (IConstructor) nonterminal;
 			
-			if (constructor.getName().equals("layouts")) {
-				builder.addLayouts(getAlternatives(nonterminal));
-				continue;
+			if (constructor.getName().equals("layouts") || 
+				constructor.getName().equals("lex") ||
+				constructor.getName().equals("token")) {
+				
+				builder.addRules(getAlternatives(nonterminal, null));
+				
+			} else {
+				builder.addRules(getAlternatives(nonterminal, layout));				
 			}
 			
-			builder.addRules(getAlternatives(nonterminal));
 		}
 		
 		return builder.build();
 	}
 	
-	private List<Rule> getAlternatives(IValue nonterminal) {
+	public Nonterminal getLayoutNonterminal(IConstructor rascalGrammar) {
+		definitions = (IMap) rascalGrammar.get("rules");
+		
+		List<String> layoutNonterminals = new ArrayList<>();
+		
+		for (IValue nonterminal : definitions) {
+			IConstructor constructor = (IConstructor) nonterminal;
+			if (constructor.getName().equals("layouts")) {
+				layoutNonterminals.add(((IString)constructor.get("name")).getValue());
+			}
+		}
+		
+		Nonterminal layout  = Nonterminal.withName(layoutNonterminals.stream().filter(s -> !s.equals("$default$")).collect(Collectors.toList()).get(0));
+		
+		return layout;
+	}
+	
+	private List<Rule> getAlternatives(IValue nonterminal, Nonterminal layout) {
 		
 		List<Rule> rules = new ArrayList<>();
 		
-		Nonterminal head = Nonterminal.withName(SymbolAdapter.toString((IConstructor) nonterminal, true));
+		Nonterminal head = Nonterminal.withName(SymbolAdapter.toString((IConstructor) nonterminal, false));
 		
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
@@ -176,7 +200,7 @@ public class RascalToIguanaGrammarConverter {
 
 				List<Symbol> body = getSymbolList(rhs);
 				
-				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).build();
+				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayout(layout).build();
 				rulesMap.put(prod, rule);
 				rules.add(rule);
 			}
