@@ -12,8 +12,6 @@ import String;
 import IO;
 import Message;
 
-private map[loc project, M3 model] projects = ();
-
 @doc{
 Synopsis: register an M3 model for a certain project name.
 
@@ -35,64 +33,10 @@ Pitfalls:
 programmer should take care to call [unregisterProject] to prevent memory leakage.
 }
 void registerProject(loc project, M3 model) {
-  projects[project] = model;
+    rel[str scheme, loc name, loc src] perScheme 
+      = {<name.scheme, name, src> | <name, src> <- model@declarations};
+    
+    for (str scheme <- perScheme<scheme>)
+       registerLocations(scheme, project.authority, (name : src | <name, src> <- perScheme[scheme]));
 }
 
-@doc{
-Synopsis: remove an M3 model for a project from the registry
-
-Description:
-
-This is necessary to solve memory leaks. When you are sure not to reference an M3 model anymore, the model
-can be removed from the registry.
-}
-void unregisterProject(loc project) {
-  projects -= (project:m3(project));
-}
-
-M3 getModelContaining(loc entity) {
-  for (proj <- projects) {
-    if (<entity, _> <- projects[proj]@declarations) {
-      return projects[proj];
-    }
-  }
-  throw "No model found containing the declaration <entity>";
-}
-
-@doc{
-Synopsis: map a qualified name [Location] to a physical file store [Location]
-
-Description:
-
-[resolveM3] uses the registry to find out from an M3 model where in the source code a qualified name is declared.
-
-Note that specific languages should declare they own resolvers, delegating immediately to [resolveM3].   
-}
-@resolver{m3}
-loc resolveM3(loc name) {
-  str project = name.authority;
-  if (isEmpty(project)) {
-    for (proj <- projects) {
-      if (<name, src> <- projects[proj]@declarations) {
-        return src;
-      }
-    }
-    // lets try again with our parent, maybe someone has been messing with the locations
-    name = name.parent;
-    for (proj <- projects) {
-      if (<name, src> <- projects[proj]@declarations) {
-        return src;
-      }
-    }
-  } else {
-    if (<name, src> <- projects[name[path=""]]@declarations) { 
-      return src;
-    }
-    // lets try again with our parent, maybe someone has been messing with the locations
-    name = name.parent;
-    if (<name, src> <- projects[name[path=""]]@declarations) { 
-      return src;
-    }
-  }
-  throw "<name> not resolved";
-}
