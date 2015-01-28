@@ -209,7 +209,7 @@ public class ReflectiveCompiled extends Reflective {
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + path + "|"), null, null);
 		}
-		IValue oldVal = preludeCompiled.readTextValueFile(tp, watchLoc, rex);
+		IValue oldVal = preludeCompiled.readTextValueFile(tp, watchLoc);
 		if(oldVal.equals(newVal)){
 			return newVal;
 		} else {
