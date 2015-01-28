@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascal.grammar.tests;
+package org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -121,10 +121,10 @@ public class G0Parser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ICon
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
       tmp[2] = new LiteralStackNode<IConstructor>(17, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(19, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(18, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16, 1, prod__lit___115_111_114_116_40_34_83_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,34,41}, null, null);
       tmp[4] = new CharStackNode<IConstructor>(20, 4, new int[][]{{0,0}}, null, null);
       tmp[0] = new CharStackNode<IConstructor>(15, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16, 1, prod__lit___115_111_114_116_40_34_83_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(19, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(18, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(G0Parser.prod__$MetaHole_S__char_class___range__0_0_lit___115_111_114_116_40_34_83_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__S, tmp);
 	}
     protected static final void _init_prod__S__lit_0_(ExpectBuilder<IConstructor> builder) {
