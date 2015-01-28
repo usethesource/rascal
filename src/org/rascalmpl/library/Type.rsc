@@ -125,7 +125,7 @@ public Production choice(Symbol s, set[Production] choices){
 	if(!any(choice(Symbol t, set[Production] b)  <- choices)){
 	   fail;
 	} else {   
-	    // TODO: this does not work in interpreter and typechcker crashes on it
+	    // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
 	    //return choice(s, { *(choice(Symbol t, set[Production] b) := ch ? b : {ch}) | ch <- choices });
 	    changed = false;
 	    new_choices = {};
