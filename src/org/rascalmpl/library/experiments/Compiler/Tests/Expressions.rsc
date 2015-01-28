@@ -133,13 +133,17 @@ test bool tst() = run("[1,2,3]") == [1,2,3];
 test bool tst() = run("[1,2,3] + [4,5]") == [1,2,3] + [4,5];
 test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
 
-// << and >> not supported by type checker
-/*fails*/ //test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
-/*fails*/ //test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
 
-// not supported by interpreter: test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
+@ignoreInterpreter{Not supported}
+test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
+@ignoreInterpreter{Not supported}
+test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
+
+@ignoreInterpreter{Not supported}
+test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
 test bool tst() = run("0 + [1,2,3]") == [0,1,2,3];
-// not supported by interpreter: test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
+@ignoreInterpreter{Not supported}
+test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
 test bool tst() = run("[1,2,3] & [1,3]") == [1,2,3] & [1,3];
 test bool tst() = run("[1,2,3] - [1,3]") == [1,2,3] - [1,3];
 test bool tst() = run("1 in [1,2,3]") == 1 in [1,2,3];
@@ -175,7 +179,7 @@ test bool tst() = run("[1, 2, 3] * [1, 2, 3]") == [1, 2, 3] * [1, 2, 3];
 // [ <3,3>, <3,2>, <3,1>, <2,3>, <2,2>, <2,1>, <1,3>, <1,2>, <1,1> ]
 // I prefer the first one (as given by the compiler)
 
-/*fails*/ //test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
+//test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
 
 test bool tst() = run("[\<1,10\>, \<2,20\>] join [\<300, 2000\>]") == [<1,10>, <2,20>] join [<300, 2000>];
 
@@ -249,8 +253,9 @@ test bool tst() = run("{ x | x \<- d1(3, \"a\") }") == { x | x <- d1(3,"a") };
 
 // Enumerator
 
-//Here the interpreter and compiler deviate: compiled code gives true, interpreted code gives false. The compiler is right.
-/*fails*/ // test bool tst() = run("x \<- []") == x <- [];
+
+@ignoreInterpreter{Interpreter and compiler deviate: compiled code gives true, interpreted code gives false. The compiler is right.}
+test bool tst() = run("x \<- []") == x <- [];
 test bool tst() = run("int x \<- []") == int x <- [];
 test bool tst() = run("x \<- [1,2,3]") == x <- [1,2,3];
 test bool tst() = run("int x \<- [1,2,3]") == int x <- [1,2,3];

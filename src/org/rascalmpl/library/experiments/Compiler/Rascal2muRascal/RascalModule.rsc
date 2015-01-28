@@ -66,7 +66,7 @@ public void addFunctionToModule(MuFunction fun) {
 
 public void addFunctionsToModule(list[MuFunction] funs) {
    if(size(funs) > 0){
-   		println("addFunctionsToModule [<size(funs)>]: <for(fun <- funs){><fun.qname>, \"<fun.scopeIn>\" <}>");
+   		//println("addFunctionsToModule [<size(funs)>]: <for(fun <- funs){><fun.qname>, \"<fun.scopeIn>\" <}>");
    
    		functions_in_module += funs;
    

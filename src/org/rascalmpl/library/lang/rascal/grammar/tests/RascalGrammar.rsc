@@ -1,7 +1,10 @@
-module experiments::Compiler::Examples::RascalGrammar
+module  lang::rascal::grammar::tests::RascalGrammar
 
 import Grammar;
 import ParseTree;
+import IO;
+import String;
+import List;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
@@ -146,9 +149,21 @@ sort("StringMiddle"): choice(sort("StringMiddle"),{prod(label("template",sort("S
 lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,16777215)]))],{})}))
 );
 
-value main(list[value] args) { 
-	t = cpuTime(); 
-	newGenerate("RascalGrammar", "Rascal", Rascal); 
-//	usedSymbols(Rascal);
-	return cpuTime() - t;
+str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
+
+loc RascalParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|;
+
+void generateAndWriteRascalParser(){
+	writeFile(RascalParserLoc, generateRascalParser());
+}
+
+int generateAndTimeRascalParser() { 
+    println("GenerateAndTimeRascalParser");
+	t = cpuTime();
+	generateRascalParser();
+	return (cpuTime() - t)/1000000;
 }	
+
+value main(list[value] args) = generateAndTimeRascalParser();
+
+test bool tstgenerateRascalParser() = sameLines(generateRascalParser(), readFile(RascalParserLoc));
