@@ -10,12 +10,12 @@ var printq = function(o){
     var str='';
 
     for(var p in o){
-        // str+= p + '\n';
-        if(typeof o[p] == 'string'){
+        str+= p + '\n';
+    /*    if(typeof o[p] == 'string'){
             str+= p + ': ' + o[p]+';';
-        }else{ str+= '';
+        }else{ str+= p+";";
             // str+= p + ': {' + printq(o[p]) + '}';
-        }
+        } */
         
     }
 
@@ -65,12 +65,14 @@ var printq = function(o){
 
         // Create the data table.
         var data = new google.visualization.DataTable();
+        // alert(JSON.stringify(figure.data));
         for (i=0;i<figure.columns.length;i++) {
             var x = figure.columns[i];
-            data.addColumn({type: x.type, label:x.label, role:x.role});
+            data.addColumn(x);
             }
+        // alert(JSON.stringify(figure.columns));
         data.addRows(figure.data);
-
+        
         // Set chart options
         var options = {title:figure.name,            
                         width:w,
@@ -84,8 +86,11 @@ var printq = function(o){
 
         // Instantiate and draw our chart, passing in some options.
          var chart = new google.visualization[figure.command](document.getElementById('chart_div'));
-        alert(JSON.stringify(merge(options, figure.options)));
+         // alert(JSON.stringify(options));
+         // alert(JSON.stringify(figure.options));
+         // alert(JSON.stringify(merge(options, figure.options)));
         // var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        
         chart.draw(data, merge(options,figure.options));
       }
 
