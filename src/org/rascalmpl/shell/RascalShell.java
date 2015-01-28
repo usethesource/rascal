@@ -144,7 +144,7 @@ public class RascalShell {
 	private String handleInput(Evaluator evaluator, String statement){
 		Timing tm = new Timing();
 		tm.start();
-		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootScheme("prompt"));
+		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootLocation("prompt"));
 		long duration = tm.duration();
 
 		if (value.getValue() == null) {
@@ -164,7 +164,7 @@ public class RascalShell {
 
 	private boolean completeStatement(Evaluator evaluator, String command) throws FactTypeUseException {
 		try {
-			evaluator.parseCommand(null, command, URIUtil.rootScheme("prompt"));
+			evaluator.parseCommand(null, command, URIUtil.rootLocation("prompt"));
 		}
 		catch (ParseError pe) {
 			String[] commandLines = command.split("\n");
@@ -266,7 +266,7 @@ public class RascalShell {
 		for (String root : roots) {
 			String scheme = "root" + count;
 			URIResolverRegistry.getInstance().registerInput(new ClassResourceInput(scheme, RascalShell.class, "/" + root));
-			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
+			eval.addRascalSearchPath(URIUtil.rootLocation(scheme)); 
 		}
 	}
 
