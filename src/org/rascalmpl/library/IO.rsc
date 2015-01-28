@@ -72,7 +72,6 @@ Pitfalls:
 * The same encoding pitfalls as the [readFile] function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -89,7 +88,6 @@ Append a textual representation of some values to an existing or a newly created
 Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void appendToFileEnc(loc file, str charset, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -156,7 +154,6 @@ exists(|std:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool exists(loc file);
 
 
@@ -185,7 +182,6 @@ Description:
 Check whether the location `file` is a directory.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool isDirectory(loc file);
 
 @doc{
@@ -222,7 +218,6 @@ import IO;
 iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 </screen>
 }
-@reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintToFile(loc file, value arg); 
 
@@ -288,7 +283,6 @@ Description:
 Check whether location `file` is actually a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool isFile(loc file);
 
 
@@ -306,7 +300,6 @@ lastModified(|clib-rascal:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java datetime lastModified(loc file);
 
 @doc{
@@ -324,7 +317,6 @@ listEntries(|std:///|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] listEntries(loc file);
 
 
@@ -335,7 +327,6 @@ Description:
 Create a directory at location `file`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void mkDirectory(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -518,7 +509,6 @@ throws PathNotFound(loc file), IO(str msg);
 Synopsis: Read the contents of a file and return it as a list of bytes.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[int] readFileBytes(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -539,7 +529,6 @@ Pitfalls:
   you might get an decoding error or just strange looking characters (see [readFile]).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -551,13 +540,11 @@ Return the contents (decoded using the Character set supplied) of a file locatio
 Also see [readFileLines].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] readFileLinesEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void remove(loc file) throws IO(str msg);
 
 @doc{
@@ -573,7 +560,6 @@ Write a textual representation of some values to a file:
 Files are encoded in UTF-8, in case this is not desired, use [writeFileEnc].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -581,7 +567,6 @@ throws PathNotFound(loc file), IO(str msg);
 Synopsis: Write a list of bytes to a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -598,7 +583,6 @@ Write a textual representation of some values to a file:
 Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFileEnc(loc file, str charset, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -618,7 +602,6 @@ MD5 hash the contents of a file location.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str md5HashFile(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
