@@ -10,21 +10,16 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	private int charsRead;
 	private int offset;
 	private int length;
-	private boolean previousHighSurrogate;
 	
 	protected UnicodeOffsetLengthReader(Reader in, int offset, int len) {
 		super(in);
 		this.offset = offset;
 		this.length = len;
-		previousHighSurrogate = false;
 	}
 	
 	private void offset() throws IOException {
 		while (offset > 0) {
-			char current = (char) super.read();
-			previousHighSurrogate = Character.isHighSurrogate(current);
-			
-			if (!previousHighSurrogate) {
+			if (!Character.isHighSurrogate((char) super.read())) {
 				offset--;
 			}
 		}
