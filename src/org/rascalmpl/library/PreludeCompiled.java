@@ -2,17 +2,13 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -129,124 +125,6 @@ public class PreludeCompiled extends Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		} 
-	}
-	
-	public IValue readFile(ISourceLocation sloc, RascalExecutionContext rex){
-		sloc = rex.resolveSourceLocation(sloc);
-		Reader reader = null;
-
-		try {
-			Charset c = URIResolverRegistry.getInstance().getCharset(sloc);
-			if (c != null) {
-				return readFileEnc(sloc, values.string(c.name()), rex);
-			}
-			sloc = rex.resolveSourceLocation(sloc);
-			reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);
-			return consumeInputStream(sloc, reader, rex);
-		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-		finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-				}
-			}
-		}
-	}
-	
-	public IValue readFileEnc(ISourceLocation sloc, IString charset, RascalExecutionContext rex){
-		sloc = rex.resolveSourceLocation(sloc);
-
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
-			return consumeInputStream(sloc, reader, rex);
-		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
-	
-	private IValue consumeInputStream(ISourceLocation sloc, Reader in, RascalExecutionContext rex) {
-		try{
-			java.lang.String str = null;
-			if(!sloc.hasOffsetLength() || sloc.getOffset() == -1){
-				StringBuilder result = new StringBuilder(1024 * 1024);
-				char[] buf = new char[4096];
-				int count;
-	
-				while((count = in.read(buf)) != -1) {
-					result.append(new java.lang.String(buf, 0, count));
-				}
-				str = result.toString();
-			}
-			else {
-				BufferedReader buffer = new BufferedReader(in, 4096);
-				try {
-					// first scan for offset
-					int offset = sloc.getOffset();
-					int seen = 0 ;
-					while (seen < offset) {
-						char c = (char)buffer.read();
-						if (Character.isHighSurrogate(c)) {
-							c = (char)buffer.read();
-							if (!Character.isLowSurrogate(c))
-								seen++;// strange string but it is possible
-
-						}
-						seen++;
-					}
-	
-					// offset reached, start reading and possibly merging
-					int targetLength = sloc.getLength();
-					StringBuilder result = new StringBuilder(targetLength);
-					int charsRead = 0;
-					while (charsRead < targetLength) {
-						int c = buffer.read();
-						if (c == -1) {
-							break; // EOF
-						}
-						charsRead++;
-						result.append((char)c);
-						if (Character.isHighSurrogate((char)c)) {
-							c = buffer.read();
-							if (c == -1) {
-								break; // EOF
-							}
-							result.append((char)c);
-							if (!Character.isLowSurrogate((char)c)) {
-								// strange but in case of incorrect unicode stream
-								// let's not eat the next character
-								charsRead++;
-							}
-						}
-					}
-					str = result.toString();
-				}
-				finally {
-					buffer.close();
-				}
-				
-			}
-			return values.string(str);
-		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-		}finally{
-			if(in != null){
-				try{
-					in.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-				}
-			}
-		}
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc, RascalExecutionContext rex){
@@ -392,105 +270,6 @@ public class PreludeCompiled extends Prelude {
 	
 	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V, RascalExecutionContext rex){
 		writeFileEnc(sloc, charset, V, true, rex);
-	}
-	
-	public IList readFileLines(ISourceLocation sloc, RascalExecutionContext rex){
-		  sloc = rex.resolveSourceLocation(sloc);
-		  Reader reader = null;
-		  
-			try {
-				Charset detected = URIResolverRegistry.getInstance().getCharset(sloc);
-				if (detected != null) {
-					return readFileLinesEnc(sloc, values.string(detected.name()), rex);
-				}
-				reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);
-	      return consumeInputStreamLines(sloc, reader, rex);
-			}catch(MalformedURLException e){
-			    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
-			}catch(FileNotFoundException e){
-				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-			}catch(IOException e){
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-			} finally {
-			  if (reader != null) {
-			    try {
-	          reader.close();
-	        } catch (IOException e) {
-	          // forgot about it
-	        }
-			  }
-			}
-		}
-	
-	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, RascalExecutionContext rex){
-		  sloc = rex.resolveSourceLocation(sloc);
-		  
-			try {
-				return consumeInputStreamLines(sloc, URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue()), rex);
-			}catch(MalformedURLException e){
-			    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
-			}catch(FileNotFoundException e){
-				throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-			}catch(IOException e){
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-			}
-		}
-	
-	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, RascalExecutionContext rex ) {
-		IListWriter w = values.listWriter();
-
-		BufferedReader in = null;
-		try{
-			in = new BufferedReader(stream);
-			java.lang.String line;
-
-			int i = 0;
-			//			int offset = sloc.getOffset();
-			int beginLine = sloc.hasLineColumn() ? sloc.getBeginLine() : -1;
-			int beginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
-			int endLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
-			int endColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
-
-			do{
-				line = in.readLine();
-				i++;
-				if(line != null){
-					if(!sloc.hasOffsetLength()){
-						w.append(values.string(line));
-					}else{
-						if(!sloc.hasLineColumn()){
-							endColumn = line.length();
-						}
-						if(i == beginLine){
-							if(i == endLine){
-								w.append(values.string(line.substring(beginColumn, Math.min(endColumn, line.length()))));
-							}else{
-								w.append(values.string(line.substring(beginColumn)));
-							}
-						}else if(i > beginLine){
-							if(i == endLine){
-								w.append(values.string(line.substring(0, Math.min(endColumn, line.length()))));
-							}
-							else if(i < endLine){
-								w.append(values.string(line));
-							}
-						}
-					}
-				}
-			}while(line != null);
-		}catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}finally{
-			if(in != null){
-				try{
-					in.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-				}
-			}
-		}
-
-		return w.done();
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc, RascalExecutionContext rex){
@@ -908,20 +687,6 @@ public class PreludeCompiled extends Prelude {
 	
 	/*** end of implode ***/
 	
-	public IInteger getFileLength(ISourceLocation g, RascalExecutionContext rex) throws IOException {
-		if (g.getScheme().equals("file")) {
-			File f = new File(g.getURI());
-			if (!f.exists() || f.isDirectory()) { 
-				throw new IOException(g.toString());
-			}
-			
-			return values.integer(f.length());
-		}
-		else {
-			return values.integer(((IString) readFile(g, rex)).getValue().getBytes().length);
-		}
-	}
-
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, RascalExecutionContext rex){
 
 		//		TypeStore store = ctx.getCurrentEnvt().getStore();
