@@ -1053,12 +1053,13 @@ public class Prelude {
 		}
 	}
 
+	// TODO: if set the chunk size to 2 or 3 here something goes wrong in the {@link UnicodeOffsetLengthReader}
 	private IValue consumeInputStream(Reader in) throws IOException {
-		BufferedReader buf = new BufferedReader(in);
-		String line = null;
 		StringBuilder res = new StringBuilder();
-		while ((line = buf.readLine()) != null) {
-		    res.append(line);
+		char[] chunk = new char[512];
+		int read = 0;
+		while ((read = in.read(chunk, 0, 512)) != -1) {
+		    res.append(chunk, 0, read);
 		}
 		
 		return values.string(res.toString());
@@ -1242,7 +1243,7 @@ public class Prelude {
 		String line = null;
 		IListWriter res = values.listWriter();
 		while ((line = buf.readLine()) != null) {
-		    res.insert(values.string(line));
+		    res.append(values.string(line));
 		}
 		
 		return res.done();
