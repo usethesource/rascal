@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
