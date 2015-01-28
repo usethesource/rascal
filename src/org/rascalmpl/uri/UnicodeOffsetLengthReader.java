@@ -4,23 +4,27 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.rascalmpl.ast.Char;
+
 public class UnicodeOffsetLengthReader extends FilterReader {
 	private int charsRead;
 	private int offset;
 	private int length;
-	private char previous;
+	private boolean previousHighSurrogate;
 	
 	protected UnicodeOffsetLengthReader(Reader in, int offset, int len) {
 		super(in);
 		this.offset = offset;
 		this.length = len;
+		previousHighSurrogate = false;
 	}
 	
 	private void offset() throws IOException {
 		while (offset > 0) {
-			this.previous = (char) super.read();
+			char current = (char) super.read();
+			previousHighSurrogate = Character.isHighSurrogate(current);
 			
-			if (!Character.isHighSurrogate(this.previous)) {
+			if (!previousHighSurrogate) {
 				offset--;
 			}
 		}
@@ -47,9 +51,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 			// now cut off the result
 			int count = 0;
 			for (int i = 0; i < res; i++) {
-				this.previous = cbuf[i];
 				count++;
-				
 				if (!Character.isHighSurrogate(cbuf[i])) {
 					charsRead++;
 					
