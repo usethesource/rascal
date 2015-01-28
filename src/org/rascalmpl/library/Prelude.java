@@ -1053,7 +1053,6 @@ public class Prelude {
 		}
 	}
 
-	// TODO: if set the chunk size to 2 or 3 here something goes wrong in the {@link UnicodeOffsetLengthReader}
 	private IValue consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[512];
