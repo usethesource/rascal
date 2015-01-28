@@ -1057,7 +1057,7 @@ public class Prelude {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[512];
 		int read = 0;
-		while ((read = in.read(chunk, 0, 512)) != -1) {
+		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
 		    res.append(chunk, 0, read);
 		}
 		

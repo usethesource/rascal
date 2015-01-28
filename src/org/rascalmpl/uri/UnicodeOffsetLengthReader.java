@@ -46,7 +46,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 		if (res != -1) {
 			// now cut off the result
 			int count = 0;
-			for (int i = off; i < len + off; i++) {
+			for (int i = 0; i < res; i++) {
 				this.previous = cbuf[i];
 				count++;
 				
@@ -59,11 +59,6 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 					}
 				}
 			}
-			
-			// if the last char was a high surrogate, then count will have been incremented
-			// but we will not report it readed.
-			// it will be pushed onto the stream in subsequent calls
-			//return Character.isHighSurrogate(previous) ? count - 1 : count;
 			return count;
 		}
 		
