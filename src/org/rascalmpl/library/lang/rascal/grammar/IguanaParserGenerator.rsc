@@ -24,7 +24,7 @@ iprintln("gr before: <gr>");
   //gr = literals(gr);
   gr = flattenTokens(gr);
   //gr = addHoles(gr);
-  //gr = expandKeywords(gr);
+  gr = expandKeywords(gr);
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
