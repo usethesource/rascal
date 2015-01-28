@@ -29,9 +29,10 @@ test bool tst() = run("\"a\" := \"a\"") == "a" := "a";
 test bool tst() = run("\"a\" := \"b\"") == "a" := "b";
 
 // Datetime
-// The following two tests fail, since the interpreter does not support datetime patterns. We are ahead :-)
-/*fails*/ //test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
-/*fails*/ //test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
+@ignore{The following two tests fail, since the interpreter does not support datetime patterns. We are ahead :-)}
+test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
+@ignore{See above}
+test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 
 
 // Location
@@ -111,10 +112,11 @@ test bool tst() = run("{*_} := {}") == {*_} := {};
 test bool tst() = run("!{*_} := {}") == !{*_} := {};
 test bool tst() = run("{*_,1} := {}") == {*_,1} := {};
 
-// Following two failures due to error in Rascal interpreter:
-/*fails*/ // test bool tst() = run("!{*_,1} := {}") == !{*_,1} := {};
+@ignore{Error in interpreter}
+test bool tst() = run("!{*_,1} := {}") == !{*_,1} := {};
 test bool tst() = run("{*_,1} := {2}") == {*_,1} := {2};
-/*fails*/ //test bool tst() = run("!{*_,1} := {2}") == !{*_,1} := {2};
+@ignore{Error in interpreter}
+test bool tst() = run("!{*_,1} := {2}") == !{*_,1} := {2};
 
 test bool tst() = run("{str _, *int _} := {\"a\", 1, 2}") == {str _, *int _} := {"a", 1, 2};
 test bool tst() = run("{str _, *int _, *value _} := {\"a\", 1, 2, \"b\"}") == {str _, *int _,*value _} := {"a", 1, 2, "b"};
@@ -227,8 +229,8 @@ test bool tst() = run("{int x = 2; x := 2;}") == {int x = 2; x := 2;};
 test bool tst() = run("{int x = 3; x := 2;}") == {int x = 3; x := 2;};
 test bool tst() = run("{int x; x := 2;}") == {int x; x := 2;};
 
-// Here x should actually be undefined
-/*fails*/ // test bool tst() = run("{int x; x := 2; x;}") == {int x; x := 2; x;};
+@ignore{Here x should actually be undefined; compiler gives 2, interpreter: Uninitialized variable: x}
+test bool tst() = run("{int x; x := 2; x;}") == {int x; x := 2; x;};
 
 test bool tst() = run("{int x = 3; [1, x] := [1,3];}") == {int x = 3; [1, x] := [1,3];};
 test bool tst() = run("{int x = 7; [1, x] := [1,3];}") == {int x = 7; [1, x] := [1,3];};

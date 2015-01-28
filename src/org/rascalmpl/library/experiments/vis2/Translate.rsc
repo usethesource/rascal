@@ -1,6 +1,6 @@
 module experiments::vis2::Translate
 
-import experiments::vis2::Figure;
+import experiments::vis2::FigureNew;
 import Node;
 import String;
 import IO;
@@ -559,15 +559,15 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
       return r;
       }
 
-XYData inject(XYData r, num(list[num]) f) {
-     if (f == nullFunction) {return r;}
-     return [<k, f([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
-     }
-     
-LabeledData inject(LabeledData r, num(list[num]) f) {
-     if (f == nullFunction) {return r;}
-     return [<k, f([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
-     }
+//XYData inject(XYData r, num(list[num]) f) {
+//     if (f == nullFunction) {return r;}
+//     return [<k, f([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
+//     }
+//     
+//XYLabeledData inject(LabeledData r, num(list[num]) f) {
+//     if (f == nullFunction) {return r;}
+//     return [<k, f([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
+//     }
 // LabeledData
 
 
@@ -620,6 +620,21 @@ str trVega(Figure chart, Figure parent) {
     '}";   
    
     }
+    
+ str trCombo(Figure chart, Figure parent) {
+    list[Chart] charts = chart.charts;
+    str d = intercalate(",", joinData(chart.charts));
+    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts)]);
+    str cmd = "ComboChart";
+    return 
+    "{\"figure\": \"combo\",
+    ' \"options\": \"<trOptions(chart.options)>\"
+    ' \"data\": [<d>],
+    '\"columns\": [<c>] ,
+    '\"command\": \"<cmd>\"
+    '}";   
+   
+    }
 
 // ---------- barChart ----------
 
@@ -633,8 +648,12 @@ str trVega(Figure chart, Figure parent) {
 //}
 
 
-str figToJSON(chart: vegaChart(), Figure parent) {
-	return trVega(chart, parent);
+//str figToJSON(chart: vegaChart(), Figure parent) {
+//	return trVega(chart, parent);
+//}
+
+str figToJSON(chart: combo(), Figure parent) {
+	return trCombo(chart, parent);
 }
 
 // ---------- lineChart ----------
@@ -708,21 +727,21 @@ str figToJSON(figure: edge(int from, int to)) {
 
 // ---------- choice ----------
 
-str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) { 
-	int selection = figure.selection;
-	choices = figure.figs;
-	if(isCursor(selection)){
-	   return 
-		"{\"figure\": 	\"choice\",
-		' \"selector\":	<trCursor(selection)>,
-    	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
-   	    '              ] 
-   	    ' <propsToJSON(figure, parent)>
-    	'}";
-    } else {
-    	throw "choice: selection should be a cursor: <selection>";
-    }
- }
+//str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) { 
+//	int selection = figure.selection;
+//	choices = figure.figs;
+//	if(isCursor(selection)){
+//	   return 
+//		"{\"figure\": 	\"choice\",
+//		' \"selector\":	<trCursor(selection)>,
+//    	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
+//   	    '              ] 
+//   	    ' <propsToJSON(figure, parent)>
+//    	'}";
+//    } else {
+//    	throw "choice: selection should be a cursor: <selection>";
+//    }
+// }
 
  // ---------- visible ----------
  

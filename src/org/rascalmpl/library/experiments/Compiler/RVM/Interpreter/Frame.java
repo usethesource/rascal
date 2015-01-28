@@ -184,7 +184,7 @@ public class Frame {
 	public String toString(){
 		StringBuilder s = new StringBuilder(); //new StringBuilder("\tin ");
 		s.append(this.function.getPrintableName()).append("(");
-		for(int i = 0; i < function.nformals-1; i++){
+		for(int i = 0; i < function.nformals; i++){
 			if(i > 0) s.append(", ");
 			String repr;
 			if(stack[i] instanceof IValue ) {
@@ -196,18 +196,21 @@ public class Frame {
 					repr = repr.substring(n + 1, repr.length());
 				}
 			}
+			if(repr.length() > 40){
+				repr = repr.substring(0, 40) + "...";
+			}
 			s.append(repr);
 		}
 	
-		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
-			@SuppressWarnings("unchecked")
-			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
-			if(m.size() > 0){
-				for(String key : m.keySet()){
-					s.append(", ").append(key).append("=").append(m.get(key));
-				}
-			}
-		}
+//		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
+//			@SuppressWarnings("unchecked")
+//			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
+//			if(m.size() > 0){
+//				for(String key : m.keySet()){
+//					s.append(", ").append(key).append("=").append(m.get(key));
+//				}
+//			}
+//		}
 		
 		s.append(")");
 		if(src != null){
