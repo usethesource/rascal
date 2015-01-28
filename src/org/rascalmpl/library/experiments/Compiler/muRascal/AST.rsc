@@ -3,8 +3,7 @@ module experiments::Compiler::muRascal::AST
 import Message;
 import List;
 import Node;
-import Type;
-import experiments::Compiler::muRascal::ConstantFolder;    
+import Type;   
 
 /*
  * Abstract syntax for muRascal.
@@ -324,7 +323,16 @@ MuExp muCallPrim3("int_add_int", [muCallPrim3("int_add_int", [MuExp e, muCon(int
 
 MuExp muCallPrim3("int_add_int", [muCon(int n1), muCallPrim3("int_add_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
       muCallPrim3("int_add_int", [muCon(n1 + n2), e], src2);
-      
+
+// Integer subtraction
+ 
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
+
+MuExp muCallPrim3("int_subtract_int", [muCallPrim3("int_subtract_int", [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muCallPrim3("int_subtract_int", [e, muCon(n1 - n2)], src2);
+
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCallPrim3("int_subtract_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("int_subtract_int", [muCon(n1 - n2), e], src2);      
 
 // Integer multiplication
 
@@ -346,7 +354,7 @@ MuExp muCallPrim3("str_add_str", [muCallPrim3("str_add_str", [MuExp e, muCon(str
 MuExp muCallPrim3("str_add_str", [muCon(str s1), muCallPrim3("str_add_str", [muCon(str s2), MuExp e], loc src1)], loc src2)  =
       muCallPrim3("str_add_str", [muCon(s1 + s2), e], src2);
 
-// Composite datatypes
+// Create composite datatypes
 
 MuExp muCallPrim3("list_create", list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
       when allConstant(args);
@@ -365,8 +373,10 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), m
 
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
-      
-MuExp muCallPrim3("appl_create", [muCon(value prod), muCon(list[value] args)], loc src) = muCon(makeNode("appl", prod, args));
+
+// Templates
+MuExp muCallPrim3("value_to_string", [muCon(value v)], loc src) = muCon("<v>");
+
 
 //// muRascal primitives
 //
