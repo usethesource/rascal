@@ -438,7 +438,7 @@ MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs
     
     oldval = getValues(assignable);
      
-    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; //TODO: add new operator <<=
+    op1 = ("+=" : "add", "\<\<=" : "add", "\>\>=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator];
     op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
     
     assert size(oldval) == 1;
