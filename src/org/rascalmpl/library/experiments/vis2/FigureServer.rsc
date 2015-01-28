@@ -1,6 +1,6 @@
 module experiments::vis2::FigureServer
 
-import experiments::vis2::Figure;
+import experiments::vis2::FigureNew;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
@@ -71,6 +71,7 @@ res = "\<html\>
         '	\<script src=\"Chart.js\"\>\</script\>
         '	\<script src=\"VegaChart.js\"\>\</script\>
  		'	\<script src=\"Graph.js\"\>\</script\>
+ 		'	\<script src=\"GoogleChart.js\"\>\</script\>
         
         '   \<style\>
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}

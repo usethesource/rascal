@@ -1323,6 +1323,26 @@ public enum RascalPrimitive {
 	},
 	
 	/*
+	 * ..._has_field
+	 */
+	
+	adt_has_field {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons = (IConstructor) stack[sp - 2];
+			String fieldName = ((IString) stack[sp - 1]).getValue();
+			Type tp = cons.getConstructorType();
+			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
+				stack[sp - 2] = Rascal_TRUE;
+			} else {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
+	
+	/*
 	 * ..._field_access
 	 */
 	
@@ -3938,7 +3958,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
+			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 			return sp - 1;
 		}	
 
@@ -5263,7 +5283,7 @@ public enum RascalPrimitive {
 					for(int i = 0; i < indexArity; i++){
 						if(indices[i] != null){
 							IValue v = tup.get(i);
-							if(indices[i].getType().isSet()){
+							if(indices[i].getType().isSet() && !rel.getElementType().getFieldType(i).isSet()){
 								ISet s = (ISet) indices[i];
 								if(!s.contains(v)){
 									continue NextTuple;

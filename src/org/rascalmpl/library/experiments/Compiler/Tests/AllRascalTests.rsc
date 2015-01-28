@@ -164,7 +164,10 @@ list[str] files_with_tests =
 "lang/rascal/grammar/definition/Characters",        // OK
 "lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
-"lang/rascal/grammar/ParserGenerator",              // 3 fail
+"lang/rascal/grammar/ParserGenerator",              // ok
+"lang/rascal/grammar/tests/PicoGrammar",            // ok
+"lang/rascal/grammar/tests/CGrammar",            	// ok
+"lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
