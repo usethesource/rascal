@@ -1,4 +1,4 @@
-package org.rascalmpl.uri;
+package org.rascalmpl.unicode;
 
 import java.io.FilterReader;
 import java.io.IOException;
@@ -9,7 +9,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	private int offset;
 	private int length;
 	
-	protected UnicodeOffsetLengthReader(Reader in, int offset, int len) {
+	public UnicodeOffsetLengthReader(Reader in, int offset, int len) {
 		super(in);
 		this.offset = offset;
 		this.length = len;
