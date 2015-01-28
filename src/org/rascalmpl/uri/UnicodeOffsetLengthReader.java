@@ -4,8 +4,6 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.rascalmpl.ast.Char;
-
 public class UnicodeOffsetLengthReader extends FilterReader {
 	private int charsRead;
 	private int offset;
