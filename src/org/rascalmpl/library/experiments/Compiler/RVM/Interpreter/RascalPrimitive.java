@@ -6145,7 +6145,7 @@ public enum RascalPrimitive {
 		URI uri;
 		boolean uriPartChanged = false;
 		String scheme = sloc.getScheme();
-		String authority = sloc.hasAuthority() ? sloc.getAuthority() : null;
+		String authority = sloc.hasAuthority() ? sloc.getAuthority() : "";
 		String path = sloc.hasPath() ? sloc.getPath() : null;
 		String query = sloc.hasQuery() ? sloc.getQuery() : null;
 		String fragment = sloc.hasFragment() ? sloc.getFragment() : null;
