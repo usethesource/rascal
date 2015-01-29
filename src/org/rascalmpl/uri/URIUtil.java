@@ -120,7 +120,7 @@ public class URIUtil {
 		return vf.sourceLocation(scheme, authority, path);
 	}
 
-	private static final URI invalidURI = URI.create("file://-");
+	private static final URI invalidURI = URI.create("unknown:///");
 	
 	/**
 	 * Returns an URI which cannot be read/write to.
