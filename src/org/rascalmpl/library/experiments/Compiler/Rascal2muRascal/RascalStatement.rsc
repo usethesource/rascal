@@ -315,7 +315,7 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
    result = nextTmp("result");		    // result of body computation
  
    varCode = [ translate(var) | var <- variables ];
-   println("varCode: <varCode>");
+   //println("varCode: <varCode>");
    tmps = [ nextTmp("<var>") | var <- variables ];
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
     				muCallPrim3("non_negative", [muTmp(iterations,fuid)], bound@\loc),
