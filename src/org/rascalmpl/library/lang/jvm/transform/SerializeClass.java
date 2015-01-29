@@ -65,7 +65,7 @@ public class SerializeClass {
 	
 	public void serialize(IConstructor c, ISourceLocation path,IEvaluatorContext ctx){
 		try {
-			OutputStream output = URIResolverRegistry.getInstance().getOutputStream(path.getURI(), false);
+			OutputStream output = URIResolverRegistry.getInstance().getOutputStream(path, false);
 			new SerializeClassImplementation().serialize(c, output);
 		} catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(path, null, null);

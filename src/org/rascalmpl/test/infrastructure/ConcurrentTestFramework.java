@@ -24,12 +24,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -58,7 +58,7 @@ public class ConcurrentTestFramework {
 	/**
 	 * This class allows us to load modules from string values.
 	 */
-	private static class TestModuleResolver implements IURIInputStreamResolver {
+	private static class TestModuleResolver implements ISourceLocationInput {
 		private Map<String,String> modules = new HashMap<String,String>();
 
 		public void addModule(String name, String contents) {
@@ -73,12 +73,12 @@ public class ConcurrentTestFramework {
 		}
 
 		@Override
-		public boolean exists(URI uri) {
+		public boolean exists(ISourceLocation uri) {
 			return modules.containsKey(uri.getPath());
 		}
 
 		@Override
-		public InputStream getInputStream(URI uri) throws IOException {
+		public InputStream getInputStream(ISourceLocation uri) throws IOException {
 			String contents = modules.get(uri.getPath());
 			if (contents != null) {
 				return new ByteArrayInputStream(contents.getBytes());
@@ -96,23 +96,23 @@ public class ConcurrentTestFramework {
 		}
 
 		@Override
-		public boolean isDirectory(URI uri) {
+		public boolean isDirectory(ISourceLocation uri) {
 			return false;
 		}
 
 		@Override
-		public boolean isFile(URI uri) {
+		public boolean isFile(ISourceLocation uri) {
 			return false;
 		}
 
 		@Override
-		public long lastModified(URI uri) {
+		public long lastModified(ISourceLocation uri) {
 			return 0;
 		}
 
 		@Override
-		public String[] listEntries(URI uri) {
-			return null;
+		public String[] list(ISourceLocation uri) {
+			return new String[] { };
 		}
 
 		@Override
@@ -121,7 +121,7 @@ public class ConcurrentTestFramework {
 		}
 
 		@Override
-		public Charset getCharset(URI uri) throws IOException {
+		public Charset getCharset(ISourceLocation uri) throws IOException {
 			return null;
 		}
 	}
@@ -136,10 +136,10 @@ public class ConcurrentTestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
 
-		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
+		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		resolverRegistry.registerInput(modules);
 
-		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
+		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
 		resolverRegistry.registerInput(new ClassResourceInput("benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 
 	}
@@ -254,7 +254,7 @@ public class ConcurrentTestFramework {
 	}
 
 	private boolean execute(String command, Evaluator eval){
-		Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
+		Result<IValue> result = eval.eval(null, command, URIUtil.rootLocation("stdin"));
 
 		if (result.getType().isBottom()) {
 			return true;
@@ -275,7 +275,7 @@ public class ConcurrentTestFramework {
 		return runConcurrently(new ForkedRunnable() {
 			@Override
 			public boolean run(Evaluator eval) {
-				Result<IValue> result = eval.eval(null, command, URIUtil.rootScheme("stdin"));
+				Result<IValue> result = eval.eval(null, command, URIUtil.rootLocation("stdin"));
 
 				if (result.getType().isBottom()) {
 					return true;

@@ -171,7 +171,7 @@ test bool indexOutOfBoundsException1() {
   
 test bool pathNotFoundException1() {
 	try {
-		S = readFile("DoesNotExist");
+		S = readFile(|file:///DoesNotExist|);
 	} catch PathNotFound(loc location):
 		return true;
 	return false;
