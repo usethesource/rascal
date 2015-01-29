@@ -16,9 +16,24 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	}
 	
 	private void offset() throws IOException {
-		while (offset > 0) {
-			if (!Character.isHighSurrogate((char) super.read())) {
-				offset--;
+		if (offset > 0) {
+			char[] buf = new char[8096];
+
+			while (offset > 0) {
+				int res = in.read(buf, 0, Math.min(offset, buf.length));
+
+				if (res == -1) {
+					offset = 0;
+					return;
+				}
+
+				offset -= res; // may be not enough due to surrogate pairs
+
+				for (int i = 0; i < res; i++) {
+					if (Character.isHighSurrogate(buf[i])) {
+						offset++; // correct for earlier subtraction
+					}
+				}
 			}
 		}
 	}
