@@ -94,7 +94,7 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
+			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
@@ -110,8 +110,9 @@ public class ParserGenerator {
 		}
 	}
 
-	private void debugOutput(String classString, String file) {
+	private void debugOutput(Object thing, String file) {
 		if (debug) {
+			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
 				s = new FileOutputStream(file);
@@ -187,7 +188,7 @@ public class ParserGenerator {
   	try {
   		monitor.event("Importing and normalizing grammar:" + name, 30);
   		IConstructor grammar = getGrammar(monitor, name, definition);
-  		debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
+  		debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
   		return getNewParser(monitor, loc, name, grammar);
   	}  catch (ClassCastException e) {
   		throw new ImplementationError("parser generator:" + e.getMessage(), e);
@@ -214,7 +215,7 @@ public class ParserGenerator {
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
   		monitor.event("Generating java source code for parser: " + name,30);
   		IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
-  		debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+  		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
   		monitor.event("Compiling generated java code: " + name, 30);
   		return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
   	}  catch (ClassCastException e) {
