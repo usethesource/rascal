@@ -846,6 +846,7 @@ public class Prelude {
 		return w.done();
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -868,6 +869,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprint(IValue arg, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
@@ -882,6 +884,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintToFile(ISourceLocation sloc, IValue arg) {
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		StringWriter sw = new StringWriter();
@@ -894,6 +897,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
@@ -909,11 +913,13 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IEvaluatorContext eval) {
 		eval.getStdOut().println();
 		eval.getStdOut().flush();
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -937,6 +943,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprintln(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -949,6 +956,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprint(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -1990,7 +1998,8 @@ public class Prelude {
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
 	}
-
+	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
 	}
