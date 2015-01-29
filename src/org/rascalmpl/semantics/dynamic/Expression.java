@@ -1071,10 +1071,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				else {
 					try {
 						if (result.getType().isString()) {
-							tree = p.readTextValueString(reified.getValue(), ((IString) result.getValue()), __eval);
+							tree = p.readTextValueString(reified.getValue(), ((IString) result.getValue()));
 						}
 						else if (result.getType().isSourceLocation()) {
-							tree = p.readTextValueFile(reified.getValue(), ((ISourceLocation) result.getValue()), __eval);
+							tree = p.readTextValueFile(reified.getValue(), ((ISourceLocation) result.getValue()));
 						}
 					}
 					catch (FactParseError e) {
