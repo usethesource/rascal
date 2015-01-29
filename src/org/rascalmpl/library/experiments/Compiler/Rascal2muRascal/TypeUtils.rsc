@@ -133,7 +133,7 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		overloadedFunctions += fundescr;
 	}
 	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	//assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 }
 
@@ -225,6 +225,7 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
+      
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -412,7 +413,11 @@ void extractScopes(Configuration c){
 
 	// Fill in mapping of function uids to qualified names (enables invert mapping)
 	for(UID uid <- functions + constructors) {
-		uid2str[uid] = convert2fuid(uid);
+		if(!uid2str[uid]?){
+			uid2str[uid] = convert2fuid(uid);
+		} else {
+			throw "extractScopes: Duplicate entry in uid2str for <uid>, <convert2fuid(uid)>";
+		}	
 	}
 	
 	//println("constructors: <constructors>");
@@ -528,6 +533,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
+	//println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
@@ -535,12 +541,16 @@ int declareGeneratedFunction(str name, Symbol rtype){
      
     // Fill in uid2name
     //name = getFUID(name,rtype);
-//println("name = <name>");
+	//println("name = <name>");
      
     uid2name[uid] = name;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
-    uid2str[uid] = name;
+    if(!uid2str[uid]?){
+    	uid2str[uid] = name;
+    } else {
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    }
     return uid;
 }
 
@@ -737,20 +747,26 @@ public MuExp mkCallToLibFun(str modName, str fname)
 
 // Generate a MuExp to access a variable
 
-bool compareScopes(int n, int m) = config.store[n].at.begin.line < config.store[m].at.begin.line;
+// Sort available overloading alternatives as follows:
+// First non-default (most recent first), then defaults (also most recent first).
+
+bool funIdLess(int n, int m) = n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
 	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, compareScopes) + sort(defaults, compareScopes);
+	return sort(toList(items) - defaults, funIdLess) + sort(defaults, funIdLess);
 }
 
 MuExp mkVar(str name, loc l) {
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
   uid = loc2uid[l];
+  //println("uid = <uid>");
+  //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
+  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
@@ -774,6 +790,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
+  //println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 
@@ -818,13 +835,6 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }
-
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter(Symbol symbol2)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star(Symbol symbol2)]), list[Tree] args)) = true;
-//
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//default bool isConcreteListVar(Tree t) = false;
 
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 

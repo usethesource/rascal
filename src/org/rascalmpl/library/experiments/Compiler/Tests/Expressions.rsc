@@ -93,11 +93,11 @@ test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.fragment") == |
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks|.parent") == |std:///experiments/Compiler/Benchmarks|.parent;
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks/Bottles.rsc|.file") == |std:///experiments/Compiler/Benchmarks/Bottles.rsc|.file;
 test bool tst() = run("|home:///|.ls") == |home:///|.ls;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).offset") == |file://-|(11,37,<1,11>,<1,48>).offset;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).begin.line") == |file://-|(11,37,<1,11>,<1,48>).begin.line;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).begin.column") == |file://-|(11,37,<1,11>,<1,48>).begin.column;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.line") == |file://-|(11,37,<1,11>,<1,48>).end.line;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.column") == |file://-|(11,37,<1,11>,<1,48>).end.column;
+test bool tst() = run("|stdin://|(11,37,\<1,11\>,\<1,48\>).offset") == |stdin://|(11,37,<1,11>,<1,48>).offset;
+test bool tst() = run("|stdin://|(11,37,\<1,11\>,\<1,48\>).begin.line") == |stdin://|(11,37,<1,11>,<1,48>).begin.line;
+test bool tst() = run("|stdin://|(11,37,\<1,11\>,\<1,48\>).begin.column") == |stdin://|(11,37,<1,11>,<1,48>).begin.column;
+test bool tst() = run("|stdin://|(11,37,\<1,11\>,\<1,48\>).end.line") == |stdin://|(11,37,<1,11>,<1,48>).end.line;
+test bool tst() = run("|stdin://|(11,37,\<1,11\>,\<1,48\>).end.column") == |stdin://|(11,37,<1,11>,<1,48>).end.column;
 
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x.b;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x.b;};
 test bool tst() = run("{lrel[int a, str b, int c]  x= [ \<1, \"x\", 2\>, \<3, \"y\", 4\> ]; x.b;}") == {lrel[int a, str b, int c]  x= [ <1, "x", 2>, <3, "y", 4> ]; x.b;};
@@ -114,11 +114,11 @@ test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.extensi
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.fragment= \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.fragment= "xxx"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/Bottles.rsc|; L.file = \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/Bottles.rsc|; L.file = "xxx"; L;};
 
-test bool tst() = run("{L = |file://-|(11,37,\<1,11\>,\<1,48\>); L.offset = 100; L;}") == {L = |file://-|(11,37,<1,11>,<1,48>); L.offset = 100; L;};
+test bool tst() = run("{L = |stdin://|(11,37,\<1,11\>,\<1,48\>); L.offset = 100; L;}") == {L = |stdin://|(11,37,<1,11>,<1,48>); L.offset = 100; L;};
 // Mysterious case: gives true when executed manually.
-/*fails*/ //test bool tst() = run("{loc L = |file://-|(11,37,\<1,11\>,\<1,48\>);L.begin = \<1,20\>; L;}") == { loc L =|file://-|(11,37,<1,11>,<1,48>); L.begin= <1,20>; L;};
+/*fails*/ //test bool tst() = run("{loc L = |stdin://|(11,37,\<1,11\>,\<1,48\>);L.begin = \<1,20\>; L;}") == { loc L =|stdin://|(11,37,<1,11>,<1,48>); L.begin= <1,20>; L;};
 
-test bool tst() = run("{L = |file://-|(11,37,\<1,11\>,\<1,48\>); L.end = \<10,20\>; L;}") == {L = |file://-|(11,37,<1,11>,<1,48>); L.end = <10,20>; L;};
+test bool tst() = run("{L = |stdin://|(11,37,\<1,11\>,\<1,48\>); L.end = \<10,20\>; L;}") == {L = |stdin://|(11,37,<1,11>,<1,48>); L.end = <10,20>; L;};
 
 
 
@@ -133,13 +133,17 @@ test bool tst() = run("[1,2,3]") == [1,2,3];
 test bool tst() = run("[1,2,3] + [4,5]") == [1,2,3] + [4,5];
 test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
 
-// << and >> not supported by type checker
-/*fails*/ //test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
-/*fails*/ //test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
 
-// not supported by interpreter: test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
+@ignoreInterpreter{Not supported}
+test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
+@ignoreInterpreter{Not supported}
+test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
+
+@ignoreInterpreter{Not supported}
+test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
 test bool tst() = run("0 + [1,2,3]") == [0,1,2,3];
-// not supported by interpreter: test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
+@ignoreInterpreter{Not supported}
+test bool tst() = run("0 \>\> [1,2,3]") == 0 >> [1,2,3];
 test bool tst() = run("[1,2,3] & [1,3]") == [1,2,3] & [1,3];
 test bool tst() = run("[1,2,3] - [1,3]") == [1,2,3] - [1,3];
 test bool tst() = run("1 in [1,2,3]") == 1 in [1,2,3];
@@ -175,7 +179,7 @@ test bool tst() = run("[1, 2, 3] * [1, 2, 3]") == [1, 2, 3] * [1, 2, 3];
 // [ <3,3>, <3,2>, <3,1>, <2,3>, <2,2>, <2,1>, <1,3>, <1,2>, <1,1> ]
 // I prefer the first one (as given by the compiler)
 
-/*fails*/ //test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
+//test bool tst() = run("[1, 2, 3] join [1, 2, 3]") == [1, 2, 3] join [1, 2, 3];
 
 test bool tst() = run("[\<1,10\>, \<2,20\>] join [\<300, 2000\>]") == [<1,10>, <2,20>] join [<300, 2000>];
 
@@ -249,8 +253,9 @@ test bool tst() = run("{ x | x \<- d1(3, \"a\") }") == { x | x <- d1(3,"a") };
 
 // Enumerator
 
-//Here the interpreter and compiler deviate: compiled code gives true, interpreted code gives false. The compiler is right.
-/*fails*/ // test bool tst() = run("x \<- []") == x <- [];
+
+@ignoreInterpreter{Interpreter and compiler deviate: compiled code gives true, interpreted code gives false. The compiler is right.}
+test bool tst() = run("x \<- []") == x <- [];
 test bool tst() = run("int x \<- []") == int x <- [];
 test bool tst() = run("x \<- [1,2,3]") == x <- [1,2,3];
 test bool tst() = run("int x \<- [1,2,3]") == int x <- [1,2,3];

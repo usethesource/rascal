@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -110,7 +110,7 @@ public class ParsingTools {
 		return parser;
 	}
 	
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(IString moduleName, IValue start, URI loc, IMap syntax){
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax){
 		return getParser(moduleName.getValue(), start, loc, false, syntax);
 	}
 
@@ -124,7 +124,7 @@ public class ParsingTools {
 	 * @return ParseTree or Exception
 	 */
 	public IValue parse(IString moduleName, IValue start, IString input, Frame currentFrame) {
-		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray(), currentFrame);
+		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidLocation(), input.getValue().toCharArray(), currentFrame);
 	}
 	
 	/**
@@ -139,8 +139,8 @@ public class ParsingTools {
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try{
-			char[] input = getResourceContent(location.getURI());
-			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input, currentFrame);
+			char[] input = getResourceContent(location);
+			return parse(moduleName, start,  vf.mapWriter().done(), location, input, currentFrame);
 		}catch(IOException ioex){
 			throw RascalRuntimeException.io(vf.string(ioex.getMessage()), currentFrame);
 		} finally{
@@ -158,7 +158,7 @@ public class ParsingTools {
 	 * @param currentFrame 	Stacktrace of calling context
 	 * @return
 	 */
-	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input, Frame currentFrame) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, ISourceLocation location, char[] input, Frame currentFrame) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified, currentFrame);
 		
@@ -216,7 +216,7 @@ public class ParsingTools {
 	 * @return				ParseTree or Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public IConstructor parseObject(IString moduleName, IConstructor startSort, IMap robust, URI location, char[] input, IMap syntax){
+	public IConstructor parseObject(IString moduleName, IConstructor startSort, IMap robust, ISourceLocation location, char[] input, IMap syntax){
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax);
 		String name = ""; moduleName.getValue();
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -256,7 +256,7 @@ public class ParsingTools {
 	        //throw new ImplementationError("class for cached parser " + className + " could not be found");
 	      }
 	     
-		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		return (IConstructor) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
 	}
 	
 	/**
@@ -304,12 +304,12 @@ public class ParsingTools {
 		return parserGenerator;
 	}
 	
-	private char[] getResourceContent(URI location) throws IOException{
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
 		Reader textStream = null;
 		
 		try {
-			textStream = rex.getResolverRegistry().getCharacterReader(location);
+			textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
 			data = InputConverter.toChar(textStream);
 		}
 		finally{
@@ -321,7 +321,7 @@ public class ParsingTools {
 		return data;
 	}
 	  
-	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, URI loc, boolean force, IMap syntax) {
+	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
@@ -353,7 +353,7 @@ public class ParsingTools {
 		  if(rex == null){
 			  rex = new RascalExecutionContext(vf, null, false, false, false, false, ctx, null);
 		  }
-		  return parseFragment(name, start, tree, loc.getURI(), grammar);
+		  return parseFragment(name, start, tree, loc, grammar);
 	  }
 		
 	// Rascal library function (compiler version)
@@ -361,7 +361,7 @@ public class ParsingTools {
 		if(this.rex == null){
 			this.rex = rex;
 		}
-		return parseFragment(name, start, tree, loc.getURI(), grammar);
+		return parseFragment(name, start, tree, loc, grammar);
 	}
 	
 	/**
@@ -370,12 +370,12 @@ public class ParsingTools {
 	 * 
 	 */
 
-	IConstructor parseFragment(IString name, IValue start, IConstructor tree, URI uri, IMap grammar) {
+	IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree).getURI(), false, grammar);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
@@ -384,7 +384,7 @@ public class ParsingTools {
 	    
 	      char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
 	      
-	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
+	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 	      return fragment;
 	    }

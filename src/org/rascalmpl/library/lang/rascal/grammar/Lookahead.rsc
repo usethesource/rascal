@@ -171,37 +171,37 @@ public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
 
 // Utilities on Symbols
 
-public Grammar removeLabels(Grammar G) {
+private Grammar removeLabels(Grammar G) {
   return visit(G) {
     case prod(rhs, lhs, a) => prod(removeLabel(rhs), removeLabels(lhs), a)
   }
 }
 
-public Symbol removeLabel(Symbol s) {
+private Symbol removeLabel(Symbol s) {
   return (label(_,s2) := s) ? s2 : s;
 }
 
-public list[Symbol] removeLabels(list[Symbol] syms) {
+private list[Symbol] removeLabels(list[Symbol] syms) {
   return [removeLabel(s) | s <- syms ];
 }
 
-public set[Symbol] usedSymbols(Grammar G){
+private set[Symbol] usedSymbols(Grammar G){
    return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.symbols };
 }
 
-public set[Symbol] definedSymbols(Grammar G) {
+private set[Symbol] definedSymbols(Grammar G) {
    return { p.def |  Production p <- G.productions};
 }
 
-public set[Symbol] allSymbols(Grammar G){
+private set[Symbol] allSymbols(Grammar G){
    return definedSymbols(G) + usedSymbols(G);
 }
 
-public set[Symbol] terminalSymbols(Grammar G){
+private set[Symbol] terminalSymbols(Grammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
-public bool isTerminalSymbol(Symbol s){
+private bool isTerminalSymbol(Symbol s){
   return \char-class(_) := s;
 }
 

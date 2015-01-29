@@ -11,17 +11,22 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.net.URI;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-public class HomeURIResolver extends FileURIResolver {
+public class HomeURIResolver implements ILogicalSourceLocationResolver {
+
 	@Override
 	public String scheme() {
 		return "home";
 	}
 	
 	@Override
-	protected String getPath(URI uri) {
-		String path = super.getPath(uri);
-		return System.getProperty("user.home") + (path.startsWith("/") ? path : ("/" + path));
+	public ISourceLocation resolve(ISourceLocation input) {
+		return URIUtil.getChildLocation(FileURIResolver.constructFileURI(System.getProperty("user.home")), input.getPath());
+	}
+
+	@Override
+	public String authority() {
+		return "";
 	}
 }

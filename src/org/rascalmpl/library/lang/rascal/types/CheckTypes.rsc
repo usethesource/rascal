@@ -39,7 +39,6 @@ import lang::rascal::types::Util;
 extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
-import ParseTree;
 
 //
 // TODOs
@@ -3129,6 +3128,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			
 			case callOrTreeNode(pth, ptargs, kpargs) : {
 				< pth, c > = assignInitialPatternTypes(pth, c);
+				if (pth is nameNode && isInferredType(pth@rtype)) {
+					failures += makeFailType("The declaration for constructor or production <prettyPrintName(pth.name)> is not in scope.", pth@\at);
+				}
 				list[PatternTree] ptres = [ ];
 				for (pti <- ptargs) {
 					< pti, c > = assignInitialPatternTypes(pti, c);
