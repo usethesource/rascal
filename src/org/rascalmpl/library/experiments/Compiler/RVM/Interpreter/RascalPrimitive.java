@@ -6273,10 +6273,12 @@ public enum RascalPrimitive {
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
 					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
-				if (sloc.getURI().getHost() != null) {
-					uri = URIUtil.changeUserInformation(sloc.getURI(), newStringValue);
+				uri = sloc.getURI();
+				if (uri.getHost() != null) {
+					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
-				authority = sloc.getURI().getAuthority();
+				
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
 
