@@ -36,32 +36,62 @@ INS peephole(INS instructions){
 
 // Redundant_stores, loads and jmps
 
-INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
+INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, *ins2]);
+    return redundant_stores(rest);
 }
 
-INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
+INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, LABEL(p), *ins2]);
+    return [LABEL(p), *redundant_stores(rest)];
 }
 
-INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
+INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, *ins2]);
+    return redundant_stores(rest);
 }
 
-INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
+INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
+    return [STOREVAR(v,p), *redundant_stores(rest)];   
 }
 
-INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
+INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STORELOC(p), *ins2]);
+    return  [STORELOC(p), *redundant_stores(rest)];
 }
 
-default INS redundant_stores(INS ins) = ins;
+INS redundant_stores([]) = [];
+
+default INS redundant_stores([Instruction ins, *Instruction rest]) = [ins, *redundant_stores(rest)];
+
+
+//INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores([*ins1, *ins2]);
+//}
+//
+//INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores([*ins1, LABEL(p), *ins2]);
+//}
+//
+//INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores([*ins1, *ins2]);
+//}
+//
+//INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
+//}
+//
+//INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores([*ins1, STORELOC(p), *ins2]);
+//}
+//
+//default INS redundant_stores(INS ins) = ins;
 
 // Jumps_to_jumps
 
