@@ -12,14 +12,15 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.net.URI;
 import java.util.List;
+
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
 public class URIContributor implements IRascalSearchPathContributor {
-	private final URI uri;
+	private final ISourceLocation uri;
 
-	public URIContributor(URI uri) {
+	public URIContributor(ISourceLocation uri) {
 		this.uri = uri;
 	}
 
@@ -29,7 +30,7 @@ public class URIContributor implements IRascalSearchPathContributor {
 	}
 	
 	@Override
-	public void contributePaths(List<URI> path) {
+	public void contributePaths(List<ISourceLocation> path) {
 		path.add(0, uri);
 	}
 

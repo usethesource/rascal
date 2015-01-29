@@ -13,75 +13,25 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.charset.Charset;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 /**
  * For reading and writing files relative to the current working directory.
  */
-public class CWDURIResolver implements IURIInputOutputResolver {
+public class CWDURIResolver implements ILogicalSourceLocationResolver {
 
-	public InputStream getInputStream(URI uri) throws IOException {
-		return new FileInputStream(getAbsolutePath(uri));
-	}
-
-	private URI getResourceURI(URI uri) {
-		return new File(System.getProperty("user.dir") + uri.getPath()).toURI();
-	}
-	
-	private File getAbsolutePath(URI uri) {
-		return new File(getResourceURI(uri));
-	}
-
+	@Override
 	public String scheme() {
 		return "cwd";
 	}
-
+	
 	@Override
-	public void remove(URI uri) throws IOException {
-	  getAbsolutePath(uri).delete();
-	}
-	
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		return new FileOutputStream(getAbsolutePath(uri), append);
-	}
-
-	public boolean exists(URI uri) {
-		return getAbsolutePath(uri).exists();
-	}
-
-	public boolean isDirectory(URI uri) {
-		return getAbsolutePath(uri).isDirectory();
-	}
-
-	public boolean isFile(URI uri) {
-		return getAbsolutePath(uri).isFile();
-	}
-
-	public long lastModified(URI uri) {
-		return getAbsolutePath(uri).lastModified();
-	}
-
-	public String[] listEntries(URI uri) {
-		return getAbsolutePath(uri).list();
-	}
-	
-	public void mkDirectory(URI uri) {
-		getAbsolutePath(uri).mkdir();
-	}
-
-	public boolean supportsHost() {
-		return false;
+	public ISourceLocation resolve(ISourceLocation input) {
+		return URIUtil.getChildLocation(FileURIResolver.constructFileURI(System.getProperty("user.dir")), input.getPath());
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
-		return null;
+	public String authority() {
+		return "";
 	}
 }

@@ -63,7 +63,7 @@ public class RSFIO {
 	
 		Reader input = null;
 		try {
-			input = URIResolverRegistry.getInstance().getCharacterReader(nameRSFFile.getURI());
+			input = URIResolverRegistry.getInstance().getCharacterReader(nameRSFFile);
 			BufferedReader bufRead = new BufferedReader(input);
 			java.lang.String line = bufRead.readLine();
 
@@ -143,7 +143,7 @@ public class RSFIO {
 		ISetWriter rw = values.setWriter();
 		String rname = relName.getValue();
 
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI())) {
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
 			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
@@ -197,7 +197,7 @@ public class RSFIO {
 		
 		Reader reader = null;
 		try {
-			reader = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(loc);
 		
 			java.lang.String line = readLine(reader);
 

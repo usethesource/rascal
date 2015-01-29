@@ -25,9 +25,6 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -81,31 +78,6 @@ public class GlobalEnvironment {
 	 */
 	public void registerSourceResolver(String scheme, ICallableValue function) {
 		sourceResolvers.put(scheme, function);
-	}
-	
-	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
-		int pos;
-		
-		ICallableValue resolver = sourceResolvers.get(scheme);
-		if (resolver == null) {
-			for (char sep : new char[] {'+',':'}) {
-				pos = scheme.indexOf(sep);
-				if (pos != -1) {
-					scheme = scheme.substring(0, pos);
-				}
-			}
-
-			resolver = sourceResolvers.get(scheme);
-			if (resolver == null) {
-				return loc;
-			}
-		}
-		
-		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-		IValue[] argValues = new IValue[] { loc };
-		
-		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
 	
 	/**

@@ -15,11 +15,12 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 
-public class StandardOutputURIResolver implements IURIOutputStreamResolver {
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
+public class StandardOutputURIResolver implements ISourceLocationOutput {
+
+	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
 		return System.out;
 	}
 
@@ -29,12 +30,12 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 	}
 
 	@Override
-	public void mkDirectory(URI uri) {
+	public void mkDirectory(ISourceLocation uri) {
 		throw new UnsupportedOperationException("not supported by stdout");
 	}
 	
 	@Override
-	public void remove(URI uri) throws IOException {
+	public void remove(ISourceLocation uri) throws IOException {
 	  throw new UnsupportedOperationException("not supported by stdout");
 	}
 
