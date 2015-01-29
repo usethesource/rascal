@@ -203,10 +203,6 @@ public class GlobalEnvironment {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
-		return getParser(rascalParsersForModules, module, productions);
-	}
-	
 	/**
 	 * Retrieves a parser for a module.
 	 * 
@@ -224,10 +220,6 @@ public class GlobalEnvironment {
 	
 	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
-	}
-	
-	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
 	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
