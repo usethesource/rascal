@@ -137,9 +137,9 @@ public type[value] symbolToValue(Symbol symbol) {
  	
  	if(Symbol::\start(Symbol sym) := symbol){
  	    definitions += (symbol : choice(symbol, { prod(symbol,
-                                                       [ layouts("Whitespace"),
+                                                       [ layouts("$default$"),
                                                          label("top", sym),
-                                                         layouts("Whitespace")
+                                                         layouts("$default$")
                                                        ],
                                                     {})}));
     }
