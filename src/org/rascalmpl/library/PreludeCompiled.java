@@ -1,5 +1,7 @@
 package org.rascalmpl.library;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -15,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -37,6 +40,108 @@ public class PreludeCompiled extends Prelude {
 
 	public PreludeCompiled(IValueFactory values) {
 		super(values);
+	}
+	
+	public void print(IValue arg, RascalExecutionContext rex){
+		PrintWriter currentOutStream = rex.getStdOut();
+		
+		try{
+			if(arg.getType().isString()){
+				currentOutStream.print(((IString) arg).getValue().toString());
+			}
+			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+			}
+			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+			}
+			else{
+				currentOutStream.print(arg.toString());
+			}
+		}
+		finally {
+			currentOutStream.flush();
+		}
+	}
+	
+	public void iprint(IValue arg, RascalExecutionContext rex){
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		
+		try {
+			w.write(arg, rex.getStdOut());
+		} 
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"), null, null);
+		}
+		finally {
+			rex.getStdOut().flush();
+		}
+	}
+	
+	public void iprintln(IValue arg, RascalExecutionContext rex){
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		
+		try {
+			w.write(arg, rex.getStdOut());
+			rex.getStdOut().println();
+		} 
+		catch (IOException e) {
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"),null, null);
+		}
+		finally {
+			rex.getStdOut().flush();
+		}
+	}
+	
+	public void println(RascalExecutionContext rex) {
+		rex.getStdOut().println();
+		rex.getStdOut().flush();
+	}
+	
+	public void println(IValue arg, RascalExecutionContext rex){
+		PrintWriter currentOutStream = rex.getStdOut();
+		
+		try{
+			if(arg.getType().isString()){
+				currentOutStream.print(((IString) arg).getValue());
+			}
+			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+			}
+			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+			}
+			else{
+				currentOutStream.print(arg.toString());
+			}
+			currentOutStream.println();
+		}
+		finally {
+			currentOutStream.flush();
+		}
+	}
+	
+	public void rprintln(IValue arg, RascalExecutionContext rex){
+		PrintWriter currentOutStream = rex.getStdOut();
+		
+		try {
+			currentOutStream.print(arg.toString());
+			currentOutStream.println();
+		}
+		finally {
+			currentOutStream.flush();
+		}
+	}
+	
+	public void rprint(IValue arg, RascalExecutionContext rex){
+		PrintWriter currentOutStream = rex.getStdOut();
+		
+		try {
+			currentOutStream.print(arg.toString());
+		}
+		finally {
+			currentOutStream.flush();
+		}
 	}
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
