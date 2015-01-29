@@ -1024,7 +1024,6 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue readFile(ISourceLocation sloc){
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
@@ -3142,7 +3141,6 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IInteger getFileLength(ISourceLocation g) throws IOException {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
