@@ -556,9 +556,9 @@ MuExp getConstructor(str cons) {
 
 MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
-    println("translateConcrete, fragType = <fragType>");
+    //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
-    println("translateConcrete, reified: <reifiedFragType>");
+    //println("translateConcrete, reified: <reifiedFragType>");
     Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
     //println("parsedFragment, before"); iprintln(parsedFragment);
     return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
@@ -569,17 +569,17 @@ default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muC
 MuExp translateConcreteParsed(Tree e, loc src){
    if(appl(Production prod, list[Tree] args) := e){
        my_src = e@\loc ? src;
-       iprintln(e);
+       //iprintln(e);
        if(prod.def == label("hole", lex("ConcretePart"))){
            varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
-           println("varloc = <getType(varloc)>");
+           //println("varloc = <getType(varloc)>");
            <fuid, pos> = getVariableScope("ConcreteVar", varloc);
            
            return muVar("ConcreteVar", fuid, pos);
         } 
         MuExp translated_elems;
         if(any(arg <- args, isConcreteListVar(arg))){ 
-           println("splice in concrete list");      
+           //println("splice in concrete list");      
            str fuid = topFunctionScope();
            writer = nextTmp();
         
@@ -998,7 +998,6 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 }
 
 private bool hasTopLevelInsert(Case c) {
-	println("Look for an insert...");
 	top-down-break visit(c) {
 		case (Statement) `insert <DataTarget dt> <Statement stat>`: return true;
 		case Visit v: ;
@@ -1528,7 +1527,7 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
    op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
-   if(op == "label") println("field_access: <tp>, <e>");
+   //if(op == "label") println("field_access: <tp>, <e>");
    return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
 }
 
@@ -1852,7 +1851,7 @@ MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = ma
 MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("or", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) {
-	println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
+	//println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
 	return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); }//translateBoolBinaryOp("implies", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
