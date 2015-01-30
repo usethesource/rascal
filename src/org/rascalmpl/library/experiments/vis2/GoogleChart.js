@@ -70,7 +70,7 @@ var printq = function(o){
             var x = figure.columns[i];
             data.addColumn(x);
             }
-        // alert(JSON.stringify(figure.columns));
+        // alert(JSON.stringify(figure.data));
         data.addRows(figure.data);
         
         // Set chart options
