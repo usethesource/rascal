@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -19,7 +18,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 /**
  * Provide all context information that is needed during the execution of a compiled Rascal program
@@ -27,7 +25,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
  */
 public class RascalExecutionContext {
 
-	private final URIResolverRegistry resolverRegistry;
 	private final IRascalMonitor monitor;
 	private final PrintWriter stderr;
 	private final Configuration config;
@@ -60,8 +57,7 @@ public class RascalExecutionContext {
 		
 		currentModuleName = "UNDEFINED";
 		
-		resolverRegistry = ctx.getResolverRegistry();
-		rascalURIResolver = new RascalSearchPath(resolverRegistry);
+		rascalURIResolver = new RascalSearchPath();
 		rascalURIResolver.addPathContributor(StandardLibraryContributor.getInstance());
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
@@ -89,8 +85,6 @@ public class RascalExecutionContext {
 	public IRVM getRVM(){ return rvm; }
 	
 	void setRVM(IRVM rvm){ this.rvm = rvm; }
-	
-	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
 	public RascalSearchPath getRascalResolver() { return rascalURIResolver; }
 	

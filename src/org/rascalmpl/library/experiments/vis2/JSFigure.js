@@ -165,9 +165,11 @@ function buildFigure(description) {
 
 function buildFigure1(description, parent) {
     var f = Object.create(parent);
+    
     f.bbox = Figure.bboxFunction[description.figure]; // || throw "No bbox function defined for " + description.figure;
     f.draw = Figure.drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
     
+    // alert(f.bbox);  
     for(var p in description) {
         var handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
         if (prop === "inner") {
@@ -203,15 +205,16 @@ function buildFigure1(description, parent) {
                 if(val.hasOwnProperty("figure")){
                     val = buildFigure1(val, f);
                 }
-                Object.defineProperty(f, prop, {value: val, writable: true});
+                Object.defineProperty(f, prop, {value: val, enumerable: true, writable: true});
             }
-        }
-        }; 
-        handle_prop(p);
+        }    
+        };      
+        handle_prop(p);     
     }
     if (f.hasOwnProperty("replacement")) {
 	    Figure.setModelElement(f.accessor, f.replacement);  // Bert Lisser 
 	    }  
+	// alert(printq(f));
     return f;
 }
 
@@ -239,7 +242,7 @@ Figure.getDrawForComponent("lineChart", "nvLineChart")
 This assumes (and checks!) that the function Figure.drawFunction.nvLineChart exists.
 ***********************************************************************************/
 
-Figure.components = {barChart: [], lineChart: [], graph: [], vega: []};
+Figure.components = {barChart: [], lineChart: [], graph: [], vega: [], google: []};
 
 
 Figure.registerComponent = function(componentType, flavor){
@@ -294,6 +297,7 @@ function drawFigure (description){
 	var b;
 	try {
 		b = buildFigure(description);
+		// alert(printq(b));
 	} catch(e){
 		console.log("buildFigure failed:", e);
 	}	
@@ -488,7 +492,6 @@ function askServer(path, params) {
             //alert(params);
             
             var res = JSON.parse(responseText);
-            // alert(JSON.stringify(res));
             var area = d3.select("#figurearea svg");
             if(!area.empty()){
               try { area.remove(); } catch(e) { console.log("askServer", e); };

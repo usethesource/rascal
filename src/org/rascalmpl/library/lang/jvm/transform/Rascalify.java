@@ -56,7 +56,7 @@ public class Rascalify {
 	private static final ArrayList<LabelNode> _labels;
 	
 	static {
-		_resolver = new URIResolverRegistry();
+		_resolver = URIResolverRegistry.getInstance();
 		_resolver.registerInputOutput(new FileURIResolver());
 		_labels = new ArrayList<LabelNode>();
 	}
@@ -67,12 +67,12 @@ public class Rascalify {
 
 	@SuppressWarnings("unchecked")
 	public static void deserializeToDisk(ISourceLocation source, ISourceLocation destination, IString moduleName) {
-		try (InputStream inputStream = _resolver.getInputStream(source.getURI())) {
+		try (InputStream inputStream = _resolver.getInputStream(source)) {
 			ClassNode cn = new ClassNode();
-      ClassReader cr = new ClassReader(inputStream);
+      new ClassReader(inputStream);
 			//cr.aaccept(cn, 0);
 			
-			OutputStreamWriter writer = new OutputStreamWriter(_resolver.getOutputStream(destination.getURI(), false));
+			OutputStreamWriter writer = new OutputStreamWriter(_resolver.getOutputStream(destination, false));
 			writer.write("module " + moduleName.getValue() + "\n\n");
 			writer.write("import experiments::JVMBytecode::Opcodes;\n");
 			writer.write("import experiments::JVMBytecode::SerializeClass;\n\n");

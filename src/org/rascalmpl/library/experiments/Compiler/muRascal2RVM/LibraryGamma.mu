@@ -1113,9 +1113,10 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
 // Set matching creates a specific instance of MATCH_COLLECTION
 
 coroutine MATCH_SET(iLiterals, pats, iSubject) guard iSubject is set {
-    if(subset(iLiterals, iSubject)) {
-        iSubject = prim("set_subtract_set", iSubject, iLiterals)
-        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset(iSubject))
+    //println("MATCH_SET:", iLiterals, iSubject)
+    if(size_set(iLiterals) == 0 || subset(iLiterals, iSubject)) {
+        //iSubject = prim("set_subtract_set", iSubject, iLiterals)
+        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset_set_subtract_set(iSubject, iLiterals))
     }
 }
 

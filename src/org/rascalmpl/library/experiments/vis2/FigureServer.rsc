@@ -1,6 +1,6 @@
 module experiments::vis2::FigureServer
 
-import experiments::vis2::Figure;
+import experiments::vis2::FigureNew;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
@@ -56,6 +56,7 @@ res = "\<html\>
         '   \<!-- NVD3 --\>
         '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"lib/nv.d3.js\"\>\</script\>
+        '   \<script src=\"https://www.google.com/jsapi\"\>\</script\>
         '	\<script src=\"lib/vega-min.js\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
@@ -71,6 +72,7 @@ res = "\<html\>
         '	\<script src=\"Chart.js\"\>\</script\>
         '	\<script src=\"VegaChart.js\"\>\</script\>
  		'	\<script src=\"Graph.js\"\>\</script\>
+ 		'	\<script src=\"GoogleChart.js\"\>\</script\>
         
         '   \<style\>
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
@@ -187,7 +189,7 @@ private str get_initial_figure(str name){
 		f = descr.visualize("init", "all", makeCursor(descr.model));
 		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
-    	// println("get_initial_server: res = <res>");
+    	println("get_initial_server: res = <res>");
     	return res;
     } else {
     	throw "get_initial_figure: visualization <name> unknown";

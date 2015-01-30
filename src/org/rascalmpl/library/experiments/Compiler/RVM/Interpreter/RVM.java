@@ -161,7 +161,7 @@ public class RVM implements IRVM {
 					
 	}
 	
-	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
+	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
 	
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
@@ -556,9 +556,9 @@ public class RVM implements IRVM {
 					if(!last_function_name.equals(cf.function.name))
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
-					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
-					}
+//					for (int i = 0; i < sp; i++) {
+//						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+//					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
 				}
@@ -1385,7 +1385,6 @@ public class RVM implements IRVM {
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					@SuppressWarnings("unchecked")
 					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
 					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
@@ -1652,38 +1651,23 @@ public class RVM implements IRVM {
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
-			"org.rascalmpl.library.PreludeCompiled.exists",
-			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			
 			"org.rascalmpl.library.PreludeCompiled.implode",
-			"org.rascalmpl.library.PreludeCompiled.isDirectory",
-			"org.rascalmpl.library.PreludeCompiled.isFile",
-			"org.rascalmpl.library.PreludeCompiled.remove",
-			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
-			"org.rascalmpl.library.PreludeCompiled.listEntries",
 			"org.rascalmpl.library.PreludeCompiled.parse",
-			"org.rascalmpl.library.PreludeCompiled.readFile",
-			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
-			"org.rascalmpl.library.PreludeCompiled.writeFile",
-			"org.rascalmpl.library.PreludeCompiled.writeFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.writeBytes",
-			"org.rascalmpl.library.PreludeCompiled.appendToFile",
-			"org.rascalmpl.library.PreludeCompiled.appendToFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.readFileLines",
-			"org.rascalmpl.library.PreludeCompiled.readFileLinesEnc",
-			"org.rascalmpl.library.PreludeCompiled.readFileBytes",
-			"org.rascalmpl.library.PreludeCompiled.getFileLength",
-			"org.rascalmpl.library.PreludeCompiled.readBinaryValueFile",
-			"org.rascalmpl.library.PreludeCompiled.readTextValueFile",
-			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
-			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
-			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.PreludeCompiled.print",
+			"org.rascalmpl.library.PreludeCompiled.println",
+			"org.rascalmpl.library.PreludeCompiled.iprint",
+			"org.rascalmpl.library.PreludeCompiled.iprintln",
+			"org.rascalmpl.library.PreludeCompiled.rprint",
+			"org.rascalmpl.library.PreludeCompiled.rprintln",
 			"org.rascalmpl.library.util.MonitorCompiled.startJob",
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
-			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*
 			 * 	TODO:

@@ -1,6 +1,7 @@
 module experiments::Compiler::muRascal::MuAllMuOr
 
 import List;
+import IO;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;

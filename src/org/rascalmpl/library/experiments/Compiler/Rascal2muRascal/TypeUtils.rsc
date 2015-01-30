@@ -106,11 +106,11 @@ private map[UID uid,int n] bool_scopes = ();        // number of boolean scopes 
 private map[UID uid,int n] sig_scopes = ();         // number of signature scopes within a scope
 
 @doc{Handling nesting}
-public rel[UID,UID] declares = {};
-public rel[UID,UID] containment = {};
+private rel[UID,UID] declares = {};
+private rel[UID,UID] containment = {};
 
-//public map[UID,UID] declaredIn = ();
-//public map[UID,UID] containedIn = ();
+private map[UID,UID] declaredIn = ();				// inverse of declares
+private map[UID,UID] containedIn = ();				// inverse of containment
 
 alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
@@ -133,7 +133,7 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		overloadedFunctions += fundescr;
 	}
 	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	//assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 }
 
@@ -175,6 +175,9 @@ public void resetScopeExtraction() {
 	sig_scopes = ();
 	declares = {};
 	containment = {};
+	
+	declaredIn = ();
+	containedIn = ();
 	
 	uid2str = ();
 	uid2type = ();
@@ -225,6 +228,7 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
+      
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -261,7 +265,7 @@ void extractScopes(Configuration c){
         case variable(_,_,_,inScope,src):  { 
         	 //println("<uid>: <item>");
 			 variables += {uid};
-			 declares += {<inScope, uid>}; 
+			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
              for(l <- config.uses[uid]) {
                  loc2uid[l] = uid;
@@ -365,7 +369,10 @@ void extractScopes(Configuration c){
       }
     }
     
+    // Precompute some derived values for efficiency:
     containmentPlus = containment+;
+    declaredIn = toMapUnique(invert(declares));
+	containedIn = toMapUnique(invert(containment));
     
     for(muid <- modules){
         module_name = uid2name[muid];
@@ -412,7 +419,11 @@ void extractScopes(Configuration c){
 
 	// Fill in mapping of function uids to qualified names (enables invert mapping)
 	for(UID uid <- functions + constructors) {
-		uid2str[uid] = convert2fuid(uid);
+		if(!uid2str[uid]?){
+			uid2str[uid] = convert2fuid(uid);
+		} else {
+			throw "extractScopes: Duplicate entry in uid2str for <uid>, <convert2fuid(uid)>";
+		}	
 	}
 	
 	//println("constructors: <constructors>");
@@ -519,8 +530,7 @@ void extractScopes(Configuration c){
     //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
     
- //   declaredIn = toMapUnique(invert(declares));
-	//containedIn = toMapUnique(invert(containment));
+   
     
     // Finally, extract all declarations for the benefit of the type reifier
     
@@ -528,19 +538,24 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
+	//println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
-    //declares += {<inScope, uid>}; 
+    //declares += {<inScope, uid>}; TODO: do we need this?
      
     // Fill in uid2name
     //name = getFUID(name,rtype);
-//println("name = <name>");
+	//println("name = <name>");
      
     uid2name[uid] = name;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
-    uid2str[uid] = name;
+    if(!uid2str[uid]?){
+    	uid2str[uid] = name;
+    } else {
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    }
     return uid;
 }
 
@@ -655,8 +670,7 @@ str convert2fuid(UID uid) {
 		throw "uid2str is not applicable for <uid>!";
 	}
 	str name = uid2name[uid];
-	declaredIn = toMapUnique(invert(declares));
-	containedIn = toMapUnique(invert(containment));
+	
 	if(containedIn[uid]?) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
@@ -753,7 +767,10 @@ MuExp mkVar(str name, loc l) {
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
   uid = loc2uid[l];
+  //println("uid = <uid>");
+  //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
+  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
@@ -777,6 +794,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
+  //println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 
@@ -821,13 +839,6 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }
-
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter(Symbol symbol2)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star(Symbol symbol2)]), list[Tree] args)) = true;
-//
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//default bool isConcreteListVar(Tree t) = false;
 
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 

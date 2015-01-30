@@ -21,17 +21,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
-public class FileURIResolver implements IURIInputOutputResolver {
-	
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
+public class FileURIResolver implements ISourceLocationInputOutput {
 	public FileURIResolver(){
 		super();
 	}
 	
-	public InputStream getInputStream(URI uri) throws IOException {
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		String path = getPath(uri);
 		if (path != null) {
 			return new FileInputStream(path);
@@ -39,7 +39,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 		throw new IOException("uri has no path: " + uri);
 	}
 	
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
+	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
 		String path = getPath(uri);
 		if (path != null) {
 			return new BufferedOutputStream(new FileOutputStream(getPath(uri), append));
@@ -48,65 +48,43 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	}
 	
 	@Override
-	public void remove(URI uri) throws IOException {
-	  String path = getPath(uri);
-	  File file = new File(path);
-	  
-	  try {
-	    if (file.isFile()) { 
-	      file.delete();
-	    }
-	    else {
-	      for (String element : file.list()) {
-	        remove(URIUtil.changePath(uri, path + "/" + element));
-	      }
-	      
-	      file.delete();
-	    }
-	  } 
-	  catch (URISyntaxException e) {
-      throw new IOException("unexpected URI syntax error", e);
-    }
-	  finally { }
-	}
+	public void remove(ISourceLocation uri) throws IOException {
+		new File(getPath(uri)).delete();
+	} 
 	
 	public String scheme() {
 		return "file";
 	}
 
-	public boolean exists(URI uri) {
+	public boolean exists(ISourceLocation uri) {
 		return new File(getPath(uri)).exists();
 	}
 
 	/**
 	 * To override to build resolvers to specific locations using a prefix for example.
 	 */
-	protected String getPath(URI uri) {
+	protected String getPath(ISourceLocation uri) {
 		return uri.getPath();
 	}
 
-	public boolean isDirectory(URI uri) {
+	public boolean isDirectory(ISourceLocation uri) {
 		return new File(getPath(uri)).isDirectory();
 	}
 
-	public boolean isFile(URI uri) {
+	public boolean isFile(ISourceLocation uri) {
 		return new File(getPath(uri)).isFile();
 	}
 
-	public long lastModified(URI uri) {
+	public long lastModified(ISourceLocation uri) {
 		return new File(getPath(uri)).lastModified();
 	}
 
-	public String[] listEntries(URI uri) {
-		String[] res = new File(getPath(uri)).list();
-		if (res == null) {
-			return new String[] { };
-		} else {
-			return res;
-		}
+	@Override
+	public String[] list(ISourceLocation uri) {
+		return new File(getPath(uri)).list();
 	}
 
-	public void mkDirectory(URI uri) {
+	public void mkDirectory(ISourceLocation uri) {
 		new File(getPath(uri)).mkdirs();
 	}
 
@@ -116,9 +94,9 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	 * @param path a platform-dependent string representation of this path
 	 * @return a file schema URI
 	 */
-	public static URI constructFileURI(String path) {
+	public static ISourceLocation constructFileURI(String path) {
 		try{
-			return URIUtil.createFile(path);
+			return URIUtil.createFileLocation(path);
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
@@ -129,7 +107,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
 	}
 }

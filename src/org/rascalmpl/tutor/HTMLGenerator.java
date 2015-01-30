@@ -181,7 +181,7 @@ public class HTMLGenerator {
 
 		if(!timer.hasExpired() && commands.length() > 0){
 			for(IValue command : commands){
-				result = evaluator.eval(null, ((IString) command).getValue(), URIUtil.rootScheme("stdin"));
+				result = evaluator.eval(null, ((IString) command).getValue(), URIUtil.rootLocation("stdin"));
 			}
 			timer.cancel();
 			if (timer.hasExpired()) {

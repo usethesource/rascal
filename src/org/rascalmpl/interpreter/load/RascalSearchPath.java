@@ -14,12 +14,12 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -33,9 +33,9 @@ public class RascalSearchPath {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
 	private final URIResolverRegistry reg;
 	
-	public RascalSearchPath(URIResolverRegistry ctx) {
+	public RascalSearchPath() {
 		this.contributors = new ArrayList<IRascalSearchPathContributor>();
-		this.reg = ctx;
+		this.reg = URIResolverRegistry.getInstance();
 	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
@@ -44,12 +44,12 @@ public class RascalSearchPath {
 		}
 	}
 	
-	public URI resolveModule(String module) {
+	public ISourceLocation resolveModule(String module) {
 		module = moduleToFile(module);
 				
 		try {
-			for (URI dir : collect()) {
-				URI full = getFullURI(module, dir);
+			for (ISourceLocation dir : collect()) {
+				ISourceLocation full = getFullURI(module, dir);
 				if (reg.exists(full)) {
 					return full;
 				}
@@ -68,10 +68,10 @@ public class RascalSearchPath {
 		return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
 	}
 	
-	public URI resolvePath(String path) {
+	public ISourceLocation resolvePath(String path) {
 		try {
-			for (URI dir : collect()) {
-				URI full = getFullURI(path, dir);
+			for (ISourceLocation dir : collect()) {
+				ISourceLocation full = getFullURI(path, dir);
 				if (reg.exists(full)) {
 					return full;
 				}
@@ -83,10 +83,10 @@ public class RascalSearchPath {
 		}
 	}
 	
-	public URI getRootForModule(String module) {
+	public ISourceLocation getRootForModule(String module) {
 		try {
-			for (URI dir : collect()) {
-				URI full = getFullURI(moduleToFile(module), dir);
+			for (ISourceLocation dir : collect()) {
+				ISourceLocation full = getFullURI(moduleToFile(module), dir);
 				if (reg.exists(full)) {
 					return dir;
 				}
@@ -98,8 +98,8 @@ public class RascalSearchPath {
 		}
 	}
 	
-	public List<URI> collect() {
-		List<URI> paths = new LinkedList<URI>();
+	public List<ISourceLocation> collect() { 
+		List<ISourceLocation> paths = new LinkedList<ISourceLocation>();
 		for (IRascalSearchPathContributor c : contributors) {
 			c.contributePaths(paths);
 		}
@@ -107,18 +107,8 @@ public class RascalSearchPath {
 		return paths;
 	}
 
-	private URI getFullURI(String path, URI dir) throws URISyntaxException {
-		String dirPath = dir.getPath() != null ? dir.getPath() : "/";
-		if (dirPath.length() > 0 && !dirPath.startsWith("/")) {
-			dirPath = dirPath + "/";
-		}
-		while (path.startsWith("/")) {
-			path = path.substring(1);
-		}
-		if (!dirPath.endsWith("/")) {
-			path = "/" + path;
-		}
-		return URIUtil.changePath(dir, dirPath + path);
+	private ISourceLocation getFullURI(String path, ISourceLocation dir) throws URISyntaxException {
+		return URIUtil.getChildLocation(dir, path);
 	}
 
 	public URIResolverRegistry getRegistry() {

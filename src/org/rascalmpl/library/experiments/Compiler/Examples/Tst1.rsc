@@ -1,14 +1,16 @@
 module experiments::Compiler::Examples::Tst1
 
-import lang::rascal::tests::imports::M1;
+import lang::rascal::tests::types::StaticTestingUtils;
+import lang::rascal::\syntax::Rascal;
+import ParseTree;
 
-//test bool Test11() = lang::rascal::tests::imports::M1::f(3) == 6;
-//
-//@ignore{}
-//test bool Test12() = f(3) == 6;
+syntax A = "a";
 
- 
-value main(list[value] args) { 
-	int f(int n) {return 3 * n;} 
-	return f(3) == 9;
-}
+value main(list[value] args) = checkOK("x;", initialDecls=["int x = 5;"]);
+
+//#start[A];
+
+//parse(#start[Module],"module M\nimport List;");
+
+
+//checkOK("x;", initialDecls=["int x = 5;"]);

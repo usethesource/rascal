@@ -39,7 +39,6 @@ import lang::rascal::types::Util;
 extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
-import ParseTree;
 
 //
 // TODOs
