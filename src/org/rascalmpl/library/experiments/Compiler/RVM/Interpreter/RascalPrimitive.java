@@ -1653,7 +1653,7 @@ public enum RascalPrimitive {
 
 			case "ls":
 				try {
-					ISourceLocation resolved = rvm.rex.resolveSourceLocation(sloc);
+					ISourceLocation resolved = rvm.getRex().resolveSourceLocation(sloc);
 					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
 					IListWriter w = vf.listWriter();
 
@@ -6017,7 +6017,7 @@ public enum RascalPrimitive {
 	private static ISet emptySet;
 
 	private static PrintWriter stdout;
-	private static RVM rvm;
+	private static IRVM rvm;
 	private static ParsingTools parsingTools;
 	
 	private static IBool Rascal_TRUE;
@@ -6033,7 +6033,7 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(RVM usedRvm, RascalExecutionContext rex){
+	public static void init(IRVM usedRvm, RascalExecutionContext rex){
 		rvm = usedRvm;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
