@@ -64,18 +64,4 @@ public class OverloadedFunction {
 		return sb.toString();
 	}
 
-	public int[] getFuntions() {
-		return functions;
-	}
-
-	public int[] getConstructors() {
-		return constructors;
-	}
-
-	public int getScope() {
-		return scopeIn ;
-	}
-	public String getScopeFun() {
-		return funIn ;
-	}
 }
