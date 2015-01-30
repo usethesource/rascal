@@ -40,7 +40,7 @@ public class IO {
 	}
 	
 	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(file.getURI())) {
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(file)) {
 			Constructor cons = new Constructor();
       new ParserDelegator().parse(reader, cons, true);
 			return cons.getValue();

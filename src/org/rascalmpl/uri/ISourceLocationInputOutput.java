@@ -8,23 +8,11 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.charset.Charset;
+public interface ISourceLocationInputOutput extends 
+        ISourceLocationInput,
+		ISourceLocationOutput {
 
-public interface IURIInputStreamResolver {
-	InputStream getInputStream(URI uri) throws IOException;  
-	Charset getCharset(URI uri) throws IOException;
-	boolean exists(URI uri);
-	long lastModified(URI uri)  throws IOException; 
-	boolean isDirectory(URI uri);  
-	boolean isFile(URI uri) ;
-    String[] listEntries(URI uri)  throws IOException;
-	String scheme();
-	boolean supportsHost();
 }

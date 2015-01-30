@@ -16,7 +16,6 @@ package org.rascalmpl.interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -99,7 +98,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public void notifyConstructorDeclaredListeners();
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input);
+	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input);
 	
 	public Environment pushEnv(Statement s);
 
@@ -110,13 +109,13 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public RascalSearchPath getRascalResolver();
 
 	public IConstructor parseCommand(IRascalMonitor monitor, String command,
-			URI location);
+			ISourceLocation location);
 
-	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException;
+	public IConstructor parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
-	public Result<IValue> eval(IRascalMonitor monitor, String command, URI location);
+	public Result<IValue> eval(IRascalMonitor monitor, String command, ISourceLocation location);
 
 	public IValue call(IRascalMonitor monitor, String module, String name, IValue... args);
 
@@ -127,10 +126,10 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args);
 	 
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands,
-			URI location);
+			ISourceLocation location);
 
 	public Result<IValue> evalMore(IRascalMonitor monitor, String commands,
-			URI location);
+			ISourceLocation location);
 
 	public IValue call(String name, IValue... args);
 	
@@ -143,7 +142,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 			IMap robust, String input);
 
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, URI location);
+			IMap robust, ISourceLocation location);
 
 	/**
 	 *  Freeze the global state of this evaluator so that it can no longer be updated.

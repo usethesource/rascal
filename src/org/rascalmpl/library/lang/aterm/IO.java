@@ -51,7 +51,7 @@ public class IO{
 		
 		InputStream in = null;
 		try{
-			in = URIResolverRegistry.getInstance().getInputStream(loc.getURI());
+			in = URIResolverRegistry.getInstance().getInputStream(loc);
 			return new ATermReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -87,7 +87,7 @@ public class IO{
 	public void writeTextATermFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
+			out = URIResolverRegistry.getInstance().getOutputStream(loc, false);
 			new ATermWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

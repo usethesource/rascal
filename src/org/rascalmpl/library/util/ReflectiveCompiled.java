@@ -63,11 +63,11 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		URI uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
+		ISourceLocation uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RascalRuntimeException.io(modulePath, null);
 		}
-		return values.sourceLocation(uri);
+		return uri;
 	}
 	
 	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
@@ -82,7 +82,7 @@ public class ReflectiveCompiled extends Reflective {
 		}
 
 		try {
-			URI uri = rex.getRascalResolver().resolvePath(value);
+			ISourceLocation uri = rex.getRascalResolver().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 
@@ -96,13 +96,13 @@ public class ReflectiveCompiled extends Reflective {
 
 				if (result != null) {
 					String child = URIUtil.getURIName(URIUtil.createFile(value));
-					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
+					return URIUtil.getChildLocation(result, child);
 				}
 
 				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
 			}
 
-			return values.sourceLocation(uri);
+			return uri;
 		} catch (URISyntaxException e) {
 			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
 		}
@@ -209,7 +209,7 @@ public class ReflectiveCompiled extends Reflective {
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + path + "|"), null, null);
 		}
-		IValue oldVal = preludeCompiled.readTextValueFile(tp, watchLoc, rex);
+		IValue oldVal = preludeCompiled.readTextValueFile(tp, watchLoc);
 		if(oldVal.equals(newVal)){
 			return newVal;
 		} else {

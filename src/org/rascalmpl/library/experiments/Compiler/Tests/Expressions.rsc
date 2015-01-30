@@ -93,11 +93,11 @@ test bool tst() = run("|std:///experiments/Compiler/Benchmarks/|.fragment") == |
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks|.parent") == |std:///experiments/Compiler/Benchmarks|.parent;
 test bool tst() = run("|std:///experiments/Compiler/Benchmarks/Bottles.rsc|.file") == |std:///experiments/Compiler/Benchmarks/Bottles.rsc|.file;
 test bool tst() = run("|home:///|.ls") == |home:///|.ls;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).offset") == |file://-|(11,37,<1,11>,<1,48>).offset;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).begin.line") == |file://-|(11,37,<1,11>,<1,48>).begin.line;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).begin.column") == |file://-|(11,37,<1,11>,<1,48>).begin.column;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.line") == |file://-|(11,37,<1,11>,<1,48>).end.line;
-test bool tst() = run("|file://-|(11,37,\<1,11\>,\<1,48\>).end.column") == |file://-|(11,37,<1,11>,<1,48>).end.column;
+test bool tst() = run("|std:///|(11,37,\<1,11\>,\<1,48\>).offset") == |std:///|(11,37,<1,11>,<1,48>).offset;
+test bool tst() = run("|std:///|(11,37,\<1,11\>,\<1,48\>).begin.line") == |std:///|(11,37,<1,11>,<1,48>).begin.line;
+test bool tst() = run("|std:///|(11,37,\<1,11\>,\<1,48\>).begin.column") == |std:///|(11,37,<1,11>,<1,48>).begin.column;
+test bool tst() = run("|std:///|(11,37,\<1,11\>,\<1,48\>).end.line") == |std:///|(11,37,<1,11>,<1,48>).end.line;
+test bool tst() = run("|std:///|(11,37,\<1,11\>,\<1,48\>).end.column") == |std:///|(11,37,<1,11>,<1,48>).end.column;
 
 test bool tst() = run("{tuple[int a, str b, int c] x= \<1, \"x\", 2\>; x.b;}") == {tuple[int a, str b, int c] x= <1, "x", 2>; x.b;};
 test bool tst() = run("{lrel[int a, str b, int c]  x= [ \<1, \"x\", 2\>, \<3, \"y\", 4\> ]; x.b;}") == {lrel[int a, str b, int c]  x= [ <1, "x", 2>, <3, "y", 4> ]; x.b;};
@@ -108,17 +108,17 @@ test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.uri = \
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.scheme= \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.scheme = "xxx"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.authority= \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.authority= "xxx"; L;};
 test bool tst() = run("{L = |http://www.rascal-mpl.org|; L.host = \"xxx\"; L;}") == {L = |http://www.rascal-mpl.org|; L.host = "xxx"; L;};
-test bool tst() = run("{L = |http://www.rascal-mpl.org|; L.port=123; L;}") =={L = |http://www.rascal-mpl.org|; L.port=123; L;};
+test bool tst() = run("{L = |http:///www.rascal-mpl.org|; L.port=123; L;}") =={L = |http:///www.rascal-mpl.org|; L.port=123; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.path = \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.path = "xxx"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.extension=\"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.extension="xxx"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/|; L.fragment= \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/|; L.fragment= "xxx"; L;};
 test bool tst() = run("{L = |std:///experiments/Compiler/Benchmarks/Bottles.rsc|; L.file = \"xxx\"; L;}") == {L = |std:///experiments/Compiler/Benchmarks/Bottles.rsc|; L.file = "xxx"; L;};
 
-test bool tst() = run("{L = |file://-|(11,37,\<1,11\>,\<1,48\>); L.offset = 100; L;}") == {L = |file://-|(11,37,<1,11>,<1,48>); L.offset = 100; L;};
+test bool tst() = run("{L = |std:///|(11,37,\<1,11\>,\<1,48\>); L.offset = 100; L;}") == {L = |std:///|(11,37,<1,11>,<1,48>); L.offset = 100; L;};
 // Mysterious case: gives true when executed manually.
-/*fails*/ //test bool tst() = run("{loc L = |file://-|(11,37,\<1,11\>,\<1,48\>);L.begin = \<1,20\>; L;}") == { loc L =|file://-|(11,37,<1,11>,<1,48>); L.begin= <1,20>; L;};
+/*fails*/ //test bool tst() = run("{loc L = |std:///|(11,37,\<1,11\>,\<1,48\>);L.begin = \<1,20\>; L;}") == { loc L =|std:///|(11,37,<1,11>,<1,48>); L.begin= <1,20>; L;};
 
-test bool tst() = run("{L = |file://-|(11,37,\<1,11\>,\<1,48\>); L.end = \<10,20\>; L;}") == {L = |file://-|(11,37,<1,11>,<1,48>); L.end = <10,20>; L;};
+test bool tst() = run("{L = |std:///|(11,37,\<1,11\>,\<1,48\>); L.end = \<10,20\>; L;}") == {L = |std:///|(11,37,<1,11>,<1,48>); L.end = <10,20>; L;};
 
 
 
