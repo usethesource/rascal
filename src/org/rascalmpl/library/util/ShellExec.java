@@ -15,7 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -30,6 +33,7 @@ public class ShellExec {
 	
 	private static HashMap<IInteger, Process> runningProcesses = new HashMap<IInteger, Process>();
 	private static HashMap<IInteger, InputStreamReader> processInputStreams = new HashMap<IInteger, InputStreamReader>();
+	private static HashMap<IInteger, InputStreamReader> processErrorStreams = new HashMap<IInteger, InputStreamReader>();
 	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
 	private static IInteger processCounter = null;
 	
@@ -74,49 +78,54 @@ public class ShellExec {
 	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
 			// Build the arg array using the command and the command arguments passed in the arguments list
-			String[] args = null;
-			if (arguments != null && arguments.length() > 0) {
-				args = new String[arguments.length()+1];
-				args[0] = processCommand.getValue();
-				for (int n = 0; n < arguments.length(); ++n) {
-					if (arguments.get(n) instanceof IString) 
-						args[n+1] = ((IString)arguments.get(n)).getValue();
-					else
-						throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, null);
-				}
-			} else {
-				args = new String[1];
-				args[0] = processCommand.getValue();
+			List<String> args = new ArrayList<String>();
+			args.add(processCommand.getValue());
+			if(arguments != null) {
+			    for (int n = 0; n < arguments.length(); ++n) {
+				    if (arguments.get(n) instanceof IString) 
+					    args.add(((IString)arguments.get(n)).getValue());
+				    else
+					    throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, null);
+			    }
 			}
+			ProcessBuilder pb = new ProcessBuilder(args);
 			
 			// Built the environment var map using the envVars map
-			String[] vars = null;
+			Map<String,String> vars = new HashMap<String,String>();
 			if (envVars != null && envVars.size() > 0) { 
-				vars = new String[envVars.size()];
-				int keyCount = 0;
 				for (IValue varKey : envVars) {
 					if (varKey instanceof IString) {
 						IString strKey = (IString) varKey;
 						IValue varVal = envVars.get(varKey);
 						if (varVal instanceof IString) {
 							IString strVal = (IString) varVal;
-							vars[keyCount] = strKey + " = " + strVal;
+							vars.put(strKey.getValue(),  strVal.getValue());
 						} else {
 							throw RuntimeExceptionFactory.illegalArgument(varVal,null, null);
 						}
 					} else {
 						throw RuntimeExceptionFactory.illegalArgument(varKey,null, null);
 					}
-					keyCount++;
 				}
+			}
+			Map<String,String> currentEnv = pb.environment();
+			try {
+				for (String strKey : vars.keySet()) {
+					currentEnv.put(strKey, vars.get(strKey));
+				}
+			} catch (UnsupportedOperationException uoe) {
+				throw RuntimeExceptionFactory.permissionDenied(vf.string("Modifying environment variables is not allowed on this machine."), null, null);
+			} catch (IllegalArgumentException iae) {
+				throw RuntimeExceptionFactory.permissionDenied(vf.string("Modifying environment variables is not allowed on this machine."), null, null);
 			}
 			
 			File cwd = null;
 			if (workingDir != null) {
 				cwd = new File(workingDir.getURI().getPath());
+				pb.directory(cwd);
 			}
 			
-			Process newProcess = Runtime.getRuntime().exec(args, vars, cwd);
+			Process newProcess = pb.start();
 			if (processCounter == null) processCounter = vf.integer(0);
 			processCounter = processCounter.add(vf.integer(1));
 			runningProcesses.put(processCounter, newProcess);
@@ -140,6 +149,16 @@ public class ShellExec {
 			}
 		}
 		
+		if (processErrorStreams.containsKey(processId)) {
+			try {
+				processErrorStreams.get(processId).close();
+			} catch (IOException e) {
+				// eat it, we are just throwing it away anyway
+			} finally {
+				processErrorStreams.remove(processId);
+			}
+		}
+
 		if (processOutputStreams.containsKey(processId)) {
 			try {
 				processOutputStreams.get(processId).close();
@@ -178,6 +197,28 @@ public class ShellExec {
 		}
 	}
 	
+	public synchronized IString readFromErr(IInteger processId) {
+		if (!runningProcesses.containsKey(processId))
+			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+		try {
+			Process runningProcess = runningProcesses.get(processId);
+			InputStreamReader isr = null;
+			if (processErrorStreams.containsKey(processId)) {
+				isr = processErrorStreams.get(processId);
+			} else {
+				isr = new InputStreamReader(runningProcess.getErrorStream());
+				processErrorStreams.put(processId, isr);
+			}
+			StringBuffer line = new StringBuffer();
+			while (isr.ready()) {
+				line.append((char)isr.read());
+			}
+			return vf.string(line.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.javaException(e, null, null);
+		}
+	}
+
 	public synchronized IString readEntireStream(IInteger processId) {
 		if (!runningProcesses.containsKey(processId))
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);

@@ -1,10 +1,8 @@
 module experiments::Compiler::Examples::Tst5
 
-syntax AS = {A ","}+;
-syntax A = "a";
 
-value main(list[value] args){
+map[str, int] M = ("a" : 1, "b" : 2);
 
-   return (AS) `<{A ","}+ as>` := parse(#AS, "a,a,a");
+bool isdef(map[str,int] m, str k) = M[k]?;
 
-}
+value main(list[value] args) = { M[k] | k <- {"a", "b", "c"}, M[k]?};

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Interpreter Eval0 supports the following features of Func:
  <br/>
@@ -60,7 +60,7 @@
   <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval0 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> let                  </td><td align="center">       </td></tr><tr><td align="left"> sequence             </td><td align="center">       </td></tr><tr><td align="left"> assignment           </td><td align="center">       </td></tr><tr><td align="left"> address operator     </td><td align="center">       </td></tr><tr><td align="left"> dereference operator </td><td align="center">       </td></tr></table>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is the code for Eval0:
  <pre class="listing">module demo::lang::Func::Eval0
@@ -80,7 +80,7 @@ public value eval0(str main, list[int] args, Prog prog) { <img src="/images/2.pn
 
 
 public Exp subst(Exp exp, list[str] vars, list[int] values) { <img src="/images/3.png">
-  env = ( vars[i]: values[i] | i &lt;- domain(vars) );
+  env = ( vars[i]: values[i] | i &lt;- index(vars) );
   return visit (exp) {
     case var(str name) => nat(env[name])
   };
@@ -140,9 +140,9 @@ value: 3628800
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Eval0&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Eval0&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

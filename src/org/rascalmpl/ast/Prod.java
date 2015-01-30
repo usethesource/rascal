@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,11 +31,11 @@ public abstract class Prod extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasArgs() {
+  public boolean hasSyms() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
+  public java.util.List<org.rascalmpl.ast.Sym> getSyms() {
     throw new UnsupportedOperationException();
   }
   public boolean hasAssociativity() {
@@ -112,6 +112,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdAll(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof All)) {
+        return false;
+      }        
+      All tmp = (All) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 457 + 263 * lhs.hashCode() + 311 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Prod getLhs() {
@@ -159,6 +173,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdAssociativityGroup(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof AssociativityGroup)) {
+        return false;
+      }        
+      AssociativityGroup tmp = (AssociativityGroup) o;
+      return true && tmp.associativity.equals(this.associativity) && tmp.group.equals(this.group) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 997 + 991 * associativity.hashCode() + 167 * group.hashCode() ; 
+    } 
   
     
     @Override
@@ -208,6 +236,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdFirst(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof First)) {
+        return false;
+      }        
+      First tmp = (First) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 643 + 197 * lhs.hashCode() + 269 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Prod getLhs() {
@@ -233,19 +275,19 @@ public abstract class Prod extends AbstractAST {
   }
 
   static public class Labeled extends Prod {
-    // Production: sig("Labeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","args")])
+    // Production: sig("Labeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")])
   
     
     private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
     private final org.rascalmpl.ast.Name name;
-    private final java.util.List<org.rascalmpl.ast.Sym> args;
+    private final java.util.List<org.rascalmpl.ast.Sym> syms;
   
-    public Labeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> args) {
+    public Labeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> syms) {
       super(node);
       
       this.modifiers = modifiers;
       this.name = name;
-      this.args = args;
+      this.syms = syms;
     }
   
     @Override
@@ -257,6 +299,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdLabeled(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Labeled)) {
+        return false;
+      }        
+      Labeled tmp = (Labeled) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.name.equals(this.name) && tmp.syms.equals(this.syms) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 809 + 599 * modifiers.hashCode() + 743 * name.hashCode() + 911 * syms.hashCode() ; 
+    } 
   
     
     @Override
@@ -278,12 +334,12 @@ public abstract class Prod extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
-      return this.args;
+    public java.util.List<org.rascalmpl.ast.Sym> getSyms() {
+      return this.syms;
     }
   
     @Override
-    public boolean hasArgs() {
+    public boolean hasSyms() {
       return true;
     }	
   }
@@ -310,6 +366,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdOthers(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Others)) {
+        return false;
+      }        
+      Others tmp = (Others) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 157 ; 
+    } 
   
     	
   }
@@ -339,6 +409,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdReference(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Reference)) {
+        return false;
+      }        
+      Reference tmp = (Reference) o;
+      return true && tmp.referenced.equals(this.referenced) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 857 + 11 * referenced.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getReferenced() {
@@ -355,17 +439,17 @@ public abstract class Prod extends AbstractAST {
   }
 
   static public class Unlabeled extends Prod {
-    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","args")])
+    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")])
   
     
     private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
-    private final java.util.List<org.rascalmpl.ast.Sym> args;
+    private final java.util.List<org.rascalmpl.ast.Sym> syms;
   
-    public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
+    public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> syms) {
       super(node);
       
       this.modifiers = modifiers;
-      this.args = args;
+      this.syms = syms;
     }
   
     @Override
@@ -378,6 +462,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdUnlabeled(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unlabeled)) {
+        return false;
+      }        
+      Unlabeled tmp = (Unlabeled) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.syms.equals(this.syms) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 761 + 337 * modifiers.hashCode() + 877 * syms.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
@@ -389,12 +487,12 @@ public abstract class Prod extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
-      return this.args;
+    public java.util.List<org.rascalmpl.ast.Sym> getSyms() {
+      return this.syms;
     }
   
     @Override
-    public boolean hasArgs() {
+    public boolean hasSyms() {
       return true;
     }	
   }

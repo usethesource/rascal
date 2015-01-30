@@ -15,7 +15,6 @@ package org.rascalmpl.uri;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -23,13 +22,15 @@ import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class JarURIResolver implements IURIInputStreamResolver{
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
+public class JarURIResolver implements ISourceLocationInput{
 	
 	public JarURIResolver() {
 		super();
 	}
 	
-	private String getJar(URI uri) throws IOException {
+	private String getJar(ISourceLocation uri) throws IOException {
 		String path = uri.getPath();
 		if (path == null) {
 			path = uri.toString();
@@ -43,7 +44,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		}
 	}
 	
-	private String getPath(URI uri) {
+	private String getPath(ISourceLocation uri) {
 		String path = uri.getPath();
 		if (path == null) {
 			path = uri.toString();
@@ -62,7 +63,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		}
 	}
 	
-	public InputStream getInputStream(URI uri) throws IOException {
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 	  String jar = getJar(uri);
     String path = getPath(uri);
     
@@ -73,7 +74,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
     return jarFile.getInputStream(jarEntry);
 	}
 	
-	public boolean exists(URI uri) {
+	public boolean exists(ISourceLocation uri) {
 		try {
 			String jar = getJar(uri);
 			String path = getPath(uri);
@@ -89,7 +90,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		}
 	}
 	
-	public boolean isDirectory(URI uri){
+	public boolean isDirectory(ISourceLocation uri){
 		try {
 			if (uri.getPath() != null && uri.getPath().endsWith(".jar!")) {
 				// if the uri is the root of a jar, and it ends with a !, it should be considered a directory
@@ -125,7 +126,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		}
 	}
 	
-	public boolean isFile(URI uri){
+	public boolean isFile(ISourceLocation uri){
 		try {
 			String jar = getJar(uri);
 			String path = getPath(uri);
@@ -139,7 +140,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		}
 	}
 	
-	public long lastModified(URI uri) throws IOException{
+	public long lastModified(ISourceLocation uri) throws IOException{
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
@@ -154,7 +155,8 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		return jarEntry.getTime();
 	}
 	
-	public String[] listEntries(URI uri) throws IOException {
+	@Override
+	public String[] list(ISourceLocation uri) throws IOException {
 		String jar = getJar(uri);
 		String path = getPath(uri);
 		
@@ -165,7 +167,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		JarFile jarFile = new JarFile(jar);
 		
 		Enumeration<JarEntry> entries =  jarFile.entries();
-		ArrayList<String> matchedEntries = new ArrayList<String>();
+		ArrayList<String> matchedEntries = new ArrayList<>();
 		while (entries.hasMoreElements()) {
 			JarEntry je = entries.nextElement();
 			String name = je.getName();
@@ -203,7 +205,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		return matchedEntries.toArray(listedEntries);
 	}
 	
-	public String scheme(){
+	public String scheme() {
 		return "jar";
 	}
 
@@ -212,7 +214,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		// TODO need to see if we can detect the charset inside a jar
 		return null;
 	}

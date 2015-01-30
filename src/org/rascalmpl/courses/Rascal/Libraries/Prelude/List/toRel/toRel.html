@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>rel[&amp;T,&amp;T] toRel(list[&amp;T] lst)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -69,28 +69,28 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>toRel([3, 1, 4, 5]);
 rel[int,int]: {
-  &lt;3,1>,
+  &lt;4,5>,
   &lt;1,4>,
-  &lt;4,5>
+  &lt;3,1>
 }
 <span class="prompt">rascal></span>toRel([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 rel[str,str]: {
+  &lt;"snake","owl">,
   &lt;"zebra","elephant">,
-  &lt;"elephant","snake">,
-  &lt;"snake","owl">
+  &lt;"elephant","snake">
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -112,8 +112,8 @@ rel[str,str]: {
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toRel_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toRel_1:L" value="[-6, 5, -9, 0]">
-The type of <tt>toRel([-6, 5, -9, 0])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toRel_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toRel_1:L" value="[11, 8, 0, 11]">
+The type of <tt>toRel([11, 8, 0, 11])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toRel_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -137,8 +137,8 @@ The type of <tt>toRel([-6, 5, -9, 0])</tt> is <input type="text" size="30" name=
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toRel_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toRel_2:L" value="[&quot;M&quot;, &quot;H&quot;, &quot;Darth Sidious&quot;, &quot;Barkley the Dog&quot;]">
-<pre class="prequestion">toRel([&quot;M&quot;, &quot;H&quot;, &quot;Darth Sidious&quot;, &quot;Barkley the Dog&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toRel_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toRel_2:L" value="[&quot;Bruno&quot;, &quot;Dill&quot;, &quot;Blackcurrant&quot;, &quot;I&quot;]">
+<pre class="prequestion">toRel([&quot;Bruno&quot;, &quot;Dill&quot;, &quot;Blackcurrant&quot;, &quot;I&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toRel_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toRel_2:another" value="yes">

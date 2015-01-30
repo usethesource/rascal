@@ -19,27 +19,30 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class JavaMethod extends NamedFunction {
 	private final Object instance;
@@ -48,9 +51,28 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
 	}
 	
+	@Override
+	public Type getFormals() {
+		// get formals is overridden because we can provide labeled parameters for JavaMethods (no pattern matching)
+		FunctionDeclaration func = (FunctionDeclaration) getAst();
+		
+		List<Expression> formals = func.getSignature().getParameters().getFormals().getFormals();
+		int arity = formals.size();
+		Type[] types = new Type[arity];
+		String[] labels = new String[arity];
+		FunctionType ft = getFunctionType();
+		
+		for (int i = 0; i < arity; i++) {
+			types[i] = ft.getFieldType(i);
+			assert formals.get(i).isTypedVariable(); // Java methods only have normal parameters as in `int i, int j`
+			labels[i] = Names.name(formals.get(i).getName());
+		}
+		
+		return TF.tupleType(types, labels);
+	}
 	/*
 	 *  This one is to be called by cloneInto only, to avoid
 	 *  looking into the environment again for obtaining the type.
@@ -59,12 +81,14 @@ public class JavaMethod extends NamedFunction {
 	 *  require types.
 	 */
 	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, null, env);
+		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
+
+	
 	
 
 	@Override
@@ -91,10 +115,14 @@ public class JavaMethod extends NamedFunction {
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
-		if (resultValue !=  null) 
+		
+		if (resultValue !=  null) {
 			return resultValue;
+		}
 		Type actualTypesTuple;
 		Type formals = getFormals();
+
+		
 		Object[] oActuals;
 
 		if (hasVarArgs) {
@@ -103,6 +131,19 @@ public class JavaMethod extends NamedFunction {
 		else {
 			oActuals = actuals;
 		}
+		
+		if (hasVarArgs) {
+			actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+		}
+		else {
+			actualTypesTuple = TF.tupleType(actualTypes);
+		}
+		
+		if (!actualTypesTuple.isSubtypeOf(formals)) {
+			// resolve overloading
+			throw new MatchFailed();
+		}
+		
 		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
@@ -118,12 +159,7 @@ public class JavaMethod extends NamedFunction {
 		try {
 			ctx.pushEnv(getName());
 
-			if (hasVarArgs) {
-				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
-			}
-			else {
-				actualTypesTuple = TF.tupleType(actualTypes);
-			}
+			
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
@@ -154,56 +190,41 @@ public class JavaMethod extends NamedFunction {
 		return newActuals;
 	}
 	
-	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
-		if(keywordParameterDefaults == null){
-			if(keyArgValues != null){
-				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-			}
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues) {
+		if (!getFunctionType().hasKeywordParameters()) {
 			return oldActuals;
 		}
-		Object[] newActuals = new Object[formals.getArity() + keywordParameterDefaults.size()];
-		System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
-		int posArity = formals.getArity();
 		
-		if(keyArgValues == null){
-			if(keywordParameterDefaults != null){
-				for(int i = 0; i < keywordParameterDefaults.size(); i++){
-					KeywordParameter kw = keywordParameterDefaults.get(i);
-					Result<IValue> r = kw.getDefault();
-					newActuals[posArity + i] = r.getValue();
-				}
+		Environment env = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
+		Environment old = ctx.getCurrentEnvt();
+		
+		try {
+			// we set up an environment to hold the positional parameter values
+			ctx.setCurrentEnvt(env);
+			for (int i = 0; i < formals.getArity(); i++) {
+				String fieldName = formals.getFieldName(i);
+				Type fieldType = formals.getFieldType(i);
+				env.declareVariable(fieldType, fieldName);
+				env.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, (IValue) oldActuals[i], ctx));
 			}
+		
+			// then we initialize the keyword parameters in this environment
+			Type kwType = getFunctionType().getKeywordParameterTypes();
+			int amountOfKWArguments =  kwType.getArity();
+			Object[] newActuals = new Object[oldActuals.length + amountOfKWArguments];
+			System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
+			bindKeywordArgs(keyArgValues);
+			
+			// then we add the resulting values in order to the actual parameter array for the Java method
+			for (int i = 0; i < amountOfKWArguments; i++) {
+				newActuals[oldActuals.length + i] = env.getVariable(kwType.getFieldName(i)).getValue();
+			}
+			
 			return newActuals;
 		}
-		if(keywordParameterDefaults == null)
-			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-		
-		int nBoundKeywordArgs = 0;
-		for(int i = 0; i < keywordParameterDefaults.size(); i++){
-			KeywordParameter kw = keywordParameterDefaults.get(i);
-			String kwparam = kw.getName();
-			if(keyArgValues.containsKey(kwparam)){
-				nBoundKeywordArgs++;
-				IValue r = keyArgValues.get(kwparam);
-				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
-					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
-				}
-				newActuals[posArity + i] = r;
-			} else {
-				Result<IValue> r = kw.getDefault();
-				newActuals[posArity + i] = r.getValue();
-			}
+		finally {
+			ctx.setCurrentEnvt(old);
 		}
-		if(nBoundKeywordArgs != keyArgValues.size()){
-			main:
-			for(String kwparam : keyArgValues.keySet())
-				for(KeywordParameter kw : keywordParameterDefaults){
-					if(kwparam.equals(kw.getName()))
-							continue main;
-					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-				}
-		}
-		return newActuals;
 	}
 	
 

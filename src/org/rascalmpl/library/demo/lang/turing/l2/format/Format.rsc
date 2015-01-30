@@ -25,7 +25,7 @@ public Box stat2box(loop(n, ss))
        
 public Box stats2box(list[Statement] ss) {
   result = while (ss != []) {
-    <h, ss> = headTail(ss);
+    <h, ss> = pop(ss);
     if (h is label) {
       kids = takeWhile(ss, bool(Statement s) { return !(s is label); });
       ss = drop(size(kids), ss);

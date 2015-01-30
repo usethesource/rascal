@@ -1,10 +1,13 @@
 module experiments::Compiler::Tests::VIO
-import Prelude;
 
-void main(){
-  l = |rascal:///experiments/Compiler/Tests/XXX|;
+import IO;
+import ValueIO;
+import Type;
+
+void main(list[value] args){
+  l = |std:///experiments/Compiler/Tests/XXX|;
   v = #int;
   writeTextValueFile(l, v);
-  w = readTextValueFile(l);
+  w = readTextValueFile(type(\value(), #Symbol.definitions), l);
   println("<typeOf(v)> v = <v>, <typeOf(w)>  w = <w>");
 }

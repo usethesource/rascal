@@ -29,6 +29,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -69,6 +70,37 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
 
+	@Override
+	public Type getKeywordArgumentTypes(Environment scope) {
+	  ArrayList<String> labels = new ArrayList<>();
+	  ArrayList<Type> types = new ArrayList<>();
+	  // TODO: I am not sure this is what we want. Double names will end up twice in the tuple type...
+	  
+	  for (AbstractFunction c : primaryCandidates) {
+	    Type args = c.getKeywordArgumentTypes(scope);
+	    
+	    if (args != null && args.hasFieldNames()) {
+	    	for (String label : args.getFieldNames()) {
+	    		labels.add(label);
+	    		types.add(args.getFieldType(label));
+	    	}
+	    }
+	  }
+	  
+	  for (AbstractFunction c : defaultCandidates) {
+		  Type args = c.getKeywordArgumentTypes(scope);
+
+		  if (args != null && args.hasFieldNames()) {
+			  for (String label : args.getFieldNames()) {
+				  labels.add(label);
+				  types.add(args.getFieldType(label));
+			  }  
+		  }
+	  }
+	  
+	  return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()])); 
+	}
+	
 	public OverloadedFunction(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
 		
@@ -242,7 +274,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -322,7 +354,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		for (AbstractFunction candidate : candidates) {
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length
-					|| candidate.hasKeywordArgs()) {
+					|| candidate.hasKeywordArguments()) {
 				try {
 					return candidate.call(argTypes, argValues, keyArgValues);
 				}
@@ -519,4 +551,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	 @Override
+   public boolean mayHaveKeywordParameters() {
+     return false;
+   }
+   
+   @Override
+   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+     throw new IllegalOperationException(
+         "Cannot be viewed as with keyword parameters", getType());
+   }
 }

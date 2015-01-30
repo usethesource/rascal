@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,25 @@ public class OverloadedFunctionType extends RascalType {
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
+	
+	public Type getKeywordParameterTypes() {
+		// TODO: what does this union mean in case of overlapping names?
+		ArrayList<String> labels = new ArrayList<>();
+		ArrayList<Type> types  = new ArrayList<>();
+
+		for (FunctionType f : alternatives) {
+			for (String label : f.getKeywordParameterTypes().getFieldNames()) {
+				if (!labels.contains(label)) {
+					labels.add(label);
+					types.add(f.getKeywordParameterType(label));
+				}
+				// TODO: a clash, but we silently ignore it here?
+			}
+		}
+
+		return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()]));
+	}
+
 	public int size() {
 		return alternatives.size();
 	}
@@ -150,13 +170,13 @@ public class OverloadedFunctionType extends RascalType {
 	  }
 	  
 	  Type returnType = getReturnType().glb(of.getReturnType());
-		  
+		
 	  for(FunctionType f : getAlternatives()) {
-	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes()));
 	  }
 		  
 	  for(FunctionType f : of.getAlternatives()) {
-		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes()));
 	  }
 		  
 	  return RTF.overloadedFunctionType(newAlternatives);
@@ -203,14 +223,14 @@ public class OverloadedFunctionType extends RascalType {
 		if(right instanceof FunctionType) {
 			for(FunctionType ftype : this.alternatives) {
 				if(TF.tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
-					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
+					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).getKeywordParameterTypes()));
 				}
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				for(FunctionType gtype : this.alternatives) {
 					if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
-						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
+						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes(), ftype.getKeywordParameterTypes()));
 					}
 				}
 			}

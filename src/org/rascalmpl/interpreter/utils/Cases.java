@@ -208,6 +208,7 @@ public class Cases  {
 			org.eclipse.imp.pdb.facts.type.Type subjectType = value
 					.getType();
 
+			
 			if (subjectType.isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) value)) {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((IConstructor) value));
 				if (alts != null) {
@@ -431,8 +432,9 @@ public class Cases  {
         }
       }
     } finally {
-      if (debug)
+      if (debug) {
         System.err.println("Unwind to old env");
+      }
       eval.unwind(old);
     }
     return false;

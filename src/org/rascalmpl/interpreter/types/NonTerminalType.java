@@ -60,6 +60,10 @@ public class NonTerminalType extends RascalType {
 		return SymbolAdapter.isAnyList(getSymbol());
 	}
 	
+	public boolean isOptionalType() {
+		return SymbolAdapter.isOpt(getSymbol());
+	}
+	
 	@Override
 	public Type getAbstractDataType() {
 	  return Factory.Tree;
@@ -228,7 +232,6 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String toString() {
-	  return symbol.toString();
-//		return SymbolAdapter.toString(symbol);
+		return SymbolAdapter.toString(symbol, false);
 	}
 }

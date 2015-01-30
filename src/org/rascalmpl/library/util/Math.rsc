@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module util::Math
+
+import List;
 
 @doc{
 Synopsis: Absolute value of a number.
@@ -393,6 +395,21 @@ pow(12345678901234567890.0, 1000)
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real pow(num x, int y);
+@doc{
+Synopsis: Calculate an arbitrary power of a numeric value.
+
+Description:
+The calculate `x`<sup>`y`</sup> where `y` can be any real value.
+
+Examples:
+<screen>
+import util::Math;
+pow(sqrt(42), 2.3)
+pow(12345678901234567890.0, 100.2)
+</screen>
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real pow(num x, real y);
 
 @doc{
 Synopsis: Return the precision of a real number.
@@ -563,9 +580,14 @@ toString(3.14)
 @javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);
 
+@doc{ 
+Synopsis: generate prime numbers up to a maximum
+}
+@memo
+public list[int] primes(int upTo) 
+  = [p | p <- [2..upTo], p < 4 || all(i <- [2..toInt(sqrt(p))+1], p != i ? p % i != 0 : true)];
+// Some test code: https://gist.github.com/grammarware/839f63b1a4999992ade7
 
-
-
-
+public int arbPrime(int upTo) = ps[arbInt(size(ps))] when ps := primes(upTo); 
 
 

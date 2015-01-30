@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2011-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -21,5 +21,5 @@ public Graph[Symbol] symbolDependencies(Grammar g) =
   { <from,to> | /prod(Symbol s,[_*,Symbol elem,_*],_) := g, /Symbol to := elem, (label(_,Symbol from) := s || Symbol from := s), to is sort || to is lex || to is \parameterized-sort, from is sort || from is lex || from is \parameterized-sort};
 
 public Graph[Symbol] symbolDependencies(GrammarDefinition d) =
-  { symbolDependencies(d.modules[m].grammar) | m <- d.modules };
+  { *symbolDependencies(d.modules[m].grammar) | m <- d.modules };
     

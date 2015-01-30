@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,19 +48,19 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>             </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>             </th><th align="left"> <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>                            </th></tr><tr><td align="left"> <code>map[<i>TK</i><sub>1</sub>, <i>TV</i><sub>1</sub>]</code> </td><td align="left">  <code>map[<i>TK</i><sub>2</sub>, <i>TV</i><sub>2</sub>]</code> </td><td align="left"> <code>map[lub(<i>TK</i><sub>1</sub>,<i>TK</i><sub>2</sub>),lub(<i>TK</i><sub>1</sub>,<i>TK</i><sub>2</sub>) ]</code>  </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The result is the union of the two map values of <code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code>.
  If they have a pair with the same key in common, that key will be associated
@@ -68,23 +68,23 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>(&quot;apple&quot;: 1, &quot;pear&quot;: 2) + (&quot;banana&quot;: 3, &quot;kiwi&quot;: 4);
-map[str, int]: ("apple":1,"pear":2,"banana":3,"kiwi":4)
+map[str, int]: ("banana":3,"pear":2,"kiwi":4,"apple":1)
 <span class="prompt">rascal></span>(&quot;apple&quot;: 1, &quot;pear&quot;: 2) + (&quot;banana&quot;: 3, &quot;apple&quot;: 4);
-map[str, int]: ("apple":4,"pear":2,"banana":3)
+map[str, int]: ("banana":3,"pear":2,"apple":4)
 </pre>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  Map union is very suited for representing environment composition in interpreters.
 
 </div>
 
-  	                       
-  	                       
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Map/Union&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Map/Union&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

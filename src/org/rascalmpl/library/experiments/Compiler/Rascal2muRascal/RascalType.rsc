@@ -1,8 +1,9 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalType
 
+import Type;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import Prelude;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::types::TestChecker;
@@ -13,17 +14,17 @@ import lang::rascal::types::AbstractName;
  * translateType: translate a concrete (textual) type description to a Symbol
  */
 
-Symbol translateType((BasicType) `value`) 		= \value();
-Symbol translateType(t: (BasicType) `loc`) 		= \loc();
-Symbol translateType(t: (BasicType) `node`) 	= \node();
-Symbol translateType(t: (BasicType) `num`) 		= \num();
-Symbol translateType(t: (BasicType) `int`) 		= \int();
-Symbol translateType(t: (BasicType) `real`) 	= \real();
-Symbol translateType(t: (BasicType) `rat`)      = \rat();
-Symbol translateType(t: (BasicType) `str`) 		= \str();
-Symbol translateType(t: (BasicType) `bool`) 	= \bool();
-Symbol translateType(t: (BasicType) `void`) 	= \void();
-Symbol translateType(t: (BasicType) `datetime`)	= \datetime();
+Symbol translateType((BasicType) `value`) 		= Symbol::\value();
+Symbol translateType(t: (BasicType) `loc`) 		= Symbol::\loc();
+Symbol translateType(t: (BasicType) `node`) 	= Symbol::\node();
+Symbol translateType(t: (BasicType) `num`) 		= Symbol::\num();
+Symbol translateType(t: (BasicType) `int`) 		= Symbol::\int();
+Symbol translateType(t: (BasicType) `real`) 	= Symbol::\real();
+Symbol translateType(t: (BasicType) `rat`)      = Symbol::\rat();
+Symbol translateType(t: (BasicType) `str`) 		= Symbol::\str();
+Symbol translateType(t: (BasicType) `bool`) 	= Symbol::\bool();
+Symbol translateType(t: (BasicType) `void`) 	= Symbol::\void();
+Symbol translateType(t: (BasicType) `datetime`)	= Symbol::\datetime();
 
 Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
 												= \bag(translateType(arg)); 
@@ -58,18 +59,18 @@ Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) =
 									\func(translateType(tp), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
-	rn = convertName(name);
 	// look up the name in the type environment
-	val = config.store[config.typeEnv[rn]];
+	val = getAbstractValueForQualifiedName(name);
+	
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }
 Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
-	rn = convertName(name);
 	// look up the name in the type environment
-	val = config.store[config.typeEnv[rn]];
+	val = getAbstractValueForQualifiedName(name);
+	
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		// instantiate type parameters
 		val.rtype.parameters = [ translateType(param) | param <- parameters];
@@ -78,7 +79,7 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), \value());  
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
 Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {

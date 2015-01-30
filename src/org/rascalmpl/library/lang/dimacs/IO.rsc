@@ -2,6 +2,7 @@ module lang::dimacs::IO
 
 import lang::logic::\syntax::Propositions;
 import lang::dimacs::\syntax::Dimacs;
+import ParseTree;
 
 /*
 c A sample .cnf file.

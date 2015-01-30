@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ data LLSolution = llSolution(LLVariableVals varVals, num funVal);
 
 public num llRunObjFul(LLObjectiveFun f, LLVariableVals vals) =
 	(f.const | 
-	 it + f.coefficients[var]*varVals[var] |
+	 it + f.coefficients[var]*vals[var] |
 	 var <- index(f.coefficients));
 
 list[num] padToSize(list[num] l, int s) =
@@ -40,11 +40,11 @@ list[num] padToSize(list[num] l, int s) =
 
 public tuple[LLConstraints constraints, LLObjectiveFun f]
 normalize(LLConstraints constraints, LLObjectiveFun f){
-	int nrVars = max(
+	int nrVars = max([
 			max([size(con.coefficients) | con <- constraints ]),
 			size(f.coefficients)
-		);
-	constraints = {llConstraint(padToSize(con.coefficients,nrVars), con.const) |
+		]);
+	constraints = {llConstraint(padToSize(con.coefficients,nrVars),con.ctype, con.const) |
 					con <- constraints };
 	f = llObjFun(padToSize(f.coefficients,nrVars),f.const);
 	return <constraints, f>;

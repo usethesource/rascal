@@ -17,9 +17,6 @@ Description:
 The following exceptions can be trown as the result of a run-time error:
 <toc Errors/Dynamic>
 
-There are more specific execptions that cannot be caught by the Rascal program.
-<warning> Describe these uncatchable exceptions somewhere</warning>
-
 Examples:
 
 Benefits:

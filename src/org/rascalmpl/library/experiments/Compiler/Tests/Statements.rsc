@@ -36,8 +36,9 @@ test bool tst() = run("{M = (1:10); M[2] ?= 100; M;}") == {M = (1:10); M[2] ?= 1
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.s = \"b\"; d;}") == { d = d1(10, "a"); d.s = "b"; d;};
 /*fails*/ //test bool tst() = run("{d = d1(10, \"a\"); d.n *= 20; d;}") == { d = d1(10, "a"); d.n *= 20; d;};
 
-// Status of Constructor assignment is unclear, currently not supported
-/*fails*/ //test bool tst() = run("{d1(x, y) = d1(10, \"a\"); \<x, y\>;}") == { d1(x, y) = d1(10, "a"); <x, y>;};
+@ignore{Status of Constructor assignment is unclear, currently not supported}
+test bool tst() = run("{d1(x, y) = d1(10, \"a\"); \<x, y\>;}") == { d1(x, y) = d1(10, "a"); <x, y>;};
+
 test bool tst() = run("{ x = [0,1,2,3,4,5]; x[1..3] = [10]; x; }") == { x = [0,1,2,3,4,5]; x[1..3] = [10]; x; };
 test bool tst() = run("{ x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; }") == { x = [0,1,2,3,4,5,6,7,8]; x[1,3..7] = [10]; x; };
 
@@ -86,8 +87,8 @@ test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y
                                                                   
 // Solve
 
-test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);}}") ==
-                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} };       
+test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);} T;}") ==
+                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} T;};       
                        
 
                    

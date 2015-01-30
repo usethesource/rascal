@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -20,8 +20,6 @@ public Class class(int version, set[ClassModifier] modifiers, str name, str sign
 				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods) =
 				 class(version, modifiers, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
-
-public Class innerClass(str name, int access) = innerClass(name, "", "", access);
 
 data PrimitiveTypeDescriptor = boolean() | char() | byte() | short() | \int() | float() | long() | double();
 data TypeDescriptor = primitive(PrimitiveTypeDescriptor \type) | object(str internalName) | array(TypeDescriptor \td);

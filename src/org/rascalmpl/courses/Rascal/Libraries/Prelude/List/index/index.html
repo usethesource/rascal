@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>list[int] index(list[&amp;T] lst)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -64,11 +64,11 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Returns a list of all legal index values for a given list <code>lst</code>. See <a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a> for a function that returns a <i>set</i> of legal index values.
+<span class="sectionHead">Description</span>  Returns a list of all legal index values for a given list <code>lst</code>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
@@ -76,22 +76,17 @@ ok
 list[int]: [0,1,2]
 <span class="prompt">rascal></span>index([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 list[int]: [0,1,2,3]
-</pre>  Compare with the result of <a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>:
-<pre class="screen"><span class="prompt">rascal></span>domain([1, 3, 5]);
-set[int]: {2,1,0}
-<span class="prompt">rascal></span>domain([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-set[int]: {3,2,1,0}
 </pre>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  This function is useful in <a href="/Rascal/Statements/For/For.html">For</a> loops over lists.
 
 </div>
 
-  	                       
-  	                       
+
+
 <div id="questions">
 
 
@@ -149,8 +144,8 @@ set[int]: {3,2,1,0}
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_index_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_2:L" value="[&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Countess Darling Von Darling&quot;]">
-The type of <tt>index([&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Countess Darling Von Darling&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_2:L" value="[&quot;H&quot;, &quot;Vanilla&quot;, &quot;Boba Fett&quot;, &quot;Pincess Leia&quot;]">
+The type of <tt>index([&quot;H&quot;, &quot;Vanilla&quot;, &quot;Boba Fett&quot;, &quot;Pincess Leia&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -174,8 +169,8 @@ The type of <tt>index([&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Counte
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_index_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:L" value="[-7, -6, -10, 4]">
-<pre class="prequestion">index([-7, -6, -10, 4]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:L" value="[]">
+<pre class="prequestion">index([]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:another" value="yes">

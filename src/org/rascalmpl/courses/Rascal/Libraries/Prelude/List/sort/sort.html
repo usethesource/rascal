@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,16 +48,16 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>list[&amp;T] sort(list[&amp;T] lst)</code></li>
 <li> <code>list[&amp;T] sort(list[&amp;T] l, bool (&amp;T a, &amp;T b) less)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -71,7 +71,7 @@
 </ol>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
@@ -84,13 +84,13 @@ list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
 <span class="prompt">rascal></span>sort(fruits);
 list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
 <span class="prompt">rascal></span>sort(fruits, bool(str a, str b){ return size(a) &gt; size(b); });
-list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
+list[str]: ["strawberry","pineapple","banana","mango","grape","kiwi","pear"]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -114,14 +114,14 @@ list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_3" value="0@3@[3,0,1]">
-<label for="Rascal/Libraries/Prelude/List/sort_1_3">N * (N - 1) elements. </label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_2" value="0@2@[2,0,3]">
+<label for="Rascal/Libraries/Prelude/List/sort_1_2">N! elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="1@0@[3,0,1]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_0" value="1@0@[2,0,3]">
 <label for="Rascal/Libraries/Prelude/List/sort_1_0">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_1" value="2@1@[3,0,1]">
-<label for="Rascal/Libraries/Prelude/List/sort_1_1">N - 1 elements. </label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_sort_1:answer" id="Rascal/Libraries/Prelude/List/sort_1_3" value="2@3@[2,0,3]">
+<label for="Rascal/Libraries/Prelude/List/sort_1_3">N * (N - 1) elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -145,8 +145,8 @@ list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[-17, -11, -17, -17]">
-The type of <tt>sort([-17, -11, -17, -17])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_2:L" value="[&quot;Two-Headed Monster&quot;, &quot;Bruno&quot;]">
+The type of <tt>sort([&quot;Two-Headed Monster&quot;, &quot;Bruno&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -170,8 +170,8 @@ The type of <tt>sort([-17, -11, -17, -17])</tt> is <input type="text" size="30" 
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_sort_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[&quot;Elmo&quot;, &quot;J&quot;, &quot;Prince Charming&quot;]">
-<pre class="prequestion">sort([&quot;Elmo&quot;, &quot;J&quot;, &quot;Prince Charming&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:L" value="[&quot;R2-D2&quot;, &quot;A&quot;, &quot;Mango&quot;, &quot;Cayenne&quot;]">
+<pre class="prequestion">sort([&quot;R2-D2&quot;, &quot;A&quot;, &quot;Mango&quot;, &quot;Cayenne&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_sort_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_sort_3:another" value="yes">

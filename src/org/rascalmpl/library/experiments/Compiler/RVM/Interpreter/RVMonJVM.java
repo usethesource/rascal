@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-
 public class RVMonJVM implements IRVM {
 
 	public final IValueFactory vf;
@@ -46,34 +45,34 @@ public class RVMonJVM implements IRVM {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 
-	RascalExecutionContext rex ;
+	RascalExecutionContext rex;
 
 	PrintWriter stdout;
 	PrintWriter stderr;
 
 	IEvaluatorContext ctx;
 
-		public RVMonJVM(RascalExecutionContext rascalExecutionContext) {
+	public RVMonJVM(RascalExecutionContext rascalExecutionContext) {
 		super();
-		
-		rex = rascalExecutionContext ;	
-		this.vf = rex.getValueFactory() ;
-		
-		//this.classLoaders = rex.getClassLoaders();
+
+		rex = rascalExecutionContext;
+		this.vf = rex.getValueFactory();
+
+		// this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		//this.debug = rex.getDebug();
+		// this.debug = rex.getDebug();
 		this.finalized = false;
-		
+
 		this.types = new Types(this.vf);
-		
+
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
-		
+
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
-		
-		resolver = new HashMap<String,Integer>();
+
+		resolver = new HashMap<String, Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 	}
 
@@ -192,9 +191,9 @@ public class RVMonJVM implements IRVM {
 			codeEmittor.emitDynFinalize();
 
 			int oid = 0;
-			for (OverloadedFunction of : overloadedStore) {
-				of.finalize(codeEmittor, functionMap, oid++);
-			}
+			// for (OverloadedFunction of : overloadedStore) {
+			// of.finalize(codeEmittor, functionMap, oid++);
+			// }
 		}
 	}
 
@@ -232,15 +231,13 @@ public class RVMonJVM implements IRVM {
 		if (!finalized) {
 			try {
 				// TODO; in the future create classes with the same name as a Rascal module
-				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";				
-				String className   = "RVMRunner";
+				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
+				String className = "RVMRunner";
 
-				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className,functionStore,overloadedStore);
+				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className, functionStore, overloadedStore);
 
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
-				
-				/* DEBUG */	codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClass = new ClassLoader(RVMonJVM.class.getClassLoader()) {
@@ -260,7 +257,7 @@ public class RVMonJVM implements IRVM {
 
 				Constructor<?>[] cons = generatedClass.getConstructors();
 
-				//runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				// runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
 				runner = (RVMRun) cons[0].newInstance(rex);
 
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
@@ -300,12 +297,12 @@ public class RVMonJVM implements IRVM {
 		}
 		return narrow(o);
 	}
-	
+
 	@Override
 	public RascalExecutionContext getRex() {
 		return rex;
 	}
-	
+
 	@Override
 	public IValue executeFunction(String uid_main, IValue[] args) {
 		return null;
@@ -314,5 +311,43 @@ public class RVMonJVM implements IRVM {
 	@Override
 	public IValue executeFunction(FunctionInstance functionInstance, IValue[] args) {
 		return null;
+	}
+
+	@Override
+	public PrintWriter getStdErr() {
+		return rex.getStdErr();
+	}
+
+	@Override
+	public IEvaluatorContext getEvaluatorContext() {
+		return rex.getEvaluatorContext();
+	}
+
+	@Override
+	public IValueFactory getValueFactory() {
+		return vf;
+	}
+
+	@Override
+	public void resetLocationCollector() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLocationCollector(ILocationCollector collector) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PrintWriter getStdOut() {
+		return rex.getStdOut();
 	}
 }

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -81,11 +81,10 @@ Benefits:
 
 Pitfalls:
 For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [Location]s.
+for the type of [$Rascal/Expressions/Values/Location]s.
 Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 
 Questions:
-
 
 }
 
@@ -181,7 +180,9 @@ data Symbol
   
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
-
+@doc{
+Synopsis: constructors for declaring preconditions and postconditions on symbols
+}
 data Condition
      = \follow(Symbol symbol) /*13*/
      | \not-follow(Symbol symbol)

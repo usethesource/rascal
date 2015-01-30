@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+import javax.xml.crypto.URIReferenceException;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -32,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class IO{
 	private final IValueFactory values;
@@ -48,7 +51,7 @@ public class IO{
 		
 		InputStream in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
+			in = URIResolverRegistry.getInstance().getInputStream(loc);
 			return new ATermReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -84,7 +87,7 @@ public class IO{
 	public void writeTextATermFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
 		OutputStream out = null;
 		try{
-			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			out = URIResolverRegistry.getInstance().getOutputStream(loc, false);
 			new ATermWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

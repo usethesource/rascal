@@ -6,6 +6,7 @@ import demo::lang::Exp::Combined::Automatic::Load;
 
 public int eval(str txt) = eval(load(txt));
 
-public value main(list[value] args){
-  return eval("1+2");
-}
+test bool tstEval1() = eval("7") == 7;
+test bool tstEval2() = eval("7*3") == 21;
+test bool tstEval3() = eval("7+3") == 10;
+test bool tstEval3() = eval("3+4*5") == 23;

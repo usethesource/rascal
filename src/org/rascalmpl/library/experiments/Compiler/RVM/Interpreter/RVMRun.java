@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -76,21 +78,26 @@ public class RVMRun implements IRVM {
 	PrintWriter stdout;
 	PrintWriter stderr;
 
+	private final Map<Class<?>, Object> instanceCache;
+	private final Map<String, Class<?>> classCache;
+
 	// Management of active coroutines
 	protected Stack<Coroutine> activeCoroutines = new Stack<>();
 	protected Frame ccf = null; // The start frame of the current active
 								// coroutine
 	// (coroutine's main function)
 	protected Frame cccf = null; // The candidate coroutine's start frame; used
-									// by the
-	// guard semantics
+								 // by theguard semantics
 	IEvaluatorContext ctx;
 
 	private List<ClassLoader> classLoaders;
 
 	public RascalExecutionContext rex;
+	private boolean trackCalls;
+	private boolean finalized;
+	private ILocationCollector locationCollector;
 
-	IEvaluatorContext getEvaluatorContext() {
+	public IEvaluatorContext getEvaluatorContext() {
 		return rex.getEvaluatorContext();
 	}
 
@@ -131,13 +138,20 @@ public class RVMRun implements IRVM {
 	public RVMRun(RascalExecutionContext rascalExecutionContext) {
 		super();
 
-		rex = rascalExecutionContext;
 		this.vf = rex.getValueFactory();
+		tf = TypeFactory.getInstance();
+		typeStore = rex.getTypeStore();
+		this.instanceCache = new HashMap<Class<?>, Object>();
+		this.classCache = new HashMap<String, Class<?>>();
 
+		this.rex = rex;
+		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
+		this.trackCalls = rex.getTrackCalls();
+		this.finalized = false;
 
 		this.types = new Types(this.vf);
 
@@ -150,10 +164,6 @@ public class RVMRun implements IRVM {
 		FAILRETURN = vf.string("$failreturn$");
 		PANIC = vf.string("$panic$");
 
-		tf = TypeFactory.getInstance();
-
-		moduleVariables = new HashMap<IValue, IValue>();
-
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
 
@@ -163,9 +173,14 @@ public class RVMRun implements IRVM {
 		resolver = new HashMap<String, Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 
+		moduleVariables = new HashMap<IValue, IValue>();
+
 		MuPrimitive.init(vf, stdout, rex.getProfile());
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
+
+		this.locationCollector = NullLocationCollector.getInstance();
+
 	}
 
 	public Type symbolToType(IConstructor symbol) {
@@ -406,51 +421,132 @@ public class RVMRun implements IRVM {
 
 	Object globalReturnValue = null;
 
-	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
+	public Class<?> getJavaClass(String className) {
+		Class<?> clazz = classCache.get(className);
+		if (clazz != null) {
+			return clazz;
+		}
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+		} catch (ClassNotFoundException e1) {
+			// If the class is not found, try other class loaders
+			for (ClassLoader loader : this.classLoaders) {
+				try {
+					clazz = loader.loadClass(className);
+					break;
+				} catch (ClassNotFoundException e2) {
+					;
+				}
+			}
+		}
+		if (clazz == null) {
+			throw new CompilerError("Class " + className + " not found");
+		}
+		classCache.put(className, clazz);
+		return clazz;
+	}
+
+	public Object getJavaClassInstance(Class<?> clazz) {
+		Object instance = instanceCache.get(clazz);
+		if (instance != null) {
+			return instance;
+		}
+		// Class<?> clazz = null;
+		// try {
+		// clazz = this.getClass().getClassLoader().loadClass(className);
+		// } catch(ClassNotFoundException e1) {
+		// // If the class is not found, try other class loaders
+		// for(ClassLoader loader : this.classLoaders) {
+		// //for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+		// try {
+		// clazz = loader.loadClass(className);
+		// break;
+		// } catch(ClassNotFoundException e2) {
+		// ;
+		// }
+		// }
+		// }
+		try {
+			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			instance = constructor.newInstance(vf);
+			instanceCache.put(clazz, instance);
+			return instance;
+		} catch (IllegalArgumentException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InstantiationException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (SecurityException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		}
+	}
+
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
-			try {
-				clazz = this.getClass().getClassLoader().loadClass(className);
-			} catch (ClassNotFoundException e1) {
-				// If the class is not found, try other class loaders
-				for (ClassLoader loader : this.classLoaders) {
-					// for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-					try {
-						clazz = loader.loadClass(className);
-						break;
-					} catch (ClassNotFoundException e2) {
-						;
+			// try {
+			// clazz = this.getClass().getClassLoader().loadClass(className);
+			// } catch(ClassNotFoundException e1) {
+			// // If the class is not found, try other class loaders
+			// for(ClassLoader loader : this.classLoaders) {
+			// //for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+			// try {
+			// clazz = loader.loadClass(className);
+			// break;
+			// } catch(ClassNotFoundException e2) {
+			// ;
+			// }
+			// }
+			// }
+			//
+			// if(clazz == null) {
+			// throw new CompilerError("Class " + className + " not found, while trying to call method" + methodName);
+			// }
+
+			// Constructor<?> cons;
+			// cons = clazz.getConstructor(IValueFactory.class);
+			// Object instance = cons.newInstance(vf);
+			clazz = getJavaClass(className);
+			Object instance = getJavaClassInstance(clazz);
+
+			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+			int arity = parameterTypes.getArity();
+			int kwArity = keywordTypes.getArity();
+			int kwMaps = kwArity > 0 ? 2 : 0;
+			Object[] parameters = new Object[arity + kwArity + reflect];
+			int i = 0;
+			while (i < arity) {
+				parameters[i] = stack[sp - arity - kwMaps + i];
+				i++;
+			}
+			if (kwArity > 0) {
+				@SuppressWarnings("unchecked")
+				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
+				@SuppressWarnings("unchecked")
+				Map<String, Map.Entry<Type, IValue>> kwDefaultMap = (Map<String, Map.Entry<Type, IValue>>) stack[sp - 1];
+
+				while (i < arity + kwArity) {
+					String key = keywordTypes.getFieldName(i - arity);
+					IValue val = kwMap.get(key);
+					if (val == null) {
+						val = kwDefaultMap.get(key).getValue();
 					}
+					parameters[i] = val;
+					i++;
 				}
 			}
 
-			if (clazz == null) {
-				throw new CompilerError("Class not found: " + className);
-			}
-
-			Constructor<?> cons;
-			cons = clazz.getConstructor(IValueFactory.class);
-			Object instance = cons.newInstance(vf);
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
-			int nformals = parameterTypes.getArity();
-			Object[] parameters = new Object[nformals + reflect];
-			for (int i = 0; i < nformals; i++) {
-				parameters[i] = stack[sp - nformals + i];
-			}
 			if (reflect == 1) {
-				parameters[nformals] = this.getEvaluatorContext();
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
 			}
-			stack[sp - nformals] = m.invoke(instance, parameters);
-			return sp - nformals + 1;
-		}
-		// catch (ClassNotFoundException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		catch (NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
+			stack[sp - arity - kwMaps] = m.invoke(instance, parameters);
+			return sp - arity - kwMaps + 1;
+		} catch (NoSuchMethodException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -463,9 +559,90 @@ public class RVMRun implements IRVM {
 			if (e.getTargetException() instanceof Throw) {
 				throw (Throw) e.getTargetException();
 			}
+			if (e.getTargetException() instanceof Thrown) {
+				throw (Thrown) e.getTargetException();
+			}
 			e.printStackTrace();
 		}
 		return sp;
+	}
+
+	HashSet<String> converted = new HashSet<String>(Arrays.asList("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage", "org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage", "org.rascalmpl.library.experiments.Compiler.ProfileCompiled.startProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.stopProfile", "org.rascalmpl.library.experiments.Compiler.ProfileCompiled.getProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.reportProfile", "org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
+			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType", "org.rascalmpl.library.lang.csv.IOCompiled.writeCSV", "org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
+			"org.rascalmpl.library.PreludeCompiled.exists", "org.rascalmpl.library.PreludeCompiled.lastModified", "org.rascalmpl.library.PreludeCompiled.implode",
+			"org.rascalmpl.library.PreludeCompiled.isDirectory", "org.rascalmpl.library.PreludeCompiled.isFile", "org.rascalmpl.library.PreludeCompiled.remove",
+			"org.rascalmpl.library.PreludeCompiled.mkDirectory", "org.rascalmpl.library.PreludeCompiled.listEntries", "org.rascalmpl.library.PreludeCompiled.parse",
+			"org.rascalmpl.library.PreludeCompiled.readFile", "org.rascalmpl.library.PreludeCompiled.readFileEnc", "org.rascalmpl.library.PreludeCompiled.md5HashFile",
+			"org.rascalmpl.library.PreludeCompiled.writeFile", "org.rascalmpl.library.PreludeCompiled.writeFileEnc", "org.rascalmpl.library.PreludeCompiled.writeBytes",
+			"org.rascalmpl.library.PreludeCompiled.appendToFile", "org.rascalmpl.library.PreludeCompiled.appendToFileEnc", "org.rascalmpl.library.PreludeCompiled.readFileLines",
+			"org.rascalmpl.library.PreludeCompiled.readFileLinesEnc", "org.rascalmpl.library.PreludeCompiled.readFileBytes", "org.rascalmpl.library.PreludeCompiled.getFileLength",
+			"org.rascalmpl.library.PreludeCompiled.readBinaryValueFile", "org.rascalmpl.library.PreludeCompiled.readTextValueFile",
+			"org.rascalmpl.library.PreludeCompiled.readTextValueString", "org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
+			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile", "org.rascalmpl.library.util.MonitorCompiled.startJob", "org.rascalmpl.library.util.MonitorCompiled.event",
+			"org.rascalmpl.library.util.MonitorCompiled.endJob", "org.rascalmpl.library.util.MonitorCompiled.todo", "org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
+
+	/*
+	 * TODO: cobra::util::outputlogger::startLog cobra::util::outputlogger::getLog cobra::quickcheck::_quickcheck cobra::quickcheck::arbitrary
+	 * 
+	 * experiments::Compiler::RVM::Interpreter::ParsingTools::parseFragment experiments::Compiler::RVM::Run::executeProgram
+	 * 
+	 * experiments::resource::Resource::registerResource experiments::resource::Resource::getTypedResource experiments::resource::Resource::generateTypedInterfaceInternal
+	 * 
+	 * experiments::vis2::vega::Vega::color
+	 * 
+	 * lang::aterm::IO::readTextATermFile lang::aterm::IO::writeTextATermFile
+	 * 
+	 * lang::html::IO::readHTMLFile
+	 * 
+	 * lang::java::m3::AST::setEnvironmentOptions lang::java::m3::AST::createAstFromFile lang::java::m3::AST::createAstFromString lang::java::m3::Core::createM3FromFile
+	 * lang::java::m3::Core::createM3FromFile lang::java::m3::Core::createM3FromJarClass
+	 * 
+	 * lang::jvm::run::RunClassFile::runClassFile lang::jvm::transform::SerializeClass::serialize
+	 * 
+	 * lang::rsf::IO::readRSF lang::rsf::IO::getRSFTypes lang::rsf::IO::readRSFRelation
+	 * 
+	 * lang::yaml::Model::loadYAML lang::yaml::Model::dumpYAML
+	 * 
+	 * resource::jdbc::JDBC::registerJDBCClass util::tasks::Manager util::Eval util::Monitor util::Reflective
+	 * 
+	 * util::Webserver
+	 * 
+	 * vis::Figure::color
+	 * 
+	 * Traversal::getTraversalContext
+	 * 
+	 * tutor::HTMLGenerator
+	 * 
+	 * **eclipse** util::Editors util::FastPrint util::HtmlDisplay util::IDE util::ResourceMarkers vis::Render vis::RenderSWT
+	 */
+	));
+
+	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect) {
+		JavaClasses javaClasses = new JavaClasses();
+		int arity = parameterTypes.getArity();
+		int kwArity = keywordTypes.getArity();
+		Class<?>[] jtypes = new Class<?>[arity + kwArity + reflect];
+
+		int i = 0;
+		while (i < parameterTypes.getArity()) {
+			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+			i++;
+		}
+
+		while (i < arity + kwArity) {
+			jtypes[i] = keywordTypes.getFieldType(i - arity).accept(javaClasses);
+			i++;
+		}
+
+		if (reflect == 1) {
+			jtypes[arity + kwArity] = converted.contains(className + "." + methodName) ? RascalExecutionContext.class : IEvaluatorContext.class; // TODO: remove CTX
+		}
+		return jtypes;
 	}
 
 	Class<?>[] makeJavaTypes(Type parameterTypes, int reflect) {
@@ -599,9 +776,9 @@ public class RVMRun implements IRVM {
 		this.functionMap = functionMap2;
 	}
 
-//	final public void insnPOP() {
-//		sp--;
-//	}
+	// final public void insnPOP() {
+	// sp--;
+	// }
 
 	public int insnPOP(int sp) {
 		return --sp;
@@ -822,54 +999,73 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
 	}
 
+	@SuppressWarnings("unchecked")
 	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
 		Type constructor = constructorStore.get(constrctr);
 
-		IValue[] args = null;
-		if (arity == constructor.getArity()) {
-			args = new IValue[arity];
-		} else {
+		// arity = CodeBlock.fetchArg2(instruction);
+		// cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+
+		IValue[] args = new IValue[constructor.getArity()];
+
+		java.util.Map<String, IValue> kwargs;
+		Type type = (Type) stack[--sp];
+		if (type.getArity() > 0) {
 			// Constructors with keyword parameters
-			Type type = (Type) stack[--sp];
-			IMap kwargs = (IMap) stack[--sp];
-			Object[] types = new Object[2 * constructor.getArity() + 2 * kwargs.size()];
-			int j = 0;
-			for (int i = 0; i < constructor.getArity(); i++) {
-				types[j++] = constructor.getFieldType(i);
-				types[j++] = constructor.getFieldName(i);
-			}
-			args = new IValue[constructor.getArity() + kwargs.size()];
-			for (int i = 0; i < type.getArity(); i++) {
-				types[j++] = type.getFieldType(i);
-				types[j++] = type.getFieldName(i);
-				args[constructor.getArity() + i] = kwargs.get(vf.string(type.getFieldName(i)));
-			}
-			constructor = tf.constructorFromTuple(typeStore, constructor.getAbstractDataType(), constructor.getName(), tf.tupleType(types), constructor.getArity());
+			kwargs = (java.util.Map<String, IValue>) stack[--sp];
+		} else {
+			kwargs = new HashMap<String, IValue>();
 		}
-		for (int i = 0; i < constructor.getPositionalArity(); i++) {
-			args[constructor.getPositionalArity() - 1 - i] = (IValue) stack[--sp];
+
+		for (int i = 0; i < constructor.getArity(); i++) {
+			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
 		}
-		stack[sp++] = vf.constructor(constructor, args);
+		stack[sp++] = vf.constructor(constructor, args, kwargs);
+
 		return sp;
 	}
 
-	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int r) {
+	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
 
-		int arity;
-		postOp = 0;
+		// int arity;
+		// postOp = 0;
+		// String methodName = ((IString) cf.function.constantStore[m]).getValue();
+		// String className = ((IString) cf.function.constantStore[c]).getValue();
+		// Type parameterTypes = cf.function.typeConstantStore[p];
+		// int reflect = r;
+		// arity = parameterTypes.getArity();
+		// try {
+		// sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+		// } catch (Throw e) {
+		// thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+		// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+		// return sp; // TODO break INSTRUCTION;
+		// }
+		// return sp;
+
 		String methodName = ((IString) cf.function.constantStore[m]).getValue();
 		String className = ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
+		Type keywordTypes = cf.function.typeConstantStore[k];
 		int reflect = r;
 		arity = parameterTypes.getArity();
 		try {
-			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+			sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 		} catch (Throw e) {
-			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
-			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-			return sp; // TODO break INSTRUCTION;
+			stacktrace.add(cf);
+			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
+			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Thrown e) {
+			stacktrace.add(cf);
+			thrown = e;
+			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Exception e) {
+			e.printStackTrace(stderr);
+			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
 		}
+
 		return sp;
+
 	}
 
 	public int insnAPPLY(Object[] stack, int sp, int function, int arity) {
@@ -1001,7 +1197,7 @@ public class RVMRun implements IRVM {
 		if (obj instanceof IValue) {
 			stacktrace = new ArrayList<Frame>();
 			stacktrace.add(cf);
-			thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+			// thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
 		} else {
 			// Then, an object of type 'Thrown' is on top of the stack
 			thrown = (Thrown) obj;
@@ -1539,7 +1735,7 @@ public class RVMRun implements IRVM {
 		jmpTarget = 3;
 	}
 
-	// Next metods are forced by the interface implementation
+	// Next methods are forced by the interface implementation
 	// temporarily needed to facilitate 3 RVM implementations.
 	@Override
 	public IValue executeProgram(String uid_main, IValue[] args) {
@@ -1564,5 +1760,36 @@ public class RVMRun implements IRVM {
 	@Override
 	public void fillOverloadedStore(IList overloadedStore) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public PrintWriter getStdErr() {
+		return rex.getStdErr();
+	}
+
+	@Override
+	public IValueFactory getValueFactory() {
+		return vf;
+	}
+
+	@Override
+	public void setLocationCollector(ILocationCollector collector) {
+		locationCollector = collector;
+	}
+
+	@Override
+	public void resetLocationCollector() {
+		locationCollector = NullLocationCollector.getInstance();
+	}
+
+	@Override
+	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PrintWriter getStdOut() {
+		return rex.getStdOut();
 	}
 }

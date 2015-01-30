@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CharStreamFiller implements ILazyFiller {
@@ -34,7 +35,7 @@ public class CharStreamFiller implements ILazyFiller {
 	public IValue[] refill(int pageSize) {
 		try {
 			if (is == null) {
-				is = ctx.getResolverRegistry().getCharacterReader(source.getURI());
+				is = URIResolverRegistry.getInstance().getCharacterReader(source);
 				br = new BufferedReader(is);
 			}
 			ArrayList<String> al = new ArrayList<String>();

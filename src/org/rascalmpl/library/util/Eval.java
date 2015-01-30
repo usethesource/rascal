@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +41,6 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
@@ -154,7 +152,7 @@ public class Eval {
 			evaluator.setCurrentEnvt(env);
 			if(!timer.hasExpired() && commands.length() > 0){
 				for(IValue command : commands){
-					URI commandLocation = URIUtil.create("eval", "", "/","command=" + ((IString)command).getValue(), null);
+					ISourceLocation commandLocation = eval.getValueFactory().sourceLocation("eval", "", "/","command=" + ((IString)command).getValue(), null);
 					result = evaluator.evalMore(null, ((IString) command).getValue(), commandLocation);
 				}
 				timer.cancel();
@@ -181,7 +179,8 @@ public class Eval {
 			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			}
 			throw e;
-		} catch (URISyntaxException e) {
+		} 
+		catch (URISyntaxException e) {
 			// this should never happen
 			if (forRascal)
 				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
@@ -256,5 +255,11 @@ public class Eval {
 			eval.interrupt();
 		}
 	}
+	
+	public void unimport (IString moduleName, IEvaluatorContext ctx) {
+	        if (this.eval!=null && this.eval.getHeap()!=null) this.eval.getHeap().removeModule(eval.getHeap().getModule(moduleName.getValue()));
+     }
+
+	
 }
 

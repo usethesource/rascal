@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,26 +48,26 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> notin <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>           </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>      </th><th align="left"> <code><i>Exp</i><sub>1</sub> notin <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>  &lt;: <code><i>T</i><sub>2</sub></code> </td><td align="left">  <code>list[<i>T</i><sub>2</sub>]</code>  </td><td align="left"> <code>bool</code>                  </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of <code><i>Exp</i><sub>1</sub></code> does not occur as element in the value of <code><i>Exp</i><sub>2</sub></code> and <code>false</code> otherwise. 
  The type of <code><i>Exp</i><sub>1</sub></code> should be compatible with the element type of <code><i>Exp</i><sub>2</sub></code>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>4 notin [1, 2, 3];
 bool: true
@@ -76,9 +76,9 @@ bool: false
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -100,9 +100,9 @@ bool: false
 <span id="answerFeedback_Rascal_Expressions_Values_List_notin_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_1:A" value="-14">
-<input type="hidden" name="Rascal_Expressions_Values_List_notin_1:B" value="[12, 18, 1, 7]">
-The type of <tt>-14 notin [12, 18, 1, 7]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_1:A" value="true">
+<input type="hidden" name="Rascal_Expressions_Values_List_notin_1:B" value="[false]">
+The type of <tt>true notin [false]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -126,9 +126,9 @@ The type of <tt>-14 notin [12, 18, 1, 7]</tt> is <input type="text" size="30" na
 <span id="answerFeedback_Rascal_Expressions_Values_List_notin_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_2:ELM" value="29">
-<input type="hidden" name="Rascal_Expressions_Values_List_notin_2:A" value="{91, 2, 81, 77, 78}">
-<pre class="prequestion">29 notin [81,2,91,77,29,78] == <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_2:ELM" value="41">
+<input type="hidden" name="Rascal_Expressions_Values_List_notin_2:A" value="{93, 13}">
+<pre class="prequestion">41 notin [93,13,41] == <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_2:another" value="yes">
@@ -151,9 +151,9 @@ The type of <tt>-14 notin [12, 18, 1, 7]</tt> is <input type="text" size="30" na
 <span id="answerFeedback_Rascal_Expressions_Values_List_notin_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_3:ELM" value="1">
-<input type="hidden" name="Rascal_Expressions_Values_List_notin_3:A" value="[3, 9, 2, 0, 3]">
-<pre class="prequestion">1 notin [3, 9, 2, 0, 3] == <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_3:ELM" value="7">
+<input type="hidden" name="Rascal_Expressions_Values_List_notin_3:A" value="[8, 6, 8, 0]">
+<pre class="prequestion">7 notin [8, 6, 8, 0] == <input type="text" size="30" name="Rascal_Expressions_Values_List_notin_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_notin_3:another" value="yes">

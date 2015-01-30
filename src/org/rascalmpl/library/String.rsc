@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -562,7 +562,6 @@ Examples:
 <screen>
 import String;
 toLocation("http://grammarware.net");
-toLocation("rascal://lang::rascal::syntax::Rascal");
 toLocation("document.xml");
 </screen>
 }
@@ -574,7 +573,7 @@ Synopsis: substitute substrings in a string based on a substitution map from loc
 Examples:
 <screen>
 import String;
-substitute("abc", (|file://-|(1,1): "d"))
+substitute("abc", (|stdin://|(1,1): "d"))
 </screen>
 }
 str substitute(str src, map[loc,str] s) { 

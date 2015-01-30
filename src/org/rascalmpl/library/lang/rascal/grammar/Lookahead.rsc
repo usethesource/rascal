@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -65,8 +65,6 @@ public Grammar compileLookaheads(Grammar G) {
     case priority(rhs, order)     => choice(rhs, {p | p <- order})
     case associativity(rhs, a, alts)  => choice(rhs, alts)
   }
-  // give the normalizer the chance to merge choices as much as possible 
-  G.rules = (s:{choice(s,G.rules[s])} | s <- G.rules);
 
   // now we optimize the lookaheads  
   return visit(G) {
@@ -173,37 +171,37 @@ public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
 
 // Utilities on Symbols
 
-public Grammar removeLabels(Grammar G) {
+private Grammar removeLabels(Grammar G) {
   return visit(G) {
     case prod(rhs, lhs, a) => prod(removeLabel(rhs), removeLabels(lhs), a)
   }
 }
 
-public Symbol removeLabel(Symbol sym) {
+private Symbol removeLabel(Symbol s) {
   return (label(_,s2) := s) ? s2 : s;
 }
 
-public list[Symbol] removeLabels(list[Symbol] syms) {
+private list[Symbol] removeLabels(list[Symbol] syms) {
   return [removeLabel(s) | s <- syms ];
 }
 
-public set[Symbol] usedSymbols(Grammar G){
+private set[Symbol] usedSymbols(Grammar G){
    return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.symbols };
 }
 
-public set[Symbol] definedSymbols(Grammar G) {
+private set[Symbol] definedSymbols(Grammar G) {
    return { p.def |  Production p <- G.productions};
 }
 
-public set[Symbol] allSymbols(Grammar G){
+private set[Symbol] allSymbols(Grammar G){
    return definedSymbols(G) + usedSymbols(G);
 }
 
-public set[Symbol] terminalSymbols(Grammar G){
+private set[Symbol] terminalSymbols(Grammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
-public bool isTerminalSymbol(Symbol s){
+private bool isTerminalSymbol(Symbol s){
   return \char-class(_) := s;
 }
 
@@ -324,11 +322,11 @@ public Grammar G1 = simple({sort("E")},
 	pr(sort("B"), [lit("1")])
 } + Lit1.productions);
 
-test bool used1()  = usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
+test bool testUsed1()  = usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
 
-test bool defined1() = definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
+test bool testDefined1() = definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
 
-test bool startsDefined() = G1.starts < definedSymbols(G1);
+test bool testStartsDefined() = G1.starts < definedSymbols(G1);
 
 public SymbolUse firstLit1 = (
   lit("0"):{\char-class([range(48,48)])},
@@ -423,10 +421,44 @@ test bool tSF8() = SF[lit(")")] == {\char-class([range(41,41)])};
 test bool tSF9() = SF[sort("STRING")] == {\char-class([range(97,97)])};
 test bool tSF10() = SF[sort("Fact")] == {\char-class([range(33,33)])};
      
-test bool testFollow() = follow(Session, first(Session)) >=
- 	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
- 	 sort("Session"):{\char-class([range(41,41)]),eoi()},
- 	 sort("Facts"):{\char-class([range(63,63)])},
- 	 sort("STRING"):{\char-class([range(33,33),range(41,41),range(63,63)]),eoi()},
- 	 sort("Fact"):{\char-class([range(33,33),range(63,63)])}
- 	 );
+test bool testFollow() = follow(Session, first(Session)) >=     
+     (
+  lit(")"):{
+    \char-class([range(63,63)]),
+    \char-class([range(40,40)]),
+    \char-class([range(33,33)])
+  },
+  lit("("):{
+    \char-class([range(63,63)]),
+    \char-class([range(40,40)]),
+    \char-class([range(33,33)])
+  },
+  sort("STRING"):{
+    \char-class([range(63,63)]),
+    eoi(),
+    \char-class([range(41,41)]),
+    \char-class([range(33,33)])
+  },
+  sort("Session"):{
+    eoi(),
+    \char-class([range(41,41)])
+  },
+  lit("?"):{\char-class([range(97,97)])},
+  sort("Fact"):{
+    \char-class([range(63,63)]),
+    \char-class([range(33,33)])
+  },
+  sort("Facts"):{\char-class([range(63,63)])},
+  sort("Question"):{
+    eoi(),
+    \char-class([range(41,41)])
+  },
+  lit("!"):{\char-class([range(97,97)])},
+  lit("a"):{
+    \char-class([range(63,63)]),
+    eoi(),
+    \char-class([range(41,41)]),
+    \char-class([range(33,33)])
+  }
+);
+ 	 

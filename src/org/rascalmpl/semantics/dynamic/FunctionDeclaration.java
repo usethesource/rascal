@@ -62,6 +62,7 @@ public abstract class FunctionDeclaration extends
 					__eval.getCurrentEnvt(), __eval.__getJavaBridge());
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
 					.getSignature().getName());
+		
 			__eval.getCurrentEnvt().storeFunction(name, lambda);
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
@@ -107,8 +108,8 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
-			return this.getSignature().typeOf(__eval, instantiateTypeParameters);
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+			return this.getSignature().typeOf(__eval, instantiateTypeParameters, eval);
 		}
 	}
 
@@ -136,6 +137,7 @@ public abstract class FunctionDeclaration extends
 			lambda = new RascalFunction(__eval, this, varArgs, __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 			
+		
 			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());

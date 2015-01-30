@@ -2,12 +2,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 public class Coroutine {
 	
-	public final Frame start; // Stack frame of the main coroutine function 
-	public Frame frame;       // Current active stack frame of the coroutine
-	public Frame entryFrame ; // First stack of calltrace 
+	final Frame start; // Stack frame of the main coroutine function 
+	Frame frame;       // Current active stack frame of the coroutine
 	
-	public boolean suspended = false;
-	public boolean isInitialized = false;
+	boolean suspended = false;
+	boolean isInitialized = false;
+	public Frame entryFrame;
 	
 	public Coroutine(Frame frame) {
 		this.start = frame;
@@ -35,7 +35,7 @@ public class Coroutine {
 	
 	public Coroutine copy() {
 		if(suspended || start.pc != 0) {
-			throw new CompilerError("copying suspended or active coroutine is not allowed.");
+			throw new CompilerError("copying suspended or active coroutine is not allowed.", frame);
 		}
 		return new Coroutine(start.copy());
 	}

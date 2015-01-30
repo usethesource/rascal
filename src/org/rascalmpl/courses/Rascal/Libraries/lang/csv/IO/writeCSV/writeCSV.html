@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,16 +48,16 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>void writeCSV(&amp;T relation, loc location)</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>void writeCSV(&amp;T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8")</code></li>
 <li> <code>void writeCSV(&amp;T relation, loc location, map[str,str] options)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import lang::csv::IO;</code>
  </AUTOINSERTED>
@@ -67,12 +67,12 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  Write <code>relation</code> to a CSV file at <code>location</code>.
  The options influence the way the actrual CSV file is written:
-  <ul><li> <code>"header"</code>: add (<code>"true"</code>) or omit (<code>"false"</code>) a header.</li>
-<li> <code>"separator"</code>: defines the separator character between fields (default is <code>,</code>).</li>
+  <ul><li> <code>header</code>: add or omit a header (based on the labels of the relation).</li>
+<li> <code>separator</code>: defines the separator character between fields (default is <code>,</code>).</li>
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import lang::csv::IO;
 ok
@@ -82,13 +82,13 @@ ok
 <span class="continuation">>>>>>>></span>  &lt;3,"Boudewijn de Groot","Avond",1997>
 <span class="continuation">>>>>>>></span>};
 rel[int position,str artist,str title,int year]: {
-  &lt;2,"Queen","Bohemian rhapsody",1975>,
+  &lt;1,"Eagles","Hotel California",1977>,
   &lt;3,"Boudewijn de Groot","Avond",1997>,
-  &lt;1,"Eagles","Hotel California",1977>
+  &lt;2,"Queen","Bohemian rhapsody",1975>
 }
 <span class="prompt">rascal></span>writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
 ok
-<span class="prompt">rascal></span>writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, (&quot;header&quot; : &quot;false&quot;, &quot;separator&quot; : &quot;;&quot;));
+<span class="prompt">rascal></span>writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = &quot;;&quot;);
 ok
 </pre> will produce the following files:
  <br/>
@@ -96,19 +96,19 @@ ok
 
  <code>ex1a.csv</code> (with a header line and default separator <code>,</code>):
  <pre class="listing">position,artist,title,year
-2,Queen,Bohemian rhapsody,1975
-3,Boudewijn de Groot,Avond,1997
 1,Eagles,Hotel California,1977
+3,Boudewijn de Groot,Avond,1997
+2,Queen,Bohemian rhapsody,1975
 </pre> <code>ex1b.csv</code> (without a header line with separator <code>;</code>):
- <pre class="listing">2;Queen;Bohemian rhapsody;1975
+ <pre class="listing">1;Eagles;Hotel California;1977
 3;Boudewijn de Groot;Avond;1997
-1;Eagles;Hotel California;1977
+2;Queen;Bohemian rhapsody;1975
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/writeCSV&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/writeCSV&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

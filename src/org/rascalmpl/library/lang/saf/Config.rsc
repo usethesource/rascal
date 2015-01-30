@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ data FState = fstate(Fighter fighter,
               str result);
 
 public int getAttr(FState f, str name) = getAttr(f.fighter, name);
-public str state2str(FState s) = "<f.name>:p<f.position>\th<f.health>";
+//public str state2str(FState f) = "<f.name>:p<f.position>\th<f.health>";  <== f.name does not exist
 //////
 
 public set[str] CONDITIONS = {"stronger", "weaker", "much_stronger", 

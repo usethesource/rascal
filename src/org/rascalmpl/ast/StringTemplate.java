@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -144,6 +144,20 @@ public abstract class StringTemplate extends AbstractAST {
       return visitor.visitStringTemplateDoWhile(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DoWhile)) {
+        return false;
+      }        
+      DoWhile tmp = (DoWhile) o;
+      return true && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) && tmp.condition.equals(this.condition) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 269 + 223 * preStats.hashCode() + 277 * body.hashCode() + 37 * postStats.hashCode() + 823 * condition.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
@@ -214,6 +228,20 @@ public abstract class StringTemplate extends AbstractAST {
       return visitor.visitStringTemplateFor(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof For)) {
+        return false;
+      }        
+      For tmp = (For) o;
+      return true && tmp.generators.equals(this.generators) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 613 + 743 * generators.hashCode() + 379 * preStats.hashCode() + 383 * body.hashCode() + 631 * postStats.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
@@ -283,6 +311,20 @@ public abstract class StringTemplate extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringTemplateIfThen(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfThen)) {
+        return false;
+      }        
+      IfThen tmp = (IfThen) o;
+      return true && tmp.conditions.equals(this.conditions) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 757 + 103 * conditions.hashCode() + 691 * preStats.hashCode() + 67 * body.hashCode() + 373 * postStats.hashCode() ; 
+    } 
   
     
     @Override
@@ -359,6 +401,20 @@ public abstract class StringTemplate extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringTemplateIfThenElse(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfThenElse)) {
+        return false;
+      }        
+      IfThenElse tmp = (IfThenElse) o;
+      return true && tmp.conditions.equals(this.conditions) && tmp.preStatsThen.equals(this.preStatsThen) && tmp.thenString.equals(this.thenString) && tmp.postStatsThen.equals(this.postStatsThen) && tmp.preStatsElse.equals(this.preStatsElse) && tmp.elseString.equals(this.elseString) && tmp.postStatsElse.equals(this.postStatsElse) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 811 + 887 * conditions.hashCode() + 709 * preStatsThen.hashCode() + 809 * thenString.hashCode() + 467 * postStatsThen.hashCode() + 547 * preStatsElse.hashCode() + 19 * elseString.hashCode() + 727 * postStatsElse.hashCode() ; 
+    } 
   
     
     @Override
@@ -456,6 +512,20 @@ public abstract class StringTemplate extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringTemplateWhile(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof While)) {
+        return false;
+      }        
+      While tmp = (While) o;
+      return true && tmp.condition.equals(this.condition) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 179 + 419 * condition.hashCode() + 5 * preStats.hashCode() + 857 * body.hashCode() + 311 * postStats.hashCode() ; 
+    } 
   
     
     @Override

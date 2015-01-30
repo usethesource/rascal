@@ -11,6 +11,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -20,6 +21,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -47,8 +49,17 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 /**
  * These classes special case Expression.CallOrTree for concrete syntax patterns
  */
-public abstract class Tree {
-  static public class MetaVariable extends org.rascalmpl.ast.Expression {
+public abstract class Tree  extends org.rascalmpl.ast.Expression {
+
+	public Tree(IConstructor node) {
+		super(node);
+	}
+
+	public boolean isLayout() {
+		return false;
+	}
+
+static public class MetaVariable extends Tree {
 	private final String name;
 	private final Type type;
 
@@ -59,8 +70,21 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof MetaVariable)) {
+			return false;
+		}
+		MetaVariable other = (MetaVariable) o;
+
+		return name.equals(other.name) && type.equals(other.type);
+	}
+
+	public int hashCode() {
+		return 13333331 + 37 * name.hashCode() + 61 * type.hashCode();
 	}
 	
 	@Override
@@ -91,7 +115,7 @@ public abstract class Tree {
 	  
   }
   
-  static public class Appl extends org.rascalmpl.ast.Expression {
+  static public class Appl extends Tree{
 	protected final IConstructor production;
 	protected final java.util.List<org.rascalmpl.ast.Expression> args;
 	protected final Type type;
@@ -112,6 +136,24 @@ public abstract class Tree {
 		}
 	}
 
+	@Override
+	public boolean isLayout() {
+		return ProductionAdapter.isLayout(production);
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof Appl)) {
+			return false;
+		}
+		Appl other = (Appl) o;
+		
+		return production.equals(other.production) && args.equals(other.args);
+	}
+	
+	public int hashCode() {
+		return 101 + 23 * production.hashCode() + 131 * args.hashCode();
+	}
+	
 	public IConstructor getProduction() {
 		return production;
 	}
@@ -122,7 +164,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -162,27 +204,10 @@ public abstract class Tree {
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (int i = 0; i < args.size(); i+=2) { // skip layout elements for efficiency
-			kids.add(args.get(i).buildMatcher(eval));
-		}
-		return new ConcreteApplicationPattern(eval, this,  kids);
-	}
-  }
-  
-  static public class Lexical extends Appl {
-	public Lexical(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
-		super(node, args);
-	}
-	
-	@Override
-	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		if (constant) {
-			return new LiteralPattern(eval, this,  node);
-		}
-		
-		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (org.rascalmpl.ast.Expression arg : args) {
-			kids.add(arg.buildMatcher(eval));
+		for (Expression kid : args) { 
+			if (!((Tree) kid).isLayout()) {
+				kids.add(kid.buildMatcher(eval));
+			}
 		}
 		return new ConcreteApplicationPattern(eval, this,  kids);
 	}
@@ -294,7 +319,7 @@ public abstract class Tree {
 	}
   }
   
-  static public class Amb extends  org.rascalmpl.ast.Expression {
+  static public class Amb extends Tree {
 	private final Type type;
 	private final java.util.List<org.rascalmpl.ast.Expression> alts;
 	private final boolean constant;
@@ -306,6 +331,19 @@ public abstract class Tree {
 		this.alts = alternatives;
 		this.constant = false; // TODO! isConstant(alternatives);
 		this.node = this.constant ? node : null;
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof Amb)) {
+			return false;
+		}
+		Amb other = (Amb) o;
+		
+		return node.equals(other.node);
+	}
+	
+	public int hashCode() {
+		return node.hashCode();
 	}
 	
 	@Override
@@ -323,7 +361,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -334,25 +372,25 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		if (constant) {
-			return new LiteralPattern(eval, this,  node);
-		}
-		
-		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
-		for (org.rascalmpl.ast.Expression arg : alts) {
-			kids.add(arg.buildMatcher(eval));
-		}
-		
-		IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
-		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
-		wrap.add(setMatcher);
-		
-		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap);
+	  if (constant) {
+	    return new LiteralPattern(eval, this,  node);
+	  }
+
+	  java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
+	  for (org.rascalmpl.ast.Expression arg : alts) {
+	    kids.add(arg.buildMatcher(eval));
+	  }
+
+	  IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
+	  java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
+	  wrap.add(setMatcher);
+
+	  Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
+	  return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 	} 
   }
   
-  static public class Char extends  org.rascalmpl.ast.Expression {
+  static public class Char extends  Tree {
 	  private final IConstructor node;
 
 	  public Char(IConstructor node) {
@@ -360,6 +398,19 @@ public abstract class Tree {
 		  this.node = node;
 	  }
 
+	  public boolean equals(Object o) {
+			if (!(o instanceof Char)) {
+				return false;
+			}
+			Char other = (Char) o;
+			
+			return node.equals(other.node);
+		}
+		
+		public int hashCode() {
+			return 17 + 37 * node.hashCode();
+		}
+		
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  // TODO allow override
@@ -372,12 +423,12 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }
   
-  static public class Cycle extends  org.rascalmpl.ast.Expression {
+  static public class Cycle extends Tree {
 	  private final int length;
 	  private final IConstructor node;
 
@@ -387,6 +438,19 @@ public abstract class Tree {
 		  this.node = node;
 	  }
 
+	  public boolean equals(Object o) {
+		  if (!(o instanceof Cycle)) {
+			  return false;
+		  }
+		  Cycle other = (Cycle) o;
+
+		  return node.equals(other.node);
+	  }
+
+	  public int hashCode() {
+		  return node.hashCode();
+	  }
+		
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  return makeResult(Factory.Tree, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)), eval);
@@ -398,7 +462,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }

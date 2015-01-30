@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>rascal</artifactId>
-	<version>0.6.2.qualifier</version>
+	<version>0.7.2.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -63,6 +63,7 @@
 				</executions>
 				<configuration>
 					<argLine>
+                  -ea
 						-Xmx1g
 						-Xss128m
 					</argLine>

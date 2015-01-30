@@ -8,7 +8,14 @@ module experiments::Compiler::Benchmarks::Run
  * - Go and drink 99 bottles of beer :-(
  */
  
-import Prelude;
+
+import IO;
+import DateTime;
+import Relation;
+import Map;
+import List;
+import Set;
+import ValueIO;
 import util::Benchmark;
 import util::Math;
 import analysis::statistics::Descriptive;
@@ -106,7 +113,7 @@ map[str name,  value(list[value]) job] jobs = (
 "BSudoku":					experiments::Compiler::Benchmarks::BSudoku::main
 );
 
-loc base = |rascal:///experiments/Compiler/Benchmarks/|;
+loc base = |std:///experiments/Compiler/Benchmarks/|;
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
@@ -235,7 +242,7 @@ void report(list[Analysis] results){
   sep = "==========================================================";
   println("\n<sep>\nSummary of Measurements <now()>:\n");
   println("Number of samples = <nsamples>");
-  for(a <- results){
+  for(Analysis a <- results){
      report_one(a);
   }
   println("Average speedup: <precision(mean(results.speedup), 5)>");
@@ -251,7 +258,7 @@ void report_one_latex(Analysis a){
 void report_latex(list[Analysis] results){
   println("\\begin{tabular}{| l | r | r | r |} \\hline");
   println("\\textbf{Name} & \\textbf{Compiled} & \\textbf{Interpreted} & \\textbf{Speedup} \\\\ \\hline \\hline");
-   for(a <- results){
+   for(Analysis a <- results){
      report_one_latex(a);
   }
   println("\\textbf{Average Speedup}&   &  & \\textbf{<round(mean(results.speedup), 0.1)>} \\\\ \\hline");
@@ -272,7 +279,7 @@ void main_paper(){
 void main_paper1(){
    run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
-             		 /*,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"*/
+             		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
              	]);
 }
 

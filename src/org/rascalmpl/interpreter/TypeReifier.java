@@ -72,7 +72,7 @@ public class TypeReifier {
 		bindings.put(Factory.TypeParam, t);
 		Type typeType = Factory.Type.instantiate(bindings);
 		
-		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
+		IMapWriter defs = vf.mapWriter();
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
@@ -145,6 +145,12 @@ public class TypeReifier {
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
+		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+		
+		if (kwTypes.getArity() == 0) {
+			kwTypes = tf.voidType();
+		}
+		
 		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 	}
 
@@ -290,17 +296,17 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+	
+                // TODO: while merging the other branch had tf.voidType()... 	
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		System.err.println("Cons in: " + symbol);
 		// here we assume the store has the declaration already
 		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
-		System.err.println("Cons out: " + t);
 		return t;
 		
 	}
@@ -470,6 +476,7 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
+					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -501,11 +508,19 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				IListWriter kwTypes = vf.listWriter();
+				IMapWriter kwDefaults = vf.mapWriter();
+				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
+						
+				for (String label : keywordParameters.keySet()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
+				}
+				
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
-
+			
 			@Override
 			public IValue visitAbstractData(Type type) {
 				IValue sym = cache.get(type);
@@ -525,8 +540,14 @@ public class TypeReifier {
 
 					// make sure to find the type by the uninstantiated adt
 					Type adt = store.lookupAbstractDataType(type.getName());
-					for (Type cons : store.lookupAlternatives(adt)) {
-						cons.accept(this);
+					
+					if (adt != null) {
+						// somebody else (the type checker) should report
+						// that the ADT was undeclared. Here it does not matter 
+						// much, something useful but incomplete will be produced.
+						for (Type cons : store.lookupAlternatives(adt)) {
+							cons.accept(this);
+						}
 					}
 				}
 				
@@ -625,8 +646,6 @@ public class TypeReifier {
 	private static void constructCompleteTypeStoreRec(TypeStore complete, ModuleEnvironment env, java.util.Set<java.lang.String> done) {
 		if(env == null)		// PK: added this seemingly missing case
 			return;
-		if(env.getName() == null)
-			System.err.println("constructCompleteTypeStoreRec: env.getName() is null");
 		
 		if (done.contains(env.getName())) {
 			return;

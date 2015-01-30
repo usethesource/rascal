@@ -35,6 +35,7 @@ public class Factory {
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
 	private final static TypeFactory tf = TypeFactory.getInstance();
+	
 	private static final Type str = tf.stringType();
 	
 	public static final Type TypeParam = tf.parameterType("T");
@@ -68,8 +69,9 @@ public class Factory {
 	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "def");
 	public static final Type Production_Error = tf.constructor(uptr, Production, "error", Production, "prod", tf.integerType(), "dot");
 	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped");
-	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
-	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
+	
+	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
+	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Choice = tf.constructor(uptr, Production, "choice", Symbol, "def", tf.setType(Production), "alternatives");
 	public static final Type Production_Priority = tf.constructor(uptr, Production, "priority", Symbol, "def", tf.listType(Production), "choices");
 	public static final Type Production_Associativity = tf.constructor(uptr, Production, "associativity", Symbol, "def", Associativity, "assoc", tf.setType(Production), "alternatives");
@@ -93,11 +95,11 @@ public class Factory {
 	public static final Type Condition_EndOfLine = tf.constructor(uptr, Condition, "end-of-line");
 	public static final Type Condition_StartOfLine = tf.constructor(uptr, Condition, "begin-of-line");
 	public static final Type Condition_AtColumn = tf.constructor(uptr, Condition, "at-column", tf.integerType(), "column");
-	public static final Type Condition_Except = tf.constructor(uptr, Condition, "except", tf.stringType(), "label");
+	public static final Type Condition_Except = tf.constructor(uptr, Condition, "except", str, "label");
 	
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
-	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "start");
-	public static final Type Symbol_START = tf.constructor(uptr, Symbol, "START");
+	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
+//	public static final Type Symbol_START = tf.constructor(uptr, Symbol, "START");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", str, "string");
 	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", str, "string");
 	public static final Type Symbol_Empty = tf.constructor(uptr, Symbol, "empty");

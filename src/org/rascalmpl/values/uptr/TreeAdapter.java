@@ -19,6 +19,7 @@ package org.rascalmpl.values.uptr;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -84,6 +85,10 @@ public class TreeAdapter {
 	
 	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
+	}
+	
+	public static boolean isTop(IConstructor tree) {
+		return SymbolAdapter.isStartSort(getType(tree));
 	}
 
 	public static boolean isChar(IConstructor tree) {
@@ -189,7 +194,7 @@ public class TreeAdapter {
 					"This is not a context-free list production: " + tree);
 		}
 		IList children = getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
 		for (int i = 0; i < children.length(); ++i) {
 			IValue kid = children.get(i);
@@ -239,7 +244,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -280,8 +285,55 @@ public class TreeAdapter {
 			fStream = stream;
 		}
 		
+		/**
+		 * This Visitor tries to find if this tree contains a cycle, without going in to the amb parts 
+		 */
+		private static class CycleDetector  extends TreeVisitor<IOException> {
+			public boolean result = false;
+
+			@Override
+			public IConstructor visitTreeCycle(IConstructor arg) throws IOException {
+				result = true;
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeAppl(IConstructor arg) throws IOException {
+				if (!result) {
+					IList children = (IList) arg.get("args");
+					for (IValue child : children) {
+						child.accept(this);
+						if (result) {
+							break;
+						}
+					}
+				}
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
+				// don't go into other amb trees with cycles
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeChar(IConstructor arg) throws IOException {
+				return arg;
+			}
+			public static boolean detect(IConstructor tree) throws IOException {
+				CycleDetector look = new CycleDetector();
+				tree.accept(look);
+				return look.result;
+			}
+		}
+		
 		public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
-			((ISet) arg.get("alternatives")).iterator().next().accept(this);
+			Iterator<IValue> alternatives = ((ISet) arg.get("alternatives")).iterator();
+			// do not try to print the alternative with the cycle in it.
+			// so lets try to find the tree without the cycle
+			IConstructor tree = (IConstructor)alternatives.next();
+			while (alternatives.hasNext() && CycleDetector.detect(tree) ) {
+				tree = (IConstructor)alternatives.next();
+			}
+			tree.accept(this);
 			return arg;
 		}
 		
@@ -528,7 +580,7 @@ public class TreeAdapter {
 	}
 
 	public static IList searchCategory(IConstructor tree, String category) {
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
 			if (s == category)
@@ -615,7 +667,17 @@ public class TreeAdapter {
 		return (IConstructor) tree.get("symbol");
 	}
 
-  public static IConstructor getStartTop(IConstructor prefix) {
-    return (IConstructor) getArgs(prefix).get(1);
-  }
+	public static IConstructor getStartTop(IConstructor prefix) {
+		return (IConstructor) getArgs(prefix).get(1);
+	}
+
+	public static IList getNonLayoutArgs(IConstructor treeSubject) {
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter();
+		for (IValue v : getArgs(treeSubject)) {
+			if (!TreeAdapter.isLayout((IConstructor) v)) {
+				w.append(v);
+			}
+		}
+		return w.done();
+	}
 }

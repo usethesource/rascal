@@ -20,8 +20,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reclective library function
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 public class Execute {
 
@@ -52,9 +52,13 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IList argumentsAsList,
-								 IString test_name,
-								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
-		
+								 IBool debug, 
+								 IBool testsuite, 
+								 IBool profile, 
+								 IBool trackCalls, 
+								 IBool coverage,
+								 IEvaluatorContext ctx) {
+			
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
 		
@@ -74,9 +78,12 @@ public class Execute {
 			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
 		}
 		
-		//IRVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
-		IRVM rvm = new RVMonJVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
-		//IRVM rvm = new RVMonMethods(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
+		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
+		
+		IRVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
+		
+		ProfileLocationCollector profilingCollector = null;
+		CoverageLocationCollector coverageCollector = null;
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -89,6 +96,9 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
+//			if(((IString) declaration.get("qname")).getValue().indexOf("complement") > 0){
+//				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
+//			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				
@@ -149,12 +159,24 @@ public class Execute {
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
 		}
+		
+		if(profile.getValue()){
+			profilingCollector = new ProfileLocationCollector();
+			rvm.setLocationCollector(profilingCollector);
+			profilingCollector.start();
+	
+		} else if(coverage.getValue()){
+			coverageCollector = new CoverageLocationCollector();
+			rvm.setLocationCollector(coverageCollector);
+		}
+		
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
-			rvm.executeProgram(initializer, arguments);
+			rvm.executeProgram("UNDEFINED", initializer, arguments);
 		}
 		
 		if((uid_module_init == null)) {
+			// TODO remove collector
 			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
@@ -165,11 +187,12 @@ public class Execute {
 				/*
 				 * Execute as testsuite
 				 */
-				rvm.executeProgram(uid_module_init, arguments);
+				rvm.executeProgram("TESTSUITE", uid_module_init, arguments);
 
 				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
-					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
+					RascalPrimitive.reset();
+					IList test_results = (IList)rvm.executeProgram("TESTSUITE", uid_testsuite, arguments);
 					w.insertAll(test_results);
 				}
 				result = w.done();
@@ -180,14 +203,19 @@ public class Execute {
 				if((uid_main == null)) {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
-			
-				rvm.executeProgram(uid_module_init, arguments);
-				result = rvm.executeProgram(uid_main, arguments);
+				rvm.executeProgram(moduleName, uid_module_init, arguments);
+				result = rvm.executeProgram(moduleName, uid_main, arguments);
 			}
 			long now = Timing.getCpuTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
+			if(profile.getValue()){
+				profilingCollector.report(rvm.getStdOut());
+			} else if(coverage.getValue()){
+				coverageCollector.report(rvm.getStdOut());
+			}
+			
 			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {
@@ -229,7 +257,6 @@ public class Execute {
 	 */
 	private void loadInstructions(String name, IConstructor declaration, IRVM rvm, boolean isCoroutine){
 		int continuationPoint = 0 ;
-	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -245,7 +272,7 @@ public class Execute {
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
-		CodeBlock codeblock = new CodeBlock(vf);
+		CodeBlock codeblock = new CodeBlock(name, vf);
 		// Loading instructions
 		try {
 		for (int i = 0; i < code.length(); i++) {
@@ -258,7 +285,8 @@ public class Execute {
 				break;
 
 			case "LOADVAR":
-				codeblock.LOADVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVAR(getStrField(instruction, "fuid"), 
+								  getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOC":
@@ -270,7 +298,8 @@ public class Execute {
 				break;
 
 			case "STOREVAR":
-				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.STOREVAR(getStrField(instruction, "fuid"), 
+								   getIntField(instruction, "pos"));
 				break;
 
 			case "STORELOC":
@@ -282,11 +311,14 @@ public class Execute {
 				break;
 
 			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
 				break;
 
 			case "CALLMUPRIM":
-				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
 				break;
 
 			case "CALL":
@@ -298,7 +330,8 @@ public class Execute {
 				break;
 				
 			case "APPLY":
-				codeblock.APPLY(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.APPLY(getStrField(instruction, "fuid"), 
+								getIntField(instruction, "arity"));
 				break;
 				
 			case "APPLYDYN":
@@ -334,7 +367,8 @@ public class Execute {
 				break;
 				
 			case "CREATE":
-				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CREATE(getStrField(instruction, "fuid"), 
+								 getIntField(instruction, "arity"));
 				break;
 
 			case "CREATEDYN":
@@ -378,7 +412,8 @@ public class Execute {
 				break;
 
 			case "LOADVARREF":
-				codeblock.LOADVARREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVARREF(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOCDEREF":
@@ -386,7 +421,8 @@ public class Execute {
 				break;
 
 			case "LOADVARDEREF":
-				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), 
+									   getIntField(instruction, "pos"));
 				break;
 
 			case "STORELOCDEREF":
@@ -394,11 +430,13 @@ public class Execute {
 				break;
 
 			case "STOREVARDEREF":
-				codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), 
+										getIntField(instruction, "pos"));
 				break;
 
 			case "LOAD_NESTED_FUN":
-				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
+				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), 
+										getStrField(instruction, "scopeIn"));
 				break;
 
 			case "LOADCONSTR":
@@ -406,7 +444,8 @@ public class Execute {
 				break;
 
 			case "CALLCONSTR":
-				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
+				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
 				break;
 
 			case "LOADTYPE":
@@ -429,17 +468,23 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.OCALL(getStrField(instruction, "fuid"), 
+								getIntField(instruction, "arity"), 
+								getLocField(instruction, "src"));
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
 				break;
 
 			case "CALLJAVA":
-				codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), 
-						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
-						 			getIntField(instruction, "reflect"));
+				codeblock.CALLJAVA(getStrField(instruction, "name"), 
+						           getStrField(instruction, "class"), 
+						 		   rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
+						 		   rvm.symbolToType((IConstructor) instruction.get("keywordTypes")), 
+						 		   getIntField(instruction, "reflect"));
 				break;
 
 			case "THROW":
@@ -515,7 +560,8 @@ public class Execute {
 				break;
 				
 			case "LOADVARKWP":
-				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), 
+									 getStrField(instruction, "name"));
 				break;
 				
 			case "STORELOCKWP":
@@ -523,15 +569,17 @@ public class Execute {
 				break;
 				
 			case "STOREVARKWP":
-				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), 
+									  getStrField(instruction, "name"));
 				break;
 				
 			case "UNWRAPTHROWNVAR":
-				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), 
+									      getIntField(instruction, "pos"));
 				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", Unknown instruction: " + opcode);
 			}
 
 		}

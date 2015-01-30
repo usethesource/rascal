@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,9 +48,9 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>rel[&amp;T0,&amp;T1] domainR (rel[&amp;T0,&amp;T1] R, set[&amp;T0] S)</code></li>
 <li> <code>rel[&amp;T0,&amp;T1,&amp;T2] domainR (rel[&amp;T0,&amp;T1,&amp;T2] R, set[&amp;T0] S)</code></li>
@@ -59,7 +59,7 @@
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Relation;</code>
  </AUTOINSERTED>
@@ -71,21 +71,21 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 <span class="prompt">rascal></span>domainR({&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;}, {3, 1});
 rel[int,int]: {
-  &lt;1,10>,
-  &lt;3,30>
+  &lt;3,30>,
+  &lt;1,10>
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -107,9 +107,9 @@ rel[int,int]: {
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_domainR_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_1:R" value="{&lt;5, 16&gt;}">
-<input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_1:S" value="{17, 13}">
-The type of <tt>domainR({&lt;5, 16&gt;}, {17, 13})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_domainR_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_1:R" value="{&lt;8, 13&gt;, &lt;2, 19&gt;}">
+<input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_1:S" value="{19, 5, 18}">
+The type of <tt>domainR({&lt;8, 13&gt;, &lt;2, 19&gt;}, {19, 5, 18})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_domainR_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -133,9 +133,9 @@ The type of <tt>domainR({&lt;5, 16&gt;}, {17, 13})</tt> is <input type="text" si
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_domainR_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_2:R" value="{&lt;7, 11&gt;, &lt;1, 14&gt;, &lt;9, 10&gt;}">
-<input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_2:S" value="{3, 6, 12}">
-<pre class="prequestion">domainR({&lt;7, 11&gt;, &lt;1, 14&gt;, &lt;9, 10&gt;}, {3, 6, 12}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_domainR_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_2:R" value="{&lt;0, 15&gt;, &lt;7, 10&gt;, &lt;1, 19&gt;, &lt;2, 16&gt;}">
+<input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_2:S" value="{19}">
+<pre class="prequestion">domainR({&lt;0, 15&gt;, &lt;7, 10&gt;, &lt;1, 19&gt;, &lt;2, 16&gt;}, {19}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_domainR_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_domainR_2:another" value="yes">

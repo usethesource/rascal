@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -7,8 +7,11 @@
 }
 @contributor{Wietse Venema - wietsevenema@gmail.com - CWI}
 module cobra::tests::quickcheck::annotations
+
+import cobra::quickcheck;
 import cobra::util::outputlogger;
 import cobra::tests::quickcheck::imported;
+import Exception;
 
 
 test bool annotationsHaveEffect(){

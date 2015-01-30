@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -94,6 +94,16 @@ getChildren("f"(10, "abc"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[value] getChildren(node T);
 
+@doc{Synopsis: Get the keyword parameters of a node.
+Examples:
+<screen>
+import Node;
+getKeywordParameters("f"(10, "abc", height=0));
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java map[str,value] getKeywordParameters(node T);
+
 @doc{
 Synopsis: Determine the name of a node.
 
@@ -116,7 +126,7 @@ makeNode("f", [10, "abc"]);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java node makeNode(str N, value V...);
+public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
 
 

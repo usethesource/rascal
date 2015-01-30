@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -135,5 +136,16 @@ public class LazySet implements ISet {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+	
+	 @Override
+   public boolean mayHaveKeywordParameters() {
+     return false;
+   }
+   
+   @Override
+   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+     throw new IllegalOperationException(
+         "Cannot be viewed as with keyword parameters", getType());
+   }
 	
 }

@@ -98,10 +98,10 @@ public int gt = 0;
 
 data City = amsterdam();
 
-rule a1 amsterdam() : { 
+a1 amsterdam()  { 
   gt = gt + 1;
   fail;
-};
+}
 
 public int recoveryOfGlobalAfterFailingRule() {
 	x = amsterdam();

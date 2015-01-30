@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -133,7 +133,7 @@ public Symbol jdbc2RascalType(blob()) = \list(\int());
 public Symbol jdbc2RascalType(boolean()) = \bool();
 public Symbol jdbc2RascalType(char()) = \str();
 public Symbol jdbc2RascalType(clob()) = \str();
-public Symbol jdbc2RascalType(dataLink()) { throw unsupportedJDBCType(datalink()); }
+public Symbol jdbc2RascalType(dataLink()) { throw unsupportedJDBCType(dataLink()); }
 public Symbol jdbc2RascalType(date()) = \datetime();
 public Symbol jdbc2RascalType(decimal()) = Symbol::\real();
 public Symbol jdbc2RascalType(distinct()) { throw unsupportedJDBCType(distinct()); }
@@ -146,11 +146,11 @@ public Symbol jdbc2RascalType(longVarBinary()) = \list(\int());
 public Symbol jdbc2RascalType(longVarChar()) = \str();
 public Symbol jdbc2RascalType(nChar()) = \str();
 public Symbol jdbc2RascalType(nClob()) = \str();
-public Symbol jdbc2RascalType(null()) { throw unsupportedJDBCType(null()); }
+public Symbol jdbc2RascalType(JDBCType::null()) { throw unsupportedJDBCType(JDBCType::null()); }
 public Symbol jdbc2RascalType(numeric()) = Symbol::\real();
-public Symbol jdbc2RascalType(nVarChar()) = \string();
+public Symbol jdbc2RascalType(nVarChar()) = \str();
 public Symbol jdbc2RascalType(other()) { throw unsupportedJDBCType(other()); }
-public Symbol jdbc2RascalType(\real()) = Symbol::\real();
+public Symbol jdbc2RascalType(JDBCType::\real()) = Symbol::\real();
 public Symbol jdbc2RascalType(ref()) { throw unsupportedJDBCType(ref()); }
 public Symbol jdbc2RascalType(rowId()) { throw unsupportedJDBCType(rowId()); }
 public Symbol jdbc2RascalType(smallInt()) = \int();

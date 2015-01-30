@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -48,3 +48,39 @@ public str genClass(str name, map[str,str] fields) { /*2*/
     '  <genGetter(fields, x)><}>
     '}";
 }
+
+public  map[str, str] fields = (
+     "name" : "String",
+     "age" : "Integer",
+     "address" : "String"
+  );
+  
+public str cperson = 
+  // Do not change a single space in the string below!
+  "public class Person {
+    '  
+    '  private String address;
+    '  public void setAddress(String address) {
+    '    this.address = address;
+    '  }
+    '  public String getAddress() {
+    '    return address;
+    '  }
+    '  private Integer age;
+    '  public void setAge(Integer age) {
+    '    this.age = age;
+    '  }
+    '  public Integer getAge() {
+    '    return age;
+    '  }
+    '  private String name;
+    '  public void setName(String name) {
+    '    this.name = name;
+    '  }
+    '  public String getName() {
+    '    return name;
+    '  }
+    '}";
+
+public test bool tstGenClass() =
+    genClass("Person", fields) == cperson;

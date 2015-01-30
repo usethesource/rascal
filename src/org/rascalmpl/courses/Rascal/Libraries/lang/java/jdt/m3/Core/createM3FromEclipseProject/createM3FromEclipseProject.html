@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,319 +48,170 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>M3 createM3FromEclipseProject(loc project)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import lang::java::jdt::m3::Core;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import lang::java::jdt::m3::Core;
 ok
-<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://HelloWorld|);
-M3: m3(|project://HelloWorld|)[
-  @fieldAccess={
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+field:///HelloWorld/field|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/err|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+field:///HelloWorld/field|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/err|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/out|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/out|>
+<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://example-project|);
+M3: m3(|project://example-project|)[
+  @annotations={
+    &lt;|java+method:///Apple/edible()|,|java+interface:///java/lang/Override|>,
+    &lt;|java+method:///Fruit/edible()|,|java+interface:///java/lang/Override|>
   },
-  @extends={},
   @typeDependency={
-    &lt;|java+method:///ByeWorld/g()|,|java+primitiveType:///long|>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|,|java+class:///HelloWorld|>,
-    &lt;|java+field:///HelloWorld/fields|,|java+interface:///java/util/List|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/Integer|>,
-    &lt;|java+method:///ByeWorld/h()|,|java+primitiveType:///char|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/String|>,
-    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///HelloWorld|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///void|>,
-    &lt;|java+method:///ByeWorld/two()|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///HelloWorld/i()|,|java+primitiveType:///byte|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/Object|>,
-    &lt;|java+parameter:///ByeWorld/main(java.lang.String%5B%5D)/args|,|java+array:///java/lang/String%5B%5D|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/System|>,
-    &lt;|java+method:///HelloWorld/one()|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///ByeWorld/f()|,|java+primitiveType:///void|>,
-    &lt;|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/a|,|java+primitiveType:///int|>,
-    &lt;|java+method:///HelloWorld/m()|,|java+primitiveType:///boolean|>,
-    &lt;|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/b|,|java+primitiveType:///int|>,
-    &lt;|java+method:///ByeWorld/j()|,|java+primitiveType:///short|>,
-    &lt;|java+method:///ByeWorld/l()|,|java+primitiveType:///double|>,
-    &lt;|java+method:///ByeWorld/k()|,|java+primitiveType:///float|>,
-    &lt;|java+field:///HelloWorld/fields|,|java+class:///HelloWorld|>,
-    &lt;|java+field:///ByeWorld/field|,|java+typeVariable:///T|>,
-    &lt;|java+field:///HelloWorld/field|,|java+class:///HelloWorld|>,
-    &lt;|java+method:///HelloWorld/x()|,|java+class:///java/lang/Object|>,
-    &lt;|java+compilationUnit:///src/ByeWorld.java|,|java+interface:///java/util/List|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///ByeWorld|>,
     &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/io/PrintStream|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///int|>,
-    &lt;|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|,|java+class:///HelloWorld|>,
-    &lt;|java+field:///ByeWorld/fields|,|java+typeVariable:///T|>,
-    &lt;|java+parameter:///ByeWorld/main(java.lang.String%5B%5D)/args|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///void|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///HelloWorld|>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/a|,|java+primitiveType:///int|>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|,|java+class:///java/lang/Integer|>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/b|,|java+primitiveType:///int|>,
-    &lt;|java+method:///ByeWorld/i()|,|java+primitiveType:///byte|>,
-    &lt;|java+method:///HelloWorld/g()|,|java+primitiveType:///long|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/Integer|>,
-    &lt;|java+class:///HelloWorld|,|java+typeVariable:///T|>,
-    &lt;|java+field:///ByeWorld/fields|,|java+class:///ByeWorld|>,
-    &lt;|java+method:///HelloWorld/h()|,|java+primitiveType:///char|>,
-    &lt;|java+method:///ByeWorld/one()|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/System|>,
-    &lt;|java+method:///HelloWorld/f()|,|java+primitiveType:///void|>,
-    &lt;|java+method:///HelloWorld/two()|,|java+class:///java/lang/String|>,
-    &lt;|java+method:///ByeWorld/m()|,|java+primitiveType:///boolean|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/Object|>,
-    &lt;|java+field:///ByeWorld/field|,|java+class:///ByeWorld|>,
-    &lt;|java+field:///ByeWorld/fields|,|java+interface:///java/util/List|>,
+    &lt;|java+method:///Apple/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///Apple/edible()|,|java+interface:///java/lang/Override|>,
+    &lt;|java+method:///Fruit/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///Fruit/edible()|,|java+interface:///java/lang/Override|>,
     &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|java+array:///java/lang/String%5B%5D|>,
-    &lt;|java+field:///HelloWorld/fields|,|java+typeVariable:///T|>,
-    &lt;|java+method:///ByeWorld/x()|,|java+class:///java/lang/Object|>,
-    &lt;|java+field:///HelloWorld/field|,|java+typeVariable:///T|>,
-    &lt;|java+class:///ByeWorld|,|java+typeVariable:///T|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+class:///java/io/PrintStream|>,
-    &lt;|java+compilationUnit:///src/HelloWorld.java|,|java+interface:///java/util/List|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///int|>,
-    &lt;|java+method:///HelloWorld/j()|,|java+primitiveType:///short|>,
-    &lt;|java+method:///HelloWorld/l()|,|java+primitiveType:///double|>,
-    &lt;|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|,|java+class:///java/lang/Integer|>,
-    &lt;|java+method:///HelloWorld/k()|,|java+primitiveType:///float|>
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/System|>,
+    &lt;|java+class:///Apple|,|java+class:///Fruit|>,
+    &lt;|java+method:///IFruit/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///void|>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|java+class:///java/lang/String|>,
+    &lt;|java+class:///Fruit|,|java+interface:///IFruit|>
   },
-  @methodInvocation={
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.String)|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///ByeWorld/one()|>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|,|java+constructor:///HelloWorld/HelloWorld%3CInteger%3E()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///HelloWorld/one()|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///ByeWorld/two()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.String)|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///java/lang/Object/hashCode()|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(int)|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.Object)|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///HelloWorld/two()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/lang/Object/hashCode()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(int)|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.Object)|>,
-    &lt;|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|,|java+constructor:///HelloWorld/HelloWorld%3CInteger%3E()|>
+  @methodOverrides={
+    &lt;|java+method:///Apple/edible()|,|java+method:///IFruit/edible()|>,
+    &lt;|java+method:///Fruit/edible()|,|java+method:///IFruit/edible()|>,
+    &lt;|java+method:///Apple/edible()|,|java+method:///Fruit/edible()|>
   },
-  @containment={
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/l()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/g()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/i()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/h()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/k()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/one()|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
-    &lt;|java+class:///ByeWorld|,|java+field:///ByeWorld/field|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/f()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/x()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;|java+compilationUnit:///src/ByeWorld.java|,|java+class:///ByeWorld|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/m()|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;|java+class:///ByeWorld|,|java+field:///ByeWorld/fields|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/two()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/two()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/f()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/main(java.lang.String%5B%5D)|>,
-    &lt;|java+class:///HelloWorld|,|java+typeVariable:///T|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/x()|>,
-    &lt;|java+compilationUnit:///src/HelloWorld.java|,|java+class:///HelloWorld|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/k()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/m()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/one()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/l()|>,
-    &lt;|java+class:///HelloWorld|,|java+field:///HelloWorld/field|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/h()|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/g()|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/i()|>,
-    &lt;|java+class:///ByeWorld|,|java+typeVariable:///T|>,
-    &lt;|java+class:///ByeWorld|,|java+method:///ByeWorld/j()|>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,|java+parameter:///ByeWorld/main(java.lang.String%5B%5D)/args|>,
-    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/j()|>,
-    &lt;|java+class:///HelloWorld|,|java+field:///HelloWorld/fields|>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|>
-  },
-  @messages=[],
   @names={
-    &lt;"Integer",|java+class:///java/lang/Integer|>,
-    &lt;"println",|java+method:///java/io/PrintStream/println(java.lang.String)|>,
-    &lt;"ByeWorld",|java+class:///ByeWorld|>,
-    &lt;"java",|java+package:///java|>,
-    &lt;"i",|java+method:///ByeWorld/i()|>,
-    &lt;"Object",|java+class:///java/lang/Object|>,
-    &lt;"one",|java+method:///ByeWorld/one()|>,
-    &lt;"k",|java+method:///ByeWorld/k()|>,
-    &lt;"String",|java+class:///java/lang/String|>,
-    &lt;"T",|java+typeVariable:///T|>,
-    &lt;"b",|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;"util",|java+package:///java/util|>,
-    &lt;"main",|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
-    &lt;"l",|java+method:///ByeWorld/l()|>,
-    &lt;"fields",|java+field:///ByeWorld/fields|>,
-    &lt;"out",|java+field:///java/lang/System/out|>,
-    &lt;"a",|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;"h",|java+method:///HelloWorld/h()|>,
-    &lt;"field",|java+field:///ByeWorld/field|>,
-    &lt;"x",|java+method:///HelloWorld/x()|>,
-    &lt;"List",|java+interface:///java/util/List|>,
-    &lt;"f",|java+method:///HelloWorld/f()|>,
-    &lt;"args",|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
-    &lt;"g",|java+method:///HelloWorld/g()|>,
-    &lt;"x",|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;"m",|java+method:///ByeWorld/m()|>,
-    &lt;"x",|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;"args",|java+parameter:///ByeWorld/main(java.lang.String%5B%5D)/args|>,
-    &lt;"f",|java+method:///ByeWorld/f()|>,
-    &lt;"i",|java+method:///HelloWorld/i()|>,
-    &lt;"l",|java+method:///HelloWorld/l()|>,
-    &lt;"one",|java+method:///HelloWorld/one()|>,
-    &lt;"println",|java+method:///java/io/PrintStream/println(java.lang.Object)|>,
-    &lt;"hashCode",|java+method:///java/lang/Object/hashCode()|>,
-    &lt;"two",|java+method:///HelloWorld/two()|>,
-    &lt;"err",|java+field:///java/lang/System/err|>,
-    &lt;"a",|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;"b",|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;"j",|java+method:///HelloWorld/j()|>,
-    &lt;"g",|java+method:///ByeWorld/g()|>,
-    &lt;"two",|java+method:///ByeWorld/two()|>,
-    &lt;"j",|java+method:///ByeWorld/j()|>,
-    &lt;"field",|java+field:///HelloWorld/field|>,
-    &lt;"h",|java+method:///ByeWorld/h()|>,
-    &lt;"fields",|java+field:///HelloWorld/fields|>,
-    &lt;"System",|java+class:///java/lang/System|>,
+    &lt;"IFruit",|java+interface:///IFruit|>,
     &lt;"HelloWorld",|java+class:///HelloWorld|>,
-    &lt;"x",|java+method:///ByeWorld/x()|>,
-    &lt;"main",|java+method:///ByeWorld/main(java.lang.String%5B%5D)|>,
-    &lt;"m",|java+method:///HelloWorld/m()|>,
-    &lt;"k",|java+method:///HelloWorld/k()|>,
-    &lt;"println",|java+method:///java/io/PrintStream/println(int)|>
+    &lt;"args",|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
+    &lt;"edible",|java+method:///Fruit/edible()|>,
+    &lt;"out",|java+field:///java/lang/System/out|>,
+    &lt;"edible",|java+method:///Apple/edible()|>,
+    &lt;"main",|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
+    &lt;"String",|java+class:///java/lang/String|>,
+    &lt;"edible",|java+method:///IFruit/edible()|>,
+    &lt;"println",|java+method:///java/io/PrintStream/println(java.lang.String)|>,
+    &lt;"Override",|java+interface:///java/lang/Override|>,
+    &lt;"System",|java+class:///java/lang/System|>,
+    &lt;"Apple",|java+class:///Apple|>,
+    &lt;"Fruit",|java+class:///Fruit|>
+  },
+  @implements={&lt;|java+class:///Fruit|,|java+interface:///IFruit|>},
+  @methodInvocation={&lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.String)|>},
+  @containment={
+    &lt;|java+compilationUnit:///src/IFruit.java|,|java+interface:///IFruit|>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
+    &lt;|java+class:///Fruit|,|java+method:///Fruit/edible()|>,
+    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
+    &lt;|java+compilationUnit:///src/Fruit.java|,|java+class:///Fruit|>,
+    &lt;|java+compilationUnit:///src/HelloWorld.java|,|java+class:///HelloWorld|>,
+    &lt;|java+class:///Apple|,|java+method:///Apple/edible()|>,
+    &lt;|java+interface:///IFruit|,|java+method:///IFruit/edible()|>,
+    &lt;|java+compilationUnit:///src/Apple.java|,|java+class:///Apple|>
   },
   @documentation={},
-  @implements={},
-  @uses={
-    &lt;|project://HelloWorld/src/HelloWorld.java|(7,4,&lt;1,7>,&lt;1,11>),|java+package:///java|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(647,3,&lt;40,9>,&lt;40,12>),|java+field:///java/lang/System/err|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(366,6,&lt;27,1>,&lt;27,7>),|java+class:///java/lang/Object|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(489,6,&lt;34,2>,&lt;34,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(82,4,&lt;5,11>,&lt;5,15>),|java+interface:///java/util/List|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(12,4,&lt;1,12>,&lt;1,16>),|java+package:///java/util|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(661,1,&lt;40,21>,&lt;40,22>),|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(111,6,&lt;7,8>,&lt;7,14>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(606,6,&lt;38,2>,&lt;38,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(17,4,&lt;1,17>,&lt;1,21>),|java+interface:///java/util/List|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(629,5,&lt;38,23>,&lt;38,28>),|java+field:///HelloWorld/field|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(500,7,&lt;34,13>,&lt;34,20>),|java+method:///java/io/PrintStream/println(java.lang.String)|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(615,3,&lt;38,9>,&lt;38,12>),|java+field:///java/lang/System/err|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(64,1,&lt;4,11>,&lt;4,12>),|java+typeVariable:///T|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(566,7,&lt;37,13>,&lt;37,20>),|java+class:///java/lang/Integer|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(594,7,&lt;37,41>,&lt;37,48>),|java+class:///java/lang/Integer|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(619,7,&lt;38,13>,&lt;38,20>),|java+method:///java/io/PrintStream/println(java.lang.Object)|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(494,3,&lt;34,9>,&lt;34,12>),|java+field:///java/lang/System/out|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(470,6,&lt;33,25>,&lt;33,31>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(642,6,&lt;40,2>,&lt;40,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(651,7,&lt;40,13>,&lt;40,20>),|java+method:///java/io/PrintStream/println(int)|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(404,6,&lt;29,8>,&lt;29,14>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(625,1,&lt;38,21>,&lt;38,22>),|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(522,3,&lt;34,35>,&lt;34,38>),|java+method:///HelloWorld/two()|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(663,8,&lt;40,23>,&lt;40,31>),|java+method:///java/lang/Object/hashCode()|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(553,10,&lt;37,2>,&lt;37,12>),|java+class:///HelloWorld|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(581,10,&lt;37,30>,&lt;37,40>),|java+class:///HelloWorld|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(89,1,&lt;5,16>,&lt;5,17>),|java+typeVariable:///T|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(676,1,&lt;40,36>,&lt;40,37>),|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(680,1,&lt;40,40>,&lt;40,41>),|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(368,6,&lt;27,1>,&lt;27,7>),|java+class:///java/lang/Object|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(678,1,&lt;40,40>,&lt;40,41>),|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/b|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(520,3,&lt;34,35>,&lt;34,38>),|java+method:///ByeWorld/two()|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(7,4,&lt;1,7>,&lt;1,11>),|java+package:///java|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(649,3,&lt;40,9>,&lt;40,12>),|java+field:///java/lang/System/err|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(12,4,&lt;1,12>,&lt;1,16>),|java+package:///java/util|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(113,6,&lt;7,8>,&lt;7,14>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(608,6,&lt;38,2>,&lt;38,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(17,4,&lt;1,17>,&lt;1,21>),|java+interface:///java/util/List|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(487,6,&lt;34,2>,&lt;34,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(659,1,&lt;40,21>,&lt;40,22>),|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(84,4,&lt;5,11>,&lt;5,15>),|java+interface:///java/util/List|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(498,7,&lt;34,13>,&lt;34,20>),|java+method:///java/io/PrintStream/println(java.lang.String)|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(506,3,&lt;34,21>,&lt;34,24>),|java+method:///ByeWorld/one()|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(508,3,&lt;34,21>,&lt;34,24>),|java+method:///HelloWorld/one()|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(62,1,&lt;4,11>,&lt;4,12>),|java+typeVariable:///T|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(613,3,&lt;38,9>,&lt;38,12>),|java+field:///java/lang/System/err|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(627,5,&lt;38,23>,&lt;38,28>),|java+field:///HelloWorld/field|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(661,8,&lt;40,23>,&lt;40,31>),|java+method:///java/lang/Object/hashCode()|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(406,6,&lt;29,8>,&lt;29,14>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(87,1,&lt;5,16>,&lt;5,17>),|java+typeVariable:///T|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(674,1,&lt;40,36>,&lt;40,37>),|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/a|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(555,10,&lt;37,2>,&lt;37,12>),|java+class:///HelloWorld|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(583,10,&lt;37,30>,&lt;37,40>),|java+class:///HelloWorld|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(564,7,&lt;37,13>,&lt;37,20>),|java+class:///java/lang/Integer|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(592,7,&lt;37,41>,&lt;37,48>),|java+class:///java/lang/Integer|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(617,7,&lt;38,13>,&lt;38,20>),|java+method:///java/io/PrintStream/println(java.lang.Object)|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(627,1,&lt;38,21>,&lt;38,22>),|java+variable:///HelloWorld/main(java.lang.String%5B%5D)/x|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(468,6,&lt;33,25>,&lt;33,31>),|java+class:///java/lang/String|>,
-    &lt;|project://HelloWorld/src/ByeWorld.java|(640,6,&lt;40,2>,&lt;40,8>),|java+class:///java/lang/System|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(496,3,&lt;34,9>,&lt;34,12>),|java+field:///java/lang/System/out|>,
-    &lt;|project://HelloWorld/src/HelloWorld.java|(653,7,&lt;40,13>,&lt;40,20>),|java+method:///java/io/PrintStream/println(int)|>
-  },
-  @annotations={},
-  @methodOverrides={},
   @modifiers={
-    &lt;|java+field:///ByeWorld/fields|,public()>,
-    &lt;|java+method:///HelloWorld/two()|,static()>,
-    &lt;|java+method:///ByeWorld/one()|,static()>,
-    &lt;|java+class:///ByeWorld|,public()>,
-    &lt;|java+method:///HelloWorld/one()|,static()>,
-    &lt;|java+field:///ByeWorld/field|,public()>,
-    &lt;|java+class:///HelloWorld|,public()>,
-    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,public()>,
+    &lt;|java+interface:///IFruit|,public()>,
     &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,static()>,
-    &lt;|java+field:///HelloWorld/field|,public()>,
-    &lt;|java+method:///ByeWorld/two()|,static()>,
-    &lt;|java+field:///HelloWorld/fields|,public()>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,public()>,
-    &lt;|java+method:///ByeWorld/main(java.lang.String%5B%5D)|,static()>
+    &lt;|java+class:///Fruit|,abstract()>,
+    &lt;|java+method:///Apple/edible()|,public()>,
+    &lt;|java+method:///Fruit/edible()|,public()>,
+    &lt;|java+class:///Apple|,public()>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,public()>,
+    &lt;|java+class:///HelloWorld|,public()>,
+    &lt;|java+method:///Fruit/edible()|,abstract()>,
+    &lt;|java+class:///Fruit|,public()>
+  },
+  @fieldAccess={&lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/out|>},
+  @messages=[],
+  @uses={
+    &lt;|project://example-project/src/Apple.java|(28,5,&lt;2,27>,&lt;2,32>),|java+class:///Fruit|>,
+    &lt;|project://example-project/src/HelloWorld.java|(71,6,&lt;4,2>,&lt;4,8>),|java+class:///java/lang/System|>,
+    &lt;|project://example-project/src/HelloWorld.java|(82,7,&lt;4,13>,&lt;4,20>),|java+method:///java/io/PrintStream/println(java.lang.String)|>,
+    &lt;|project://example-project/src/Fruit.java|(51,8,&lt;3,2>,&lt;3,10>),|java+interface:///java/lang/Override|>,
+    &lt;|project://example-project/src/Apple.java|(39,8,&lt;4,2>,&lt;4,10>),|java+interface:///java/lang/Override|>,
+    &lt;|project://example-project/src/HelloWorld.java|(78,3,&lt;4,9>,&lt;4,12>),|java+field:///java/lang/System/out|>,
+    &lt;|project://example-project/src/Fruit.java|(40,6,&lt;2,39>,&lt;2,45>),|java+interface:///IFruit|>,
+    &lt;|project://example-project/src/HelloWorld.java|(52,6,&lt;3,25>,&lt;3,31>),|java+class:///java/lang/String|>
   },
   @types={
-    &lt;|java+method:///HelloWorld/x()|,method(
-      |java+method:///HelloWorld/x()|,
-      [],
-      object(),
+    &lt;|java+class:///HelloWorld|,class(
+      |java+class:///HelloWorld|,
       [])>,
-    &lt;|java+method:///HelloWorld/h()|,method(
-      |java+method:///HelloWorld/h()|,
-      [],
-      char(),
+    &lt;|java+class:///Fruit|,class(
+      |java+class:///Fruit|,
       [])>,
-    &lt;|java+variable:///ByeWorld/main(java.lang.String%5B%5D)/x|,class(
-    ...
+    &lt;|java+class:///Apple|,class(
+      |java+class:///Apple|,
+      [])>,
+    &lt;|java+method:///IFruit/edible()|,method(
+      |java+method:///IFruit/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,array(
+      class(
+        |java+class:///java/lang/String|,
+        []),
+      1)>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,method(
+      |java+method:///HelloWorld/main(java.lang.String%5B%5D)|,
+      [],
+      void(),
+      [array(
+          class(
+            |java+class:///java/lang/String|,
+            []),
+          1)])>,
+    &lt;|java+method:///Apple/edible()|,method(
+      |java+method:///Apple/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+method:///Fruit/edible()|,method(
+      |java+method:///Fruit/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+interface:///IFruit|,interface(
+      |java+interface:///IFruit|,
+      [])>
+  },
+  @extends={&lt;|java+class:///Apple|,|java+class:///Fruit|>},
+  @declarations={
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|project://example-project/src/HelloWorld.java|(28,82,&lt;3,1>,&lt;6,2>)>,
+    &lt;|java+compilationUnit:///src/IFruit.java|,|project://example-project/src/IFruit.java|(0,48,&lt;1,0>,&lt;4,2>)>,
+    &lt;|java+method:///Apple/edible()|,|project://example-project/src/Apple.java|(38,54,&lt;4,1>,&lt;7,2>)>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|project://example-project/src/HelloWorld.java|(52,13,&lt;3,25>,&lt;3,38>)>,
+    &lt;|java+compilationUnit:///src/HelloWorld.java|,|project://example-project/src/HelloWorld.java|(0,113,&lt;1,0>,&lt;7,2>)>,
+    &lt;|java+class:///HelloWorld|,|project://example-project/src/HelloWorld.java|(1,111,&lt;2,0>,&lt;7,1>)>,
+    &lt;|java+compilationUnit:///src/Apple.java|,|project://example-project/src/Apple.java|(0,96,&lt;1,0>,&lt;9,2>)>,
+    &lt;|java+class:///Apple|,|project://example-project/src/Apple.java|(1,94,&lt;2,0>,&lt;9,1>)>,
+    &lt;|java+class:///Fruit|,|project://example-project/src/Fruit.java|(1,95,&lt;2,0>,&lt;5,1>)>,
+    &lt;|java+interface:///IFruit|,|project://example-project/src/IFruit.java|(1,46,&lt;2,0>,&lt;4,1>)>,
+    &lt;|java+compilationUnit:///src/Fruit.java|,|project://example-project/src/Fruit.java|(0,97,&lt;1,0>,&lt;5,2>)>,
+    &lt;|java+method:///IFruit/edible()|,|project://example-project/src/IFruit.java|(28,17,&lt;3,1>,&lt;3,18>)>,
+    &lt;|java+method:///Fruit/edible()|,|project://example-project/src/Fruit.java|(50,44,&lt;3,1>,&lt;4,34>)>
+  }
+]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

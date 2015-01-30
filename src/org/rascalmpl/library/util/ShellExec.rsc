@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -60,6 +60,12 @@ Synopsis: Read from an existing process's output stream. This is non-blocking.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readFrom(PID processId);
+
+@doc{
+Synopsis: Read from an existing process's error output stream. This is non-blocking.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readFromErr(PID processId);
 
 @doc{
 Synopsis: Read the entire stream from an existing process's output stream. This is blocking.

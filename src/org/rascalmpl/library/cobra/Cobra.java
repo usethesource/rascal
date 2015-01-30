@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -55,7 +56,7 @@ public class Cobra {
 
 	public static int readIntTag(AbstractFunction test, String key, int defaultVal) {
 		if (test.hasTag(key)) {
-			int result = Integer.parseInt(test.getTag(key));
+			int result = Integer.parseInt(((IString) test.getTag(key)).getValue());
 			if (result < 1) {
 				throw new IllegalArgumentException(key + " smaller than 1");
 			}

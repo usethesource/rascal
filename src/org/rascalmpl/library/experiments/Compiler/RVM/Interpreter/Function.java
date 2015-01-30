@@ -14,18 +14,18 @@ import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.NameMangler;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Function {
-	final public String name;
-	public int   funId ;    // Id of function in functionMap, used for dynamic invocation.
+	final String name;
 	final Type ftype;
-	public int scopeId;
-	public String funIn;
-	public int scopeIn = -1;
-	public final int nformals;
-	public final int nlocals;
-	public final int maxstack;
+	int scopeId;
+	private String funIn;
+	public int funId; // Id of function in functionMap, used for dynamic invocation.
+	int scopeIn = -1;
+	final int nformals;
+	final int nlocals;
+	final int maxstack;
 	final CodeBlock codeblock;
-	public IValue[] constantStore;
-	public Type[] typeConstantStore;
+	IValue[] constantStore;
+	Type[] typeConstantStore;
 
 	public int continuationPoints = 0;
 
@@ -39,11 +39,10 @@ public class Function {
 
 	boolean isVarArgs = false;
 
-	 
-	 final ISourceLocation src;		
-	 final IMap localNames;
-	
-	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, IMap localNames, int maxstack, CodeBlock codeblock, ISourceLocation src,int continuationPoint){
+	final ISourceLocation src;
+	final IMap localNames;
+
+	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, IMap localNames, int maxstack, CodeBlock codeblock, ISourceLocation src, int cpts) {
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -52,16 +51,16 @@ public class Function {
 		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.codeblock = codeblock;
-		this.continuationPoints = continuationPoint;
+		this.continuationPoints = cpts ;
 		this.src = src;
 	}
 
 	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints,false);
+		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints, false);
 
-		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
-		
+		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing, false);
+
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if (funIn != null) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
@@ -75,7 +74,7 @@ public class Function {
 	public void finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		codeblock.done(name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
-		if(funIn != null) {
+		if (funIn != null) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
 		}
 		this.constantStore = codeblock.getConstants();
@@ -123,9 +122,31 @@ public class Function {
 	public String getName() {
 		return name;
 	}
-	
-	public String getPrintableName(){
-		return name.substring(name.indexOf("/")+1, name.indexOf("("));
+
+	public String getPrintableName() {
+		int from = name.indexOf("/") + 1;
+		int to = name.indexOf("(");
+		if (to < 0) {
+			to = name.length();
+		}
+		return name.substring(from, to);
 	}
-	
+
+	public String getQualifiedName() {
+		return name.substring(0, name.indexOf("("));
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("FUNCTION ").append(name).append(" ").append(ftype);
+		for (int i = 0; i < constantStore.length; i++) {
+			sb.append("constant ").append(i).append(": ").append(constantStore[i]);
+		}
+		for (int i = 0; i < typeConstantStore.length; i++) {
+			sb.append("type constant ").append(i).append(": ").append(typeConstantStore[i]);
+		}
+		sb.append(codeblock);
+		return sb.toString();
+	}
+
 }

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,37 +48,37 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> ? <i>Exp</i><sub>2</sub> : <i>Exp</i><sub>3</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="center" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> <code><i>Exp</i><sub>3</sub></code> </th><th align="center"> <code><i>Exp</i><sub>1</sub> ? <i>Exp</i><sub>2</sub> : <i>Exp</i><sub>3</sub></code> </th></tr><tr><td align="left">   <code>bool</code>   </td><td align="left"> <code><i>T</i><sub>2</sub></code>   </td><td align="left"> <code><i>T</i><sub>3</sub></code>   </td><td align="center"> <code>lub(<i>T</i><sub>2</sub>,<i>T</i><sub>3</sub>)</code>            </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields the value of <code><i>Exp</i><sub>2</sub></code> if the value of <code><i>Exp</i><sub>1</sub></code> is <code>true</code> and the value of <code><i>Exp</i><sub>3</sub></code> otherwise.
  The result type is the <i>least upper bound</i> (also known as <code>lub</code>, see <a href="/Rascal/Declarations/StaticTyping/StaticTyping.html">StaticTyping</a>) of the types of <code><i>Exp</i><sub>2</sub></code> and <code><i>Exp</i><sub>3</sub></code>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>( 3 &gt; 2 ) ? 30 : 40;
 int: 30
 <span class="prompt">rascal></span>( 3 &lt; 2 ) ? &quot;abc&quot; : {3, 4};
-set[int]: {4,3}
+set[int]: {3,4}
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Value/Conditional&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Value/Conditional&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

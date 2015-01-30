@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,6 +60,20 @@ public abstract class Toplevel extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitToplevelGivenVisibility(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof GivenVisibility)) {
+        return false;
+      }        
+      GivenVisibility tmp = (GivenVisibility) o;
+      return true && tmp.declaration.equals(this.declaration) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 157 + 293 * declaration.hashCode() ; 
+    } 
   
     
     @Override

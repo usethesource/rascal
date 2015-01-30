@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ public Figure vertice(Id s, Attrs attrs) {
     if (!isEmpty(r)) {
       switch(r[0]) {
        case "ellipse": return shapeEllipse(text(substr(lab)), getProps(attrs)+id(s));
-       case "diamond": return shapeDiamand(text(substr(lab)), getProps(attrs)+id(s));
+       case "diamond": return shapeDiamond(text(substr(lab)), getProps(attrs)+id(s));
        }
     }
     return shapeBox(text(substr(lab)), getProps(attrs)+id(s));
