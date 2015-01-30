@@ -1,7 +1,7 @@
 module lang::rascal::tests::functionality::VisitTests
 
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,85 +20,90 @@ data NODE1 = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3
 data T = knot(int i, T l, T r) | tip(int i);
 
 data NODE10 = f1(int I) | g1(list[NODE10] L) | h1(NODE10 N1, NODE10 N2);
-		
-		int cnt(NODE1 t) {
-		     int C = 0;
-		     visit(t) {
-		        case int N: C = C + 1;
-		        }
-		     return C;
-		     }
-		     
-		NODE1 walk(NODE1 t) {
-		     return visit(t) {
-		        case int N=>x when x:=N*2, x>=1
-		        };
-		     }
-		     
-		NODE1 drepl(NODE1 T) {
-				return bottom-up-break visit (T) {
-				     case g(value T1, value T2) =>  h(T1, T2)
-				     };
-			   }
-			   
-		NODE1 frepa(NODE1 T) {
-				return visit (T) {
-				    case g(value T1, value T2):
-				          insert h(T1, T2);
-				   };
-				}
-				
-		NODE1 frepb(NODE1 T) { 
-				return visit (T) {
-				     case g(value T1, value T2) => h(T1, T2)
-			          };
-				}
-				
-		NODE1 frepG2H3a(NODE1 T) {
-				return visit (T) {
-				    case g(value T1, value T2):
-				         insert h(T1, T2, 0);
-				   };
-				}
-				
-		NODE1 frepG2H3b(NODE1 T) {
-				return visit (T) {
-				   case g(value T1, value T2) => h(T1, T2, 0)
-				   };
-				}
-				
-		NODE1 inc(NODE1 T) {
-				return visit(T) {
-				     case int N: insert N + 1;
-				   }
-				}
-				
-		
-				
-		tuple[int, NODE1] inc_and_count(NODE1 T, int D) {
-				int C = 0;
-				T = visit (T) {
-				        case int N: { C = C + 1;
-				                      insert N + D;
-				                    }
-				       };
-				return <C, T>;
+	
+int cnt(NODE1 t) {
+	int C = 0;
+	visit(t) {
+		case int N: C = C + 1;
+	}
+	return C;
+}
+	     
+NODE1 walk(NODE1 t) {
+	return 
+		visit(t) {
+			case int N=>x when x:=N*2, x>=1
+		};
+}
+	     
+NODE1 drepl(NODE1 T) {
+	return 
+		bottom-up-break visit (T) {
+			case g(value T1, value T2) =>  h(T1, T2)
+		};
+}
+		   
+NODE1 frepa(NODE1 T) {
+	return 
+		visit (T) {
+			case g(value T1, value T2): insert h(T1, T2);
+		};
+}
+			
+NODE1 frepb(NODE1 T) { 
+	return 
+		visit (T) {
+			case g(value T1, value T2) => h(T1, T2)
+		};
+}
+			
+NODE1 frepG2H3a(NODE1 T) {
+	return 
+		visit (T) {
+			case g(value T1, value T2): insert h(T1, T2, 0);
+		};
+}
+			
+NODE1 frepG2H3b(NODE1 T) {
+	return
+		visit (T) {
+			case g(value T1, value T2) => h(T1, T2, 0)
+		};
+}
+			
+NODE1 inc(NODE1 T) {
+	return 
+		visit(T) {
+			case int N: insert N + 1;
+		}
+}
+	
+tuple[int, NODE1] inc_and_count(NODE1 T, int D) {
+	int C = 0;
+	T = visit (T) {
+			case int N: {
+				C = C + 1;
+			    insert N + D;
 			}
-		
-		NODE1 srepl(NODE1 T) {
-				return top-down-break visit (T) {
-				     case g(value T1, value T2) =>  h(T1, T2)
-			     };
-			  }	
-	  
-		list[int] order(NODE10 T) {
-				res = [];
-				visit (T) {
-				   case int N:  res += N;
-				};
-				return res;
-				}	
-     
+	};
+	return <C, T>;
+}
+	
+NODE1 srepl(NODE1 T) {
+	return 
+		top-down-break visit (T) {
+			case g(value T1, value T2) =>  h(T1, T2)
+		};
+}	
+  
+list[int] order(NODE10 T) {
+	res = [];
+	visit (T) {
+		case int N:  res += N;
+	};
+	return res;
+}	
+ 
 //  Cnt()
 
 test bool Cnt1()= cnt(f(3)) == 1;
@@ -253,6 +258,47 @@ test bool StringVisit4a2()=visit("a"){ case "a": insert "AA"; case /b/: insert "
 test bool StringVisit4a3()=visit("b"){ case "a": insert "AA"; case /b/: insert "BB";} == "BB";
 test bool StringVisit4a4()=visit("abcabc"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBc";
 test bool StringVisit4a5()=visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBcAA";
-		
 
+// StringVisit5
+
+tuple[int,int] cntAB(str s){
+	int cntA = 0;
+	int cntB = 0;
+	visit(s){ case /^a/: cntA += 1; case /^b/: cntB += 10;}
+	
+	return <cntA, cntB>;
+}
+
+test bool StringVisit51() = cntAB("") == <0, 0>;
+test bool StringVisit52() = cntAB("cdefg") == <0, 0>;
+test bool StringVisit53() = cntAB("a") == <1, 0>;
+test bool StringVisit54() = cntAB("b") == <0, 10>;
+test bool StringVisit55() = cntAB("ab") == <1, 10>;
+test bool StringVisit56() = cntAB("ba") == <1, 10>;
+test bool StringVisit57() = cntAB("abcabca") == <3, 20>;
+
+// StringVisit6
+
+tuple[int,int] TDCntAB(str s){
+	int cntA = 0;
+	int cntB = 0;
+	top-down visit(s){ case /^a/: cntA += 1; case /^b/: cntB += 10;}
+	
+	return <cntA, cntB>;
+}
+
+test bool StringVisit61() = TDCntAB("") == <0, 0>;
+test bool StringVisit62() = TDCntAB("cdefg") == <0, 0>;
+test bool StringVisit63() = TDCntAB("a") == <1, 0>;
+test bool StringVisit64() = TDCntAB("b") == <0, 10>;
+test bool StringVisit65() = TDCntAB("ab") == <1, 10>;
+test bool StringVisit66() = TDCntAB("ba") == <1, 10>;
+test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
+		
+// Keywords and visit
+
+data RECT = rect(int w, int h, str color = "white");
+
+test bool KeywordVisit1()=visit("f"(1, kw1="abc", kw2=13)){ case 1 => 10 case "abc" => "def" case 13 => 14} == "f"(10, kw1="def", kw2=14);
+test bool KeywordVisit2()=visit(rect(10,20,color="white")){ case "white" => "red"} == rect(10, 20, color="red");
 

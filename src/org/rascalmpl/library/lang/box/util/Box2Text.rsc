@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -425,18 +425,18 @@ text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
      list[int] mw0 = Awidth(r);
      list[str] format0 = ((f["f"]?)?f["f"]:[]);
      list[Box] vargs = [];
-     for (list[Box] bl <- r) {
+     for (list[Box] bl2 <- r) {
          list[int]  mw = mw0;
          list[str] format =format0;
          list[Box] hargs = [];
-         for (Box b<- bl) {
+         for (Box b<- bl2) {
                 int width = b@width;
-                str f = !isEmpty(format)?head(format):"l";
+                str f_str = !isEmpty(format)?head(format):"l";
                 if (!isEmpty(format)) format = tail(format);
                 max_width = head(mw);
                 mw=tail(mw);
                 int h= opts["h"];
-                switch(f) {
+                switch(f_str) {
                     case "l": {
                      // b@hs=max_width - width+h; /*left alignment */  
                          hargs+=b;
@@ -640,10 +640,10 @@ void tst() {
 public str baseName(str input) {
      str s = input;
      str find = "/";
-     if (/^<pre:.*>\.<post:.*?>$/:=input) {
-          s = "<pre>";
-           if(/^<pre:.*><find><post:.*?>$/ := s) {	
-               s = post;
+     if (/^<pre1:.*>\.<post1:.*?>$/:=input) {
+          s = "<pre1>";
+           if(/^<pre2:.*><find><post2:.*?>$/ := s) {	
+               s = post2;
                }
           }
      return s;

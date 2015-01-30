@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::grammar::Lookahead;
 // import lang::rascal::grammar::analyze::Recursion;
 
 public alias Priorities = rel[Production father, Production child];
@@ -74,8 +75,13 @@ For every position in the production that is restricted, and for every restricti
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), g.rules[s]?, except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
-  
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
+ 
+
+//TODO: compiler issues when  g.rules[s]? is inlined
+bool isdef(Grammar g, Symbol s) = g.rules[s]?;
+
+
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
@@ -130,7 +136,7 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
         return <pr, as>; 
       }
     case \lookahead(_,_,q) :
-      return doNotNest(q); 
+      return doNotNest(q, lefties, righties); 
     case priority(_, list[Production] levels) : 
       return priority(levels, lefties, righties);
     case \associativity(_, Associativity a, set[Production] alts) : 

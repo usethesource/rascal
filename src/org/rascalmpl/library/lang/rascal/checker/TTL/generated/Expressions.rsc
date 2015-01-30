@@ -9,12 +9,14 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::TestChecker;
 import lang::rascal::checker::TTL::Library;
 
+import Type;
+
 bool verbose = true;
 
 test bool ExpressionsOK(&T0 arg0){
      ptype = type(typeOf(arg0), ()); 
-      if(/\void() := ptype.symbol || /\datetime() := ptype.symbol) return true;
-     exp = generateExpression(ptype, signatures, true); 
+      if(/Symbol::\void() := ptype.symbol || /\datetime() := ptype.symbol) return true;
+     exp = generateExpression(ptype, signatures1, true); 
      if(verbose) println("[ExpressionsOK] <ptype> exp = <exp>");
      checkResult = checkStatementsString(exp);
      println("checkResult = <checkResult>");
@@ -30,8 +32,8 @@ test bool ExpressionsOK(&T0 arg0){
 
 test bool ExpressionsKO(&T0 arg0){
      ptype = type(typeOf(arg0), ()); 
-     if(/\void() := ptype.symbol || /\datetime() := ptype.symbol) return true;
-     exp = generateExpression(ptype, signatures, false); 
+     if(/Symbol::\void() := ptype.symbol || /\datetime() := ptype.symbol) return true;
+     exp = generateExpression(ptype, signatures1, false); 
      if(verbose) println("[ExpressionsKO] <ptype> exp = <exp>");
      checkResult = checkStatementsString(exp);
      println("checkResult = <checkResult>");

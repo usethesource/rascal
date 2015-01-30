@@ -1,9 +1,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.util.List;
-
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
 public class CommandlineError extends RuntimeException {
@@ -21,19 +19,20 @@ public class CommandlineError extends RuntimeException {
     
     b.append("Usage: ");
     b.append(command);
-    List<KeywordParameter> kwps = main.getKeywordParameterDefaults();
     
-    if (kwps.size() > 1) {
+    Type kwargs = main.getKeywordArgumentTypes(main.getEnv());
+    
+    if (kwargs.getArity() > 1) {
       b.append(" [options]\n\nOptions:\n");
     
-      for (KeywordParameter param : kwps) {
+      for (String param : kwargs.getFieldNames()) {
         b.append("\t-");
-        b.append(param.getName());
-        if (param.getType().isSubtypeOf(tf.boolType())) {
+        b.append(param);
+        if (kwargs.getFieldType(param).isSubtypeOf(tf.boolType())) {
           b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
         }
         else {
-          b.append("\t[arg]: " + param.getType() + " argument;\n");
+          b.append("\t[arg]: " + kwargs.getFieldType(param) + " argument;\n");
         }
       }
     }

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -520,7 +520,6 @@ Synopsis: Parse an input time given as a string using the given format string.
 Examples:
 <screen>
 import DateTime;
-parseTime("11:21:19.860+01:00", "HH:mm:ss.SSSZZ");
 parseTime("11/21/19", "HH/mm/ss");
 </screen>
 }
@@ -539,7 +538,6 @@ Synopsis: Parse an input datetime given as a string using the given format strin
 Examples:
 <screen>
 import DateTime;
-parseDateTime("2011-12-23T11:19:54.501+01:00", "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
 parseDateTime("2011/12/23/11/19/54", "YYYY/MM/dd/HH/mm/ss");
 </screen>
 }

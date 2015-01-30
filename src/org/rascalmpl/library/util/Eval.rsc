@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -117,3 +117,6 @@ public java str evalType(str command, int duration) throws Timeout, StaticError,
 @reflect
 public java str evalType(list[str] commands, int duration) throws Timeout, StaticError, ParseError;
 
+@javaClass{org.rascalmpl.library.util.Eval}
+@reflect
+public java void unimport(str muduleName);

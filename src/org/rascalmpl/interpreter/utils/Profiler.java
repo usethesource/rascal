@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -83,14 +84,17 @@ public class Profiler extends Thread {
 	
 	@Override
 	public void run(){
-		while(running){
-			ISourceLocation stat = eval.getCurrentAST().getLocation();
-			if(stat != null){
-				Count currentCount = data.get(stat);
-				if(currentCount == null)
-					data.put(stat, new Count());
-				else
-					currentCount.increment();
+		while(running) {
+			AbstractAST current = eval.getCurrentAST();
+			if (current != null) {
+				ISourceLocation stat = current.getLocation();
+				if(stat != null){
+					Count currentCount = data.get(stat);
+					if(currentCount == null)
+						data.put(stat, new Count());
+					else
+						currentCount.increment();
+				}
 			}
 			try {
 				sleep(resolution);

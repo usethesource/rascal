@@ -15,11 +15,14 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.TypeUtils;
 
 public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
@@ -33,7 +36,7 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return this.getBasicType().__evaluate(
 					new BasicTypeEvaluator(env, TypeUtils.typeOf(this
 							.getArguments(), env, instantiateTypeParameters), null));

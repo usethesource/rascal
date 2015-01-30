@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -55,7 +56,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		this.tupleMatcher = new TuplePattern(ctx, x, list);
 		
 		// this prototype can be used for every subject that comes through initMatch
-		this.tupleSubject = ProductionAdapter.isLexical(production) ? new LexicalTreeAsTuple() : new TreeAsTuple();
+		this.tupleSubject = new TreeAsTuple();
 		
 		// save the type of this tree
 		this.myType = x._getType();
@@ -66,18 +67,13 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	}
 	
 	private class TreeAsTuple implements ITuple {
-		// notice how this class skips the layout nodes...
 		
 		public int arity() {
-			return (subjectArgs.length() + 1) / 2;
+			return subjectArgs.length();
 		}
 
 		public IValue get(int i) throws IndexOutOfBoundsException {
-			IConstructor arg = (IConstructor) subjectArgs.get(i * 2);
-//			if (TreeAdapter.isList(arg)) {
-//				return TreeAdapter.getArgs(arg);
-//			}
-			return arg;
+			return subjectArgs.get(i);
 		}
 
 		public Type getType() {
@@ -161,17 +157,18 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new IllegalOperationException(
 					"Cannot be viewed as annotatable.", getType());
 		}
-	}
-	
-	private class LexicalTreeAsTuple extends TreeAsTuple {
-		// notice how this class does not skip the layout nodes...
-		public int arity() {
-			return subjectArgs.length();
-		}
+		
+	  @Override
+	  public boolean mayHaveKeywordParameters() {
+	    return false;
+	  }
+	  
+	  @Override
+	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	    throw new IllegalOperationException(
+	        "Cannot be viewed as with keyword parameters", getType());
+	  }
 
-		public IValue get(int i) throws IndexOutOfBoundsException {
-			return subjectArgs.get(i);
-		}
 	}
 	
 
@@ -190,14 +187,14 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
+			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+				// fail early if the subject's production is not the same
+				hasNext = false;
+				return;
+			}
+			
 			if (!SymbolAdapter.isLiteral(ProductionAdapter.getType(production))) {
-				if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
-					// fail early if the subject's production is not the same
-					hasNext = false;
-					return;
-				}
-				
-				this.subjectArgs = TreeAdapter.getArgs(treeSubject);
+				this.subjectArgs = TreeAdapter.getNonLayoutArgs(treeSubject);
 				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			
 				hasNext = tupleMatcher.hasNext();

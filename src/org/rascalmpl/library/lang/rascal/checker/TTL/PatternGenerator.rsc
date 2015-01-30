@@ -3,7 +3,7 @@
 
 @license{
 
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -17,6 +17,8 @@ import Type;
 import cobra::arbitrary;
 import cobra::quickcheck;
 import lang::rascal::checker::TTL::Library;
+
+private list[Symbol] baseTypes = [Symbol::\bool(), Symbol::\int(), Symbol::\real(), Symbol::\num(), Symbol::\str(), Symbol::\loc(), Symbol::\datetime()];
  
 // ---- Generating patterns
 alias Binding = tuple[Symbol symbol, value val];
@@ -69,21 +71,23 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
      //println("generatePattern(<t>, <nvars>, <env>, <allowVars>)");
      if(allowVars){
 	     if(arbInt(0,3) == 0){ // Use existing variable
-	        for(var <- env){
-	            if(typeOf(env[var].symbol) == t){
+	        for(str var <- env){
+	            if(env[var].symbol == t.symbol){
 	               return <var, env[var].val, nvars, env>;
 	             }
 	        } 
 	     }
 	     if(arbInt(0,3) == 0){  // Introduce new variable;
-	        var = "X<nvars>";
+	        str var = "X<nvars>";
+	        value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, false);
 	        env[var] = <t.symbol, val>;
 	        return <arbBool() || !isAssignable(t) ? "<var>" : "<t> <var>", val, nvars, env>;
 	     }
 	     
 	     if(arbInt(0,3) == 0){  // Introduce named pattern;
-	        var = "N<nvars>";
+	        str var = "N<nvars>";
+	        value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, true);
 	        env[var] = <t.symbol, val>;
 	        return <arbBool() || !isAssignable(t) ? "<var> : <pat>" : "<t> <var> : <pat>", val, nvars, env>;
@@ -127,12 +131,12 @@ public PV generateValue(type[&T] t, int nvars, VarEnv env, bool allowVars){
        case \rel(ets):		return arbSet(type(\tuple(ets), ()), nvars, env, allowVars);
        case \lrel(ets):		return arbList(type(\tuple(ets), ()), nvars, env, allowVars);
        case \node():   		return generatePrimitive(arbNode(), nvars, env);
-       case \value():		return generateArb(0, baseTypes, env);
+       case \value():		return generatePrimitive(arbInt(), nvars, env);          // TODO: fix this
      }
      throw "Unknown type: <t>";
 }
 
-public PV generatePrimitive(value v, nvars, env) = <str _ := v ? "<escape(v)>" : "<v>", v, nvars, env>;
+public PV generatePrimitive(value v, int nvars, VarEnv env) = <str _ := v ? "<escape(v)>" : "<v>", v, nvars, env>;
      
 public num arbNumber(){
    return (arbBool()) ? arbInt() : arbReal();
@@ -168,7 +172,8 @@ public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    listType = type(\list(et.symbol), ());
    while(size(pelms) < n){
     	if(allowVars && arbInt(0,3) == 0){  // Introduce new variable;
-	        var = "L<nvars>";
+	        str var = "L<nvars>";
+	        value val;
 	        <pat, val, nvars, env> = generateValue(listType, nvars + 1, env, false);
 	        env[var] = <listType.symbol, val>;
 	        pelms += "*<var>";
@@ -186,7 +191,7 @@ public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    return <"[<intercalate(", ", pelms)>]", velms, nvars, env>;
 }
 
-public PV arbSet(type[&T] et, int nvars, VarEnv env, allowVars){
+public PV arbSet(type[&T] et, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(et.symbol))
       return <"{}", {}, nvars, env>;
    n = arbInt(0, 5);
@@ -197,7 +202,8 @@ public PV arbSet(type[&T] et, int nvars, VarEnv env, allowVars){
    while(size(pelms) < n && attempt < 100){
    	 attempt += 1;
     	if(allowVars && arbInt(0,3) == 0){  // Introduce new variable;
-	        var = "S<nvars>";
+	        str var = "S<nvars>";
+	        value val;
 	        <pat, val, nvars, env> = generateValue(setType, nvars + 1, env, false);
 	        env[var] = <setType.symbol, val>;
 	        pelms += "*<var>";
@@ -222,8 +228,9 @@ public PV arbSet(type[&T] et, int nvars, VarEnv env, allowVars){
 public PV arbMap(type[&K] kt, type[&V] vt, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(kt.symbol) || isVoidType(vt.symbol))
       return <"()", (), nvars, env>;
-   keys = ();
+   map[str,value] keys = ();
    for(int i <- [0 .. arbInt(0, 5)]){ // ensures unique keys
+       
        <pelm, velm, nvars1, env1> = generatePattern(kt, nvars, env, allowVars);
        if(!keys[pelm]?){
           keys[pelm] = velm;

@@ -92,18 +92,20 @@ public class RandomType {
 	}
 	
 	public Type getFunctionType(int maxDepth) {
-		return rtf.functionType(getType(maxDepth), getTupleType(maxDepth));
+	  // TODO: add keyword parameter generation
+		return rtf.functionType(getType(maxDepth), getTupleType(maxDepth), tf.voidType());
 	}
 	
 	public Type getOverloadedFunctionType(int maxDepth) {
+	  // TODO: add keyword parameter generation
 		Type returnType = getType(maxDepth);
 		List<Type> l = getTypeList(maxDepth, 2);
 		Set<FunctionType> alternatives = new HashSet<FunctionType>();
 		for(Type t : l) {
 			if(t.isTuple()) {
-				alternatives.add((FunctionType)rtf.functionType(returnType, t));
+				alternatives.add((FunctionType)rtf.functionType(returnType, t, tf.voidType()));
 			} else {
-				alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t)));
+				alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t), tf.voidType()));
 			}
 		}
 		return rtf.overloadedFunctionType(alternatives);

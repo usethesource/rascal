@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@ import IO;
 import String;
 import List;
 import Set;
+import util::Math;
 
 private str header = "/*******************************************************************************
-                     ' * Copyright (c) 2009-2013 CWI
+                     ' * Copyright (c) 2009-2015 CWI
                      ' * All rights reserved. This program and the accompanying materials
                      ' * are made available under the terms of the Eclipse Public License v1.0
                      ' * which accompanies this distribution, and is available at
@@ -59,7 +60,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   for (/p:prod(label(c,sort(name)),_,_) := g) 
      m[name]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
 
-  for (/p:prod(label(c,\parameterized-sort(name,[str _(str a)])),_,_) := g) 
+  for (/p:prod(label(c,\parameterized-sort(name,[Symbol _:str _(str a)])),_,_) := g) 
      m[name + "_" + a]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
 
   for (sn <- m) 
@@ -71,7 +72,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   for (/p:prod(label(_,\lex(s)),_,_) := g) 
      asts += leaf(s);
  
-  for (/p:prod(label(_,\parameterized-lex(s,[str _(str a)])),_,_) := g) 
+  for (/p:prod(label(_,\parameterized-lex(s,[Symbol _:str _(str a)])),_,_) := g) 
      asts += leaf(s + "_" + a);
   
   return asts;
@@ -173,6 +174,20 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return visitor.visit<super><sig.name>(this);
          '  }
          '
+         '  @Override
+         '  public boolean equals(Object o) {
+         '    if (!(o instanceof <sig.name>)) {
+         '      return false;
+         '    }        
+         '    <sig.name> tmp = (<sig.name>) o;
+         '    return true <for (arg(_, name) <- sig.args) {>&& tmp.<name>.equals(this.<name>) <}>; 
+         '  }
+         ' 
+         '  @Override
+         '  public int hashCode() {
+         '    return <arbPrime(1000)> <for (arg(_, name) <- sig.args) { >+ <arbPrime(1000)> * <name>.hashCode() <}>; 
+         '  } 
+         '
          '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
          '  @Override
          '  public <typ> get<cname>() {
@@ -195,6 +210,16 @@ public str lexicalClass(str name) {
          '  }
          '  public java.lang.String getString() {
          '    return string;
+         '  }
+         '
+         '  @Override
+         '  public int hashCode() {
+         '    return string.hashCode();
+         '  }
+         '
+         '  @Override
+         '  public boolean equals(Object o) {
+         '    return o instanceof Lexical && ((Lexical) o).string.equals(string);  
          '  }
          '
          '  @Override
@@ -230,16 +255,16 @@ list[Arg] productionArgs(str pkg, Production p) {
        case \iter-star(\lex(str s)): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-seps(\lex(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-star-seps(\lex(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
-       case \parameterized-sort(str s, [str _(str z)]): a.typ = "<pkg>.<s>_<z>";
-       case \parameterized-lex(str s, [str _(str z)]): a.typ = "<pkg>.<s>_<z>";
-       case \iter(\parameterized-sort(str s, [str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
-       case \iter-star(\parameterized-sort(str s, [str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
-       case \iter-seps(\parameterized-sort(str s, [str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
-       case \iter-star-seps(\parameterized-sort(str s, [str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
-       case \iter(\parameterized-lex(str s, [str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
-       case \iter-star(\parameterized-lex(str s, [str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
-       case \iter-seps(\parameterized-lex(str s, [str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
-       case \iter-star-seps(\parameterized-lex(str s, [str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \parameterized-sort(str s, [Symbol _:str _(str z)]): a.typ = "<pkg>.<s>_<z>";
+       case \parameterized-lex(str s, [Symbol _:str _(str z)]): a.typ = "<pkg>.<s>_<z>";
+       case \iter(\parameterized-sort(str s, [Symbol _:str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
+       case \iter-star(\parameterized-sort(str s, [Symbol _:str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-seps(\parameterized-sort(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-star-seps(\parameterized-sort(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter(\parameterized-lex(str s, [Symbol _:str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
+       case \iter-star(\parameterized-lex(str s, [Symbol _:str _(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-seps(\parameterized-lex(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-star-seps(\parameterized-lex(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
        
      }
      append a;   

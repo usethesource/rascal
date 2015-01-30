@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -87,7 +88,8 @@ public abstract class AbstractAST implements IVisitable {
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 	
-	public void _setType(Type nonterminalType) {
+
+  public void _setType(Type nonterminalType) {
 		if (_type != null && (! _type.equals(nonterminalType))) {
 			// For debugging purposes
 			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
@@ -105,22 +107,7 @@ public abstract class AbstractAST implements IVisitable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
-			return false;
-		if (getClass() == obj.getClass()) {
-			if (obj == this) {
-				return true;
-			}
-
-			AbstractAST other = (AbstractAST) obj;
-
-			if (other.src == src) {
-				return true;
-			}
-
-			return other.src.isEqual(src);
-		}
-		return false;
+		throw new ImplementationError("we should have implemented concrete hashCode/equals methods");
 	}
 
 	@Deprecated
@@ -130,7 +117,7 @@ public abstract class AbstractAST implements IVisitable {
 
 	@Override
 	public int hashCode() {
-		return src.hashCode();
+		throw new ImplementationError("we should have implemented concrete hashCode/equals methods");
 	}
 
 	@Override
@@ -153,8 +140,9 @@ public abstract class AbstractAST implements IVisitable {
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 * @param instantiateTypeParameters TODO
+	 * @param eval TODO
 	 */
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		throw new NotYetImplemented(this);
 	}
 

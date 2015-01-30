@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ data Solution = solution(VariableVals varVals, num funVal);
 
 num runObjFul(ObjectiveFun f, VariableVals vals) =
 	(f.const | 
-	 it + f.coefficients[var]*varVals[var] |
+	 it + f.coefficients[var]*vals[var] |
 	 var <- domain(f.coefficients));
 
 

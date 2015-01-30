@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -9,15 +9,14 @@
 @bootstrapParser
 module lang::rascal::types::TestChecker
 
-import List;
 import String;
 import Type;
 import DateTime;
 import Message;
 import util::Reflective;
-import ParseTree;
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::types::CheckTypes;
@@ -184,19 +183,27 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 
 	// Now, parse each statement, then check them in turn, using the environment
 	// build above (including all imports and declarations).	
-	rt = \void();
-	list[Tree] stmts = [ ];
-	try {
-		if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
-			stmts = [ s | s <- sl ];			
-	} catch perror : {
-		c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
+	if (RSimpleName("CheckStatementsString") in c.modEnv) {
+		rt = Symbol::\void();
+		list[Tree] stmts = [ ];
+		try {
+			if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
+				stmts = [ s | s <- sl ];			
+		} catch perror : {
+			c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
+		}
+		
+		// Re-enter module scope
+		c.stack = c.modEnv[RSimpleName("CheckStatementsString")] + c.stack;
+		
+		for (Statement stmt <- stmts) < c, rt > = checkStmt(stmt, c);
+		
+		c.stack = tail(c.stack);
+
+		return < c, rt >;
 	}
 	
-	for (stmt <- stmts) < c, rt > = checkStmt(stmt, c);
-	
-	c.stack = tail(c.stack);
-	return < c, rt >;
+	return < c, Symbol::\void() >;
 }
 
 public Symbol getTypeForName(Configuration c, str name) {
@@ -211,7 +218,7 @@ public set[RName] getVariablesInScope(Configuration c) {
 }
 
 public set[RName] getFunctionsInScope(Configuration c) {
-	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
 }
 
 public set[AbstractValue] getPatternVariableValues(Configuration c) {
@@ -225,13 +232,17 @@ public map[RName,Symbol] getPatternVariables(Configuration c) {
 
 public set[Message] getFailureMessages(CheckResult r) {
    if(failure(set[Message] msgs) := r.res){
-      return msgs;
+      return msgs + getErrorMessages(r);
    }	  
-   return {};
+   return getErrorMessages(r);
+}
+
+public set[Message] getErrorMessages(CheckResult r){
+  return { m | m <- r.conf.messages, m is error };
 }
 
 public set[Message] getWarningMessages(CheckResult r){
-  return r.conf.messages;
+  return { m | m <- r.conf.messages, m is warning };
 }
 
 public set[Message] getAllMessages(CheckResult r) = getFailureMessages(r) + getWarningMessages(r);

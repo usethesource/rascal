@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
@@ -38,8 +37,9 @@ public class SystemAPI {
 
 	public SystemAPI(IValueFactory values) {
 		this.values = values;
+		
 	}
-
+	
 	public IValue getSystemProperty(IString v) {
 		return values.string(java.lang.System.getProperty(v.getValue()));
 	}
@@ -76,8 +76,7 @@ public class SystemAPI {
 		java.lang.String b = java.lang.String.valueOf(input);
 		java.lang.String[] d = regex_replacement.length == 0 ? b.split("\n")
 				: new java.lang.String[] { b };
-		IListWriter r = values.listWriter(TypeFactory.getInstance()
-				.stringType());
+		IListWriter r = values.listWriter();
 		Pattern p = Pattern.compile("\\(\\w*\\)[ \t]*$");
 		java.lang.String found = null;
 		for (java.lang.String e : d) {

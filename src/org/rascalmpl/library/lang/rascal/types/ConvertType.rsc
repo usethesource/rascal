@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,13 +10,11 @@
 @bootstrapParser
 module lang::rascal::types::ConvertType
 
-import List;
 import Set;
 import String;
-import Type;
-import Message;
-import ParseTree;
 import IO;
+import Message;
+import Type;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -46,13 +44,13 @@ public Symbol convertBasicType(BasicType t) {
         case (BasicType)`datetime` : return \datetime();
 
         case (BasicType)`list` : 
-            return \list(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
+            return \list(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
         case (BasicType)`set` : 
-            return \set(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
+            return \set(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
         case (BasicType)`bag` : 
-            return \bag(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
+            return \bag(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
         case (BasicType)`map` : 
-            return \map(\void(),\void())[@errinfo = { error("Non-well-formed type, type should have two type arguments", t@\loc) }];
+            return \map(Symbol::\void(),Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have two type arguments", t@\loc) }];
         case (BasicType)`rel` : 
             return \rel([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`lrel` : 
@@ -60,7 +58,7 @@ public Symbol convertBasicType(BasicType t) {
         case (BasicType)`tuple` : 
             return \tuple([])[@errinfo = { error("Non-well-formed type, type should have one or more type arguments", t@\loc) }];
         case (BasicType)`type` : 
-            return \reified(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
+            return \reified(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument", t@\loc) }];
     }
 }
 
@@ -85,39 +83,39 @@ public Symbol convertStructuredType(StructuredType st) {
         case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
-				if (\label(_,lt) := l[0]) {
-					return \list(lt)[@errinfo = { warning("Field name ignored", st@\loc) }];
+				if (\label(_,ltype) := l[0]) {
+					return \list(ltype)[@errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
 					return \list(l[0]);
 				}            
             } else {
-            	return \list(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
+            	return \list(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
             }
         }
 
         case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
-				if (\label(_,lt) := l[0]) {
-					return \set(lt)[@errinfo = { warning("Field name ignored", st@\loc) }];
+				if (\label(_,ltype) := l[0]) {
+					return \set(ltype)[@errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
 					return \set(l[0]);
 				}            
             } else {
-            	return \set(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
+            	return \set(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
             }
         }
 
         case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
-				if (\label(_,lt) := l[0]) {
-					return \bag(lt)[@errinfo = { warning("Field name ignored", st@\loc) }];
+				if (\label(_,ltype) := l[0]) {
+					return \bag(ltype)[@errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
 					return \bag(l[0]);
 				}            
             } else {
-            	return \bag(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
+            	return \bag(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
             }
         }
 
@@ -136,7 +134,7 @@ public Symbol convertStructuredType(StructuredType st) {
 					return \map(l[0],l[1]);
 				}            
             } else {
-            	return \map(\void(),\void())[@errinfo = { error("Non-well-formed type, type should have two type argument",st@\loc) }]; 
+            	return \map(Symbol::\void(),Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have two type argument",st@\loc) }]; 
             }
         }
 
@@ -182,18 +180,18 @@ public Symbol convertStructuredType(StructuredType st) {
         case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
-				if (\label(_,lt) := l[0]) {
-					return \reified(lt)[@errinfo = { warning("Field name ignored", st@\loc) }];
+				if (\label(_,ltype) := l[0]) {
+					return \reified(ltype)[@errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
 					return \reified(l[0]);
 				}            
             } else {
-            	return \reified(\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
+            	return \reified(Symbol::\void())[@errinfo = { error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
             }
         }
 
 		case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : {
-		        return \void()[@errinfo={error("Type <bt> does not accept type parameters",st@\loc)}];
+		        return Symbol::\void()[@errinfo={error("Type <bt> does not accept type parameters",st@\loc)}];
 		}
 	}
 }
@@ -210,9 +208,9 @@ public Symbol convertFunctionType(FunctionType ft) {
             if (size(l) == size(labels) || size(labels) == 0) {
             	return \func(convertType(t), l);
             } else if (size(labels) > 0 && size(labels) != size(labelsList)) {
-            	return \func(convertType(t), [ (\label(fl,ft) := li) ? ft : li | li <- l ])[@errinfo = { error("Non-well-formed type, labels must be distinct", ft@\loc) }];
+            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ])[@errinfo = { error("Non-well-formed type, labels must be distinct", ft@\loc) }];
             } else if (size(labels) > 0) {
-            	return \func(convertType(t), [ (\label(fl,ft) := li) ? ft : li | li <- l ])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", ft@\loc) }];
+            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", ft@\loc) }];
             }
         } 
     }
@@ -239,7 +237,7 @@ public Name getUserTypeRawName(UserType ut) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),\value())[@boundGiven=false];
+        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),Symbol::\value())[@boundGiven=false];
         case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter(getSimpleName(convertName(n)),convertType(tb))[@boundGiven=true];
     }
 }

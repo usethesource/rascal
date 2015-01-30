@@ -1,6 +1,5 @@
-
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -9,12 +8,37 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-
-
+@contributor{Vadim Zaytsev - vadim@grammarware.net - UvA}
 module List
 
-import util::Math;
+import Exception;
 import Map;
+import IO;
+
+@doc{
+Synopsis: Concatenate a list of lists.
+
+Examples:
+<screen>
+import List;
+concat([]);
+concat([[]]);
+concat([[1]]);
+concat([[1],[],[2,3]]);
+concat([[1,2],[3],[4,5],[]]);
+</screen>
+
+Questions:
+
+QValue:
+prep: import List;
+make: L = list[int,0,5]
+expr: H = concat(<L>) 
+hint: <H>
+test: concat(<L>) == <?>
+}
+public list[&T] concat(list[list[&T]] xxs) =
+  ([] | it + xs | xs <- xxs);
 
 @doc{
 Synopsis: Delete an element from a list.
@@ -56,45 +80,25 @@ test: delete(<L>, <I>) == <?>
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] delete(list[&T] lst, int n);
 
-//@doc{
-//Synopsis: The set of all legal indices of a list [Deprecated, use index]
-//
-//Description:
-//Returns the set of all legal index values for a list. Also see [$List/index] for a function that returns a list
-//of __ordered__ index values.
-//
-//Examples:
-//<screen>
-//import List;
-//domain([1, 3, 5]);
-//domain(["zebra", "elephant", "snake", "owl"]);
-//// Compare this with the result of [$List/index]:
-//index([1, 3, 5]);
-//</screen>
-//
-//Questions:
-//QChoice: The number of elements in the domain of a list is:
-//g: Equal to the number of elements in the list.
-//b: Depends on the number of repeated elements in the list.
-//b: One less than the number of elements in the list.
-//b: One larger than the number of elements in the list.
-//
-//QType:
-//prep: import List;
-//make: L = list[arb[int,str],3,5]
-//test: domain(<L>)
-//
-//QValue:
-//prep: import List;
-//make: L = list[arb[int,str],0,5]
-//expr: H = domain(<L>)
-//hint: <H>
-//test: domain(<L>) == <?>
-//
-//
-//}
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java set[int] domain(list[&T] lst);
+@doc{
+Synopsis: Get the distribution of the elements of the list. That
+is how often does each element occur in the list? 
+
+Examples:
+<screen>
+import List;
+distribution([4,4,4,3,1,2,1,1,3,4]);
+</screen>
+}
+public map[&T element, int occurs] distribution(list[&T] lst) {
+	res = while(!isEmpty(lst)) {
+		e = head(lst);
+		occurs = size([el | &T el <- lst, el == e]);
+		lst = [el | &T el <- lst, el != e];
+		append <e,occurs>;
+	}
+	return toMapUnique(res);
+}
 
 @doc{
 Synopsis: Drop elements from the head of a list.
@@ -179,6 +183,10 @@ public list[&T] dup(list[&T] lst) {
     append e;
   }
 }
+
+@deprecated{use the indexing instead}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T elementAt(list[&T] lst, int index); 
 
 @doc{
 Synopsis: Pick a random element from a list.
@@ -291,16 +299,13 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
 Synopsis: A list of legal index values of a list.
 
 Description:
-Returns a list of all legal index values for a given list `lst`. See [$List/domain] for a function that returns a _set_ of legal index values.
+Returns a list of all legal index values for a given list `lst`.
 
 Examples:
 <screen>
 import List;
 index([1, 3, 5]);
 index(["zebra", "elephant", "snake", "owl"]);
-// Compare with the result of [$List/domain]:
-domain([1, 3, 5]);
-domain(["zebra", "elephant", "snake", "owl"]);
 </screen>
 
 Benefits:
@@ -369,7 +374,7 @@ test: indexOf(<L>, <E>) == <?>
 
 }
 public int indexOf(list[&T] lst, &T elt) {
-	for(i <- index(lst)) {
+	for(int i <- [0..size(lst)]) {
 		if(lst[i] == elt) return i;
 	}
 	return -1;
@@ -443,7 +448,31 @@ hint: <H>
 test: intercalate(";", <L>) == <?>
 }
 public str intercalate(str sep, list[value] l) = 
-	(l == []) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+
+@doc{
+Synopsis: Intersperses a list of values with a separator.
+
+Examples:
+<screen>
+import List;
+intersperse(", ", ["a","b","c"]);
+intersperse(0, [1, 2, 3]);
+intersperse(1, []);
+intersperse([], [1]);
+</screen>
+
+Questions:
+
+QValue:
+prep: import List;
+make: L = list[int,0,5]
+expr: H = intersperse(42, <L>) 
+hint: <H>
+test: intersperse(42, <L>) == <?>
+}
+public list[&T] intersperse(&T sep, list[&T] xs) = 
+  (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
 
 @doc{
 Synopsis: Test whether a list is empty.
@@ -476,6 +505,81 @@ test: isEmpty(<L>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(list[&T] lst);
+
+@doc{
+Synopsis: Return the last element of a list, if any.
+
+Description:
+Also see [$List/tail] that returns a list of one or more of the last elements of a list.
+
+Examples:
+<screen>
+import List;
+last([1]);
+last([3, 1, 4, 5]);
+last(["zebra", "elephant", "snake", "owl"]);
+tail([3, 1, 4, 5]);
+</screen>
+
+Questions:
+
+QType:
+prep: import List;
+make: L = list[arb[int,str], 1, 6]
+test: last(<L>)
+
+QValue:
+prep: import List;
+make: L = list[arb[int,str], 1, 6]
+expr: H =  last(<L>)
+hint: <H>
+test: last(<L>) == <?>
+}
+public &T last(list[&T] lst) throws EmptyList {
+  if(lst == [] ) { throw EmptyList(); }
+  if([*p, l] := lst){
+  	return l;
+  }
+}
+
+@doc{
+Synopsis: Return index of last occurrence of elt in lst, or -1 if elt is not found.
+
+Description:
+Also see [$List/indexOf].
+
+Examples:
+<screen>
+import List;
+lastIndexOf([3, 1, 4, 5, 4], 4);
+lastIndexOf([3, 1, 4, 5, 4], 7);
+lastIndexOf(["zebra", "owl", "elephant", "snake", "owl"], "owl");
+</screen>
+
+Questions:
+Qtype:
+prep: import List;
+make: L = list[arb[int,str],4,6]
+make: I = int[0,3]
+expr: E = <L>[<I>]
+test: lastIndexOf(<L>, <E>)
+
+QValue:
+prep: import List;
+make: L = list[arb[int,str],3,4]
+make: I = int[0,2]
+expr: E = <L>[<I>]
+expr: L1 = reverse(<L>) + <L>
+expr: H = lastIndexOf(<L1>, <E>)
+hint: <H>
+test: lastIndexOf(<L1>, <E>) == <?>
+}
+public int lastIndexOf(list[&T] lst, &T elt) {
+	for(i <- reverse(index(lst))) {
+		if(lst[i] == elt) return i;
+	}
+	return -1;
+}
 
 @doc{
 Synopsis: Apply a function to all list elements and return list of results.
@@ -686,88 +790,11 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
-}
-
-@doc{
-Synopsis: Return the last element of a list, if any.
-
-Description:
-Also see [$List/tail] that returns a list of one or more of the last elements of a list.
-
-Examples:
-<screen>
-import List;
-last([1]);
-last([3, 1, 4, 5]);
-last(["zebra", "elephant", "snake", "owl"]);
-tail([3, 1, 4, 5]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-test: last(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-expr: H =  last(<L>)
-hint: <H>
-test: last(<L>) == <?>
-}
-public &T last(list[&T] lst) throws EmptyList {
-  if(lst == [] ) { throw EmptyList(); }
-  if([*p, l] := lst){
-  	return l;
-  }
-}
-
-@doc{
-Synopsis: Return index of last occurrence of elt in lst, or -1 if elt is not found.
-
-Description:
-Also see [$List/indexOf].
-
-Examples:
-<screen>
-import List;
-lastIndexOf([3, 1, 4, 5, 4], 4);
-lastIndexOf([3, 1, 4, 5, 4], 7);
-lastIndexOf(["zebra", "owl", "elephant", "snake", "owl"], "owl");
-</screen>
-
-Questions:
-Qtype:
-prep: import List;
-make: L = list[arb[int,str],4,6]
-make: I = int[0,3]
-expr: E = <L>[<I>]
-test: lastIndexOf(<L>, <E>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],3,4]
-make: I = int[0,2]
-expr: E = <L>[<I>]
-expr: L1 = reverse(<L>) + <L>
-expr: H = lastIndexOf(<L1>, <E>)
-hint: <H>
-test: lastIndexOf(<L1>, <E>) == <?>
-}
-public int lastIndexOf(list[&T] lst, &T elt) {
-	for(i <- reverse(index(lst))) {
-		if(lst[i] == elt) return i;
-	}
-	return -1;
-}
-
-public list[&T] remove(list[&T] lst, int indexToDelete) =
-	[ lst[i] | i <- index(lst), i != indexToDelete ];
-
-	
+	sizeL = size(l);
+	sizeR = size(r);
+	minSize = sizeL < sizeR ? sizeL : sizeR;
+	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
+}	
 
 @doc{
 Synopsis: Compute all permutations of a list.
@@ -811,86 +838,9 @@ test: permutations(<L>) == <?>
 public set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
-map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
-	removeFromBag(b,el,1);
-
-map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
-	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
-
-set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
+private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
 	isEmpty(b) ? {[]} : 
-	{ [e] + rest | e <- domain(b),
-				   rest <- permutationsBag(removeFromBag(b,e))};
-
-@doc{
-Synopsis: Get the distribution of the elements of the list. That
-is how often does each element occur in the list? 
-
-Examples:
-<screen>
-import List;
-distribution([4,4,4,3,1,2,1,1,3,4]);
-</screen>
-}
-public map[&T element, int occurs] distribution(list[&T] lst) {
-	res = while(!isEmpty(lst)) {
-		<<e,occurs>,lst> = takeSame(lst);
-		append <e,occurs>;
-	}
-	return toMapUnique(res);
-}
-
-tuple[tuple[&T el, int occurs] head, list[&T] rest] takeSame(list[&T] lst){
-	&T h = head(lst);
-	int occrs = size([el | &T el <- lst, el == h]);
-	list[&T] rst = [el | &T el <- lst, el != h];
-	return <<h, occrs>, rst>;
-}
-
-@doc{
-Synopsis: Take elements from the front of the list as long as a predicate is true.
-
-Examples:
-<screen>
-import List;
-bool isEven(int a) = a mod 2 == 0;
-takeWhile([2,4,6,8,1,2,3,4,5],isEven);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[int[-20,20]]
-test: takeWhile(<L>, bool(int x){ return x > 0;})
-
-
-QValue:
-prep: import List;
-make: L = list[int[-20,20]]
-expr: H = takeWhile(<L>, bool(int x){ return x > 0;})
-hint: <H>
-test: takeWhile(<L>, bool(int x){ return x > 0;}) == <?>
-
-QValue:
-prep: import List;
-make: L = list[int[-20,2],3,6]
-expr: M = takeWhile(<L>, bool(int x){ return x < 0;})
-hint: bool(int x){ return x < 0;}
-test: takeWhile(<L>, <?>) == <M>
-
-
-
-}
-
-public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
-	i = 0;
-	return while(i < size(lst) && take(lst[i])) {
-		append lst[i];
-		i+=1;
-	}
-}
-
+	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 @doc{
 Synopsis: Pop top element from list, return a tuple.
@@ -936,7 +886,7 @@ prefix(["zebra", "elephant", "snake", "owl"]);
 </screen>
 
 Questions:
-QChoice: Takking the prefix of a list with $N$ elements returns a list with
+QChoice: Taking the prefix of a list with $N$ elements returns a list with
 g: N-1 elements.
 b: N elements.
 b: N+1 elements.
@@ -1018,7 +968,14 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
   return result;
 }
 
+public list[&T] remove(list[&T] lst, int indexToDelete) =
+	[ lst[i] | i <- index(lst), i != indexToDelete ];
 
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
+	removeFromBag(b,el,1);
+
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
+	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 @doc{
 Synopsis: Reverse a list.
@@ -1123,38 +1080,6 @@ test: slice(<L>,<B>,<E>) == <?>
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{
-Synopsis: Split a list into two halves.
-
-Examples:
-<screen>
-import List;
-split([3, 1, 4, 5, 7]);
-split(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions: 
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-test: split(<L>)
-
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str]]
-expr: H = split(<L>)
-hint: <H>
-test: split(<L>) == <?>
-
-
-}
-public tuple[list[&T],list[&T]] split(list[&T] l) {
-	half = size(l)/2;
-	return <take(half,l), drop(half,l)>;
-}
-
-@doc{
 Synopsis: Sort the elements of a list.
 
 Description:
@@ -1192,9 +1117,6 @@ expr: H = sort(<L>)
 hint: <H>
 test: sort(<L>) == <?>
 
-
-
-
 }
 public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a < b; } );
@@ -1202,6 +1124,45 @@ public list[&T] sort(list[&T] lst) =
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
+@doc{
+Synopsis: Split a list into two halves.
+
+Examples:
+<screen>
+import List;
+split([3, 1, 4, 5, 7]);
+split(["zebra", "elephant", "snake", "owl"]);
+</screen>
+
+Questions: 
+
+QType:
+prep: import List;
+make: L = list[arb[int,str]]
+test: split(<L>)
+
+
+QValue:
+prep: import List;
+make: L = list[arb[int,str]]
+expr: H = split(<L>)
+hint: <H>
+test: split(<L>) == <?>
+
+
+}
+public tuple[list[&T],list[&T]] split(list[&T] l) {
+	half = size(l)/2;
+	return <take(half,l), drop(half,l)>;
+}
+
+public (&T <:num) sum(list[(&T <:num)] _:[]) {
+	throw ArithmeticException(
+		"For the emtpy list it is not possible to decide the correct precision to return.\n
+		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
+		'to make the list non-empty and indicate the required precision for the sum of the empty list
+		");
+}
 @doc{
 Synopsis: Sum the elements of a list.
 
@@ -1230,7 +1191,8 @@ test: sum(<L>)
 
 
 }
-public num sum(list[num] l) = (size(l) == 0) ? 0 : (head(l) | it + e | e <- tail(l));
+public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
+	= (hd | it + i | i <- tl);
 
 @doc{
 Synopsis: Get the tail element(s) from a list.
@@ -1353,6 +1315,49 @@ test: takeOneFrom(<L>)
 public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 @doc{
+Synopsis: Take elements from the front of the list as long as a predicate is true.
+
+Examples:
+<screen>
+import List;
+bool isEven(int a) = a mod 2 == 0;
+takeWhile([2,4,6,8,1,2,3,4,5],isEven);
+</screen>
+
+Questions:
+
+QType:
+prep: import List;
+make: L = list[int[-20,20]]
+test: takeWhile(<L>, bool(int x){ return x > 0;})
+
+
+QValue:
+prep: import List;
+make: L = list[int[-20,20]]
+expr: H = takeWhile(<L>, bool(int x){ return x > 0;})
+hint: <H>
+test: takeWhile(<L>, bool(int x){ return x > 0;}) == <?>
+
+QValue:
+prep: import List;
+make: L = list[int[-20,2],3,6]
+expr: M = takeWhile(<L>, bool(int x){ return x < 0;})
+hint: bool(int x){ return x < 0;}
+test: takeWhile(<L>, <?>) == <M>
+
+
+
+}
+public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
+	i = 0;
+	return while(i < size(lst) && take(lst[i])) {
+		append lst[i];
+		i+=1;
+	}
+}
+
+@doc{
 Synopsis: Convert a list of pairs to a map; first elements are associated with a set of second elements.
 
 Description:
@@ -1435,41 +1440,34 @@ test: toMapUnique(<P>) == <?>
 public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
-Synopsis: Convert a list to a set.
-
+Synopsis: Take the top element of a list.
 Description:
-Convert `lst` to a set.
+This function is identical to [head].
+Also see [$List/pop] and [$List/push].
 
 Examples:
 <screen>
 import List;
-toSet([10, 20, 30, 40]);
-toSet(["zebra", "elephant", "snake", "owl"]);
-// Note that the same can be done using splicing
-l = [10,20,30,40];
-s = {*l};
+top([3, 1, 4, 5]);
+top(["zebra", "elephant", "snake", "owl"]);
 </screen>
 
 Questions:
 
 QType:
 prep: import List;
-make: L = list[arb[int,str]]
-test: toSet(<L>)
+make: L = list[arb[int,str],1,6]
+test: top(<L>)
 
 QValue:
 prep: import List;
-make: L = list[arb[int,str]]
-expr: H = toSet(<L>)
+make: L = list[arb[int,str],1,6]
+expr: H = top(<L>)
 hint: <H>
-test: toSet(<L>) == <?>
-
-
+test: top(<L>) == <?>
 
 }
-@deprecated{Please use {*myList} instead.}
-@javaClass{org.rascalmpl.library.Prelude}
-public java set[&T] toSet(list[&T] lst);
+public &T top(list[&T] lst) throws EmptyList = head(lst);
 
 @doc{
 Synopsis: Convert a list to a relation.
@@ -1505,73 +1503,41 @@ public rel[&T,&T] toRel(list[&T] lst) {
 }
 
 @doc{
-Synopsis: Returns the list 0,1..n-1.
+Synopsis: Convert a list to a set.
+
 Description:
-Returns the list `0`, `1`, .., `n-1`, this is slightly faster than `[0..n]`, since the returned values are shared.
+Convert `lst` to a set.
 
 Examples:
 <screen>
 import List;
-upTill(10);
+toSet([10, 20, 30, 40]);
+toSet(["zebra", "elephant", "snake", "owl"]);
+// Note that the same can be done using splicing
+l = [10,20,30,40];
+s = {*l};
 </screen>
 
 Questions:
 
 QType:
 prep: import List;
-make: N = int[2,5]
-test: upTill(<N>)
+make: L = list[arb[int,str]]
+test: toSet(<L>)
 
 QValue:
 prep: import List;
-make: N = int[2,5]
-expr: H = upTill(<N>)
+make: L = list[arb[int,str]]
+expr: H = toSet(<L>)
 hint: <H>
-test: upTill(<N>) == <?>
-
-QValue:
-prep: import List;
-make: N = int[2,5]
-expr: H = size(upTill(<N>))
-hint: <H>
-test: size(upTill(<N>)) == <?>
+test: toSet(<L>) == <?>
 
 
 
 }
+@deprecated{Please use {*myList} instead.}
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[int] upTill(int n);
-
-@doc{
-Synopsis: Take the top element of a list.
-Description:
-This function is identical to [head].
-Also see [$List/pop] and [$List/push].
-
-Examples:
-<screen>
-import List;
-top([3, 1, 4, 5]);
-top(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-test: top(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-expr: H = top(<L>)
-hint: <H>
-test: top(<L>) == <?>
-
-}
-public &T top(list[&T] lst) throws EmptyList = head(lst);
-
+public java set[&T] toSet(list[&T] lst);
 
 @doc{
 Synopsis: Convert a list to a string.
@@ -1663,6 +1629,44 @@ public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 @doc{
+Synopsis: Returns the list 0,1..n-1.
+Description:
+Returns the list `0`, `1`, .., `n-1`, this is slightly faster than `[0..n]`, since the returned values are shared.
+
+Examples:
+<screen>
+import List;
+upTill(10);
+</screen>
+
+Questions:
+
+QType:
+prep: import List;
+make: N = int[2,5]
+test: upTill(<N>)
+
+QValue:
+prep: import List;
+make: N = int[2,5]
+expr: H = upTill(<N>)
+hint: <H>
+test: upTill(<N>) == <?>
+
+QValue:
+prep: import List;
+make: N = int[2,5]
+expr: H = size(upTill(<N>))
+hint: <H>
+test: size(upTill(<N>)) == <?>
+
+
+
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[int] upTill(int n);
+
+@doc{
 Synopsis: Make a list of pairs from two (three) lists of the same length.
 
 Description:
@@ -1697,7 +1701,3 @@ public list[tuple[&T first, &U second, &V third]] zip(list[&T] a, list[&U] b, li
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
 }
-
-@deprecated{use the indexing instead}
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T elementAt(list[&T] lst, int index); 

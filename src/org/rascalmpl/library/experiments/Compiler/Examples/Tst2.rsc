@@ -1,14 +1,14 @@
 module experiments::Compiler::Examples::Tst2
 
-import util::Eval;
-//import List;
-//syntax A = "a";
-//
-//int x;
+import String;
+import IO;
 
+bool canChangeUser2(loc l, str s) { 
+	if (contains(s, "@")) return true; 
+	l.scheme="http"; 
+	l.authority = "a@a.com";
+	println("l.user = <l.user>"); 
+	l.user = s; 
+	if ( l.user ==  s) { return true; } else {println("<l.user> != <s>"); return false; } }
 
-
-//value main(list[value] args) { [A] "b"; |unknown:///|.begin; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
-//value main(list[value] args) { $2014-04-26$.hour; } //|unknown:///|.ls; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
-
-value main(list[value] args) = eval("1+1;");
+value main(list[value] args) = canChangeUser2(|tmp:///|, "y");

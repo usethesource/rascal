@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
-    case nonterminal(Nonterminal n) : 
+    case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return sort("<n>");
     case \start(Nonterminal n) : 
       return \start(sort("<n>"));

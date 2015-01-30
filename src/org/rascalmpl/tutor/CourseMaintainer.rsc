@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import  analysis::graphs::Graph;
 import CourseModel;
 import CourseCompiler;
 import CourseManager;
-
+import util::FileSystem;
 
 // Compile a complete course
 
@@ -34,7 +34,6 @@ public void compileOneCourse(ConceptName rootConcept){
 // Compile one concept
 
 public void compileConcept(ConceptName cn){
-  file = conceptFile(cn);
   compileAndGenerateConcept(cn, false);
 }
 
@@ -44,7 +43,7 @@ public void compileConcept(ConceptName cn){
  */
 
 public void statistics(ConceptName rootConcept){
-  course = getCourse(rootConcept);
+  crse = getCourse(rootConcept);
   
   map[str,int] stats = ();
   for(sectionName <- sectionKeywords){
@@ -52,23 +51,27 @@ public void statistics(ConceptName rootConcept){
    }
    nquestions = 0;
   
-  for(cn <- course.concepts){
+  for(cn <- crse.concepts){
    sections = getSections(cn);
    for(sectionName <- sectionKeywords){
     if(sections[sectionName] ? && size(sections[sectionName]) > 0)
       stats[sectionName] += 1;
       if(sectionName == "Questions")
-         nquestions += size(course.concepts[cn].questions);
+         nquestions += size(crse.concepts[cn].questions);
    }
   }
   
-  nconcepts = size(course.concepts);
+  nconcepts = size(crse.concepts);
   for(sectionName <- sectionKeywords){
     perc = substring("<100.0*stats[sectionName]/nconcepts>", 0, 3);
   	println("<left(sectionName, 15)><perc>%");
   }
   println("Concepts:  <nconcepts>");
   println("Questions: <nquestions>");
+}
+
+private set[loc] getCourseFiles(ConceptName rootConcept) {
+  return find(|courses:///<rootConcept>|, "concept");
 }
 
 /*
@@ -79,7 +82,7 @@ public void missingSection(ConceptName rootConcept, str section){
    courseFiles = getCourseFiles(rootConcept);
    n = 0;
    println("Concepts with missing <section>:");
-   for(file <- courseFiles){
+   for(loc file <- courseFiles){
        sections = getSections(readFileLines(file));
        if(!sections[section]? || sections[section] == []){
           println(file);
@@ -90,20 +93,6 @@ public void missingSection(ConceptName rootConcept, str section){
       println("NONE!");
 }
 
-/*
- * List all sections with given name in a course.
- */
-
-public void listSection(ConceptName rootConcept, str section){
-   courseFiles = getCourseFiles(rootConcept);
-   for(file <- courseFiles){
-       sections = getSections(readFileLines(file));
-       if(sections[section]? && sections[section] != []){
-         cn = getFullConceptName(file);
-          println("<left(basename(cn), 25)>: <for(ln <- sections[section]){><ln><}> (<cn>)");
-       }
-   }
-}
 
 /*
  * Create a new course
@@ -122,7 +111,7 @@ public void createNewCourse(ConceptName rootConcept){
 public void deleteCategories(ConceptName rootConcept){
    courseFiles = getCourseFiles(rootConcept);
    
-    for(file <- courseFiles){
+    for(loc file <- courseFiles){
       sections = getSections(readFileLines(file));
       newConcept = [];
       for(sectionName <- sectionKeywords){
@@ -142,7 +131,7 @@ public void deleteCategories(ConceptName rootConcept){
 public void reorder(ConceptName rootConcept){
    courseFiles = getCourseFiles(rootConcept);
    
-    for(file <- courseFiles){
+    for(loc file <- courseFiles){
       sections = getSections(readFileLines(file));
       newConcept = [];
       for(sectionName <- sectionKeywords){

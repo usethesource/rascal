@@ -1,6 +1,9 @@
 module experiments::Compiler::muRascal2RVM::PeepHole
 
-import Prelude;
+import IO;
+import String;
+import Set;
+import List;
 
 import experiments::Compiler::RVM::AST;
 
@@ -32,6 +35,36 @@ INS peephole(INS instructions){
 }
 
 // Redundant_stores, loads and jmps
+
+//INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores(rest);
+//}
+//
+//INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest] ) {
+//    n_redundant_stores += 1;
+//    return [LABEL(p), *redundant_stores(rest)];
+//}
+//
+//INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) {
+//    n_redundant_stores += 1;
+//    return redundant_stores(rest);
+//}
+//
+//INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) {
+//    n_redundant_stores += 1;
+//    return [STOREVAR(v,p), *redundant_stores(rest)];   
+//}
+//
+//INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) {
+//    n_redundant_stores += 1;
+//    return  [STORELOC(p), *redundant_stores(rest)];
+//}
+//
+//INS redundant_stores([]) = [];
+//
+//default INS redundant_stores([Instruction ins, *Instruction rest]) = [ins, *redundant_stores(rest)];
+
 
 INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
     n_redundant_stores += 1;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,20 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
       return visitor.visitKeywordArguments_ExpressionDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.optionalComma.equals(this.optionalComma) && tmp.keywordArgumentList.equals(this.keywordArgumentList) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 631 + 907 * optionalComma.hashCode() + 151 * keywordArgumentList.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.OptionalComma getOptionalComma() {
@@ -113,6 +127,20 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKeywordArguments_ExpressionNone(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof None)) {
+        return false;
+      }        
+      None tmp = (None) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 47 ; 
+    } 
   
     	
   }

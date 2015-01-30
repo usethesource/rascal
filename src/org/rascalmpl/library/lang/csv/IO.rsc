@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ information between spreadsheets and databases. A CSV file has the following str
 * One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
-<toc Rascal/Library/lang/csv/IO 1>
+<toc Rascal/Libraries/lang/csv/IO 1>
 
 Examples:
 <listing>
@@ -36,6 +36,7 @@ import lang::csv::ast::CSV;
 import lang::csv::ast::Implode;
 import Type;
 import Map;
+import ParseTree;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -94,11 +95,11 @@ R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
+public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8", bool printInferredType = false);
 
 @deprecated{use the readCSV with keyword parameters}
 public value readCSV(loc location, map[str,str] options) {
-	return readCSV(location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
 
@@ -157,13 +158,14 @@ will produce the following files:
 public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use writeCSV with optional parameters}
+//@reflect{Uses type parameter.}
 public void writeCSV(&T relation, loc location, map[str,str] options) {
 	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
-public Table loadCSV(loc l) = implodeCSV(parseCSV(l));
+public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 
-public Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
+public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
 
 @doc{Generator for CSV resources}
 @resource{csv}

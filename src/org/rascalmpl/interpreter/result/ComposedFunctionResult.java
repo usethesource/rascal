@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -37,8 +38,8 @@ import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	
-	private final Result<IValue> left;
-	private final Result<IValue> right;
+	private final ICallableValue left;
+	private final ICallableValue right;
 	private final boolean isStatic;
 	private Type type;
 	
@@ -69,11 +70,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			this.isStatic = left.isStatic() && right.isStatic();
 		}
 
-	@SuppressWarnings("unchecked")
 	private ComposedFunctionResult(ICallableValue left, ICallableValue right, Type type, IEvaluatorContext ctx) {
 		super(type, null, ctx);
-		this.left = (Result<IValue>) left;
-		this.right = (Result<IValue>) right;
+		this.left = left;
+		this.right = right;
 		this.type = type;
 		this.isStatic = left.isStatic() && right.isStatic();
 	}
@@ -109,12 +109,14 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return this.type;
 	}
 	
-	public Result<IValue> getLeft() {
-		return this.left;
+	@SuppressWarnings("unchecked")
+  public Result<IValue> getLeft() {
+		return (Result<IValue>) this.left;
 	}
 	
-	public Result<IValue> getRight() {
-		return this.right;
+	@SuppressWarnings("unchecked")
+  public Result<IValue> getRight() {
+		return (Result<IValue>) this.right;
 	}
 	
 	@Override
@@ -199,6 +201,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		return (Evaluator) ctx;
 	}
 	
+	@Override
+	public boolean hasKeywordArguments() {
+	  return right.hasKeywordArguments();
+	}
+	
 	public static class NonDeterministic extends ComposedFunctionResult {
 		private final static TypeFactory TF = TypeFactory.getInstance();
 		
@@ -244,11 +251,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
-		return false;
-	}
-
-	@Override
 	public boolean isAnnotatable() {
 		return false;
 	}
@@ -257,6 +259,17 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public IAnnotatable<? extends IValue> asAnnotatable() {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  throw new IllegalOperationException(
+        "Cannot be viewed as with keyword parameters", getType());
 	}
 	
 }

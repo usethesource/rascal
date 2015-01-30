@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,20 @@ public abstract class Tag extends AbstractAST {
       return visitor.visitTagDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.name.equals(this.name) && tmp.contents.equals(this.contents) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 103 + 677 * name.hashCode() + 2 * contents.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getName() {
@@ -123,6 +137,20 @@ public abstract class Tag extends AbstractAST {
       return visitor.visitTagEmpty(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Empty)) {
+        return false;
+      }        
+      Empty tmp = (Empty) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 877 + 73 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getName() {
@@ -161,6 +189,20 @@ public abstract class Tag extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTagExpression(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Expression)) {
+        return false;
+      }        
+      Expression tmp = (Expression) o;
+      return true && tmp.name.equals(this.name) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 593 + 941 * name.hashCode() + 271 * expression.hashCode() ; 
+    } 
   
     
     @Override

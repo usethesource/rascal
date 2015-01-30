@@ -1,14 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import java.io.PrintWriter;
-import java.util.TreeMap;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
-
-
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public enum Opcode {
 	/*
@@ -59,7 +56,7 @@ public enum Opcode {
 	LOADOFUN        	(38,    1), //2),
 	OCALL           	(39,    2), //3),
 	OCALLDYN	    	(40,	2), //3),
-	CALLJAVA        	(41,    5),
+	CALLJAVA        	(41,    6),
 	THROW           	(42,    1),
 	TYPESWITCH			(43,	1), //2),
 	UNWRAPTHROWNLOC     (44,    1), //2),
@@ -205,18 +202,18 @@ public enum Opcode {
 		this.pc_incr = pc_incr;
 	}
 	 
-	static long opFrequencies[];
+//	static long opFrequencies[];
 	static boolean profiling = false;
-	private static PrintWriter stdout;
+//	private static PrintWriter stdout;
 	
 	public static void init(PrintWriter stdoutWriter, boolean doProfile) {
-	  stdout = stdoutWriter;
+//	  stdout = stdoutWriter;
 	  profiling = doProfile;
-      opFrequencies = new long[values.length];
+//      opFrequencies = new long[values.length];
 	}
 	
 	public static void use(int instruction){
-		opFrequencies[CodeBlock.fetchOp(instruction)]++;
+//		opFrequencies[CodeBlock.fetchOp(instruction)]++;
 	}
 	
 	public static void exit(){
@@ -225,18 +222,18 @@ public enum Opcode {
 	}
 	
 	private static void printProfile(){
-		stdout.println("\nOpcode Frequencies");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(opFrequencies[i] > 0 ){
-				data.put(opFrequencies[i], values[i].name());
-				total += opFrequencies[i];
-			}
-		}
-		for(long t : data.descendingKeySet()){
-			stdout.printf("%30s: %3d%% (%d)\n", data.get(t), t * 100 / total, t);
-		}
+//		stdout.println("\nOpcode Frequencies");
+//		long total = 0;
+//		TreeMap<Long,String> data = new TreeMap<Long,String>();
+//		for(int i = 0; i < values.length; i++){
+//			if(opFrequencies[i] > 0 ){
+//				data.put(opFrequencies[i], values[i].name());
+//				total += opFrequencies[i];
+//			}
+//		}
+//		for(long t : data.descendingKeySet()){
+//			stdout.printf("%30s: %3d%% (%d)\n", data.get(t), t * 100 / total, t);
+//		}
 	}
 	
 	public int getPcIncrement(){
@@ -257,22 +254,27 @@ public enum Opcode {
 			return "LOADCON " + cb.getConstantValue(arg1);
 			
 		case LOADVAR:
-			return "LOADVAR " + arg1 + ", " + arg2;
+			return "LOADVAR " + arg1 + ", " 
+						      + arg2;
 			
 		case LOADLOC:
 			return "LOADLOC " + arg1;
 			
 		case STOREVAR:
-			return "STOREVAR " + arg1 + ", " + arg2;	
+			return "STOREVAR " + arg1 + ", " 
+							   + arg2;	
 			
 		case STORELOC:
 			return "STORELOC " + arg1;
 			
 		case CALL:
-			return "CALL " + cb.getFunctionName(arg1)  + ", " + arg2;
+			return "CALL " + cb.getFunctionName(arg1)  + ", " 
+						   + arg2;
 			
 		case CALLPRIM:
-			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
+			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							   + arg2 + ", "
+							   + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case RETURN1:
 			return "RETURN1 " + arg1;
@@ -314,7 +316,8 @@ public enum Opcode {
 			return "YIELD1 " + arg1;
 		
 		case CREATE:
-			return "CREATE " + cb.getFunctionName(arg1) + ", " + arg2;
+			return "CREATE " + cb.getFunctionName(arg1) + ", " 
+							 + arg2;
 			
 		case CREATEDYN:
 			return "CREATEDYN " + arg1;
@@ -329,34 +332,40 @@ public enum Opcode {
 			return "LOADLOCREF " + arg1;
 			
 		case LOADVARREF:
-			return "LOADVARREF " + arg1 + ", " + arg2;
+			return "LOADVARREF " + arg1 + ", " 
+							     + arg2;
 		
 		case LOADLOCDEREF:
 			return "LOADLOCDEREF " + arg1;
 			
 		case LOADVARDEREF:
-			return "LOADVARDEREF " + arg1 + ", " + arg2;
+			return "LOADVARDEREF " + arg1 + ", " 
+								   + arg2;
 			
 		case STORELOCDEREF:
 			return "STORELOCDEREF " + arg1;
 		
 		case STOREVARDEREF:
-			return "STOREVARDEREF " + arg1 + ", " + arg2;
+			return "STOREVARDEREF " + arg1 + ", " 
+									+ arg2;
 			
 		case LOADCONSTR:
 			return "LOADCONSTR " + arg1;
 		
 		case CALLCONSTR:
-			return "CALLCONSTR " + arg1 + ", " + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
+			return "CALLCONSTR " + arg1 + ", " 
+								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
 		case LOAD_NESTED_FUN:
-			return "LOAD_NESTED_FUN " + arg1 + ", " + arg2;
+			return "LOAD_NESTED_FUN " + arg1 + ", " 
+									  + arg2;
 			
 		case LOADTYPE:
 			return "LOADTYPE " + arg1;
 			
 		case CALLMUPRIM:
-			return "CALLMUPRIM " + MuPrimitive.fromInteger(arg1).name() +  ", " + arg2;
+			return "CALLMUPRIM " + MuPrimitive.fromInteger(arg1).name() +  ", " 
+							     + arg2;
 			
 		case LOADBOOL:
 			return "LOADBOOL " + (arg1 == 1);
@@ -371,13 +380,21 @@ public enum Opcode {
 			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:
-			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
+			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " 
+						    + arg2 + ", " 
+						    + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case OCALLDYN:
-			return "OCALLDYN " + cb.getConstantType(arg1) + ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
+			return "OCALLDYN " + cb.getConstantType(arg1) + ", " 
+							   + arg2 + ", "
+							   + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case CALLJAVA:	
-			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantType(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
+			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " 
+							   + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " 
+							   + cb.getConstantType(cb.finalCode[pc + 3]) + ","
+							   + cb.getConstantType(cb.finalCode[pc + 4]) + ","
+							   + cb.finalCode[pc + 5] ;
 			
 		case THROW:
 			return "THROW " +  cb.getConstantValue(arg1);
@@ -452,17 +469,21 @@ public enum Opcode {
 		case LOADLOCKWP:
 			return "LOADLOCKWP " + cb.getConstantValue(arg1);		
 		case LOADVARKWP:
-			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " 
+								 + cb.getConstantValue(arg2);
 		case STORELOCKWP:
 			return "STORELOCKWP " + cb.getConstantValue(arg1);
 		case STOREVARKWP:
-			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " 
+								  + cb.getConstantValue(arg2);
 			
 		case UNWRAPTHROWNVAR:
-			return "UNWRAPTHROWNVAR " + arg1 + arg2;
+			return "UNWRAPTHROWNVAR " + arg1 + ", " +
+									  + arg2;
 			
 		case APPLY:
-			return "APPLY " + cb.getFunctionName(arg1) + ", " + arg2;
+			return "APPLY " + cb.getFunctionName(arg1) + ", "
+						    + arg2;
 			
 		case APPLYDYN:
 			return "APPLYDYN " + arg1;

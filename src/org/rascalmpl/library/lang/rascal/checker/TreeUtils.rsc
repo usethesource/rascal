@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ public map[int,str] getProductionTypes(Tree t) {
 
     if (Production p := t[0]) {
         if (list[Symbol] ls := p[0]) {
-            for (n <- domain(ls)) {
+            for (int n <- index(ls)) {
                 if (containsSort(ls[n])) mt[n] = getSortNameFromSymbol(ls[n]);
             }
         }
@@ -57,7 +57,7 @@ public list[Tree] prodFilter(Tree t, bool(Production) fltr) {
 
 public list[Tree] getAllNodes(Tree t) {
     if (appl(p,list[Tree] tl) := t) {
-        return [ t ] + [ getAllNodes(tli) | tli <- tl ];
+        return [ t ] + [ *getAllNodes(tli) | Tree tli <- tl ];
     } else {
         return [  ] ;
     }

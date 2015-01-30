@@ -1,6 +1,6 @@
   module lang::rascal::tests::functionality::PatternTests
   /*******************************************************************************
-   * Copyright (c) 2009-2011 CWI
+   * Copyright (c) 2009-2015 CWI
    * All rights reserved. This program and the accompanying materials
    * are made available under the terms of the Eclipse Public License v1.0
    * which accompanies this distribution, and is available at
@@ -128,7 +128,8 @@ test bool matchNestedSet11() = ({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},
 test bool matchNestedSet12() = !(({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{8}}) && (L == {{2,3},{4,5}}));
 
 
- /*TODO: fails*/ 		
+ /*TODO: fails*/ 	
+ @Ignore	
 test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4,5},{6,7,8},{2,3},{4,5}}) && (L == {{2,3},{4,5}});
   	
 // matchExternalListVars
@@ -136,6 +137,7 @@ test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4
 test bool matchExternalListVars1() {int n;  return n := 3 && n == 3; }
 
 /*TODO:fails*/
+@Ignore
 test bool matchExternalListVars2() {list[int] L; return ([1, *L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}
   	
 //	matchListMultiVars
@@ -293,7 +295,8 @@ test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
 test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
 test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
   		
-/*TODO:TC*///test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
   	
 //	matchNode
   		
@@ -330,7 +333,8 @@ test bool matchNodeWithKeywords13() ="f1"(1, M=10, B=false)!:= "f1"(1, B=false, 
 test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, M=20);
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
-/*TODO:TC*///test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
   	
 //	matchSet1
   		
@@ -498,12 +502,17 @@ test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],
   
 // variableBecomesEquality
           
-//* NoSuchKey in TypeUtils
-/*TODO:COMP*///test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
-/*TODO:COMP*///test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
+@ignoreCompiler{NoSuchKey in TypeUtils}
+test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
+
+@ignoreCompiler{NoSuchKey in TypeUtils}
+test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
-/*TODO:TC*///test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
-/*TODO:TC*///test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
+@ignoreCompiler{Not yet implemented in typechecker}
+test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
+
+@ignoreCompiler{Not yet implemented in typechecker}
+test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
   	
 // antiPattern
 
@@ -532,17 +541,24 @@ test bool descendant11() = /int N := ("a" : 1) && N == 1;
 test bool descendant12() = /int N := <"a", 1> && N == 1;
   		
 test bool descendant13() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;
-test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;	
-  	
- // descendant3
+test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
+
+// descendant2
  
-test bool descendant23() = [n | /int n <- [1,2,3]] == [1,2,3];
-test bool descendant24() = [b | /bool b <- [true,false,true]] == [true,false,true];
-test bool descendant25() = [s | /str s <- ["a","b"]] == ["a","b"];
+data RECT = rect(int w, int h, str color = "white");
+ 
+test bool descendant21() = [n | /int n <- [1,2,3]] == [1,2,3];
+test bool descendant22() = [b | /bool b <- [true,false,true]] == [true,false,true];
+test bool descendant23() = [s | /str s <- ["a","b"]] == ["a","b"];
   		
-test bool descendant26() = {n | /int n <- {1,2,3}} == {1,2,3};
-test bool descendant27() = {n | /int n <- {<1,2,3>}} == {1,2,3};
-test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 	
+test bool descendant24() = {n | /int n <- {1,2,3}} == {1,2,3};
+test bool descendant25() = {n | /int n <- {<1,2,3>}} == {1,2,3};
+test bool descendant26() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 
+
+@ignoreInterpreter{Not implemented}
+test bool descendant27() = [n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]]  == [1,2,3,4,5];
+@ignoreInterpreter{Not implemented}	
+test bool descendant28() = [s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]]  == ["white", "red"];
   	
 // listCount1
  

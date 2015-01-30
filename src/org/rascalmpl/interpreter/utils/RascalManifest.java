@@ -1,11 +1,18 @@
 package org.rascalmpl.interpreter.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 /**
  * The META-INF/RASCAL.MF file contains information about 
@@ -25,6 +32,8 @@ public class RascalManifest {
   protected static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
   protected static final String MAIN_MODULE = "Main-Module";
   protected static final String MAIN_FUNCTION = "Main-Function";
+  protected static final String REQUIRE_BUNDLES = "Require-Bundles";
+  protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
 
   public Manifest getDefaultManifest() {
     Manifest manifest = new Manifest();
@@ -60,54 +69,187 @@ public class RascalManifest {
    *         it will return ["src"].
    */
   public List<String> getSourceRoots(Class<?> clazz) {
-    return getSourceRoots(manifest(clazz));
+    return getManifestSourceRoots(manifest(clazz));
+  }
+  
+  /**
+   * @return a list of paths relative to the root of the jar, if no such option is configured
+   *         it will return ["src"].
+   */
+  public List<String> getSourceRoots(JarInputStream jarStream) {
+    return getManifestSourceRoots(manifest(jarStream));
   }
   
   /**
    * @return the name of the main function of a deployment unit, or 'null' if none is configured.
    */
   public String getMainFunction(Class<?> clazz) {
-    return getMainFunction(manifest(clazz));
+    return getManifestMainFunction(manifest(clazz));
+  }
+  
+ 
+  /**
+   * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+   */
+  public String getMainFunction(JarInputStream jarStream) {
+    return getManifestMainFunction(manifest(jarStream));
+  }
+  
+  /**
+   * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+   */
+  public String getMainFunction(File jarFile) {
+    return getManifestMainFunction(manifest(jarFile));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredBundles(JarInputStream jarStream) {
+    return getManifestRequiredBundles(manifest(jarStream));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredLibraries(JarInputStream jarStream) {
+    return getManifestRequiredLibraries(manifest(jarStream));
+  }
+  
+  /**
+   * @return the name of the main module of a deployment unit, or 'null' if none is configured.
+   */
+  public String getMainModule(JarInputStream jarStream) {
+    return getManifestMainModule(manifest(jarStream));
+  }
+  
+  /**
+   * @return the name of the main module of a deployment unit, or 'null' if none is configured.
+   */
+  public String getMainModule(File jarFile) {
+    return getManifestMainModule(manifest(jarFile));
   }
   
   /**
    * @return the name of the main module of a deployment unit, or 'null' if none is configured.
    */
   public String getMainModule(Class<?> clazz) {
-    return getMainModule(manifest(clazz));
+    return getManifestMainModule(manifest(clazz));
   }
 
   /**
    * @return 'true' if the main module of a deployment unit exists, or 'false' if none is configured.
    */
   public boolean hasMainModule(Class<?> clazz) {
-    return getMainModule(manifest(clazz)) != null;
+    return getManifestMainModule(manifest(clazz)) != null;
   }  
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredBundles(Class<?> clazz) {
+    return getManifestRequiredBundles(manifest(clazz));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredBundles(File jarFile) {
+    return getManifestRequiredBundles(manifest(jarFile));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredLibraries(File jarFile) {
+    return getManifestRequiredLibraries(manifest(jarFile));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredLibraries(Class<?> clazz) {
+    return getManifestRequiredLibraries(manifest(clazz));
+  }
+
+  /**
+   * @return a list of paths relative to the root of the jar, if no such option is configured
+   *         it will return ["src"].
+   */
+  protected List<String> getManifestSourceRoots(InputStream manifestFile) {
+    return getManifestAttributeList(manifestFile, SOURCE, DEFAULT_SRC);
+  }
   
   /**
    * @return a list of paths relative to the root of the jar, if no such option is configured
    *         it will return ["src"].
    */
-  protected List<String> getSourceRoots(InputStream project) {
-    return getAttributeList(project, SOURCE, DEFAULT_SRC);
+  public List<String> getSourceRoots(File file) {
+    return getManifestSourceRoots(manifest(file));
   }
   
   /**
    * @return the name of the main module of a deployment unit, or 'null' if none is configured.
    */
-  protected String getMainModule(InputStream project) {
-    return getAttribute(project, MAIN_MODULE, null);
+  protected String getManifestMainModule(InputStream project) {
+    return getManifestAttribute(project, MAIN_MODULE, null);
   }
   
   /**
    * @return the name of the main function of a deployment unit, or 'null' if none is configured.
    */
-  protected String getMainFunction(InputStream project) {
-    return getAttribute(project, MAIN_FUNCTION, null);
+  protected String getManifestMainFunction(InputStream project) {
+    return getManifestAttribute(project, MAIN_FUNCTION, null);
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  protected List<String> getManifestRequiredBundles(InputStream project) {
+    return getManifestAttributeList(project, REQUIRE_BUNDLES, null);
+  }
+
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  protected List<String> getManifestRequiredLibraries(InputStream project) {
+    return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
   }
   
   protected InputStream manifest(Class<?> clazz) {
     return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
+  }
+  
+  protected InputStream manifest(JarInputStream stream) {
+			JarEntry next = null;
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+			try {
+				while ((next = stream.getNextJarEntry()) != null) {
+					if (next.getName().equals(META_INF_RASCAL_MF)) {
+						byte[] buf = new byte[1024];
+						int len;
+						while ((len = stream.read(buf)) > 0) {
+							out.write(buf, 0, len);
+						}
+
+						return new ByteArrayInputStream(out.toByteArray());
+					}
+				}
+			} catch (IOException e) {
+				return null;
+			}
+
+			return null;
+  }
+  
+  protected InputStream manifest(File jarFile) {
+	  try (JarFile file = new JarFile(jarFile)) {
+		  return file.getInputStream(new ZipEntry(META_INF_RASCAL_MF));
+	  }
+	  catch (IOException e) {
+		  return null;
+	  }
   }
   
   /**
@@ -118,7 +260,7 @@ public class RascalManifest {
    * @param def   may be null, returned if the configuration option with label is not defined
    * @return the list of strings labeled by the given option.
    */
-  protected List<String> getAttributeList(InputStream mf, String label, String def) {
+  protected List<String> getManifestAttributeList(InputStream mf, String label, String def) {
     if (mf != null) {
       try {
         Manifest manifest = new Manifest(mf);
@@ -140,7 +282,11 @@ public class RascalManifest {
       }
     }
 
-    return Arrays.<String>asList(new String[] { def });
+    if (def == null) {
+      return null;
+    } else {
+      return Arrays.<String>asList(new String[] { def });
+    }
   }
   
   /**
@@ -151,7 +297,7 @@ public class RascalManifest {
    * @param def   may be null, returned if the configuration option with label is not defined
    * @return either the configured option, or the given default value
    */
-  protected String getAttribute(InputStream is, String label, String def) {
+  protected String getManifestAttribute(InputStream is, String label, String def) {
     if (is != null) {
       try {
         Manifest manifest = new Manifest(is);

@@ -1,34 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
 public class NameMangler {
-	static public String mangleV0(String n) {
-		n = n.replace(":", "$c");
-		n = n.replace("/", "$s");
-		n = n.replace("(", "$l");
-		n = n.replace(")", "$r");
-		n = n.replace(";", "$e");
-		n = n.replace(" ", "$p");
-		n = n.replace("[", "$L");
-		n = n.replace("]", "$R");
-		n = n.replace(",", "$C");
-		n = n.replace("\\", "$b");
-		n = n.replace("\"", "$q");
-
-		return n.replace("#", "$h");
-	}
-
-	static public String demangleV0(String n) {
-		n = n.replace("$c", ":");
-		n = n.replace("$s", "/");
-		n = n.replace("$l", "(");
-		n = n.replace("$r", ")");
-		n = n.replace("$e", ";");
-		return n.replace("$h", "#");
-	}
-
 	/*
 	 * Java has very nice string manipulation methods, but alas the
 	 * following C style method outperforms all of them.
+	 *
+	 * Needed to map RVM function names to valid JVM method names. 
 	 */
 	static public String mangle(String s) {
 		char[] b = s.toCharArray();
@@ -93,11 +70,5 @@ public class NameMangler {
 			}
 		}
 		return new String(resarr);
-	}
-	public static void main(String[] argv) {
-		System.out.println(NameMangler.mangle("Hello"));
-		System.out.println(NameMangler.mangle("H:ello"));
-		System.out.println(NameMangler.mangle("(Hello)"));
-		System.out.println(NameMangler.mangle("(Help{} [0]{{ds}} :: llo)"));	
 	}
 }

@@ -7,6 +7,9 @@ extend analysis::m3::AST;
 import util::FileSystem;
 import lang::java::m3::TypeSymbol;
 import IO;
+import Set;
+import String;
+import List;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -67,7 +70,7 @@ data Expression
     | \this(Expression thisExpression)
     | \super()
     | \declarationExpression(Declaration decl)
-    | \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
+    | \infix(Expression lhs, str operator, Expression rhs)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
     | \simpleName(str name)
@@ -148,6 +151,7 @@ data Modifier
     | \onDemand()
     ;
 
+@memo
 set[loc] getPaths(loc dir, str suffix) { 
    bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
    return find(dir, containsFile);
@@ -157,8 +161,40 @@ set[loc] getPaths(loc dir, str suffix) {
 @reflect
 java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
-void setEnvironmentOptions(loc directory) {
-    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
+@memo
+set[loc] findRoots(set[loc] folders) {
+  set[loc] result = {};
+  for (folder <- folders) {
+    // only consult one java file per package tree
+    top-down-break visit (crawl(folder)) {
+      case directory(d, contents): {
+        set[loc] roots = {};
+        for (file(f) <- contents, toLowerCase(f.extension) == "java") {
+          try {
+            for (/package<p:[^;]*>;/ := readFile(f)) {
+              packagedepth = size(split(".", trim(p)));
+              roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
+            }
+            
+            if (roots == {}) { // no package declaration means d is a root 
+              roots += { d }; 
+            }
+            
+            break;            
+          } catch: ;          
+        }
+        
+        if (roots != {}) {
+          result += roots;
+        }
+        else {
+          fail; // continue searching subdirectories
+        }
+      }
+    }
+  }
+  
+  return result;
 }
       
 @doc{
@@ -179,6 +215,12 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
 
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
-   setEnvironmentOptions(project);
-   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, "java") };
+    if (!(isDirectory(project))) {
+      throw "<project> is not a valid directory";
+    }
+    
+    classPaths = find(project, "jar");
+    sourcePaths = getPaths(project, "java");
+    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
+    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
 }

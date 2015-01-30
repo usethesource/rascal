@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,12 +10,9 @@
 @bootstrapParser
 module lang::rascal::types::TypeSignature
 
-import List;
 import Set;
-import ParseTree;
 import util::Reflective;
 import IO;
-import Type;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractKind;
@@ -128,12 +125,12 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 	if (t has top && Module m := t.top) t = m;
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
-			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
+			case (Header)`<Tags tgs> module <QualifiedName n> <Import* i>` : {
 				sig = emptySignature(convertName(n));
 				return processModule(convertName(n),processSyntax(convertName(n),sig,[imp | Import imp <- i]),i,b);
 			}
 
-			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+			case (Header)`<Tags tgs> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
 				sig = emptySignature(convertName(n));
 				return processModule(convertName(n),processSyntax(convertName(n),sig,[imp | Import imp <- i]),i,b);
 			}
@@ -157,8 +154,8 @@ public RSignature processSyntax(RName name, RSignature sig, list[Import] defs) {
     rule = rule2prod(sd);
     
     // Add productions as in grammar definitions to the signature
-    for(prod <- rule.prods) {
-    	prods += ProductionSigItem(prod, sd.defined@\loc, sd@\loc);
+    for(pi <- rule.prods) {
+    	prods += ProductionSigItem(pi, sd.defined@\loc, sd@\loc);
     }
     
     for (/pr:prod(_,_,_) <- rule.prods) {
@@ -167,18 +164,18 @@ public RSignature processSyntax(RName name, RSignature sig, list[Import] defs) {
       sym = pr.def is label ? pr.def.symbol : pr.def;
       
       switch (sym) {
-        case sort(str name) : 
-          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
-        case lex(str name) : 
-          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
-        case layouts(str name) : 
-          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(name), sym, sd.defined@\loc)];
-        case keywords(str name) : 
-          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(name), sym, sd.defined@\loc)];  
-        case \parameterized-sort(str name, list[Symbol] parameters) : 
-          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
-        case \parameterized-lex(str name, list[Symbol] parameters) : 
-          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
+        case sort(str sortName) : 
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined@\loc)];
+        case lex(str lexName) : 
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined@\loc)];
+        case layouts(str layoutsName) : 
+          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(layoutsName), sym, sd.defined@\loc)];
+        case keywords(str keywordsName) : 
+          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(keywordsName), sym, sd.defined@\loc)];  
+        case \parameterized-sort(str sortName, list[Symbol] parameters) : 
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined@\loc)];
+        case \parameterized-lex(str lexName, list[Symbol] parameters) : 
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined@\loc)];
         case \start(_) : 
           ; // TODO: add support for start non-terminals
         default: 
@@ -291,7 +288,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 					for (var <- vars) {
 						if ((Variant) `<Name n> ( <{TypeArg ","}* args> <KeywordFormals kfs>)` := var) {
 							paramlist = [ ];
-							if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ kfs>` := kfs) paramlist = [ kfi | kfi <- kfs];
+							if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ kfsi>` := kfs) paramlist = [ kfi | kfi <- kfsi];
 							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], commonParamList, paramlist, t@\loc, var@\loc);
 						}
 					}
@@ -333,6 +330,7 @@ public RSignature getModuleSignature(Tree t, set[RName] visitedAlready) {
 	return createRSignature(t, visitedAlready);
 }
 
+@doc{Get the name of the import from within the module name definition.}
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>`) = convertName(qn);
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <ModuleActuals ma>`) = convertName(qn);
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <Renamings rn>`) = convertName(qn);

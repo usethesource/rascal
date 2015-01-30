@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
+@contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
 @doc{
 Synopsis: A `Graph` datatype with associated functions.
 
@@ -253,4 +254,33 @@ top({<1,2>, <1,3>, <2,4>, <3,4>});
 public set[&T] top(Graph[&T] G)
 {
   return domain(G) - range(G);
+}
+
+@doc{
+Synopsis: Determine the connected components of a graph.
+
+Description:
+Returns the [connected components](http://en.wikipedia.org/wiki/Connected_component_(graph_theory)) of Graph `G`, as sets of nodes. All nodes within one component are all reachable from one another, there are no paths between two nodes from different components. The graph is assumed to be undirected.
+
+Examples:
+<screen>
+import analysis::graphs::Graph;
+connectedComponents({<1,2>, <1,3>, <4,5>, <5,6>});
+</screen>
+}
+public set[set[&T]] connectedComponents(Graph[&T] G)
+{
+  set[set[&T]] components = {};
+
+  Graph[&T] undirected = G + invert(G);
+
+  set[&T] todo = domain(undirected);
+
+  while (size(todo) > 0) {
+    component = reach(undirected, {getOneFrom(todo)});
+    components += {component};
+    todo -= component;
+  };
+
+  return components;
 }

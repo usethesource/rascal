@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeBag(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bag)) {
+        return false;
+      }        
+      Bag tmp = (Bag) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 941 ; 
+    } 
+  
     	
   }
   public boolean isBool() {
@@ -77,6 +91,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeBool(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bool)) {
+        return false;
+      }        
+      Bool tmp = (Bool) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 223 ; 
+    } 
   
     	
   }
@@ -104,6 +132,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeDateTime(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DateTime)) {
+        return false;
+      }        
+      DateTime tmp = (DateTime) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 613 ; 
+    } 
+  
     	
   }
   public boolean isInt() {
@@ -129,6 +171,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeInt(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Int)) {
+        return false;
+      }        
+      Int tmp = (Int) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 983 ; 
+    } 
   
     	
   }
@@ -156,6 +212,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeList(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof List)) {
+        return false;
+      }        
+      List tmp = (List) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 857 ; 
+    } 
+  
     	
   }
   public boolean isListRelation() {
@@ -181,6 +251,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeListRelation(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ListRelation)) {
+        return false;
+      }        
+      ListRelation tmp = (ListRelation) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 283 ; 
+    } 
   
     	
   }
@@ -208,6 +292,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeLoc(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Loc)) {
+        return false;
+      }        
+      Loc tmp = (Loc) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 67 ; 
+    } 
+  
     	
   }
   public boolean isMap() {
@@ -233,6 +331,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeMap(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Map)) {
+        return false;
+      }        
+      Map tmp = (Map) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 619 ; 
+    } 
   
     	
   }
@@ -260,6 +372,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeNode(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Node)) {
+        return false;
+      }        
+      Node tmp = (Node) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 79 ; 
+    } 
+  
     	
   }
   public boolean isNum() {
@@ -285,6 +411,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeNum(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Num)) {
+        return false;
+      }        
+      Num tmp = (Num) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 557 ; 
+    } 
   
     	
   }
@@ -312,6 +452,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeRational(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Rational)) {
+        return false;
+      }        
+      Rational tmp = (Rational) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 127 ; 
+    } 
+  
     	
   }
   public boolean isReal() {
@@ -337,6 +491,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeReal(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Real)) {
+        return false;
+      }        
+      Real tmp = (Real) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 109 ; 
+    } 
   
     	
   }
@@ -364,6 +532,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeRelation(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Relation)) {
+        return false;
+      }        
+      Relation tmp = (Relation) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 797 ; 
+    } 
+  
     	
   }
   public boolean isSet() {
@@ -389,6 +571,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeSet(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Set)) {
+        return false;
+      }        
+      Set tmp = (Set) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 5 ; 
+    } 
   
     	
   }
@@ -416,6 +612,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeString(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof String)) {
+        return false;
+      }        
+      String tmp = (String) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 827 ; 
+    } 
+  
     	
   }
   public boolean isTuple() {
@@ -441,6 +651,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeTuple(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Tuple)) {
+        return false;
+      }        
+      Tuple tmp = (Tuple) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 881 ; 
+    } 
   
     	
   }
@@ -468,6 +692,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeType(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Type)) {
+        return false;
+      }        
+      Type tmp = (Type) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 863 ; 
+    } 
+  
     	
   }
   public boolean isValue() {
@@ -494,6 +732,20 @@ public abstract class BasicType extends AbstractAST {
       return visitor.visitBasicTypeValue(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Value)) {
+        return false;
+      }        
+      Value tmp = (Value) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 601 ; 
+    } 
+  
     	
   }
   public boolean isVoid() {
@@ -519,6 +771,20 @@ public abstract class BasicType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeVoid(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Void)) {
+        return false;
+      }        
+      Void tmp = (Void) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 3 ; 
+    } 
   
     	
   }

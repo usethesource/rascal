@@ -66,11 +66,11 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), true);
+			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), true, __eval);
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
 
-			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), true);
+			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), true, __eval);
 			
 			if (onType.isAbstractData() || onType.isConstructor() || onType.isNode()) {
 				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
@@ -92,12 +92,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.__getTypeDeclarator().declareConstructor(this,
-					__eval.getCurrentEnvt());
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			eval.__getTypeDeclarator().declareConstructor(this, eval.getCurrentEnvt());
+			return ResultFactory.nothing();
 		}
 
 	}
@@ -106,17 +103,15 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			org.rascalmpl.ast.Declaration.DataAbstract {
 
 		public DataAbstract(IConstructor __param1, Tags __param2, Visibility __param3,
-				UserType __param4) {
-			super(__param1, __param2, __param3, __param4);
+				UserType __param4, CommonKeywordParameters __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.__getTypeDeclarator().declareAbstractADT(this,
-					__eval.getCurrentEnvt());
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			eval.__getTypeDeclarator().declareAbstractADT(this,
+					eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}
@@ -150,7 +145,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			eval.setCurrentAST(this);
 
 			for (org.rascalmpl.ast.Variable var : this.getVariables()) {
-				Type declaredType = getType().typeOf(eval.getCurrentEnvt(), true);
+				Type declaredType = getType().typeOf(eval.getCurrentEnvt(), true, eval);
 
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(eval);

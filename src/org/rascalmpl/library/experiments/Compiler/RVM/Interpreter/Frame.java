@@ -1,30 +1,28 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
-	public int scopeId;
-    public Frame previousCallFrame;
-    public final Frame previousScope;
-    
-    // Coroutine reentry.
-    public Frame nextFrame ;
-    public int   hotEntryPoint = 0 ;
-	
-    public final Object[] stack;
-	public int sp;
+	int scopeId;
+    Frame previousCallFrame;
+    final Frame previousScope;
+	final Object[] stack;
+	int sp;
 	int pc;
-	public final Function function;
 	ISourceLocation src;
+	final Function function;
 	
-	public final boolean isCoroutine;
+	final boolean isCoroutine;
+	public int hotEntryPoint;
+	public Frame nextFrame;
 		
 	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
@@ -55,7 +53,7 @@ public class Frame {
 				return getCoroutineFrame(f, env, arity, sp);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn, this);
 	}
 	
 	/**
@@ -68,7 +66,7 @@ public class Frame {
 	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
 		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
 		if(arity != f.nformals) {
-			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
+			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals, env);
 		}
 		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
@@ -186,24 +184,71 @@ public class Frame {
 	}
 	
 	public String toString(){
-		StringBuilder s = new StringBuilder("\tin ");
+		StringBuilder s = new StringBuilder(); //new StringBuilder("\tin ");
 		s.append(this.function.getPrintableName()).append("(");
-		for(int i = 0; i < function.nformals-1; i++){
+		for(int i = 0; i < function.nformals; i++){
 			if(i > 0) s.append(", ");
-			s.append(stack[i]);
-		}
-		IMap m = (IMap) stack[function.nformals-1];
-		if(m.size() > 0){
-			for(IValue key : m){
-				s.append(", ").append(((IString) key).getValue()).append("=").append(m.get(key));
+			String repr;
+			if(stack[i] instanceof IValue ) {
+					repr = ((IValue) stack[i]).toString();
+			} else {
+				repr = (stack[i] == null) ? "null" : stack[i].toString();
+				int n = repr.lastIndexOf(".");
+				if(n >= 0){
+					repr = repr.substring(n + 1, repr.length());
+				}
 			}
+			if(repr.length() > 40){
+				repr = repr.substring(0, 40) + "...";
+			}
+			s.append(repr);
 		}
+	
+//		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
+//			@SuppressWarnings("unchecked")
+//			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
+//			if(m.size() > 0){
+//				for(String key : m.keySet()){
+//					s.append(", ").append(key).append("=").append(m.get(key));
+//				}
+//			}
+//		}
 		
 		s.append(")");
 		if(src != null){
-				s.append(" at ").append(src);
+				s.//append(" at ").append(src).
+				append(" \uE007[](").append(src);
 		}
 		return s.toString();
+	}
+	
+	private StringBuilder indent(){
+		int n = 0;
+		Frame prev = previousCallFrame;
+		while(prev != null){
+			n++;
+			prev = prev.previousCallFrame;
+		}
+		StringBuilder b = new StringBuilder(2 * n + 10);
+		for (int i = 0; i < n; i += 1) {
+		    b.append("  ");
+		}
+		return b;
+	}
+	
+	public void printEnter(PrintWriter stdout){
+		stdout.println(indent().append("--> ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+	}
+	
+	public void printBack(PrintWriter stdout){
+		stdout.println(indent().append("--- ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+	}
+	
+	public void printLeave(PrintWriter stdout){
+		stdout.println(indent().append("<-- ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 }

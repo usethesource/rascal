@@ -5,7 +5,103 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BlockComment;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EmptyStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.LineComment;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.UnionType;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.WildcardType;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class ASTConverter extends JavaToRascalConverter {
@@ -28,35 +124,29 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	private IValue resolveType(ASTNode node) {
-	  if (node instanceof Expression) {
-		if (node instanceof Name) {
-			IBinding b = ((Name) node).resolveBinding();
-			if (b!= null && b instanceof IVariableBinding) {
-				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), false);
+	  try {
+		  if (node instanceof Expression) {
+			if (node instanceof Name) {
+				IBinding b = ((Name) node).resolveBinding();
+				return bindingsResolver.resolveType(b, false);
 			}
-		}
-	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
-	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding, false);
-	    }
-	  }
-	  else if (node instanceof TypeDeclaration) {
-	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
-	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding, true);
-	    }
-	  }
-	  else if (node instanceof MethodDeclaration) {
-	    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
-      if (binding != null) {
-        return bindingsResolver.computeMethodTypeSymbol(binding, true);
-      }
-	  }
-	  else if (node instanceof VariableDeclaration) {
-	    IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
-      if (binding != null && binding.getType() != null) {
-        return bindingsResolver.computeTypeSymbol(binding.getType(), false);
-      }
+		    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
+		    return bindingsResolver.resolveType(binding, false);
+		  }
+		  else if (node instanceof TypeDeclaration) {
+		    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+		    return bindingsResolver.resolveType(binding, true);
+		  }
+		  else if (node instanceof MethodDeclaration) {
+		    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
+	        return bindingsResolver.resolveType(binding, true);
+		  }
+		  else if (node instanceof VariableDeclaration) {
+		    IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
+		    return bindingsResolver.resolveType(binding.getType(), false);
+		  }
+	  } catch (NullPointerException e) {
+		  System.err.println("Got NPE for node " + node);
 	  }
 	  
 	  return null;
@@ -486,16 +576,14 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue operator = values.string(node.getOperator().toString());
 		IValue leftSide = visitChild(node.getLeftOperand());
 		IValue rightSide = visitChild(node.getRightOperand());
-	
-		IValueList extendedOperands = new IValueList(values);
-		if (node.hasExtendedOperands()) {
-			for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
-				Expression e = (Expression) it.next();
-				extendedOperands.add(visitChild(e));
-			}
+		
+		IValue intermediateExpression = constructExpressionNode("infix", leftSide, operator, rightSide);
+		for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
+			Expression e = (Expression) it.next();
+			intermediateExpression = constructExpressionNode("infix", intermediateExpression, operator, visitChild(e));
 		}
-	
-		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide, extendedOperands.asList());
+		
+		ownValue = intermediateExpression;
 		
 		return false;
 	}

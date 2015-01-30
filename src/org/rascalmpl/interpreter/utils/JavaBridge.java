@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -106,11 +105,11 @@ public class JavaBridge {
 		}
 	}
 
-	public <T> Class<T> compileJava(URI loc, String className, String source) {
+	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
 		return compileJava(loc, className, getClass(), source);
 	}
 	
-	public <T> Class<T> compileJava(URI loc, String className, Class<?> parent, String source) {
+	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", config.getRascalJavaClassPathProperty()});
@@ -120,9 +119,9 @@ public class JavaBridge {
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
 		} catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), vf.sourceLocation(loc));
+			throw new JavaCompilation(e.getMessage(), loc);
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilation("with classpath [" + config.getRascalJavaClassPathProperty() + "]: " + e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
+			throw new JavaCompilation("with classpath [" + config.getRascalJavaClassPathProperty() + "]: " + e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), loc);
 		}
 	}
 
@@ -176,7 +175,7 @@ public class JavaBridge {
 		}
 		
 		while(i < arity + kwArity){
-			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getExpression(), env);
+			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getType(), env);
 			if (clazz != null) {
 				  classes[i++] = clazz;
 				}
@@ -192,13 +191,17 @@ public class JavaBridge {
 	private Class<?> toJavaClass(Expression formal, Environment env) {
 		return toJavaClass(toValueType(formal, env));
 	}
+	
+	private Class<?> toJavaClass(org.rascalmpl.ast.Type tp, Environment env) {
+		return toJavaClass(tp.typeOf(env, true, null));
+	}
 
 	private Class<?> toJavaClass(org.eclipse.imp.pdb.facts.type.Type type) {
 		return type.accept(javaClasses);
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env, true);
+		return formal.typeOf(env, true, null);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
@@ -483,7 +486,9 @@ public class JavaBridge {
 			Collection<String> dirs = new ArrayList<String>();
 
 			for (JavaFileObject o : list) {
-				String path = o.toUri().getPath().replace(".", "/");
+				String binaryName = manager.inferBinaryName(StandardLocation.CLASS_PATH, o);
+				String path = binaryName.replace(".", "/");
+				
 				makeJarDirs(target, dirs, path);
 				entry = new JarEntry(path + ".class");
 				entry.setTime(o.getLastModified());
@@ -505,16 +510,18 @@ public class JavaBridge {
 				String name = mainClazz.getName();
 				String path = name.replace(".", "/") + ".class";
 				
-				String dir = path.substring(0, path.lastIndexOf('/'));
-				StringBuilder dirTmp = new StringBuilder(dir.length());
-				for (String d : dir.split("/")) {
-					dirTmp.append(d);
-					dirTmp.append("/");
-					String tmp = dirTmp.toString();
-					if (!dirs.contains(tmp)) {
-						dirs.add(tmp);
-						entry = new JarEntry(tmp);
-						target.putNextEntry(entry);
+				if(path.contains("/")) {
+					String dir = path.substring(0, path.lastIndexOf('/'));
+					StringBuilder dirTmp = new StringBuilder(dir.length());
+					for (String d : dir.split("/")) {
+						dirTmp.append(d);
+						dirTmp.append("/");
+						String tmp = dirTmp.toString();
+						if (!dirs.contains(tmp)) {
+							dirs.add(tmp);
+							entry = new JarEntry(tmp);
+							target.putNextEntry(entry);
+						}
 					}
 				}
 				entry = new JarEntry(path);
@@ -539,18 +546,20 @@ public class JavaBridge {
 	private void makeJarDirs(JarOutputStream target, Collection<String> dirs,
 			String path) throws IOException {
 		JarEntry entry;
-		String dir = path.substring(0, path.lastIndexOf('/'));
-		while(dir.startsWith("/"))
-			dir = dir.substring(1);
-		StringBuilder dirTmp = new StringBuilder(dir.length());
-		for (String d : dir.split("/")) {
-			dirTmp.append(d);
-			dirTmp.append("/");
-			String tmp = dirTmp.toString();
-			if (!dirs.contains(tmp)) {
-				dirs.add(tmp);
-				entry = new JarEntry(tmp);
-				target.putNextEntry(entry);
+		if(path.contains("/")) {
+			String dir = path.substring(0, path.lastIndexOf('/'));
+			while(dir.startsWith("/"))
+				dir = dir.substring(1);
+			StringBuilder dirTmp = new StringBuilder(dir.length());
+			for (String d : dir.split("/")) {
+				dirTmp.append(d);
+				dirTmp.append("/");
+				String tmp = dirTmp.toString();
+				if (!dirs.contains(tmp)) {
+					dirs.add(tmp);
+					entry = new JarEntry(tmp);
+					target.putNextEntry(entry);
+				}
 			}
 		}
 	}

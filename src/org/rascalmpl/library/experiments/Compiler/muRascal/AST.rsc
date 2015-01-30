@@ -1,6 +1,9 @@
 module experiments::Compiler::muRascal::AST
 
-import Prelude;
+import Message;
+import List;
+import Node;
+import Type;   
 
 /*
  * Abstract syntax for muRascal.
@@ -11,15 +14,22 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, list[loc] imports,
-              					 map[str,Symbol] types, 
-                                 list[MuFunction] functions, 
-                                 list[MuVariable] variables, 
-                                 list[MuExp] initialization,
-                                 map[str,int] resolver,
-                                 lrel[str,list[str],list[str]] overloaded_functions,
-                                 map[Symbol, Production] grammar)
+              muModule(str name, 
+                       set[Message] messages,
+                       list[loc] imports,
+              		   map[str,Symbol] types, 
+              		   map[Symbol, Production] symbol_definitions,
+                       list[MuFunction] functions, 
+                       list[MuVariable] variables, 
+                       list[MuExp] initialization,
+                       int nlocals_in_initializations,
+                       map[str,int] resolver,
+                       lrel[str,list[str],list[str]] overloaded_functions,
+                       map[Symbol, Production] grammar,
+                       loc src)
             ;
+            
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -53,8 +63,8 @@ public data MuExp =
             													// Some special cases are handled by preprocessor, see below.
           | muLab(str name)										// Label
           
-          | muFun(str fuid)							            // *muRascal function constant: functions at the root
-          | muFun(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
+          | muFun1(str fuid)							            // *muRascal function constant: functions at the root
+          | muFun2(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
           
           | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
           
@@ -79,28 +89,30 @@ public data MuExp =
           | muTypeCon(Symbol tp)								// Type constant
           
           // Call/Apply/return    		
-          | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
-          | muApply(MuExp fun, list[MuExp] args)                // Partial *muRascal function application
+          | muCall(MuExp fun, list[MuExp] largs)                 // Call a *muRascal function
+          | muApply(MuExp fun, list[MuExp] largs)                // Partial *muRascal function application
           
-          | muOCall(MuExp fun, list[MuExp] args, loc src)       // Call a declared *Rascal function
+          | muOCall3(MuExp fun, list[MuExp] largs, loc src)       // Call a declared *Rascal function
 
-          | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
-          					   list[MuExp] args, loc src)
+          | muOCall4(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
+          					   list[MuExp] largs, loc src)
           
-          | muCallConstr(str fuid, list[MuExp] args /*, loc src*/)	// Call a constructor
-          
-          | muCallPrim(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
-          | muCallPrim(str name, list[MuExp] exps, loc src)		// Call a Rascal primitive function
+          | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
+    
+          | muCallPrim2(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
+          | muCallPrim3(str name, list[MuExp] exps, loc src)	 // Call a Rascal primitive function
           
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
+  
           | muCallJava(str name, str class, 
           			   Symbol parameterTypes,
+          			   Symbol keywordTypes,
           			   int reflect,
-          			   list[MuExp] args)						// Call a Java method in given class
+          			   list[MuExp] largs)						// Call a Java method in given class
  
-          | muReturn()											// Return from a function without value
-          | muReturn(MuExp exp)									// Return from a function with value
-          | muReturn(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          | muReturn0()											// Return from a function without value
+          | muReturn1(MuExp exp)									// Return from a function with value
+          | muReturn2(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
               
@@ -133,15 +145,15 @@ public data MuExp =
           
             // Coroutines
           
-          | muCreate(MuExp coro)								// Creates a coroutine instance, no arguments
-          | muCreate(MuExp coro, list[MuExp] args)				// Creates a coroutine instance, with arguments
+          | muCreate1(MuExp coro)								// Creates a coroutine instance, no arguments
+          | muCreate2(MuExp coro, list[MuExp] largs)				// Creates a coroutine instance, with arguments
           
-          | muNext(MuExp exp)									// Next on coroutine, no arguments
-          | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
+          | muNext1(MuExp exp)									// Next on coroutine, no arguments
+          | muNext2(MuExp exp1, list[MuExp] largs)				// Next on coroutine, with arguments
           
-          | muYield()											// Yield from a coroutine without value
-          | muYield(MuExp exp)									// Yield from a coroutine with value
-          | muYield(MuExp exp, list[MuExp] exps)                // Yield from a coroutine with multiple values
+          | muYield0()											// Yield from a coroutine without value
+          | muYield1(MuExp exp)									// Yield from a coroutine with value
+          | muYield2(MuExp exp, list[MuExp] exps)                // Yield from a coroutine with multiple values
           
           | muExhaust()                                         // Signal a failure and return from the coroutine disallowing further resumption 
 
@@ -151,8 +163,8 @@ public data MuExp =
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
-          | muOne(MuExp exp)                                    // Expression that always produces only the first value
-          | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
+          | muOne1(MuExp exp)                                    // Expression that always produces only the first value
+          | muOne2(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
           | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
@@ -171,10 +183,22 @@ public data MuExp =
           | muShift(MuExp exp)
           ;
           
-public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);
-public MuExp muOne(muMulti(MuExp exp)) = muOne(exp);
+public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
+public MuExp muOne1(muMulti(MuExp exp)) = muOne1(exp);
 
-anno loc MuExp@\loc;
+anno loc MuModule@\location;
+anno loc MuFunction@\location;
+anno loc MuVariable@\location;
+anno loc MuExp@\location;
+anno loc MuCatch@\location;
+anno loc MuTypeCase@\location;
+anno loc Identifier@\location;
+anno loc VarDecl@\location;
+
+anno loc Module@\location;
+anno loc TypeDeclaration@\location;
+anno loc Guard@\location;
+anno loc Function@\location;
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
@@ -196,12 +220,12 @@ public data Module =
 
 public data TypeDeclaration = preTypeDecl(str \type);
 
-public data VarDecl = preVarDecl(Identifier id)
-                    | preVarDecl(Identifier id, MuExp initializer)
+public data VarDecl = preVarDecl1(Identifier id)
+                    | preVarDecl2(Identifier id, MuExp initializer)
                     ;
                     
-public data Guard = preGuard(MuExp exp)
-                  | preGuard(list[VarDecl] locals, str sep, MuExp exp)
+public data Guard = preGuard1(MuExp exp)
+                  | preGuard3(list[VarDecl] locals, str sep, MuExp exp)
                   ;
 
 /*
@@ -232,8 +256,8 @@ public data MuExp =
             | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart, bool comma)
             
-            | preMuCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
-            | preMuCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+            | preMuCallPrim1(str name)                                // Call a Rascal primitive function (with empty list of arguments)
+            | preMuCallPrim2(str name, list[MuExp] exps)				// Call a Rascal primitive function
             | preThrow(MuExp exp)
             
             | preAddition(MuExp lhs, MuExp rhs)
@@ -277,5 +301,83 @@ public bool isOverloadedFunction(muOFun(str _)) = true;
 //public bool isOverloadedFunction(muOFun(str _, str _)) = true;
 public default bool isOverloadedFunction(MuExp _) = false;
 
-MuExp muCallPrim(str name) = muCallPrim(name, |unknown:///no-location-available|);
-MuExp muCallPrim(str name, list[MuExp] exps) = muCallPrim(name, exps, |unknown:///no-location-available|);
+
+//--------------- constant folding rules ----------------------------------------
+// TODO:
+// - These rules should go to a separate module
+// - Introduce a library function applyPrim(str name, list[value] args) to simplify these rules and cover more cases
+
+
+bool allConstant(list[MuExp] args) { b = isEmpty(args) || all(a <- args, muCon(_) := a); /*println("allConstant: <args> : <b>"); */return b; }
+
+// muBool, muInt?        
+          
+// Rascal primitives
+
+// Integer addition
+
+MuExp muCallPrim3("int_add_int", [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 + n2);
+
+MuExp muCallPrim3("int_add_int", [muCallPrim3("int_add_int", [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muCallPrim3("int_add_int", [e, muCon(n1 + n2)], src2);
+
+MuExp muCallPrim3("int_add_int", [muCon(int n1), muCallPrim3("int_add_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("int_add_int", [muCon(n1 + n2), e], src2);
+
+// Integer subtraction
+ 
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
+
+MuExp muCallPrim3("int_subtract_int", [muCallPrim3("int_subtract_int", [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muCallPrim3("int_subtract_int", [e, muCon(n1 - n2)], src2);
+
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCallPrim3("int_subtract_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("int_subtract_int", [muCon(n1 - n2), e], src2);      
+
+// Integer multiplication
+
+MuExp muCallPrim3("int_product_int", [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 * n2);
+
+MuExp muCallPrim3("int_product_int", [muCallPrim3("int_product_int", [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muCallPrim3("int_product_int", [e, muCon(n1 * n2)], src2);
+
+MuExp muCallPrim3("int_product_int", [muCon(int n1), muCallPrim3("int_product_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("int_product_int", [muCon(n1 * n2), e], src2);
+
+// String concatenation
+
+MuExp muCallPrim3("str_add_str", [muCon(str s1), muCon(str s2)], loc src) = muCon(s1 + s2);
+
+MuExp muCallPrim3("str_add_str", [muCallPrim3("str_add_str", [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
+      muCallPrim3("str_add_str", [e, muCon(s1 + s2)], src2);
+
+MuExp muCallPrim3("str_add_str", [muCon(str s1), muCallPrim3("str_add_str", [muCon(str s2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("str_add_str", [muCon(s1 + s2), e], src2);
+
+// Create composite datatypes
+
+MuExp muCallPrim3("list_create", list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
+      when allConstant(args);
+
+MuExp muCallPrim3("set_create", list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
+      when allConstant(args);
+      
+MuExp muCallPrim3("map_create", list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
+      when allConstant(args);
+      
+MuExp muCallPrim3("tuple_create", [muCon(v1)], loc src) = muCon(<v1>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
+
+MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
+      when allConstant(args);
+
+// Templates
+MuExp muCallPrim3("value_to_string", [muCon(value v)], loc src) = muCon("<v>");
+
+
+//// muRascal primitives
+//
+////MuExp muCallMuPrim(str name, list[MuExp] exps) = x;

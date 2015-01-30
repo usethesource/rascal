@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class Kind extends AbstractAST {
       return visitor.visitKindAlias(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Alias)) {
+        return false;
+      }        
+      Alias tmp = (Alias) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 907 ; 
+    } 
+  
     	
   }
   public boolean isAll() {
@@ -77,6 +91,20 @@ public abstract class Kind extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindAll(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof All)) {
+        return false;
+      }        
+      All tmp = (All) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 661 ; 
+    } 
   
     	
   }
@@ -104,6 +132,20 @@ public abstract class Kind extends AbstractAST {
       return visitor.visitKindAnno(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Anno)) {
+        return false;
+      }        
+      Anno tmp = (Anno) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 227 ; 
+    } 
+  
     	
   }
   public boolean isData() {
@@ -129,6 +171,20 @@ public abstract class Kind extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindData(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Data)) {
+        return false;
+      }        
+      Data tmp = (Data) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 307 ; 
+    } 
   
     	
   }
@@ -156,6 +212,20 @@ public abstract class Kind extends AbstractAST {
       return visitor.visitKindFunction(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Function)) {
+        return false;
+      }        
+      Function tmp = (Function) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 653 ; 
+    } 
+  
     	
   }
   public boolean isModule() {
@@ -181,6 +251,20 @@ public abstract class Kind extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindModule(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Module)) {
+        return false;
+      }        
+      Module tmp = (Module) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 523 ; 
+    } 
   
     	
   }
@@ -208,6 +292,20 @@ public abstract class Kind extends AbstractAST {
       return visitor.visitKindTag(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Tag)) {
+        return false;
+      }        
+      Tag tmp = (Tag) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 101 ; 
+    } 
+  
     	
   }
   public boolean isVariable() {
@@ -234,6 +332,20 @@ public abstract class Kind extends AbstractAST {
       return visitor.visitKindVariable(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Variable)) {
+        return false;
+      }        
+      Variable tmp = (Variable) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 173 ; 
+    } 
+  
     	
   }
   public boolean isView() {
@@ -259,6 +371,20 @@ public abstract class Kind extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindView(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof View)) {
+        return false;
+      }        
+      View tmp = (View) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 881 ; 
+    } 
   
     	
   }

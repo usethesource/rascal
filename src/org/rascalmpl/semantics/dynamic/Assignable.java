@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
@@ -50,6 +51,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
@@ -257,15 +259,15 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue().getValue());
 				return __eval.recur(this,
 						org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(receiver.getType(), result, __eval
-										.__getEval()));
+						.makeResult(receiver.getType(), result, __eval
+								.__getEval()));
 			} 
 			else if (receiver.getType() instanceof NonTerminalType) {
 				Result<IValue> result = receiver.fieldUpdate(label, __eval.__getValue(), __eval.getCurrentEnvt().getStore());
-				
+
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()), __eval
 						.__getValue()));
-				
+
 				if (!result.getType().isSubtypeOf(receiver.getType())) {
 					throw new UnexpectedType(receiver.getType(), result.getType(), __eval.getCurrentAST());
 				}
@@ -275,33 +277,48 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					|| receiver.getType().isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
+				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
 
-				/*
-				 * TODO: remove? if (!receiver.getType().hasField(label)) {
-				 * throw new NoSuchFieldError(receiver.getType() +
-				 * " does not have a field named `" + label + "`", this); }
-				 */
+				if (node.hasField(label)) {
+					int index = node.getFieldIndex(label);
 
-				if (!node.hasField(label)) {
-					throw new UndeclaredField(label, receiver.getValue()
-							.getType(), this);
+					if (!__eval.__getValue().getType().isSubtypeOf(
+							node.getFieldType(index))) {
+						throw new UnexpectedType(node.getFieldType(index),
+								__eval.__getValue().getType(), this);
+					}
+					__eval.__setValue(__eval.newResult(cons.get(index), __eval
+							.__getValue()));
+
+					IValue result = cons.set(index, __eval.__getValue().getValue());
+					return __eval.recur(this,
+							org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(receiver.getType(), result, __eval
+									.__getEval()));
+				}
+				else if (kwType.hasField(label)) {
+					if (!__eval.__getValue().getType().isSubtypeOf(
+							kwType.getFieldType(label))) {
+						throw new UnexpectedType(kwType.getFieldType(label),
+								__eval.__getValue().getType(), this);
+					}
+
+					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
+					if (paramValue == null) {
+						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					}
+					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
+
+					IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
+					return __eval.recur(this,
+							org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(receiver.getType(), result, __eval
+									.__getEval()));
+				}
+				else {
+					throw new UndeclaredField(label, receiver.getValue().getType(), this);
 				}
 
-				int index = node.getFieldIndex(label);
-
-				if (!__eval.__getValue().getType().isSubtypeOf(
-						node.getFieldType(index))) {
-					throw new UnexpectedType(node.getFieldType(index),
-							__eval.__getValue().getType(), this);
-				}
-				__eval.__setValue(__eval.newResult(cons.get(index), __eval
-						.__getValue()));
-
-				IValue result = cons.set(index, __eval.__getValue().getValue());
-				return __eval.recur(this,
-						org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(receiver.getType(), result, __eval
-										.__getEval()));
 			} else if (receiver.getType().isSourceLocation()) {
 				// ISourceLocation loc = (ISourceLocation) receiver.getValue();
 
@@ -348,25 +365,26 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			else if (receiverType.isExternalType() && receiverType instanceof NonTerminalType) {
 				return receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore());
 			}
-			else if (receiverType.isConstructor()
-					|| receiverType.isAbstractData()) {
+			else if (receiverType.isConstructor() || receiverType.isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
+				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
 
-				if (!receiverType.hasField(label, __eval.getCurrentEnvt()
-						.getStore())) {
+				if (!kwType.hasField(label) && !node.hasField(label)) {
 					throw new UndeclaredField(label, receiverType, this);
 				}
 
-				if (!node.hasField(label)) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-							.noSuchField(label, this, __eval.getStackTrace());
+				if (kwType.hasField(label)) {
+				  return ResultFactory
+						  .makeResult(kwType.getFieldType(label), cons.asWithKeywordParameters().getParameter(label)
+								  ,__eval);
 				}
-
-				int index = node.getFieldIndex(label);
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(node.getFieldType(index), cons.get(index),
-								__eval);
+				else {
+				  int index = node.getFieldIndex(label);
+				  return ResultFactory
+				      .makeResult(node.getFieldType(index), cons.get(index),
+				          __eval);
+				}
 			} else if (receiverType.isSourceLocation()) {
 				return receiver.fieldAccess(label, new TypeStore());
 			} else {
@@ -461,18 +479,19 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (rec.getType().isMap()) {
 				Type keyType = rec.getType().getKeyType();
 
-				if (rec.hasInferredType()
-						|| subscript.getType().isSubtypeOf(keyType)) {
-					IValue oldValue = ((IMap) rec.getValue()).get(subscript
-							.getValue());
-					__eval.__setValue(__eval.newResult(oldValue, __eval
-							.__getValue()));
-					IMap map = ((IMap) rec.getValue()).put(
-							subscript.getValue(), __eval.__getValue()
-									.getValue());
-					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(map.getType()) : rec.getType(), map,
+				if (rec.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
+					IValue oldValue = ((IMap) rec.getValue()).get(subscript.getValue());
+					Result<IValue> oldResult = null;
+					
+					if (oldValue != null) {
+						Type oldType = rec.getType().getValueType();
+					    oldResult = makeResult(oldType, oldValue, __eval.getEvaluator());
+					    oldResult.setInferredType(rec.hasInferredType());
+					    __eval.__setValue(__eval.newResult(oldResult, __eval.__getValue()));
+					}
+					
+					IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
+					result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
 									__eval.__getEval());
 				} else {
 					throw new UnexpectedType(keyType, subscript.getType(),
@@ -598,10 +617,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (receiver.getType().isMap()) {
 				Type keyType = receiver.getType().getKeyType();
 
-				if (receiver.hasInferredType()
-						|| subscript.getType().isSubtypeOf(keyType)) {
-					IValue result = ((IMap) receiver.getValue()).get(subscript
-							.getValue());
+				if (receiver.hasInferredType()|| subscript.getType().isSubtypeOf(keyType)) {
+					IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 
 					if (result == null) {
 						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory

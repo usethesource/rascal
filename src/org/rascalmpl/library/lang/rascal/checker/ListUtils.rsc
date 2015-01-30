@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -11,13 +11,13 @@ module lang::rascal::checker::ListUtils
 
 import List;
 
-public &B joinList(list[&A] itemList, &B (&A) itemFun, &B itemSep, &B joinUnit) {
-	if (size(itemList) >= 2) return itemFun(head(itemList)) + itemSep + joinList(tail(itemList),itemFun,itemSep,joinUnit);
-	else if (size(itemList) >= 1) return itemFun(head(itemList));
-	else return joinUnit;	
+public list[&B] joinList(list[&A] itemList, &B (&A) itemFun, &B itemSep, &B joinUnit) {
+	if (size(itemList) >= 2) return [itemFun(head(itemList))] + itemSep + joinList(tail(itemList),itemFun,itemSep,joinUnit);
+	else if (size(itemList) >= 1) return [itemFun(head(itemList))];
+	else return [joinUnit];	
 }
 
-public str joinStrList(list[str] items, str sep) {
+public list[str] joinStrList(list[str] items, str sep) {
     return joinList(items, str(str x) { return x; }, sep, ""); 
 }
 

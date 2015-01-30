@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -794,9 +794,9 @@ public str bad(){
    return "\<img height=\"25\" width=\"25\" src=\"/images/bad.png\"/\>";
 }
 
-public str status(QuestionName qid){
-  return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
-}
+//public str status(QuestionName qid){
+//  return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
+//}
 
 private str showStudentId(){
   return table("studentInfo",

@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -67,35 +68,30 @@ public class LazyList implements IList {
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList reverse() {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList append(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList insert(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList concat(IList o) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList put(int i, IValue e) throws FactTypeUseException,
 			IndexOutOfBoundsException {
@@ -109,7 +105,6 @@ public class LazyList implements IList {
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList sublist(int offset, int length) {
 		throw new IllegalOperationException("isEqual over buffered list",
@@ -128,14 +123,12 @@ public class LazyList implements IList {
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList delete(IValue e) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList delete(int i) {
 		throw new IllegalOperationException("isEqual over buffered list",
@@ -148,14 +141,12 @@ public class LazyList implements IList {
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList subtract(IList e) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IList intersect(IList e) {
 		throw new IllegalOperationException("isEqual over buffered list",
@@ -197,5 +188,17 @@ public class LazyList implements IList {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+	
+	 @Override
+	  public boolean mayHaveKeywordParameters() {
+	    return false;
+	  }
+	  
+	  @Override
+	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	    throw new IllegalOperationException(
+	        "Cannot be viewed as with keyword parameters", getType());
+	  }
+
 	
 }

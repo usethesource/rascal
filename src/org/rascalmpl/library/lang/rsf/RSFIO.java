@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class RSFIO {
 	private static final TypeFactory types = TypeFactory.getInstance();
@@ -60,12 +61,9 @@ public class RSFIO {
 	{
 		HashMap<java.lang.String, ISetWriter> table = new HashMap<java.lang.String, ISetWriter>();
 	
-		Type strType = types.stringType();
-		Type tupleType = types.tupleType(strType, strType);
-
 		Reader input = null;
 		try {
-			input = ctx.getResolverRegistry().getCharacterReader(nameRSFFile.getURI());
+			input = URIResolverRegistry.getInstance().getCharacterReader(nameRSFFile);
 			BufferedReader bufRead = new BufferedReader(input);
 			java.lang.String line = bufRead.readLine();
 
@@ -74,7 +72,7 @@ public class RSFIO {
 				java.lang.String name = fields[0];
 				//System.err.println(fields[0] + "|" + fields[1] + "|" + fields[2]);
 				if (!table.containsKey(name)) {
-					table.put(name, values.relationWriter(tupleType));
+					table.put(name, values.setWriter());
 				}
 				ISetWriter rw = table.get(name);
 				rw.insert(values.tuple(values.string(fields[1]), values.string(fields[2])));
@@ -95,7 +93,7 @@ public class RSFIO {
 			}
 		}
 
-		IMapWriter mw = values.mapWriter(strType, types.relType(strType, strType));
+		IMapWriter mw = values.mapWriter();
 
 		for (Map.Entry<java.lang.String, ISetWriter> entry : table.entrySet()) {
 			mw.insert(values.tuple(values.string(entry.getKey()), entry.getValue().done()));
@@ -142,10 +140,10 @@ public class RSFIO {
 		
 		Type elem1Type = resultType.getFieldType(0);
 		Type elem2Type = resultType.getFieldType(1);
-		ISetWriter rw = values.relationWriter(resultType.getElementType());
+		ISetWriter rw = values.setWriter();
 		String rname = relName.getValue();
 
-		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI())) {
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
 			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
@@ -199,7 +197,7 @@ public class RSFIO {
 		
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
+			reader = URIResolverRegistry.getInstance().getCharacterReader(loc);
 		
 			java.lang.String line = readLine(reader);
 

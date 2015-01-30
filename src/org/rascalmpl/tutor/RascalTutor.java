@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.tutor;
 
 import java.io.PrintWriter;
@@ -32,7 +32,15 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
 	private final Evaluator eval;
-  private ISourceLocation server;
+	private ISourceLocation server;
+
+	public boolean isEditMode() {
+		return getCoursesLocation() != null;
+	}
+
+	private String getCoursesLocation() {
+		return System.getProperty("rascal.courses");
+	}
 	
 	public RascalTutor() {
 		GlobalEnvironment heap = new GlobalEnvironment();
@@ -40,60 +48,78 @@ public class RascalTutor {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
-	  eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-	 
-	  URIResolverRegistry reg = eval.getResolverRegistry();
-    reg.registerInput(new ClassResourceInput(reg, "courses", eval.getClass(), "/org/rascalmpl/courses"));
-    eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
-    eval.addRascalSearchPath(URIUtil.rootScheme("courses"));
-    
-    for (final String lib : new String[] { "rascal", "rascal-eclipse" }) {
-      final String courseSrc = System.getProperty("rascal.courses.lib." + lib);
-    
-      if (courseSrc != null) {
-        FileURIResolver fileURIResolver = new FileURIResolver() {
-          @Override
-          public String scheme() {
-            return "clib-" + lib;
-          }
+		
+		if (isEditMode()) {
+		   FileURIResolver fileURIResolver = new FileURIResolver() {
+		    @Override
+		    public String scheme() {
+		      return "courses";
+		    }
+		    
+		    @Override
+		    protected String getPath(ISourceLocation uri) {
+		      String path = uri.getPath();
+		      return getCoursesLocation() + (path.startsWith("/") ? path : ("/" + path));
+		    }
+		  };
+		  
+		  URIResolverRegistry.getInstance().registerInputOutput(fileURIResolver);
+		}
+		else {
+			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+			URIResolverRegistry.getInstance().registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
+		}
+		
+		eval.addRascalSearchPath(URIUtil.rootLocation("tutor"));
+		eval.addRascalSearchPath(URIUtil.rootLocation("courses"));
 
-          @Override
-          protected String getPath(URI uri) {
-            String path = uri.getPath();
-            return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-          }
-        };
-        
-        reg.registerInputOutput(fileURIResolver);
-        eval.addRascalSearchPath(URIUtil.rootScheme("clib-" + lib));
-      }
-    }
+		for (final String lib : new String[] { "rascal", "rascal-eclipse" }) {
+			final String libSrc = System.getProperty("rascal.courses.lib." + lib);
+
+			if (libSrc != null) {
+				FileURIResolver fileURIResolver = new FileURIResolver() {
+					@Override
+					public String scheme() {
+						return "clib-" + lib;
+					}
+
+					@Override
+					protected String getPath(ISourceLocation uri) {
+						String path = uri.getPath();
+						return libSrc + (path.startsWith("/") ? path : ("/" + path));
+					}
+				};
+
+				URIResolverRegistry.getInstance().registerInputOutput(fileURIResolver);
+				eval.addRascalSearchPath(URIUtil.rootLocation("clib-" + lib));
+			}
+		}
 	}
-	
+
 	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
 		return eval;
 	}
-	
+
 	public void start(IRascalMonitor monitor) throws Exception {
 		monitor.startJob("Loading Course Manager");
 		eval.doImport(monitor, "TutorWebserver");
 		server = (ISourceLocation) call("startTutor", new IValue[] { });
 	}
-	
+
 	public void stop() throws Exception {
 		if (server != null) {
 			call("stopTutor", new IValue[] { server });
 		}
 	}
-	
+
 	private IValue call(String func, IValue[] args) {
-	  return eval.call(func, "TutorWebserver", null, args);
+		return eval.call(func, "TutorWebserver", null, args);
 	}
-	
+
 	public URI getServer() {
-	  return server.getURI();
+		return server.getURI();
 	}
-	
+
 	public static void main(String[] args) {
 		RascalTutor tutor = new RascalTutor();
 		try {

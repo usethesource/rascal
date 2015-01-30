@@ -17,9 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 
 public abstract class UserType extends org.rascalmpl.ast.UserType {
@@ -31,7 +34,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			Environment theEnv = __eval.getHeap().getEnvironmentForName(
 					getName(), __eval);
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(this
@@ -72,7 +75,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			String name;
 			Type type = null;
 			Environment theEnv = __eval.getHeap().getEnvironmentForName(
@@ -95,7 +98,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 				int i = 0;
 				for (org.rascalmpl.ast.Type param : this.getParameters()) {
-					params[i++] = param.typeOf(__eval, instantiateTypeParameters);
+					params[i++] = param.typeOf(__eval, instantiateTypeParameters, eval);
 				}
 
 				// __eval has side-effects that we might need?

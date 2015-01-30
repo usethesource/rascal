@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import Map;
 import Relation;
 import lang::dot::Dot;
 import IO;
+
+import experiments::Concept::Types;
 
 @doc{
 Synopsis: Data Types belonging to Formal Concept Analysis.
@@ -66,12 +68,12 @@ public Outline toOutline(ConceptLattice[&Object, &Attribute] cl) {
      return r;
      } 
         
-public FormalContext[&Object, &Attribute] toFormalContext(Object2Attributes objects) {
+public FormalContext[&Object, &Attribute] toFormalContext(Object2Attributes[&Object, &Attribute] objects) {
     return {<object, attribute>  | &Object object <- domain(objects), 
             &Attribute attribute <- objects[object]}; 
     }
 
-public FormalContext[&Object, &Attribute] toFormalContext(Attribute2Objects attributes) {
+public FormalContext[&Object, &Attribute] toFormalContext(Attribute2Objects[&Object, &Attribute] attributes) {
     return {<object, attribute>  | &Attribute attribute <- domain(attributes), 
             &Object object <- attributes[attribute]}; 
     }     
@@ -150,7 +152,7 @@ set[&Attribute] newAdded1(ConceptLattice[&Object, &Attribute] q,  Concept[&Objec
      }
  
 set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, &Attribute] c) {
-     set[concept_t] parents = domain(rangeR(q, {c}));
+     set[Concept[&Object, &Attribute]] parents = domain(rangeR(q, {c}));
      return c[0] - union({p[0]|Concept[&Object, &Attribute] p <-parents});
      }  
 

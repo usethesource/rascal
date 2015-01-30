@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ module util::FileSystem
 
 import Exception;
 import IO;
+import String;
 
 data FileSystem 
   = directory(loc l, set[FileSystem] children)
@@ -26,4 +27,16 @@ set[loc] find(loc f, bool (loc) filt)
       ;
 
 set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext; });
+
+@doc{
+Synopsis: lists all files recursively ignored files and directories starting with a dot.
+}
+set[loc] visibleFiles(loc l) {
+  if (/^\./ := l.file) 
+    return {};
+  else if (isDirectory(l)) 
+    return {*visibleFiles(f) | f <- l.ls};
+  else 
+    return {l};
+}
 

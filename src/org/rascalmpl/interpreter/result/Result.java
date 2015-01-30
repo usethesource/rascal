@@ -1069,9 +1069,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	
-	
-	
-
-	
+	public Type getKeywordArgumentTypes(Environment env) {
+		return TypeFactory.getInstance().voidType();
+	}
 }

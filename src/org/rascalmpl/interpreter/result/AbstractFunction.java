@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -34,14 +36,19 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -52,7 +59,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
 	protected boolean hasKeyArgs;
-	protected List<KeywordParameter> keywordParameterDefaults;
+	protected final Map<String, Expression> keywordParameterDefaults = new HashMap<>();
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
@@ -63,20 +70,38 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<KeywordParameter> keyargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
-		this.hasKeyArgs = keyargs != null && keyargs.size() > 0;
-		this.keywordParameterDefaults = keyargs;
+		this.hasKeyArgs = functionType.hasKeywordParameters();
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
+		
+		for (KeywordFormal init : initializers) {
+			String label = Names.name(init.getName());
+			keywordParameterDefaults.put(label, init.getExpression());
+		}
 	}
 
+	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {
+		KeywordFormals keywordFormals = func.getSignature().getParameters().getKeywordFormals();
+		return keywordFormals.hasKeywordFormalList() ? keywordFormals.getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
+	}
+	
 	public boolean isTest() {
 		return false;
+	}
+	
+	@Override
+	public Type getKeywordArgumentTypes(Environment env) {
+	  return functionType.getKeywordParameterTypes();
+	}
+
+	public boolean hasKeywordParameter(String label) {
+		return functionType.hasKeywordParameter(label);
 	}
 	
 	@Override
@@ -108,7 +133,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 
-	public String getTag(String key) {
+	public IValue getTag(String key) {
 		return null;
 	}
 
@@ -147,25 +172,25 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		return hasKeyArgs;
 	}
 	
-	public List<KeywordParameter> getKeywordParameterDefaults(){
+	public Map<String, Expression> getKeywordParameterDefaults(){
 		return keywordParameterDefaults;
 	}
 	
 	@Override
-  public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
-    IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
-    try {
-      return call(argTypes,argValues,  keyArgValues);
-    }
-    finally {
-      ctx.getEvaluator().setMonitor(old);
-    }
-  }
-	
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
+		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+		try {
+			return call(argTypes,argValues,  keyArgValues);
+		}
+		finally {
+			ctx.getEvaluator().setMonitor(old);
+		}
+	}
+
 	private boolean matchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
@@ -281,7 +306,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			lub = lub.lub(actuals[j].getType());
 		}
 		
-		IListWriter list = vf.listWriter(lub);
+		IListWriter list = vf.listWriter();
 		list.insertAt(0, actuals, i, actuals.length - arity + 1);
 		newActuals[i] = list.done();
 		return newActuals;
@@ -430,13 +455,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	/* test if a function is of type T(T) for a given T */
 	public boolean isTypePreserving() {
 		Type t = getReturnType();
-		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t));
+		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, TF.voidType()));
 	}
 	
 	public String getName() {
 		return "";
 	}
-
+ 
 	public Type getReturnType() {
 		return functionType.getReturnType();
 	}
@@ -488,5 +513,45 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false; // this is not a data value
+	}
 	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  // this is not a data value
+	  throw new IllegalOperationException(
+        "Facade cannot be viewed as with keyword parameters.", getType());
+	}
+
+	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
+	    Environment env = ctx.getCurrentEnvt();
+
+	    if (functionType.hasKeywordParameters()) {
+	        for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
+	            Type kwType = functionType.getKeywordParameterType(kwparam);
+	
+	            if (keyArgValues.containsKey(kwparam)){
+	                IValue r = keyArgValues.get(kwparam);
+	
+	                if(!r.getType().isSubtypeOf(kwType)) {
+	                    throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
+	                }
+	
+	                env.declareVariable(kwType, kwparam);
+	                env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
+	            } 
+	            else {
+	                env.declareVariable(kwType, kwparam);
+	                Expression def = getKeywordParameterDefaults().get(kwparam);
+	                Result<IValue> kwResult = def.interpret(eval);
+	                env.storeVariable(kwparam, kwResult);
+	            }
+	        }
+	    }
+	    // TODO: what if the caller provides more arguments then are declared? They are
+	    // silently lost here.
+	}
 }
