@@ -267,16 +267,18 @@ str trAxis(Axis axis) {
                 
 data Legend (bool none = false,
              str alignment = "",
-             int maxLines = -1) = legend()
+             int maxLines = -1,
+             str position ="") = legend()
             ;
             
-bool isEmpty (Legend legend) = !legend.none && legend.alignment==""
-                && legend.maxLines == -1;
+bool isEmpty (Legend legend) = !legend.none && isEmpty(legend.alignment)
+                && legend.maxLines == -1 && isEmpty(legend.position);
 
 str trLegend(Legend legend) {
     if (legend.none) return "\'none\'";
     str r = "{";
     if  (!isEmpty(legend.alignment)) r +="\"alignment\" : \"<legend.alignment>\",";
+    if  (!isEmpty(legend.position)) r +="\"position\" : \"<legend.position>\",";
     if  (legend.maxLines>=0) r+= "\"maxLines\" : \"<legend.maxLines>\",";
     r = replaceLast(r,",", "");
     r+="}";
@@ -374,7 +376,8 @@ str trOptions(ChartOptions options) {
             if  (options.width>=0) r+="\"width\" : <options.width>,";
             if  (options.height>=0) r+= "\"height\" : <options.height>,";
             r+= "\"forceIFrame\":<options.forceIFrame>,";
-            if  (!isEmpty(options.legend)) r +="\"hAxis\" : <trLegend(options.legend)>,";
+            /* if  (!isEmpty(options.legend)) */ 
+            if (!options.legend.none) r +="\"legend\" : <trLegend(options.legend)>,";
             if  (options.lineWidth>=0) r+="\"lineWidth\" : <options.lineWidth>,";
             if  (options.pointSize>=0) r+="\"pointSize\" : <options.pointSize>,";
             if  (options.interpolateNulls)  r+= "\"interpolateNulls\":\"<options.interpolateNulls>\",";
@@ -385,7 +388,27 @@ str trOptions(ChartOptions options) {
             r = replaceLast(r,",", "");
             r+="}";
             return r;
+ 
       }
+
+ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
+    options.series = [];
+    for (c<-charts) {
+        Series s = series();
+        switch(c) {
+            case line(_): s.\type = "line";
+            case area(_): s.\type=  "area";
+            case bar(_) : s.\type = "bars";
+            }
+        s.color = c.color;
+        s.curveType = c.curveType;
+        s.lineWidth = c.lineWidth;
+        s.pointShape = c.pointShape;
+        s.pointSize = c.pointSize;
+        options.series += [s];
+        }
+    return options;
+    }
             
 data Column  = column(str \type="", str label="", str role = "");      
 
@@ -402,39 +425,55 @@ data Chart(str name = "", str color = "", str curveType = "",
      int lineWidth = -1, str pointShape = "", int pointSize = -1)
     =
 	  line(XYData xydata) 
-	| line(XYLabeledData xylabeldata) 
+	| line(XYLabeledData xylabeleddata) 
 	| area(XYData xydata)
 	| area(XYLabeledData xylabeleddata)
 	| bar(XYLabeledData xylabeledData)
 	;
 	
-
-lrel[value, value] tData(Chart c) {
+alias XYLabeledData     = lrel[num xx, num yy, str label];	
+map[value, list[value]] tData(Chart c) {
+     list[list[value]] r = [];
      switch(c) {
-        case line(XYData x): return x;
-        case area(XYData y): return y;
-        case bar(LabeledData labeledData): return labeledData;
+        case line(XYData x): r = [[d[0], d[1]]|d<-x];
+        case area(XYData x): r = [[d[0], d[1]]|d<-x];
+        case line(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
+        case area(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
+        case bar(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
         }
-     return [];
+     map[value, list[value]] q = (d[0]:[e|e<-tail(d)]|d<-r);
+     return q;
      }
 
-Column cData(Chart c) {
+list[Column] cData(Chart c) {
      switch(c) {
-        case line(XYData x): return column(\type="number");
-        case area(XYData y): return column(\type="number");
-        case bar(LabeledData labeledData): return column(\type="number");
+        case line(XYData x): return [column(\type="number", label = c.name, role="data")];
+        case area(XYData x): return [column(\type="number", label = c.name, role="data")];
+        case line(XYLabeledData x): return [column(\type="number", label = c.name, role="data")
+                                           ,column(\type="string", label = c.name, role="tooltip")
+                                           ];
+        case area(XYLabeledData y): return [column(\type="number", label = c.name, role="data")
+                                           ,column(\type="string", label = c.name, role="tooltip")
+                                           ];
+        case bar(XYLabeledData x): return [column(\type="number", label = c.name, role="data")];
         }
      return column();
      }
      
+list[value] image(list[list[value]] d, value x) {
+     list[list[value]] r = range(domainX(d, x));
+     
+     }
+     
 list[Column] joinColumn(list[Chart] charts) {
-     list[Column] r = [cData(c)|c<-charts];
-     return [column(\type="number")]+r;
+     list[Column] r = [*cData(c)|c<-charts];
+     return [column(\type="number", role="domain")]+r;
      }
      
 list[list[value]] joinData(list[Chart] charts) {
-   set[value] d = union({toSet(domain(tData(c)))|c <-charts});   
-   list[value] x = sort([i|i<-d]);
-   return [[z] +[(tData(c)[z]?)?tData(c)[z][0]:""|c<-charts]|z<-x];
+   list[map[value, list[value]]] m = [tData(c)|c<-charts];   
+   set[value] d = union({domain(c)|c <-m });   
+   list[value] x = sort(toList(d));
+   return [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
    }
 	

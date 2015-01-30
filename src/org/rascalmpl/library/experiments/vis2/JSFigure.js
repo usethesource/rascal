@@ -490,8 +490,8 @@ function askServer(path, params) {
               d3.event.stopPropagation();
             }
             //alert(params);
-            
-            var res = JSON.parse(responseText);
+            responseText= responseText.replace(/\"null\"/g, 'null');
+            var res = JSON.parse(responseText);         
             var area = d3.select("#figurearea svg");
             if(!area.empty()){
               try { area.remove(); } catch(e) { console.log("askServer", e); };

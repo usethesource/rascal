@@ -624,13 +624,14 @@ str trVega(Figure chart, Figure parent) {
     
  str trCombo(Figure chart, Figure parent) {
     list[Chart] charts = chart.charts;
-    str d = intercalate(",", joinData(chart.charts));
+    str d = intercalate(",", joinData(charts));
     str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts)]);
     str cmd = "ComboChart";
+    ChartOptions options = updateOptions(charts, chart.options);
     return 
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
-    ' \"options\": <trOptions(chart.options)>,
+    ' \"options\": <trOptions(options)>,
     ' \"data\": [<d>],
     '\"columns\": [<c>]  
     '}";   
