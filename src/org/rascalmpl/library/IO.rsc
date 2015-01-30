@@ -37,9 +37,11 @@ Pitfalls:
 
 * repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
 * the registry is an intentional memory leak; so make sure you use it wisely.
+* when the files references by the physical locations are being written to (edited, removed), then you
+may expect problems. The registry is not automatically invalidated.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java void registerLocations(str scheme, str authority, map[loc,loc] m);
+java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
 @doc{
 Synopsis: undo the effect of [registerLocations]

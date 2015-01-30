@@ -1044,7 +1044,7 @@ public class Prelude {
 		}
 	}
 	
-	public IValue readFileEnc(ISourceLocation sloc, IString charset){
+	public IString readFileEnc(ISourceLocation sloc, IString charset){
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(reader);
 		} 
@@ -1056,7 +1056,7 @@ public class Prelude {
 		}
 	}
 
-	private IValue consumeInputStream(Reader in) throws IOException {
+	private IString consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[512];
 		int read = 0;
@@ -1144,6 +1144,12 @@ public class Prelude {
 		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
 		}
 		
+		IList newV = computeOutputString(sloc, charset, V, append);
+		if (append && newV.length() != V.length()) { // append has been interpreted
+			append = false;
+		}
+		V = newV;
+		
 		try (OutputStreamWriter out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc, append), charset.getValue(), append)) {
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
@@ -1164,6 +1170,31 @@ public class Prelude {
 		return;
 	}
 	
+	private IList computeOutputString(ISourceLocation sloc, IString charset, IList toWrite, boolean append) {
+		try {
+			URIResolverRegistry reg = URIResolverRegistry.getInstance();
+			
+			sloc = reg.logicalToPhysical(sloc);
+			
+			if (!reg.supportsInputScheme(sloc.getScheme())) {
+				return toWrite;
+			}
+			
+			if (!sloc.hasOffsetLength()) {
+				return toWrite;
+			}
+
+			IString prefix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc),  0, sloc.getOffset() + (append ? sloc.getLength() : 0)), charset);
+			toWrite = toWrite.insert(prefix);
+			IString postfix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc), sloc.getOffset() + sloc.getLength(), 0), charset);
+			toWrite = toWrite.append(postfix);
+			
+			return toWrite;
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
 		try (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false))) {
 			Iterator<IValue> iter = blist.iterator();
