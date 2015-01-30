@@ -460,10 +460,10 @@ list[Column] cData(Chart c) {
      return column();
      }
      
-list[value] image(list[list[value]] d, value x) {
-     list[list[value]] r = range(domainX(d, x));
-     
-     }
+//list[value] image(list[list[value]] d, value x) {
+//     list[list[value]] r = range(domainX(d, x));
+//     
+//     }
      
 list[Column] joinColumn(list[Chart] charts) {
      list[Column] r = [*cData(c)|c<-charts];
