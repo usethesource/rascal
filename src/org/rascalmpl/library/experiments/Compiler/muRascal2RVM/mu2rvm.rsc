@@ -5,6 +5,7 @@ import Type;
 import List;
 import ListRelation;
 import Message;
+import String;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -208,7 +209,13 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    code = peephole(tr(fun.body)) /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    code = tr(fun.body);
+    if(!contains(fun.qname, "_testsuite")){
+    	code = peephole(code);
+    }
+    
+    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
