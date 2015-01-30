@@ -267,8 +267,6 @@ test bool assignStep11() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L
 test bool assignStep12() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
 test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
 
-// TODO: The following tests fail in the interpreter
-
 @ignoreInterpreter{} test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
 @ignoreInterpreter{} test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
 @ignoreInterpreter{} test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}

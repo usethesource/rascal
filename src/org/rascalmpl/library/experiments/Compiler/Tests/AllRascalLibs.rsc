@@ -209,14 +209,14 @@ tuple[set[loc],set[loc]] compileAll(list[loc] roots = [|project://rascal/|, |pro
 	println("Time: <tosec(t1, realTime())> sec.");
 	
 	// TODO: watch out stats appear elsewhere now:
-	writeFile(|home:///rascal-stats/experiments/Compiler/Tests/static_errors|, 
+	writeFile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/static_errors|, 
 	   "<for(loc f <- sort([ msg | msg <- static_error_count, static_error_count[msg] > 0])){><f>\n<}>");
 	 
 	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
-    writeFile(|home:///rascal-stats/experiments/Compiler/Tests/static_error_count_per_file|, 
+    writeFile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/static_error_count_per_file|, 
        "<for(tp <- perfile){><tp>\n<}>");
        
-	writeFile(|home:///rascal-stats/experiments/Compiler/Tests/compiler_errors|, 
+	writeFile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/compiler_errors|, 
 	   "<for(loc f <- sort(toList(compiler_errors))){><f>\n<}>");
 	
 	return <domain(static_error_count), compiler_errors>;

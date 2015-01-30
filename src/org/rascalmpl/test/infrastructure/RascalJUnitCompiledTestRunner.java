@@ -12,7 +12,6 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
 import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -76,9 +75,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.getConfiguration().setErrors(true);
-        IURIInputStreamResolver rascalProject = new RascalProjectInput(evaluator.getResolverRegistry(), RascalJUnitCompiledTestRunner.class);
-        evaluator.getResolverRegistry().registerInput(rascalProject);
-        evaluator.addRascalSearchPath(URIUtil.rootScheme("project"));
+        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
+        URIResolverRegistry.getInstance().registerInput(rascalProject);
+        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
 
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
@@ -105,10 +104,10 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				((IRascalJUnitTestSetup) instance).setup(evaluator);
 			}
 			else {
-				IURIInputStreamResolver resolver = new ClassResourceInput(evaluator.getResolverRegistry(), "junit", clazz, "/");
-				evaluator.getResolverRegistry().registerInput(resolver);
-				evaluator.addRascalSearchPath(URIUtil.rootScheme("junit"));
-				evaluator.addRascalSearchPath(URIUtil.rootScheme("tmp"));
+				ISourceLocationInput resolver = new ClassResourceInput("junit", clazz, "/");
+				URIResolverRegistry.getInstance().registerInput(resolver);
+				evaluator.addRascalSearchPath(URIUtil.rootLocation("junit"));
+				evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
 			}
 		} catch (InstantiationException e) {
 			throw new ImplementationError("Could not setup tests for: " + clazz.getCanonicalName(), e);
@@ -140,30 +139,26 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 
-	static protected List<String> getRecursiveModuleList(URI root, URIResolverRegistry reg) throws IOException {
+	static protected List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
 		List<String> result = new ArrayList<>();
-		Queue<URI> todo = new LinkedList<>();
+		Queue<ISourceLocation> todo = new LinkedList<>();
 		todo.add(root);
 		while (!todo.isEmpty()) {
-			URI currentDir = todo.poll();
+			ISourceLocation currentDir = todo.poll();
 			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
-			for (String ent : reg.listEntries(currentDir)) {
-				if (ent.endsWith(".rsc")) {
+			for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
+				if (ent.getPath().endsWith(".rsc")) {
 					if (prefix.isEmpty()) {
-						result.add(ent.replace(".rsc", ""));
+						result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
 					}
 					else {
-						result.add(prefix + "::" + ent.replace(".rsc", ""));
+						result.add(prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
 					}
 				}
 				else {
-					URI possibleDir;
-					try {
-						possibleDir = URIUtil.changePath(currentDir, currentDir.getPath() + "/" + ent);
-						if (reg.isDirectory(possibleDir)) {
-							todo.add(possibleDir);
-						}
-					} catch (URISyntaxException e) {
+					ISourceLocation possibleDir = URIUtil.getChildLocation(currentDir, currentDir.getPath() + "/" + ent);
+					if (URIResolverRegistry.getInstance().isDirectory(possibleDir)) {
+						todo.add(possibleDir);
 					}
 				}
 			}
@@ -180,7 +175,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.desc = desc;
 
 		try {
-			List<String> modules = getRecursiveModuleList(URIUtil.create("std", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
+			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
 
 			for (String module : modules) {
 				String name = prefix + "::" + module;
