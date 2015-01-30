@@ -1781,4 +1781,15 @@ public class RVMRun implements IRVM {
 	public void resetLocationCollector() {
 		locationCollector = NullLocationCollector.getInstance();
 	}
+
+	@Override
+	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PrintWriter getStdOut() {
+		return rex.getStdOut();
+	}
 }

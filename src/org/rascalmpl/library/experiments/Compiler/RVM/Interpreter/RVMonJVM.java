@@ -339,4 +339,15 @@ public class RVMonJVM implements IRVM {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PrintWriter getStdOut() {
+		return rex.getStdOut();
+	}
 }
