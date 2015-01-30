@@ -49,20 +49,20 @@ public class Reflective {
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		IEvaluator<?> evaluator = ctx.getEvaluator();
-		return evaluator.parseCommand(evaluator.getMonitor(), str.getValue(), loc.getURI());
+		return evaluator.parseCommand(evaluator.getMonitor(), str.getValue(), loc);
 	}
 
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommands(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		IEvaluator<?> evaluator = ctx.getEvaluator();
-		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc.getURI());
+		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc);
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
 		try {
 			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI());
+			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -96,7 +96,7 @@ public class Reflective {
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI());
+		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc);
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
@@ -108,7 +108,7 @@ public class Reflective {
     ownEvaluator.addRascalSearchPathContributor(contrib);
     
     try { 
-      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI());
+      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
     }
@@ -122,11 +122,11 @@ public class Reflective {
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
-		URI uri = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());
+		ISourceLocation uri = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
 		}
-		return ctx.getValueFactory().sourceLocation(uri);
+		return uri;
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
@@ -142,7 +142,7 @@ public class Reflective {
 		}
 		
 		try {
-			URI uri = ctx.getEvaluator().getRascalResolver().resolvePath(value);
+			ISourceLocation uri = ctx.getEvaluator().getRascalResolver().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 				
@@ -156,13 +156,13 @@ public class Reflective {
 				
 				if (result != null) {
 					String child = URIUtil.getURIName(URIUtil.createFile(value));
-					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
+					return URIUtil.getChildLocation(result, child);
 				}
 				
 				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
 			}
 
-			return ctx.getValueFactory().sourceLocation(uri);
+			return uri;
 		} catch (URISyntaxException e) {
 			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
 		}
@@ -199,7 +199,7 @@ public class Reflective {
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
 		}
-		prelude.writeTextValueFile(watchLoc, val, ctx);
+		prelude.writeTextValueFile(watchLoc, val);
 		return val;
 	}
 

@@ -202,13 +202,11 @@ public class EclipseJavaCompiler {
   }
 
   private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
-    loc = ctx.getHeap().resolveSourceLocation(loc);
-
     char[] data;
     Reader textStream = null;
 
     try {
-      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc.getURI());
+      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc);
       data = InputConverter.toChar(textStream);
     } finally {
       if (textStream != null) {

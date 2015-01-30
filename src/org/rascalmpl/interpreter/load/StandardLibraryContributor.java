@@ -18,8 +18,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class StandardLibraryContributor implements
@@ -40,29 +43,35 @@ public class StandardLibraryContributor implements
 		return InstanceHolder.sInstance;
 	}
 	
-	public void contributePaths(List<URI> l) {
+	public void contributePaths(List<ISourceLocation> l) {
 		String property = java.lang.System.getProperty("rascal.path");
-
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+				
 		if (property != null) {
 			for (String path : property.split(":")) {
 				try {
 					if (path.endsWith(".jar")) {
-						// TODO: test this new functionality
 						for (String root: new RascalManifest().getSourceRoots(new File(path))) {
-							l.add(URIUtil.fixUnicode(URIUtil.create("jar","",path + "!" + root)));
+							l.add(vf.sourceLocation("jar","", path + "!" + root));
 						}
 					}
 					else {
-						l.add(URIUtil.fixUnicode(new File(path).toURI()));
+						l.add(vf.sourceLocation("file","", path));
 					}
 				} catch (URISyntaxException e) {
 				}
 			}
 		}
-		l.add(URIUtil.rootScheme("cwd"));
-		l.add(URIUtil.rootScheme("std"));
-		l.add(URIUtil.rootScheme("testdata"));
-		l.add(URIUtil.rootScheme("benchmarks"));
+		
+		try {
+			l.add(vf.sourceLocation("cwd","",""));
+			l.add(vf.sourceLocation("std","",""));
+			l.add(vf.sourceLocation("testdata","",""));
+			l.add(vf.sourceLocation("benchmarks","",""));
+		}
+		catch (URISyntaxException e) {
+			assert false;
+		}
 	}
 
 	@Override

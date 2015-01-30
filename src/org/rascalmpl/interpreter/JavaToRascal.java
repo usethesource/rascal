@@ -80,7 +80,7 @@ public class JavaToRascal {
 	}
 
 	public void voidValue(String command, String location) {
-		evaluator.eval(null, command, URIUtil.assumeCorrect(location));
+		evaluator.eval(null, command, vf.sourceLocation(URIUtil.assumeCorrect(location)));
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class JavaToRascal {
 	}
 
 	public String stringValue(String command, String scheme) {
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
 		return ((IString) (result.getValue())).getValue();
 	}
 
@@ -108,7 +108,7 @@ public class JavaToRascal {
 	}
 
 	public int intValue(String command, String scheme) {
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
 		return ((IInteger) (result.getValue())).intValue();
 	}
 
@@ -121,7 +121,7 @@ public class JavaToRascal {
 	}
 
 	public boolean boolValue(String command, String scheme) {
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
 		return ((IBool) (result.getValue())).getValue();
 	}
 
@@ -142,7 +142,7 @@ public class JavaToRascal {
 	}
 
 	public Object[] listValue(String command, String scheme) {
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
 		return _listValue((IList) (result.getValue()));
 	}
 
@@ -155,7 +155,7 @@ public class JavaToRascal {
 	}
 
 	public Object eval(String command, String scheme) {
-		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
 		if (result.getType().isBool())
 			return new Boolean(((IBool) (result.getValue())).getValue());
 		if (result.getType().isInteger())

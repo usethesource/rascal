@@ -556,9 +556,9 @@ MuExp getConstructor(str cons) {
 
 MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
-    println("translateConcrete, fragType = <fragType>");
+    //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
-    println("translateConcrete, reified: <reifiedFragType>");
+    //println("translateConcrete, reified: <reifiedFragType>");
     Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
     //println("parsedFragment, before"); iprintln(parsedFragment);
     return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
@@ -572,14 +572,14 @@ MuExp translateConcreteParsed(Tree e, loc src){
        //iprintln(e);
        if(prod.def == label("hole", lex("ConcretePart"))){
            varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
-           println("varloc = <getType(varloc)>");
+           //println("varloc = <getType(varloc)>");
            <fuid, pos> = getVariableScope("ConcreteVar", varloc);
            
            return muVar("ConcreteVar", fuid, pos);
         } 
         MuExp translated_elems;
         if(any(arg <- args, isConcreteListVar(arg))){ 
-           println("splice in concrete list");      
+           //println("splice in concrete list");      
            str fuid = topFunctionScope();
            writer = nextTmp();
         
@@ -592,10 +592,15 @@ MuExp translateConcreteParsed(Tree e, loc src){
                                         muCallPrim3("listwriter_close", [muTmp(writer,fuid)], my_src) 
                                       ]);
         } else {
-           translated_elems = muCallPrim3("list_create", [translateConcreteParsed(arg, my_src) | Tree arg <- args], my_src);
+           translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
+           if(allConstant(translated_args)){
+        	  return muCon(appl(prod, [ce | muCon(ce) <- translated_args]));
+           }
+           translated_elems = muCallPrim3("list_create", translated_args, my_src);
         }
+        
         return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                       [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
+                      [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
     } else {
         return muCon(e);
     }
@@ -799,7 +804,6 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	bool rebuild = false;
 	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
 									|| hasTopLevelInsert(c)) ) {
-		println("Rebuilding visit!");
 		rebuild = true;
 	}
 	
@@ -994,12 +998,10 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 }
 
 private bool hasTopLevelInsert(Case c) {
-	println("Look for an insert...");
 	top-down-break visit(c) {
 		case (Statement) `insert <DataTarget dt> <Statement stat>`: return true;
 		case Visit v: ;
 	}
-	println("Insert has not been found, non-rebuilding visit!");
 	return false;
 }
 /*
@@ -1051,6 +1053,58 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
     
 }
 
+//MuExp translateConstantCall("List", "size", [muCon(list[value] lst)]) = muCon(size(lst));
+//
+//MuExp translateConstantCall("ParseTree", "left", []) = muCon(\left());
+//MuExp translateConstantCall("ParseTree", "right", []) = muCon(\right());
+//MuExp translateConstantCall("ParseTree", "assoc", []) = muCon(\assoc());
+//MuExp translateConstantCall("ParseTree", "non-assoc", []) = muCon(\non-assoc());
+//
+//MuExp translateConstantCall("ParseTree", "assoc", [muCon(Associativity a)]) = muCon(\assoc(a));
+//MuExp translateConstantCall("ParseTree", "bracket", [muCon(Associativity a)]) = muCon(\bracket());
+//
+//MuExp translateConstantCall("ParseTree", "prod", [muCon(Symbol def), muCon(list[Symbol] symbols), muCon(set[Attr] attributes)]) = muCon(prod(def,symbols,attributes));
+//MuExp translateConstantCall("ParseTree", "regular", [muCon(Symbol def)]) = muCon(regular(def));
+//MuExp translateConstantCall("ParseTree", "error", [muCon(Production prod), muCon(int dot)]) = muCon(error(prod, dot));
+//MuExp translateConstantCall("ParseTree", "skipped", []) = muCon(skipped());
+//
+//MuExp translateConstantCall("ParseTree", "appl", [muCon(Production prod), muCon(list[Tree] args)]) = muCon(appl(prod, args));
+//MuExp translateConstantCall("ParseTree", "cycle", [muCon(Symbol symbol), muCon(int cycleLength)]) = muCon(cycle(symbol, cycleLength));
+//MuExp translateConstantCall("ParseTree", "char", [muCon(int character)]) = muCon(char(character));
+//
+//MuExp translateConstantCall("ParseTree", "range", [muCon(int begin), muCon(int end)]) = muCon(range(begin, end));
+//
+//// Symbol
+//MuExp translateConstantCall("ParseTree", "start", [muCon(Symbol symbol)]) = muCon(\start(symbol));
+//MuExp translateConstantCall("ParseTree", "sort", [muCon(str name)]) = muCon(sort(name));
+//MuExp translateConstantCall("ParseTree", "lex", [muCon(str name)]) = muCon(lex(name));
+//MuExp translateConstantCall("ParseTree", "layouts", [muCon(str name)]) = muCon(layouts(name));
+//MuExp translateConstantCall("ParseTree", "keywords", [muCon(str name)]) = muCon(keywords(name));
+//MuExp translateConstantCall("ParseTree", "parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
+//MuExp translateConstantCall("ParseTree", "parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-lex(name, parameters));
+//
+//MuExp translateConstantCall("ParseTree", "lit", [muCon(str s)]) = muCon(lit(s));
+//MuExp translateConstantCall("ParseTree", "cilit", [muCon(str s)]) = muCon(cilit(s));
+//MuExp translateConstantCall("ParseTree", "char-class", [muCon(list[CharRange] ranges)]) = muCon(\char-class(ranges));
+//
+//
+//MuExp translateConstantCall("ParseTree", "empty", []) = muCon(empty());
+//MuExp translateConstantCall("ParseTree", "opt", [muCon(Symbol symbol)]) = muCon(opt(symbol));
+//MuExp translateConstantCall("ParseTree", "iter", [muCon(Symbol symbol)]) = muCon(iter(symbol));
+//MuExp translateConstantCall("ParseTree", "iter-star", [muCon(Symbol symbol)]) = muCon(\iter-star(symbol));
+//MuExp translateConstantCall("ParseTree", "iter-seps", [muCon(Symbol symbol)], muCon(list[Symbol] separators)) = muCon(\iter-seps(symbol), separators);
+//MuExp translateConstantCall("ParseTree", "iter-star-seps", [muCon(Symbol symbol)], muCon(list[Symbol] separators)) = muCon(\iter-star-seps(symbol), separators);
+//MuExp translateConstantCall("ParseTree", "alt", [muCon(set[Symbol] alternatives)]) = muCon(alt(alternatives));
+//MuExp translateConstantCall("ParseTree", "seq", [muCon(list[Symbol] symbols)]) = muCon(seq(symbols));
+//
+//MuExp translateConstantCall("ParseTree", "conditional", [muCon(Symbol symbol), muCon(list[Symbol] conditions)]) = muCon(conditional(symbol, conditions));
+//
+//MuExp translateConstantCall("ParseTree", "label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
+//MuExp translateConstantCall("Type", "label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
+//
+//
+//
+//default MuExp translateConstantCall(_, _, _) { throw "NotConstant"; }
 
 // -- call expression -----------------------------------------------
 
@@ -1060,6 +1114,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
+   //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | a <- arguments ];
    
    //println("BACK at translate <e>");
@@ -1216,9 +1271,19 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            }
            throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
-       addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);
        
-       return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
+   //    if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
+   //    		fuid = resolved[0];
+   //    		name = unescape("<expression>");
+   //    		println("resolved to single function with constant aruments: <fuid>, outer: <uid2addr[fuid]>, <name>");
+			//
+   //    		try {
+   //    			return translateConstantCall(uid2addr[fuid][0], name, args);
+   //    		} 
+   //    		catch "NotConstant":  /* pass */;
+   //    }
+       	addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);      
+       	return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
    if(isOverloadedFunction(receiver) && !hasOverloadingResolver(receiver.fuid)) {
       throw "The use of a function has to be managed via an overloading resolver!";
@@ -1462,7 +1527,7 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
    op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
-   if(op == "label") println("field_access: <tp>, <e>");
+   //if(op == "label") println("field_access: <tp>, <e>");
    return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
 }
 
@@ -1786,7 +1851,7 @@ MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = ma
 MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("or", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) {
-	println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
+	//println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
 	return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); }//translateBoolBinaryOp("implies", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
