@@ -81,7 +81,7 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 
-	public void attachExceptionTable(IList exceptions, RVM rvm) {
+	public void attachExceptionTable(IList exceptions, IRVM rvm) {
 		froms = new int[exceptions.length()];
 		tos = new int[exceptions.length()];
 		types = new int[exceptions.length()];

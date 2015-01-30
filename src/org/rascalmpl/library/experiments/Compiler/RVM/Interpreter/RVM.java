@@ -165,7 +165,7 @@ public class RVM implements IRVM {
 	
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
-	PrintWriter getStdOut() { return rex.getStdOut(); }
+	public PrintWriter getStdOut() { return rex.getStdOut(); }
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
