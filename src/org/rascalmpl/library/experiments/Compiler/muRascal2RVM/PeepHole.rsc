@@ -36,6 +36,7 @@ private INS peephole2(INS instructions, bool isSplit){
         }
         result = redundant_stores(result);
         result = jumps_to_jumps(result);
+        result = jumps_to_returns(result);
     }
 //  println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
 //  iprintln(instructions);
@@ -53,13 +54,19 @@ INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
 
 INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
 	redundant_stores(rest);
+	
+INS redundant_stores([ JMPFALSE(L), LABEL(L), *Instruction rest] ) =
+	[ LABEL(L), *redundant_stores(rest) ];
+	
+INS redundant_stores([ JMPTRUE(L), LABEL(L), *Instruction rest] ) =
+	[ LABEL(L), *redundant_stores(rest) ];
 
 INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) =
 	[STOREVAR(v,p), *redundant_stores(rest)];   
 
 
 INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) =
-    [STORELOC(p), *redundant_stores(rest)];
+    [STORELOC(p), *redundant_stores(rest)];    
 
 INS redundant_stores([]) = [];
 
@@ -108,6 +115,20 @@ INS jumps_to_jumps([ *Instruction ins1, LABEL(lab1), JMP(str lab2), *Instruction
 
 default INS jumps_to_jumps(INS ins) = ins;   
 
+INS replace_jumps_by_returns(INS ins, str to, Instruction ret) =
+     visit(ins){
+           case JMP(to) => ret
+           };
+           
+INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN0(), *Instruction ins2] ) =
+    [*replace_jumps_by_returns(ins1, lab1, RETURN0()), LABEL(lab1), RETURN0(), *replace_jumps_by_returns(ins2, lab1, RETURN0())];
+    
+INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN1(a), *Instruction ins2] ) =
+    [*replace_jumps_by_returns(ins1, lab1, RETURN1(a)), LABEL(lab1), RETURN1(a), *replace_jumps_by_returns(ins2, lab1, RETURN1(a))];
+
+default INS jumps_to_returns(INS ins) = ins;   
+
+
 INS unused_labels([ *Instruction instructions ]){
     used = {};
     
@@ -136,7 +157,7 @@ INS dead_code([ *Instruction ins ] ) {
        result += ins[i];
        if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i] || FAILRETURN() := ins[i]){
           i += 1;
-          while(i < size(ins) &&  LABEL(lab1) !:= ins[i]){
+          while(i < size(ins) && LABEL(lab1) !:= ins[i]){
             //println("remove: <ins[i]>");
             i += 1;
           }
