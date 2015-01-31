@@ -1331,11 +1331,26 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 2;
 			IConstructor cons = (IConstructor) stack[sp - 2];
-			String fieldName = ((IString) stack[sp - 1]).getValue();
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
 			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
 				stack[sp - 2] = Rascal_TRUE;
 			} else {
+				if(cons.getName().equals("appl")){
+					IConstructor prod = (IConstructor) cons.get("prod");
+					IList prod_symbols = (IList) prod.get("symbols");
+					
+					for(int i = 0; i < prod_symbols.length(); i++){
+						IConstructor arg = (IConstructor) prod_symbols.get(i);
+						if(arg.getName().equals("label")){
+							if(((IString) arg.get(0)).equals(field)){
+								stack[sp - 2] = Rascal_TRUE;
+								return sp - 1;
+							}
+						}
+					}
+				}
 				stack[sp - 2] = Rascal_FALSE;
 			}
 			return sp - 1;
@@ -1351,7 +1366,8 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 2;
 			IConstructor cons = (IConstructor) stack[sp - 2];
-			String fieldName = ((IString) stack[sp - 1]).getValue();
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
 			try {
 				if(tp.hasField(fieldName)){
@@ -1363,11 +1379,26 @@ public enum RascalPrimitive {
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v == null){
-					throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
+				if(v != null){
+					stack[sp - 2] = v;
+					return sp - 1;
 				}
-				stack[sp - 2] = v;
-				return sp - 1;
+				if(cons.getName().equals("appl")){
+					IList appl_args = (IList) cons.get("args");
+					IConstructor prod = (IConstructor) cons.get("prod");
+					IList prod_symbols = (IList) prod.get("symbols");
+
+					for(int i = 0; i < prod_symbols.length(); i++){
+						IConstructor arg = (IConstructor) prod_symbols.get(i);
+						if(arg.getName().equals("label")){
+							if(((IString) arg.get(0)).equals(field)){
+								stack[sp - 2] = appl_args.get(i);
+								return sp - 1;
+							}
+						}
+					}
+				}
+				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			}
