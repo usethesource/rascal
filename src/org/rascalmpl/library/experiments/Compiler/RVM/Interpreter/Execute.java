@@ -547,8 +547,10 @@ public class Execute {
 				codeblock.SUBTYPE();
 				break;
 				
-			case "CHECKARGTYPE":
-				codeblock.CHECKARGTYPE();
+			case "CHECKARGTYPEANDCOPY":
+				codeblock.CHECKARGTYPEANDCOPY(getIntField(instruction, "pos1"),
+									  rvm.symbolToType((IConstructor) instruction.get("type")),
+									  getIntField(instruction, "pos2"));
 				break;
 				
 			case "JMPINDEXED":

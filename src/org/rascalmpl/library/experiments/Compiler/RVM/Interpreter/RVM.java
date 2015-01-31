@@ -558,9 +558,9 @@ public class RVM {
 					if(!last_function_name.equals(cf.function.name))
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
-//					for (int i = 0; i < sp; i++) {
-//						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
-//					}
+					for (int i = 0; i < sp; i++) {
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
 				}
@@ -952,6 +952,20 @@ public class RVM {
 					}
 					continue NEXT_INSTRUCTION;
 					
+				case Opcode.OP_CHECKARGTYPEANDCOPY:
+					pos = CodeBlock.fetchArg1(instruction);
+					Type argType = ((IValue) stack[pos]).getType();
+					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
+					
+					int pos2 = instructions[pc++];
+					if(argType.isSubtypeOf(paramType)){
+						stack[pos2] = stack[pos];
+						stack[sp++] = vf.bool(true);
+					} else {
+						stack[sp++] = vf.bool(false);
+					}
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_FAILRETURN:
 					assert cf.previousCallFrame == c_ofun_call.cf;
 					
@@ -1311,18 +1325,6 @@ public class RVM {
 					
 				case Opcode.OP_SUBTYPE:
 					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-					sp--;
-					continue NEXT_INSTRUCTION;
-					
-				case Opcode.OP_CHECKARGTYPE:
-					Type argType =  ((IValue) stack[sp - 2]).getType();
-					Type paramType = ((Type) stack[sp - 1]);
-//					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
-//					if(!argType.isSubtypeOf(paramType)){
-//						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
-//						boolean b = argType.isSubtypeOf(paramType);
-//					}
-					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
 					sp--;
 					continue NEXT_INSTRUCTION;
 								
