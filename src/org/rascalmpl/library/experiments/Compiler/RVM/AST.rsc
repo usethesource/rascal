@@ -141,7 +141,8 @@ public data Instruction =
 		
 		| TYPEOF()									// Get type of top element
 		| SUBTYPE()									// Subtype between top two IValues
-		| CHECKARGTYPE()							// Check the type of an argument
+		| CHECKARGTYPEANDCOPY(
+			int pos1, Symbol \type, int pos2)		// Check the type of argument at pos1 and assign to pos2
 		
 		// Delimited continuations (experimental)
 		| LOADCONT(str fuid)

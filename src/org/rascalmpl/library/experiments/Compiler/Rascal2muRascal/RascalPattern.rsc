@@ -902,12 +902,19 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
-                   [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
-                     translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
-                   ],
-                   [ muFailReturn() ]
-                  );
+      exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
+                                                      				  muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
+                                                      				  muCon(pos)
+                                                    				]),
+             				[ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+             				[ muFailReturn() ]);
+      //println(exp);
+      //exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
+      //             [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
+      //               translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
+      //             ],
+      //             [ muFailReturn() ]
+      //            );
       leaveBacktrackingScope();
       return exp;
     }

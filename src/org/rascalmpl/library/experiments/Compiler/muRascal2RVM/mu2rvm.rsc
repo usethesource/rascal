@@ -420,7 +420,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type", list[MuExp] args)) = [*tr(args), CHECKARGTYPE()];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
