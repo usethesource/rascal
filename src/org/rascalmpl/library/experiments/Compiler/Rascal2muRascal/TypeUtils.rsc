@@ -710,10 +710,11 @@ public default bool isAlias(AbstractValue a) = false;
 public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");
 
-    if(isADTType(s)){
-       s2v = symbolToValue(s /*, config*/);
-       //println("s2v = <s2v>");
-    }
+    //if(isADTType(s)){
+    //   s2v = symbolToValue(s /*, config*/);
+    //   println("s2v = <s2v>");
+    //}
+    s = symbolToValue(s);
     // TODO: this is too liberal, restrict to outer type.
     visit(s){
        case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
