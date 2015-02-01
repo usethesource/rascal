@@ -374,9 +374,6 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), m
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
 
-// Templates
-MuExp muCallPrim3("value_to_string", [muCon(value v)], loc src) = muCon("<v>");
-
 
 //// muRascal primitives
 //

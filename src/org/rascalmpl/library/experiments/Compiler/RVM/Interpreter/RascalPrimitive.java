@@ -681,65 +681,83 @@ public enum RascalPrimitive {
 	template_open {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 2;
-			String ind = ((IString) stack[sp - 2]).getValue();
-			String pre = ((IString) stack[sp - 1]).getValue();
-			$indent(ind);
-			stack[sp - 2] = vf.string($unescape(pre));
-			return sp - 1;
+			assert arity <= 1;
+			String pre = "";
+			if(arity == 1){
+				pre = ((IString) stack[sp - 1]).getValue();
+				stack[sp - 1] = vf.string("");
+			} else {
+				stack[sp] = vf.string("");
+			}
+			$pushIndent("");
+			templateBuilderStack.push(templateBuilder);
+			templateBuilder = new StringBuilder();
+			templateBuilder.append($unescape(pre));
+			return arity == 1 ? sp : sp + 1;
 		}
 	},
-	template_addunindented {
+	template_indent {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity <= 2;
-			if(arity == 1){
-				stack[sp - 1] = vf.string($unescape((((IString) stack[sp - 1])).getValue()));
-				return sp;
-			}
-			stack[sp - 2] = ((IString) stack[sp - 2]).concat(vf.string($unescape((((IString) stack[sp - 1])).getValue())));
-			return sp - 1;
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$indent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
+		}
+	},
+	template_unindent {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$unindent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
 		}
 	},
 	template_add {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity >= 2;
-			IString template = (IString) stack[sp - arity];
+			assert arity == 1;
 			String indent = $getCurrentIndent();
-			for(int i = 1; i < arity; i++){
-				IString iarg_s = ((IString) stack[sp - arity + i]);
-				int len = iarg_s.length();
-				boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
-				String arg_s = iarg_s.getValue();
-				arg_s = $removeMargins(arg_s);
-				String [] lines = arg_s.split("\n");
-				if(lines.length <= 1){
-					template = template.concat(vf.string(arg_s));
-				} else {
-					StringBuilder sb = new StringBuilder();
-					sb.append(lines[0]);
-					for(int j = 1; j < lines.length; j++){
-						sb.append("\n").append(indent).append(lines[j]);
-					}
-					if(endsWithNL)
-						sb.append("\n");
-					String res = sb.toString();
-					template = template.concat(vf.string(res));
+			
+			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
+			int len = iarg_s.length();
+			boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
+			String arg_s = iarg_s.getValue();
+			arg_s = $removeMargins(arg_s);
+			String [] lines = arg_s.split("\n");
+			if(lines.length <= 1){
+				templateBuilder.append(arg_s);
+			} else {
+				templateBuilder.append(lines[0]);
+				for(int j = 1; j < lines.length; j++){
+					templateBuilder.append("\n").append(indent).append(lines[j]);
 				}
+				if(endsWithNL)
+					templateBuilder.append("\n");
 			}
-			stack[sp - arity] = template;
-			return sp - arity + 1;
+			
+			stack[sp - 1] = vf.string("");
+			return sp;
 		}
 	},
 	template_close {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 1;
-			$unindent();
-			return sp;
+			assert arity == 0;
+			$popIndent();
+			stack[sp] = vf.string(templateBuilder.toString());
+			templateBuilder = templateBuilderStack.pop();
+			return sp + 1;
 		}
 	},
+	
+	/*
+	 * Add on template
+	 */
+	
 	tuple_add_tuple {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
@@ -6003,34 +6021,6 @@ public enum RascalPrimitive {
 			}
 			return sp;
 		}
-	},
-	value_to_string {
-		@Override
-		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 1;
-			String res;
-			if(stack[sp - 1] instanceof IValue){
-				IValue val = (IValue) stack[sp -1];
-				Type tp = val.getType();
-				if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
-					IList lst = (IList) val;
-					StringWriter w = new StringWriter();
-					for(int i = 0; i < lst.length(); i++){
-						w.write($value2string(lst.get(i)));
-					}
-					res = w.toString();
-
-				} else {
-					res = $value2string(val);
-				}
-			} else if(stack[sp - 1] instanceof Integer){
-				res = ((Integer) stack[sp - 1]).toString();
-			} else {
-				throw RascalRuntimeException.illegalArgument(vf.string(stack[sp -1].toString()), currentFrame);
-			}
-			stack[sp - 1] =  vf.string(res);
-			return sp;
-		}
 	};
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
@@ -6132,6 +6122,9 @@ public enum RascalPrimitive {
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 	private static Stack<String> indentStack = new Stack<String>();
 	
+	private static StringBuilder templateBuilder = null;
+	private static final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
+	
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
 	 ************************************************************************************/
@@ -6145,18 +6138,35 @@ public enum RascalPrimitive {
 	 * String templates
 	 */
 
-	private static void $indent(String s){
+	private static void $pushIndent(String s){
 		//stdout.println("$indent: " + indentStack.size() + ", \"" + s + "\"");
 		indentStack.push(s);
+	}
+	
+	private static void $popIndent(){
+		indentStack.pop();
 	}
 
 	public static String $getCurrentIndent() {
 		return indentStack.isEmpty() ? "" : indentStack.peek();
 	}
-
-	private static void $unindent(){
-		indentStack.pop();
+	
+	public static String $indent(String s) {
+		String ind = indentStack.pop();		// TODO: check empty?
+		indentStack.push(ind + s);
+		return s;
 	}
+	
+	public static String $unindent(String s) {
+		String ind = indentStack.pop();		// TODO: check empty?
+		int indLen = ind.length();
+		int sLen = s.length();
+		int endIndex = Math.max(indLen - sLen,  0);
+		indentStack.push(ind.substring(0, endIndex));
+		return s;
+	}
+
+	
 
 	private static String $removeMargins(String arg) {
 		arg = MARGIN.matcher(arg).replaceAll("");
@@ -6733,8 +6743,33 @@ public enum RascalPrimitive {
 		}
 		return b.toString();
 	}
-		
+	
+	// TODO: merge the following two functions
+	
+	private static String $value_to_string(Object given, Frame currentFrame) {
+		String res;
+		if(given instanceof IValue){
+			IValue val = (IValue) given;
+			Type tp = val.getType();
+			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+				IList lst = (IList) val;
+				StringWriter w = new StringWriter();
+				for(int i = 0; i < lst.length(); i++){
+					w.write($value2string(lst.get(i)));
+				}
+				res = w.toString();
 
+			} else {
+				res = $value2string(val);
+			}
+		} else if(given instanceof Integer){
+			res = ((Integer) given).toString();
+		} else {
+			throw RascalRuntimeException.illegalArgument(vf.string(given.toString()), currentFrame);
+		}
+		return res;
+	}
+		
 	private static String $value2string(IValue val){
 		if(val.getType().isString()){
 			return ((IString) val).getValue();
