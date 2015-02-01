@@ -12,12 +12,10 @@ alias INS = list[Instruction];
 INS peephole(INS instructions) = peephole1(instructions, false);
 
 INS peephole1(INS instructions, bool isSplit){
-
 	if(size(instructions) < 500){
 		return peephole2(instructions, isSplit);
 	}
 	<l, r> = split(instructions);
-	println("left = <size(l)>, right = <size(r)>");
 	return peephole1(l, true) + peephole1(r, true);
 }
 
@@ -54,12 +52,6 @@ INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
 
 INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
 	redundant_stores(rest);
-	
-INS redundant_stores([ JMPFALSE(L), LABEL(L), *Instruction rest] ) =
-	[ LABEL(L), *redundant_stores(rest) ];
-	
-INS redundant_stores([ JMPTRUE(L), LABEL(L), *Instruction rest] ) =
-	[ LABEL(L), *redundant_stores(rest) ];
 
 INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) =
 	[STOREVAR(v,p), *redundant_stores(rest)];   
@@ -72,34 +64,6 @@ INS redundant_stores([]) = [];
 
 default INS redundant_stores([Instruction ins, *Instruction rest]) = 
 	[ins, *redundant_stores(rest)];
-
-// Original, slower version:
-//INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores([*ins1, *ins2]);
-//}
-//
-//INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores([*ins1, LABEL(p), *ins2]);
-//}
-//
-//INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores([*ins1, *ins2]);
-//}
-//
-//INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
-//}
-//
-//INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores([*ins1, STORELOC(p), *ins2]);
-//}
-//
-//default INS redundant_stores(INS ins) = ins;
 
 // Jumps_to_jumps
 
@@ -167,6 +131,3 @@ INS dead_code([ *Instruction ins ] ) {
     }
     return result;
 }
-   
-
-
