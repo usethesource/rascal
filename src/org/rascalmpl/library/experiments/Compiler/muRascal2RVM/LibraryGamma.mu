@@ -1097,10 +1097,12 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
     
     //println("MAKE_CONCRETE_LIST, size", size(get_children(listProd)[1]))
     
+    // TODO: simplify these cases
     if(size(get_children(listProd)[1]) > 1){ // chain rule with concrete syntax
     	listResult = prim("appl_create", applConstr, applProd, elms)
     } else {
-    	listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
+        listResult = prim("appl_create", applConstr, applProd, elms)
+    	//listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
     }
     //println("MAKE_CONCRETE_LIST", listResult)
     return listResult
