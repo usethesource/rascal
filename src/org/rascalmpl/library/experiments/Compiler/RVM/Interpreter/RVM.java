@@ -779,7 +779,7 @@ public class RVM {
 					s = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
 
-					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) { 
 						if (fr.scopeId == s) {
 							ref = (Reference) fr.stack[pos];
 							ref.stack[ref.pos] = stack[sp - 1];
@@ -915,7 +915,7 @@ public class RVM {
 						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity)
+						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, cf, null, arity)  // changed root to cf
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
 					
@@ -1458,6 +1458,7 @@ public class RVM {
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
+					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
@@ -1479,6 +1480,10 @@ public class RVM {
 						}
 					}
 					// If a handler has not been found in the caller functions...
+					stdout.println("EXCEPTION " + thrown + " at: " + cf.src);
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						stdout.println("\t" + f.toString());
+					}
 					return thrown;
 				}
 				
@@ -1488,7 +1493,8 @@ public class RVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause(), cf );
+			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
+			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
