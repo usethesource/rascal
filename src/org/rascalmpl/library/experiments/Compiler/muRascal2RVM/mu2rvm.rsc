@@ -227,7 +227,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
