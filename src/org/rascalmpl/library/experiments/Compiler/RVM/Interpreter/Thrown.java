@@ -57,7 +57,7 @@ public class Thrown extends RuntimeException {
 
 			for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
 				//stdout.println("at " + f.function.name);
-				stdout.println("\t in " + f);
+				stdout.println("\t" + f);
 			}
 		} else {
 			stdout.println("No call stack available");
