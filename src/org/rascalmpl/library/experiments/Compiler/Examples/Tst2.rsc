@@ -1,14 +1,19 @@
 module experiments::Compiler::Examples::Tst2
 
-import String;
-import IO;
+import lang::rascal::grammar::definition::Symbols;
+import Message;
 
-bool canChangeUser2(loc l, str s) { 
-	if (contains(s, "@")) return true; 
-	l.scheme="http"; 
-	l.authority = "a@a.com";
-	println("l.user = <l.user>"); 
-	l.user = s; 
-	if ( l.user ==  s) { return true; } else {println("<l.user> != <s>"); return false; } }
+//int f(int n){
+//	if(true){
+//		int n = 0;
+//	}
+//	return n;
+//}
 
-value main(list[value] args) = canChangeUser2(|tmp:///|, "y");
+int h(int n){
+    int h() = n;
+    int h(int  x) = x;
+    return h(n);
+}
+
+value main(list[value] args) = h(13);
