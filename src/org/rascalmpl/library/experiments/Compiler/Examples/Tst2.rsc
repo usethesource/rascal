@@ -1,19 +1,7 @@
 module experiments::Compiler::Examples::Tst2
 
-import lang::rascal::grammar::definition::Symbols;
-import Message;
+data F = f() | f(int n) | g(int n) | deep(F f);
+anno int F @ pos;
+  	
 
-//int f(int n){
-//	if(true){
-//		int n = 0;
-//	}
-//	return n;
-//}
-
-int h(int n){
-    int h() = n;
-    int h(int  x) = x;
-    return h(n);
-}
-
-value main(list[value] args) = h(13);
+value main(list[value] args) { return ([1,2,3][1])?; }
