@@ -867,7 +867,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
 	map[tuple[str,int],tuple[str,int]] mapping = ();
 	for(<str fuid,int pos> <- decls, pos != -1) {
-	    assert fuid == scopeId;
+	    assert fuid == scopeId : "translateVisit: fuid != scopeId";
 	    mapping[<scopeId,pos>] = <phi_fuid,pos_in_phi>;
 	    pos_in_phi = pos_in_phi + 1;
 	}
