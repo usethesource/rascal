@@ -1650,8 +1650,12 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ])]);
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchKey"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
 	cond3 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
+	cond4 = muCallMuPrim("equal", [ muCon("IndexOutOfBounds"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
+	cond5 = muCallMuPrim("equal", [ muCon("NoSuchField"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
 		
-	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
+	elsePart5 = muIfelse(nextLabel(), cond5, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
+	elsePart4 = muIfelse(nextLabel(), cond4, [ muRHS ], [ elsePart5 ]);
+	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ elsePart4 ]);
 	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
 	catchBody = muIfelse(nextLabel(), cond1, [ muRHS ], [ elsePart2 ]);
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
