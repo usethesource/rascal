@@ -242,7 +242,7 @@ Figure.getDrawForComponent("lineChart", "nvLineChart")
 This assumes (and checks!) that the function Figure.drawFunction.nvLineChart exists.
 ***********************************************************************************/
 
-Figure.components = {barChart: [], lineChart: [], graph: [], vega: [], google: []};
+Figure.components = { graph: [], google: []};
 
 
 Figure.registerComponent = function(componentType, flavor){

@@ -51,7 +51,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
        }
        locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals.vardecls[0] ] );
        //locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
-       assert size(locals) == size({ *locals });
+       assert size(locals) == size({ *locals }) : "Incorrect number of locals in preprocess";
        
        vdfs = ("<locals[i].var>" : i  | int i <- index(locals));
        vardefs =  vardefs + (uid : vdfs);
