@@ -132,14 +132,14 @@ public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
-	println("symbolToValue: <symbol>");
+	//println("symbolToValue: <symbol>");
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){
  	    definitions += (symbol : choice(symbol, { prod(symbol,
-                                                       [ layouts("$default$"),
+                                                       [ activeLayout,
                                                          label("top", sym),
-                                                         layouts("$default$")
+                                                         activeLayout
                                                        ],
                                                     {})}));
     }

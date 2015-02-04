@@ -9,13 +9,18 @@ import experiments::Compiler::RVM::AST;
 
 alias INS = list[Instruction];
 
-int n_redundant_stores = 0;
-int n_jumps_to_jumps = 0;
+INS peephole(INS instructions) = peephole1(instructions, false);
 
-INS peephole(INS instructions){
-  // return instructions;  
-  // Not (yet) used, due to lack of impact. 
-  // (not when youre debugging)
+INS peephole1(INS instructions, bool isSplit){
+	if(size(instructions) < 500){
+		return peephole2(instructions, isSplit);
+	}
+	<l, r> = split(instructions);
+	return peephole1(l, true) + peephole1(r, true);
+}
+
+private INS peephole2(INS instructions, bool isSplit){
+  	//println("**** peephole length <size(instructions)>");
   
   // Peephole-ing a fixed point problem multiple steps for debugging.
   // -- Maybe disable could be slow --
@@ -24,11 +29,14 @@ INS peephole(INS instructions){
     solve (result) {
         loopcount = loopcount + 1 ;
         result = dead_code(result);
-        result = unused_labels(result);
+        if(!isSplit){
+        	result = unused_labels(result);
+        }
         result = redundant_stores(result);
         result = jumps_to_jumps(result);
+        result = jumps_to_returns(result);
     }
-//  println("**** peephole removed <size(instructions) - size(result)> instructions in <loopcount> iterations");
+//  println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
 //  iprintln(instructions);
 //  iprintln(result4);
     return result;
@@ -36,62 +44,26 @@ INS peephole(INS instructions){
 
 // Redundant_stores, loads and jmps
 
-//INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores(rest);
-//}
-//
-//INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest] ) {
-//    n_redundant_stores += 1;
-//    return [LABEL(p), *redundant_stores(rest)];
-//}
-//
-//INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) {
-//    n_redundant_stores += 1;
-//    return redundant_stores(rest);
-//}
-//
-//INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) {
-//    n_redundant_stores += 1;
-//    return [STOREVAR(v,p), *redundant_stores(rest)];   
-//}
-//
-//INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) {
-//    n_redundant_stores += 1;
-//    return  [STORELOC(p), *redundant_stores(rest)];
-//}
-//
-//INS redundant_stores([]) = [];
-//
-//default INS redundant_stores([Instruction ins, *Instruction rest]) = [ins, *redundant_stores(rest)];
+INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest ] ) = 
+	redundant_stores(rest);
+
+INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
+	[LABEL(p), *redundant_stores(rest)];
+
+INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
+	redundant_stores(rest);
+
+INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) =
+	[STOREVAR(v,p), *redundant_stores(rest)];   
 
 
-INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
-    n_redundant_stores += 1;
-    return redundant_stores([*ins1, *ins2]);
-}
+INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) =
+    [STORELOC(p), *redundant_stores(rest)];    
 
-INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
-    n_redundant_stores += 1;
-    return redundant_stores([*ins1, LABEL(p), *ins2]);
-}
+INS redundant_stores([]) = [];
 
-INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
-    n_redundant_stores += 1;
-    return redundant_stores([*ins1, *ins2]);
-}
-
-INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
-    n_redundant_stores += 1;
-    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
-}
-
-INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
-    n_redundant_stores += 1;
-    return redundant_stores([*ins1, STORELOC(p), *ins2]);
-}
-
-default INS redundant_stores(INS ins) = ins;
+default INS redundant_stores([Instruction ins, *Instruction rest]) = 
+	[ins, *redundant_stores(rest)];
 
 // Jumps_to_jumps
 
@@ -106,6 +78,20 @@ INS jumps_to_jumps([ *Instruction ins1, LABEL(lab1), JMP(str lab2), *Instruction
     [*replace_jump_targets(ins1, lab1, lab2), LABEL(lab1), JMP(lab2), *replace_jump_targets(ins2, lab1, lab2)];
 
 default INS jumps_to_jumps(INS ins) = ins;   
+
+INS replace_jumps_by_returns(INS ins, str to, Instruction ret) =
+     visit(ins){
+           case JMP(to) => ret
+           };
+           
+INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN0(), *Instruction ins2] ) =
+    [*replace_jumps_by_returns(ins1, lab1, RETURN0()), LABEL(lab1), RETURN0(), *replace_jumps_by_returns(ins2, lab1, RETURN0())];
+    
+INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN1(a), *Instruction ins2] ) =
+    [*replace_jumps_by_returns(ins1, lab1, RETURN1(a)), LABEL(lab1), RETURN1(a), *replace_jumps_by_returns(ins2, lab1, RETURN1(a))];
+
+default INS jumps_to_returns(INS ins) = ins;   
+
 
 INS unused_labels([ *Instruction instructions ]){
     used = {};
@@ -135,7 +121,7 @@ INS dead_code([ *Instruction ins ] ) {
        result += ins[i];
        if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i] || FAILRETURN() := ins[i]){
           i += 1;
-          while(i < size(ins) &&  LABEL(lab1) !:= ins[i]){
+          while(i < size(ins) && LABEL(lab1) !:= ins[i]){
             //println("remove: <ins[i]>");
             i += 1;
           }
@@ -145,6 +131,3 @@ INS dead_code([ *Instruction ins ] ) {
     }
     return result;
 }
-   
-
-

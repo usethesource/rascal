@@ -14,20 +14,20 @@ public class OverloadedFunctionInstanceCall {
 	final int[] constructors;
 	final Frame cf;
 	
-	final Frame env;
+	final Frame previousScope;
 	final Type types;
 	
 	final int arity;
 	final Object[] stack;
 	final int sp;
 	
-	int i = 0;
+	int alternative = 0;
 	
-	public OverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, Frame env, Type types, int arity) {
+	public OverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, Frame previousScope, Type types, int arity) {
 		this.cf = cf;
 		this.functions = functions;
 		this.constructors = constructors;
-		this.env = env;
+		this.previousScope = previousScope;
 		this.types = types;
 		this.arity = arity;
 		this.stack = cf.stack;
@@ -38,9 +38,10 @@ public class OverloadedFunctionInstanceCall {
 	 * Assumption: scopeIn != -1; 
 	 */
 	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, int scopeIn, Type types, int arity) {
-		for(Frame env = cf; env != null; env = env.previousScope) {
-			if (env.scopeId == scopeIn) {
-				return new OverloadedFunctionInstanceCall(cf, functions, constructors, env, types, arity);
+		assert scopeIn != -1 : "OverloadedFunctionInstanceCall, scopeIn should not be -1";
+		for(Frame previousScope = cf; previousScope != null; previousScope = previousScope.previousScope) {
+			if (previousScope.scopeId == scopeIn) {
+				return new OverloadedFunctionInstanceCall(cf, functions, constructors, previousScope, types, arity);
 			}
 		}
 		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, cf);
@@ -51,15 +52,15 @@ public class OverloadedFunctionInstanceCall {
 		if(f == null) {
 			return null;
 		}
-		return cf.getFrame(f, env, arity, sp);
+		return cf.getFrame(f, previousScope, arity, sp);
 	}
 	
 	public Function nextFunction(List<Function> functionStore) {
 		if(types == null) {
-			return i < functions.length ? functionStore.get(functions[i++]) : null;
+			return alternative < functions.length ? functionStore.get(functions[alternative++]) : null;
 		} else {
-			while(i < functions.length) {
-				Function fun = functionStore.get(functions[i++]);
+			while(alternative < functions.length) {
+				Function fun = functionStore.get(functions[alternative++]);
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();

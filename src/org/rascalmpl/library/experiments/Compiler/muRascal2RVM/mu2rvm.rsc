@@ -5,6 +5,7 @@ import Type;
 import List;
 import ListRelation;
 import Message;
+import String;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -208,7 +209,13 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    code = peephole(tr(fun.body)) /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    code = tr(fun.body);
+    if(!contains(fun.qname, "_testsuite")){
+    	code = peephole(code);
+    }
+    
+    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -220,7 +227,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
@@ -413,7 +420,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type", list[MuExp] args)) = [*tr(args), CHECKARGTYPE()];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
