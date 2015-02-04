@@ -1,6 +1,6 @@
 module experiments::vis2::Translate
 
-import experiments::vis2::FigureNew;
+import experiments::vis2::Figure;
 import Node;
 import String;
 import IO;

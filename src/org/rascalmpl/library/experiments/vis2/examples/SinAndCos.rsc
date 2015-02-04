@@ -1,14 +1,14 @@
-module experiments::vis2::examples::ExamplesNew
+module experiments::vis2::examples::SinAndCos
 import experiments::vis2::FigureServer; 
-import experiments::vis2::FigureNew; 
+import experiments::vis2::Figure; 
 import util::Math;
 
 
 public Figure box1 = box(fillColor="red", size=<200,200>);
 void tbox1(){ ex("box1", box1); }  
 
-void sinAndCosChart(){
-        ex("sinAndCosChart", 
+void sinAndCos(){
+        ex("sinAndCos", 
         	combo(charts=[
         	       line([<x, round(sin(x/1),0.001)>     | x <- [0.0, 1.0 .. 10.0]], name="Sine Wave"),
         		   line([<x, round(0.5 * cos(x/1), 0.01), "a<x>"> | x <- [0.0, 1.0 .. 10.0]], name ="Cosine Wave",

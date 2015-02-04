@@ -1,12 +1,8 @@
 module experiments::vis2::Figure
 
 import util::Math;
-import List;
-import Set;
-import IO;
-import String;
-import ToString;
-import experiments::vis2::vega::Vega;
+import Prelude;
+
 
 /* Properties */
 
@@ -51,7 +47,7 @@ data Bind
 
 alias XYData 			= lrel[num x, num y];
 			 		 
-alias LabeledData 		= lrel[str label, num val];	
+alias XYLabeledData     = lrel[num xx, num yy, str label];	
 
 alias HistogramData     = tuple[int nTickMarks, list[num val] \data];		
 
@@ -59,9 +55,6 @@ alias ErrorData			= lrel[str label, num mean, num low, num high];
 
 alias Datasets[&T] 		= map[str name, &T values];
 
-data Axis 
-	= axis(str label ="",  str tick = "d")
-	;
 	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
@@ -144,7 +137,7 @@ public data Figure(
 	
 	emptyFigure()
 
-// atomic primitives
+// atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
    | text(value text)		    			// text label
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
@@ -222,19 +215,12 @@ public data Figure(
  
 */
 
-// More advanced figure elements
 
 // Charts
-   
-  | vegaChart(str dataFile = "",  VEGA() command = (){return vega();}, str \module ="experiments::vis2::vega::VegaChart"
-    , Datasets[value] datasets = (), num(list[num]) aggregate = nullFunction)   
-/*   
-  | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
- 
-  | scatterPlot()
-      | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")  
-*/ 
-    
+//	| chart(Chart c, ChartOptions options = chartOptions())
+	| combo(list[Chart] charts =[], ChartOptions options = chartOptions())
+
+
 // Graphs
 
    | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
@@ -245,5 +231,334 @@ public data Figure(
    ;
  
 
+data Axis(str title="",
+          int minValue = -1,
+          int maxValue = -1,
+          ViewWindow viewWindow = viewWindow(),
+          bool slantedText = true,
+          int slantedTextAngle = -1, 
+          str textPosition = "",
+           GridLines gridlines = gridlines()) = axis()
+          ;
+          
+bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
+     && isEmpty(axis.viewWindow) && axis.slantedText && axis.slantedTextAngle == -1
+     && isEmpty(axis.textPosition);
+
+str trAxis(Axis axis) {
+    str r = "{";
+    if  (!isEmpty(axis.title)) r +="\"title\" : \"<axis.title>\",";
+    if  (axis.minValue>=0) r+="\"minValue\" : <axis.minValue>,";
+    if  (axis.maxValue>=0) r+= "\"maxValue\" : <axis.maxValue>,";
+    if (!isEmpty(axis.viewWindow)) r+="\"viewWindow\":<trViewWindow(axis.viewWindow)>,";
+    if (!isEmpty(axis.gridlines)) r+="\"gridlines\":<trGridlines(axis.gridlines)>,";
+    if (!axis.slantedText) r+="\"slantedText\":<axis.slantedText>,";
+    if  (axis.slantedTextAngle>=0) r+="\"slantedTextAngle\" : <axis.slantedTextAngle>,";
+    if  (!isEmpty(axis.textPosition)) r +="\"textPosition\" : \"<axis.textPosition>\",";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+    
+data ChartArea ( 
+     value left = "",
+     value width = "",
+     value top = "",
+     value height = "",
+     value backgroundColor = ""
+     ) = chartArea();
+ 
+   
+str trChartArea(ChartArea chartArea) {
+    str r = "{";
+        if (str v := chartArea.left)
+             {if (!isEmpty(v)) r +="\"left\" : \"<v>\",";}
+        else
+             r += "\"left\" : <chartArea.left>";
+        if (str v := chartArea.top)
+             {if (!isEmpty(v)) r +="\"top\" : \"<v>\",";}
+        else
+             r += "\"top\" : <chartArea.top>,";
+        if (str v := chartArea.width)
+             {if (!isEmpty(v)) r +="\"width\" : \"<v>\",";}
+        else
+             r += "\"width\" : <chartArea.width>,";
+        if (str v := chartArea.height)
+             {if (!isEmpty(v)) r +="\"height\" : \"<v>\",";}
+        else
+             r += "\"height\" : <chartArea.height>,";
+        if (str v := chartArea.backgroundColor)
+             {if (!isEmpty(v)) r +="\"backgroundColor\" : \"<v>\",";}
+        else
+             r += "\"backgroundColor\" : <chartArea.backgroundColor>,";
+        
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+    
+bool isEmpty (ChartArea chartArea) = 
+      str left := chartArea.left && isEmpty(left)
+   && str top := chartArea.top && isEmpty(top)
+   && str width := chartArea.width && isEmpty(width)
+   && str height := chartArea.height && isEmpty(height)
+   && str backgroundColor := chartArea.backgroundColor && isEmpty(backgroundColor)
+   ;
+                
+data Legend (bool none = false,
+             str alignment = "",
+             int maxLines = -1,
+             str position ="") = legend()
+            ;
+            
+bool isEmpty (Legend legend) = !legend.none && isEmpty(legend.alignment)
+                && legend.maxLines == -1 && isEmpty(legend.position);
+
+str trLegend(Legend legend) {
+    if (legend.none) return "\'none\'";
+    str r = "{";
+    if  (!isEmpty(legend.alignment)) r +="\"alignment\" : \"<legend.alignment>\",";
+    if  (!isEmpty(legend.position)) r +="\"position\" : \"<legend.position>\",";
+    if  (legend.maxLines>=0) r+= "\"maxLines\" : \"<legend.maxLines>\",";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+           
+data ViewWindow(int max = -1, int min = -1) = viewWindow();
+
+bool isEmpty(ViewWindow w ) = w.max == -1 && w.min == -1;
+
+str trViewWindow(ViewWindow w) {
+    str r = "{";
+    if  (w.min>=0) r+="\"min\" : <w.min>,";
+    if  (w.max>=0) r+= "\"max\" : <w.max>,";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+
+data GridLines(str color = "", int count =-1) = gridlines();
+
+bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
+
+str trGridlines(GridLines g) {
+    str r = "{";
+    if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
+    if  (g.count>=0) r+= "\"count\" : <g.count>,";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
 
 
+bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
+
+str trGridlines(GridLines g) {
+    str r = "{";
+    if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
+    if  (g.count>=0) r+= "\"count\" : <g.count>,";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+
+data Series (
+    str color ="",
+    str curveType = "",
+    int lineWidth = -1,
+    str pointShape = "",
+    int pointSize = -1,
+    str \type=""
+    ) = series();
+    
+bool isEmpty(Series s) = isEmpty(s.color) &&
+       isEmpty(s.curveType) &&  isEmpty(s.pointShape) && isEmpty(s.\type) 
+            && s.lineWidth == -1 && s.pointSize == -1;
+            
+str trSeries(Series s) {
+    str r = "{";
+    if  (!isEmpty(s.color)) r+="\"color\" : \"<s.color>\",";
+    if  (!isEmpty(s.curveType)) r+="\"curveType\" : \"<s.curveType>\",";
+    if  (s.lineWidth>=0) r+= "\"lineWidth\" : <s.lineWidth>,";
+    if  (!isEmpty(s.pointShape)) r+="\"pointShape\" : \"<s.pointShape>\",";
+    if  (s.pointSize>=0) r+= "\"pointSize\" : <s.pointSize>,";
+    if  (!isEmpty(s.\type)) r+="\"type\" : \"<s.\type>\",";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+
+data Bar (value groupWidth = "") = bar();
+
+str trBar(Bar bar) {
+    str r = "{";
+    if (str v := bar.groupWidth)
+            if (!isEmpty(v)) r +="\"groupWidth\" : \"<v>\",";
+        else
+             r += "\"groupWidth\" : <bar.groupWidth>";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }          
+ 
+ bool isEmpty(Bar bar) {
+    return (str v := bar.groupWidth && isEmpty(v));
+    }           
+                
+data ChartOptions (str title = "",
+             Axis hAxis = axis(),
+             Axis vAxis = axis(),
+             ChartArea chartArea = chartArea(),
+             Bar bar = bar(),
+             int width=-1,
+             int height = -1,
+             bool forceIFrame = true,
+             Legend legend = legend(),
+             int lineWidth = -1,
+             int pointSize = -1,
+             bool interpolateNulls = false,
+             str curveType = "",
+             str seriesType = "",
+             str pointShape = "",
+             bool isStacked = false,
+             list[Series] series = []
+             ) = chartOptions()
+            ;
+            
+str trOptions(ChartOptions options) {
+            str r = "{";
+            if  (!isEmpty(options.title)) r +="\"title\" : \"<options.title>\",";
+            if  (!isEmpty(options.hAxis)) r +="\"hAxis\" : <trAxis(options.hAxis)>,";
+            if  (!isEmpty(options.vAxis)) r +="\"vAxis\" : <trAxis(options.vAxis)>,";
+            if  (!isEmpty(options.chartArea)) r +="\"chartArea\" : <trChartArea(options.chartArea)>,";
+            if  (!isEmpty(options.bar)) r +="\"bar\" : <trBar(options.bar)>,";
+            if  (options.width>=0) r+="\"width\" : <options.width>,";
+            if  (options.height>=0) r+= "\"height\" : <options.height>,";
+            r+= "\"forceIFrame\":<options.forceIFrame>,";
+            /* if  (!isEmpty(options.legend)) */ 
+            if (!options.legend.none) r +="\"legend\" : <trLegend(options.legend)>,";
+            if  (options.lineWidth>=0) r+="\"lineWidth\" : <options.lineWidth>,";
+            if  (options.pointSize>=0) r+="\"pointSize\" : <options.pointSize>,";
+            if  (options.interpolateNulls)  r+= "\"interpolateNulls\":\"<options.interpolateNulls>\",";
+            if  (!isEmpty(options.curveType)) r +="\"curveType\" : \"<options.curveType>\",";
+            if  (!isEmpty(options.seriesType)) r +="\"seriesType\" : \"<options.seriesType>\",";
+            if  (!isEmpty(options.pointShape)) r +="\"pointShape\" : \"<options.pointShape>\",";
+            if  (options.isStacked) r +="\"isStacked\" : \"<options.isStacked>\",";
+            if  (!isEmpty(options.series)) r+=  "\"series\" : [<intercalate(",", ["<trSeries(q)>" |q<-options.series])>],";
+            r = replaceLast(r,",", "");
+            r+="}";
+            return r;
+ 
+      }
+
+ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
+    options.series = [];
+    for (c<-charts) {
+        Series s = series();
+        switch(c) {
+            case line(_): s.\type = "line";
+            case area(_): s.\type=  "area";
+            case bar(_) : s.\type = "bars";
+            }
+        s.color = c.color;
+        s.curveType = c.curveType;
+        s.lineWidth = c.lineWidth;
+        s.pointShape = c.pointShape;
+        s.pointSize = c.pointSize;
+        options.series += [s];
+        }
+    return options;
+    }
+            
+data Column  = column(str \type="", str label="", str role = "");      
+
+str trColumn(Column c) {
+    return
+    "{\"label\":\"<c.label>\",
+    ' \"type\": \"<c.\type>\",
+    ' \"role\": \"<c.role>\"
+    '}";
+    }
+
+
+data Chart(str name = "", str color = "", str curveType = "",
+     int lineWidth = -1, str pointShape = "", int pointSize = -1)
+    =
+	  line(XYData xydata) 
+	| line(XYLabeledData xylabeleddata) 
+	| area(XYData xydata)
+	| area(XYLabeledData xylabeleddata)
+	| bar(XYLabeledData xylabeledData)
+	;
+	
+alias XYLabeledData     = lrel[num xx, num yy, str label];	
+map[value, list[value]] tData(Chart c, inBar) {
+     list[list[value]] r = [];
+     switch(c) {
+        case line(XYData x): r = [[d[0], d[1]]|d<-x];
+        case area(XYData x): r = [[d[0], d[1]]|d<-x];
+        case line(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
+        case area(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
+        case bar(XYLabeledData x): r = [[d[0], d[1], inBar?"<d[1]>":d[2]]|d<-x];
+        }
+     map[value, list[value]] q = (d[0]:[e|e<-tail(d)]|d<-r);
+     return q;
+     }
+
+list[Column] cData(Chart c) {
+     switch(c) {
+        case line(XYData x): return [column(\type="number", label = c.name, role="data")];
+        case area(XYData x): return [column(\type="number", label = c.name, role="data")];
+        case line(XYLabeledData x): return [column(\type="number", label = c.name, role="data")
+                                           ,column(\type="string", label = c.name, role="tooltip")
+                                           ];
+        case area(XYLabeledData y): return [column(\type="number", label = c.name, role="data")
+                                           ,column(\type="string", label = c.name, role="tooltip")
+                                           ];
+        case bar(XYLabeledData x): return [column(\type="number", label = c.name, role="data")
+                                           ,column(\type="string", label = c.name, role="tooltip")
+                                          ];
+        }
+     return column();
+     }
+     
+//list[value] image(list[list[value]] d, value x) {
+//     list[list[value]] r = range(domainX(d, x));
+//     
+//     }
+
+
+     
+list[Column] joinColumn(list[Chart] charts) {
+   int i = 0;
+   for (c<-charts) {
+       if (bar(_):=c) break;
+       i = i +1;
+       }
+     list[Column] r = [*cData(c)|c<-charts];
+     if (i == size(charts)) 
+       return [column(\type="number", role="domain")]+r;
+     else return [column(\type="string", role="domain", label = charts[i].name)]+ r;
+     }
+     
+list[list[value]] joinData(list[Chart] charts) {
+   list[map[value, list[value]]] m = [tData(c, false)|c<-charts];   
+   set[value] d = union({domain(c)|c <-m });   
+   list[value] x = sort(toList(d));
+   int i = 0;
+   for (c<-charts) {
+       if (bar(_):=c) break;
+       i = i +1;
+       }
+  
+   // println("bar:<i>  <[[m[i][z][1]]|z<-x]>");
+   if (i == size(charts)) 
+      return [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
+   else {
+      map[value, value] lab =  (z:m[i][z][1]|z<-x);
+      m = [tData(c, true)|c<-charts];  
+      return [[lab[z]] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
+      }
+   }
+	

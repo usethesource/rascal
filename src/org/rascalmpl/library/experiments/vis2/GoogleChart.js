@@ -37,7 +37,7 @@ var printq = function(o){
         while (args.length > 0) {
             src = args.splice(0, 1)[0];
             if (toString.call(src) == '[object Object]') {
-                for (p in src) {
+                for (var p in src) {
                     if (src.hasOwnProperty(p)) {
                         if (toString.call(src[p]) == '[object Object]') {
                             dst[p] = merge(dst[p] || {}, src[p]);
@@ -66,7 +66,7 @@ var printq = function(o){
         // Create the data table.
         var data = new google.visualization.DataTable();
         // alert(JSON.stringify(figure.data));
-        for (i=0;i<figure.columns.length;i++) {
+        for (var i=0;i<figure.columns.length;i++) {
             var x = figure.columns[i];
             data.addColumn(x);
             }
