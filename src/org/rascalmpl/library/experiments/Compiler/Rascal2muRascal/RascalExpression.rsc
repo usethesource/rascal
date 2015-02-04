@@ -1644,20 +1644,19 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) =
 MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
-	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
+    
+	// Check if evaluation of the expression throws one of a few specific exceptions;
 	// do this by checking equality of the value constructor names
 	
-	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ])]);
-	cond2 = muCallMuPrim("equal", [ muCon("NoSuchKey"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-	cond3 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-	cond4 = muCallMuPrim("equal", [ muCon("IndexOutOfBounds"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-	cond5 = muCallMuPrim("equal", [ muCon("NoSuchField"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-		
-	elsePart5 = muIfelse(nextLabel(), cond5, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
-	elsePart4 = muIfelse(nextLabel(), cond4, [ muRHS ], [ elsePart5 ]);
-	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ elsePart4 ]);
-	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
-	catchBody = muIfelse(nextLabel(), cond1, [ muRHS ], [ elsePart2 ]);
+	cond = muCallPrim3("elm_in_set", [ muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]),
+									   muCon({"UninitializedVariable",
+									          "NoSuchKey",
+									          "NoSuchAnnotation",
+											  "IndexOutOfBounds",
+											  "NoSuchField"})
+								      ], src);
+	
+	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
