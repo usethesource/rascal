@@ -419,7 +419,7 @@ MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs
    
     if(operator == "?="){
         oldval = getValues(assignable);
-        assert size(oldval) == 1;   
+        assert size(oldval) == 1 : "applyOperator";   
         return generateIfDefinedOtherwise(oldval[0], rhs, assignable@\loc);
     }
     
@@ -428,7 +428,7 @@ MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs
     op1 = ("+=" : "add", "\<\<=" : "add", "\>\>=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator];
     op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
     
-    assert size(oldval) == 1;
+    assert size(oldval) == 1 : "applyOperator";
     return muCallPrim3("<op2>", [*oldval, rhs], assignable@\loc);    
 }
 

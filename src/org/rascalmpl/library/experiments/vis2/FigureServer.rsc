@@ -1,6 +1,6 @@
 module experiments::vis2::FigureServer
 
-import experiments::vis2::FigureNew;
+import experiments::vis2::Figure;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
@@ -53,11 +53,8 @@ res = "\<html\>
         
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
        
-        '   \<!-- NVD3 --\>
-        '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
-        '	\<script src=\"lib/nv.d3.js\"\>\</script\>
+        '   \<!-- GoogleChart --\>
         '   \<script src=\"https://www.google.com/jsapi\"\>\</script\>
-        '	\<script src=\"lib/vega-min.js\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
         '	\<script src=\"lib/dagre-d3.js\"\>\</script\>
@@ -69,8 +66,6 @@ res = "\<html\>
         '	\<script src=\"lib/MarkdownConverter.js\"\>\</script\>
         
         '	\<script src=\"JSFigure.js\"\>\</script\>
-        '	\<script src=\"Chart.js\"\>\</script\>
-        '	\<script src=\"VegaChart.js\"\>\</script\>
  		'	\<script src=\"Graph.js\"\>\</script\>
  		'	\<script src=\"GoogleChart.js\"\>\</script\>
         
