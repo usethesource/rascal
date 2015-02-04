@@ -20,7 +20,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
@@ -608,8 +608,8 @@ public class CodeBlock {
 		return add(new SubType(this));
 	}
 	
-	public CodeBlock CHECKARGTYPE() {
-		return add(new CheckArgType(this));
+	public CodeBlock CHECKARGTYPEANDCOPY(int pos1, Type type, int pos2) {
+		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
 		
 	public CodeBlock JMPINDEXED(IList labels){
