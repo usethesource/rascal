@@ -2148,20 +2148,28 @@ public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2,
 
 @doc{Check the types of Rascal expressions: AppendAfter (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<\< <Expression e2>`, Configuration c) {
-    // TODO: Revisit once this feature has been implemented
-    < c, t1 > = checkExp(e1, c);
-    < c, t2 > = checkExp(e2, c);
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    throw "Not implemented";
+	< c, t1 > = checkExp(e1, c);
+	< c, t2 > = checkExp(e2, c);
+	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+
+	if (isListType(t1)) {
+		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t1),t2)));
+	}
+
+    return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t1)>", e1@\loc));
 }
 
 @doc{Check the types of Rascal expressions: InsertBefore (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>\> <Expression e2>`, Configuration c) {
-    // TODO: Revisit once this feature has been implemented
-    < c, t1 > = checkExp(e1, c);
-    < c, t2 > = checkExp(e2, c);
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    throw "Not implemented";
+	< c, t1 > = checkExp(e1, c);
+	< c, t2 > = checkExp(e2, c);
+	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+
+	if (isListType(t2)) {
+		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t2),t1)));
+	}
+
+    return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t2)>", e2@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Modulo (DONE)}
