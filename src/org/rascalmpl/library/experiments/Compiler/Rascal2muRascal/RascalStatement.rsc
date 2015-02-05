@@ -240,34 +240,115 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `if ( <{Expression ","}+
 
 MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
+//MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+//    str fuid = topFunctionScope();
+//    switchname = getLabel(label);
+//    switchval = asTmp(switchname);
+//    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
+//}
+
+//MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+//  if(size(cases) == 0)
+//      return muBlock([]);
+//  c = head(cases);
+//  
+//  if(c is patternWithAction){
+//     pwa = c.patternWithAction;
+//     if(pwa is arbitrary){
+//     	ifname = nextLabel();
+//        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+//        exp = muIfelse(ifname, cond, 
+//                               { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
+//                               { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
+//        return exp; 
+//     } else {
+//        throw "Replacement not allowed in switch statement";
+//     }
+//  } else {
+//        return translate(c.statement);
+//  }
+//}
+
+
 MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
     str fuid = topFunctionScope();
     switchname = getLabel(label);
     switchval = asTmp(switchname);
-    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
+    <case_code, def, spoiled> = translateSwitchCases(switchval,fuid,[c | c <- cases]) ;
+    res = muSwitch5(muAssignTmp(switchval,fuid,translate(expression)), case_code, def, muTmp(switchval, fuid), spoiled);
+    return res;
 }
 
-MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
-  if(size(cases) == 0)
-      return muBlock([]);
-  c = head(cases);
-  
-  if(c is patternWithAction){
-     pwa = c.patternWithAction;
-     if(pwa is arbitrary){
-     	ifname = nextLabel();
-        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
-        exp = muIfelse(ifname, cond, 
-                               { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
-                               { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
-        return exp; 
-     } else {
-        throw "Replacement not allowed in switch statement";
-     }
-  } else {
-        return translate(c.statement);
-  }
+set[str] checkSpoiler(Pattern pattern, set[str] spoiled){
+	//println("checkSpoiler(<pattern>, <spoiled>)");
+	if(pattern is variableBecomes || pattern is typedVariableBecomes)
+		return checkSpoiler(pattern.pattern, spoiled);
+		
+	if(pattern is literal && pattern.literal is regExp){
+ 		return spoiled + "str";
+ 	}
+ 	if(pattern is qualifiedName || 
+ 	   pattern is typedVariable || 
+ 	   (pattern is callOrTree && !(pattern.expression is qualifiedName))){
+ 		return spoiled += "<getOuterType(pattern)>";
+ 	}
+ 	return spoiled;
 }
+
+tuple[list[MuCase] cases, MuExp def, set[str] spoiled] translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+  table = ();
+  def = muBlock([]);
+  spoiled = {};
+  
+ for(c <- cases, c is patternWithAction){
+ 	spoiled = checkSpoiler(c.patternWithAction.pattern, spoiled);
+  }
+  println("spoiled = <spoiled>");
+ 
+  for(c <- reverse(cases)){
+  
+	  if(c is patternWithAction){
+	     pwa = c.patternWithAction;
+	     pat_type = getOuterType(pwa.pattern);
+	     key = pat_type in spoiled ? pat_type : fingerprint(pwa.pattern);
+	     
+	     if(pwa is arbitrary){
+	     	ifname = nextLabel();
+	        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+	        table[key] = muIfelse(ifname, cond, 
+	                               { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
+	                               { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
+	     } else {
+	        throw "Replacement not allowed in switch statement";
+	     }
+	  } else {
+	        def = translate(c.statement);
+	  }
+   }
+   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   return < [ muCase(key, table[key]) | key <- table], muBlock([def, muCon(true)]), spoiled >;
+}
+
+str fingerprint(p:(Pattern) `<Literal lit>`) { s = "<lit>"; return s[0] == "\"" ? s[1..-1] : s; }
+str fingerprint(p:(Pattern) `<RegExpLiteral r>`) = "<r>";
+str fingerprint(p:(Pattern) `<Concrete concrete>`) {
+	return "<parseConcrete(concrete)[0]>";
+}
+str fingerprint(p:(Pattern) `<QualifiedName name>`) { s = "<name>"; return s[0] == "\\" ? s[1..] : s; }
+str fingerprint(p:(Pattern) `<Type tp> <Name name>`) = "<name>";
+str fingerprint(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) = "type";
+str fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
+	args = [a | a <- arguments];	// TODO: work around!
+	return "<fingerprint(expression)>/<size(arguments)>";
+}
+str fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = "set";
+str fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = "tuple/<size(pats)>";
+str fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`) = "list";
+str fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`) = fingerprint(pattern);
+str fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) = fingerprint(argument);
+str fingerprint(p:(Pattern) `/ <Pattern pattern>`) = "descendant";
+str fingerprint(p:(Pattern) `! <Pattern pattern>`) = "anti";
+str fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = fingerprint(pattern);
 
 // -- fail statement -------------------------------------------------
 

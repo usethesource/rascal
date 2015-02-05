@@ -155,7 +155,8 @@ syntax Exp  =
 			| preWhile: 				"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
-			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
+			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ type_cases "default" ":" Exp default ";"? "}"
+			| preSwitch:				"switch" "(" Exp exp ")" "{" (Case ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate1: 				"create" "(" Exp coro ")"
 			| muCreate2: 				"create" "(" Exp coro "," {Exp ","}+ largs1 ")"
@@ -188,7 +189,8 @@ syntax Exp  =
 			| bracket					"(" Exp exp ")"
 			;
 						
-syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;		
+syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;	
+syntax Case = muCase: 					"case" String id ":" Exp exp ;				
 
 keyword Keywords = 
               "module" | "declares" | "var" | "function" | "coroutine" | "return" | 
@@ -198,7 +200,7 @@ keyword Keywords =
               "type" |
               "ref" | "deref" |
               "bind" | "cons" | "is" | "mod" | "pow" |
-              "typeswitch" | "default" | "case" |
+              "typeswitch" | "default" | "case" | "switch" |
               "multi" | "one" | "all" |
               "cont" | "reset" | "shift"
              ;

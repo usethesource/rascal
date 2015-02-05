@@ -577,12 +577,20 @@ MuExp getConstructor(str cons) {
 */
 
 
-MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
-    fragType = getType(e@\loc);
+Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
+	fragType = getType(e@\loc);
     //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
+    return parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+} 
+
+MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+    //fragType = getType(e@\loc);
+    //println("translateConcrete, fragType = <fragType>");
+    //reifiedFragType = symbolToValue(fragType);
     //println("translateConcrete, reified: <reifiedFragType>");
-    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+    //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+    Tree parsedFragment = parseConcrete(e);
     //println("parsedFragment, before"); iprintln(parsedFragment);
     return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
 }
