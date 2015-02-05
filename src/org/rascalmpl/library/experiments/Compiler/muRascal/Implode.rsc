@@ -307,8 +307,10 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
                                                      list[MuExp] elsePart, bool comma2)         => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
-               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepCases, 
-                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepCases<0>, \default)
+               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepTypeCases, 
+                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepTypeCases<0>, \default)
+               case preSwitch(MuExp exp1, lrel[MuCase, bool] sepCases, 
+                                  MuExp \default, bool comma)                                   => muSwitch(exp1, sepCases<0>, \default)
                case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
                
                case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])

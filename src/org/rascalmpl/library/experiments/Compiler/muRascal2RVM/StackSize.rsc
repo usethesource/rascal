@@ -77,6 +77,12 @@ private int estimate(muFail(str label)) = 0;
 
 private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)) = 
 (1 | max(it, estimate(cs.exp)) | cs <- cases);
+
+//private int estimate(muSwitch4(MuExp exp, list[MuCase] cases, MuExp \default)) = 
+//(1 | max(it, estimate(cs.exp)) | cs <- cases);
+
+private int estimate(muSwitch5(MuExp exp, list[MuCase] cases, MuExp \default, MuExp result, set[str] spoiled)) = 
+(1 | max(it, estimate(cs.exp)) | cs <- cases);
        
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
@@ -124,4 +130,4 @@ private int estimate(muContVar(str fuid)) = 1;
 private int estimate(muReset(MuExp fun)) = estimate(fun);
 private int estimate(muShift(MuExp body)) = estimate(body);
 
-private default int estimate(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
+private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; }

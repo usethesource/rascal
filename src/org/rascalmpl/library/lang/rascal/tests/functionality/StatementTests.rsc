@@ -114,8 +114,66 @@ test bool testSwitch1() {int n = 0; switch(2){ case 2: n = 2; case 4: n = 4; cas
 test bool testSwitch2() {int n = 0; switch(4){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} return n == 4;}
 test bool testSwitch3() {int n = 0; switch(6){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} return n == 6;}
 test bool testSwitch4() {int n = 0; switch(8){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} return n == 10;}
+ 
+ int sw5(int e){ 	
+ 	int n = 0;
+ 	switch(e){
+ 		case 1 : n = 1;
+ 		case x: 2: n = 2;
+ 		case int x: 3: n = 3;
+ 		default: n = 4;
+ 	}
+ 	return n;
+ }	
+ 
+ test bool testSwitch5a() = sw5(1) == 1;
+ test bool testSwitch5b() = sw5(2) == 2;
+ test bool testSwitch5c() = sw5(3) == 3;
+ test bool testSwitch5d() = sw5(4) == 4;
+ 
+ int sw6(str e){ 	
+ 	int n = 0;
+ 	switch(e){
+ 		case "abc": n = 1;
+ 		case /A/: n = 2;
+ 		case str s: "def": n = 3;
+ 		default: n = 4;
+ 	}
+ 	return n;
+ }
+ 
+ test bool testSwitch6a() = sw6("abc") == 1;
+ test bool testSwitch6b() = sw6("AAA") == 2;
+ test bool testSwitch6c() = sw6("def") == 3;
+ test bool testSwitch6a() = sw6("zzz") == 4;
+ 	
+ int sw7(value e){ 	
+ 	int n = 0;
+ 	switch(e){
+ 		case "abc": 		n = 1;
+		case str s: /def/: 	n = 2;
+		case 3: 			n = 3;
+		case d(): 			n = 4;
+		case d(z): 			n = 5;
+		case str s(3): 		n = 6;
+		case [1,2,3]: 		n = 7;
+		case [1,2,3,4]: 	n = 8;
+		default: 			n = 9;
+ 	}
+ 	return n;
+ }
+ 
+ test bool testSwitch7a() = sw7("abc") 		== 1;
+ test bool testSwitch7b() = sw7("def") 		== 2;
+ test bool testSwitch7c() = sw7(3)     		== 3;
+ test bool testSwitch7d() = sw7(d())   		== 4;
+ test bool testSwitch7e() = sw7(d(2))  		== 5;
+ test bool testSwitch7f() = sw7("abc"(3))	== 6;
+ test bool testSwitch7g() = sw7([1,2,3]) 	== 7;
+ test bool testSwitch7h() = sw7([1,2,3,4]) 	== 8;
+ test bool testSwitch7i() = sw7(<-1,-1>) 	== 9;
   	
-	rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};
+rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};
   	
 //  solve
   

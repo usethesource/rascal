@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 
 
 public class RVM {
@@ -479,6 +480,45 @@ public class RVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
+	private String fingerprint(IValue v, ISet spoiled){
+		Type vtype = v.getType();
+		String vtype_as_string = ToplevelType.getToplevelTypeAsString(vtype);
+		if(spoiled.contains(vf.string(vtype_as_string))){
+			return vtype_as_string;
+		}
+		ToplevelType tt = ToplevelType.getToplevelType(vtype);
+		switch(tt){
+		case BOOL:
+		case INT:	
+		case REAL:
+		case RAT:
+		case NUM:	
+		case LOC:	
+		case DATETIME:
+					return v.toString();
+		case STR:	String s = v.toString();
+					return s.substring(1, s.length()-1);
+		case NODE:	INode nd = (INode) v;
+					return nd.getName() + "/" + nd.arity();
+		case TUPLE:	return "tuple" + "/" + ((ITuple) v).arity();
+		
+		case ADT:	if(spoiled.contains(vf.string("node"))){
+						return "node";
+					}
+					IConstructor cons = (IConstructor) v;
+					String name = cons.getName();
+					if(name.equals("appl")){
+						return cons.get(0).toString();
+					}
+					if(name.equals("Production")){
+						return cons.toString();
+					}
+						return cons.getName() + "/" + cons.arity();
+		default:
+			return vtype_as_string;
+		}
+	}
+	
 	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
@@ -676,6 +716,22 @@ public class RVM {
 					labelIndex = ((IInteger) stack[--sp]).intValue();
 					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
+					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_SWITCH:
+					val = (IValue) stack[--sp];
+					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					int caseDefault = CodeBlock.fetchArg2(instruction);
+					ISet spoiled  = ((ISet) cf.function.constantStore[instructions[pc++]]);
+					IString fp = vf.string(fingerprint(val, spoiled));
+					
+					IInteger x = (IInteger) caseLabels.get(fp);
+					if(x == null){
+						stack[sp++] = vf.bool(false);
+						pc = caseDefault;
+					} else {
+						pc = x.intValue();
+					}
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADTYPE:

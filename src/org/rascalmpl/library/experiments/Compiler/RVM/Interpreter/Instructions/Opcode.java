@@ -93,7 +93,8 @@ public enum Opcode {
 	APPLYDYN            (75,    1),
 	LOADCONT            (76,    1),
 	RESET               (77,    1),
-	SHIFT               (78,    1)
+	SHIFT               (78,    1),
+	SWITCH   			(79,	2)
 	;
 	
 	
@@ -188,6 +189,7 @@ public enum Opcode {
 	static public final int OP_LOADCONT = 76;
 	static public final int OP_RESET = 77;
 	static public final int OP_SHIFT = 78;
+	static public final int OP_SWITCH = 79;
 	
 	
 	/*
@@ -499,6 +501,9 @@ public enum Opcode {
 			
 		case SHIFT:
 			return "SHIFT";
+			
+		case SWITCH:
+			return "SWITCH " + cb.getConstantValue(arg1) + ", " + arg2;
 		
 		default:
 			break;
