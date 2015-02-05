@@ -109,91 +109,8 @@ public class ReflectiveCompiled extends Reflective {
 	}
 	
 	public IBool inCompiledMode() { return values.bool(true); }
-	
-	private String diff(IValue oldVal, IValue newVal){
-		
-		if(oldVal.getType().isString()){
-			IString ov = (IString) oldVal;
-			IString nv = (IString) newVal;
-			String ldiff = (ov.length() == nv.length()) ? "" : ("length " + ov.length() + " vs " +  nv.length() + "; ");
-			for(int i = 0; i < ov.length() && i < nv.length(); i++){
-				if(ov.charAt(i) != nv.charAt(i)){
-					return ldiff + "diff at index " + i + ": " + ov.charAt(i) + " + vs + " + nv.charAt(i);
-				}
-			}
-		}
-		if(oldVal.getType().isList()){
-			IList ov = (IList) oldVal;
-			IList nv = (IList) newVal;
-			String ldiff = (ov.length() == nv.length()) ? "" : ("size " + ov.length() + " vs " +  nv.length() + "; ");
-			for(int i = 0; i < ov.length() && i < nv.length(); i++){
-				if(!ov.get(i).equals(nv.get(i))){
-					return ldiff + "diff at index " + i + ": " + ov.get(i) + " + vs + " + nv.get(i);
-				}
-			}
-		}
-		if(oldVal.getType().isTuple()){
-			ITuple ov = (ITuple) oldVal;
-			ITuple nv = (ITuple) newVal;
-			for(int i = 0; i < ov.arity(); i++){
-				if(!ov.get(i).equals(nv.get(i))){
-					return "diff at index " + i + ": " + ov.get(i) + " + vs + " + nv.get(i);
-				}
-			}
-		}
-		if(oldVal.getType().isSet()){
-			ISet ov = (ISet) oldVal;
-			ISet nv = (ISet) newVal;
-			String ldiff = (ov.size() == nv.size()) ? "" : ("size " + ov.size() + " vs " +  nv.size() + "; ");
-			
-			ISet diff1 = ov.subtract(nv);
-			String msg1 = diff1.size() == 0 ? "" : "only in old: " + diff1 + "; ";
-			ISet diff2 = nv.subtract(ov);
-			String msg2 = diff2.size() == 0 ? "" : "only in new: " + diff2;
-			return ldiff + msg1 + msg2;
-		}
-		
-		if(oldVal.getType().isMap()){
-			IMap ov = (IMap) oldVal;
-			IMap nv = (IMap) newVal;
-			String ldiff = (ov.size() == nv.size()) ? "" : ("size " + ov.size() + " vs " +  nv.size() + "; ");
-			
-			IMap all = ov.join(nv);
-			
-			String onlyInOld = "";
-			String onlyInNew = "";
-			String diffVal = "";
-			for(IValue key : all){
-				if(!nv.containsKey(key)){
-					onlyInOld += " " + key;
-					continue;
-				}
-				if(!ov.containsKey(key)){
-					onlyInNew += " " + key;
-					continue;
-				}
-				if(!ov.get(key).equals(nv.get(key))){
-					diffVal += " key " + key + ": [" + diff(ov.get(key), nv.get(key)) + "]";
-				}
-			}
-				
-			String msg1 = onlyInOld.length() == 0 ? "" : "keys only in old:" + onlyInOld + "; ";
-			String msg2 = onlyInNew.length() == 0 ? "" : "keys only in new:" + onlyInNew + "; ";
-			String msg3 = diffVal.length() == 0 ? "" : "diffs at" + diffVal + "; ";
-			return ldiff + msg1 + msg2 + msg3;
-		}
-		String sOld = oldVal.toString();
-		if(sOld.length() > 20){
-			sOld = sOld.substring(0, 20) + "...";
-		}
-		String sNew = newVal.toString();
-		if(sNew.length() > 20){		
-			sNew = sNew.substring(0, 20) + "...";
-		}
-		return "was " + sOld + ", now " + sNew;
-		
-	}
 
+	
 	public IValue watch(IValue tp, IValue val, IString name, RascalExecutionContext rex){
 		return watch(tp, val, name, values.string(""), rex);
 	}
@@ -221,7 +138,7 @@ public class ReflectiveCompiled extends Reflective {
 			if(sNew.length() > 20){		
 				sNew = sNew.substring(0, 20) + "...";
 			}
-			throw RuntimeExceptionFactory.assertionFailed(values.string("Watchpoint " + name1 + ": " + diff(oldVal, newVal)), null, null);
+			throw RuntimeExceptionFactory.assertionFailed(values.string("Watchpoint " + name1 + ": " + idiff("", oldVal, newVal)), null, null);
 		}
 	}
 
