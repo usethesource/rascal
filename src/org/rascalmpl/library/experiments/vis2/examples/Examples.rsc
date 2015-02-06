@@ -15,9 +15,9 @@ void ex(str title, Figure f){
 	render(title, f);
 }
 
-void ex(str title, value model, Figure f){
-	render(title, model, f);
-}
+//void ex(str title, value model, Figure f){
+//	render(title, model, f);
+//}
 
 // single box
 
@@ -938,14 +938,14 @@ void graph3(){
 //					], gap=<50,50>));
 // }
 
-map[str,Figure] nodes2 =
-        ("A": box(size=<20,20>, fillColor="green"),
-     	 "B": box(size=<20,20>, fillColor="red"),
-     	 "C": box(size=<20,20>, fillColor="blue"),
-     	 "D": box( size=<20,20>, fillColor="purple"),
-     	 "E": box(size=<20,20>, fillColor="lightblue"),
-     	 "F": box(size=<20,20>, fillColor="orange")
-     	);
+lrel[str,Figure] nodes2 =
+        [<"A", box(size=<20,20>, fillColor="green")>,
+     	 <"B", box(size=<20,20>, fillColor="red")>,
+     	 <"C", box(size=<20,20>, fillColor="blue")>,
+     	 <"D", box( size=<20,20>, fillColor="purple")>,
+     	 <"E", box(size=<20,20>, fillColor="lightblue")>,
+     	 <"F", box(size=<20,20>, fillColor="orange")>
+     	];
      	
 list[Figure] edges2 = 
     	[ edge("A", "B", ""),
@@ -1045,7 +1045,7 @@ void ttext8(){ ex("text8", text8); }
 public Figure text9 = text("Hello", fontSize=14, fontColor="red");
 void ttext9(){ ex("text9", text9); }
 
-public Figure text10 = box(fig=text("Hello", fillColor="black", fontWeight="bold", fontStyle="italic", fillColor="black", fontSize=20), fillColor="yellow");
+public Figure text10 = box(fig=text("Hello", fillColor="black", fontWeight="bold", fontStyle="italic",  fontSize=20), fillColor="yellow");
 void ttext10(){ ex("text10", text10); }
 
 public Figure text11 = hcat(figs=[ box(fig=text("Hello", fillColor="black"), fillColor="white"),
@@ -1303,23 +1303,6 @@ void slider3(){
 				 gap=<80,80>);
 				 });
 }
-
-// Resize barChart
-
-data SIZE = SIZE(int SIZE);
-
-void slider4(){
-
-	render("slider4", #SIZE, SIZE(300), Figure (str event, str utag, SIZE m) {
-			low = 100;
-			high = 500;
-			return vcat(figs=[ hcat(figs=[text("SIZE"), text(low), rangeInput(low=low,high=high,step=5, event=on("change", bind(m.SIZE)), size=<500,50>), text(high) ]),
-				               barChart(width=m.SIZE, height=m.SIZE, dataset=exampleBarData())
-	             ],			  
-				 gap=<10,20>);
-		});
-}
-
 
 data VISABLE = VISABLE(str event, str utag, bool VISABLE);
 

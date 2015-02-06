@@ -10,7 +10,7 @@
 module experiments::Concept::GetFigure
 
 import analysis::formalconcepts::FCA;
-import experiments::Concept::Types;
+import analysis::formalconcepts::CXTIO;
 import IO;
 import vis::Figure; 
 

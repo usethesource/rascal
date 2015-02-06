@@ -1,3 +1,12 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module experiments::vis2::Figure
 
 import util::Math;
@@ -12,7 +21,7 @@ alias Position = tuple[num x, num y];
 
 // Alignment for relative placement of figure in parent
 
-alias Alignment = tuple[num hpos, num vpos];
+public alias Alignment = tuple[num hpos, num vpos];
 
 public Alignment topLeft      	= <0.0, 0.0>;
 public Alignment top          	= <0.5, 0.0>;
@@ -48,12 +57,6 @@ data Bind
 alias XYData 			= lrel[num x, num y];
 			 		 
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
-
-alias HistogramData     = tuple[int nTickMarks, list[num val] \data];		
-
-alias ErrorData			= lrel[str label, num mean, num low, num high];	
-
-alias Datasets[&T] 		= map[str name, &T values];
 
 	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
@@ -231,34 +234,7 @@ public data Figure(
    ;
  
 
-data Axis(str title="",
-          int minValue = -1,
-          int maxValue = -1,
-          ViewWindow viewWindow = viewWindow(),
-          bool slantedText = true,
-          int slantedTextAngle = -1, 
-          str textPosition = "",
-           GridLines gridlines = gridlines()) = axis()
-          ;
-          
-bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
-     && isEmpty(axis.viewWindow) && axis.slantedText && axis.slantedTextAngle == -1
-     && isEmpty(axis.textPosition);
 
-str trAxis(Axis axis) {
-    str r = "{";
-    if  (!isEmpty(axis.title)) r +="\"title\" : \"<axis.title>\",";
-    if  (axis.minValue>=0) r+="\"minValue\" : <axis.minValue>,";
-    if  (axis.maxValue>=0) r+= "\"maxValue\" : <axis.maxValue>,";
-    if (!isEmpty(axis.viewWindow)) r+="\"viewWindow\":<trViewWindow(axis.viewWindow)>,";
-    if (!isEmpty(axis.gridlines)) r+="\"gridlines\":<trGridlines(axis.gridlines)>,";
-    if (!axis.slantedText) r+="\"slantedText\":<axis.slantedText>,";
-    if  (axis.slantedTextAngle>=0) r+="\"slantedTextAngle\" : <axis.slantedTextAngle>,";
-    if  (!isEmpty(axis.textPosition)) r +="\"textPosition\" : \"<axis.textPosition>\",";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
     
 data ChartArea ( 
      value left = "",
@@ -338,23 +314,11 @@ str trViewWindow(ViewWindow w) {
     return r;
     }
 
-data GridLines(str color = "", int count =-1) = gridlines();
+data Gridlines(str color = "", int count =-1) = gridlines();
 
-bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
+bool isEmpty(Gridlines g) = isEmpty(g.color) && g.count == -1 ;
 
-str trGridlines(GridLines g) {
-    str r = "{";
-    if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
-    if  (g.count>=0) r+= "\"count\" : <g.count>,";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
-
-
-bool isEmpty(GridLines g) = isEmpty(g.color) && g.count == -1 ;
-
-str trGridlines(GridLines g) {
+str trGridlines(Gridlines g) {
     str r = "{";
     if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
     if  (g.count>=0) r+= "\"count\" : <g.count>,";
@@ -404,17 +368,46 @@ str trBar(Bar bar) {
  
  bool isEmpty(Bar bar) {
     return (str v := bar.groupWidth && isEmpty(v));
+    }
+    
+data Axis(str title="",
+          int minValue = -1,
+          int maxValue = -1,
+          ViewWindow viewWindow = ViewWindow::viewWindow(),
+          bool slantedText = true,
+          int slantedTextAngle = -1, 
+          str textPosition = "",
+           Gridlines gridlines =  Gridlines::gridlines()) 
+          = axis();
+          
+bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
+     && isEmpty(axis.viewWindow) && axis.slantedText && axis.slantedTextAngle == -1
+     && isEmpty(axis.textPosition);
+
+str trAxis(Axis axis) {
+    str r = "{";
+    if  (!isEmpty(axis.title)) r +="\"title\" : \"<axis.title>\",";
+    if  (axis.minValue>=0) r+="\"minValue\" : <axis.minValue>,";
+    if  (axis.maxValue>=0) r+= "\"maxValue\" : <axis.maxValue>,";
+    if (!isEmpty(axis.viewWindow)) r+="\"viewWindow\":<trViewWindow(axis.viewWindow)>,";
+    if (!isEmpty(axis.gridlines)) r+="\"gridlines\":<trGridlines(axis.gridlines)>,";
+    if (!axis.slantedText) r+="\"slantedText\":<axis.slantedText>,";
+    if  (axis.slantedTextAngle>=0) r+="\"slantedTextAngle\" : <axis.slantedTextAngle>,";
+    if  (!isEmpty(axis.textPosition)) r +="\"textPosition\" : \"<axis.textPosition>\",";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
     }           
                 
 data ChartOptions (str title = "",
              Axis hAxis = axis(),
              Axis vAxis = axis(),
-             ChartArea chartArea = chartArea(),
-             Bar bar = bar(),
+             ChartArea chartArea = ChartArea::chartArea(),
+             Bar bar = Bar::bar(),
              int width=-1,
              int height = -1,
              bool forceIFrame = true,
-             Legend legend = legend(),
+             Legend legend = Legend::legend(),
              int lineWidth = -1,
              int pointSize = -1,
              bool interpolateNulls = false,
@@ -457,9 +450,11 @@ ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
     for (c<-charts) {
         Series s = series();
         switch(c) {
-            case line(_): s.\type = "line";
-            case area(_): s.\type=  "area";
-            case bar(_) : s.\type = "bars";
+            case Chart::line(XYData d1): s.\type = "line";
+            case Chart::line(XYLabeledData d2): s.\type = "line";
+            case Chart::area(XYData d3): s.\type=  "area";
+            case Chart::area(XYLabeledData d4): s.\type=  "area";
+            case Chart::bar(_) : s.\type = "bars";
             }
         s.color = c.color;
         s.curveType = c.curveType;
@@ -493,7 +488,7 @@ data Chart(str name = "", str color = "", str curveType = "",
 	;
 	
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
-map[value, list[value]] tData(Chart c, inBar) {
+map[value, list[value]] tData(Chart c, bool inBar) {
      list[list[value]] r = [];
      switch(c) {
         case line(XYData x): r = [[d[0], d[1]]|d<-x];
