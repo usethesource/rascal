@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -40,25 +41,26 @@ public class DescendantReader implements Iterator<IValue> {
 	private boolean interpretTree;
 	
 	DescendantReader(IValue val, boolean interpretTree){
-		if(debug)System.err.println("DescendantReader: " + val);
+		if (debug) {
+			System.err.println("DescendantReader: " + val);
+		}
 		this.interpretTree = interpretTree;
 		push(val);
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean hasNext() {
-		while((spine.size() > 0) &&
-			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
+		while((spine.size() > 0) 
+				&& (spine.peek() instanceof Iterator && !((Iterator<?>) spine.peek()).hasNext())){
 			spine.pop();
 		}		
 		return spine.size() > 0;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public IValue next() {
-		if(spine.peek() instanceof Iterator){
-			Iterator<Object> iter = (Iterator<Object>) spine.peek();
-			if(!iter.hasNext()){
+		if (spine.peek() instanceof Iterator) {
+			Iterator<?> iter = (Iterator<?>) spine.peek();
+			
+			if (!iter.hasNext()) {
 				spine.pop();
 				return next();
 			}
@@ -75,35 +77,46 @@ public class DescendantReader implements Iterator<IValue> {
 	
 	private void push(IValue v){
 		Type type = v.getType();
-		if(type.isNode() || type.isConstructor() || type.isAbstractData()){
-			if(interpretTree && (type.isConstructor() || type.isAbstractData()) && type == Factory.Tree){
+		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
+			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type == Factory.Tree) {
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
-			push(v,  ((INode) v).getChildren().iterator());
-		} else
-		if(type.isList()){
+			INode node = (INode) v;
+			push(v, node.getChildren().iterator());
+			if (node.mayHaveKeywordParameters()) {
+				pushKeywordParameters(node.asWithKeywordParameters());
+			}
+		} 
+		else if(type.isList()) {
 			push(v, ((IList) v).iterator());
-		} else
-		if(type.isSet()){
+		} 
+		else if(type.isSet()) {
 			push(v, ((ISet) v).iterator());
-		} else
-		if(type.isMap()){
+		} 
+		else if(type.isMap()) {
 			push(v, new MapKeyValueIterator((IMap) v));
-		} else
-		if(type.isTuple()){
+		} 
+		else if(type.isTuple()) {
 			push(v, new TupleElementIterator((ITuple) v));
-		} else {
+		} 
+		else {
 			spine.push(v);
 		}
 	}
 	
+	private void pushKeywordParameters(IWithKeywordParameters<? extends INode> node) {
+		for (String name : node.getParameterNames()) {
+			push(node.getParameter(name));
+		}
+	}
+
 	private void pushConcreteSyntaxNode(IConstructor tree){
-		if(debug)System.err.println("pushConcreteSyntaxNode: " + tree);
+		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		String name = tree.getName();
 		
-		if(name.equals("sort") || name.equals("lit") || 
-		   name.equals("char") || name.equals("single")){
+		if (name.equals("sort") || name.equals("lit") || 
+		    name.equals("char") || name.equals("single")) {
 			/*
 			 * Don't recurse
 			 */
@@ -111,7 +124,7 @@ public class DescendantReader implements Iterator<IValue> {
 			return;
 		}
 		
-		if(TreeAdapter.isAmb(tree)) {
+		if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				pushConcreteSyntaxNode((IConstructor) alt);
 			}
@@ -120,31 +133,36 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 			
 		NonTerminalType ctype = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(tree);
-		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
+		if (debug) System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		IConstructor sym = ctype.getSymbol();
-        if(SymbolAdapter.isAnyList(sym)){
+		
+        if (SymbolAdapter.isAnyList(sym)) {
         	sym = SymbolAdapter.getSymbol(sym);
         	
         	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
         	IList listElems = (IList) tree.get(1);
-			if(SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
-				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
+			if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
+				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
 				delta = 1; // new iters never have layout separators
-			} else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
-				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlusSeps or isIterStarSeps");
+			} 
+			else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
+				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlusSeps or isIterStarSeps");
 				delta = SymbolAdapter.getSeparators(sym).length() + 1;
 			}
-			if(debug)
-				for(int i = 0; i < listElems.length(); i++){
+			
+			if (debug) {
+				for (int i = 0; i < listElems.length(); i++){
 					System.err.println("#" + i + ": " + listElems.get(i));
 				}
+			}
         	
-			for(int i = listElems.length() - 1; i >= 0 ; i -= delta){
-				if(debug)System.err.println("adding: " + listElems.get(i));
+			for (int i = listElems.length() - 1; i >= 0 ; i -= delta){
+				if (debug) System.err.println("adding: " + listElems.get(i));
 				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
 			}
-		} else {
-			if(debug)System.err.println("pushConcreteSyntaxNode: appl");
+		} 
+        else {
+			if (debug) System.err.println("pushConcreteSyntaxNode: appl");
 			/*
 			 * appl(prod(...), [child0, layout0, child1, ...])
 			 */
