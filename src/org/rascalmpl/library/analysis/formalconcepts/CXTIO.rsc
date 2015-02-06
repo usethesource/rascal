@@ -29,4 +29,11 @@ public FormalContext[str, str] readCxt(loc input)  {
          }
     return toFormalContext(vb);
     }
-   
+
+loc input = |file:///ufs/bertl/cxt/digits.cxt|;
+
+public void main() {
+     FormalContext[str, str] d = readCxt(input);
+     ConceptLattice[str, str] e = fca(d);
+     println(toDotString(e));
+     }  

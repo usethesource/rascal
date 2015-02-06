@@ -13,7 +13,6 @@ import util::Cursor;
 import lang::json::IO;
 import Type;
 import Exception;
-import experiments::vis2::vega::Vega;
 
 /************************* Figure server *********************************
  This server responds to two requests:
@@ -115,23 +114,6 @@ default Response page(post(), str path, map[str, str] parameters){
 default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
-
-Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
-      map[str, str] parameters) {
-      if(visualizations[name]?){
-		    descr = visualizations[name];
-		    // println("get: descr: <descr>");
-		    VEGA s = descr.figure.command();
-		    // println(s);
-		    // println(vegaToJSON(s));
-		    return response(vegaToJSON(s));
-		    }
-      else {
-    	  throw "get_initial_figure: visualization <name> unknown";
-    	  }
-    }
-   
-        
 
 
 /********************** web server creation ********************/

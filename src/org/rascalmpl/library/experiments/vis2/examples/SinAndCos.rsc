@@ -1,3 +1,11 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module experiments::vis2::examples::SinAndCos
 import experiments::vis2::FigureServer; 
 import experiments::vis2::Figure; 
@@ -16,9 +24,12 @@ void sinAndCos(){
         		   line([<x, round(0.25 * sin(x/1) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 9.0]], name= "Another sine wave")
         			],
         	options = chartOptions(curveType="function",
-           		hAxis = axis(title="Time"), 
+           		hAxis = axis(title="Time", minValue = 0, maxValue = 10), 
            		vAxis = axis(title="Voltage"),
-           		width=500,
+           		chartArea = chartArea(width="80%", height = "70%"
+           		             ,backgroundColor="antiquewhite"
+           		),
+           		width=600,
                 height=200,
                 pointSize= 0,
                 lineWidth = 1,
