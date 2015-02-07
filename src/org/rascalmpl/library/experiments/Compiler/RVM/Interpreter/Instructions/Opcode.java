@@ -94,7 +94,7 @@ public enum Opcode {
 	LOADCONT            (76,    1),
 	RESET               (77,    1),
 	SHIFT               (78,    1),
-	SWITCH   			(79,	2)
+	SWITCH   			(79,	1)
 	;
 	
 	

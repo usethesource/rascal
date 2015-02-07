@@ -103,7 +103,7 @@ INS unused_labels([ *Instruction instructions ]){
        case JMPTRUE(lab): used += lab;
        case TYPESWITCH(labs): used += toSet(labs);
        case JMPINDEXED(labs): used += toSet(labs);
-       case SWITCH(labs, def, spoiled): used += range(labs) + def;
+       case SWITCH(labs, def): used += range(labs) + def;
     };
     return 
       for(ins <- instructions){

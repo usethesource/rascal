@@ -136,9 +136,9 @@ public data MuExp =
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           
-          | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  // switch over cases for specific type
-          | muSwitch(MuExp exp, list[MuCase] cases, MuExp \default)		// switch over cases for specific key
-          | muSwitch5(MuExp exp, list[MuCase] cases, MuExp \default, MuExp result, set[str] spoiled)
+          | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
+         	
+          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement

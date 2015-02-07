@@ -709,22 +709,20 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
-
-INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp)) =
-	tr(muSwitch4(exp, cases, defaultExp, {}));
 	
-INS tr(muSwitch5(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result, set[str] spoiled)){
+INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
    labels = ();
    caseCode =  [];
-	for(cs <- cases){
+   for(cs <- cases){
 		caseLab = defaultLab + "_" + cs.name;
 		labels[cs.name] = caseLab;
 		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
-	 };
-   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), JMP(continueLab) ];
-   return [ *tr(exp), SWITCH(labels, defaultLab, spoiled), *caseCode, LABEL(continueLab), *tr(result) ];
+   }
+	 
+   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
+   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
 }
 
 // Multi/One/All/Or outside conditional context
