@@ -10,13 +10,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 public class Switch extends Instruction {
 	IMap caseLabels;
 	String caseDefault;
-	ISet spoiled;
 	
-	public Switch(CodeBlock ins, IMap caseLabels, String caseDefault, ISet spoiled) {
+	public Switch(CodeBlock ins, IMap caseLabels, String caseDefault) {
 		super(ins, Opcode.SWITCH);
 		this.caseLabels = caseLabels;
 		this.caseDefault = caseDefault;
-		this.spoiled = spoiled;
 	}
 
 	public String toString() { 
@@ -27,7 +25,7 @@ public class Switch extends Instruction {
 			res += sep + key + ": " + label;
 			sep = ", ";
 		}
-		res += "), " + caseDefault + ", " + spoiled;
+		res += "), " + caseDefault;
 		return res;
 	}
 	
@@ -40,6 +38,5 @@ public class Switch extends Instruction {
 		codeblock.addCode2(opcode.getOpcode(), 
 							codeblock.getConstantIndex(w.done()), 
 							codeblock.getLabelPC(caseDefault));
-		codeblock.addCode(codeblock.getConstantIndex(spoiled));
 	}
 }

@@ -583,8 +583,7 @@ public class Execute {
 			
 			case "SWITCH":
 				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
-								 getStrField(instruction, "caseDefault"),
-								 (ISet)instruction.get("spoiled"));
+								 getStrField(instruction, "caseDefault"));
 				break;
 				
 			default:

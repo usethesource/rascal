@@ -75,14 +75,11 @@ private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
 private int estimate(muFail(str label)) = 0;
 
-private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)) = 
-(1 | max(it, estimate(cs.exp)) | cs <- cases);
+private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)) = 
+max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
 
-//private int estimate(muSwitch4(MuExp exp, list[MuCase] cases, MuExp \default)) = 
-//(1 | max(it, estimate(cs.exp)) | cs <- cases);
-
-private int estimate(muSwitch5(MuExp exp, list[MuCase] cases, MuExp \default, MuExp result, set[str] spoiled)) = 
-(1 | max(it, estimate(cs.exp)) | cs <- cases);
+private int estimate(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
+max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
        
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;

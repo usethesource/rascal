@@ -480,12 +480,9 @@ public class RVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	private String fingerprint(IValue v, ISet spoiled){
+	private String fingerprint(IValue v){
 		Type vtype = v.getType();
 		String vtype_as_string = ToplevelType.getToplevelTypeAsString(vtype);
-		if(spoiled.contains(vf.string(vtype_as_string))){
-			return vtype_as_string;
-		}
 		ToplevelType tt = ToplevelType.getToplevelType(vtype);
 		switch(tt){
 		case BOOL:
@@ -501,11 +498,9 @@ public class RVM {
 		case NODE:	INode nd = (INode) v;
 					return nd.getName() + "/" + nd.arity();
 		case TUPLE:	return "tuple" + "/" + ((ITuple) v).arity();
+		case CONSTRUCTOR:
 		
-		case ADT:	if(spoiled.contains(vf.string("node"))){
-						return "node";
-					}
-					IConstructor cons = (IConstructor) v;
+		case ADT:	IConstructor cons = (IConstructor) v;
 					String name = cons.getName();
 					if(name.equals("appl")){
 						return cons.get(0).toString();
@@ -513,7 +508,7 @@ public class RVM {
 					if(name.equals("Production")){
 						return cons.toString();
 					}
-						return cons.getName() + "/" + cons.arity();
+					return cons.getName() + "/" + cons.arity();
 		default:
 			return vtype_as_string;
 		}
@@ -598,9 +593,9 @@ public class RVM {
 					if(!last_function_name.equals(cf.function.name))
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
-					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
-					}
+//					for (int i = 0; i < sp; i++) {
+//						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+//					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
 				}
@@ -722,15 +717,17 @@ public class RVM {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					ISet spoiled  = ((ISet) cf.function.constantStore[instructions[pc++]]);
-					IString fp = vf.string(fingerprint(val, spoiled));
+					IString fp = vf.string(fingerprint(val));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
+					stdout.println("SWITCH: val = " + val + ", fp = " + fp + " x = " + x + ", sp = " + sp);
 					if(x == null){
-						stack[sp++] = vf.bool(false);
-						pc = caseDefault;
+							stack[sp++] = vf.bool(false);
+							pc = caseDefault;
+							stdout.println("SWITCH: goto default at " + pc);
 					} else {
 						pc = x.intValue();
+						stdout.println("SWITCH: goto selected case at " + pc);
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -1733,6 +1730,7 @@ public class RVM {
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*

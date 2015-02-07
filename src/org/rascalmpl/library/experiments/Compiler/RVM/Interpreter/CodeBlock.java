@@ -659,8 +659,8 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 	
-	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, ISet spoiled) {
-		return add(new Switch(this, caseLabels, caseDefault, spoiled));
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
+		return add(new Switch(this, caseLabels, caseDefault));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

@@ -156,7 +156,8 @@ syntax Exp  =
 			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
 			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ type_cases "default" ":" Exp default ";"? "}"
-			| preSwitch:				"switch" "(" Exp exp ")" "{" (Case ";"?)+ cases "default" ":" Exp default ";"? "}"
+			// Note: switch has not been added to concrete muRascal
+			// preSwitch:				"switch" "(" Exp exp ")" "{" (Case ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate1: 				"create" "(" Exp coro ")"
 			| muCreate2: 				"create" "(" Exp coro "," {Exp ","}+ largs1 ")"
