@@ -1269,6 +1269,38 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymDependAlternative(Sym.DependAlternative x) { 
+    return null; 
+  }
+
+  public T visitSymDependCode(Sym.DependCode x) { 
+    return null; 
+  }
+
+  public T visitSymDependConditionAfter(Sym.DependConditionAfter x) { 
+    return null; 
+  }
+
+  public T visitSymDependConditionBefore(Sym.DependConditionBefore x) { 
+    return null; 
+  }
+
+  public T visitSymDependFormals(Sym.DependFormals x) { 
+    return null; 
+  }
+
+  public T visitSymDependNonterminal(Sym.DependNonterminal x) { 
+    return null; 
+  }
+
+  public T visitSymDependParametrized(Sym.DependParametrized x) { 
+    return null; 
+  }
+
+  public T visitSymDependScope(Sym.DependScope x) { 
+    return null; 
+  }
+
   public T visitSymEmpty(Sym.Empty x) { 
     return null; 
   }

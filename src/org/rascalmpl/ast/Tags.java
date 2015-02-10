@@ -72,7 +72,7 @@ public abstract class Tags extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 73 * tags.hashCode() ; 
+      return 107 + 659 * tags.hashCode() ; 
     } 
   
     

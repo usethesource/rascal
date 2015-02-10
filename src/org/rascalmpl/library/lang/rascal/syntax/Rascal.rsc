@@ -104,6 +104,15 @@ syntax Sym
 	| parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
+	// data-dependent non-terminals
+	| dependFormals: Sym symbol Parameters formals // only used in the head 
+	| dependNonterminal: Nonterminal nonterminal "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
+	| dependParametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
+	| dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
+	| dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
+	| dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart
+	| dependCode: Sym symbol "do" Statement block
+	| dependScope: "{" Sym+ "}"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
@@ -116,10 +125,6 @@ syntax Sym
 	| optional: Sym symbol "?" 
 	| alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| sequence: "(" Sym first Sym+ sequence ")"
-	// TODO: MinimalIter: Sym symbol IntegerConstant minimal "+"
-	// TODO: MinimalIterSep: "{" Sym symbol Symbol sep "}" IntegerConstant minimal "+"
-	// TODO | Permutation: "(" Sym first "~" {Sym "~"}+ participants ")"
-	// TODO | Combination: "(" Sym first "#" {Sym "#"}+ elements ")"
 	| empty: "(" ")"
 // conditionals
 	| column: Sym symbol "@" IntegerLiteral column 
@@ -164,7 +169,8 @@ syntax SyntaxDefinition
 	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
 	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
 	|  @Foldable \token   : "token" Sym defined "=" Prod production ";"
-	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
+	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" 
+	;
 
 syntax Kind 
 	= function: "function" 
