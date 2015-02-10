@@ -643,6 +643,22 @@ public interface IASTVisitor<T> {
 
   public T visitSymColumn(Sym.Column x);
 
+  public T visitSymDependAlternative(Sym.DependAlternative x);
+
+  public T visitSymDependCode(Sym.DependCode x);
+
+  public T visitSymDependConditionAfter(Sym.DependConditionAfter x);
+
+  public T visitSymDependConditionBefore(Sym.DependConditionBefore x);
+
+  public T visitSymDependFormals(Sym.DependFormals x);
+
+  public T visitSymDependNonterminal(Sym.DependNonterminal x);
+
+  public T visitSymDependParametrized(Sym.DependParametrized x);
+
+  public T visitSymDependScope(Sym.DependScope x);
+
   public T visitSymEmpty(Sym.Empty x);
 
   public T visitSymEndOfLine(Sym.EndOfLine x);
