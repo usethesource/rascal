@@ -362,9 +362,8 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 int fingerprint(p:(Pattern) `<Literal lit>`) =
 	getFingerprint(readTextValueString("<lit>")) when !(p.literal is regExp);
 
-int fingerprint(p:(Pattern) `<Concrete concrete>`) {
-	return getFingerprint(parseConcrete(concrete)[0]);
-}
+int fingerprint(p:(Pattern) `<Concrete concrete>`) =
+	getFingerprint(parseConcrete(concrete)[0]);
 
 int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
 	args = [a | a <- arguments];	// TODO: work around!

@@ -781,8 +781,8 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 
 // -- descendant pattern ---------------------------------------------
 
-MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muApply(mkCallToLibFun("Library","MATCH_AND_DESCENT"), [translatePat(pattern)]);
+MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`)
+    = muApply(mkCallToLibFun("Library","MATCH_AND_DESCENT"), [translatePat(pattern), muCon(getTypeContainment(getType(pattern@\loc)))]);
 
 // -- anti pattern ---------------------------------------------------
 
