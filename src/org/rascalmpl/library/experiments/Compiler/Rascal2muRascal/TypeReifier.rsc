@@ -20,6 +20,7 @@ import List;
 import Map;
 import Set;
 import Relation;
+import Type;
 
 import IO;
 
@@ -128,11 +129,166 @@ public map[Symbol,Production] getDefinitions() {
  	return definitions;
 }
 
+// Extract the containment relation for all types. This information can be used by the generated code for
+// - descendant match
+// - visit
+
+public set[Symbol] getTypeContainment(Symbol patternType){
+
+	patternType = regulars(patternType, activeLayout);	// make sure that concrete lists types have layout inserted
+	println("getTypeContainment: <patternType>");
+	definitions = getDefinitions();
+	//for(d <- definitions){println("\t<d>: <definitions[d]>"); }
+	rel[Symbol,Symbol] containment = {};
+	for(parent <- definitions){
+	    //println("parent = <parent>");
+	    prod_choice = definitions[parent];
+	    for(Production alt <- prod_choice.alternatives){
+	    	//println("alt = <alt>, usedSymbols = <usedSymbols(alt)>");
+			for(sym <- usedSymbols(alt)){
+		 		for(sym2 <- contains(sym)){
+		 			containment += <sym, sym2>;
+		 		}
+		 		//println("add \<<sym>, <contains(sym)>\>");
+				for(sym2 <- sym + contains(sym)){
+					containment += <parent, sym2>;
+				}
+				//println("add \<<parent>, <sym + contains(sym)>\>");
+			}
+		}
+	}
+	println("containment+ ="); for(elm <- containment+) println("\t<elm>");
+	res = patternType + contains(patternType) + {sym1 | <sym1, sym2> <- containment+, subtype(sym2, patternType)};
+	if(adt("Tree",[]) in res){
+		res += \value();
+	}
+	println("res: <res>");
+	return res;
+}
+
+// Find symbols used in Productions
+
+set[Symbol] usedSymbols(Production::\cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)) {
+    if(size(kwDefaults) != 0){
+    	println("*************** kwDefaults = <kwDefaults>");
+    }
+	return filterSymbols(symbols + kwTypes);
+}	
+
+set[Symbol]  usedSymbols(Production::\func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)) {
+    if(size(kwDefaults) != 0){
+    	println("*************** kwDefaults = <kwDefaults>");
+    }
+	return filterSymbols(symbols + kwTypes);
+}
+
+set[Symbol] usedSymbols(Production::\choice(Symbol def, set[Production] alternatives)) =
+	{ *usedSymbols(alt) | alt <- alternatives };
+	
+set[Symbol] usedSymbols(Production::prod(Symbol def, list[Symbol] symbols, set[Attr] attributes)) = 
+	filterSymbols(symbols);
+
+set[Symbol] usedSymbols(Production::regular(Symbol def)) = 
+	filterSymbols([symbol]);
+
+set[Symbol] usedSymbols(Production::\priority(Symbol def, list[Production] choices)) =
+	{ *usedSymbols(c) | c <- choices };
+	
+set[Symbol] usedSymbols(Production::\associativity(Symbol def, Associativity \assoc, set[Production] alternatives)) =
+	{ *usedSymbols(a) | a <- alternatives };
+	
+
+
+Symbol simplify(Symbol symbol){
+	if(conditional(sym1, _) := symbol) return simplify(sym1);
+	if(label(_, sym1) := symbol) return simplify(sym1);
+	return symbol;
+}
+
+bool ignore(Symbol symbol){
+	switch(symbol){
+		case \lit(_): 		 return true;
+		case \cilit(_):		 return true;
+		case \char-class(_): return true;
+		case \layouts(_):	 return true;
+		default:
+							 return false;
+       }
+}
+
+set[Symbol] filterSymbols(list[Symbol] symbols) =
+	{symbol1 | symbol <- symbols, symbol1 := simplify(symbol), !ignore(symbol1)};	
+
+// Find directly dependent Symbols for a given Symbol
+
+// From Type.rsc
+
+set[Symbol] contains(Symbol::\label(str name, Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\set(Symbol symbol)) = filterSymbols([symbol]);
+	
+set[Symbol] contains(Symbol::\rel(list[Symbol] symbols)) = filterSymbol(symbols);
+	
+set[Symbol] contains(Symbol::\lrel(list[Symbol] symbols)) = filterSymbols(symbols);
+
+set[Symbol] contains(Symbol::\tuple(list[Symbol] symbols)) = filterSymbols(symbols);
+	
+set[Symbol] contains(Symbol::\list(Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\map(Symbol from, Symbol to)) = filterSymbols([from, to]);
+
+set[Symbol] contains(Symbol::\bag(Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\adt(str name, list[Symbol] parameters)) = {};
+	
+set[Symbol] contains(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters)) = filterSymbols(parameters);
+
+set[Symbol] contains(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased)) = filterSymbols([aliased]);
+
+set[Symbol] contains(Symbol::\func(Symbol ret, list[Symbol] parameters)) =	filterSymbols(parameters);
+	
+set[Symbol] contains(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)) =	filterSymbols(parameters + varArg);
+
+set[Symbol] contains(Symbol::\reified(Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\parameter(str name, Symbol bound)) = {};
+
+// Parse tree constructors from ParseTree.rsc
+
+set[Symbol] contains(Symbol::\start(Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) = filterSymbols(parameters);
+
+set[Symbol] contains(Symbol::\parameterized-lex(str name, list[Symbol] parameters)) = filterSymbols(parameters);
+
+set[Symbol] contains(Symbol::\opt(Symbol symbol)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\iter(Symbol symbol)) = \char-class(_) := symbol ? {} : filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\iter-star(Symbol symbol)) = \char-class(_) := symbol ? {} : filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators)) = filterSymbols([symbol]);	// Note: we ignore the separators
+
+set[Symbol] contains(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators)) = filterSymbols([symbol]);
+
+set[Symbol] contains(Symbol::\alt(set[Symbol] alternatives)) = filterSymbols(toList(alternatives));
+
+set[Symbol] contains(Symbol::\seq(list[Symbol] symbols)) = filterSymbols(symbols);
+
+set[Symbol] contains(Symbol::\conditional(Symbol symbol, set[Condition] conditions)) = contains(symbol);
+
+default set[Symbol] contains(Symbol symbol){
+	//println("default: <symbol>");
+	return {};
+}
+
+// ---------------- symbolToValue ------------------
+	
 public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
-	//println("symbolToValue: <symbol>");
+	symbol = regulars(symbol,activeLayout);	//TODO still needed?
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){
@@ -155,7 +311,7 @@ public type[value] symbolToValue(Symbol symbol) {
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
  	
- 	return type(symbol, definitions);
+ 	return type(regulars(symbol, activeLayout), definitions); // TODO: still needed?
 }
 
 // primitive
@@ -370,7 +526,9 @@ public Production \layouts(Production prod) {
 private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   if (syms == []) 
     return syms;
-  return tail([l, regulars(s,l) | s <- syms]);
+  res = tail([l, regulars(s,l) | s <- syms]);
+  //println("intermix(<syms>, <l>)\n=\> <res>");
+  return res;
 }
 
 private Symbol regulars(Symbol s, Symbol l) {
@@ -382,3 +540,5 @@ private Symbol regulars(Symbol s, Symbol l) {
     case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
   }
 }
+
+public Symbol insertLayout(Symbol s) = regulars(s, activeLayout);
