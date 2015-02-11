@@ -39,3 +39,45 @@ test bool concreteMatch213() = (Stat) `if <Exp c> then a:=1;<{Stat ";"}* th>;b:=
 test bool concreteMatch214() = (Stat) `if <Exp c> then a:=1;b:=2;<{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<c>" == "x" && "<th>" == "" && "<el>" == "c:=3";
 test bool concreteMatch215() = (Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
 test bool concreteMatch216() = (Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2>; d := 5 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2;d:=5 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
+
+int sw(value e) {
+	n = 0;
+	switch(e){
+
+	case (Exp) `1`: 	n = 1;
+	case (Exp) `2`: 	n = 2;
+	case (Exp) `1* 2`:	n = 3;
+	case (Exp) `1==2`: 	n = 4;
+	case (Exp) `5==5`: 	n = 5;
+	default:			n = 6;
+	}
+	return n;
+}
+test bool concreteMatch220() = sw([Exp] "1") == 1;
+
+test bool concreteMatch221() = sw([Exp] "2") 			 == 2;
+test bool concreteMatch222() = sw([Exp] "1 * 2") 		 == 3;
+test bool concreteMatch223() = sw([Exp] "1 == 2") 		 == 4;
+test bool concreteMatch224() = sw([Exp] "5 == 5") 		 == 5;
+test bool concreteMatch225() = sw([IntegerLiteral] "2")  == 6;
+
+
+test bool concreteMatch230() = [ "<ident>" | /Identifier ident := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
+ 							   ["x", "a", "b", "c"];
+ 							   
+test bool concreteMatch231() = [ "<stat>" | /Stat stat := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
+							   ["a := 1", "b:=2", "c:=3", "if x then a := 1;b:=2 else c:=3 fi"];
+							   
+test bool concreteMatch231() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+ 							   ["a := 1;b:=2", "c:=3"];
+ 							   
+test bool concreteMatch231() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+ 								["if","then",";","else",";","fi","if","then",";",":=",":=",";",":=",":=","else",";",":=",":=","fi"];
+ 								
+test bool concreteMatch231() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+ 								[105,105,102,102,105,102,32,32,32,32,32,97,122,97,122,120,32,32,32,32,32,116,116,104,104,101,101,110,110,116,
+ 								 104,101,110,32,32,32,32,32,97,122,97,122,97,32,32,32,32,32,58,58,61,61,58,61,32,32,32,32,32,48,57,48,57,49,
+ 								 32,32,32,32,59,59,59,32,32,32,32,97,122,97,122,98,32,32,32,32,58,58,61,61,58,61,32,32,32,32,48,57,48,57,50,
+ 								 32,32,32,32,32,101,101,108,108,115,115,101,101,101,108,115,101,32,32,32,32,32,97,122,97,122,99,32,32,32,32,
+ 								 58,58,61,61,58,61,32,32,32,32,48,57,48,57,51,32,32,32,32,32,102,102,105,105,102,105];
+ 								
