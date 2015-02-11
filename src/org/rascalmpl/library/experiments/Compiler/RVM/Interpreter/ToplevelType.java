@@ -230,10 +230,10 @@ public enum ToplevelType {
 			@Override
 			public Integer visitConstructor(Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(type == Factory.Tree_Appl){
-					return cons.get(0).hashCode(); // TODO: be aware of locations!
+				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+					return cons.get(0).hashCode(); 
 				}
-				if(v == Factory.Production){
+				if(type == Factory.Production){
 					return cons.hashCode();
 				}
 				return cons.getName().hashCode() << 2 + cons.arity();
@@ -242,10 +242,10 @@ public enum ToplevelType {
 			@Override
 			public Integer visitAbstractData(Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(type == Factory.Tree_Appl){
-					return cons.get(0).hashCode(); // TODO: be aware of locations!
+				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+					return cons.get(0).hashCode(); 
 				}
-				if(v == Factory.Production){
+				if(type == Factory.Production){
 					return cons.hashCode();
 				}
 				return cons.getName().hashCode() << 2 + cons.arity();
