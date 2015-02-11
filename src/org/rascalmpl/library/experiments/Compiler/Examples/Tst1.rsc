@@ -1,25 +1,43 @@
 module experiments::Compiler::Examples::Tst1
 
-import lang::rascal::tests::types::StaticTestingUtils;
+import ParseTree;
+layout Whitespace = [\ ]*;
+lexical IntegerLiteral = [0-9]+; 
+lexical Identifier = [a-z]+;
 
-value main(list[value] args) = checkOK("13;");
+syntax Exp 
+  = IntegerLiteral  
+  | Identifier        
+  | bracket "(" Exp ")"     
+  > left Exp "*" Exp        
+  > left Exp "+" Exp  
+  | Exp "==" Exp      
+  ;
 
-//declarationError("A x = 0;", initialDecls=["alias A = str;", "alias A = int;"]);
+syntax Stat 
+   = Identifier ":=" Exp
+   | "if" Exp "then" {Stat ";"}* "else" {Stat ";"}* "fi"
+   ;
 
-//value main(list[value] args) { 
-//	pt = parse(#start[Module],"module M\nimport List;");
-//	//iprintln(pt);
-//	println("pt has top: <pt has top>");
-//	println("Module m := pt.top: <Module m := pt.top>");
-//	return true;
-//}
-	
+int sw(value e) {
+	n = 0;
+	switch(e){
 
-//checkOK("x;", initialDecls=["int x = 5;"]);
+	case (Exp) `1`: 	n = 1;
+	case (Exp) `2`: 	n = 2;
+	case (Exp) `1* 2`:	n = 3;
+	case (Exp) `1==2`: 	n = 4;
+	case (Exp) `5==5`: 	n = 5;
+	default:			n = 6;
+	}
+	return n;
+}
+test bool concreteMatch220() = sw([Exp] "1") == 1;
 
-//#start[A];
+test bool concreteMatch221() = sw([Exp] "2") 			 == 2;
+test bool concreteMatch222() = sw([Exp] "1 * 2") 		 == 3;
+test bool concreteMatch223() = sw([Exp] "1 == 2") 		 == 4;
+test bool concreteMatch224() = sw([Exp] "5 == 5") 		 == 5;
+test bool concreteMatch225() = sw([IntegerLiteral] "2")  == 6;
 
-//parse(#start[Module],"module M\nimport List;");
-
-
-//checkOK("x;", initialDecls=["int x = 5;"]);
+value main(list[value] args)  = sw([Exp] "2");
