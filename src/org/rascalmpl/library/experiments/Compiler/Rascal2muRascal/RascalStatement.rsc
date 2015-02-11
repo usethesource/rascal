@@ -8,6 +8,7 @@ import Map;
 import Set;
 import String;
 import ParseTree;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -293,7 +294,7 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
  *  prevent a direct selection of the relevant case based on the switch value alone.
  *  Typical examples:
  *  - a regexp pattern will spoil type str
- *  - a pattern `int n` will spoil type str
+ *  - a pattern `int n` will spoil type int
  *  - a pattern 'node nd` will spoil all ADT cases
  *  - a pattern `str s(3)` will spoil type node
  */
@@ -313,7 +314,7 @@ bool isSpoiler(Pattern pattern){
  	   ;
 }
 
-map[str, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAction pwa, map[str, MuExp] table, str key){
+map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAction pwa, map[int, MuExp] table, int key){
 	if(pwa is arbitrary){
 	   ifname = nextLabel();
 	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
@@ -328,8 +329,10 @@ map[str, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAct
 	 return table;
 }
 
+private int fingerprintDefault = getFingerprint("default");
+
 tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Case] cases) {
-  map[str,MuExp] table = ();		// label + generated code per case
+  map[int,MuExp] table = ();		// label + generated code per case
   
   def = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
    
@@ -344,38 +347,40 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 	       def = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
 	  }
    }
-   default_table = ("default" : def);
+   default_table = (fingerprintDefault : def);
    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
-	  default_table = addPatternWithActionCode(switchval, fuid, c.patternWithAction, default_table, "default");
+	  default_table = addPatternWithActionCode(switchval, fuid, c.patternWithAction, default_table, fingerprintDefault);
    }
    
    println("TABLE DOMAIN(<size(table)>): <domain(table)>");
-   return < [ muCase(key, table[key]) | key <- table], default_table["default"] >;
+   return < [ muCase(key, table[key]) | key <- table], default_table[fingerprintDefault] >;
 }
 
-// Compute the fingerprint of a pattern. Note this should be in sync with RVM.fingerprint.
+// Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
 // TODO: not yet final
 
-str fingerprint(p:(Pattern) `<Literal lit>`) { s = "<lit>"; return s[0] == "\"" ? s[1..-1] : s; }
-str fingerprint(p:(Pattern) `<RegExpLiteral r>`) = "<r>";
-str fingerprint(p:(Pattern) `<Concrete concrete>`) {
-	return "<parseConcrete(concrete)[0]>";
+int fingerprint(p:(Pattern) `<Literal lit>`) =
+	getFingerprint(readTextValueString("<lit>")) when !(p.literal is regExp);
+
+int fingerprint(p:(Pattern) `<Concrete concrete>`) {
+	return getFingerprint(parseConcrete(concrete)[0]);
 }
-str fingerprint(p:(Pattern) `<QualifiedName name>`) { s = "<name>"; return s[0] == "\\" ? s[1..] : s; }
-str fingerprint(p:(Pattern) `<Type tp> <Name name>`) = "<getOuterType(p)>";
-str fingerprint(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) = "type";
-str fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
+
+int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
 	args = [a | a <- arguments];	// TODO: work around!
-	return "<fingerprint(expression)>/<size(arguments)>";
+	if(expression is qualifiedName){
+	   s = "<expression>"; 
+	   return getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
+	}
+	return getFingerprint("default");
 }
-str fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = "set";
-str fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = "tuple/<size(pats)>";
-str fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`) = "list";
-str fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`) = fingerprint(pattern);
-str fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) = fingerprint(argument);
-str fingerprint(p:(Pattern) `/ <Pattern pattern>`) = "descendant";
-str fingerprint(p:(Pattern) `! <Pattern pattern>`) = "anti";
-str fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = fingerprint(pattern);
+int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = getFingerprint("set");
+int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = getFingerprint("tuple", size(pats));
+int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`) = getFingerprint("list");
+int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`) = fingerprint(pattern);
+int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) = fingerprint(argument);
+int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = fingerprint(pattern);
+default int fingerprint(Pattern p) = fingerprintDefault;
 
 // -- fail statement -------------------------------------------------
 
