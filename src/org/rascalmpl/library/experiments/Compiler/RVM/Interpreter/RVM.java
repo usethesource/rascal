@@ -684,7 +684,7 @@ public class RVM {
 					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
-					//stdout.println("SWITCH: val = " + val + ", fp = " + fp + " x = " + x + ", sp = " + sp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
 					if(x == null){
 							stack[sp++] = vf.bool(false);
 							pc = caseDefault;
