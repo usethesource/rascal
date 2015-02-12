@@ -105,7 +105,8 @@ syntax Sym
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
 	// data-dependent non-terminals
-	| dependFormals: Sym symbol Parameters formals // only used in the head 
+	| dependVoidFormals: Sym symbol Parameters formals // only used in the head
+	| dependFormals: Sym symbol Type typ Parameters formals // only used in the head 
 	| dependNonterminal: Nonterminal nonterminal "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
@@ -113,6 +114,7 @@ syntax Sym
 	| dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart
 	| dependCode: Sym symbol "do" Statement block
 	| dependScope: "{" Sym+ "}"
+	| dependReturn: Sym symbol "return" Expression ";"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
