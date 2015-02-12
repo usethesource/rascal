@@ -11,10 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.net.URI;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public interface IRascalSearchPathContributor {
-	void contributePaths(List<URI> path);
+	void contributePaths(List<ISourceLocation> path);
 	String getName();
 }

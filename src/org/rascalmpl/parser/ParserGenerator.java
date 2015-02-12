@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -88,13 +87,13 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 90);
 		
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
+			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
@@ -110,8 +109,9 @@ public class ParserGenerator {
 		}
 	}
 
-	private void debugOutput(String classString, String file) {
+	private void debugOutput(Object thing, String file) {
 		if (debug) {
+			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
 				s = new FileOutputStream(file);
@@ -181,13 +181,13 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
+  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 	  	monitor.startJob("Generating parser:" + name, 100, 130);
   	
   	try {
   		monitor.event("Importing and normalizing grammar:" + name, 30);
   		IConstructor grammar = getGrammar(monitor, name, definition);
-  		debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
+  		debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
   		return getNewParser(monitor, loc, name, grammar);
   	}  catch (ClassCastException e) {
   		throw new ImplementationError("parser generator:" + e.getMessage(), e);
@@ -208,13 +208,13 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IConstructor grammar) {
+  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
   	monitor.startJob("Generating parser:" + name, 100, 60);
   	try {
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
   		monitor.event("Generating java source code for parser: " + name,30);
   		IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
-  		debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+  		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
   		monitor.event("Compiling generated java code: " + name, 30);
   		return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
   	}  catch (ClassCastException e) {

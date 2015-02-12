@@ -681,65 +681,83 @@ public enum RascalPrimitive {
 	template_open {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 2;
-			String ind = ((IString) stack[sp - 2]).getValue();
-			String pre = ((IString) stack[sp - 1]).getValue();
-			$indent(ind);
-			stack[sp - 2] = vf.string($unescape(pre));
-			return sp - 1;
+			assert arity <= 1;
+			String pre = "";
+			if(arity == 1){
+				pre = ((IString) stack[sp - 1]).getValue();
+				stack[sp - 1] = vf.string("");
+			} else {
+				stack[sp] = vf.string("");
+			}
+			$pushIndent("");
+			templateBuilderStack.push(templateBuilder);
+			templateBuilder = new StringBuilder();
+			templateBuilder.append($unescape(pre));
+			return arity == 1 ? sp : sp + 1;
 		}
 	},
-	template_addunindented {
+	template_indent {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity <= 2;
-			if(arity == 1){
-				stack[sp - 1] = vf.string($unescape((((IString) stack[sp - 1])).getValue()));
-				return sp;
-			}
-			stack[sp - 2] = ((IString) stack[sp - 2]).concat(vf.string($unescape((((IString) stack[sp - 1])).getValue())));
-			return sp - 1;
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$indent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
+		}
+	},
+	template_unindent {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$unindent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
 		}
 	},
 	template_add {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity >= 2;
-			IString template = (IString) stack[sp - arity];
+			assert arity == 1;
 			String indent = $getCurrentIndent();
-			for(int i = 1; i < arity; i++){
-				IString iarg_s = ((IString) stack[sp - arity + i]);
-				int len = iarg_s.length();
-				boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
-				String arg_s = iarg_s.getValue();
-				arg_s = $removeMargins(arg_s);
-				String [] lines = arg_s.split("\n");
-				if(lines.length <= 1){
-					template = template.concat(vf.string(arg_s));
-				} else {
-					StringBuilder sb = new StringBuilder();
-					sb.append(lines[0]);
-					for(int j = 1; j < lines.length; j++){
-						sb.append("\n").append(indent).append(lines[j]);
-					}
-					if(endsWithNL)
-						sb.append("\n");
-					String res = sb.toString();
-					template = template.concat(vf.string(res));
+			
+			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
+			int len = iarg_s.length();
+			boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
+			String arg_s = iarg_s.getValue();
+			arg_s = $removeMargins(arg_s);
+			String [] lines = arg_s.split("\n");
+			if(lines.length <= 1){
+				templateBuilder.append(arg_s);
+			} else {
+				templateBuilder.append(lines[0]);
+				for(int j = 1; j < lines.length; j++){
+					templateBuilder.append("\n").append(indent).append(lines[j]);
 				}
+				if(endsWithNL)
+					templateBuilder.append("\n");
 			}
-			stack[sp - arity] = template;
-			return sp - arity + 1;
+			
+			stack[sp - 1] = vf.string("");
+			return sp;
 		}
 	},
 	template_close {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 1;
-			$unindent();
-			return sp;
+			assert arity == 0;
+			$popIndent();
+			stack[sp] = vf.string(templateBuilder.toString());
+			templateBuilder = templateBuilderStack.pop();
+			return sp + 1;
 		}
 	},
+	
+	/*
+	 * Add on template
+	 */
+	
 	tuple_add_tuple {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
@@ -1323,6 +1341,41 @@ public enum RascalPrimitive {
 	},
 	
 	/*
+	 * ..._has_field
+	 */
+	
+	adt_has_field {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons = (IConstructor) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			Type tp = cons.getConstructorType();
+			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
+				stack[sp - 2] = Rascal_TRUE;
+			} else {
+				if(cons.getName().equals("appl")){
+					IConstructor prod = (IConstructor) cons.get("prod");
+					IList prod_symbols = (IList) prod.get("symbols");
+					
+					for(int i = 0; i < prod_symbols.length(); i++){
+						IConstructor arg = (IConstructor) prod_symbols.get(i);
+						if(arg.getName().equals("label")){
+							if(((IString) arg.get(0)).equals(field)){
+								stack[sp - 2] = Rascal_TRUE;
+								return sp - 1;
+							}
+						}
+					}
+				}
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
+	
+	/*
 	 * ..._field_access
 	 */
 	
@@ -1331,7 +1384,8 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 2;
 			IConstructor cons = (IConstructor) stack[sp - 2];
-			String fieldName = ((IString) stack[sp - 1]).getValue();
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
 			try {
 				if(tp.hasField(fieldName)){
@@ -1343,11 +1397,26 @@ public enum RascalPrimitive {
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v == null){
-					throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
+				if(v != null){
+					stack[sp - 2] = v;
+					return sp - 1;
 				}
-				stack[sp - 2] = v;
-				return sp - 1;
+				if(cons.getName().equals("appl")){
+					IList appl_args = (IList) cons.get("args");
+					IConstructor prod = (IConstructor) cons.get("prod");
+					IList prod_symbols = (IList) prod.get("symbols");
+
+					for(int i = 0; i < prod_symbols.length(); i++){
+						IConstructor arg = (IConstructor) prod_symbols.get(i);
+						if(arg.getName().equals("label")){
+							if(((IString) arg.get(0)).equals(field)){
+								stack[sp - 2] = appl_args.get(i);
+								return sp - 1;
+							}
+						}
+					}
+				}
+				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			}
@@ -1574,7 +1643,6 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
 			String field = ((IString) stack[sp - 1]).getValue();
-			URI uri;
 			IValue v;
 			switch (field) {
 
@@ -1588,11 +1656,10 @@ public enum RascalPrimitive {
 				break;
 
 			case "host":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
-				s = uri.getHost();
+				s = sloc.getURI().getHost();
 				v = vf.string(s == null ? "" : s);
 				break;
 
@@ -1639,12 +1706,8 @@ public enum RascalPrimitive {
 					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
 					IListWriter w = vf.listWriter();
 
-					Object[] fakeStack = new Object[2];
-					for (String elem : URIResolverRegistry.getInstance().listEntries(resolved.getURI())) {
-						fakeStack[0] = resolved;	// TODO
-						fakeStack[1] = vf.string(elem);
-						loc_add_str.execute(fakeStack, 2, 2, currentFrame);
-						w.append((ISourceLocation)fakeStack[0]);
+					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
+						w.append(elem);
 					}
 
 					v = w.done();
@@ -1686,20 +1749,18 @@ public enum RascalPrimitive {
 				break;
 
 			case "user":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
-				s = uri.getUserInfo();
+				s = sloc.getURI().getUserInfo();
 				v = vf.string(s == null ? "" : s);
 				break;
 
 			case "port":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
-				int n = uri.getPort();
+				int n = sloc.getURI().getPort();
 				v = vf.integer(n);
 				break;	
 
@@ -3946,7 +4007,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
+			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 			return sp - 1;
 		}	
 
@@ -5136,7 +5197,7 @@ public enum RascalPrimitive {
 			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 			IMap grammar = (IMap) stack[sp - 1];
 
-			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc.getURI(), grammar);
+			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc, grammar);
 			stack[sp - 5] = tree;
 			return sp - 4;
 		}
@@ -5271,7 +5332,7 @@ public enum RascalPrimitive {
 					for(int i = 0; i < indexArity; i++){
 						if(indices[i] != null){
 							IValue v = tup.get(i);
-							if(indices[i].getType().isSet()){
+							if(indices[i].getType().isSet() && !rel.getElementType().getFieldType(i).isSet()){
 								ISet s = (ISet) indices[i];
 								if(!s.contains(v)){
 									continue NextTuple;
@@ -5960,34 +6021,6 @@ public enum RascalPrimitive {
 			}
 			return sp;
 		}
-	},
-	value_to_string {
-		@Override
-		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 1;
-			String res;
-			if(stack[sp - 1] instanceof IValue){
-				IValue val = (IValue) stack[sp -1];
-				Type tp = val.getType();
-				if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
-					IList lst = (IList) val;
-					StringWriter w = new StringWriter();
-					for(int i = 0; i < lst.length(); i++){
-						w.write($value2string(lst.get(i)));
-					}
-					res = w.toString();
-
-				} else {
-					res = $value2string(val);
-				}
-			} else if(stack[sp - 1] instanceof Integer){
-				res = ((Integer) stack[sp - 1]).toString();
-			} else {
-				throw RascalRuntimeException.illegalArgument(vf.string(stack[sp -1].toString()), currentFrame);
-			}
-			stack[sp - 1] =  vf.string(res);
-			return sp;
-		}
 	};
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
@@ -6089,6 +6122,9 @@ public enum RascalPrimitive {
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 	private static Stack<String> indentStack = new Stack<String>();
 	
+	private static StringBuilder templateBuilder = null;
+	private static final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
+	
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
 	 ************************************************************************************/
@@ -6102,18 +6138,35 @@ public enum RascalPrimitive {
 	 * String templates
 	 */
 
-	private static void $indent(String s){
+	private static void $pushIndent(String s){
 		//stdout.println("$indent: " + indentStack.size() + ", \"" + s + "\"");
 		indentStack.push(s);
+	}
+	
+	private static void $popIndent(){
+		indentStack.pop();
 	}
 
 	public static String $getCurrentIndent() {
 		return indentStack.isEmpty() ? "" : indentStack.peek();
 	}
-
-	private static void $unindent(){
-		indentStack.pop();
+	
+	public static String $indent(String s) {
+		String ind = indentStack.pop();		// TODO: check empty?
+		indentStack.push(ind + s);
+		return s;
 	}
+	
+	public static String $unindent(String s) {
+		String ind = indentStack.pop();		// TODO: check empty?
+		int indLen = ind.length();
+		int sLen = s.length();
+		int endIndex = Math.max(indLen - sLen,  0);
+		indentStack.push(ind.substring(0, endIndex));
+		return s;
+	}
+
+	
 
 	private static String $removeMargins(String arg) {
 		arg = MARGIN.matcher(arg).replaceAll("");
@@ -6133,7 +6186,7 @@ public enum RascalPrimitive {
 		URI uri;
 		boolean uriPartChanged = false;
 		String scheme = sloc.getScheme();
-		String authority = sloc.hasAuthority() ? sloc.getAuthority() : null;
+		String authority = sloc.hasAuthority() ? sloc.getAuthority() : "";
 		String path = sloc.hasPath() ? sloc.getPath() : null;
 		String query = sloc.hasQuery() ? sloc.getQuery() : null;
 		String fragment = sloc.hasFragment() ? sloc.getFragment() : null;
@@ -6168,11 +6221,10 @@ public enum RascalPrimitive {
 				break;
 
 			case "host":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
-				uri = URIUtil.changeHost(uri, newStringValue);
+				uri = URIUtil.changeHost(sloc.getURI(), newStringValue);
 				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
@@ -6259,27 +6311,27 @@ public enum RascalPrimitive {
 				break;
 
 			case "user":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
+				uri = sloc.getURI();
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
+				
 				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
 
 			case "port":
-				uri = sloc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", currentFrame);
+				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getURI().getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
-				if (uri.getHost() != null) {
+				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
-					uri = URIUtil.changePort(uri, port);
+					uri = URIUtil.changePort(sloc.getURI(), port);
 				}
-				authority = uri.getAuthority();
+				authority = sloc.getURI().getAuthority();
 				uriPartChanged = true;
 				break;	
 
@@ -6691,8 +6743,33 @@ public enum RascalPrimitive {
 		}
 		return b.toString();
 	}
-		
+	
+	// TODO: merge the following two functions
+	
+	private static String $value_to_string(Object given, Frame currentFrame) {
+		String res;
+		if(given instanceof IValue){
+			IValue val = (IValue) given;
+			Type tp = val.getType();
+			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+				IList lst = (IList) val;
+				StringWriter w = new StringWriter();
+				for(int i = 0; i < lst.length(); i++){
+					w.write($value2string(lst.get(i)));
+				}
+				res = w.toString();
 
+			} else {
+				res = $value2string(val);
+			}
+		} else if(given instanceof Integer){
+			res = ((Integer) given).toString();
+		} else {
+			throw RascalRuntimeException.illegalArgument(vf.string(given.toString()), currentFrame);
+		}
+		return res;
+	}
+		
 	private static String $value2string(IValue val){
 		if(val.getType().isString()){
 			return ((IString) val).getValue();

@@ -17,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -86,7 +85,7 @@ public class ParserGenerator {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 90);
 
 		try {
@@ -133,7 +132,7 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(IRascalMonitor monitor, URI loc, String name, IMap definition, IGTD<IConstructor, IConstructor, ISourceLocation> objectParser) {
+	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition, IGTD<IConstructor, IConstructor, ISourceLocation> objectParser) {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
 			IConstructor grammar = convertMapToGrammar(definition);
@@ -228,7 +227,7 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
+  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
   		return getNewParser(monitor, loc, name,  convertMapToGrammar(definition));
   }
 
@@ -241,7 +240,7 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, URI loc, String name, IConstructor grammar) {
+  public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
   	monitor.startJob("Generating parser:" + name, 100, 60);
   	try {
 

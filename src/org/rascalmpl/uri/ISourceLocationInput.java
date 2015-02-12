@@ -9,18 +9,23 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.uri;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
-public interface IURIOutputStreamResolver {
-	OutputStream getOutputStream(URI uri, boolean append) throws IOException;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
+public interface ISourceLocationInput {
+	InputStream getInputStream(ISourceLocation uri) throws IOException;  
+	Charset getCharset(ISourceLocation uri) throws IOException;
+	boolean exists(ISourceLocation uri);
+	long lastModified(ISourceLocation uri)  throws IOException; 
+	boolean isDirectory(ISourceLocation uri);  
+	boolean isFile(ISourceLocation uri) ;
+	String[] list(ISourceLocation uri)  throws IOException;
 	String scheme();
 	boolean supportsHost();
-	void mkDirectory(URI uri) throws IOException;
-	void remove(URI uri) throws IOException;
 }

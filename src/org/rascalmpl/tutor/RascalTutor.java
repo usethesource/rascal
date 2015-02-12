@@ -57,7 +57,7 @@ public class RascalTutor {
 		    }
 		    
 		    @Override
-		    protected String getPath(URI uri) {
+		    protected String getPath(ISourceLocation uri) {
 		      String path = uri.getPath();
 		      return getCoursesLocation() + (path.startsWith("/") ? path : ("/" + path));
 		    }
@@ -70,8 +70,8 @@ public class RascalTutor {
 			URIResolverRegistry.getInstance().registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 		
-		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
-		eval.addRascalSearchPath(URIUtil.rootScheme("courses"));
+		eval.addRascalSearchPath(URIUtil.rootLocation("tutor"));
+		eval.addRascalSearchPath(URIUtil.rootLocation("courses"));
 
 		for (final String lib : new String[] { "rascal", "rascal-eclipse" }) {
 			final String libSrc = System.getProperty("rascal.courses.lib." + lib);
@@ -84,14 +84,14 @@ public class RascalTutor {
 					}
 
 					@Override
-					protected String getPath(URI uri) {
+					protected String getPath(ISourceLocation uri) {
 						String path = uri.getPath();
 						return libSrc + (path.startsWith("/") ? path : ("/" + path));
 					}
 				};
 
 				URIResolverRegistry.getInstance().registerInputOutput(fileURIResolver);
-				eval.addRascalSearchPath(URIUtil.rootScheme("clib-" + lib));
+				eval.addRascalSearchPath(URIUtil.rootLocation("clib-" + lib));
 			}
 		}
 	}

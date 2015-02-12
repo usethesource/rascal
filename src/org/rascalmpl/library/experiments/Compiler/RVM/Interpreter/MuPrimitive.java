@@ -779,7 +779,7 @@ public enum MuPrimitive {
 			assert arity == 1;
 			ISet set = ((ISet) stack[sp - 1]);
 			int n = set.size();
-			HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(set.size())
+			HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(n)
 					: emptyMset;
 			for (IValue v : set) {
 				mset.add(v);
@@ -788,6 +788,27 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	mset_set_subtract_set {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			ISet set1 = ((ISet) stack[sp - 2]);
+			int n = set1.size();
+			ISet set2 = ((ISet) stack[sp - 1]);
+			HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(n)
+					: emptyMset;
+			for (IValue v : set1) {
+				if(!set2.contains(v)){
+					mset.add(v);
+				}
+			}
+			stack[sp - 2] = mset;
+			return sp -1;
+		};
+	},
+	
+	
 	mset_empty() {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {

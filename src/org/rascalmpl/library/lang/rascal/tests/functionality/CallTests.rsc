@@ -14,7 +14,7 @@ module lang::rascal::tests::functionality::CallTests
  
 import ParseTree;
 
-import  lang::rascal::tests::functionality::CallTestsAux;
+import lang::rascal::tests::functionality::CallTestsAux;
 
 syntax XYZ = "x" | "y" | "z";
 

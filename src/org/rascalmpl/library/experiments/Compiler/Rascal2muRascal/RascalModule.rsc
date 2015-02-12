@@ -66,7 +66,7 @@ public void addFunctionToModule(MuFunction fun) {
 
 public void addFunctionsToModule(list[MuFunction] funs) {
    if(size(funs) > 0){
-   		println("addFunctionsToModule [<size(funs)>]: <for(fun <- funs){><fun.qname>, \"<fun.scopeIn>\" <}>");
+   		//println("addFunctionsToModule [<size(funs)>]: <for(fun <- funs){><fun.qname>, \"<fun.scopeIn>\" <}>");
    
    		functions_in_module += funs;
    
@@ -107,7 +107,7 @@ MuModule r2mu(str moduleStr){
 
 @doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
-    println(readFile(moduleLoc));   
+    //println(readFile(moduleLoc));   
    	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
 }
 

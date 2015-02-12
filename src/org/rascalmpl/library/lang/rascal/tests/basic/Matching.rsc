@@ -106,3 +106,5 @@ test bool tstQNameInPatterns() {
 	return tst && tstSwitch && tstFuncCalls;
 }
 
+test bool deepMatchKeywordParameter() = /int i := "f"("f"(x=[1]));
+

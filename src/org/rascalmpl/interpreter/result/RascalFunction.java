@@ -229,7 +229,7 @@ public class RascalFunction extends NamedFunction {
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 	  Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
-	  if (result !=  null) { 
+	  if (result != null) { 
 	    return result;
 	  }
 	

@@ -93,11 +93,10 @@ public class Webserver {
         ISourceLocation l = (ISourceLocation) cons.get("file");
         IString mimeType = (IString) cons.get("mimeType");
         IMap header = (IMap) cons.get("header");
-        URI uri = l.getURI();
         
         Response response;
         try {
-          response = new Response(Status.OK, mimeType.getValue(),URIResolverRegistry.getInstance().getInputStream(uri));
+          response = new Response(Status.OK, mimeType.getValue(),URIResolverRegistry.getInstance().getInputStream(l));
           addHeaders(response, header);
           return response;
         } catch (IOException e) {

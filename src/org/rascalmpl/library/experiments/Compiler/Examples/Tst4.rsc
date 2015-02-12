@@ -1,4 +1,34 @@
 module experiments::Compiler::Examples::Tst4
 
-alias Person = tuple[str name, int age];
-Person merge() = ( <"X", 3> | <it.name, it.age + i> | i <- [0..10]); 
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java int size(list[int] lst);
+
+public int f([*int x,*int y]) {
+	if(size(x) == size(y)) {
+		return -1000;
+	}
+	fail;
+}
+public default int f(list[int] l) = 0;
+
+public int g([1,2,3,4,5,6]) {
+	return -2000;
+}
+public default int g(list[int] l) = -3000;
+
+
+public int h(list[int] _) {
+	fail;
+}
+
+
+public default int h(list[int] l) = -3000;
+
+public value main(list[value] args) {
+	return f([1,2,3,4,5,6]) 
+		   + g([1,2,3,4,5,6]) 
+		   + g([1,2,3,4,5]) 
+		   + h([1,2,3,4,5,6])
+		   ;
+}
