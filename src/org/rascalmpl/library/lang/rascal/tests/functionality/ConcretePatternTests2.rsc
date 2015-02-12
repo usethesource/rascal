@@ -68,13 +68,13 @@ test bool concreteMatch230() = [ "<ident>" | /Identifier ident := [Stat] "if x t
 test bool concreteMatch231() = [ "<stat>" | /Stat stat := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
 							   ["a := 1", "b:=2", "c:=3", "if x then a := 1;b:=2 else c:=3 fi"];
 							   
-test bool concreteMatch231() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch232() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  							   ["a := 1;b:=2", "c:=3"];
  							   
-test bool concreteMatch231() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch233() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  								["if","then",";","else",";","fi","if","then",";",":=",":=",";",":=",":=","else",";",":=",":=","fi"];
  								
-test bool concreteMatch231() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch234() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  								[105,105,102,102,105,102,32,32,32,32,32,97,122,97,122,120,32,32,32,32,32,116,116,104,104,101,101,110,110,116,
  								 104,101,110,32,32,32,32,32,97,122,97,122,97,32,32,32,32,32,58,58,61,61,58,61,32,32,32,32,32,48,57,48,57,49,
  								 32,32,32,32,59,59,59,32,32,32,32,97,122,97,122,98,32,32,32,32,58,58,61,61,58,61,32,32,32,32,48,57,48,57,50,

@@ -7165,6 +7165,9 @@ public enum RascalPrimitive {
 	 * @return
 	 */
 	private static boolean $should_descent(Type t, final ISet symbolset){
+		 if(symbolset.contains(valueSymbol)){
+			 return true;
+		 }
 		
 		 return t.accept(new ITypeVisitor<Boolean,RuntimeException>() {
 

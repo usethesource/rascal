@@ -357,21 +357,26 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 }
 
 // Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
-// TODO: not yet final
 
 int fingerprint(p:(Pattern) `<Literal lit>`) =
 	getFingerprint(readTextValueString("<lit>")) when !(p.literal is regExp);
 
-int fingerprint(p:(Pattern) `<Concrete concrete>`) =
-	getFingerprint(parseConcrete(concrete)[0]);
+int fingerprint(p:(Pattern) `<Concrete concrete>`) {
+	res = getFingerprint(parseConcrete(concrete));
+	//iprintln(parseConcrete(concrete));
+	println("fingerprint <res> for <p>");
+	return res;
+}
 
 int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
 	args = [a | a <- arguments];	// TODO: work around!
-	if(expression is qualifiedName){
-	   s = "<expression>"; 
-	   return getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
+	res = fingerprintDefault;
+	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
+	   s = "<[ n | n <- nl ][-1]>";
+	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
 	}
-	return getFingerprint("default");
+	println("fingerprint <res> for <p>");
+	return res;
 }
 int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = getFingerprint("set");
 int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = getFingerprint("tuple", size(pats));

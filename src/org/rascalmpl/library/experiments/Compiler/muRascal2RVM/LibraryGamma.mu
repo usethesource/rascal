@@ -1332,154 +1332,157 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 
 // ***** Match and descent for all types *****
 // Enforces the same left-most innermost traversal order as the interpreter
+// uses precomputed reachable types to avoid searching irrelevant subtrees
 
-coroutine MATCH_AND_DESCENT(pat, iOccursInTypes, iVal) {
-	//println("MATCH_AND_DESCENT", iVal, typeOf(iVal), iOccursInTypes)
-	if(prim("should_descent", iVal, iOccursInTypes)){
+coroutine DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, iVal) 
+guard prim("should_descent", iVal, iReachableTypes)
+{
+	//println("DESCENT_AND_MATCH", iVal, typeOf(iVal), iReachableTypes)
+	//if(prim("should_descent", iVal, iReachableTypes)){
 		//println("Enter:", iVal)
 	    typeswitch(iVal) {
-	        case list:        MATCH_AND_DESCENT_LIST (pat, iOccursInTypes, iVal)
-	        case lrel:        MATCH_AND_DESCENT_LIST (pat, iOccursInTypes, iVal)
-	        case node:        MATCH_AND_DESCENT_NODE (pat, iOccursInTypes, iVal)
-	        case constructor: MATCH_AND_DESCENT_NODE (pat, iOccursInTypes, iVal)
-	        case map:         MATCH_AND_DESCENT_MAP  (pat, iOccursInTypes, iVal)
-	        case set:         MATCH_AND_DESCENT_SET  (pat, iOccursInTypes, iVal)
-	        case rel:         MATCH_AND_DESCENT_SET  (pat, iOccursInTypes, iVal)
-	        case tuple:       MATCH_AND_DESCENT_TUPLE(pat, iOccursInTypes, iVal)
+	        case list:        DESCENT_AND_MATCH_LIST (pat, iReachableTypes, concreteMatch, iVal)
+	        case lrel:        DESCENT_AND_MATCH_LIST (pat, iReachableTypes, concreteMatch, iVal)
+	        case node:        DESCENT_AND_MATCH_NODE (pat, iReachableTypes, concreteMatch, iVal)
+	        case constructor: DESCENT_AND_MATCH_NODE (pat, iReachableTypes, concreteMatch, iVal)
+	        case map:         DESCENT_AND_MATCH_MAP  (pat, iReachableTypes, concreteMatch, iVal)
+	        case set:         DESCENT_AND_MATCH_SET  (pat, iReachableTypes, concreteMatch, iVal)
+	        case rel:         DESCENT_AND_MATCH_SET  (pat, iReachableTypes, concreteMatch, iVal)
+	        case tuple:       DESCENT_AND_MATCH_TUPLE(pat, iReachableTypes, concreteMatch, iVal)
 	        default:          true
 	    }
-	    //println("MATCH_AND_DESCENT, applying pat to", iVal)
+	    //println("DESCENT_AND_MATCH, applying pat to", iVal)
 	    pat(iVal)
-	 } else {
-	 	1;//println("Skip:", iVal);
-	 }
+	 //} 
+	 //else {
+	 //	println("Skip:", iVal);
+	 //}
 }
 
-coroutine MATCH_AND_DESCENT_LITERAL(pat, iOccursInTypes, iSubject) {
+coroutine DESCENT_AND_MATCH_LITERAL(pat, iReachableTypes, concreteMatch, iSubject) {
     if(equal(pat, iSubject)) {
         yield
         exhaust
     }
-    MATCH_AND_DESCENT(MATCH_LITERAL(pat), iSubject)
+    DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject)
 }
 
-coroutine MATCH_AND_DESCENT_LIST(pat, iOccursInTypes, iLst) 
+coroutine DESCENT_AND_MATCH_LIST(pat, iReachableTypes, concreteMatch, iLst) 
 {
     var last = size_list(iLst), 
         val,
         j = 0;
-    //println("MATCH_AND_DESCENT_LIST", iLst, j, last)
+    //println("DESCENT_AND_MATCH_LIST", iLst, j, last)
     while(j < last) {
         val = get_list(iLst, j)
-        MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_SET(pat, iOccursInTypes, iSet) 
+coroutine DESCENT_AND_MATCH_SET(pat, iReachableTypes, concreteMatch, iSet) 
 {
     var iLst = set2list(iSet), 
         last = size_list(iLst),
         val, 
         j = 0;
-    //println("MATCH_AND_DESCENT_SET", iSet, j, last)
+    //println("DESCENT_AND_MATCH_SET", iSet, j, last)
     while(j < last) {
     	val = get_list(iLst, j)
-        MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_MAP(pat, iOccursInTypes, iMap)
+coroutine DESCENT_AND_MATCH_MAP(pat, iReachableTypes, concreteMatch, iMap)
 {
     var iKlst = keys(iMap), 
         iVlst = values(iMap), 
         last = size_list(iKlst), 
         val,
         j = 0,
-        descent_key = prim("should_descent_mapkey", iMap, iOccursInTypes),
-        descent_val = prim("should_descent_mapval", iMap, iOccursInTypes);
-    //println("MATCH_AND_DESCENT_MAO", iMap, j, last)
+        descent_key = prim("should_descent_mapkey", iMap, iReachableTypes),
+        descent_val = prim("should_descent_mapval", iMap, iReachableTypes);
+    //println("DESCENT_AND_MATCH_MAO", iMap, j, last)
     while(j < last) {
     	if(descent_key){
     	    val = get_list(iKlst, j)
-        	MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+        	DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         	//pat(val)
-        } else {
-       	  1;//println("In map skip key:", val)
-        }
+        } 
+        //else {
+       	//	println("In map skip key:", val)
+        //}
         if(descent_val){
         	val = get_list(iVlst, j) 
-        	MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+        	DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         	//pat(val)
-        } else {
-          1;//println("In map skip value:", val)
-        }
+        } 
+        //else {
+        //	println("In map skip value:", val)
+        //}
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_NODE(pat, iOccursInTypes, iNd) {
+coroutine DESCENT_AND_MATCH_NODE(pat, iReachableTypes, concreteMatch, iNd) {
    var array, iLst, len, children, j = 0, prod, op, opname, sort, val
    
-   //println("MATCH_AND_DESCENT_NODE", iNd);
+   //println("DESCENT_AND_MATCH_NODE", iNd);
    
-   if(prim("is_appl", iNd)){ 
+   if(concreteMatch && prim("is_appl", iNd)){ 
+      //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
       if(prim("is_concrete_list", iNd)){
-         //println("MATCH_AND_DESCENT_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
+         //println("DESCENT_AND_MATCH_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
          iLst = prim("get_nonlayout_args", iNd)
          len = size_list(iLst)
          if(len > 0){
             while(j < len) {
                val = muprim("subscript_list_mint", iLst, j)
-               //println("MATCH_AND_DESCENT_NODE, list element:", j, val);
-               MATCH_AND_DESCENT(pat, iOccursInTypes,  val)
+               //println("DESCENT_AND_MATCH_NODE, list element:", j, val);
+               DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch,  val)
                j = j + 1
             }
          }
          exhaust
       }  
       if(prim("is_lexical", iNd)){
-         //println("MATCH_AND_DESCENT_NODE, lexical = ", iNd);
+         //println("DESCENT_AND_MATCH_NODE, lexical = ", iNd);
          exhaust
       }
  
       iLst = prim("get_appl_args", iNd)
-      //println("MATCH_AND_DESCENT_NODE, is_appl, iLst = ", iLst);
+      //println("DESCENT_AND_MATCH_NODE, is_appl, iLst = ", iLst);
       len = size_list(iLst)
       
       while(j < len) {
             val = muprim("subscript_list_mint", iLst, j)
-            //println("MATCH_AND_DESCENT_NODE, is_appl, j = ", j, val);
-            if(prim("should_descent", val, iOccursInTypes)){ 
-               //println("MATCH_AND_DESCENT_NODE, is_appl, descent into:", val)
-               MATCH_AND_DESCENT(pat, iOccursInTypes, val)
-            }
-            
+            //println("DESCENT_AND_MATCH_NODE, is_appl, j = ", j, val);
+            DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
             j = j + 2
       }
-      //println("MATCH_AND_DESCENT_NODE, exhausted:", iNd)
+      //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
       exhaust
    } 
-   //println("MATCH_AND_DESCENT_NODE, *** bottom ***:", iNd)                                 
+   //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", iNd)                                 
    // Not a concrete list or appl
    array = get_children_and_keyword_values(iNd)
    len = size_array(array)                    
     
    while(j < len) {
          val = array[j]
-         MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+         DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
          j = j + 1
    }
 }
 
-coroutine MATCH_AND_DESCENT_TUPLE(pat, iOccursInTypes, iTup) {
+coroutine DESCENT_AND_MATCH_TUPLE(pat, iReachableTypes, concreteMatch, iTup) {
     var last = size_tuple(iTup), 
      	val,
         j = 0;
     while(j < last) {
     	val = get_tuple(iTup, j)
-        MATCH_AND_DESCENT(pat, iOccursInTypes, val)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }

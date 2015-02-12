@@ -233,9 +233,6 @@ public enum ToplevelType {
 				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
 					return cons.get(0).hashCode(); 
 				}
-				if(type == Factory.Production){
-					return cons.hashCode();
-				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 
@@ -244,9 +241,6 @@ public enum ToplevelType {
 				IConstructor cons = (IConstructor) v;
 				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
 					return cons.get(0).hashCode(); 
-				}
-				if(type == Factory.Production){
-					return cons.hashCode();
 				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
