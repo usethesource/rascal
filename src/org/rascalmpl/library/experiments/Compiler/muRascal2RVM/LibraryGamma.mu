@@ -1097,10 +1097,12 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
     
     //println("MAKE_CONCRETE_LIST, size", size(get_children(listProd)[1]))
     
+    // TODO: simplify these cases
     if(size(get_children(listProd)[1]) > 1){ // chain rule with concrete syntax
     	listResult = prim("appl_create", applConstr, applProd, elms)
     } else {
-    	listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
+        listResult = prim("appl_create", applConstr, applProd, elms)
+    	//listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
     }
     //println("MAKE_CONCRETE_LIST", listResult)
     return listResult
@@ -1113,9 +1115,10 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
 // Set matching creates a specific instance of MATCH_COLLECTION
 
 coroutine MATCH_SET(iLiterals, pats, iSubject) guard iSubject is set {
-    if(subset(iLiterals, iSubject)) {
-        iSubject = prim("set_subtract_set", iSubject, iLiterals)
-        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset(iSubject))
+    //println("MATCH_SET:", iLiterals, iSubject)
+    if(size_set(iLiterals) == 0 || subset(iLiterals, iSubject)) {
+        //iSubject = prim("set_subtract_set", iSubject, iLiterals)
+        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset_set_subtract_set(iSubject, iLiterals))
     }
 }
 

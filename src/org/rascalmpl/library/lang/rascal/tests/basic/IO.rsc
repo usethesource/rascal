@@ -64,7 +64,7 @@ test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 }
 
 test bool readOffsetStart(str a, str b) {
-	if (size(a) + size(b) == size(a + b)) {
+	if (a != "", b != "", size(a) + size(b) == size(a + b)) {
 		writeFileEnc(aFile, "UTF8", a + b);
 		return readFileEnc(aFile[offset=0][length=size(a)], "utf8") == a;
 	}

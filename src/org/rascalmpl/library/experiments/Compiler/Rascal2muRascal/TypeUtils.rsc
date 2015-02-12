@@ -106,11 +106,11 @@ private map[UID uid,int n] bool_scopes = ();        // number of boolean scopes 
 private map[UID uid,int n] sig_scopes = ();         // number of signature scopes within a scope
 
 @doc{Handling nesting}
-public rel[UID,UID] declares = {};
-public rel[UID,UID] containment = {};
+private rel[UID,UID] declares = {};
+private rel[UID,UID] containment = {};
 
-//public map[UID,UID] declaredIn = ();
-//public map[UID,UID] containedIn = ();
+private map[UID,UID] declaredIn = ();				// inverse of declares
+private map[UID,UID] containedIn = ();				// inverse of containment
 
 alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
@@ -132,7 +132,7 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		n = size (overloadedFunctions);
 		overloadedFunctions += fundescr;
 	}
-	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
 	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 }
@@ -176,6 +176,9 @@ public void resetScopeExtraction() {
 	declares = {};
 	containment = {};
 	
+	declaredIn = ();
+	containedIn = ();
+	
 	uid2str = ();
 	uid2type = ();
 	
@@ -194,7 +197,7 @@ int getScopeSize(str fuid) =
       // TODO: invertUnique is a proper choice; 
       //       the following is a workaround to the current handling of 'extend' by the type checker
       set[UID] uids = invert(uid2str)[fuid];
-      assert size({ config.store[uid] | UID uid <- uids }) == 1;
+      assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
       size(uid2type[getOneFrom(uids)].parameters); 
     }
     + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
@@ -225,9 +228,7 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      if(uid == 66){
-      	println("66: <item>");
-      }
+      
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -262,9 +263,9 @@ void extractScopes(Configuration c){
 		     } 
     	}
         case variable(_,_,_,inScope,src):  { 
-        	 println("<uid>: <item>");
+        	 //println("<uid>: <item>");
 			 variables += {uid};
-			 declares += {<inScope, uid>}; 
+			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
              for(l <- config.uses[uid]) {
                  loc2uid[l] = uid;
@@ -368,7 +369,10 @@ void extractScopes(Configuration c){
       }
     }
     
+    // Precompute some derived values for efficiency:
     containmentPlus = containment+;
+    declaredIn = toMapUnique(invert(declares));
+	containedIn = toMapUnique(invert(containment));
     
     for(muid <- modules){
         module_name = uid2name[muid];
@@ -517,7 +521,7 @@ void extractScopes(Configuration c){
     	}
     	// The alternatives of the overloaded function may come from different scopes 
     	// but only in case of module scopes;
-    	assert size(scopes) == 0 || size(scopes) == 1;
+    	assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     
@@ -526,8 +530,7 @@ void extractScopes(Configuration c){
     //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
     
- //   declaredIn = toMapUnique(invert(declares));
-	//containedIn = toMapUnique(invert(containment));
+   
     
     // Finally, extract all declarations for the benefit of the type reifier
     
@@ -539,7 +542,7 @@ int declareGeneratedFunction(str name, Symbol rtype){
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
-    //declares += {<inScope, uid>}; 
+    //declares += {<inScope, uid>}; TODO: do we need this?
      
     // Fill in uid2name
     //name = getFUID(name,rtype);
@@ -667,8 +670,7 @@ str convert2fuid(UID uid) {
 		throw "uid2str is not applicable for <uid>!";
 	}
 	str name = uid2name[uid];
-	declaredIn = toMapUnique(invert(declares));
-	containedIn = toMapUnique(invert(containment));
+	
 	if(containedIn[uid]?) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
@@ -708,10 +710,11 @@ public default bool isAlias(AbstractValue a) = false;
 public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");
 
-    if(isADTType(s)){
-       s2v = symbolToValue(s /*, config*/);
-       //println("s2v = <s2v>");
-    }
+    //if(isADTType(s)){
+    //   s2v = symbolToValue(s /*, config*/);
+    //   println("s2v = <s2v>");
+    //}
+    s = symbolToValue(s);
     // TODO: this is too liberal, restrict to outer type.
     visit(s){
        case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
@@ -763,12 +766,12 @@ list[int] sortOverloadedFunctions(set[int] items){
 
 MuExp mkVar(str name, loc l) {
   //name = unescape(name);
-  println("mkVar: <name>, <l>");
+  //println("mkVar: <name>, <l>");
   uid = loc2uid[l];
-  println("uid = <uid>");
-  iprintln(uid2addr);
+  //println("uid = <uid>");
+  //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  println("addr = <addr>");
+  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
@@ -792,7 +795,7 @@ MuExp mkVar(str name, loc l) {
       return muVarKwp(addr.fuid,name);
   }
   
-  println("return : <muVar(name, addr.fuid, addr.pos)>");
+  //println("return : <muVar(name, addr.fuid, addr.pos)>");
   return muVar(name, addr.fuid, addr.pos);
 }
 
@@ -837,13 +840,6 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }
-
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter(Symbol symbol2)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star(Symbol symbol2)]), list[Tree] args)) = true;
-//
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
-//default bool isConcreteListVar(Tree t) = false;
 
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 

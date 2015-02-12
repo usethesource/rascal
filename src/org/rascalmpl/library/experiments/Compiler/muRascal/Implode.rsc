@@ -51,7 +51,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
        }
        locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals.vardecls[0] ] );
        //locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
-       assert size(locals) == size({ *locals });
+       assert size(locals) == size({ *locals }) : "Incorrect number of locals in preprocess";
        
        vdfs = ("<locals[i].var>" : i  | int i <- index(locals));
        vardefs =  vardefs + (uid : vdfs);
@@ -253,6 +253,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset_destructive_add_elm")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_elm", exps)
                case muCall(preVar(mvar("mset_destructive_subtract_elm")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_elm", exps)
                case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_set", exps)
+               case muCall(preVar(mvar("mset_set_subtract_set")), list[MuExp] exps)	 			=> muCallMuPrim("mset_set_subtract_set", exps)
                case muCall(preVar(mvar("mset_subtract_mset")), list[MuExp] exps)	            => muCallMuPrim("mset_subtract_mset", exps)
                case muCall(preVar(mvar("mset_subtract_elm")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_elm", exps)
                case muCall(preVar(mvar("mset_subtract_set")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_set", exps)
@@ -306,8 +307,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
                                                      list[MuExp] elsePart, bool comma2)         => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
-               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepCases, 
-                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepCases<0>, \default)
+               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepTypeCases, 
+                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepTypeCases<0>, \default)
                case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
                
                case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])

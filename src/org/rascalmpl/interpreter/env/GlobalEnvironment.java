@@ -86,31 +86,6 @@ public class GlobalEnvironment {
 		sourceResolvers.put(scheme, function);
 	}
 	
-	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
-		int pos;
-		
-		ICallableValue resolver = sourceResolvers.get(scheme);
-		if (resolver == null) {
-			for (char sep : new char[] {'+',':'}) {
-				pos = scheme.indexOf(sep);
-				if (pos != -1) {
-					scheme = scheme.substring(0, pos);
-				}
-			}
-
-			resolver = sourceResolvers.get(scheme);
-			if (resolver == null) {
-				return loc;
-			}
-		}
-		
-		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-		IValue[] argValues = new IValue[] { loc };
-		
-		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
-	}
-	
 	/**
 	 * Allocate a new module on the heap
 	 * @param name
@@ -206,20 +181,6 @@ public class GlobalEnvironment {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
-		return getParser(rascalParsersForModules, module, productions);
-	}
-	
-	public Grammar getIguanaParser(String module, IMap productions) {
-		IguanaParserTuple parser = iguanaGrammarForModules.get(module);
-		if(parser != null && parser.getProductions().isEqual(productions)) {
-			return parser.getParser();
-		}
-		
-		return null;
-	}
-	
-	
 	/**
 	 * Retrieves a parser for a module.
 	 * 
@@ -237,14 +198,6 @@ public class GlobalEnvironment {
 	
 	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>>  parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
-	}
-	
-	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		storeParser(rascalParsersForModules, module, productions, parser);
-	}
-	
-	public void storeIguanaParser(String module, IMap productions, Grammar grammar ) {
-		iguanaGrammarForModules.put(module, new IguanaParserTuple(productions, grammar));
 	}
 	
 	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {

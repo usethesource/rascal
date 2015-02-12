@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,13 +14,15 @@ import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-public class JarInputStreamURIResolver implements IURIInputStreamResolver {
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
+public class JarInputStreamURIResolver implements ISourceLocationInput {
 	private URIResolverRegistry registry = URIResolverRegistry.getInstance();
-	private URI jarURI;
+	private ISourceLocation jarURI;
 	private String scheme;
 	private Map<String, Integer> index;
 
-	public JarInputStreamURIResolver(URI jarURI) {
+	public JarInputStreamURIResolver(ISourceLocation jarURI) {
 		this.jarURI = jarURI;
 		this.scheme = "jarstream+" + UUID.randomUUID();
 		buildIndex();
@@ -66,7 +67,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 	
 	@Override
-	public InputStream getInputStream(URI uri) throws IOException {
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			if (getEntry(stream, uri.getPath()) != null) {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -84,13 +85,13 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean exists(URI uri) {
+	public boolean exists(ISourceLocation uri) {
 		String file = uri.getPath();
 		if (file.startsWith("/")) {
 			file = file.substring(1);
@@ -99,7 +100,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 
 	@Override
-	public long lastModified(URI uri) throws IOException {
+	public long lastModified(ISourceLocation uri) throws IOException {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			JarEntry je = getEntry(stream, uri.getPath());
 			if (je != null) {
@@ -111,7 +112,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 
 	@Override
-	public boolean isDirectory(URI uri) {
+	public boolean isDirectory(ISourceLocation uri) {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			JarEntry je = getEntry(stream, uri.getPath());
 			if (je != null) {
@@ -125,19 +126,19 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 
 	@Override
-	public boolean isFile(URI uri) {
+	public boolean isFile(ISourceLocation uri) {
 		return !isDirectory(uri);
 	}
 
 	@Override
-	public String[] listEntries(URI uri) throws IOException {
+	public String[] list(ISourceLocation uri) throws IOException {
 		String path = uri.getPath();
 
 		if (!path.endsWith("/") && !path.isEmpty()) {
 			path = path + "/";
 		}
 
-		ArrayList<String> matchedEntries = new ArrayList<String>();
+		ArrayList<String> matchedEntries = new ArrayList<>();
 
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			JarEntry je = null;
