@@ -119,7 +119,7 @@ public class RascalToIguanaGrammarConverter {
 		ParseResult result = parser.parse(input, grammarGraph, Nonterminal.withName(startSymbol));
 		if (result.isParseSuccess()) {
 			SPPFNode sppf = result.asParseSuccess().getRoot();
-			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph.getRegistry(), input);
+			Visualization.generateSPPFGraph(path.getValue(), sppf, input);
 		} else {
 			ParseError e = result.asParseError();
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 

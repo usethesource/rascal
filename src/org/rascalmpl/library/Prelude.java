@@ -2027,7 +2027,7 @@ public class Prelude {
 	public void iparse(IValue grammar, ISourceLocation input, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
-		try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(input.getURI())) {
+		try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(input)) {
 			char[] data = InputConverter.toChar(textStream);
 			Input in = Input.fromCharArray(data, input.getURI());
 			GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);

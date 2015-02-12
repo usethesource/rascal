@@ -721,29 +721,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	
-	@Override	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
-		String name = "";
-		if (SymbolAdapter.isStartSort(startSort)) {
-			name = "start__";
-			startSort = SymbolAdapter.getStart(startSort);
-		}
-		
-		if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
-			name += SymbolAdapter.getName(startSort);
-		}
-
-		int[][] lookaheads = new int[robust.size()][];
-		IConstructor[] robustProds = new IConstructor[robust.size()];
-		initializeRecovery(robust, lookaheads, robustProds);
-		
-		__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
-		
-		return (IConstructor) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
-	}
-	
   /**
 	 * This converts a map from productions to character classes to
 	 * two pair-wise arrays, with char-classes unfolded as lists of ints.
@@ -774,8 +751,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	@Override	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ISourceLocation loc){
+		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
+	}
+	
+	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -794,7 +774,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
 		
-		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		return (IConstructor) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
 	}
 	
 	@Override
