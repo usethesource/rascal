@@ -86,7 +86,7 @@ public class Parser {
 		}
 		
 		try {
-			IConstructor g = (IConstructor) new StandardTextReader().read(vf, URIResolverRegistry.getInstance().getCharacterReader(URIUtil.assumeCorrect("std", "", "/lang/rascal/syntax/Rascal.grammar")));
+			IConstructor g = (IConstructor) new StandardTextReader().read(vf, URIResolverRegistry.getInstance().getCharacterReader(URIUtil.correctLocation("std", "", "/lang/rascal/syntax/Rascal.grammar")));
 			return new RascalToIguanaGrammarConverter(vf).convert("rascal-bootstrap", g);
 		} catch (FactTypeUseException | IOException e1) {
 			assert false;
