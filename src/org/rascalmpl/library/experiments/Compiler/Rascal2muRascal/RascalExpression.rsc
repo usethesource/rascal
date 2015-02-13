@@ -577,12 +577,20 @@ MuExp getConstructor(str cons) {
 */
 
 
-MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
-    fragType = getType(e@\loc);
+Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
+	fragType = getType(e@\loc);
     //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
+    return parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+} 
+
+MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+    //fragType = getType(e@\loc);
+    //println("translateConcrete, fragType = <fragType>");
+    //reifiedFragType = symbolToValue(fragType);
     //println("translateConcrete, reified: <reifiedFragType>");
-    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+    //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
+    Tree parsedFragment = parseConcrete(e);
     //println("parsedFragment, before"); iprintln(parsedFragment);
     return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
 }
@@ -966,6 +974,21 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 				   ]);
 }
 
+map[int, MuExp] addVisitPatternWithActionCode(str fuid, int iSubjectPos, PatternWithAction pwa, map[int, MuExp] table, int key){
+	if(pwa is arbitrary){
+	   ifname = nextLabel();
+	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
+	          ? muCallPrim3("equal", [translate(pwa.pattern.literal), muTmp(switchval,fuid)], pwa@\loc)
+	   		  : muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+	   table[key] = muIfelse(ifname, cond, 
+	                         { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
+	                         { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
+	 } else {
+	   throw "Replacement not allowed in switch statement";
+	 }
+	 return table;
+}
+
 @doc{Generates the body of a phi function}
 MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 	// TODO: conditional
@@ -1019,6 +1042,60 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 		                 muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
 	}
 }
+//@doc{Generates the body of a phi function}
+//MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
+//	// TODO: conditional
+//	if(size(cases) == 0) {
+//		return muReturn1(muVar("iSubject", fuid, iSubjectPos));
+//	}
+//	
+//	c = head(cases);
+//	
+//	if(c is patternWithAction) {
+//		pattern = c.patternWithAction.pattern;
+//		typePat = getType(pattern@\loc);
+//		cond = muMulti(muApply(translatePatInVisit(pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
+//		ifname = nextLabel();
+//		enterBacktrackingScope(ifname);
+//		if(c.patternWithAction is replacing) {
+//			replacement = translate(c.patternWithAction.replacement.replacementExpression);
+//			list[MuExp] conditions = [];
+//			if(c.patternWithAction.replacement is conditional) {
+//				conditions = [ translate(e) | Expression e <- c.patternWithAction.replacement.conditions ];
+//			}
+//			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
+//			tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
+//			                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], c@\loc) ], c@\loc);
+//			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+//			                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
+//			                      replacement ];
+//        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pattern@\loc), [ muReturn1(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid, subjectType) ]);
+//        	leaveBacktrackingScope();
+//        	return exp;
+//		} else {
+//			// Arbitrary
+//			case_statement = c.patternWithAction.statement;
+//			\case = translate(case_statement);
+//			insertType = topCaseType();
+//			clearCaseType();
+//			tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], c@\loc) ], c@\loc);
+//			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
+//			if(!(muBlock([]) := \case)) {
+//				cbody += \case;
+//			}
+//			cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
+//			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pattern@\loc), cbody, [ translateVisitCases(tail(cases),fuid, subjectType) ]);
+//        	leaveBacktrackingScope();
+//			return exp;
+//		}
+//	} else {
+//		// Default
+//		return muBlock([ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+//		                 translate(c.statement), 
+//		                 muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+//	}
+//}
+
 
 private bool hasTopLevelInsert(Case c) {
 	top-down-break visit(c) {

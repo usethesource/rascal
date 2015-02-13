@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -84,6 +86,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Switch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -655,6 +658,10 @@ public class CodeBlock {
 	public CodeBlock SHIFT() {
 		return add(new Shift(this));
 	}
+	
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
+		return add(new Switch(this, caseLabels, caseDefault));
+	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
@@ -724,6 +731,7 @@ public class CodeBlock {
     	System.out.println("arg1 = " + fetchArg1(w));
     	System.out.println("arg2 = " + fetchArg2(w));
     }
+
 }
 
 class LabelInfo {

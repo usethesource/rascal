@@ -709,6 +709,21 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
+	
+INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+   defaultLab = nextLabel();
+   continueLab = mkContinue(defaultLab);
+   labels = ();
+   caseCode =  [];
+   for(cs <- cases){
+		caseLab = defaultLab + "_<cs.fingerprint>";
+		labels[cs.fingerprint] = caseLab;
+		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
+   }
+	 
+   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
+   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+}
 
 // Multi/One/All/Or outside conditional context
     
@@ -726,7 +741,7 @@ INS tr(e:muOne1(MuExp exp)) =
 
 // The above list of muExps is exhaustive, no other cases exist
 
-default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
+default INS tr(MuExp e) { throw "mu2rvm: Unknown node in the muRascal AST: <e>"; }
 
 /*********************************************************************/
 /*      End of muRascal expressions                                  */

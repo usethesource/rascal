@@ -479,7 +479,6 @@ public class RVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
 		rex.setCurrentModuleName(moduleName);
@@ -558,9 +557,9 @@ public class RVM {
 					if(!last_function_name.equals(cf.function.name))
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
-					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
-					}
+//					for (int i = 0; i < sp; i++) {
+//						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+//					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
 				}
@@ -676,6 +675,22 @@ public class RVM {
 					labelIndex = ((IInteger) stack[--sp]).intValue();
 					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
+					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_SWITCH:
+					val = (IValue) stack[--sp];
+					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					int caseDefault = CodeBlock.fetchArg2(instruction);
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					
+					IInteger x = (IInteger) caseLabels.get(fp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
+					if(x == null){
+							stack[sp++] = vf.bool(false);
+							pc = caseDefault;
+					} else {
+						pc = x.intValue();
+					}
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADTYPE:
@@ -1677,6 +1692,7 @@ public class RVM {
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*
