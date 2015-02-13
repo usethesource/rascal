@@ -226,17 +226,17 @@ syntax ConcreteHole
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
   //println("translateConcretePattern, concrete = <concrete>");
-  fragType = getType(p@\loc);
+  //fragType = getType(p@\loc);
   //println("translateConcretePattern, fragType = <fragType>");
-  reifiedFragType = symbolToValue(fragType);
+  //reifiedFragType = symbolToValue(fragType);
   //println("translateConcretePattern, reified: <reifiedFragType>");
   //g = getGrammar();
   //println("GRAMMAR:");
   //for(nt <- g) println("<nt> : <g[nt]>");
-  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
+  //parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
   //println("++++ parsedFragment: <parsedFragment>");
   //iprintln(parsedFragment);
-  return translateParsedConcretePattern(parsedFragment);
+  return translateParsedConcretePattern(parseConcrete(concrete));
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
@@ -902,12 +902,19 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
-                   [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
-                     translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
-                   ],
-                   [ muFailReturn() ]
-                  );
+      exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
+                                                      				  muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
+                                                      				  muCon(pos)
+                                                    				]),
+             				[ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+             				[ muFailReturn() ]);
+      //println(exp);
+      //exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
+      //             [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
+      //               translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
+      //             ],
+      //             [ muFailReturn() ]
+      //            );
       leaveBacktrackingScope();
       return exp;
     }

@@ -2148,20 +2148,28 @@ public CheckResult computeSubtractionType(Configuration c, Symbol t1, Symbol t2,
 
 @doc{Check the types of Rascal expressions: AppendAfter (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<\< <Expression e2>`, Configuration c) {
-    // TODO: Revisit once this feature has been implemented
-    < c, t1 > = checkExp(e1, c);
-    < c, t2 > = checkExp(e2, c);
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    throw "Not implemented";
+	< c, t1 > = checkExp(e1, c);
+	< c, t2 > = checkExp(e2, c);
+	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+
+	if (isListType(t1)) {
+		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t1),t2)));
+	}
+
+    return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t1)>", e1@\loc));
 }
 
 @doc{Check the types of Rascal expressions: InsertBefore (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>\> <Expression e2>`, Configuration c) {
-    // TODO: Revisit once this feature has been implemented
-    < c, t1 > = checkExp(e1, c);
-    < c, t2 > = checkExp(e2, c);
-    if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    throw "Not implemented";
+	< c, t1 > = checkExp(e1, c);
+	< c, t2 > = checkExp(e2, c);
+	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+
+	if (isListType(t2)) {
+		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t2),t1)));
+	}
+
+    return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t2)>", e2@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Modulo (DONE)}
@@ -3444,8 +3452,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                       
             case ptn:listNode([]) => updateRT(ptn, \list(Symbol::\void()))
             
-            case ptn:listNode(ptns) => updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))) 
-                                       when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
+            case ptn:listNode(ptns) : {
+            	if (all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))) {
+            		insert(updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))));
+            	} 
+			}
                                       
             case ptn:negativeNode(cp) => updateRT(ptn, cp@rtype) 
             							 when (cp@rtype)? && concreteType(cp@rtype) && !isVoidType(cp@rtype) && subtype(cp@rtype, Symbol::\num())
@@ -3754,12 +3765,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             return < c, collapseFailTypes(failures) >;
         }
         
-        if (size(subjects) == 1) {
-        	if (subjects == [lex("Char")]) {
-        		println("Found the right subjects");
-        	}
+        if (size(subjects) == 1 || (pt@typeHint)?) {
+        	bindType = (size(subjects) == 1) ? getOneFrom(subjects) : pt@typeHint;
             try {
-                < c, pt > = bind(pt, getOneFrom(subjects), c);
+                < c, pt > = bind(pt, bindType, c);
                 // Why do this? Because we want to bind at least once, and the first bind could
                 // modify the tree, but we don't have a good, cheap way of telling. After that, we
                 // can assume that, if we didn't change anything above, we won't change anything if
@@ -3771,9 +3780,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             } catch v : {
                 //println("Bind attempt failed, now have <pt>");
                 if(pt@rtype? && !hasInferredType(pt@rtype)) {
-                	failures += makeFailType("Cannot match an expression of type: <type(getOneFrom(subjects),())> against a pattern of type <type(pt@rtype,())>", pt@at);
+                	failures += makeFailType("Cannot match an expression of type: <type(bindType,())> against a pattern of type <type(pt@rtype,())>", pt@at);
                	}
             }
+        } else if (firstTime) {
+        	firstTime = false;
+        	modified = true; // some information may be pushed through hints the first time through...
         }
     }
     
@@ -3961,14 +3973,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
 		// TODO: Do we also need a case here for a type parameter?
-       case spliceNodeStar(RSimpleName("_"),nid) : {
-            Symbol currentType = pt@rtype;
-            if (isInferredType(currentType)) {
-                return < c, pt[@rtype = rt] >;
-            } else {
-                return < c, pt[@rtype = lub(currentType, rt)] >;
-            }
-        }
+       //case spliceNodeStar(RSimpleName("_"),nid) : {
+       //     Symbol currentType = pt@rtype;
+       //     if (isInferredType(currentType)) {
+       //         return < c, pt[@rtype = rt] >;
+       //     } else {
+       //         return < c, pt[@rtype = lub(currentType, rt)] >;
+       //     }
+       // }
         
 		// TODO: Do we also need a case here for a type parameter?
         case spliceNodeStar(rn,nid) : { 
@@ -3999,14 +4011,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
 		// TODO: Do we also need a case here for a type parameter?
-        case spliceNodeStar(RSimpleName("_"),_,nt,nid) : {
-            Symbol currentType = pt@rtype;
-            if (comparable(currentType, rt)) {
-                return < c, pt >;
-            } else {
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-            }
-        }
+        //case spliceNodeStar(RSimpleName("_"),_,nt,nid) : {
+        //    Symbol currentType = pt@rtype;
+        //    if (comparable(currentType, rt)) {
+        //        return < c, pt >;
+        //    } else {
+        //        throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+        //    }
+        //}
         
 		// TODO: Do we also need a case here for a type parameter?
         case spliceNodeStar(rn,_,nt,nid) : { 
@@ -4021,14 +4033,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
 		// TODO: Do we also need a case here for a type parameter?
-        case spliceNodePlus(RSimpleName("_"),nid) : {
-        	Symbol currentType = pt@rtype;
-            if (isInferredType(currentType)) {
-                return < c, pt[@rtype = rt] >;
-            } else {
-                return < c, pt[@rtype = lub(currentType, rt)] >;
-            } 
-        }
+        //case spliceNodePlus(RSimpleName("_"),nid) : {
+        //	Symbol currentType = pt@rtype;
+        //    if (isInferredType(currentType)) {
+        //        return < c, pt[@rtype = rt] >;
+        //    } else {
+        //        return < c, pt[@rtype = lub(currentType, rt)] >;
+        //    } 
+        //}
         
 		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(rn,nid) : { 
@@ -4059,14 +4071,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
 		// TODO: Do we also need a case here for a type parameter?
-        case spliceNodePlus(RSimpleName("_"),_,nt,nid) : {
-            Symbol currentType = pt@rtype;
-            if (comparable(currentType, rt)) {
-                return < c, pt >;
-            } else {
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-            }
-        }
+        //case spliceNodePlus(RSimpleName("_"),_,nt,nid) : {
+        //    Symbol currentType = pt@rtype;
+        //    if (comparable(currentType, rt)) {
+        //        return < c, pt >;
+        //    } else {
+        //        throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+        //    }
+        //}
         
 		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(rn,_,nt,nid) : { 

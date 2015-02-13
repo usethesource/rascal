@@ -197,7 +197,7 @@ int getScopeSize(str fuid) =
       // TODO: invertUnique is a proper choice; 
       //       the following is a workaround to the current handling of 'extend' by the type checker
       set[UID] uids = invert(uid2str)[fuid];
-      assert size({ config.store[uid] | UID uid <- uids }) == 1;
+      assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
       size(uid2type[getOneFrom(uids)].parameters); 
     }
     + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
@@ -521,7 +521,7 @@ void extractScopes(Configuration c){
     	}
     	// The alternatives of the overloaded function may come from different scopes 
     	// but only in case of module scopes;
-    	assert size(scopes) == 0 || size(scopes) == 1;
+    	assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     
@@ -710,10 +710,11 @@ public default bool isAlias(AbstractValue a) = false;
 public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");
 
-    if(isADTType(s)){
-       s2v = symbolToValue(s /*, config*/);
-       //println("s2v = <s2v>");
-    }
+    //if(isADTType(s)){
+    //   s2v = symbolToValue(s /*, config*/);
+    //   println("s2v = <s2v>");
+    //}
+    s = symbolToValue(s);
     // TODO: this is too liberal, restrict to outer type.
     visit(s){
        case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;

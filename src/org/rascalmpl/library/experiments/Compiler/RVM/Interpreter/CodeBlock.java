@@ -1,11 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -21,7 +22,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
@@ -85,6 +86,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Switch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -92,7 +94,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CodeBlock {
 
@@ -391,8 +392,8 @@ public class CodeBlock {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String fuid, int arity, int cp){
-		return add(new Call(this, fuid, arity, cp));
+	public CodeBlock CALL(String fuid, int arity){
+		return add(new Call(this, fuid, arity));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -454,8 +455,8 @@ public class CodeBlock {
 		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(int arity, int cp){
-		return add(new CallDyn(this, arity, cp));
+	public CodeBlock CALLDYN(int arity){
+		return add(new CallDyn(this, arity));
 	}
 	
 	public CodeBlock CREATE(String fuid, int arity) {
@@ -474,12 +475,12 @@ public class CodeBlock {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock YIELD0(int cp) {
-		return add(new Yield0(this,cp));
+	public CodeBlock YIELD0() {
+		return add(new Yield0(this));
 	}
 	
-	public CodeBlock YIELD1(int arity,int cp) {
-		return add(new Yield1(this, arity, cp));
+	public CodeBlock YIELD1(int arity) {
+		return add(new Yield1(this, arity));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -570,8 +571,8 @@ public class CodeBlock {
 		return add(new Exhaust(this));
 	}
 	
-	public CodeBlock GUARD(int cp) {
-		return add(new Guard(this,cp));
+	public CodeBlock GUARD() {
+		return add(new Guard(this));
 	}
 	
 	public CodeBlock SUBSCRIPTARRAY() {
@@ -610,8 +611,8 @@ public class CodeBlock {
 		return add(new SubType(this));
 	}
 	
-	public CodeBlock CHECKARGTYPE() {
-		return add(new CheckArgType(this));
+	public CodeBlock CHECKARGTYPEANDCOPY(int pos1, Type type, int pos2) {
+		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
 		
 	public CodeBlock JMPINDEXED(IList labels){
@@ -658,52 +659,19 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 	
-	public CodeBlock done(BytecodeGenerator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing, boolean debug) {
-		this.functionMap = codeMap;
-		this.constructorMap = constructorMap;
-		this.resolver = resolver;
-		int codeSize = pc;
-		pc = 0;
-		
-		finalCode = new int[codeSize];
-		for(Instruction ins : insList){
-			ins.generate(codeEmittor, debug);
-		}
-		// TODO: BUG  
-		if ( insList.get(insList.size()-1)  instanceof Label ) {
-			// The mu2rvm code generator emits faulty code and jumps outside existing space 
-			// put in a panic return, code is also generated on a not used label.  
-			// Activate the peephole optimizer :).
-			codeEmittor.emitPanicReturn() ;
-		}
-		
-		
-		finalConstantStore = new IValue[constantStore.size()];
-		for(int i = 0; i < constantStore.size(); i++ ){
-			finalConstantStore[i] = constantStore.get(i);
-		}
-		finalTypeConstantStore = new Type[typeConstantStore.size()];
-		for(int i = 0; i < typeConstantStore.size(); i++) {
-			finalTypeConstantStore[i] = typeConstantStore.get(i);
-		}
-		if(listing){
-			listing(fname);
-		}
-    	return this;
-    }
-
-	
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
+		return add(new Switch(this, caseLabels, caseDefault));
+	}
+			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
 		int codeSize = pc;
-		BytecodeGenerator codeEmittor = new BytecodeGenerator() ;
-		
 		pc = 0;
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor,false);
+			ins.generate();
 		}
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){
@@ -763,6 +731,7 @@ public class CodeBlock {
     	System.out.println("arg1 = " + fetchArg1(w));
     	System.out.println("arg2 = " + fetchArg2(w));
     }
+
 }
 
 class LabelInfo {
