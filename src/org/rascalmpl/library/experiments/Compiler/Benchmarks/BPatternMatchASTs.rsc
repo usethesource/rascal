@@ -8,12 +8,16 @@ import util::Benchmark;
 import IO;
 import util::Math;
 
+bool initialized = false;
+set[Declaration] allData = {};
 
-
-private set[Declaration] getData() 
-	= readBinaryValueFile(#set[Declaration], |compressed+std:///experiments/Compiler/Benchmarks/pdb.values.bin.xz|);
+private set[Declaration] getData() {
+	if(!initialized){
+		allData = readBinaryValueFile(#set[Declaration], |compressed+std:///experiments/Compiler/Benchmarks/pdb.values.bin.xz|);
+	}
+	return allData;
+}		
 	
-
 int countReturnStatementsReducer(int n) {
 	dt = getData();
 	int result = 0;
