@@ -88,7 +88,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 463 * pattern.hashCode() + 599 * statement.hashCode() ; 
+      return 401 + 7 * pattern.hashCode() + 179 * statement.hashCode() ; 
     } 
   
     
@@ -150,7 +150,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 37 * pattern.hashCode() + 967 * replacement.hashCode() ; 
+      return 5 + 283 * pattern.hashCode() + 953 * replacement.hashCode() ; 
     } 
   
     
