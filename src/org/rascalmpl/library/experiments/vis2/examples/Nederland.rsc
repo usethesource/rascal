@@ -43,16 +43,42 @@ public list[Chart] exampleNederland() {
      }
    return r;
    }
+   
+public XYLabeledData exampleNederland(int idx) {
+   Records v = readCSV(#Records, location, header=true);
+   map[str, Record] m =(t[0]:t| t<-v);
+   list[str] ks = [t[0]|t<-v];
+   lrel[num , str]  z = [<m[k][idx], k> | k<-ks];
+   int i = 0; XYLabeledData r = [];
+   for (x<-z) {
+         r += [<i>+x];
+         i = i +1;
+       }
+   return r;
+   }
 
 public void nederland() {   
     // println(exampleNederland());
-   	ex("Nederland", combo(charts = exampleNederland(), options = chartOptions(
-           		hAxis = axis(title="Year", slantedText = true, slantedTextAngle=90), 
-           		vAxis = axis(title="Population"),
-           		chartArea = chartArea(width="80%", height = "40%", backgroundColor="antiquewhite"),
-           		bar = bar(groupWidth = "80%"),
-           		width=600,
-                height=400,
-                legend = legend(position="top"),
-                isStacked = true))) ;   
+   	//ex("Nederland", combo(charts = exampleNederland(), options = chartOptions(
+    //       		hAxis = axis(title="Year", slantedText = true, slantedTextAngle=90), 
+    //       		vAxis = axis(title="Population"),
+    //       		chartArea = chartArea(width="80%", height = "40%", backgroundColor="antiquewhite"),
+    //       		bar = bar(groupWidth = "80%"),
+    //       		width=600,
+    //            height=400,
+    //            legend = legend(position="top"),
+    // 
+    //           isStacked = true))) ; 
+    ChartOptions options(int k) = chartOptions(
+                title = d[k]
+           		,width=300
+                , height=200
+                );
+                
+    Figures fs = [piechart(\data= exampleNederland(3), options = options(3)),
+                  piechart(\data= exampleNederland(4), options = options(4))
+                 ];
+    Figure f = hcat(figs = fs, align = top);
+    ex("Nederland", f) ;  
+                 
    }

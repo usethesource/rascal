@@ -164,7 +164,7 @@ private str get_initial_figure(str name){
 	if(visualizations[name]?){  
 		descr = visualizations[name];
 		f = descr.visualize("init", "all", makeCursor(descr.model));
-		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
+		println("get_initial_figure: <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
     	println("get_initial_server: res = <res>");
     	return res;
