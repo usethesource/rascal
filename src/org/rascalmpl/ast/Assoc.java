@@ -63,7 +63,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 ; 
+      return 61 ; 
     } 
   
     	
@@ -103,7 +103,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 ; 
+      return 131 ; 
     } 
   
     	
@@ -143,7 +143,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 ; 
+      return 283 ; 
     } 
   
     	
@@ -183,7 +183,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 ; 
+      return 467 ; 
     } 
   
     	

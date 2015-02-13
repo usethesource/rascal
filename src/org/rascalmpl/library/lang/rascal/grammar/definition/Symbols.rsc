@@ -10,13 +10,14 @@ module lang::rascal::grammar::definition::Symbols
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
+// import lang::rascal::types::ConvertType;
 import ParseTree;
 import String;
 import IO;
 
 default Symbol striprec(Symbol s_ori) = visit(s_ori) { 
-	case label(str _, Symbol s) => strip(s)
-	case conditional(Symbol s, set[Condition] _) => strip(s)
+	  case label(str _, Symbol s) => strip(s)
+	  case conditional(Symbol s, set[Condition] _) => strip(s)
 };
 //default Symbol striprec(Symbol s) = visit(s) { case Symbol t => strip(t) };
 Symbol strip(label(str _, Symbol s)) = strip(s);
@@ -41,6 +42,32 @@ public Symbol sym2symbol(Sym sym) {
       return \token("<n>");
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return sort("<n>");
+    case \bracket(Sym s) :
+      return sym2symbol(s);
+    case dependAlign(Sym s):
+      return \align(sym2symbol(s));
+    case dependOffside(Sym s):
+      return \offside(sym2symbol(s));
+    case dependVoidFormals(Sym s, Parameters f) :
+      return addParameters(sym2symbol(s), f);
+    case dependFormals(Sym s, Type t, Parameters f) :
+      return addParameters(sym2symbol(s), type2symbol(t), f);
+    case dependNonterminal(Nonterminal n, {Expression ","}* a, KeywordArguments[Expression] kwArgs) :
+      return addActuals(sort("<n>"), a, kwArgs);
+    case dependParametrized(Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, KeywordArguments[Expression] kwArgs) :
+      return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a, kwArgs);
+    case dependScope({Sym ","}+ syms) :
+      return \scope(separgs2symbols(syms));
+    case dependCode(Sym s, Statement block) :
+      return \do(sym2symbol(s), block);
+    case dependConditionAfter(Sym s, Expression condition) :
+      return \when(sym2symbol(s), condition);
+    case dependConditionBefore(Expression condition, Sym s) :
+      return \if(condition, sym2symbol(s));
+    case dependAlternative(Expression condition, Sym i, Sym e) :
+      return \ifElse(condition, sym2symbol(i), sym2symbol(e));
+    case dependLoop(Expression condition, Sym s) :
+      return \while(condition, sym2symbol(s));
     case \start(Nonterminal n) : 
       return \start(sort("<n>"));
     case literal(StringConstant l): 
@@ -102,13 +129,46 @@ public Symbol sym2symbol(Sym sym) {
   }
 }
 
+Symbol type2symbol(Type t) = convertType(t);
+
+Symbol addParameters(Symbol s, Symbol t, Parameters f) = addParameters(s, f)[returnType = s];
+
+Symbol addParameters(Symbol s, \default(Formals formals, KeywordFormals kwFormals)) 
+  = s[formals=convertFormals(formals)][keywordTypes=convertKeywordFormals][keywordDefaults=getKeywordDefaults(kwFormals)];
+
+list[Symbol] convertFormals(\default({Pattern ","}* formals)) 
+  = [ label("<name>", type2symbol(\type)) | typedVariable(Type \type, Name name) <- formals];
+  
+map[str,Symbol] convertKeywordFormals(\none()) // TODO
+  = (); 
+    
+map[str,Symbol] convertKeywordFormals(KeywordFormals kwFormals) // TODO
+  = (); 
+  
+map[str, Tree] getKeywordDefaults(KeywordFormals kwFormals) // TODO
+  = ();
+  
+Symbol addParameters(Symbol s, varArgs(Formals _, KeywordFormals _)) {
+  throw "TODO varargs not yet implemented";
+}
+
+Symbol addActuals(Symbol s,  {Expression ","}* args, \none()) 
+  = addActuals(s, args);
+
+default Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals _) {
+  throw "keyword arguments not yet default";
+}
+  
+Symbol addActuals(Symbol s,  {Expression ","}* args)
+  = s[actuals=[ arg | Expression arg <- args]];
+
 public list[Symbol] args2symbols(Sym* args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 
 public list[Symbol] separgs2symbols({Sym ","}+ args) {
   return [sym2symbol(s) | Sym s <- args];
-}
+} 
 
 // flattening rules for regular expressions
 public Symbol \seq([*Symbol a, \seq(list[Symbol] b), *Symbol c]) = \seq(a + b + c);

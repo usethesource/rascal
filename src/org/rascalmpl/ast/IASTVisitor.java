@@ -637,11 +637,15 @@ public interface IASTVisitor<T> {
 
   public T visitSymAlternative(Sym.Alternative x);
 
+  public T visitSymBracket(Sym.Bracket x);
+
   public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
 
   public T visitSymCharacterClass(Sym.CharacterClass x);
 
   public T visitSymColumn(Sym.Column x);
+
+  public T visitSymDependAlign(Sym.DependAlign x);
 
   public T visitSymDependAlternative(Sym.DependAlternative x);
 
@@ -653,11 +657,17 @@ public interface IASTVisitor<T> {
 
   public T visitSymDependFormals(Sym.DependFormals x);
 
+  public T visitSymDependLoop(Sym.DependLoop x);
+
   public T visitSymDependNonterminal(Sym.DependNonterminal x);
+
+  public T visitSymDependOffside(Sym.DependOffside x);
 
   public T visitSymDependParametrized(Sym.DependParametrized x);
 
   public T visitSymDependScope(Sym.DependScope x);
+
+  public T visitSymDependVoidFormals(Sym.DependVoidFormals x);
 
   public T visitSymEmpty(Sym.Empty x);
 

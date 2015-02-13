@@ -105,34 +105,37 @@ syntax Sym
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
 	// data-dependent non-terminals
-	| dependVoidFormals: Sym symbol Parameters formals // only used in the head
-	| dependFormals: Sym symbol Type typ Parameters formals // only used in the head 
-	| dependNonterminal: Nonterminal nonterminal "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
-	| dependParametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
-	| dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
-	| dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
-	| dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart
-	| dependCode: Sym symbol "do" Statement block
+	| dependVoidFormals: Sym symbol Parameters formals \ "()" // only used in the head
+	| dependFormals: Sym symbol Type typ Parameters formals  \ "()" // only used in the head 
+	| dependNonterminal: Nonterminal nonterminal "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+	| dependParametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependScope: "{" Sym+ "}"
-	| dependReturn: Sym symbol "return" Expression ";"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
 	| caseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
-// regular expressions
-	| iter: Sym symbol "+" 
-	| iterStar: Sym symbol "*" 
+// regular expressions 
+	| iter: Sym!dependScope symbol "+" 
+	| iterStar: Sym!dependScope symbol "*" 
 	| iterSep: "{" Sym symbol Sym sep "}" "+" 
 	| iterStarSep: "{" Sym symbol Sym sep "}" "*" 
 	| optional: Sym symbol "?" 
 	| alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| sequence: "(" Sym first Sym+ sequence ")"
-	| empty: "(" ")"
+	| bracket \bracket: "(" Sym ")"
+	| empty: "()"
 // conditionals
 	| column: Sym symbol "@" IntegerLiteral column 
 	| endOfLine: Sym symbol "$" 
 	| startOfLine: "^" Sym symbol
 	| except:   Sym symbol "!" NonterminalLabel label
+	> \dependAlign: "align" Sym symbol
+	| \dependOffside: "offside" Sym symbol
+	> dependCode: Sym symbol "do" Statement block
+	> dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
+	> dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
+	| dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart
+	| dependLoop: "while" "(" Expression condition ")" Sym body
 	>  
 	assoc ( 
 	  left  ( follow:     Sym symbol  "\>\>" Sym match
@@ -380,7 +383,7 @@ syntax Assignable
     | sliceStep         : Assignable receiver "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]"     
 	| fieldAccess       : Assignable receiver "." Name field 
 	| ifDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
-	| constructor       : Name name "(" {Assignable ","}+ arguments ")"  
+	| constructor       : Name name "(" {Assignable ","}+  arguments ")"  
 	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
@@ -634,8 +637,8 @@ syntax Statement
 syntax StructuredType
 	= \default: BasicType basicType "[" {TypeArg ","}+ arguments "]" ;
 
-lexical NonterminalLabel
-	= [a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] ;
+lexical NonterminalLabel 
+	= ([a-z] [0-9 A-Z _ a-z]*) !>> [0-9 A-Z _ a-z] \ "if" \ "else" \ "while" \ "do" \ "when" \ "offside" \ "align";
 
 syntax FunctionType
 	= typeArguments: Type type "(" {TypeArg ","}* arguments ")" ;
@@ -724,7 +727,9 @@ keyword RascalKeywords
 	| "set" 
 	| "start"
 	| "datetime" 
-	| "value" 
+	| "value"
+	| "offside"
+	| "align" 
 	;
 
 syntax Type
@@ -735,9 +740,9 @@ syntax Type
 	| basic: BasicType basic 
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
-	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
+	| symbol: Sym!nonterminal!labeled!parametrized!parameter!dependVoidFormals!dependFormals!dependNonterminal!dependParametrized symbol
 	;
-
+	
 syntax Declaration
 	= variable    : Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
 	| annotation  : Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
