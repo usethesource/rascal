@@ -85,23 +85,23 @@ import IO;
 	
 	//v2iX(prod(lit("0")[@id=19],[\char-class([range(48,48)])[@id=20]],{}));
 
-data D = d(int i) | d();
- 
-int sw4(value e){ 	
- 	int n = 0;
- 	switch(e){
- 		case "abc": 		n = 1;
-		case str s: /def/: 	n = 2;
-		case 3: 			n = 3;
-		case d(): 			n = 4;
-		case d(z): 			n = 5;
-		case str s(3): 		n = 6;
-		case [1,2,3]: 		n = 7;
-		case [1,2,3,4]: 	n = 8;
-		default: 			n = 9;
- 	}
- 	return n;
- }
+//data D = d(int i) | d();
+// 
+//int sw4(value e){ 	
+// 	int n = 0;
+// 	switch(e){
+// 		case "abc": 		n = 1;
+//		case str s: /def/: 	n = 2;
+//		case 3: 			n = 3;
+//		case d(): 			n = 4;
+//		case d(z): 			n = 5;
+//		case str s(3): 		n = 6;
+//		case [1,2,3]: 		n = 7;
+//		case [1,2,3,4]: 	n = 8;
+//		default: 			n = 9;
+// 	}
+// 	return n;
+// }
  
  //test bool testSwitch4a() = sw4("abc") 		== 1;
  //test bool testSwitch4b() = sw4("def") 		== 2;
@@ -113,40 +113,42 @@ int sw4(value e){
  //test bool testSwitch4h() = sw4([1,2,3,4]) 	== 8;
  //test bool testSwitch4i() = sw4(<-1,-1>) 	== 9;
  // 	
-  	value main(list[value] args) = sw4("def");
+ // 	value main(list[value] args) = sw4("def");
 
-//import ParseTree;
-//layout Whitespace = [\ ]*;
-//lexical IntegerLiteral = [0-9]+; 
-//lexical Identifier = [a-z]+;
-//
-//syntax Exp 
-//  = IntegerLiteral  
-//  | Identifier        
-//  | bracket "(" Exp ")"     
-//  > left Exp "*" Exp        
-//  > left Exp "+" Exp  
-//  | Exp "==" Exp      
-//  ;
-//
-//syntax Stat 
-//   = Identifier ":=" Exp
-//   | "if" Exp "then" {Stat ";"}* "else" {Stat ";"}* "fi"
-//   ;
-//
-//
-//value main(list[value] args) { 
-//	e = [Exp] "1==2";
-//	
-//	switch(e){
-//
-//	case (Exp) `1`: println("case 1");
-//	case (Exp) `1* 2`: println("case 2");
-//	case (Exp) `1==2`: println("case 3");
-//	default: println("default");
-//	}
-//	return true;
-//}
+import ParseTree;
+layout Whitespace = [\ ]*;
+lexical IntegerLiteral = [0-9]+; 
+lexical Identifier = [a-z]+;
+
+syntax Exp 
+  = IntegerLiteral  
+  | Identifier        
+  | bracket "(" Exp ")"     
+  > left Exp "*" Exp        
+  > left Exp "+" Exp  
+  | Exp "==" Exp      
+  ;
+
+syntax Stat 
+   = Identifier ":=" Exp
+   | "if" Exp "then" {Stat ";"}* "else" {Stat ";"}* "fi"
+   ;
+
+
+value main(list[value] args) { 
+	e = [Exp] "2";
+	n = 0;
+	switch(e){
+
+	case (Exp) `1`: n = 1;
+	case (Exp) `2`: n = 2;
+	case (Exp) `1* 2`:n = 3;
+	case (Exp) `1==2`: n = 4;
+	case (Exp) `5==5`: n = 6;
+	default:n = 6;
+	}
+	return n;
+}
 
 
 

@@ -191,7 +191,7 @@ syntax Exp  =
 			;
 						
 syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;	
-syntax Case = muCase: 					"case" String id ":" Exp exp ;				
+//syntax Case = muCase: 					"case" String id ":" Exp exp ;				
 
 keyword Keywords = 
               "module" | "declares" | "var" | "function" | "coroutine" | "return" | 

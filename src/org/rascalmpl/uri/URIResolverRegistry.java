@@ -399,7 +399,7 @@ public class URIResolverRegistry {
 		uri = safeResolve(uri);
 		ISourceLocation parentURI = URIUtil.getParentLocation(uri);
 
-		if (parentURI != null && !exists(parentURI)) {
+		if (parentURI != null && !parentURI.equals(uri) && !exists(parentURI)) {
 			mkDirectory(parentURI);
 		}
 	}

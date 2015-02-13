@@ -205,7 +205,7 @@ anno loc Function@\location;
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
 data MuTypeCase = muTypeCase(str name, MuExp exp);
-data MuCase = muCase(str name, MuExp exp);	  
+data MuCase = muCase(int fingerprint, MuExp exp);	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
@@ -294,7 +294,7 @@ public data MuExp =
             | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
             | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepTypeCases, MuExp \default, bool comma)
-            | preSwitch(MuExp exp, lrel[MuCase,bool] sepCases, MuExp \default, bool comma)
+ //           | preSwitch(MuExp exp, lrel[MuCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
             
             | preSubscript(MuExp arr, MuExp index)
