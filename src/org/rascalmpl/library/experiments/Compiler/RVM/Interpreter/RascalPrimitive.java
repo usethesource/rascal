@@ -6041,28 +6041,14 @@ public enum RascalPrimitive {
 	should_descent {
 		@Override
 		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
-			assert arity == 3;
+			assert arity == 4;
 			
-			IValue subject = (IValue) stack[sp - 3];
-			IString descId = (IString) stack[sp - 2];
-			ISet symbolset = (ISet) stack[sp - 1];
-			stack[sp - 3] = $should_descent(subject, descId, symbolset);
-			
-//			if(symbolset.contains(valueSymbol)){
-//				stack[sp - 3] = Rascal_TRUE;
-//			} else if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-//				NonTerminalType nt = new NonTerminalType((IConstructor) subject);
-//				if(nt.getSymbol().getConstructorType() == Factory.Symbol_ParameterizedSort  ||
-//				   (nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
-//					stack[sp - 3] = Rascal_TRUE;
-//				} else {
-//					stack[sp - 3]  = symbolset.contains(nt.getSymbol()) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//			} else {
-//				stack[sp - 3] = $should_descent(subjectType, symbolset) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			//stdout.println("should_descent: " + stack[sp - 2] + " for " + subject);
-			return sp - 2;
+			IValue subject = (IValue) stack[sp - 4];
+			IString descId = (IString) stack[sp - 3];
+			ISet symbolset = (ISet) stack[sp - 2];
+			IBool concreteMatch = (IBool) stack[sp - 1];
+			stack[sp - 4] = $should_descent(subject, descId, symbolset, concreteMatch.getValue());
+			return sp - 3;
 		}
 	},
 	
@@ -6076,16 +6062,17 @@ public enum RascalPrimitive {
 	should_descent_mapkey {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 3;
+			assert arity == 4;
 			
-			IValue subject = (IValue) stack[sp - 3];
-			IString descId = (IString) stack[sp - 2];
-			ISet symbolset = (ISet) stack[sp - 1];
+			IValue subject = (IValue) stack[sp - 4];
+			IString descId = (IString) stack[sp - 3];
+			ISet symbolset = (ISet) stack[sp - 2];
+			IBool concreteMatch = (IBool) stack[sp - 1];
 			
 			Type key_type = subject.getType().getKeyType();
 			
-			stack[sp - 3] = $should_descent1(key_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
-			return sp - 2;
+			stack[sp - 4] = $should_descent1(key_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
+			return sp - 3;
 		}
 	},
 	/**
@@ -6097,16 +6084,17 @@ public enum RascalPrimitive {
 	should_descent_mapval {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 3;
+			assert arity == 4;
 			
-			IValue subject = (IValue) stack[sp - 3];
-			IString descId = (IString) stack[sp - 2];
-			ISet symbolset = (ISet) stack[sp - 1];
+			IValue subject = (IValue) stack[sp - 4];
+			IString descId = (IString) stack[sp - 3];
+			ISet symbolset = (ISet) stack[sp - 2];
+			IBool concreteMatch = (IBool) stack[sp - 1];
 			
 			Type val_type = subject.getType().getValueType();
 			
-			stack[sp - 3] = $should_descent1(val_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
-			return sp - 2;
+			stack[sp - 4] = $should_descent1(val_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
+			return sp - 3;
 		}
 	},
 	
@@ -7166,6 +7154,8 @@ public enum RascalPrimitive {
 		 return result;
 	}
 	
+	private static final HashMap<IString, HashMap<Object,IBool>> should_descent_cache = new HashMap<IString, HashMap<Object, IBool>>();
+	
 	/**
 	 * Determine whether we should descent in a value of type t, given a set of allowed types (as  Symbols) symbolset.
 	 * This check considers t and its child types. It also takes care of \value() when it occurs in symbolset
@@ -7173,21 +7163,52 @@ public enum RascalPrimitive {
 	 * @param symbolset
 	 * @return
 	 */
-	private static IValue $should_descent(IValue subject, IString descId, final ISet symbolset){
-		Type subjectType = subject.getType();
-		if(symbolset.contains(valueSymbol)){
-			return Rascal_TRUE;
-		} else if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-			NonTerminalType nt = new NonTerminalType((IConstructor) subject);
-			if(nt.getSymbol().getConstructorType() == Factory.Symbol_ParameterizedSort  ||
-			   (nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
-				return Rascal_TRUE;
-			} else {
-				return symbolset.contains(nt.getSymbol()) ? Rascal_TRUE : Rascal_FALSE;
-			}
-		} else {
-			return $should_descent1(subjectType, symbolset) ? Rascal_TRUE : Rascal_FALSE;
+	private static IBool $should_descent(IValue subject, IString descId, final ISet symbolset, boolean concreteMatch){
+		HashMap<Object,IBool> descMap = should_descent_cache.get(descId);
+		if(descMap == null){
+			descMap = new HashMap<Object, IBool>();
+			should_descent_cache.put(descId, descMap);
 		}
+		Type subjectType = subject.getType();
+		IBool result = Rascal_TRUE;
+		
+		if(concreteMatch){
+			if(subjectType == Factory.Tree){   // && TreeAdapter.isAppl((IConstructor) subject)){
+				
+			IConstructor concreteSymbol = TreeAdapter.getType((IConstructor)subject);
+			result = descMap.get(concreteSymbol);
+			if(result == null){
+				NonTerminalType nt = new NonTerminalType((IConstructor) subject);
+				if(symbolset.contains(valueSymbol) ||
+				   nt.getSymbol().getConstructorType()  == Factory.Symbol_ParameterizedSort  ||
+				   (nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
+					result = Rascal_TRUE;
+				} else {
+					result = symbolset.contains(nt.getSymbol()) || symbolset.contains(valueSymbol) ? Rascal_TRUE : Rascal_FALSE;
+				}
+				descMap.put(concreteSymbol, result);
+			}
+//			NonTerminalType nt = new NonTerminalType((IConstructor) subject);
+//			result = descMap.get(nt);
+//			if(result == null){
+//				if(symbolset.contains(valueSymbol) ||
+//						nt.getSymbol().getConstructorType() == Factory.Symbol_ParameterizedSort  ||
+//						(nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
+//					result = Rascal_TRUE;
+//				} else {
+//					result = symbolset.contains(nt.getSymbol()) || symbolset.contains(valueSymbol) ? Rascal_TRUE : Rascal_FALSE;
+//				}
+//				descMap.put(nt, result);
+			} else {
+				result = descMap.get(subjectType);
+				if(result == null){
+					result = symbolset.contains(valueSymbol) || $should_descent1(subjectType, symbolset) ? Rascal_TRUE : Rascal_FALSE;
+					descMap.put(subjectType, result);
+				}
+			}
+		}
+		descMap.put(subjectType, result);
+		return result;
 	}
 		
 	private static boolean $should_descent1(Type subjectType, final ISet symbolset){
