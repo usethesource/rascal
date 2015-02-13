@@ -64,6 +64,7 @@ import org.jgll.util.Configuration;
 import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -300,9 +301,13 @@ public class RascalToIguanaGrammarConverter {
 	}
 
 	private Symbol getSymbol(IConstructor symbol) {
-		
 		switch (symbol.getName()) {
-		
+//		case "if": {
+//			IConstructor cond = (IConstructor) symbol.get("condition");
+//			ASTBuilder b = new ASTBuilder();
+//			Expression expr = b.buildExpression(cond);
+//			
+//		}
 			case "sort":
 			case "lex":
 				return Nonterminal.withName(getName(symbol));
