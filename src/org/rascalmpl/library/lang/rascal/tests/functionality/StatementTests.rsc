@@ -218,7 +218,7 @@ int sw6(value v){
 		case true: 								n = 1;
 		case 2: 								n = 2;
 		case 3.0:					 			n = 3;
-		case 4r2: 								n = 4;
+		case 4r3: 								n = 4;
 		case |home:///|:						n = 5;	
 		case $2015-02-11T20:09:01.317+00:00$: 	n = 6;
 		case "abc": 							n = 7;
@@ -240,7 +240,7 @@ test bool testSwitch6b() = sw6(2)			== 2;
 @ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6c() = sw6(3.0)			== 3;
 @ignoreInterpreter{Location, datetime and map pattern not supported}
-test bool testSwitch6d() = sw6(4r2)			== 4;
+test bool testSwitch6d() = sw6(4r3)			== 4;
 @ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6e() = sw6(|home:///|)	== 5;
 @ignoreInterpreter{Location, datetime and map pattern not supported}
