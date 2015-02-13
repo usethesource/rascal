@@ -334,7 +334,7 @@ private int fingerprintDefault = getFingerprint("default");
 tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Case] cases) {
   map[int,MuExp] table = ();		// label + generated code per case
   
-  def = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
+  default_code = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
    
   for(c <- reverse(cases)){
 	  if(c is patternWithAction){
@@ -344,10 +344,10 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 	       table = addPatternWithActionCode(switchval, fuid, pwa, table, key);
 	    }
 	  } else {
-	       def = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
+	       default_code = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
 	  }
    }
-   default_table = (fingerprintDefault : def);
+   default_table = (fingerprintDefault : default_code);
    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
 	  default_table = addPatternWithActionCode(switchval, fuid, c.patternWithAction, default_table, fingerprintDefault);
    }
@@ -363,8 +363,7 @@ int fingerprint(p:(Pattern) `<Literal lit>`) =
 
 int fingerprint(p:(Pattern) `<Concrete concrete>`) {
 	res = getFingerprint(parseConcrete(concrete));
-	//iprintln(parseConcrete(concrete));
-	println("fingerprint <res> for <p>");
+	//println("fingerprint <res> for <p>");
 	return res;
 }
 
@@ -375,7 +374,7 @@ int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <
 	   s = "<[ n | n <- nl ][-1]>";
 	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
 	}
-	println("fingerprint <res> for <p>");
+	//println("fingerprint <res> for <p>");
 	return res;
 }
 int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = getFingerprint("set");
