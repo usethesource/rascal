@@ -17,10 +17,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -32,6 +38,7 @@ import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 
 public class Reflective {
 	protected final IValueFactory values;
@@ -185,8 +192,122 @@ public class Reflective {
 		return s1;
 	}
 	
+	public IString diff(IValue oldVal, IValue newVal){
+		return values.string(idiff("", oldVal, newVal));
+	}
 	
-	
+	protected String idiff(String indent, IValue oldVal, IValue newVal){
+		
+		if(!oldVal.getType().equals(newVal.getType())){
+			return indent + "old " + oldVal.getType() + ",  new " + newVal.getType();
+		}
+		if(oldVal.equals(newVal)){
+			return "no diff";
+		}
+		if(oldVal.getType().isString()){
+			IString ov = (IString) oldVal;
+			IString nv = (IString) newVal;
+			String ldiff = (ov.length() == nv.length()) ? "" : ("string length " + ov.length() + " vs " +  nv.length() + "; ");
+			for(int i = 0; i < ov.length() && i < nv.length(); i++){
+				if(ov.charAt(i) != nv.charAt(i)){
+					return indent + ldiff + "diff at index " + i + ": " + ov.charAt(i) + " vs " + nv.charAt(i) + "\n" +
+						   indent + "old: " + ov + "\n" +
+						   indent + "new: " + nv;
+				}
+			}
+		}
+		if(oldVal.getType().isList()){
+			IList ov = (IList) oldVal;
+			IList nv = (IList) newVal;
+			String ldiff = (ov.length() == nv.length()) ? "" : ("size " + ov.length() + " vs " +  nv.length() + "; ");
+			for(int i = 0; i < ov.length() && i < nv.length(); i++){
+				if(!ov.get(i).equals(nv.get(i))){
+					return indent + ldiff + "diff at list index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+				}
+			}
+		}
+		if(oldVal.getType().isTuple()){
+			ITuple ov = (ITuple) oldVal;
+			ITuple nv = (ITuple) newVal;
+			for(int i = 0; i < ov.arity(); i++){
+				if(!ov.get(i).equals(nv.get(i))){
+					return indent + "diff at tuple index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+				}
+			}
+		}
+		if(oldVal.getType().isSet()){
+			ISet ov = (ISet) oldVal;
+			ISet nv = (ISet) newVal;
+			String ldiff = (ov.size() == nv.size()) ? "" : ("size " + ov.size() + " vs " +  nv.size() + "; ");
+			
+			ISet diff1 = ov.subtract(nv);
+			String msg1 = diff1.size() == 0 ? "" : "only in old: " + diff1 + "; ";
+			ISet diff2 = nv.subtract(ov);
+			String msg2 = diff2.size() == 0 ? "" : "only in new: " + diff2;
+			return ldiff + msg1 + msg2;
+		}
+		
+		if(oldVal.getType().isMap()){
+			IMap ov = (IMap) oldVal;
+			IMap nv = (IMap) newVal;
+			String ldiff = (ov.size() == nv.size()) ? "" : ("size " + ov.size() + " vs " +  nv.size() + "; ");
+			
+			IMap all = ov.join(nv);
+			
+			String onlyInOld = "";
+			String onlyInNew = "";
+			String diffVal = "";
+			for(IValue key : all){
+				if(!nv.containsKey(key)){
+					onlyInOld += " " + key;
+					continue;
+				}
+				if(!ov.containsKey(key)){
+					onlyInNew += " " + key;
+					continue;
+				}
+				if(!ov.get(key).equals(nv.get(key))){
+					diffVal += " key " + key + ":\n" + idiff(indent + " ", ov.get(key), nv.get(key));
+				}
+			}
+				
+			String msg1 = onlyInOld.length() == 0 ? "" : "keys only in old:" + onlyInOld + "; ";
+			String msg2 = onlyInNew.length() == 0 ? "" : "keys only in new:" + onlyInNew + "; ";
+			String msg3 = diffVal.length() == 0 ? "" : "diff at" + diffVal + "; ";
+			return indent + ldiff + msg1 + msg2 + msg3;
+		}
+		
+		if(oldVal.getType().isNode()){
+			INode ov = (INode) oldVal;
+			INode nv = (INode) newVal;
+			String oldName = ov.getName();
+			String newName = nv.getName();
+			if(!oldName.equals(newName)){
+				return indent + "diff in function symbol: " + oldName + " vs " + newName;
+			}
+			int oldArity = ov.arity();
+			int newArity = nv.arity();
+			if(oldArity != newArity){
+				return indent + "diff in arity for function symbol " + oldName + ": "+ oldArity + " vs " + newArity;
+			}
+			for(int i = 0; i < oldArity; i++){
+				if(!ov.get(i).equals(nv.get(i))){
+					return indent + "diff at arg " + i + " for function symbol " + oldName + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+				}
+			}
+		}
+		String sOld = oldVal.toString();
+		if(sOld.length() > 20){
+			sOld = sOld.substring(0, 20) + "...";
+		}
+		String sNew = newVal.toString();
+		if(sNew.length() > 20){		
+			sNew = sNew.substring(0, 20) + "...";
+		}
+		return indent + "old " + sOld + ", new " + sNew;
+		
+	}
+
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal, IEvaluatorContext ctx){
 		ISourceLocation watchLoc;
@@ -201,6 +322,14 @@ public class Reflective {
 		}
 		prelude.writeTextValueFile(watchLoc, val);
 		return val;
+	}
+
+	public IInteger getFingerprint(IValue val){
+		return values.integer(ToplevelType.getFingerprint(val));
+	}
+	
+	public IInteger getFingerprint(IValue val, IInteger arity){
+		return values.integer(ToplevelType.getFingerprint(val) << 2 + arity.intValue());
 	}
 
 }

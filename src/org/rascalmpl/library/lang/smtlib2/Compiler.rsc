@@ -50,7 +50,8 @@ str toString(randomSeed(int seed)) = ":random-seed <seed>";
 str toString(verbosity(int level)) = ":verbosity <level>";
 
 // Sorts
-str toString(list[Sort] sorts) = ("" | "<it> <sort>" | sort <- sorts); 
+str toString(list[SortedVar] params) = ("" | "<it> (<param.name> <toString(param.sort)>)" | param <- params); 
+str toString(list[Sort] sorts) = ("" | "<it> <toString(sort)>" | sort <- sorts); 
 str toString(\int()) = "Int";
 str toString(\bool())= "Bool";
 

@@ -29,7 +29,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
-	/*package*/ NonTerminalType(IConstructor cons) {
+	/*package*/ public NonTerminalType(IConstructor cons) {
 		if (cons.getType() == Factory.Symbol) {
 			this.symbol = cons;
 		}

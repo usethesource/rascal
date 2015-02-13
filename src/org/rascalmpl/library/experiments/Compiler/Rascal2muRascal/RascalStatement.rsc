@@ -8,6 +8,7 @@ import Map;
 import Set;
 import String;
 import ParseTree;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -240,34 +241,150 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `if ( <{Expression ","}+
 
 MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
+
+// Original case translation
+
+//MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+//    str fuid = topFunctionScope();
+//    switchname = getLabel(label);
+//    switchval = asTmp(switchname);
+//    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
+//}
+
+//MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+//  if(size(cases) == 0)
+//      return muBlock([]);
+//  c = head(cases);
+//  
+//  if(c is patternWithAction){
+//     pwa = c.patternWithAction;
+//     if(pwa is arbitrary){
+//     	ifname = nextLabel();
+//        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+//        exp = muIfelse(ifname, cond, 
+//                               { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
+//                               { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
+//        return exp; 
+//     } else {
+//        throw "Replacement not allowed in switch statement";
+//     }
+//  } else {
+//        return translate(c.statement);
+//  }
+//}
+
+/*
+ * Optimized switch translation that uses a SWITCH instruction.
+ * A table is constructed that maps a "fingerprint" of the switch value to a label associated with a MuExp to handle that case.
+ * Special attention is needed for case patterns that spoil this simple scheme, i.e. they lead to pattern overlap, typically
+ * a top level (typed variable) or a regular expression. The overlap between constructors and nodes is also considered carefully:
+ * All spoiler cases are prepended to the default case.
+ * 
+ */
 MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
     str fuid = topFunctionScope();
     switchname = getLabel(label);
     switchval = asTmp(switchname);
-    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
+    <case_code, default_code> = translateSwitchCases(switchval, fuid, [c | c <- cases]);
+    return muSwitch(muAssignTmp(switchval,fuid,translate(expression)), case_code, default_code, muTmp(switchval, fuid));
 }
 
-MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
-  if(size(cases) == 0)
-      return muBlock([]);
-  c = head(cases);
-  
-  if(c is patternWithAction){
-     pwa = c.patternWithAction;
-     if(pwa is arbitrary){
-     	ifname = nextLabel();
-        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
-        exp = muIfelse(ifname, cond, 
-                               { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
-                               { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
-        return exp; 
-     } else {
-        throw "Replacement not allowed in switch statement";
-     }
-  } else {
-        return translate(c.statement);
-  }
+/*
+ *	In the context of switches, a type is "spoiled" when overlap between case patterns will
+ *  prevent a direct selection of the relevant case based on the switch value alone.
+ *  Typical examples:
+ *  - a regexp pattern will spoil type str
+ *  - a pattern `int n` will spoil type int
+ *  - a pattern 'node nd` will spoil all ADT cases
+ *  - a pattern `str s(3)` will spoil type node
+ */
+
+bool isSpoiler(Pattern pattern){
+	if(pattern is variableBecomes || pattern is typedVariableBecomes)
+		return isSpoiler(pattern.pattern);
+		
+	return 
+	      pattern is literal && pattern.literal is regExp
+ 	   || pattern is qualifiedName
+ 	   || pattern is typedVariable
+ 	   || pattern is callOrTree && !(pattern.expression is qualifiedName)
+ 	   || pattern is descendant 
+ 	   || pattern is anti
+ 	   || getOuterType(pattern) == "node"
+ 	   ;
 }
+
+map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAction pwa, map[int, MuExp] table, int key){
+	if(pwa is arbitrary){
+	   ifname = nextLabel();
+	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
+	          ? muCallPrim3("equal", [translate(pwa.pattern.literal), muTmp(switchval,fuid)], pwa@\loc)
+	   		  : muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+	   table[key] = muIfelse(ifname, cond, 
+	                         { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
+	                         { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
+	 } else {
+	   throw "Replacement not allowed in switch statement";
+	 }
+	 return table;
+}
+
+private int fingerprintDefault = getFingerprint("default");
+
+tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+  map[int,MuExp] table = ();		// label + generated code per case
+  
+  def = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
+   
+  for(c <- reverse(cases)){
+	  if(c is patternWithAction){
+	    if(!isSpoiler(c.patternWithAction.pattern)){
+	       pwa = c.patternWithAction;
+	       key = fingerprint(pwa.pattern);
+	       table = addPatternWithActionCode(switchval, fuid, pwa, table, key);
+	    }
+	  } else {
+	       def = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
+	  }
+   }
+   default_table = (fingerprintDefault : def);
+   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+	  default_table = addPatternWithActionCode(switchval, fuid, c.patternWithAction, default_table, fingerprintDefault);
+   }
+   
+   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   return < [ muCase(key, table[key]) | key <- table], default_table[fingerprintDefault] >;
+}
+
+// Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
+
+int fingerprint(p:(Pattern) `<Literal lit>`) =
+	getFingerprint(readTextValueString("<lit>")) when !(p.literal is regExp);
+
+int fingerprint(p:(Pattern) `<Concrete concrete>`) {
+	res = getFingerprint(parseConcrete(concrete));
+	//iprintln(parseConcrete(concrete));
+	println("fingerprint <res> for <p>");
+	return res;
+}
+
+int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
+	args = [a | a <- arguments];	// TODO: work around!
+	res = fingerprintDefault;
+	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
+	   s = "<[ n | n <- nl ][-1]>";
+	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
+	}
+	println("fingerprint <res> for <p>");
+	return res;
+}
+int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = getFingerprint("set");
+int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = getFingerprint("tuple", size(pats));
+int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`) = getFingerprint("list");
+int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`) = fingerprint(pattern);
+int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) = fingerprint(argument);
+int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = fingerprint(pattern);
+default int fingerprint(Pattern p) = fingerprintDefault;
 
 // -- fail statement -------------------------------------------------
 

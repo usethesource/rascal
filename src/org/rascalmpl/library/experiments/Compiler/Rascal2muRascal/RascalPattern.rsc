@@ -226,17 +226,17 @@ syntax ConcreteHole
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
   //println("translateConcretePattern, concrete = <concrete>");
-  fragType = getType(p@\loc);
+  //fragType = getType(p@\loc);
   //println("translateConcretePattern, fragType = <fragType>");
-  reifiedFragType = symbolToValue(fragType);
+  //reifiedFragType = symbolToValue(fragType);
   //println("translateConcretePattern, reified: <reifiedFragType>");
   //g = getGrammar();
   //println("GRAMMAR:");
   //for(nt <- g) println("<nt> : <g[nt]>");
-  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
+  //parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
   //println("++++ parsedFragment: <parsedFragment>");
   //iprintln(parsedFragment);
-  return translateParsedConcretePattern(parsedFragment);
+  return translateParsedConcretePattern(parseConcrete(concrete));
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
@@ -781,9 +781,25 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 
 // -- descendant pattern ---------------------------------------------
 
-MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muApply(mkCallToLibFun("Library","MATCH_AND_DESCENT"), [translatePat(pattern)]);
+MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
+	//println("pattern <pattern>, isConcretePattern = <isConcretePattern(pattern)>");
+    reachable = getReachableTypes(getType(pattern@\loc));
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  muCon(reachable), muCon(isConcretePattern(pattern))]);
+}
+    
+private bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
+	isConcreteType(getType(p@\loc));
+	
+private bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
+	isConcreteType(getType(p@\loc));	
+	
+private bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+	isConcretePattern(pattern);	
 
+private bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+	isConcretePattern(pattern);
+		
+private default bool isConcretePattern(Pattern p) = false;
 // -- anti pattern ---------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =

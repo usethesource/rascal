@@ -56,6 +56,10 @@ public java loc getSearchPathLocation(str filePath);
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java bool inCompiledMode();
 
+@doc{Give a textual diff between two values.}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str diff(value old, value new);
+
 @doc{Watch value val: 
 - running in interpreted mode: write val to a file, 
 - running in compiled mode: compare val with previously written value}
@@ -66,3 +70,11 @@ public java &T watch(type[&T] tp, &T val, str name);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name in the Rascal search path}
 public java &T watch(type[&T] tp, &T val, str name, value suffix);
+
+@doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val);
+
+@doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val, int arity);
