@@ -491,6 +491,8 @@ function askServer(path, params) {
             }
             //alert(params);
             responseText= responseText.replace(/\"null\"/g, 'null');
+            responseText= responseText.replace(/\\</g, '<');
+            responseText= responseText.replace(/\\>/g, '>');
             var res = JSON.parse(responseText);         
             var area = d3.select("#figurearea svg");
             if(!area.empty()){
