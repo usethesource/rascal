@@ -81,7 +81,7 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
+		IRVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
 		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;
@@ -256,7 +256,9 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
+	private void loadInstructions(String name, IConstructor declaration, IRVM rvm, boolean isCoroutine){
+		
+		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
@@ -323,11 +325,11 @@ public class Execute {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoint);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "APPLY":
@@ -389,11 +391,11 @@ public class Execute {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoint);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "SHIFT":
@@ -509,7 +511,7 @@ public class Execute {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoint);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -594,8 +596,8 @@ public class Execute {
 		} catch (Exception e){
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
-		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		// TODO : add continuation points.
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src,0);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");

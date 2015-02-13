@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Switch extends Instruction {
 	IMap caseLabels;
@@ -29,7 +30,7 @@ public class Switch extends Instruction {
 		return res;
 	}
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		IMapWriter w = codeblock.vf.mapWriter();
 		for(IValue key : caseLabels){
 			String label = ((IString)caseLabels.get(key)).getValue();

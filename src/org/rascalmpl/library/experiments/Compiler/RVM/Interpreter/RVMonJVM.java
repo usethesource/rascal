@@ -179,7 +179,8 @@ public class RVMonJVM implements IRVM {
 			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 
 			for (Function f : functionStore) {
-				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
+				// TODO: new finalize
+				//f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 
 			// All functions are created create int based dispatcher
