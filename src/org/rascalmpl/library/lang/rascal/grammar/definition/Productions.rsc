@@ -41,21 +41,21 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 }
 
 public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
+/*
+	| dependVoidFormals: Sym symbol Parameters formals \ "()" // only used in the head
+	| dependFormals: Sym symbol Type typ Parameters formals  \ "()" // only used in the head 
+*/
     switch (sd) {
       case \layout(_, nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(\layouts("<n>"), p)},nothing()>;
-      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
-        return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
-                ,prod2prod(sort("<n>"), p)}
-               ,just(\start(sort("<n>")))>;
-      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-        return <{prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p)}, nothing()>;
-      case \language(absent(), nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\sort("<n>"), p)},nothing()>;
-      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-        return <{prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p)}, nothing()>;
-      case \lexical(nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\lex("<n>"), p)}, nothing()>;
+      case \language(present() /*start*/, Sym s, Prod p) : 
+        return < {prod(\start(sym2symbol(s)),[label("top", sym2symbol(s))],{})
+                ,prod2prod(sym2symbol(s), p)}
+               ,just(\start(sym2symbol(s)))>;
+      case \language(absent(), Sym s, Prod p) : 
+        return <{prod2prod(sym2symbol(s), p)},nothing()>;
+      case \lexical(Sym s, Prod p) : 
+        return <{prod2prod(toLex(sym2symbol(s)), p)}, nothing()>;
       case \keyword(nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(keywords("<n>"), p)}, nothing()>;
       case \token(nonterminal(Nonterminal n), Prod p) : 
@@ -64,6 +64,12 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
     }
 } 
    
+private Symbol toLex(Symbol s) 
+  = visit (sym2symbol(s)) { 
+       case \sort(n) => \lex(n) 
+       case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
+  };
+     
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 

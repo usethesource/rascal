@@ -10,7 +10,6 @@ module lang::rascal::grammar::definition::Symbols
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
-// import lang::rascal::types::ConvertType;
 import ParseTree;
 import String;
 import IO;
@@ -52,10 +51,10 @@ public Symbol sym2symbol(Sym sym) {
       return addParameters(sym2symbol(s), f);
     case dependFormals(Sym s, Type t, Parameters f) :
       return addParameters(sym2symbol(s), type2symbol(t), f);
-    case dependNonterminal(Nonterminal n, {Expression ","}* a, KeywordArguments[Expression] kwArgs) :
-      return addActuals(sort("<n>"), a, kwArgs);
-    case dependParametrized(Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, KeywordArguments[Expression] kwArgs) :
-      return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a, kwArgs);
+    case dependNonterminal(_, Nonterminal n, {Expression ","}* a, kwArgs) :
+      return addActuals(sort("<n>"), a); // TODO don't forget about the kwArgs
+    case dependParametrized(_, Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, kwArgs) :
+      return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a);  // TODO don't forget about the kwArgs
     case dependScope({Sym ","}+ syms) :
       return \scope(separgs2symbols(syms));
     case dependCode(Sym s, Statement block) :
@@ -129,18 +128,29 @@ public Symbol sym2symbol(Sym sym) {
   }
 }
 
-Symbol type2symbol(Type t) = convertType(t);
+// TODO: support all types by reusing ConvertTypes
+Symbol type2symbol(Type t) {
+  switch(t) {
+    case basic(BasicType::\int()) : return Symbol::\int();
+    case basic(BasicType::\bool()) : return Symbol::\bool();
+    case basic(BasicType::\real()) : return Symbol::\real();
+    case symbol(Sym s) : return sym2symbol(s);
+    default: throw "TODO unsupportedType <t>";
+  }
+}
 
 Symbol addParameters(Symbol s, Symbol t, Parameters f) = addParameters(s, f)[returnType = s];
 
-Symbol addParameters(Symbol s, \default(Formals formals, KeywordFormals kwFormals)) 
-  = s[formals=convertFormals(formals)][keywordTypes=convertKeywordFormals][keywordDefaults=getKeywordDefaults(kwFormals)];
+Symbol addParameters(Symbol s, Parameters p)  
+  = s[formals=convertFormals(formals)][keywordTypes=convertKeywordFormals(kwFormals)][keywordDefaults=getKeywordDefaults(kwFormals)]
+    when \default(Formals formals, KeywordFormals kwFormals) := p;
 
-list[Symbol] convertFormals(\default({Pattern ","}* formals)) 
-  = [ label("<name>", type2symbol(\type)) | typedVariable(Type \type, Name name) <- formals];
+list[Symbol] convertFormals(Formals f) 
+  = [ label("<name>", type2symbol(\type)) | typedVariable(Type \type, Name name) <- formals] 
+  when \default({Pattern ","}* formals) := f;
   
-map[str,Symbol] convertKeywordFormals(\none()) // TODO
-  = (); 
+map[str,Symbol] convertKeywordFormals(Formals f) // TODO
+  = () when \none() := f; 
     
 map[str,Symbol] convertKeywordFormals(KeywordFormals kwFormals) // TODO
   = (); 
@@ -148,12 +158,12 @@ map[str,Symbol] convertKeywordFormals(KeywordFormals kwFormals) // TODO
 map[str, Tree] getKeywordDefaults(KeywordFormals kwFormals) // TODO
   = ();
   
-Symbol addParameters(Symbol s, varArgs(Formals _, KeywordFormals _)) {
+default Symbol addParameters(Symbol s, Parameters p) {
   throw "TODO varargs not yet implemented";
 }
 
-Symbol addActuals(Symbol s,  {Expression ","}* args, \none()) 
-  = addActuals(s, args);
+Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals kwf) 
+  = addActuals(s, args) when \none() := kwf;
 
 default Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals _) {
   throw "keyword arguments not yet default";
