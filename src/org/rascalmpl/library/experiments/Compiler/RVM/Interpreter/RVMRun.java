@@ -1158,11 +1158,16 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public int insnCHECKARGTYPE(Object[] stack, int sp) {
-		sp--;
-		Type argType = ((IValue) stack[sp - 1]).getType();
-		Type paramType = ((Type) stack[sp]);
-		stack[sp - 1] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
+	public int insnCHECKARGTYPANDCOPY(Object[] stack, int sp,int loc, int type, int toLoc) {
+		Type argType = ((IValue) stack[loc]).getType();
+		Type paramType = cf.function.typeConstantStore[type];
+		
+		if(argType.isSubtypeOf(paramType)){
+			stack[toLoc] = stack[loc];
+			stack[sp++] = vf.bool(true);
+		} else {
+			stack[sp++] = vf.bool(false);
+		}
 		return sp;
 	}
 
