@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -996,6 +995,21 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(i);
 		emitIntValue(j);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;III)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+	}
+
+	public void emitCallWithArgsSSIII(String fname, int pos1, int type, int pos2) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		emitIntValue(pos1);
+		emitIntValue(type);
+		emitIntValue(pos2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;IIII)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 

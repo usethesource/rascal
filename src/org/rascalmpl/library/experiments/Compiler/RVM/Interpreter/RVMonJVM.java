@@ -190,11 +190,6 @@ public class RVMonJVM implements IRVM {
 				codeEmittor.emitDynCaLL(fname, e.getValue());
 			}
 			codeEmittor.emitDynFinalize();
-
-			int oid = 0;
-			// for (OverloadedFunction of : overloadedStore) {
-			// of.finalize(codeEmittor, functionMap, oid++);
-			// }
 		}
 	}
 
