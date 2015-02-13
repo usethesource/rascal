@@ -178,7 +178,24 @@ data Symbol
      | \alt(set[Symbol] alternatives)
      | \seq(list[Symbol] symbols)
      ;
-  
+ 
+// Symbol head formal parameters for data-dependency
+data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, Tree] keywordDefaults = ());
+
+// Actual parameters for symbols with data-dependency
+data Symbol(list[Tree] actuals = [], map[str,Tree] keywordActuals = ());
+
+// data dependent
+data Symbol
+     = scope(list[Symbol] symbols)
+     | \if(Tree condition, Symbol symbol)
+     | \ifElse(Tree condition, Symbol ifSymbol, Symbol thenSymbol)
+     | \when(Symbol symbol, Tree condition)
+     | \do(Symbol symbol, Tree block)
+     | \while(Tree condition, Symbol symbol)
+     | \align(Symbol symbol)
+     | \offside(Symbol symbol)
+     ;  
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
 @doc{

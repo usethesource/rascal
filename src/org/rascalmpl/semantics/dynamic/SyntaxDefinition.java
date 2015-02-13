@@ -42,6 +42,9 @@ public abstract class SyntaxDefinition extends
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
+			if (type.isDependFormals() || type.isDependVoidFormals()) {
+				type = type.getSymbol();
+			}
 			if (type.hasNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
