@@ -106,7 +106,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 7 * modifiers.hashCode() + 643 * type.hashCode() + 277 * name.hashCode() + 797 * parameters.hashCode() ; 
+      return 683 + 409 * modifiers.hashCode() + 307 * type.hashCode() + 457 * name.hashCode() + 331 * parameters.hashCode() ; 
     } 
   
     
@@ -192,7 +192,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 421 * modifiers.hashCode() + 863 * type.hashCode() + 929 * name.hashCode() + 827 * parameters.hashCode() + 211 * exceptions.hashCode() ; 
+      return 433 + 109 * modifiers.hashCode() + 839 * type.hashCode() + 79 * name.hashCode() + 457 * parameters.hashCode() + 823 * exceptions.hashCode() ; 
     } 
   
     

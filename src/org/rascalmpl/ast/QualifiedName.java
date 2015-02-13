@@ -72,7 +72,7 @@ public abstract class QualifiedName extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 739 * names.hashCode() ; 
+      return 17 + 479 * names.hashCode() ; 
     } 
   
     
