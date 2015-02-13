@@ -47,6 +47,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public BytecodeGenerator(String packageName2, String className2, ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore) {
+		emit = false ;
+		
 		fullClassName = packageName2 + "." + className2;
 		fullClassName = fullClassName.replace('.', '/');
 		this.functionStore = functionStore;
