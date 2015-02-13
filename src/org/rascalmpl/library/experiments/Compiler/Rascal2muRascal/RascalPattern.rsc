@@ -783,8 +783,11 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 	//println("pattern <pattern>, isConcretePattern = <isConcretePattern(pattern)>");
+	int i = nextVisit();	
+	// Generate and add a nested function 'phi'
+	str descId = topFunctionScope() + "/" + "DESC_<i>";
     reachable = getReachableTypes(getType(pattern@\loc));
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  muCon(reachable), muCon(isConcretePattern(pattern))]);
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  muCon(descId), muCon(reachable), muCon(isConcretePattern(pattern))]);
 }
     
 private bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =

@@ -545,16 +545,42 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
     
  str trCombo(Figure chart, Figure parent) {
     list[Chart] charts = chart.charts;
-    str d = intercalate(",", joinData(charts));
-    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts)]);
+    str d = 
+      intercalate(",", joinData(charts, chart.tickLabels, chart.tooltipColumn));
+    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)]);
     str cmd = "ComboChart";
     ChartOptions options = updateOptions(charts, chart.options);
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
     return 
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
     ' \"options\": <trOptions(options)>,
     ' \"data\": [<d>],
-    '\"columns\": [<c>]  
+    '\"columns\": [<c>] 
+    '  <propsToJSON(chart, parent)> 
+    '}";   
+   
+    }
+    
+ str trPieChart(Figure chart, Figure parent) {
+    str d = intercalate(",", strip(chart.\data));
+    list[Column] columns = [
+        column(\type="string", role="domain", label = "domain"),
+        column(\type="number", role="data", label = "value")
+        ];
+    str c = intercalate(",", [trColumn(q)|q<-columns]);
+    str cmd = "PieChart";
+    ChartOptions options = chart.options;
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
+    return 
+    "{\"figure\": \"google\",
+     '\"command\": \"<cmd>\",
+    ' \"options\": <trOptions(options)>,
+    ' \"data\": [<d>],
+    '\"columns\": [<c>] 
+    '  <propsToJSON(chart, parent)>  
     '}";   
    
     }
@@ -576,8 +602,13 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
 //}
 
 str figToJSON(chart: combo(), Figure parent) {
-    println("trCombo");
+    // println("trCombo");
 	return trCombo(chart, parent);
+}
+
+str figToJSON(chart: piechart(), Figure parent) {
+    // println("trPiechart");
+	return trPieChart(chart, parent);
 }
 
 // ---------- lineChart ----------
