@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -80,7 +81,7 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		IRVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
+		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
 		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;
@@ -255,8 +256,8 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, IRVM rvm, boolean isCoroutine){
-		int continuationPoint = 0 ;
+	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
+	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -322,11 +323,11 @@ public class Execute {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoint);
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"),++continuationPoint);
+				codeblock.CALLDYN( getIntField(instruction, "arity"));
 				break;
 				
 			case "APPLY":
@@ -388,11 +389,11 @@ public class Execute {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0(++continuationPoint);
+				codeblock.YIELD0();
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoint);
+				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
 				
 			case "SHIFT":
@@ -508,7 +509,7 @@ public class Execute {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD(++continuationPoint);
+				codeblock.GUARD();
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -547,8 +548,10 @@ public class Execute {
 				codeblock.SUBTYPE();
 				break;
 				
-			case "CHECKARGTYPE":
-				codeblock.CHECKARGTYPE();
+			case "CHECKARGTYPEANDCOPY":
+				codeblock.CHECKARGTYPEANDCOPY(getIntField(instruction, "pos1"),
+									  rvm.symbolToType((IConstructor) instruction.get("type")),
+									  getIntField(instruction, "pos2"));
 				break;
 				
 			case "JMPINDEXED":
@@ -577,9 +580,14 @@ public class Execute {
 				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), 
 									      getIntField(instruction, "pos"));
 				break;
+			
+			case "SWITCH":
+				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
+								 getStrField(instruction, "caseDefault"));
+				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", Unknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
@@ -587,7 +595,7 @@ public class Execute {
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src, continuationPoint);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");

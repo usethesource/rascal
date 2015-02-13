@@ -1,6 +1,6 @@
 module experiments::vis2::examples::GoogleChart
 import experiments::vis2::FigureServer;
-import experiments::vis2::FigureNew;
+import experiments::vis2::Figure;
 //import lang::java::jdt::m3::Core;
 //import analysis::m3::Core;
 //import lang::java::m3::TypeSymbol;

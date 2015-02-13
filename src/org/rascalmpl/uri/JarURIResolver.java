@@ -40,7 +40,7 @@ public class JarURIResolver implements ISourceLocationInput{
 		  return path.substring(path.indexOf("/"), bang);
 		}
 		else {
-			throw new IOException("The jar and the internal path should be seperated with a !");
+			throw new IOException("The jar and the internal path should be separated with a !");
 		}
 	}
 	

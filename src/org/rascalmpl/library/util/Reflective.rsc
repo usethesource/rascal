@@ -56,6 +56,10 @@ public java loc getSearchPathLocation(str filePath);
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java bool inCompiledMode();
 
+@doc{Give a textual diff between two values.}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str diff(value old, value new);
+
 @doc{Watch value val: 
 - running in interpreted mode: write val to a file, 
 - running in compiled mode: compare val with previously written value}

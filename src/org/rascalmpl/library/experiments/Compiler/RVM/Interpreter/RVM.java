@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 
 
 public class RVM implements IRVM {
@@ -477,6 +478,40 @@ public class RVM implements IRVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
+	private String fingerprint(IValue v){
+		Type vtype = v.getType();
+		String vtype_as_string = ToplevelType.getToplevelTypeAsString(vtype);
+		ToplevelType tt = ToplevelType.getToplevelType(vtype);
+		switch(tt){
+		case BOOL:
+		case INT:	
+		case REAL:
+		case RAT:
+		case NUM:	
+		case LOC:	
+		case DATETIME:
+					return v.toString();
+		case STR:	String s = v.toString();
+					return s.substring(1, s.length()-1);
+		case NODE:	INode nd = (INode) v;
+					return nd.getName() + "/" + nd.arity();
+		case TUPLE:	return "tuple" + "/" + ((ITuple) v).arity();
+		case CONSTRUCTOR:
+		
+		case ADT:	IConstructor cons = (IConstructor) v;
+					String name = cons.getName();
+					if(name.equals("appl")){
+						return cons.get(0).toString();
+					}
+					if(name.equals("Production")){
+						return cons.toString();
+					}
+					return cons.getName() + "/" + cons.arity();
+		default:
+			return vtype_as_string;
+		}
+	}
+	
 	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
@@ -675,6 +710,24 @@ public class RVM implements IRVM {
 					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
 					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_SWITCH:
+					val = (IValue) stack[--sp];
+					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					int caseDefault = CodeBlock.fetchArg2(instruction);
+					IString fp = vf.string(fingerprint(val));
+					
+					IInteger x = (IInteger) caseLabels.get(fp);
+					stdout.println("SWITCH: val = " + val + ", fp = " + fp + " x = " + x + ", sp = " + sp);
+					if(x == null){
+							stack[sp++] = vf.bool(false);
+							pc = caseDefault;
+							stdout.println("SWITCH: goto default at " + pc);
+					} else {
+						pc = x.intValue();
+						stdout.println("SWITCH: goto selected case at " + pc);
+					}
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADTYPE:
 					stack[sp++] = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
@@ -777,7 +830,7 @@ public class RVM implements IRVM {
 					s = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
 
-					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) { 
 						if (fr.scopeId == s) {
 							ref = (Reference) fr.stack[pos];
 							ref.stack[ref.pos] = stack[sp - 1];
@@ -913,7 +966,7 @@ public class RVM implements IRVM {
 						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity)
+						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, cf, null, arity)  // changed root to cf
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
 					
@@ -947,6 +1000,20 @@ public class RVM implements IRVM {
 						constructor = c_ofun_call_next.nextConstructor(constructorStore);
 						sp = sp - arity;
 						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CHECKARGTYPEANDCOPY:
+					pos = CodeBlock.fetchArg1(instruction);
+					Type argType = ((IValue) stack[pos]).getType();
+					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
+					
+					int pos2 = instructions[pc++];
+					if(argType.isSubtypeOf(paramType)){
+						stack[pos2] = stack[pos];
+						stack[sp++] = vf.bool(true);
+					} else {
+						stack[sp++] = vf.bool(false);
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -1311,18 +1378,6 @@ public class RVM implements IRVM {
 					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
-					
-				case Opcode.OP_CHECKARGTYPE:
-					Type argType =  ((IValue) stack[sp - 2]).getType();
-					Type paramType = ((Type) stack[sp - 1]);
-//					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
-//					if(!argType.isSubtypeOf(paramType)){
-//						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
-//						boolean b = argType.isSubtypeOf(paramType);
-//					}
-					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
-					sp--;
-					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
 					throw new CompilerError("LABEL instruction at runtime", cf);
@@ -1454,6 +1509,7 @@ public class RVM implements IRVM {
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
+					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
@@ -1475,6 +1531,10 @@ public class RVM implements IRVM {
 						}
 					}
 					// If a handler has not been found in the caller functions...
+					stdout.println("EXCEPTION " + thrown + " at: " + cf.src);
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						stdout.println("\t" + f.toString());
+					}
 					return thrown;
 				}
 				
@@ -1484,7 +1544,8 @@ public class RVM implements IRVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause(), cf );
+			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
+			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
@@ -1667,6 +1728,7 @@ public class RVM implements IRVM {
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*
