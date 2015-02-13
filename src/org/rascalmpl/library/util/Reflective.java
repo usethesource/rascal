@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
@@ -37,6 +38,7 @@ import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 
 public class Reflective {
 	protected final IValueFactory values;
@@ -306,9 +308,6 @@ public class Reflective {
 		
 	}
 
-	
-	
-	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal, IEvaluatorContext ctx){
 		ISourceLocation watchLoc;
@@ -323,6 +322,14 @@ public class Reflective {
 		}
 		prelude.writeTextValueFile(watchLoc, val);
 		return val;
+	}
+
+	public IInteger getFingerprint(IValue val){
+		return values.integer(ToplevelType.getFingerprint(val));
+	}
+	
+	public IInteger getFingerprint(IValue val, IInteger arity){
+		return values.integer(ToplevelType.getFingerprint(val) << 2 + arity.intValue());
 	}
 
 }

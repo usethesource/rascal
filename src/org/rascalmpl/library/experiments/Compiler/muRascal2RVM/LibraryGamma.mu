@@ -254,7 +254,7 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN1(enumerator, typ, rVar) {
     var iElm
     enumerator = create(enumerator, ref iElm) 
     while(next(enumerator)) {
-        if(subtype(typeOf(iElm), typ)) {
+        if(value_is_subtype(iElm, typ)) {
              yield iElm
         }
     } 
@@ -421,13 +421,13 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is nod
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
         MATCH_N(pats, args)
         exhaust
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
         MATCH_N(pats, args)
     }
 }
@@ -508,13 +508,17 @@ coroutine MATCH_ANONYMOUS_VAR(iSubject) {
     yield
 }
 
-coroutine MATCH_TYPED_VAR(typ, rVar, iSubject) guard subtype(typeOf(iSubject), typ) {
-    yield iSubject
-    undefine(rVar)
-    exhaust
+coroutine MATCH_TYPED_VAR(typ, rVar, iSubject) 
+guard 
+    value_is_subtype(iSubject, typ)   
+{
+    	//println("MATCH_TYPED_VAR", typ, prim("value_to_string", iSubject))
+    	yield iSubject
+    	undefine(rVar)
+    	exhaust
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject) guard subtype(typeOf(iSubject), typ) {
+coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject) guard value_is_subtype(iSubject, typ) {
     yield
 }
 
@@ -525,14 +529,14 @@ coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     }
 }
 
-coroutine MATCH_TYPED_VAR_BECOMES(typ, rVar, pat, iSubject) guard subtype(typeOf(iSubject), typ) {
+coroutine MATCH_TYPED_VAR_BECOMES(typ, rVar, pat, iSubject) guard value_is_subtype(iSubject, typ) {
     var cpat = create(pat, iSubject)
     while(next(cpat)) {
         yield iSubject
     }
 }
 
-coroutine MATCH_AS_TYPE(typ, pat, iSubject) guard subtype(typeOf(iSubject), typ) {
+coroutine MATCH_AS_TYPE(typ, pat, iSubject) guard value_is_subtype(iSubject, typ) {
     pat(iSubject)
 }
 
@@ -690,7 +694,7 @@ guard {
 }
 {
     var iElem = get_list(iList, start)
-    if(subtype(typeOf(iElem), typ)) {
+    if(value_is_subtype(iElem, typ)) {
         yield(iElem, MAKE_SUBJECT(iList, start + 1))
     }
     deref rSubject = MAKE_SUBJECT(iList, start)
@@ -715,7 +719,7 @@ guard {
 }
 {
     var iElem = get_list(iList, start)
-    if(subtype(typeOf(iElem), typ)) {
+    if(value_is_subtype(iElem, typ)) {
         yield MAKE_SUBJECT(iList, start + 1)
     }
     deref rSubject = MAKE_SUBJECT(iList, start)
@@ -807,7 +811,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, 
         len = mint(iMinLen), 
         sub
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iList), typ)) {
+    if(value_is_subtype(iList, typ)) {
         while(len <= available) {
             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
             len = len + 1
@@ -815,7 +819,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, 
     } else {
         while(len <= available) {
             sub = sublist(iList, start, len)
-            if(subtype(typeOf(sub), typ)) {
+            if(value_is_subtype(sub, typ)) {
                 yield(sub, MAKE_SUBJECT(iList, start + len))
                 len = len + 1
             } else {
@@ -833,7 +837,7 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookah
         len = mint(iMinLen), 
         elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iList), typ)) {
+    if(value_is_subtype(iList, typ)) {
         while(len <= available) {
             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
             len = len + 1
@@ -841,7 +845,7 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookah
     } else {
         elmType = elementTypeOf(typ)
         while(len < available) {
-            if(subtype(typeOf(get_list(iList, start + len)), elmType)) {
+            if(value_is_subtype(get_list(iList, start + len), elmType)) {
                 len = len + 1
             } else {
                 yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
@@ -859,14 +863,14 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahe
         available = size_list(iList) - start,
         len = mint(iMinLen)
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iList), typ)) {
+    if(value_is_subtype(iList, typ)) {
         while(len <= available) {
             yield MAKE_SUBJECT(iList, start + len)
             len = len + 1
         }
     } else {
         while(len <= available) {
-            if(subtype(typeOf(sublist(iList, start, len)), typ)) {
+            if(value_is_subtype(sublist(iList, start, len), typ)) {
                 yield  MAKE_SUBJECT(iList, start + len)
                 len = len + 1
             } else {
@@ -884,7 +888,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
         available = size_list(iList) - start,
         len = mint(iMinLen), elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iList), typ)) {
+    if(value_is_subtype(iList, typ)) {
         while(len <= available) {
             yield MAKE_SUBJECT(iList, start + len)
             len = len + 1
@@ -892,7 +896,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
     } else {
         elmType = elementTypeOf(typ)
         while(len < available) {
-            if(subtype(typeOf(get_list(iList, start + len)), elmType)) {
+            if(value_is_subtype(get_list(iList, start + len), elmType)) {
                 len = len + 1
             } else {
                 yield MAKE_SUBJECT(iList, start + len)
@@ -1177,7 +1181,7 @@ coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject) guard { var available = de
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) {
-        if(subtype(typeOf(elm), typ)) {
+        if(value_is_subtype(elm, typ)) {
             yield(elm, mset_subtract_elm(available, elm))
             deref rSubject = available
         }
@@ -1197,7 +1201,7 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, rSubject) guard { var available 
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) { 
-        if(subtype(typeOf(elm), typ)) {
+        if(value_is_subtype(elm, typ)) {
             yield mset_subtract_elm(available, elm)
             deref rSubject = available
         }
@@ -1328,76 +1332,157 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 
 // ***** Match and descent for all types *****
 // Enforces the same left-most innermost traversal order as the interpreter
+// uses precomputed reachable types to avoid searching irrelevant subtrees
 
-coroutine MATCH_AND_DESCENT(pat, iVal) {
-    typeswitch(iVal) {
-        case list:        MATCH_AND_DESCENT_LIST (pat, iVal)
-        case lrel:        MATCH_AND_DESCENT_LIST (pat, iVal)
-        case node:        MATCH_AND_DESCENT_NODE (pat, iVal)
-        case constructor: MATCH_AND_DESCENT_NODE (pat, iVal)
-        case map:         MATCH_AND_DESCENT_MAP  (pat, iVal)
-        case set:         MATCH_AND_DESCENT_SET  (pat, iVal)
-        case rel:         MATCH_AND_DESCENT_SET  (pat, iVal)
-        case tuple:       MATCH_AND_DESCENT_TUPLE(pat,iVal)
-        default:          true
-    }  
-    pat(iVal)
+coroutine DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, iVal) 
+guard prim("should_descent", iVal, iReachableTypes)
+{
+	//println("DESCENT_AND_MATCH", iVal, typeOf(iVal), iReachableTypes)
+	//if(prim("should_descent", iVal, iReachableTypes)){
+		//println("Enter:", iVal)
+	    typeswitch(iVal) {
+	        case list:        DESCENT_AND_MATCH_LIST (pat, iReachableTypes, concreteMatch, iVal)
+	        case lrel:        DESCENT_AND_MATCH_LIST (pat, iReachableTypes, concreteMatch, iVal)
+	        case node:        DESCENT_AND_MATCH_NODE (pat, iReachableTypes, concreteMatch, iVal)
+	        case constructor: DESCENT_AND_MATCH_NODE (pat, iReachableTypes, concreteMatch, iVal)
+	        case map:         DESCENT_AND_MATCH_MAP  (pat, iReachableTypes, concreteMatch, iVal)
+	        case set:         DESCENT_AND_MATCH_SET  (pat, iReachableTypes, concreteMatch, iVal)
+	        case rel:         DESCENT_AND_MATCH_SET  (pat, iReachableTypes, concreteMatch, iVal)
+	        case tuple:       DESCENT_AND_MATCH_TUPLE(pat, iReachableTypes, concreteMatch, iVal)
+	        default:          true
+	    }
+	    //println("DESCENT_AND_MATCH, applying pat to", iVal)
+	    pat(iVal)
+	 //} 
+	 //else {
+	 //	println("Skip:", iVal);
+	 //}
 }
 
-coroutine MATCH_AND_DESCENT_LITERAL(pat, iSubject) {
+coroutine DESCENT_AND_MATCH_LITERAL(pat, iReachableTypes, concreteMatch, iSubject) {
     if(equal(pat, iSubject)) {
         yield
         exhaust
     }
-    MATCH_AND_DESCENT(MATCH_LITERAL(pat), iSubject)
+    DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject)
 }
 
-coroutine MATCH_AND_DESCENT_LIST(pat, iLst) {
+coroutine DESCENT_AND_MATCH_LIST(pat, iReachableTypes, concreteMatch, iLst) 
+{
     var last = size_list(iLst), 
-        j = 0
+        val,
+        j = 0;
+    //println("DESCENT_AND_MATCH_LIST", iLst, j, last)
     while(j < last) {
-        MATCH_AND_DESCENT(pat, get_list(iLst, j))
+        val = get_list(iLst, j)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_SET(pat, iSet) {
+coroutine DESCENT_AND_MATCH_SET(pat, iReachableTypes, concreteMatch, iSet) 
+{
     var iLst = set2list(iSet), 
-        last = size_list(iLst), 
-        j = 0
+        last = size_list(iLst),
+        val, 
+        j = 0;
+    //println("DESCENT_AND_MATCH_SET", iSet, j, last)
     while(j < last) {
-        MATCH_AND_DESCENT(pat, get_list(iLst, j))
+    	val = get_list(iLst, j)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_MAP(pat, iMap) {
+coroutine DESCENT_AND_MATCH_MAP(pat, iReachableTypes, concreteMatch, iMap)
+{
     var iKlst = keys(iMap), 
         iVlst = values(iMap), 
         last = size_list(iKlst), 
-        j = 0
+        val,
+        j = 0,
+        descent_key = prim("should_descent_mapkey", iMap, iReachableTypes),
+        descent_val = prim("should_descent_mapval", iMap, iReachableTypes);
+    //println("DESCENT_AND_MATCH_MAO", iMap, j, last)
     while(j < last) {
-        MATCH_AND_DESCENT(pat, get_list(iKlst, j))
-        MATCH_AND_DESCENT(pat, get_list(iVlst, j))
+    	if(descent_key){
+    	    val = get_list(iKlst, j)
+        	DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
+        	//pat(val)
+        } 
+        //else {
+       	//	println("In map skip key:", val)
+        //}
+        if(descent_val){
+        	val = get_list(iVlst, j) 
+        	DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
+        	//pat(val)
+        } 
+        //else {
+        //	println("In map skip value:", val)
+        //}
         j = j + 1
     }
 }
 
-coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
-    var ar = get_children_and_keyword_values(iNd), 
-        last = size_array(ar),
-        j = 0
-    while(j < last) {
-        MATCH_AND_DESCENT(pat, ar[j])
-        j = j + 1
-    }
+coroutine DESCENT_AND_MATCH_NODE(pat, iReachableTypes, concreteMatch, iNd) {
+   var array, iLst, len, children, j = 0, prod, op, opname, sort, val
+   
+   //println("DESCENT_AND_MATCH_NODE", iNd);
+   
+   if(concreteMatch && prim("is_appl", iNd)){ 
+      //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
+      if(prim("is_concrete_list", iNd)){
+         //println("DESCENT_AND_MATCH_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
+         iLst = prim("get_nonlayout_args", iNd)
+         len = size_list(iLst)
+         if(len > 0){
+            while(j < len) {
+               val = muprim("subscript_list_mint", iLst, j)
+               //println("DESCENT_AND_MATCH_NODE, list element:", j, val);
+               DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch,  val)
+               j = j + 1
+            }
+         }
+         exhaust
+      }  
+      if(prim("is_lexical", iNd)){
+         //println("DESCENT_AND_MATCH_NODE, lexical = ", iNd);
+         exhaust
+      }
+ 
+      iLst = prim("get_appl_args", iNd)
+      //println("DESCENT_AND_MATCH_NODE, is_appl, iLst = ", iLst);
+      len = size_list(iLst)
+      
+      while(j < len) {
+            val = muprim("subscript_list_mint", iLst, j)
+            //println("DESCENT_AND_MATCH_NODE, is_appl, j = ", j, val);
+            DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
+            j = j + 2
+      }
+      //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
+      exhaust
+   } 
+   //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", iNd)                                 
+   // Not a concrete list or appl
+   array = get_children_and_keyword_values(iNd)
+   len = size_array(array)                    
+    
+   while(j < len) {
+         val = array[j]
+         DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
+         j = j + 1
+   }
 }
 
-coroutine MATCH_AND_DESCENT_TUPLE(pat, iTup) {
+coroutine DESCENT_AND_MATCH_TUPLE(pat, iReachableTypes, concreteMatch, iTup) {
     var last = size_tuple(iTup), 
-        j = 0
+     	val,
+        j = 0;
     while(j < last) {
-        MATCH_AND_DESCENT(pat, get_tuple(iTup, j))
+    	val = get_tuple(iTup, j)
+        DESCENT_AND_MATCH(pat, iReachableTypes, concreteMatch, val)
         j = j + 1
     }
 }
