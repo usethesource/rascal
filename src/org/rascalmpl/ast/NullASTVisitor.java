@@ -1257,6 +1257,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymBracket(Sym.Bracket x) { 
+    return null; 
+  }
+
   public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { 
     return null; 
   }
@@ -1266,6 +1270,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitSymColumn(Sym.Column x) { 
+    return null; 
+  }
+
+  public T visitSymDependAlign(Sym.DependAlign x) { 
     return null; 
   }
 
@@ -1289,7 +1297,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymDependLoop(Sym.DependLoop x) { 
+    return null; 
+  }
+
   public T visitSymDependNonterminal(Sym.DependNonterminal x) { 
+    return null; 
+  }
+
+  public T visitSymDependOffside(Sym.DependOffside x) { 
     return null; 
   }
 
@@ -1298,6 +1314,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitSymDependScope(Sym.DependScope x) { 
+    return null; 
+  }
+
+  public T visitSymDependVoidFormals(Sym.DependVoidFormals x) { 
     return null; 
   }
 

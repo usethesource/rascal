@@ -86,7 +86,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 211 + 347 * character.hashCode() ; 
+      return 163 + 223 * character.hashCode() ; 
     } 
   
     
@@ -139,7 +139,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 349 * start.hashCode() + 919 * end.hashCode() ; 
+      return 173 + 829 * start.hashCode() + 853 * end.hashCode() ; 
     } 
   
     

@@ -16,6 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -146,6 +150,12 @@ public class ASTBuilder {
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
+			try {
+				new StandardTextWriter().write(tree, new FileWriter("/Users/jurgenv/hello.ali"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		  throw new Ambiguous(tree);
 		}
 		
