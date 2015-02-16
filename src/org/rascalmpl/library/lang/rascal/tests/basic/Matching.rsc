@@ -111,4 +111,4 @@ test bool deepMatchKeywordParameter() = /int i := "f"("f"(x=[1]));
 bool dispatch(e(D _)) = true;
 bool dispatch(d()) = false;
 
-test bool dispatch() = D _ := (D) `ed`;
+test bool dispatchTest() = dispatch((D) `ed`) && !dispatch((D) `d`);
