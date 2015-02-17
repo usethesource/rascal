@@ -8,10 +8,10 @@ import util::Reflective;
 
 
 value main(list[value] args) {
-	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
+	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst5.rsc|; //Rascal2muRascal/RascalExpression.rsc|;
 	m = parse(#start[Module], moduleLoc).top;
 	t = cpuTime();
 	new = [ e | /Expression e := m ];
-	println("size = <size(new)>");
+	println("size = <size(new)>, <new>");
 	return (cpuTime() - t)/1000000;
 }

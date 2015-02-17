@@ -19,7 +19,7 @@ import lang::rsf::IO;
 import IO;
 
 public value main(list[value] args){
-  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf"/*, "Eclipse202a.rsf"*/]);
+  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz"/*, "Eclipse202a.rsf"*/]);
 }
 
 public bool measureOne(){
@@ -31,7 +31,7 @@ public bool measure(list[str] names){
 	loc p = |compressed+std:///experiments/Compiler/Benchmarks/|;
 	
 	for(str name <- names){
-		map[str, rel[str,str]] values = readRSF(p[path= p.path + name +".xz"]);
+		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");

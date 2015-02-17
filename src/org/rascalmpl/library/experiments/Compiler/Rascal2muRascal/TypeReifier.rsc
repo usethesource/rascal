@@ -234,7 +234,7 @@ private set[Symbol] contains(Symbol::\label(str name, Symbol symbol)) = filterSy
 
 private set[Symbol] contains(Symbol::\set(Symbol symbol)) = filterSymbols([symbol]);
 	
-private set[Symbol] contains(Symbol::\rel(list[Symbol] symbols)) = filterSymbol(symbols);
+private set[Symbol] contains(Symbol::\rel(list[Symbol] symbols)) = filterSymbols(symbols);
 	
 private set[Symbol] contains(Symbol::\lrel(list[Symbol] symbols)) = filterSymbols(symbols);
 
