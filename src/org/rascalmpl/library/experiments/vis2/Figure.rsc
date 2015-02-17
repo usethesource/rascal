@@ -226,9 +226,13 @@ public data Figure(
 
 // Charts
 //	| chart(Chart c, ChartOptions options = chartOptions())
-	| combo(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
+	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| piechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| linechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| barchart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 
 

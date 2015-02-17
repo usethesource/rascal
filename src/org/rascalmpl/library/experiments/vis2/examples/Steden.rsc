@@ -36,7 +36,7 @@ public list[Chart] exampleSteden() {
    
 public void steden() {  
             // println(exampleSteden());
-           	ex("Steden", combo(charts = exampleSteden(), tickLabels = true,  tooltipColumn = 0, 
+           	ex("Steden", combochart(charts = exampleSteden(), tickLabels = true,  tooltipColumn = 0, 
            	    options = chartOptions(
            		hAxis = axis(title="Extend", slantedText = true, slantedTextAngle=90), 
            		vAxis = axis(title="Population"),

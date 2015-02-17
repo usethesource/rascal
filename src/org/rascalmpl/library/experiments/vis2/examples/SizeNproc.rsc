@@ -35,5 +35,5 @@ public void sizeNproc() {
     hAxis= axis(title="Length", viewWindow= viewWindow(min=0)),
     vAxis= axis(title="#Proc"),
     lineWidth = 0, pointSize = 3, width = 400, height = 400);
-    ex("sizeNproc", combo(charts = [line(r, name=f.authority)], options = options, tickLabels = false));      
+    ex("sizeNproc", combochart(charts = [line(r, name=f.authority)], options = options, tickLabels = false));      
     }
