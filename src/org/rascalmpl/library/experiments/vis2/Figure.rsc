@@ -55,7 +55,12 @@ data Bind
 // Data formats for various chart elements
 
 alias XYData 			= lrel[num x, num y];
-			 		 
+
+/* 
+   In bars the first column (rank) determines the bar placement order.	
+   The third column is the category label. 
+*/
+		 		 
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
 
 	
@@ -221,7 +226,14 @@ public data Figure(
 
 // Charts
 //	| chart(Chart c, ChartOptions options = chartOptions())
-	| combo(list[Chart] charts =[], ChartOptions options = chartOptions())
+	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| piechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| linechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| barchart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
 
 
 // Graphs
@@ -377,12 +389,13 @@ data Axis(str title="",
           bool slantedText = true,
           int slantedTextAngle = -1, 
           str textPosition = "",
+          str format = "", 
            Gridlines gridlines =  Gridlines::gridlines()) 
           = axis();
           
 bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
      && isEmpty(axis.viewWindow) && axis.slantedText && axis.slantedTextAngle == -1
-     && isEmpty(axis.textPosition);
+     && isEmpty(axis.textPosition) && isEmpty(axis.format);
 
 str trAxis(Axis axis) {
     str r = "{";
@@ -394,6 +407,7 @@ str trAxis(Axis axis) {
     if (!axis.slantedText) r+="\"slantedText\":<axis.slantedText>,";
     if  (axis.slantedTextAngle>=0) r+="\"slantedTextAngle\" : <axis.slantedTextAngle>,";
     if  (!isEmpty(axis.textPosition)) r +="\"textPosition\" : \"<axis.textPosition>\",";
+    if  (!isEmpty(axis.format)) r +="\"format\" : \"<axis.format>\",";
     r = replaceLast(r,",", "");
     r+="}";
     return r;
@@ -441,6 +455,7 @@ str trOptions(ChartOptions options) {
             if  (!isEmpty(options.series)) r+=  "\"series\" : [<intercalate(",", ["<trSeries(q)>" |q<-options.series])>],";
             r = replaceLast(r,",", "");
             r+="}";
+            // println(chart);
             return r;
  
       }
@@ -488,16 +503,24 @@ data Chart(str name = "", str color = "", str curveType = "",
 	;
 	
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
-map[value, list[value]] tData(Chart c, bool inBar) {
+
+map[tuple[value, int], list[value]] 
+   tData(Chart c, bool inChart, int tooltipColumn) {
      list[list[value]] r = [];
      switch(c) {
         case line(XYData x): r = [[d[0], d[1]]|d<-x];
         case area(XYData x): r = [[d[0], d[1]]|d<-x];
-        case line(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
-        case area(XYLabeledData x): r = [[d[0], d[1], d[2]]|d<-x];
-        case bar(XYLabeledData x): r = [[d[0], d[1], inBar?"<d[1]>":d[2]]|d<-x];
+        case line(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
+        case area(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
+        case bar(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
+            
         }
-     map[value, list[value]] q = (d[0]:[e|e<-tail(d)]|d<-r);
+     map[tuple[value, int], list[value]] q  = ();
+     for (d<-r) {
+         int i = 0;
+         while(q[<d[0], i>]?) i = i + 1;
+         q[<d[0], i>] = tail(d);
+         }
      return q;
      }
 
@@ -518,41 +541,42 @@ list[Column] cData(Chart c) {
      return column();
      }
      
-//list[value] image(list[list[value]] d, value x) {
-//     list[list[value]] r = range(domainX(d, x));
-//     
-//     }
-
-
      
-list[Column] joinColumn(list[Chart] charts) {
+list[Column] joinColumn(list[Chart] charts, bool tickLabels) {
    int i = 0;
    for (c<-charts) {
-       if (bar(_):=c) break;
+       /*if (bar(_):=c)*/  if (size(cData(c))==2) break;
        i = i +1;
        }
      list[Column] r = [*cData(c)|c<-charts];
-     if (i == size(charts)) 
+     if (!tickLabels || i == size(charts)) 
        return [column(\type="number", role="domain")]+r;
      else return [column(\type="string", role="domain", label = charts[i].name)]+ r;
      }
      
-list[list[value]] joinData(list[Chart] charts) {
-   list[map[value, list[value]]] m = [tData(c, false)|c<-charts];   
-   set[value] d = union({domain(c)|c <-m });   
-   list[value] x = sort(toList(d));
+list[list[value]] strip(XYLabeledData d) {
+     map[num, list[value]] m = (e[0]:[e[2], e[1]]|e<-d);
+     list[num] x = sort(domain(m));
+     return [m[i]|num i<-x];
+     }
+     
+list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
+   list[map[tuple[value, int], list[value]]] m = [tData(c, false, tooltipColumn)|c<-charts];   
+   set[tuple[value, int]] d = union({domain(c)|c <-m });   
+   list[tuple[value, int]] x = sort(toList(d));
+   // println(x);
    int i = 0;
    for (c<-charts) {
-       if (bar(_):=c) break;
+       /*if (bar(_):=c)*/ if (size(cData(c))==2)  break;
        i = i +1;
        }
   
    // println("bar:<i>  <[[m[i][z][1]]|z<-x]>");
-   if (i == size(charts)) 
-      return [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
+   if (!tickLabels || i == size(charts)) 
+      return [[z[0]] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
    else {
       map[value, value] lab =  (z:m[i][z][1]|z<-x);
-      m = [tData(c, true)|c<-charts];  
+      m = [tData(c, true, tooltipColumn)|c<-charts];  
       return [[lab[z]] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
       }
    }

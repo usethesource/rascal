@@ -212,6 +212,57 @@ test bool testSwitch5m() = sw5(e("abc",11))	== 11;
 test bool testSwitch5n() = sw5("f"(12))		== 12;
 test bool testSwitch5o() = sw5(13)			== 13;
   	
+int sw6(value v){
+ 	int n = 0;
+ 	switch(v){
+		case true: 								n = 1;
+		case 2: 								n = 2;
+		case 3.0:					 			n = 3;
+		case 4r3: 								n = 4;
+		case |home:///|:						n = 5;	
+		case $2015-02-11T20:09:01.317+00:00$: 	n = 6;
+		case "abc": 							n = 7;
+		case [1,2,3]: 							n = 8;
+		case [<1,2,3>]:							n = 9;
+		case {1,2,3}:							n = 10;
+		case {<1,2,3>}:							n = 11;
+		//case ("a" : 1): 						n = 12;
+		default: 								n = 13;
+	}
+	return n;
+}
+
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6a() = sw6(true)		== 1;
+
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6b() = sw6(2)			== 2;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6c() = sw6(3.0)			== 3;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6d() = sw6(4r3)			== 4;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6e() = sw6(|home:///|)	== 5;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6f() = sw6($2015-02-11T20:09:01.317+00:00$)		
+											== 6;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6g() = sw6("abc")		== 7;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6h() = sw6([1,2,3])		== 8;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6i() = sw6([<1,2,3>])	== 9;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6j() = sw6({1,2,3})		== 10;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6k() = sw6({<1,2,3>})	== 11;
+@ignore{map pattern not supported}
+test bool testSwitch6l() = sw6(("a" : 1))	== 12;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+test bool testSwitch6m() = sw6(13)			== 13;
+@ignoreInterpreter{Location, datetime and map pattern not supported}
+
+
 
 //  solve
 

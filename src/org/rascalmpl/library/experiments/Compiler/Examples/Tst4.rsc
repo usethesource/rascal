@@ -1,34 +1,17 @@
 module experiments::Compiler::Examples::Tst4
 
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java int size(list[int] lst);
-
-public int f([*int x,*int y]) {
-	if(size(x) == size(y)) {
-		return -1000;
-	}
-	fail;
-}
-public default int f(list[int] l) = 0;
-
-public int g([1,2,3,4,5,6]) {
-	return -2000;
-}
-public default int g(list[int] l) = -3000;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import util::Benchmark;
+import IO;
+import util::Reflective;
 
 
-public int h(list[int] _) {
-	fail;
-}
-
-
-public default int h(list[int] l) = -3000;
-
-public value main(list[value] args) {
-	return f([1,2,3,4,5,6]) 
-		   + g([1,2,3,4,5,6]) 
-		   + g([1,2,3,4,5]) 
-		   + h([1,2,3,4,5,6])
-		   ;
+value main(list[value] args) {
+	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst5.rsc|; //Rascal2muRascal/RascalExpression.rsc|;
+	m = parse(#start[Module], moduleLoc).top;
+	t = cpuTime();
+	new = [ e | /Expression e := m ];
+	println("size = <size(new)>, <new>");
+	return (cpuTime() - t)/1000000;
 }

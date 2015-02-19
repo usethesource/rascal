@@ -1,25 +1,22 @@
 module experiments::Compiler::Examples::Tst1
-
-import lang::rascal::tests::types::StaticTestingUtils;
-
-value main(list[value] args) = checkOK("13;");
-
-//declarationError("A x = 0;", initialDecls=["alias A = str;", "alias A = int;"]);
-
-//value main(list[value] args) { 
-//	pt = parse(#start[Module],"module M\nimport List;");
-//	//iprintln(pt);
-//	println("pt has top: <pt has top>");
-//	println("Module m := pt.top: <Module m := pt.top>");
-//	return true;
-//}
 	
+	
+data A = a(int n) | a (int n, int m);
 
-//checkOK("x;", initialDecls=["int x = 5;"]);
+data B = b(str s) | b(str s, str t);
 
-//#start[A];
-
-//parse(#start[Module],"module M\nimport List;");
+data C = c(bool b) | c(A ca, B cB) | c(int n, C cc);
 
 
-//checkOK("x;", initialDecls=["int x = 5;"]);
+C cnt(C t) {
+	return 
+	  top-down visit(t) {
+		case true => false
+	}
+}	
+
+
+value main(list[value] args) = cnt(c(true));
+
+
+//visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} ; //== "aBBcaBBcAA";

@@ -1,7 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.values.uptr.Factory;
 
 public enum ToplevelType {
 	VOID			(0, "void"),
@@ -161,5 +166,119 @@ public enum ToplevelType {
 	
 	public static int getToplevelTypeAsInt(Type t){
 		return getToplevelType(t).getToplevelTypeAsInt();
+	}
+	
+	public static int getFingerprint(final IValue v){
+		return v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
+
+			@Override
+			public Integer visitReal(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitInteger(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitRational(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitList(Type type) throws RuntimeException {
+				return "list".hashCode();
+			}
+
+			@Override
+			public Integer visitMap(Type type) throws RuntimeException {
+				return "map".hashCode();
+			}
+
+			@Override
+			public Integer visitNumber(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitAlias(Type type) throws RuntimeException {
+				throw new CompilerError("Alias cannot occur in fingerprint");
+			}
+
+			@Override
+			public Integer visitSet(Type type) throws RuntimeException {
+				return "set".hashCode();
+			}
+
+			@Override
+			public Integer visitSourceLocation(Type type)
+					throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitString(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitNode(Type type) throws RuntimeException {
+				return ((INode) v).getName().hashCode() << 2 + ((INode) v).arity();
+			}
+
+			@Override
+			public Integer visitConstructor(Type type) throws RuntimeException {
+				IConstructor cons = (IConstructor) v;
+				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+					return cons.get(0).hashCode(); 
+				}
+				return cons.getName().hashCode() << 2 + cons.arity();
+			}
+
+			@Override
+			public Integer visitAbstractData(Type type) throws RuntimeException {
+				IConstructor cons = (IConstructor) v;
+				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+					return cons.get(0).hashCode(); 
+				}
+				return cons.getName().hashCode() << 2 + cons.arity();
+			}
+
+			@Override
+			public Integer visitTuple(Type type) throws RuntimeException {
+				return "tuple".hashCode() << 2 + ((ITuple) v).arity();
+			}
+
+			@Override
+			public Integer visitValue(Type type) throws RuntimeException {
+				return "value".hashCode();
+			}
+
+			@Override
+			public Integer visitVoid(Type type) throws RuntimeException {
+				throw new CompilerError("Void cannot occur in fingerprint");
+			}
+
+			@Override
+			public Integer visitBool(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+
+			@Override
+			public Integer visitParameter(Type type) throws RuntimeException {
+				throw new CompilerError("Parameter cannot occur in fingerprint");
+			}
+
+			@Override
+			public Integer visitExternal(Type type) throws RuntimeException {
+				throw new CompilerError("External cannot occur in fingerprint");
+			}
+
+			@Override
+			public Integer visitDateTime(Type type) throws RuntimeException {
+				return v.hashCode();
+			}
+		});
 	}
 }
