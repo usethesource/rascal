@@ -59,10 +59,18 @@ alias XYData 			= lrel[num x, num y];
 /* 
    In bars the first column (rank) determines the bar placement order.	
    The third column is the category label. 
+   In lines the third column determines the tooltips belonging to the points
 */
 		 		 
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
 
+/* Dataype belonging to candlesticks */
+
+alias BoxData     = lrel[str date,  num low , num open, num close, num high];
+
+alias BoxLabeledData     = lrel[str date,  num low , num open, num close, num high, str tooltip];
+
+alias BoxHeader = tuple[str, str, str, str, str];
 	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
@@ -225,14 +233,23 @@ public data Figure(
 
 
 // Charts
-//	| chart(Chart c, ChartOptions options = chartOptions())
 	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| piechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	| piechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| linechart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	| linechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| barchart(XYLabeledData \data = [], ChartOptions options = chartOptions(), bool tickLabels = false,
+	| linechart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
+	   int tooltipColumn = 1)
+	| scatterchart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
+	   int tooltipColumn = 1)
+	| scatterchart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
+	   int tooltipColumn = 1)
+	| barchart(XYLabeledData xyLabeledData , ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| candlestickchart(BoxData boxData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
+	  int tooltipColumn = 1)
+	| candlestickchart(BoxLabeledData boxLabeledData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 
 
@@ -411,8 +428,46 @@ str trAxis(Axis axis) {
     r = replaceLast(r,",", "");
     r+="}";
     return r;
-    }           
-                
+    }
+               
+data Candlestick( 
+     bool hollowIsRising = false,
+     CandlestickColor fallingColor = candlestickColor(),
+     CandlestickColor risingColor = candlestickColor()
+     ) = candlestick(); 
+     
+str trCandlestick(Candlestick c) {
+    str r = "{";
+    if  (c.hollowIsRising) r +="\"hollowIsRising\" : \"<c.hollowIsRising>\",";
+    if (!isEmpty(c.fallingColor)) r+="\"fallingColor\":<trCandlestickColor(c.fallingColor)>,";
+    if (!isEmpty(c.risingColor)) r+="\"risingColor\":<trCandlestickColor(c.risingColor)>,";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+     
+bool isEmpty (Candlestick c) = !c.hollowIsRising 
+     && isEmpty(c.fallingColor) && isEmpty(c.risingColor);
+
+data CandlestickColor( 
+     str fill = "",
+     str stroke = "",
+     int strokeWidth = -1
+     ) = candlestickColor(); 
+     
+str trCandlestickColor(CandlestickColor c) {
+    str r = "{";
+    if  (c.strokeWidth>=0) r +="\"strokeWidth\" : <c.strokeWidth>,";
+    if (!isEmpty(c.fill)) r+="\"fill\":\"<c.fill>\",";
+    if (!isEmpty(c.stroke)) r+="\"stroke\":\"<c.stroke>\",";
+    r = replaceLast(r,",", "");
+    r+="}";
+    return r;
+    }
+     
+bool isEmpty (CandlestickColor c) = c.strokeWidth == -1 
+     && isEmpty(c.fill) && isEmpty(c.stroke);
+                      
 data ChartOptions (str title = "",
              Axis hAxis = axis(),
              Axis vAxis = axis(),
@@ -429,6 +484,7 @@ data ChartOptions (str title = "",
              str seriesType = "",
              str pointShape = "",
              bool isStacked = false,
+             Candlestick candlestick = Candlestick::candlestick(),
              list[Series] series = []
              ) = chartOptions()
             ;
@@ -443,7 +499,7 @@ str trOptions(ChartOptions options) {
             if  (options.width>=0) r+="\"width\" : <options.width>,";
             if  (options.height>=0) r+= "\"height\" : <options.height>,";
             r+= "\"forceIFrame\":<options.forceIFrame>,";
-            /* if  (!isEmpty(options.legend)) */ 
+            if  (!isEmpty(options.legend)) 
             if (!options.legend.none) r +="\"legend\" : <trLegend(options.legend)>,";
             if  (options.lineWidth>=0) r+="\"lineWidth\" : <options.lineWidth>,";
             if  (options.pointSize>=0) r+="\"pointSize\" : <options.pointSize>,";
@@ -453,6 +509,7 @@ str trOptions(ChartOptions options) {
             if  (!isEmpty(options.pointShape)) r +="\"pointShape\" : \"<options.pointShape>\",";
             if  (options.isStacked) r +="\"isStacked\" : \"<options.isStacked>\",";
             if  (!isEmpty(options.series)) r+=  "\"series\" : [<intercalate(",", ["<trSeries(q)>" |q<-options.series])>],";
+            if  (!isEmpty(options.candlestick)) r +="\"candlestick\" : <trCandlestick(options.candlestick)>,";
             r = replaceLast(r,",", "");
             r+="}";
             // println(chart);
@@ -500,9 +557,7 @@ data Chart(str name = "", str color = "", str curveType = "",
 	| area(XYData xydata)
 	| area(XYLabeledData xylabeleddata)
 	| bar(XYLabeledData xylabeledData)
-	;
-	
-alias XYLabeledData     = lrel[num xx, num yy, str label];	
+	;	
 
 map[tuple[value, int], list[value]] 
    tData(Chart c, bool inChart, int tooltipColumn) {
@@ -559,7 +614,21 @@ list[list[value]] strip(XYLabeledData d) {
      list[num] x = sort(domain(m));
      return [m[i]|num i<-x];
      }
-     
+
+list[list[value]] strip(XYData d) {
+     map[num, list[value]] m = (e[0]:[e[0], e[1]]|e<-d);
+     list[num] x = sort(domain(m));
+     return [m[i]|num i<-x];
+     } 
+
+list[list[value]] strip(BoxData b, BoxHeader h) {
+     return [[h[0], h[1], h[2], h[3], h[4]]]+[[d[0],d[1],d[2],d[3],d[4]]|d<-b];
+     }  
+
+list[list[value]] strip(BoxLabeledData b, BoxHeader h) {
+     return [[h[0], h[1], h[2], h[3], h[4], ("type":"string","role":"tooltip")]]+[[d[0],d[1],d[2],d[3],d[4], d[5]]|d<-b];
+     } 
+                
 list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
    list[map[tuple[value, int], list[value]]] m = [tData(c, false, tooltipColumn)|c<-charts];   
    set[tuple[value, int]] d = union({domain(c)|c <-m });   

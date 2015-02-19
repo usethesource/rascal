@@ -63,15 +63,17 @@ var printq = function(o){
       // draws it.
       function drawChart(figure, w, h) {
         // Create the data table.
-        var data = new google.visualization.DataTable();
-        // alert(JSON.stringify(figure.data));
-        for (var i=0;i<figure.columns.length;i++) {
-            var x = figure.columns[i];
-            data.addColumn(x);
-            }
-        // alert(JSON.stringify(figure.data));
-        data.addRows(figure.data);
-        
+        var data;
+        if (figure.columns.length>0) {
+           data = new google.visualization.DataTable();
+           for (var i=0;i<figure.columns.length;i++) {
+              var x = figure.columns[i];
+              data.addColumn(x);
+              }
+           data.addRows(figure.data);
+           }
+        else 
+           data = google.visualization.arrayToDataTable(figure.data, false);
         // Set chart options
         var options = {title:figure.name,            
                         width:w,

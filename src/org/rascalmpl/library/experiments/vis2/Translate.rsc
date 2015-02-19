@@ -563,14 +563,16 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
    
     }
     
- str trChart(Figure chart, Figure parent, str cmd) {
-    // str d = intercalate(",", strip(chart.\data));
-    str d = toJSON(strip(chart.\data), true);
-    list[Column] columns = [
-        column(\type="string", role="domain", label = "domain"),
+ str trChart(Figure chart, Figure parent, str cmd, str d, str firstColumn) {
+    // str d = intercalate(",", strip(chart.\data));'
+    str c ="";
+    if (!isEmpty(firstColumn)) { 
+        list[Column] columns = [
+        column(\type=firstColumn, role="domain", label = "domain"),
         column(\type="number", role="data", label = "value")
         ];
-    str c = intercalate(",", [trColumn(q)|q<-columns]);
+         c = intercalate(",", [trColumn(q)|q<-columns]);
+    }
     ChartOptions options = chart.options;
     if (options.width>=0) chart.width = options.width;
     if (options.height>=0) chart.height = options.height;
@@ -606,28 +608,61 @@ str figToJSON(chart: combochart(), Figure parent) {
 	return trCombo(chart, parent);
 }
 
-str figToJSON(chart: piechart(), Figure parent) {
+str figToJSON(chart: piechart(XYLabeledData d), Figure parent) {
     // println("trPiechart");
-	return trChart(chart, parent, "PieChart");
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "PieChart", dat, "string");
 }
 
-str figToJSON(chart: linechart(), Figure parent) {
+str figToJSON(chart: linechart(XYLabeledData d), Figure parent) {
     // println("trPiechart");
-	return trChart(chart, parent, "LineChart");
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "LineChart", dat, "string");
 }
 
-str figToJSON(chart: barchart(), Figure parent) {
+str figToJSON(chart: linechart(XYData d), Figure parent) {
     // println("trPiechart");
-	return trChart(chart, parent, "BarChart");
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "LineChart", dat, "number");
 }
 
-// ---------- lineChart ----------
+str figToJSON(chart: scatterchart(XYLabeledData d), Figure parent) {
+    // println("trPiechart");
+    str dat = toJSON(strip(d), true);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat, "string");
+}
 
-// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+str figToJSON(chart: scatterchart(XYData d), Figure parent) {
+    // println("trPiechart");
+    str dat = toJSON(strip(d), true);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat, "number");
+}
 
+str figToJSON(chart: barchart(XYLabeledData d), Figure parent) {
+    // println("trPiechart");
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "BarChart", dat, "string");
+}
 
-// ---------- graph ----------
-// str orientation = "topDown", int nodeSep = 10, int edgeSep=10, int layerSep= 10, 
+str figToJSON(chart: candlestickchart(BoxData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat, "");
+}
+
+str figToJSON(chart: candlestickchart(BoxLabeledData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat, "");
+}
 
 str figToJSON(figure: graph(), Figure parent) { 
 	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
