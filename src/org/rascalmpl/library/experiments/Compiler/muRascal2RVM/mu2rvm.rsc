@@ -716,8 +716,8 @@ INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    labels = ();
    caseCode =  [];
    for(cs <- cases){
-		caseLab = defaultLab + "_" + cs.name;
-		labels[cs.name] = caseLab;
+		caseLab = defaultLab + "_<cs.fingerprint>";
+		labels[cs.fingerprint] = caseLab;
 		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
    }
 	 

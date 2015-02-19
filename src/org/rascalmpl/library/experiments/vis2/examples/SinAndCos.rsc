@@ -17,7 +17,7 @@ void tbox1(){ ex("box1", box1); }
 
 void sinAndCos(){
         ex("sinAndCos", 
-        	combo(charts=[
+        	combochart(charts=[
         	       line([<x, round(sin(x/1),0.001)>     | x <- [0.0, 1.0 .. 10.0]], name="Sine Wave"),
         		   line([<x, round(0.5 * cos(x/1), 0.01), "a<x>"> | x <- [0.0, 1.0 .. 10.0]], name ="Cosine Wave",
         		       lineWidth = 0, pointSize = 3),

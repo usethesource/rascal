@@ -545,16 +545,42 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
     
  str trCombo(Figure chart, Figure parent) {
     list[Chart] charts = chart.charts;
-    str d = intercalate(",", joinData(charts));
-    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts)]);
+    str d = 
+      toJSON(joinData(charts, chart.tickLabels, chart.tooltipColumn), true);
+    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)]);
     str cmd = "ComboChart";
     ChartOptions options = updateOptions(charts, chart.options);
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
     return 
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
     ' \"options\": <trOptions(options)>,
-    ' \"data\": [<d>],
-    '\"columns\": [<c>]  
+    ' \"data\": <d>,
+    '\"columns\": [<c>] 
+    '  <propsToJSON(chart, parent)> 
+    '}";   
+   
+    }
+    
+ str trChart(Figure chart, Figure parent, str cmd) {
+    // str d = intercalate(",", strip(chart.\data));
+    str d = toJSON(strip(chart.\data), true);
+    list[Column] columns = [
+        column(\type="string", role="domain", label = "domain"),
+        column(\type="number", role="data", label = "value")
+        ];
+    str c = intercalate(",", [trColumn(q)|q<-columns]);
+    ChartOptions options = chart.options;
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
+    return 
+    "{\"figure\": \"google\",
+     '\"command\": \"<cmd>\",
+    ' \"options\": <trOptions(options)>,
+    ' \"data\": <d>,
+    '\"columns\": [<c>] 
+    '  <propsToJSON(chart, parent)>  
     '}";   
    
     }
@@ -575,9 +601,24 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
 //	return trVega(chart, parent);
 //}
 
-str figToJSON(chart: combo(), Figure parent) {
-    println("trCombo");
+str figToJSON(chart: combochart(), Figure parent) {
+    // println("trCombo");
 	return trCombo(chart, parent);
+}
+
+str figToJSON(chart: piechart(), Figure parent) {
+    // println("trPiechart");
+	return trChart(chart, parent, "PieChart");
+}
+
+str figToJSON(chart: linechart(), Figure parent) {
+    // println("trPiechart");
+	return trChart(chart, parent, "LineChart");
+}
+
+str figToJSON(chart: barchart(), Figure parent) {
+    // println("trPiechart");
+	return trChart(chart, parent, "BarChart");
 }
 
 // ---------- lineChart ----------

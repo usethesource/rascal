@@ -43,7 +43,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 
 
 public class RVM {
@@ -480,41 +479,6 @@ public class RVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	private String fingerprint(IValue v){
-		Type vtype = v.getType();
-		String vtype_as_string = ToplevelType.getToplevelTypeAsString(vtype);
-		ToplevelType tt = ToplevelType.getToplevelType(vtype);
-		switch(tt){
-		case BOOL:
-		case INT:	
-		case REAL:
-		case RAT:
-		case NUM:	
-		case LOC:	
-		case DATETIME:
-					return v.toString();
-		case STR:	String s = v.toString();
-					return s.substring(1, s.length()-1);
-		case NODE:	INode nd = (INode) v;
-					return nd.getName() + "/" + nd.arity();
-		case TUPLE:	return "tuple" + "/" + ((ITuple) v).arity();
-		case CONSTRUCTOR:
-		
-		case ADT:	IConstructor cons = (IConstructor) v;
-					String name = cons.getName();
-					if(name.equals("appl")){
-						return cons.get(0).toString();
-					}
-					if(name.equals("Production")){
-						return cons.toString();
-					}
-					return cons.getName() + "/" + cons.arity();
-		default:
-			return vtype_as_string;
-		}
-	}
-	
-	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
 		rex.setCurrentModuleName(moduleName);
@@ -717,17 +681,15 @@ public class RVM {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					IString fp = vf.string(fingerprint(val));
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
-					stdout.println("SWITCH: val = " + val + ", fp = " + fp + " x = " + x + ", sp = " + sp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
 					if(x == null){
 							stack[sp++] = vf.bool(false);
 							pc = caseDefault;
-							stdout.println("SWITCH: goto default at " + pc);
 					} else {
 						pc = x.intValue();
-						stdout.println("SWITCH: goto selected case at " + pc);
 					}
 					continue NEXT_INSTRUCTION;
 					

@@ -9,6 +9,7 @@ import Map;
 import Set;
 import String;
 import ParseTree;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
@@ -783,7 +784,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 // 
 // The global translation scheme is to translate each visit to a function PHI, with local functions per case.
 // For the fixedpoint strategies innermost and outermost, a wrapper function PHI_FIXPOINT is generated that
-// carries out the fixed point computation. PHI and PHIFIXPOINT have 5 common formal parameters, and the latter has
+// carries out the fixed point computation. PHI and PHIFIXPOINT have 7 common formal parameters, and the latter has
 // two extra local variables:
 //
 // PHI:	iSubject		PHI_FIXPOINT:	iSubject
@@ -791,6 +792,8 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 //		hasInsert						hasInsert
 //		begin							begin
 //		end								end
+//		iReachableTypes					iReachableTypes
+//		concreteMatch					concreteMatch
 //										changed
 //										val
 
@@ -801,18 +804,21 @@ private int matchedPos = 1;
 private int hasInsertPos = 2;
 private int beginPos = 3;
 private int endPos = 4;
+private int iDescIdPos = 5;
+private int iReachableTypesPos = 6;
+private int concreteMatchPos = 7;
 
-private int NumberOfPhiFormals = 5;
+private int NumberOfPhiFormals = 8;
 
 // Generated PHI_FIXPOINT functions
-// iSubjectPos, matchedPos, hasInsert, begin, end as for PHI
+// iSubjectPos, matchedPos, hasInsert, begin, end, iReachableTypes and concreteMatch (as for PHI)
 // Extra locals
 
-private int changedPos = 5;
-private int valPos = 6;
+private int changedPos = 8;
+private int valPos = 9;
 
-private int NumberOfPhiFixFormals = 5;
-private int NumberOfPhiFixLocals = 7;
+private int NumberOfPhiFixFormals = 8;
+private int NumberOfPhiFixLocals = 10;
 
 
 MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
@@ -846,17 +852,24 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "PHI_<i>";
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),	// iSubject
-	                                                   Symbol::\bool(),		// matched
-	                                                   Symbol::\bool(),		// hasInsert
-	                                                   Symbol::\int(),		// begin
-	                                                   Symbol::\int()		// end
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),				// iSubject
+	                                                   Symbol::\bool(),					// matched
+	                                                   Symbol::\bool(),					// hasInsert
+	                                                   Symbol::\int(),					// begin
+	                                                   Symbol::\int(),					// end
+	                                                   Symbol::\str(),					// iDescId
+	                                                   Symbol::\set(Symbol::\value()),	// iReachableTypes
+	                                                   Symbol::\bool()					// concreteMatch
 	                                                  ]);
 	
 	enterVisit();
 	enterFunctionScope(phi_fuid);
+	cases = [ c | Case c <- \visit.cases ];
 	
-	MuExp body = translateVisitCases([ c | Case c <- \visit.cases ], phi_fuid, getType(\visit.subject@\loc));
+	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), cases);
+	iReachableTypes = reachableTypesInVisit(cases);
+	println("reachableTypesInVisit: <iReachableTypes>");
+	concreteMatch = false;
 	
 	// ***Note: (fixes issue #434) 
 	//    (1) All the variables introduced within a visit scope should become local variables of the phi-function
@@ -870,13 +883,15 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	//for(tup <- decls){
 	//	println(tup);
 	//}
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end)
+	
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, iReachableTypes, concreteMatch)
 	int pos_in_phi = NumberOfPhiFormals;
+	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
 	map[tuple[str,int],tuple[str,int]] mapping = ();
 	for(<str fuid,int pos> <- decls, pos != -1) {
 	    assert fuid == scopeId : "translateVisit: fuid != scopeId";
-	    mapping[<scopeId,pos>] = <phi_fuid,pos_in_phi>;
+	    mapping[<scopeId,pos>] = <phi_fuid, pos_in_phi>;
 	    pos_in_phi = pos_in_phi + 1;
 	}
 	
@@ -917,7 +932,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 		
 		enterFunctionScope(phi_fixpoint_fuid);
 		
-		// Local variables of 'phi_fixpoint_fuid': 'iSubject', 'matched', 'hasInsert', 'begin', 'end', 'changed', 'val'
+		// Local variables of 'phi_fixpoint_fuid': iSubject, matched, hasInsert, begin, end, iReachableTypes, concreteMatch, changed, val
 		list[MuExp] body_exps = [];
 		body_exps += muAssign("changed", phi_fixpoint_fuid, changedPos, muBool(true));
 		body_exps += muWhile(nextLabel(), muVar("changed", phi_fixpoint_fuid, changedPos), 
@@ -926,10 +941,13 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 						                                                     muVar("matched", phi_fixpoint_fuid, matchedPos), 
 						                                                     muVar("hasInsert", phi_fixpoint_fuid, hasInsertPos),
 						                                                     muVar("begin", phi_fixpoint_fuid, beginPos),	
-						                                                     muVar("end", phi_fixpoint_fuid, endPos)			                                                                                   
+						                                                     muVar("end", phi_fixpoint_fuid, endPos),
+						                                                     muCon(phi_fuid),
+						                                                     muCon(iReachableTypes),
+						                                                     muCon(concreteMatch)			                                                                                   
 						                                                   ])),
 						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim3("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
-						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit@\loc) ], \visit@\loc ),
+						                                                               muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit@\loc) ], \visit@\loc ),
 						  						[ muAssign("changed", phi_fixpoint_fuid,changedPos, muBool(false)) ], 
 						  						[ muAssign("iSubject", phi_fixpoint_fuid, iSubjectPos, muVar("val", phi_fixpoint_fuid, valPos)) ] )]);
 		body_exps += muReturn1(muVar("iSubject", phi_fixpoint_fuid, iSubjectPos));
@@ -952,6 +970,9 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					 	 						      muTmpRef(beenChanged,scopeId), 
 					 	 						      muTmpRef(begin,scopeId), 
 					 	 						      muTmpRef(end,scopeId),
+					 	 						      muCon(phi_fuid),
+					 	 						      muCon(iReachableTypes),
+						                              muCon(concreteMatch),
 					 	 						      muBool(rebuild) ]) 
 				   	   ]);
 	}
@@ -970,62 +991,98 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					                        muTmpRef(beenChanged,scopeId), 
 					                        muTmpRef(begin,scopeId), 
 					 	 					muTmpRef(end,scopeId),
+					 	 					muCon(phi_fuid),
+					 	 					muCon(iReachableTypes),
+					 	 					muCon(concreteMatch),
 					                        muBool(rebuild) ]) 
 				   ]);
 }
 
-@doc{Generates the body of a phi function}
-MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
-	// TODO: conditional
-	if(size(cases) == 0) {
-		return muReturn1(muVar("iSubject", fuid, iSubjectPos));
-	}
-	
-	c = head(cases);
-	
-	if(c is patternWithAction) {
-		pattern = c.patternWithAction.pattern;
-		typePat = getType(pattern@\loc);
-		cond = muMulti(muApply(translatePatInVisit(pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
-		ifname = nextLabel();
-		enterBacktrackingScope(ifname);
-		if(c.patternWithAction is replacing) {
-			replacement = translate(c.patternWithAction.replacement.replacementExpression);
-			list[MuExp] conditions = [];
-			if(c.patternWithAction.replacement is conditional) {
-				conditions = [ translate(e) | Expression e <- c.patternWithAction.replacement.conditions ];
-			}
-			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
-			tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
-			                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], c@\loc) ], c@\loc);
-			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-			                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
-			                      replacement ];
-        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pattern@\loc), [ muReturn1(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid, subjectType) ]);
-        	leaveBacktrackingScope();
-        	return exp;
-		} else {
-			// Arbitrary
-			case_statement = c.patternWithAction.statement;
-			\case = translate(case_statement);
-			insertType = topCaseType();
-			clearCaseType();
-			tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], c@\loc) ], c@\loc);
-			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
-			if(!(muBlock([]) := \case)) {
-				cbody += \case;
-			}
-			cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
-			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pattern@\loc), cbody, [ translateVisitCases(tail(cases),fuid, subjectType) ]);
-        	leaveBacktrackingScope();
-			return exp;
+map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, PatternWithAction pwa, map[int, MuExp] table, int key){
+	cond = muMulti(muApply(translatePatInVisit(pwa.pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
+	ifname = nextLabel();
+	enterBacktrackingScope(ifname);
+	if(pwa is replacing) {
+		replacement = translate(pwa.replacement.replacementExpression);
+		list[MuExp] conditions = [];
+		if(pwa.replacement is conditional) {
+			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
+		replacementType = getType(pwa.replacement.replacementExpression@\loc);
+		tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
+		                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
+		                      replacement ];
+    	table[key] = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pwa.pattern@\loc), 
+    				          [ muReturn1(muBlock(cbody)) ], 
+    				          [ table[key] ? muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+    	leaveBacktrackingScope();
 	} else {
-		// Default
-		return muBlock([ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-		                 translate(c.statement), 
-		                 muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+		// Arbitrary
+		case_statement = pwa.statement;
+		\case = translate(case_statement);
+		insertType = topCaseType();
+		clearCaseType();
+		tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
+		if(!(muBlock([]) := \case)) {
+			cbody += \case;
+		}
+		cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
+		table[key] = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pwa.pattern@\loc), cbody, 
+		                      [ table[key] ? muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+    	leaveBacktrackingScope();
 	}
+	return table;
+}
+
+private int fingerprintDefault = getFingerprint("default");
+
+@doc{Generates the body of a phi function}
+MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases) {
+	// TODO: conditional
+	
+	map[int,MuExp] table = ();		// label + generated code per case
+	
+	default_code = muReturn1(muVar("iSubject", fuid, iSubjectPos));
+	
+	for(c <- reverse(cases)){
+		if(c is patternWithAction) {
+		  if(!isSpoiler(c.patternWithAction.pattern)){
+			 pwa = c.patternWithAction;
+			 key = fingerprint(pwa.pattern);
+			 table = addPatternWithActionCode(fuid, subjectType, pwa, table, key);
+		  }
+		} else {
+			// Default
+			default_code = muBlock([ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+			                translate(c.statement), 
+			                muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+		}
+	}
+	default_table = (fingerprintDefault : default_code);
+    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+	  default_table = addPatternWithActionCode(fuid, subjectType, c.patternWithAction, default_table, fingerprintDefault);
+   }
+   
+   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   case_code = [ muCase(key, table[key]) | key <- table];
+   default_code =  default_table[fingerprintDefault];
+   return muSwitch(muVar("iSubject", fuid, iSubjectPos), case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+	
+}
+
+set[Symbol] reachableTypesInVisit(list[Case] cases){
+	reachableTypes = {};
+	for(c <- cases){
+		if(c is patternWithAction){
+			reachableTypes += getReachableTypes(getType(c.patternWithAction.pattern@\loc));
+		} else {
+			return {\value()};		// A default cases is present: everything can match
+		}
+	}
+	return reachableTypes;
 }
 
 private bool hasTopLevelInsert(Case c) {

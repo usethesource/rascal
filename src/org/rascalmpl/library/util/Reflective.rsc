@@ -70,3 +70,11 @@ public java &T watch(type[&T] tp, &T val, str name);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name in the Rascal search path}
 public java &T watch(type[&T] tp, &T val, str name, value suffix);
+
+@doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val);
+
+@doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val, int arity);

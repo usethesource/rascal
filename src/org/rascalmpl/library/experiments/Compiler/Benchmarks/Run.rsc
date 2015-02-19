@@ -15,6 +15,7 @@ import Relation;
 import Map;
 import List;
 import Set;
+import String;
 import ValueIO;
 import util::Benchmark;
 import util::Math;
@@ -285,7 +286,7 @@ void main_paper1(){
 
 void main_paper2(){
    run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
-   						"BRSFCalls",
+   						//"BRSFCalls",
    						"BSendMoreMoney",
    						//"BSendMoreMoneyNotTyped",
    						"BSudoku","BTemplate"
