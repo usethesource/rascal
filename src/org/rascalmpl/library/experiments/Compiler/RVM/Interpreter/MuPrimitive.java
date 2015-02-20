@@ -61,32 +61,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-//	/**
-//	 * mbool3 = mbool1 && mbool2
-//	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
-//	 *
-//	 */
-//	and_mbool_mbool {
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 2;			
-//			stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
-//			return sp - 1;
-//		};
-//	},
-//	assign_pair {
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 3;
-//			int v1 = ((Integer) stack[sp - 3]);
-//			int v2 = ((Integer) stack[sp - 2]);
-//			Object[] pair = (Object[]) stack[sp - 1];
-//			stack[v1] = pair[0];
-//			stack[v2] = pair[1];
-//			stack[sp - 3] = pair;
-//			return sp - 2;
-//		};
-//	},
+
 	/**
 	 * Assign to array element 
 	 * [ ..., array, mint, Object ] => [ ..., Object ]
@@ -103,6 +78,7 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	
 	/**
 	 * Check the type of an argument
 	 * [ ..., IValue arg, Type type ] => [ ..., bool ]
@@ -118,6 +94,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mint3 = mint1 / mint2
 	 * 
@@ -132,6 +109,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool = (mint1 == mint2)
 	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
@@ -167,6 +145,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Equality on ISet and mset: mbool = (ISet == mset)
 	 * 
@@ -193,14 +172,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-//	equivalent_mbool_mbool {
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 2;
-//			stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
-//			return sp - 1;
-//		};
-//	},
+
 	/**
 	 * Get the positional arguments of node or constructor (any keyword parameters are ignored):
 	 * [ ..., iNode ] => [ ..., array ]
@@ -304,6 +276,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given a constructor or node get an array consisting of
 	 * - node/constructor name 
@@ -332,6 +305,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given a constructor or node get an array consisting of
 	 * - positional arguments 
@@ -358,6 +332,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given a constructor or node get an array consisting of
 	 * - keyword parameters collected in a mmap
@@ -377,6 +352,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given a mmap, return its keys as array
 	 * 
@@ -423,6 +399,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Given a constructor or node get an array consisting of
 	 * - its positional arguments 
@@ -455,6 +432,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given a tuple, get an array consisting of its elements
 	 * 
@@ -474,6 +452,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mbool = (mint1 >= mint2)
 	 * 
@@ -488,6 +467,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool = mint1 > mint2
 	 * 
@@ -502,7 +482,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	// 
+
 	/**
 	 * Has a concrete term a given label?
 	 * 
@@ -525,6 +505,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		}
 	},
+	
 	/**
 	 * mbool 3 = (mbool1 ==> mbool2)
 	 * 
@@ -539,6 +520,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Check that a Reference refers to a non-null variable
 	 * 
@@ -554,6 +536,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Check that IValue is element of mset
 	 * 
@@ -569,6 +552,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Is IValue an IBool?
 	 * 
@@ -583,6 +567,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue a constructor?
 	 * 
@@ -597,6 +582,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue a IDateTime?
 	 * 
@@ -611,6 +597,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IInteger?
 	 * 
@@ -625,6 +612,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IList?
 	 * 
@@ -639,6 +627,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IListRelation?
 	 * 
@@ -653,6 +642,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an ISourceLocation?
 	 * 
@@ -667,6 +657,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IMap?
 	 * 
@@ -681,6 +672,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is Object an mmap?
 	 * 
@@ -695,6 +687,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an INode?
 	 * 
@@ -709,6 +702,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an INumber?
 	 * 
@@ -723,6 +717,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IReal?
 	 * 
@@ -737,6 +732,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IRational?
 	 * 
@@ -751,6 +747,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IRelation?
 	 * 
@@ -765,6 +762,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an ISet?
 	 * 
@@ -779,6 +777,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an IString?
 	 * 
@@ -793,6 +792,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Is IValue an ITuple?
 	 * 
@@ -807,6 +807,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given an IMap return an array containing its keys
 	 * 
@@ -826,6 +827,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Given an IMap return an array containing its values
 	 * 
@@ -845,6 +847,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mbool= mint1 <= mint2
 	 * 
@@ -859,6 +862,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool = mint1 < mint2
 	 * 
@@ -873,6 +877,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	make_iarray {	// TODO replace by make_array?
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -887,6 +892,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	make_iarray_of_size {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -896,6 +902,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Make an array containing Object_1, Object_2, ..., Object_n:
 	 * 
@@ -917,6 +924,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Make an array of given size
 	 * 
@@ -932,6 +940,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},	
+	
 	/**
 	 * Create a descendant descriptor given
 	 * 0: id, a string that identifies this descendant
@@ -986,6 +995,7 @@ public enum MuPrimitive {
 			return sp - 3;
 		};
 	},
+	
 	/**
 	 * Given a descendant descriptor, fetch its "concreteMatch" field.
 	 * 
@@ -1016,7 +1026,7 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	},
-	// 
+	
 	/**
 	 * Create a new mmap from keyword name (String) to an MapEntry <Type, IValue>
 	 * 
@@ -1030,7 +1040,7 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	}, 
-
+	
 	/**
 	 * Create a MapEntry <type, default_value>
 	 * 
@@ -1045,7 +1055,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	// 
+	
 	/**
 	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keword map with <String_i, IValue_i> as entries
 	 *
@@ -1071,7 +1081,6 @@ public enum MuPrimitive {
 		}
 	},
 	
-	// Does a keyword map with <String, IValue> entries contain a given key (as String)?
 	/**
 	 * Does a keyword map with <String, IValue> entries contain a given key (as String)?
 	 * 
@@ -1089,6 +1098,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1105,6 +1115,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mint3 = max(mint1, mint2)
 	 * 
@@ -1138,6 +1149,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Convert an IString to mstr
 	 * 
@@ -1154,6 +1166,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mint3 = mint1 % mint2
 	 * 
@@ -1169,6 +1182,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Convert an ISet to mset
 	 * 
@@ -1229,6 +1243,7 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	},
+	
 	/**
 	 * Convert an mset to an IList
 	 * 
@@ -1249,6 +1264,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Destructively add element to an mset
 	 * 
@@ -1270,6 +1286,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Destructively add mset2 to mset1
 	 * 
@@ -1292,6 +1309,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 *	Add a <Tye, IValue> entry to an mmap
 	 *
@@ -1307,18 +1325,8 @@ public enum MuPrimitive {
 							(Map.Entry<Type, IValue>) stack[sp - 1]);
 			return sp - 2;
 		};
-	}, // kwp
-//	mmap_str_ivalue_add_ivalue {
-//		@Override
-//		@SuppressWarnings("unchecked")
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 3;
-//			stack[sp - 3] = ((Map<String, IValue>) stack[sp - 3]).put(
-//					((IString) stack[sp - 2]).getValue(),
-//					(IValue) stack[sp - 1]);
-//			return sp - 2;
-//		};
-//	}, // kwp
+	},
+
 	/**
 	 * mint3 = mint1 * mint2
 	 * 
@@ -1334,6 +1342,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Destructively subtract mset from mset
 	 * 
@@ -1354,6 +1363,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Subtract mset from copied mset
 	 * 
@@ -1373,6 +1383,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Destructively subtract ISet from an mset
 	 * 
@@ -1394,6 +1405,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Subtract ISet from copied mset
 	 * 
@@ -1415,6 +1427,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Destructively subtract element from an mset
 	 * 
@@ -1453,6 +1466,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool = (mint1 != mint2)
 	 * 
@@ -1467,6 +1481,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool2 = !mbool1
 	 * 
@@ -1481,6 +1496,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	/**
+	 * mbool = IList2 is a sublist of IList1 at start
+	 * 
+	 * [ ..., IList1, IList2, start ] => [ ..., mbool ]
+	 */
 	occurs_list_list_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1505,6 +1526,7 @@ public enum MuPrimitive {
 			return newsp;
 		};
 	},
+	
 	/**
 	 * mbool3 = (mbool1 || mbool2)
 	 * 
@@ -1519,6 +1541,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mint3 = mint1 ^ mint2
 	 *
@@ -1539,6 +1562,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Convert mint to Rascal int (IInteger)
 	 * 
@@ -1552,6 +1576,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Compile a RegExp Matcher given:
 	 * - IString1, the regexp
@@ -1591,6 +1616,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Stop RegExp Matcher
 	 * 
@@ -1654,6 +1680,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Convert mset to Rascal set (ISet)
 	 * 
@@ -1673,8 +1700,9 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
-	 * Convert an ISet to an ILIst
+	 * Convert an ISet to an IList
 	 * 
 	 * [ ..., ISet ] => [ ..., IList ]
 	 */
@@ -1691,6 +1719,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mbool = (ISet < mset)
 	 *
@@ -1713,11 +1742,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Size of array
 	 * 
 	 * [ ..., array ] => [ ..., mint ]
-	 *
 	 */
 	size_array {
 		@Override
@@ -1727,6 +1756,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of IList
 	 * 
@@ -1740,6 +1770,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of ISet
 	 * 
@@ -1753,6 +1784,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of mset
 	 * 
@@ -1766,6 +1798,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of IMap
 	 * 
@@ -1779,6 +1812,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of IString
 	 * 
@@ -1792,6 +1826,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Size of ITuple
 	 * 
@@ -1805,6 +1840,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Generic size function
 	 * 
@@ -1832,6 +1868,13 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	/**
+	 * 	IList2 occurs as subslist in IList1 at position start
+	 * 
+	 * [ ..., IList1, IList2, start] => [ ..., mbool ]
+	 *
+	 */
 	starts_with {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1852,6 +1895,12 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	
+	/**
+	 * IList2 = sublist of IList given offset and length
+	 * 
+	 * [ ..., IList1, offset, length ] => [ ..., IList2 ]
+	 */
 	sublist_list_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1863,6 +1912,13 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	
+	/**
+	 * Object = array[mint]
+	 * 
+	 * [ ..., array, mint ] => [ ..., Object ]
+	 *
+	 */
 	subscript_array_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1871,6 +1927,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
+	/**
+	 * IValue = IList[mint]
+	 * 
+	 * [ ..., IList, mint ] => [ ..., IValue ]
+	 */
 	subscript_list_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1879,6 +1941,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
+	/**
+	 * IValue = ITuple[mint]
+	 * 
+	 * [ ..., ITuple, mint ] => [ ..., IValue ]
+	 */
 	subscript_tuple_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1888,7 +1956,13 @@ public enum MuPrimitive {
 		};
 	},
 	
-	// Make a substring
+	/**
+	 * Make a substring
+	 * 
+	 * IString2 = IString2.substring(start,end)
+	 * 
+	 * [ ..., IString1, start, end ] => [ ..., IString2 ]
+	 */
 	substring_str_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1902,6 +1976,10 @@ public enum MuPrimitive {
 		};
 	},
 	
+	/**
+	 * mbool = IString2 is tail of IString1 at start
+	 *	[ ..., IString1, IString2, start ] => [ ..., mbool ]
+	 */
 	is_tail_str_str_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1917,11 +1995,11 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	
 	/**
 	 * mint3 = mint1 - mint2
 	 * 
 	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
-	 *
 	 */
 	subtraction_mint_mint {
 		@Override
@@ -1931,6 +2009,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * mbool = Type1 < Type2
 	 * 
@@ -1944,11 +2023,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Get type of an IValue or mint
 	 * 
 	 * [ ..., IValueOrMint ] => [ ..., mbool ]
-	 *
 	 */
 	typeOf {
 		@Override
@@ -1962,11 +2041,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Get type of mset
 	 * 
 	 * [ ..., mset ] => [ ..., Type ]
-	 *
 	 */
 	typeOfMset {
 		@SuppressWarnings("unchecked")
@@ -1984,6 +2063,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * Set value of Reference to undefined
 	 * 
@@ -2000,6 +2080,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mint3 = mint1 * mint2
 	 * 
@@ -2053,7 +2134,7 @@ public enum MuPrimitive {
 
 	public int execute(Object[] stack, int sp, int arity) {
 		System.err.println("Not implemented mufunction");
-		return 0 ;
+		return 0;
 	}
 	/**
 	 * Initialize the primitive methods.
