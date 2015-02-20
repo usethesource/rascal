@@ -1789,8 +1789,7 @@ public class RVMRun implements IRVM {
 
 	@Override
 	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
