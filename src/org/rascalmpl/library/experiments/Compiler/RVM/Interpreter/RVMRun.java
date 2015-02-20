@@ -1742,10 +1742,6 @@ public class RVMRun implements IRVM {
 
 	// Next methods are forced by the interface implementation
 	// temporarily needed to facilitate 3 RVM implementations.
-	@Override
-	public IValue executeProgram(String uid_main, IValue[] args) {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public void declare(Function f) {

@@ -81,7 +81,7 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		IRVM rvm = new RVMonJVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
+		IRVM rvm = new RVMV2(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
 		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;

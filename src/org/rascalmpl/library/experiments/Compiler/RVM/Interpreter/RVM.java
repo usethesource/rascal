@@ -1887,11 +1887,6 @@ public class RVM implements IRVM {
 	}
 
 	@Override
-	public IValue executeProgram(String uid_main, IValue[] args) {
-		return null;
-	}
-
-	@Override
 	public RascalExecutionContext getRex() {
 		return rex;
 	}

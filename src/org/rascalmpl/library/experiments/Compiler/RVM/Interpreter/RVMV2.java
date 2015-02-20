@@ -507,8 +507,8 @@ public class RVMV2 implements IRVM {
 			throw new CompilerError("Function " + uid_main + " should have two arguments");
 		}
 
-		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
-		Frame cf = root;
+		root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
+		cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
 		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
@@ -527,22 +527,22 @@ public class RVMV2 implements IRVM {
 
 	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
-		Object[] stack = cf.stack; // current stack
-		int sp = cf.function.nlocals; // current stack pointer
-		int[] instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
-		int pc = 0; // current program counter
-		int postOp = 0;
+		stack = cf.stack; // current stack
+		sp = cf.function.nlocals; // current stack pointer
+		instructions = cf.function.codeblock.getInstructions(); // current instruction sequence
+		pc = 0; // current program counter
+		postOp = 0;
 		int pos = 0;
 		int varScope = -1;
-		ArrayList<Frame> stacktrace = new ArrayList<Frame>();
-		Thrown thrown = null;
+		stacktrace = new ArrayList<Frame>();
+		thrown = null;
 		int arity;
 		String last_function_name = "";
 		String last_var_name = "unknown";
 
 		// Overloading specific
-		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
-		OverloadedFunctionInstanceCall c_ofun_call = null;
+		ocalls = new Stack<OverloadedFunctionInstanceCall>();
+		c_ofun_call = null;
 
 		stack = cf.stack; // current stack
 		sp = cf.function.nlocals; // current stack pointer
@@ -668,17 +668,11 @@ public class RVMV2 implements IRVM {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
-					if (((IBool) stack[sp - 1]).getValue()) {
-						pc = CodeBlock.fetchArg1(instruction);
-					}
-					sp--;
+					insnJMPTRUE(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
-					if (!((IBool) stack[sp - 1]).getValue()) {
-						pc = CodeBlock.fetchArg1(instruction);
-					}
-					sp--;
+					insnJMPFALSE(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_TYPESWITCH:
@@ -1248,54 +1242,41 @@ public class RVMV2 implements IRVM {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_YIELD0:
+					insnYIELD0();
+					continue NEXT_INSTRUCTION;
+
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
-					if (op == Opcode.OP_YIELD1) {
 						arity = CodeBlock.fetchArg1(instruction);
-						int[] refs = cf.function.refs;
-
-						if (arity != refs.length) {
-							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: "
-									+ arity + "; reference parameter number: " + refs.length, cf);
+						int[] refs = cf.function.refs; 
+						
+						if(arity != refs.length) {
+							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
-
-						for (int i = 0; i < arity; i++) {
+						
+						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
 							ref.stack[ref.pos] = stack[--sp];
 						}
-					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
-					if (op == Opcode.OP_YIELD1 && cf == null) {
+					if(op == Opcode.OP_YIELD1 && cf == null) {
 						return rval;
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval; // Corresponding next will always find an entry on the stack
+					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_EXHAUST:
-					if (cf == ccf) {
-						activeCoroutines.pop();
-						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					}
-
-					cf = cf.previousCallFrame;
-					if (cf == null) {
-						return Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
-					}
-					instructions = cf.function.codeblock.getInstructions();
-					stack = cf.stack;
-					sp = cf.sp;
-					pc = cf.pc;
-					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+					insnEXHAUST();
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLPRIM:
@@ -1871,7 +1852,7 @@ public class RVMV2 implements IRVM {
 
 	int sp;
 	int instruction;
-	int op ;
+	int op;
 	int pc;
 	Object[] stack;
 	Frame cf;
@@ -1882,7 +1863,7 @@ public class RVMV2 implements IRVM {
 	int postOp;
 	Thrown thrown;
 	ArrayList<Frame> stacktrace = new ArrayList<Frame>();
-	
+
 	public void insnPOP() {
 		sp--;
 		return;
@@ -1983,44 +1964,36 @@ public class RVMV2 implements IRVM {
 	public void insnLOADCON() {
 		stack[sp++] = cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 		return;
-
 	}
 
 	public void insnLOADLOCREF() {
 		stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
 		return;
-
 	}
 
 	public void insnCALLMUPRIM() {
 		sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
 		assert stack[sp - 1] != null : "MuPrimitive returns null";
 		return;
-
 	}
 
 	public void insnJMP() {
 		pc = CodeBlock.fetchArg1(instruction);
 		return;
-
 	}
 
-	public void insnJMPTRUE() {
+	public void insnJMPTRUE(int location) {
 		if (((IBool) stack[sp - 1]).getValue()) {
-			pc = CodeBlock.fetchArg1(instruction);
+			pc = location;
 		}
 		sp--;
-		return;
-
 	}
 
-	public void insnJMPFALSE() {
+	public void insnJMPFALSE(int location) {
 		if (!((IBool) stack[sp - 1]).getValue()) {
-			pc = CodeBlock.fetchArg1(instruction);
+			pc = location;
 		}
 		sp--;
-		return;
-
 	}
 
 	public void insnTYPESWITCH() {
@@ -2135,7 +2108,7 @@ public class RVMV2 implements IRVM {
 
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
-				
+
 				stack[sp++] = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] : new Reference(fr.stack, pos);
 				return;
 			}
@@ -2242,7 +2215,6 @@ public class RVMV2 implements IRVM {
 			stack[sp++] = vf.constructor(constr, args);
 			return;
 		}
-
 
 		// Specific to delimited continuations (experimental)
 		if (op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Coroutine) {
@@ -2471,9 +2443,9 @@ public class RVMV2 implements IRVM {
 
 		if (cf == null) {
 			if (returns) {
-				//return rval;
+				// return rval;
 			} else {
-				//return NONE;
+				// return NONE;
 			}
 		}
 		// if(trackCalls) { cf.printBack(stdout); }
@@ -2500,12 +2472,12 @@ public class RVMV2 implements IRVM {
 			stacktrace.add(cf);
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-			//break INSTRUCTION;
+			// break INSTRUCTION;
 		} catch (Thrown e) {
 			stacktrace.add(cf);
 			thrown = e;
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-			//break INSTRUCTION;
+			// break INSTRUCTION;
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
@@ -2665,34 +2637,45 @@ public class RVMV2 implements IRVM {
 	}
 
 	public void insnYIELD0() {
-
-	}
-
-	public void insnYIELD1() {
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		Frame prev = coroutine.start.previousCallFrame;
 		IBool rval = Rascal_TRUE; // In fact, yield has to always return TRUE
-		if (op == Opcode.OP_YIELD1) {
-			int arity = CodeBlock.fetchArg1(instruction);
-			int[] refs = cf.function.refs;
 
-			if (arity != refs.length) {
-				throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity
-						+ "; reference parameter number: " + refs.length, cf);
-			}
+		cf.pc = pc;
+		cf.sp = sp;
+		coroutine.suspend(cf);
+		cf = prev;
+		instructions = cf.function.codeblock.getInstructions();
+		stack = cf.stack;
+		sp = cf.sp;
+		pc = cf.pc;
+		stack[sp++] = rval; // Corresponding next will always find an entry on the stack
+	}
 
-			for (int i = 0; i < arity; i++) {
-				Reference ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
-				ref.stack[ref.pos] = stack[--sp];
-			}
+	public void insnYIELD1(int arity) {
+		Coroutine coroutine = activeCoroutines.pop();
+		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+		Frame prev = coroutine.start.previousCallFrame;
+		IBool rval = Rascal_TRUE; // In fact, yield has to always return TRUE
+		
+		int[] refs = cf.function.refs;
+
+		if (arity != refs.length) {
+			throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity
+					+ "; reference parameter number: " + refs.length, cf);
+		}
+
+		for (int i = 0; i < arity; i++) {
+			Reference ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
+			ref.stack[ref.pos] = stack[--sp];
 		}
 		cf.pc = pc;
 		cf.sp = sp;
 		coroutine.suspend(cf);
 		cf = prev;
-		if (op == Opcode.OP_YIELD1 && cf == null) {
-			//return rval;
+		if (cf == null) {
+			// TODO: return rval;
 		}
 		instructions = cf.function.codeblock.getInstructions();
 		stack = cf.stack;
@@ -2700,7 +2683,6 @@ public class RVMV2 implements IRVM {
 		pc = cf.pc;
 		stack[sp++] = rval; // Corresponding next will always find an entry on the stack
 		return;
-
 	}
 
 	public void insnEXHAUST() {
@@ -2711,15 +2693,13 @@ public class RVMV2 implements IRVM {
 
 		cf = cf.previousCallFrame;
 		if (cf == null) {
-			//return Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+			// return Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 		}
 		instructions = cf.function.codeblock.getInstructions();
 		stack = cf.stack;
 		sp = cf.sp;
 		pc = cf.pc;
 		stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
-		return;
-
 	}
 
 	public void insnCALLPRIM() {
@@ -2736,7 +2716,7 @@ public class RVMV2 implements IRVM {
 			// thrown.stacktrace.add(cf);
 			sp = sp - arity;
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-			//break INSTRUCTION;
+			// break INSTRUCTION;
 		}
 
 		return;
@@ -2829,7 +2809,7 @@ public class RVMV2 implements IRVM {
 				stdout.println(i + ": " + stack[i]);
 			}
 		}
-		//return stack[sp - 1];
+		// return stack[sp - 1];
 
 	}
 
@@ -2860,7 +2840,7 @@ public class RVMV2 implements IRVM {
 			thrown = (Thrown) obj;
 		}
 		postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-		//break INSTRUCTION;
+		// break INSTRUCTION;
 
 	}
 
@@ -2935,11 +2915,6 @@ public class RVMV2 implements IRVM {
 		pc = cf.pc;
 		return;
 
-	}
-
-	@Override
-	public IValue executeProgram(String uid_main, IValue[] args) {
-		return null;
 	}
 
 	@Override
