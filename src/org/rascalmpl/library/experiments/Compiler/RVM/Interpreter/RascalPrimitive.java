@@ -6033,27 +6033,25 @@ public enum RascalPrimitive {
 		}
 	},
 	/**
-	 * Given a subject value and a set of allowed symbols, should we descent in it?
+	 * Given a subject value and a descriptor, should we descent in it?
 	 * 
-	 * [ ..., subject value, symbolset] => true/false
+	 * [ ..., subject value, descriptor] => true/false
 	 *
 	 */
 	should_descent {
 		@Override
 		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
-			assert arity == 4;
+			assert arity == 2;
 			
-			IValue subject = (IValue) stack[sp - 4];
-			IString descId = (IString) stack[sp - 3];
-			ISet symbolset = (ISet) stack[sp - 2];
-			IBool concreteMatch = (IBool) stack[sp - 1];
-			stack[sp - 4] = $should_descent(subject, descId, symbolset, concreteMatch.getValue());
-			return sp - 3;
+			IValue subject = (IValue) stack[sp - 2];
+			Object[] descriptor = (Object[]) stack[sp - 1];
+			stack[sp - 2] = $should_descent_on_value(subject, descriptor);
+			return sp - 1;
 		}
 	},
 	
 	/**
-	 * Given a map subject value and a set of allowed symbols, should we descent in its keys?
+	 * Given a map subject value and a descriptor, should we descent in its keys?
 	 * 
 	 * [ ..., map subject value, symbolset] => true/false
 	 *
@@ -6062,17 +6060,16 @@ public enum RascalPrimitive {
 	should_descent_mapkey {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 4;
-			
-			IValue subject = (IValue) stack[sp - 4];
-			IString descId = (IString) stack[sp - 3];
-			ISet symbolset = (ISet) stack[sp - 2];
-			IBool concreteMatch = (IBool) stack[sp - 1];
+			assert arity == 2;
+		
+			IValue subject = (IValue) stack[sp - 2];
+			Object[] descriptor = (Object[]) stack[sp - 1];
+			HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
 			
 			Type key_type = subject.getType().getKeyType();
 			
-			stack[sp - 4] = $should_descent1(key_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
-			return sp - 3;
+			stack[sp - 2] = $should_descent_on_type(key_type, symbolset);	
+			return sp - 1;
 		}
 	},
 	/**
@@ -6084,32 +6081,43 @@ public enum RascalPrimitive {
 	should_descent_mapval {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
-			assert arity == 4;
+			assert arity == 2;
 			
-			IValue subject = (IValue) stack[sp - 4];
-			IString descId = (IString) stack[sp - 3];
-			ISet symbolset = (ISet) stack[sp - 2];
-			IBool concreteMatch = (IBool) stack[sp - 1];
+			IValue subject = (IValue) stack[sp - 2];
+			Object[] descriptor = (Object[]) stack[sp - 1];
+			HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
 			
 			Type val_type = subject.getType().getValueType();
 			
-			stack[sp - 4] = $should_descent1(val_type, symbolset) ? Rascal_TRUE : Rascal_FALSE;		
-			return sp - 3;
+			stack[sp - 2] = $should_descent_on_type(val_type, symbolset);	
+			return sp - 1;
 		}
 	},
+//	
+//	should_descent_concrete_arg {
+//		@Override
+//		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
+//			assert arity == 1;
+//			
+//			IConstructor subject = (IConstructor) stack[sp - 1];
+//			IConstructor prod = (IConstructor) subject.get("prod");
+//			IConstructor def =  (IConstructor) prod.get("def");
+//			String sym_name = def.getName();
+//		
+//			stack[sp - 1] = !(sym_name.equals("lit") || sym_name.equals("cilit") || sym_name.equals("char-class")) 
+//					        ? Rascal_TRUE : Rascal_FALSE;		
+//			return sp;
+//		}
+//	},
 	
-	should_descent_concrete_arg {
+	descendant_is_concrete_match {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 1;
 			
-			IConstructor subject = (IConstructor) stack[sp - 1];
-			IConstructor prod = (IConstructor) subject.get("prod");
-			IConstructor def =  (IConstructor) prod.get("def");
-			String sym_name = def.getName();
+			Object[] descriptor = (Object[]) stack[sp - 1];
 		
-			stack[sp - 1] = !(sym_name.equals("lit") || sym_name.equals("cilit") || sym_name.equals("char-class")) 
-					        ? Rascal_TRUE : Rascal_FALSE;		
+			stack[sp - 1] = MuPrimitive.$descendant_is_concrete_match(descriptor);		
 			return sp;
 		}
 	},
@@ -6254,7 +6262,7 @@ public enum RascalPrimitive {
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
-	private static IValue valueSymbol;
+	private static Type valueType;
 	
 	private static ITestResultListener testResultListener;
 
@@ -6282,7 +6290,7 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
-		valueSymbol = $type2symbol(tf.valueType());
+		valueType = tf.valueType();
 		testResultListener = rex.getTestResultListener();
 	}
 	
@@ -7091,7 +7099,13 @@ public enum RascalPrimitive {
 			@Override
 			public IConstructor visitConstructor(Type type)
 					throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Cons, vf.string(type.getName()), type.getFieldTypes().accept(this));
+				Type fieldTypes = type.getFieldTypes();
+				IValue args[] = new IValue[fieldTypes.getArity()];
+				for(int i = 0; i < fieldTypes.getArity(); i++){
+					args[i] = fieldTypes.getFieldType(i).accept(this);
+				}
+				return vf.constructor(Factory.Symbol_Cons, type.getAbstractDataType().accept(this), vf.string(type.getName()), vf.list(args));
+				//return vf.constructor(Factory.Symbol_Cons, vf.string(type.getName()), type.getFieldTypes().accept(this));
 			}
 
 			@Override
@@ -7153,192 +7167,50 @@ public enum RascalPrimitive {
 		 type2symbolCache.put(t, result);
 		 return result;
 	}
-	
-	private static final HashMap<IString, HashMap<Object,IBool>> should_descent_cache = new HashMap<IString, HashMap<Object, IBool>>();
+
 	
 	/**
-	 * Determine whether we should descent in a value of type t, given a set of allowed types (as  Symbols) symbolset.
-	 * This check considers t and its child types. It also takes care of \value() when it occurs in symbolset
-	 * @param t
-	 * @param symbolset
+	 * Determine whether we should descent in a value 'subject', given a descendant descriptor.
+	 * This check considers t and its child types.
+	 * @param subject
+	 * @param descriptor
 	 * @return
 	 */
-	private static IBool $should_descent(IValue subject, IString descId, final ISet symbolset, boolean concreteMatch){
-		HashMap<Object,IBool> descMap = should_descent_cache.get(descId);
-		if(descMap == null){
-			descMap = new HashMap<Object, IBool>();
-			should_descent_cache.put(descId, descMap);
-		}
-		Type subjectType = subject.getType();
-		IBool result = Rascal_TRUE;
+	
+	private static IBool $should_descent_on_value(final IValue subject, final Object[] descriptor){
+		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
 		
-		if(concreteMatch){
-			if(subjectType == Factory.Tree){   // && TreeAdapter.isAppl((IConstructor) subject)){
+		if(subject instanceof IConstructor){
+			if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((IConstructor)subject)){
+				IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
+				if(symbolset.contains(prod)){
+					return Rascal_TRUE;
+				}
 				
-			IConstructor concreteSymbol = TreeAdapter.getType((IConstructor)subject);
-			result = descMap.get(concreteSymbol);
-			if(result == null){
-				NonTerminalType nt = new NonTerminalType((IConstructor) subject);
-				if(symbolset.contains(valueSymbol) ||
-				   nt.getSymbol().getConstructorType()  == Factory.Symbol_ParameterizedSort  ||
-				   (nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
-					result = Rascal_TRUE;
-				} else {
-					result = symbolset.contains(nt.getSymbol()) || symbolset.contains(valueSymbol) ? Rascal_TRUE : Rascal_FALSE;
+				Type prodConsType = prod.getConstructorType();
+				
+				if(prodConsType == Factory.Production_Regular){
+					IValue regularType = prod.get("def");
+					return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
 				}
-				descMap.put(concreteSymbol, result);
-			}
-//			NonTerminalType nt = new NonTerminalType((IConstructor) subject);
-//			result = descMap.get(nt);
-//			if(result == null){
-//				if(symbolset.contains(valueSymbol) ||
-//						nt.getSymbol().getConstructorType() == Factory.Symbol_ParameterizedSort  ||
-//						(nt.isConcreteListType() && ((IConstructor) nt.getSymbol().get("symbol")).getConstructorType() == Factory.Symbol_ParameterizedSort)){
-//					result = Rascal_TRUE;
-//				} else {
-//					result = symbolset.contains(nt.getSymbol()) || symbolset.contains(valueSymbol) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				descMap.put(nt, result);
-			} else {
-				result = descMap.get(subjectType);
-				if(result == null){
-					result = symbolset.contains(valueSymbol) || $should_descent1(subjectType, symbolset) ? Rascal_TRUE : Rascal_FALSE;
-					descMap.put(subjectType, result);
+				if(prodConsType == Factory.Symbol_ParameterizedLex || prodConsType == Factory.Symbol_ParameterizedSort){
+					return Rascal_TRUE;
 				}
+				return Rascal_FALSE;
+			} else 
+			if(symbolset.contains(((IConstructor) subject).getConstructorType())){
+				return Rascal_TRUE;
 			}
 		}
-		descMap.put(subjectType, result);
-		return result;
+		return $should_descent_on_type(subject.getType(), symbolset);
 	}
-		
-	private static boolean $should_descent1(Type subjectType, final ISet symbolset){
-		
-		 return subjectType.accept(new ITypeVisitor<Boolean,RuntimeException>() {
-
-			private boolean can_match(Type type){
-				return symbolset.contains($type2symbol(type)) || symbolset.contains(valueSymbol);
-			}
-			
-			@Override
-			public Boolean visitReal(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitInteger(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitRational(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitList(Type type) throws RuntimeException {
-				return can_match(type) || $should_descent1(type.getElementType(), symbolset);
-			}
-
-			@Override
-			public Boolean visitMap(Type type) throws RuntimeException {
-				return  can_match(type) || $should_descent1(type.getKeyType(), symbolset) || $should_descent1(type.getValueType(), symbolset);
-			}
-
-			@Override
-			public Boolean visitNumber(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitAlias(Type type) throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Boolean visitSet(Type type) throws RuntimeException {
-				return can_match(type) || $should_descent1(type.getElementType(), symbolset);
-			}
-
-			@Override
-			public Boolean visitSourceLocation(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitString(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitNode(Type type) throws RuntimeException {
-				return true;
-			}
-
-			@Override
-			public Boolean visitConstructor(Type type) throws RuntimeException {
-				if(can_match(type) || type.isNode()){
-					return true;
-				}
-				
-				for(int i = 0; i < type.getArity(); i++){
-					if($should_descent1(type.getFieldType(i), symbolset)){
-						return true;
-					}
-				}
-				return false;
-			}
-
-			@Override
-			public Boolean visitAbstractData(Type type) throws RuntimeException {
-				return can_match(type) || type.isNode();
-			}
-
-			@Override
-			public Boolean visitTuple(Type type) throws RuntimeException {
-				if(can_match(type)){
-					return true;
-				}
-				for(int i = 0; i < type.getArity(); i++){
-					if($should_descent1(type.getFieldType(i), symbolset)){
-						return true;
-					}
-				}
-				return false;
-			}
-
-			@Override
-			public Boolean visitValue(Type type) throws RuntimeException {
-				return true;
-			}
-
-			@Override
-			public Boolean visitVoid(Type type) throws RuntimeException {
-				return false;
-			}
-
-			@Override
-			public Boolean visitBool(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-
-			@Override
-			public Boolean visitParameter(Type type) throws RuntimeException {
-				return false;
-			}
-
-			@Override
-			public Boolean visitExternal(Type type) throws RuntimeException {
-				return null;
-			}
-
-			@Override
-			public Boolean visitDateTime(Type type) throws RuntimeException {
-				return can_match(type);
-			}
-			 
-		 });
+	
+	private static IBool $should_descent_on_type(final Type type, final HashSet<Object> symbolset){
+		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple()){
+			return Rascal_TRUE;
 		}
+		return Rascal_FALSE;
+	}
 }
 
 /*
