@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.PrintWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +23,36 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
+/**
+ * MuPrimitive defines all primitives that are necessary for running muRascal programs.
+ * This includes all operations with at least one operand that is not an IValue:
+ * 		- mbool	(PDB IBool)
+ * 		- mint	(Java Integer)
+ * 		- mstr  (Java String)
+ * 		- mset	(Java HashSet<IValue>)
+ * 		- mmap	(Java HashMap of various types, e.g., HashMap<String, IValue> and HashMap<String, Entry<String, IValue>>)
+ * 		- array	(Java Object[])
+ * 
+ * All operations with only IValues as arguments are defined in RascalPrimitive
+ */
+
+/**
+ * @author paulklint
+ *
+ */
 public enum MuPrimitive {
+	
+	/**
+	 * mint3 = mint1 + mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	addition_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -34,27 +61,37 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	and_mbool_mbool {
-		@Override
-		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 2;			
-			stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
-			return sp - 1;
-		};
-	},
-	assign_pair {
-		@Override
-		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 3;
-			int v1 = ((Integer) stack[sp - 3]);
-			int v2 = ((Integer) stack[sp - 2]);
-			Object[] pair = (Object[]) stack[sp - 1];
-			stack[v1] = pair[0];
-			stack[v2] = pair[1];
-			stack[sp - 3] = pair;
-			return sp - 2; // TODO:???
-		};
-	},
+//	/**
+//	 * mbool3 = mbool1 && mbool2
+//	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+//	 *
+//	 */
+//	and_mbool_mbool {
+//		@Override
+//		public int execute(Object[] stack, int sp, int arity) {
+//			assert arity == 2;			
+//			stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
+//			return sp - 1;
+//		};
+//	},
+//	assign_pair {
+//		@Override
+//		public int execute(Object[] stack, int sp, int arity) {
+//			assert arity == 3;
+//			int v1 = ((Integer) stack[sp - 3]);
+//			int v2 = ((Integer) stack[sp - 2]);
+//			Object[] pair = (Object[]) stack[sp - 1];
+//			stack[v1] = pair[0];
+//			stack[v2] = pair[1];
+//			stack[sp - 3] = pair;
+//			return sp - 2;
+//		};
+//	},
+	/**
+	 * Assign to array element 
+	 * [ ..., array, mint, Object ] => [ ..., Object ]
+	 *
+	 */
 	assign_subscript_array_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -66,6 +103,11 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	/**
+	 * Check the type of an argument
+	 * [ ..., IValue arg, Type type ] => [ ..., bool ]
+	 *
+	 */
 	check_arg_type {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -76,6 +118,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mint3 = mint1 / mint2
+	 * 
+	 * [ ... mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	division_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -84,6 +132,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool = (mint1 == mint2)
+	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	equal_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -92,6 +145,13 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
+	/**
+	 * Equality on IValues or Types: mbool = (IValueOrType1 == IValueOrType2)
+	 * 
+	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., mbool ]
+	 *
+	 */
 	equal {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -107,6 +167,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Equality on ISet and mset: mbool = (ISet == mset)
+	 * 
+	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 *
+	 */
 	equal_set_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -127,18 +193,17 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	equivalent_mbool_mbool {
-		@Override
-		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
-			return sp - 1;
-		};
-	},
-	/*
-	 * Given a constructor or node get: 
-	 * - positional arguments 
-	 * (any keyword parameters are ignored)
+//	equivalent_mbool_mbool {
+//		@Override
+//		public int execute(Object[] stack, int sp, int arity) {
+//			assert arity == 2;
+//			stack[sp - 2] = ((IBool) stack[sp - 2]).equivalent((IBool) stack[sp - 1]);
+//			return sp - 1;
+//		};
+//	},
+	/**
+	 * Get the positional arguments of node or constructor (any keyword parameters are ignored):
+	 * [ ..., iNode ] => [ ..., array ]
 	 */
 	get_children {
 		@Override
@@ -153,11 +218,20 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	/**
+	 * Given a ParseTree of the form appl(Symbol, list[Tree]) get
+	 * its children without layout. Also handles concrete lists with separators
+	 * [ ... IConstructor tree ] => [ ..., array ]
+	 *
+	 */
 	get_children_without_layout_or_separators {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
 			IConstructor cons = (IConstructor) stack[sp - 1];
+			
+			// TODO use TreeAdapter.getNonLayoutArgs(cons);
 			IConstructor prod = (IConstructor) cons.get(0);
 			IList args = (IList) cons.get(1);
 			IConstructor symbol = (IConstructor) prod.get(0);
@@ -197,6 +271,13 @@ public enum MuPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Get value associated with a key in mmap
+	 * 
+	 * [ ..., mmap, String key ] => Object
+	 *
+	 */
 	get_mmap {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -208,6 +289,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
+	/** 
+	 * Get the name of a node
+	 * 
+	 * [ ..., node nd ] => [ ..., nodeName]
+	 */
 	get_name {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -217,13 +304,15 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - node/constructor name 
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
 	get_name_and_children_and_keyword_mmap {
-		/*
-		 * Given a constructor or node get: 
-		 * - its name 
-		 * - positional arguments 
-		 * - keyword parameters collected in a mmap
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -243,12 +332,14 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
 	get_children_and_keyword_mmap {
-		/*
-		 * Given a constructor or node get: 
-		 * - positional arguments 
-		 * - keyword parameters collected in a mmap
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -267,11 +358,13 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - keyword parameters collected in a mmap
+	 * 
+	 * [ ..., node ] => [ ..., mmap ]
+	 */
 	get_keyword_mmap {
-		/*
-		 * Given a constructor or node get: 
-		 * - keyword parameters collected in a mmap
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -284,10 +377,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given a mmap, return its keys as array
+	 * 
+	 * [ ..., mmap ] => [ ..., array ]
+	 */
 	get_keys_mmap {
-		/*
-		 * Given a mmap, return its keys as array
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -304,13 +399,16 @@ public enum MuPrimitive {
 		};
 	},
 
+	/**
+	 * Given 
+	 * - an array of keywords (as string)
+	 * - an array of IValues
+	 * construct an mmap representing <keyword[i],value[i]> pairs
+	 * 
+	 * [ ..., array of keys, array of IValues] => [ ..., mmap ] 
+	 *
+	 */
 	make_keyword_mmap {
-		/*
-		 * Given a constructor or node get: 
-		 * - an array of keywords (as string)
-		 * - a list of IValues
-		 * construct an mmap representing <keyword[i],value[i]> pairs
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
@@ -325,12 +423,14 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - its positional arguments 
+	 * - the values of its keyword arguments
+	 * 
+	 * [ ... node ] => [ ..., array ]
+	 */
 	get_children_and_keyword_values {
-		/*
-		 * Given a constructor or node get: 
-		 * - positional arguments 
-		 * - list of values of keyword arguments
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -355,6 +455,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given a tuple, get an array consisting of its elements
+	 * 
+	 * [ ..., ITuple ] => [ ..., array ]
+	 */
 	get_tuple_elements {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -369,6 +474,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * mbool = (mint1 >= mint2)
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	greater_equal_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -377,6 +488,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool = mint1 > mint2
+	 * 
+	 *  [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	greater_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -385,32 +502,35 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	// Has a concrete term a given label?
+	// 
+	/**
+	 * Has a concrete term a given label?
+	 * 
+	 * [ ..., IValue, IString label ] => [ ..., mbool ]
+	 */
 	has_label {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
-			IValue v = (IValue) stack[sp - 2];
-			if(v.getType().isAbstractData()){
-				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){
-					IConstructor prod = (IConstructor) cons.get(0);
-					IConstructor symbol = (IConstructor) prod.get(0);
-					
-					if(symbol.getName().equals("label")){
-						IString label_name = (IString) stack[sp - 1];
-						if(((IString) symbol.get(0)).equals(label_name)){
-							stack[sp - 2] = Rascal_TRUE;
-							return sp - 1;
-						}
-					}
-					
+			IValue v = (IValue) stack[sp - 2];;
+			if(v instanceof IConstructor && TreeAdapter.isAppl((IConstructor)v)){
+				IConstructor prod = (IConstructor) ((IConstructor) v).get(0);
+				IConstructor def = (IConstructor) prod.get(0);
+				if(((IString) stack[sp - 1]).getValue().equals(SymbolAdapter.getLabelName(def))){
+					stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
 				}
 			}
 			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 		}
 	},
+	/**
+	 * mbool 3 = (mbool1 ==> mbool2)
+	 * 
+	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 *
+	 */
 	implies_mbool_mbool {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -419,6 +539,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Check that a Reference refers to a non-null variable
+	 * 
+	 * [ ..., Reference ] => [ ..., mbool ]
+	 *
+	 */
 	is_defined {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -428,6 +554,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Check that IValue is element of mset
+	 * 
+	 * [ ..., IValue, mset ] => [ ..., mbool ]
+	 *
+	 */
 	is_element_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -437,6 +569,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Is IValue an IBool?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_bool {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -445,14 +583,26 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue a constructor?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_constructor {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isAbstractData());
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isAbstractData());	// TODO is this ok?
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue a IDateTime?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_datetime {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -461,6 +611,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IInteger?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_int {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -469,6 +625,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IList?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -477,6 +639,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IListRelation?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_lrel {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -485,6 +653,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an ISourceLocation?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_loc {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -493,7 +667,13 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	is_map {	// IMap
+	/**
+	 * Is IValue an IMap?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
+	is_map {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -501,8 +681,13 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	
-	is_mmap {	// Map used as internal representation of keyword parameters
+	/**
+	 * Is Object an mmap?
+	 * 
+	 * [ ..., Object ] => [ ..., mbool ]
+	 *
+	 */
+	is_mmap {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -510,6 +695,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an INode?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_node {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -518,6 +709,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an INumber?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_num {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -526,6 +723,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IReal?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_real {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -534,6 +737,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IRational?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_rat {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -542,6 +751,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IRelation?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_rel {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -550,6 +765,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an ISet?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_set {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -558,6 +779,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Is IValue an IString?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_str {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -566,7 +793,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-
+	/**
+	 * Is IValue an ITuple?
+	 * 
+	 * [ ..., IValue ] => [ ..., mbool ]
+	 *
+	 */
 	is_tuple {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -575,6 +807,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given an IMap return an array containing its keys
+	 * 
+	 * [ ..., IMap ] => [ ..., array ]
+	 *
+	 */
 	keys_map {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -588,6 +826,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Given an IMap return an array containing its values
+	 * 
+	 * [ ..., IMap ] => [ ..., array ]
+	 *
+	 */
 	values_map {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -601,6 +845,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * mbool= mint1 <= mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	less_equal_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -609,6 +859,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool = mint1 < mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	less_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -617,7 +873,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	make_iarray {
+	make_iarray {	// TODO replace by make_array?
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity >= 0;
@@ -640,6 +896,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Make an array containing Object_1, Object_2, ..., Object_n:
+	 * 
+	 * [ ..., Object_1, Object_2, ..., Object_n ] => [ ..., array ]
+	 *
+	 */
 	make_array {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -655,6 +917,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Make an array of given size
+	 * 
+	 * [ ..., mint ] => [ ..., array ]
+	 *
+	 */
 	make_array_of_size {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -663,7 +931,82 @@ public enum MuPrimitive {
 			stack[sp - 1] = new Object[len];
 			return sp;
 		};
+	},	
+	/**
+	 * Create a descendant descriptor given
+	 * 0: id, a string that identifies this descendant
+	 * 1: symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * 2: concreteMatch, indicates a concrete or abstract match
+	 * 
+	 * The descriptor itself is an object array of length 3. Its elements can accessed using
+	 * - $descendant_get_id
+	 * - $descendant_get_symbolset
+	 * - $descendant_is_concrete_match
+	 * 
+	 * [ IString id, ISet symbolset, IBool concreteMatch] => descendant_descriptor
+	 */
+	make_descendant_descriptor {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 4;
+			
+			Object[] desc =  new Object[3];
+			IValue id = (IValue) stack[sp - 4];
+			
+			ISet symbolset = (ISet) stack[sp - 3];
+			IBool concreteMatch = (IBool) stack[sp - 2];
+			IMap definitions = (IMap) stack[sp - 1];
+			HashSet<Object> mset = new HashSet<Object>();
+			TypeReifier reifier = new TypeReifier(vf);
+			for(IValue v : symbolset){
+				try {
+					IConstructor cons = (IConstructor) v;
+					Type consType= cons.getConstructorType();
+					if(cons.getName().equals("prod")){
+						mset.add(cons);							// Add the production itself to the set
+					//} else if(cons.getName().equals("regular")){
+					} else if(consType == Factory.Symbol_IterPlus || 
+							  consType == Factory.Symbol_IterStar ||
+							  consType == Factory.Symbol_IterSepX || 
+							  consType == Factory.Symbol_IterStarSepX){
+						mset.add(cons);							// Add as SYMBOL to the set
+					} else {
+						Type tp = reifier.symbolToType(cons, definitions);
+						mset.add(tp);							// Otherwise add as TYPE to the set
+					}
+				} catch (Throwable e) {
+					System.err.println("Problem with " + v + ", " + e);
+				}
+			}
+			desc[0] = id;
+			desc[1] = mset;				// converted symbolset
+			desc[2] = concreteMatch;
+			
+			stack[sp - 4] = desc;
+			return sp - 3;
+		};
 	},
+	/**
+	 * Given a descendant descriptor, fetch its "concreteMatch" field.
+	 * 
+	 * [ ..., descriptor ] => [ ..., mbool ]
+	 *
+	 */
+	descendant_is_concrete_match {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			stack[sp - 1] = $descendant_is_concrete_match((Object[]) stack[sp -1]);
+			return sp;
+		};
+	},
+	
+	/**
+	 * Make a new mset
+	 * 
+	 * [ ... ] => [ ..., mset ]
+	 *
+	 */
 	make_mset {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -673,7 +1016,12 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	},
-	// Create a map from keyword name to an entry <type, default_value>
+	// 
+	/**
+	 * Create a new mmap from keyword name (String) to an MapEntry <Type, IValue>
+	 * 
+	 * [ ... ] => [ ..., mmap ]
+	 */
 	make_mmap_str_entry {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -682,7 +1030,13 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	}, 
-	// Create an entry <type, default_value>
+
+	/**
+	 * Create a MapEntry <type, default_value>
+	 * 
+	 * [ ..., Type, IValue ] => [ ..., MapEntry ]
+	 *
+	 */
 	make_mentry_type_ivalue {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -691,7 +1045,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	// Create a keword map with <String, IValue> entries
+	// 
+	/**
+	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keword map with <String_i, IValue_i> as entries
+	 *
+	 * [ ..., IString_1, IValue_1, ..., IString_n, IValue_n ] => [ ..., mmap ]
+	 */
 	make_mmap {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -713,6 +1072,12 @@ public enum MuPrimitive {
 	},
 	
 	// Does a keyword map with <String, IValue> entries contain a given key (as String)?
+	/**
+	 * Does a keyword map with <String, IValue> entries contain a given key (as String)?
+	 * 
+	 * [ ..., mmap, String] => [ ..., mbool ]
+	 *
+	 */
 	mmap_contains_key {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -724,6 +1089,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mint3 = min(mint1, mint2)
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	min_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -734,6 +1105,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mint3 = max(mint1, mint2)
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	max_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -744,6 +1121,13 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
+	/**
+	 * Convert an IValue to a mint
+	 * 
+	 * [ ..., IValue ] => [ ..., mint ]
+	 *
+	 */
 	mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -754,6 +1138,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Convert an IString to mstr
+	 * 
+	 * [ ..., IString ] => [ ..., mstr ]
+	 *
+	 */
 	mstr {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -764,6 +1154,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * mint3 = mint1 % mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	modulo_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -773,6 +1169,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Convert an ISet to mset
+	 * 
+	 * [ ..., ISet ] => [ ..., mset ]
+	 *
+	 */
 	mset {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -789,6 +1191,11 @@ public enum MuPrimitive {
 		};
 	},
 	
+	/**
+	 * mset = ISet1 - ISet2
+	 *
+	 * [ [ ..., ISet1, ISet2 ] => [ ..., mset ]
+	 */
 	mset_set_subtract_set {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -808,7 +1215,12 @@ public enum MuPrimitive {
 		};
 	},
 	
-	
+	/**
+	 * Make an empty mset
+	 * 
+	 * [ ... ] => [ ..., mset ]
+	 *
+	 */
 	mset_empty() {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -817,6 +1229,12 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	},
+	/**
+	 * Convert an mset to an IList
+	 * 
+	 * [ ..., mset ] => [ ..., IList ]
+	 *
+	 */
 	mset2list {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -831,6 +1249,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Destructively add element to an mset
+	 * 
+	 * [ ..., mset, elm ] => [ ..., mset ]
+	 *
+	 */
 	mset_destructive_add_elm {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -846,6 +1270,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Destructively add mset2 to mset1
+	 * 
+	 * [ ..., mset1, mset2 ] => [ ..., mset1 ]
+	 *
+	 */
 	mset_destructive_add_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -862,6 +1292,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 *	Add a <Tye, IValue> entry to an mmap
+	 *
+	 * [ ..., mmap, IString, MapEntry<Type,IValue> ] => [ ..., mmap ]
+	 */
 	mmap_str_entry_add_entry_type_ivalue {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -884,6 +1319,12 @@ public enum MuPrimitive {
 //			return sp - 2;
 //		};
 //	}, // kwp
+	/**
+	 * mint3 = mint1 * mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	multiplication_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -893,6 +1334,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Destructively subtract mset from mset
+	 * 
+	 * [ ..., mset1, mset2 ] => [ ..., mset1 ]
+	 *
+	 */
 	mset_destructive_subtract_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -907,6 +1354,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Subtract mset from copied mset
+	 * 
+	 * [ ..., mset1, mset2 ] => [ ..., mset3 ]
+	 *
+	 */
 	mset_subtract_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -920,6 +1373,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Destructively subtract ISet from an mset
+	 * 
+	 * [ ..., mset, ISet ] => [ ..., mset ]
+	 *
+	 */
 	mset_destructive_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -935,6 +1394,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Subtract ISet from copied mset
+	 * 
+	 * [ ..., mset1, ISet ] => [ ..., mset2 ]
+	 *
+	 */
 	mset_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -950,19 +1415,31 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Destructively subtract element from an mset
+	 * 
+	 * [ ..., mset, IValue ] => [ ..., mset ]
+	 *
+	 */
 	mset_destructive_subtract_elm {
 		@Override
 		@SuppressWarnings("unchecked")
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
-			// mset = (HashSet<IValue>) mset.clone();
 			IValue elm = ((IValue) stack[sp - 1]);
 			mset.remove(elm);
 			stack[sp - 2] = mset;
 			return sp - 1;
 		};
 	},
+	
+	/**
+	 * Subtract element from copied mset
+	 * 
+	 * [ ..., mset1, IValue ] => [ ..., mset2 ]
+	 *
+	 */
 	mset_subtract_elm {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -976,6 +1453,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool = (mint1 != mint2)
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *
+	 */
 	not_equal_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -984,6 +1467,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool2 = !mbool1
+	 * 
+	 * [ ..., mbool1 ] => [ ..., mbool2 ]
+	 *
+	 */
 	not_mbool {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1016,6 +1505,12 @@ public enum MuPrimitive {
 			return newsp;
 		};
 	},
+	/**
+	 * mbool3 = (mbool1 || mbool2)
+	 * 
+	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 *
+	 */
 	or_mbool_mbool {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1024,6 +1519,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mint3 = mint1 ^ mint2
+	 *
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	power_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1038,10 +1539,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Convert mint to Rascal int (IInteger)
+	 * 
+	 * [ ..., mint ] => [ ..., IInteger ]
+	 */
 	rint {
-		/*
-		 * rint -- convert muRascal int (mint) to Rascal int (rint)
-		 */
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -1049,6 +1552,13 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Compile a RegExp Matcher given:
+	 * - IString1, the regexp
+	 * - IString2, the subject string
+	 * 
+	 * [ ..., IString1, IString2 ] => [ ..., Matcher ]
+	 */
 	regexp_compile {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1067,6 +1577,11 @@ public enum MuPrimitive {
 		};
 	},
 	
+	/**
+	 * Start RegExp Matcher
+	 * 
+	 * [ ..., Matcher ] => [ ..., Matcher ]
+	 */
 	regexp_begin {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1076,7 +1591,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	
+	/**
+	 * Stop RegExp Matcher
+	 * 
+	 * [ ..., Matcher ] => [ ..., Matcher ]
+	 */
 	regexp_end {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1086,6 +1605,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	/**
+	 * Find next RegExp match
+	 * 
+	 * [ ..., Matcher ] => [ ..., mbool ]
+	 */
 	regexp_find {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1096,6 +1621,12 @@ public enum MuPrimitive {
 		};
 	},
 	
+	/**
+	 * Set the region for a RegExp Matcher
+	 * 
+	 * [ ..., Matcher, mint1, mint2 ] => [ ..., Matcher ]
+	 *
+	 */
 	regexp_set_region {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1108,6 +1639,11 @@ public enum MuPrimitive {
 		};
 	},
 	
+	/**
+	 * Get the match result for a specifc group mint in RegExp match
+	 * 
+	 * [ ..., Matcher, mint ] => [ ..., IString ]
+	 */
 	regexp_group {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1118,6 +1654,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Convert mset to Rascal set (ISet)
+	 * 
+	 *	[ ..., mset ] => [ ..., ISet ] 
+	 */
 	set {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -1132,6 +1673,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Convert an ISet to an ILIst
+	 * 
+	 * [ ..., ISet ] => [ ..., IList ]
+	 */
 	set2list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1145,6 +1691,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * mbool = (ISet < mset)
+	 *
+	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 */
 	set_is_subset_of_mset {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -1162,6 +1713,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Size of array
+	 * 
+	 * [ ..., array ] => [ ..., mint ]
+	 *
+	 */
 	size_array {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1170,6 +1727,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of IList
+	 * 
+	 * [ ..., IList ] => [ ..., mint ]
+	 */
 	size_list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1178,6 +1740,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of ISet
+	 * 
+	 * [ ..., ISet ] => [ ..., mint ]
+	 */
 	size_set {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1186,6 +1753,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of mset
+	 * 
+	 * [ ..., mset ] => [ ..., mint ]
+	 */
 	size_mset {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1194,6 +1766,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of IMap
+	 * 
+	 * [ ..., IMap ] => [ ..., mint ]
+	 */
 	size_map {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1202,6 +1779,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of IString
+	 * 
+	 * [ ..., IString ] => [ ..., mint ]
+	 */
 	size_str {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1210,6 +1792,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Size of ITuple
+	 * 
+	 * [ ..., ITuple ] => [ ..., mint ]
+	 */
 	size_tuple {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1218,6 +1805,11 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Generic size function
+	 * 
+	 * [ ..., IValue ] => [ ..., mint ]
+	 */
 	size {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1325,6 +1917,12 @@ public enum MuPrimitive {
 			return sp - 2;
 		};
 	},
+	/**
+	 * mint3 = mint1 - mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	subtraction_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1333,6 +1931,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * mbool = Type1 < Type2
+	 * 
+	 * [ ..., Type1, Type2 ] => [ ..., mbool ]
+	 */
 	subtype {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1341,6 +1944,12 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Get type of an IValue or mint
+	 * 
+	 * [ ..., IValueOrMint ] => [ ..., mbool ]
+	 *
+	 */
 	typeOf {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1353,6 +1962,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Get type of mset
+	 * 
+	 * [ ..., mset ] => [ ..., Type ]
+	 *
+	 */
 	typeOfMset {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1369,6 +1984,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * Set value of Reference to undefined
+	 * 
+	 * [ ..., Reference ] => [ ..., Reference ]
+	 *
+	 */
 	undefine {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1379,6 +2000,12 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	/**
+	 * mint3 = mint1 * mint2
+	 * 
+	 * [ ..., mint1, mint2 ] => [ ..., mint3 ]
+	 *
+	 */
 	product_mint_mint {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1388,6 +2015,12 @@ public enum MuPrimitive {
 		};
 	},
 
+	/**
+	 * Get type of mint, IConstructor or IValue
+	 * 
+	 * [ ..., IConstructorEtc ] => [ ..., Type ]
+	 *
+	 */
 	typeOf_constructor {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1404,15 +2037,10 @@ public enum MuPrimitive {
 	};
 
 	private static IValueFactory vf;
-//	static Method[] methods;
+
 	// Changed values to public (Ferry)
 	public static final MuPrimitive[] values = MuPrimitive.values();
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
-
-//	private static boolean profiling = false;
-//	private static long timeSpent[] = new long[values.length];
-
-//	private static PrintWriter stdout;
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
@@ -1430,16 +2058,9 @@ public enum MuPrimitive {
 	/**
 	 * Initialize the primitive methods.
 	 * 
-	 * @param fact
-	 *            value factory to be used
-	 * @param stdout
-	 *            TODO
-	 * @param doProfile
-	 *            TODO
-	 * @param stdout
+	 * @param fact the value factory to be used
 	 */
-	public static void init(IValueFactory fact, PrintWriter stdoutWriter,
-			boolean doProfile) {
+	public static void init(IValueFactory fact) {
 		vf = fact;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -1451,16 +2072,41 @@ public enum MuPrimitive {
 	/*******************************************************************
 	 *                 AUXILIARY FUNCTIONS                             *
 	 ******************************************************************/   
+	/**
+	 * @param v
+	 * @return true if v is a 'lit' or 'cilit'.
+	 */
 	private static boolean $is_literal(IValue v){
-		if(v.getType().isAbstractData()){
-			IConstructor appl = (IConstructor) v;
-			if(appl.getName().equals("appl")){
-				IConstructor prod = (IConstructor) appl.get(0);
-				IConstructor symbol = (IConstructor) prod.get(0);
-				return symbol.getName().equals("lit");
-			}
+		if(v instanceof IConstructor){
+			IConstructor cons = (IConstructor) v;
+			return TreeAdapter.isLiteral(cons) || TreeAdapter.isCILiteral(cons);
 		}
 		return false;
+	}
+	
+	/**
+	 * @param descendantDescriptor
+	 * @return its 'id' element
+	 */
+	protected static IString $descendant_get_id(Object[] descendantDescriptor){
+		return (IString) descendantDescriptor[0];
+	}
+	
+	/**
+	 * @param descendantDescriptor
+	 * @return its symbolset element
+	 */
+	@SuppressWarnings("unchecked")
+	protected static HashSet<Object> $descendant_get_symbolset(Object[] descendantDescriptor){
+		return (HashSet<Object>) descendantDescriptor[1];
+	}
+	
+	/**
+	 * @param descendantDescriptor
+	 * @return its concreteMatch element
+	 */
+	protected static IBool $descendant_is_concrete_match(Object[] descendantDescriptor){
+		return (IBool) descendantDescriptor[2];
 	}
 	 
 }
