@@ -263,8 +263,44 @@ public class RVMonJVM implements IRVM {
 			}
 		}
 	}
+	public IValue $executeProgram(String moduleName, String uid_main, IValue[] args) {
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
+		rex.setCurrentModuleName(moduleName);
+
+//		finalizeInstructions();
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw RascalRuntimeException.noMainFunction(null);
+		}
+
+		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
+			throw new CompilerError("Function " + uid_main + " should have two arguments");
+		}
+
+		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
+		Frame cf = root;
+		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
+		cf.stack[1] = new HashMap<String, IValue>();
+		cf.src = main_function.src;
+
+		IValue res = null;
+		//		Object o = executeProgram(root, cf);
+//		if (o != null && o instanceof Thrown) {
+//			throw (Thrown) o;
+//		}
+//		IValue res = narrow(o);
+//		if (debug) {
+//			stdout.println("TRACE:");
+//			stdout.println(getTrace());
+//		}
+		return res;
+	}
+
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
+		rex.setCurrentModuleName(moduleName);
+
 		boolean profile = false;
 
 		buildRunner(profile);
@@ -334,12 +370,6 @@ public class RVMonJVM implements IRVM {
 	public void setLocationCollector(ILocationCollector collector) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

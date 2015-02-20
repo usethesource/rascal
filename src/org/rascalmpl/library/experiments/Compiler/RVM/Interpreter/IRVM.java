@@ -13,7 +13,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 
 // Interface to allow multiple implementations of the RVM.
 public interface IRVM {
-	public IValue executeProgram(String uid_main, IValue[] args) ;
 	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments);
 	public IValue executeFunction(String uid_main, IValue[] args) ;
 	public IValue executeFunction(FunctionInstance functionInstance, IValue[] args);
