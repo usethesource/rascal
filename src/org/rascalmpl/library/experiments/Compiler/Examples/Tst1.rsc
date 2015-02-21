@@ -1,22 +1,88 @@
 module experiments::Compiler::Examples::Tst1
 	
+import lang::rascal::grammar::ParserGenerator;
+import Grammar;
+import ParseTree;
+import IO;
+import String;
+
+alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
+
+anno int Symbol@id;
 	
-data A = a(int n) | a (int n, int m);
+Grammar G0U = 	grammar(
+  {sort("S")[
+      @id=2
+    ]},
+  (
+    sort("S")[
+      @id=3
+    ]:choice(
+      sort("S")[
+        @id=4
+      ],
+      {prod(
+          sort("S")[
+            @id=5
+          ],
+          [lit("0")[
+              @id=6
+            ]],
+          {})}),
+    lit("0")[
+      @id=7
+    ]:choice(
+      lit("0")[
+        @id=8
+      ],
+      {prod(
+          lit("0")[
+            @id=9
+          ],
+          [\char-class([range(48,48)])[
+              @id=10
+            ]],
+          {})})
+  ));
 
-data B = b(str s) | b(str s, str t);
+Items GNIG0 =
+(
+  sort("S")[
+    @id=5
+  ]:(item(
+      prod(
+        sort("S")[
+          @id=5
+        ],
+        [lit("0")[
+            @id=6
+          ]],
+        {}),
+      0):<"new LiteralStackNode\<IConstructor\>(6, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",6>),
+  lit("0")[
+    @id=9
+  ]:(item(
+      prod(
+        lit("0")[
+          @id=9
+        ],
+        [\char-class([range(48,48)])[
+            @id=10
+          ]],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(10, 0, new int[][]{{48,48}}, null, null)",10>)
+);
 
-data C = c(bool b) | c(A ca, B cB) | c(int n, C cc);
+list[str] removeEmptyLines1(str s) =
+	[ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
 
+bool sameLines1(str s1, str s2) { 
+	r1 = removeEmptyLines1(s1); 
+	r2 = removeEmptyLines(s2); 
+	d = r1 - r2;
+	n = size(d); 
+	println("size(r1) = <size(r1)>, size(r2) = <size(r2)>, size of diff == <n>: <d>"); return n == 0; }
 
-C cnt(C t) {
-	return 
-	  top-down visit(t) {
-		case true => false
-	}
-}	
+value main(list[value]args) = sameLines1(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP), 
+	readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
 
-
-value main(list[value] args) = cnt(c(true));
-
-
-//visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} ; //== "aBBcaBBcAA";
