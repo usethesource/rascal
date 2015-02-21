@@ -784,7 +784,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 // 
 // The global translation scheme is to translate each visit to a function PHI, with local functions per case.
 // For the fixedpoint strategies innermost and outermost, a wrapper function PHI_FIXPOINT is generated that
-// carries out the fixed point computation. PHI and PHIFIXPOINT have 7 common formal parameters, and the latter has
+// carries out the fixed point computation. PHI and PHIFIXPOINT have 6 common formal parameters, and the latter has
 // two extra local variables:
 //
 // PHI:	iSubject		PHI_FIXPOINT:	iSubject
@@ -792,8 +792,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 //		hasInsert						hasInsert
 //		begin							begin
 //		end								end
-//		iReachableTypes					iReachableTypes
-//		concreteMatch					concreteMatch
+//		descriptor						descriptor
 //										changed
 //										val
 
@@ -809,7 +808,7 @@ private int iDescDescriptorPos = 5;
 private int NumberOfPhiFormals = 6;
 
 // Generated PHI_FIXPOINT functions
-// iSubjectPos, matchedPos, hasInsert, begin, end, iReachableTypes and concreteMatch (as for PHI)
+// iSubjectPos, matchedPos, hasInsert, begin, end, descriptor (as for PHI)
 // Extra locals
 
 private int changedPos = 6;
@@ -886,7 +885,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	//	println(tup);
 	//}
 	
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, iReachableTypes, concreteMatch)
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor)
 	int pos_in_phi = NumberOfPhiFormals;
 	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
@@ -1941,7 +1940,7 @@ bool backtrackFree(Expression e){
     	return false;
     case (Expression) `<Pattern pat> := <Expression exp>`:
     	return false;
-    	case (Expression) `<Pattern pat> !:= <Expression exp>`:
+    case (Expression) `<Pattern pat> !:= <Expression exp>`:
     	return false;
     }
     return true;

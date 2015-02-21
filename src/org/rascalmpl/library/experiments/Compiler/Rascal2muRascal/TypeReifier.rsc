@@ -237,6 +237,9 @@ set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol]
 		return getReachableConcreteTypes(subjectType, consNames, patternTypes);
 	}
 	desiredTypes = { s | /Symbol s := (subjectType + patternTypes)};
+	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym)){
+		desiredTypes += adt("Tree", []);
+	}
 	println("desiredTypes = <desiredTypes>");
 	set[value] initial_types = 
 		desiredTypes + (subjectType == \value()
