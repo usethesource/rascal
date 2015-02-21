@@ -596,6 +596,10 @@ public class Execute {
 		}
 		
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		
+		IList exceptions = (IList) declaration.get("exceptions");
+		function.attachExceptionTable(exceptions, rvm);
+		
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");
@@ -606,8 +610,7 @@ public class Execute {
 			}
 			function.refs = refs;
 		} else {
-			IList exceptions = (IList) declaration.get("exceptions");
-			function.attachExceptionTable(exceptions, rvm);
+			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

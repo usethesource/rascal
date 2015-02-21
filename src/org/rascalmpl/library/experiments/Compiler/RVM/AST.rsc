@@ -26,7 +26,8 @@ public data Declaration =
 		  		    list[int] refs,
 		  		    loc src,
 		  		    int maxStack, 
-		  		    list[Instruction] instructions)
+		  		    list[Instruction] instructions,
+		  		    lrel[str from, str to, Symbol \type, str target] exceptions)
 		;
 
 public data RVMProgram = 
