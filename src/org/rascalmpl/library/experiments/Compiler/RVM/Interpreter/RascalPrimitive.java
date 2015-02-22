@@ -7200,7 +7200,7 @@ public enum RascalPrimitive {
 				}
 				return Rascal_FALSE;
 			} else 
-			if(symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(nodeType)){
+			if(symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)){
 				return Rascal_TRUE;
 			}
 		}
@@ -7208,7 +7208,7 @@ public enum RascalPrimitive {
 	}
 	
 	private static IBool $should_descent_on_type(final Type type, final HashSet<Object> symbolset){
-		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple()){
+		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
 			return Rascal_TRUE;
 		}
 		return Rascal_FALSE;

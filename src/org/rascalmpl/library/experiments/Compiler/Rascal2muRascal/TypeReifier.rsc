@@ -253,7 +253,8 @@ set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol]
 
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
 		if(Symbol c:\cons(Symbol \adtsym, str name, list[Symbol] parameters) := toSym){
-			if(name in consNames || (\adtsym == fromSym && !isEmpty(parameters)) || !isEmpty(initial_types & range(getConstructorDependencies(fromSym, c)))){
+			if(name in consNames || (\adtsym == fromSym && !isEmpty(initial_types & (range(getConstructorDependencies(fromSym, c)) - \adtsym)))){
+			   println("adding to descent_into: <c>, fromSym=<fromSym>, range = <range(getConstructorDependencies(fromSym, c)) - \adtsym>");
 			   descent_into += c;
 			   adts_with_constructors += \adtsym;
 			}
@@ -313,7 +314,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
 		if(Production p: prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) := toSym){
-			if((def == fromSym && !isEmpty(symbols)) || !isEmpty(initial_types & range(getProductionDependencies(fromSym, p)))){
+			if((def == fromSym && !isEmpty(initial_types & (range(getProductionDependencies(fromSym, p)) - fromSym)))){
 			   descent_into += p;
 			   nonterminals_with_productions += def;
 			}
