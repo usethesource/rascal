@@ -100,7 +100,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 607 * charclass.hashCode() ; 
+      return 859 + 61 * charclass.hashCode() ; 
     } 
   
     
@@ -151,7 +151,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 103 * charClass.hashCode() ; 
+      return 983 + 17 * charClass.hashCode() ; 
     } 
   
     
@@ -204,7 +204,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 733 * lhs.hashCode() + 761 * rhs.hashCode() ; 
+      return 821 + 491 * lhs.hashCode() + 277 * rhs.hashCode() ; 
     } 
   
     
@@ -266,7 +266,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 607 * lhs.hashCode() + 269 * rhs.hashCode() ; 
+      return 19 + 677 * lhs.hashCode() + 71 * rhs.hashCode() ; 
     } 
   
     
@@ -326,7 +326,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 11 * ranges.hashCode() ; 
+      return 467 + 359 * ranges.hashCode() ; 
     } 
   
     
@@ -379,7 +379,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 701 * lhs.hashCode() + 313 * rhs.hashCode() ; 
+      return 601 + 569 * lhs.hashCode() + 653 * rhs.hashCode() ; 
     } 
   
     

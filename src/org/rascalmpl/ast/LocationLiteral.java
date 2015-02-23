@@ -81,7 +81,7 @@ public abstract class LocationLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 + 587 * protocolPart.hashCode() + 137 * pathPart.hashCode() ; 
+      return 241 + 523 * protocolPart.hashCode() + 223 * pathPart.hashCode() ; 
     } 
   
     
