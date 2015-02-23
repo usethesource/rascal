@@ -121,7 +121,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 + 823 * booleanLiteral.hashCode() ; 
+      return 617 + 5 * booleanLiteral.hashCode() ; 
     } 
   
     
@@ -172,7 +172,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 541 * dateTimeLiteral.hashCode() ; 
+      return 331 + 149 * dateTimeLiteral.hashCode() ; 
     } 
   
     
@@ -223,7 +223,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 467 * integerLiteral.hashCode() ; 
+      return 59 + 877 * integerLiteral.hashCode() ; 
     } 
   
     
@@ -274,7 +274,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 491 + 859 * locationLiteral.hashCode() ; 
+      return 347 + 739 * locationLiteral.hashCode() ; 
     } 
   
     
@@ -325,7 +325,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 167 * rationalLiteral.hashCode() ; 
+      return 631 + 829 * rationalLiteral.hashCode() ; 
     } 
   
     
@@ -376,7 +376,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 283 * realLiteral.hashCode() ; 
+      return 503 + 569 * realLiteral.hashCode() ; 
     } 
   
     
@@ -427,7 +427,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 223 * regExpLiteral.hashCode() ; 
+      return 349 + 631 * regExpLiteral.hashCode() ; 
     } 
   
     
@@ -478,7 +478,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 443 * stringLiteral.hashCode() ; 
+      return 761 + 503 * stringLiteral.hashCode() ; 
     } 
   
     

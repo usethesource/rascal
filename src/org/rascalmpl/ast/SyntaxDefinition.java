@@ -95,7 +95,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 617 * defined.hashCode() + 743 * production.hashCode() ; 
+      return 103 + 103 * defined.hashCode() + 761 * production.hashCode() ; 
     } 
   
     
@@ -159,7 +159,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 919 * start.hashCode() + 599 * defined.hashCode() + 479 * production.hashCode() ; 
+      return 13 + 433 * start.hashCode() + 593 * defined.hashCode() + 619 * production.hashCode() ; 
     } 
   
     
@@ -232,7 +232,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 787 * vis.hashCode() + 5 * defined.hashCode() + 659 * production.hashCode() ; 
+      return 331 + 991 * vis.hashCode() + 19 * defined.hashCode() + 157 * production.hashCode() ; 
     } 
   
     
@@ -303,7 +303,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 499 * defined.hashCode() + 757 * production.hashCode() ; 
+      return 401 + 431 * defined.hashCode() + 859 * production.hashCode() ; 
     } 
   
     
@@ -365,7 +365,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 139 * defined.hashCode() + 977 * production.hashCode() ; 
+      return 613 + 29 * defined.hashCode() + 601 * production.hashCode() ; 
     } 
   
     

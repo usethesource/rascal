@@ -730,6 +730,7 @@ keyword RascalKeywords
 	| "value"
 	| "offside"
 	| "align" 
+	| "when"
 	;
 
 syntax Type
