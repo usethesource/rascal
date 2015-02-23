@@ -55,8 +55,8 @@ public Symbol sym2symbol(Sym sym) {
       return addActuals(sort("<n>"), a); // TODO don't forget about the kwArgs
     case dependParametrized(_, Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, kwArgs) :
       return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a);  // TODO don't forget about the kwArgs
-    case dependScope({Sym ","}+ syms) :
-      return \scope(separgs2symbols(syms));
+    case dependScope(Sym+ syms) :
+      return \scope(args2symbols(syms));
     case dependCode(Sym s, Statement block) :
       return \do(sym2symbol(s), block);
     case dependConditionAfter(Sym s, Expression condition) :
