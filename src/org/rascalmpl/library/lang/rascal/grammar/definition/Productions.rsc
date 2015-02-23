@@ -65,7 +65,7 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
 } 
    
 private Symbol toLex(Symbol s) 
-  = visit (sym2symbol(s)) { 
+  = visit (s) { 
        case \sort(n) => \lex(n) 
        case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
   };
