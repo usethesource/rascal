@@ -29,7 +29,6 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -81,7 +80,7 @@ public class IguanaParserGenerator {
 	
 	public Grammar generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
-	    return new RascalToIguanaGrammarConverter(vf).convert(main, gr);
+	    return new RascalToIguanaGrammarConverter().convert(main, gr);
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {
