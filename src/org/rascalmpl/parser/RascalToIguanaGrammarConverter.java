@@ -12,9 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,13 +28,10 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.Grammar;
-import org.jgll.grammar.GrammarGraph;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.PositionalCondition;
@@ -46,97 +40,28 @@ import org.jgll.grammar.precedence.OperatorPrecedence;
 import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterRange;
 import org.jgll.grammar.symbol.Epsilon;
+import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
-import org.jgll.parser.GLLParser;
-import org.jgll.parser.ParseError;
-import org.jgll.parser.ParseResult;
-import org.jgll.parser.ParserFactory;
+import org.jgll.grammar.symbol.Terminal;
 import org.jgll.regex.Alt;
 import org.jgll.regex.Opt;
 import org.jgll.regex.Plus;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
-import org.jgll.sppf.SPPFNode;
-import org.jgll.util.Configuration;
-import org.jgll.util.GrammarUtil;
-import org.jgll.util.Input;
-import org.jgll.util.Visualization;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class RascalToIguanaGrammarConverter {
 	
-	private final IValueFactory vf;
-
 	private Map<IValue, Rule> rulesMap;
-
-	private Grammar grammar;
-
-	private GLLParser parser;
-
-	private String startSymbol;
-
-	private Input input;
-	
-	private IMap definitions;
-
-	public RascalToIguanaGrammarConverter(IValueFactory vf) {
-		this.vf = vf;
-	}
-
-	public void generateGrammar(IConstructor rascalGrammar) {
-		System.out.println("Iguana started.");
-		grammar = convert("inmemory", rascalGrammar);
-		IMap notAllowed = (IMap) ((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
-		IMap except = (IMap) ((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
-
-		assert notAllowed != null;
-		assert except != null;
-
-		OperatorPrecedence op = new OperatorPrecedence();
-		addExceptPatterns(op, except);
-		addPrecedencePatterns(op, notAllowed);
-		grammar = op.transform(grammar);
-	}
-
-	public void printGrammar() {
-		System.out.println(grammar);
-	}
-
-	public void save(IString path) throws FileNotFoundException, IOException {
-		System.out.println(grammar.getConstructorCode());
-		GrammarUtil.save(grammar, new File(path.getValue()).toURI());
-	}
-
-	public void generateGraph(IString path, ISourceLocation loc) {
-		Configuration config = Configuration.DEFAULT;
-		parser = ParserFactory.getParser(config, input, grammar);
-
-		GrammarGraph grammarGraph = grammar.toGrammarGraph(input, config);
-		ParseResult result = parser.parse(input, grammarGraph, Nonterminal.withName(startSymbol));
-		if (result.isParseSuccess()) {
-			SPPFNode sppf = result.asParseSuccess().getRoot();
-			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph.getRegistry(), input);
-		} else {
-			ParseError e = result.asParseError();
-			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
-					   e.getInputIndex(), 
-					   1,
-					   input.getLineNumber(e.getInputIndex()),
-					   input.getLineNumber(e.getInputIndex()),
-					   input.getColumnNumber(e.getInputIndex()) - 1,
-					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
-		}
-	}
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
 		Grammar.Builder builder = new Grammar.Builder();
 		
-		definitions = (IMap) rascalGrammar.get("rules");
+		IMap definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
 		
@@ -145,44 +70,53 @@ public class RascalToIguanaGrammarConverter {
 		for (IValue nonterminal : definitions) {
 
 			IConstructor constructor = (IConstructor) nonterminal;
-			
-			if (constructor.getName().equals("layouts") || 
-				constructor.getName().equals("lex") ||
-				constructor.getName().equals("token")) {
-				
-				builder.addRules(getAlternatives(nonterminal, null));
-				
-			} else {
-				builder.addRules(getAlternatives(nonterminal, layout));				
+
+			switch (constructor.getName()) {
+				case "empty":
+					break;
+
+				case "start":	
+					builder.addRules(getAlternatives(getSymbolCons(constructor), definitions, LayoutStrategy.INHERITED));
+					break;
+					
+				case "layouts":
+				case "lex":
+				case "token":
+				case "keywords":
+					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.NO_LAYOUT));
+					break;
+					
+				default:
+					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.INHERITED));
+					break;
 			}
-			
 		}
 		
-		return builder.build();
+		return builder.setLayout(layout).build();
 	}
 	
 	public Nonterminal getLayoutNonterminal(IConstructor rascalGrammar) {
-		definitions = (IMap) rascalGrammar.get("rules");
+		IMap definitions = (IMap) rascalGrammar.get("rules");
 		
 		List<String> layoutNonterminals = new ArrayList<>();
 		
 		for (IValue nonterminal : definitions) {
 			IConstructor constructor = (IConstructor) nonterminal;
 			if (constructor.getName().equals("layouts")) {
-				layoutNonterminals.add(((IString)constructor.get("name")).getValue());
+				layoutNonterminals.add(getName(constructor));
 			}
 		}
 		
-		Nonterminal layout  = Nonterminal.withName(layoutNonterminals.stream().filter(s -> !s.equals("$default$")).collect(Collectors.toList()).get(0));
+		List<String> layouts = layoutNonterminals.stream().filter(s -> !s.equals("$default$")).collect(Collectors.toList());
 		
-		return layout;
+		return layouts.isEmpty() ? null : Nonterminal.withName(layouts.get(0)); 
 	}
 	
-	private List<Rule> getAlternatives(IValue nonterminal, Nonterminal layout) {
+	private List<Rule> getAlternatives(IValue nonterminal, IMap definitions, LayoutStrategy strategy) {
 		
 		List<Rule> rules = new ArrayList<>();
 		
-		Nonterminal head = Nonterminal.withName(SymbolAdapter.toString((IConstructor) nonterminal, false));
+		Nonterminal head = Nonterminal.withName(getName((IConstructor) nonterminal));
 		
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
@@ -200,7 +134,7 @@ public class RascalToIguanaGrammarConverter {
 
 				List<Symbol> body = getSymbolList(rhs);
 				
-				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayout(layout).build();
+				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
 				rulesMap.put(prod, rule);
 				rules.add(rule);
 			}
@@ -313,7 +247,7 @@ public class RascalToIguanaGrammarConverter {
 				
 			case "lit":
 				Sequence<Character> keyword = Sequence.from(getString(symbol));
-				return keyword.isSingleChar() ? keyword.asSingleChar() : keyword;
+				return keyword.isSingleChar() ? keyword.asSingleChar() : Terminal.from(keyword);
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
