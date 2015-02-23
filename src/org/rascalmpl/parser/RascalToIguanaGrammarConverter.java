@@ -62,7 +62,10 @@ import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalToIguanaGrammarConverter {
 	
@@ -154,6 +157,7 @@ public class RascalToIguanaGrammarConverter {
 		return rules;
 	}
 
+	@SuppressWarnings("unused")
 	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
 
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
@@ -176,6 +180,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
@@ -308,24 +313,24 @@ public class RascalToIguanaGrammarConverter {
 				
 			case "if":
 				@SuppressWarnings("unused")
-				Expression condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				Expression condition = buildExpression(getCondition(symbol));
 				return IfThen.ifThen(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
 				
 			case "ifElse":
-				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				condition = buildExpression(getCondition(symbol));
 				return IfThenElse.ifThenElse(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
 				
 			case "when":
-				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				condition = buildExpression(getCondition(symbol));
 				return Conditional.when(getSymbol(getSymbolCons(symbol)), org.jgll.datadependent.ast.AST.TRUE);
 			
 			case "do":
 				@SuppressWarnings("unused")
-				Statement block = new ASTBuilder().buildStatement(getBlock(symbol));
+				Statement block = buildStatement(getBlock(symbol));
 				return Code.code(getSymbol(getSymbolCons(symbol)), new org.jgll.datadependent.ast.Statement[0]);
 			
 			case "while":
-				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				condition = buildExpression(getCondition(symbol));
 				return While.whileLoop(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
 				
 			case "align":
@@ -462,6 +467,7 @@ public class RascalToIguanaGrammarConverter {
 		return (IConstructor) symbol.get("thenSymbol");
 	}
 
+	@SuppressWarnings("unused")
 	private IConstructor getRegularDefinition(ISet alts) {
 		IConstructor value = null;
 		for (IValue alt : alts) {
@@ -471,6 +477,34 @@ public class RascalToIguanaGrammarConverter {
 			}
 		}
 		return value;
+	}
+	
+	private static Expression buildExpression(IConstructor condition) {
+		if (TreeAdapter.isAppl(condition)) {
+			String sortName = TreeAdapter.getSortName(condition);
+			if (sortName.equals("Expression")) {
+				return (Expression) new ASTBuilder().buildValue(condition);
+			}
+		} 
+		else if (TreeAdapter.isAmb(condition)) {
+		    throw new Ambiguous(condition);
+		}
+		
+		throw new ImplementationError("This is not a " + "Expression" +  ": " + condition);
+	}
+	
+	private static Statement buildStatement(IConstructor statement) {
+		if (TreeAdapter.isAppl(statement)) {
+			String sortName = TreeAdapter.getSortName(statement);
+			if (sortName.equals("Statement")) {
+				return (Statement) new ASTBuilder().buildValue(statement);
+			}
+		} 
+		else if (TreeAdapter.isAmb(statement)) {
+		    throw new Ambiguous(statement);
+		}
+		
+		throw new ImplementationError("This is not a " + "Statement" +  ": " + statement);
 	}
 	
 }
