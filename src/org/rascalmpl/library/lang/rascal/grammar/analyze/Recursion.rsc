@@ -16,7 +16,7 @@ private Symbol addToCache(Symbol s) {
   return n;
 }
 
-private Grammar current = grammar({}, (), ());
+private Grammar current = grammar({}, ());
 
 private map[Symbol, set[Symbol]] leftDependencies = ();
 private map[Symbol, set[Symbol]] rightDependencies = ();
