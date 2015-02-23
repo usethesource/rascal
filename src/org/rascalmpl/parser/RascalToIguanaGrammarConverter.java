@@ -9,6 +9,7 @@
 
  *   * Ali Afroozeh - Ali.Afroozeh@cwi.nl - CWI
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.parser;
 
@@ -43,12 +44,20 @@ import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
+import org.jgll.grammar.symbol.Align;
+import org.jgll.grammar.symbol.Block;
 import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterRange;
+import org.jgll.grammar.symbol.Code;
+import org.jgll.grammar.symbol.Conditional;
 import org.jgll.grammar.symbol.Epsilon;
+import org.jgll.grammar.symbol.IfThen;
+import org.jgll.grammar.symbol.IfThenElse;
 import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.grammar.symbol.Offside;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
+import org.jgll.grammar.symbol.While;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParseResult;
@@ -65,6 +74,7 @@ import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -302,12 +312,6 @@ public class RascalToIguanaGrammarConverter {
 
 	private Symbol getSymbol(IConstructor symbol) {
 		switch (symbol.getName()) {
-//		case "if": {
-//			IConstructor cond = (IConstructor) symbol.get("condition");
-//			ASTBuilder b = new ASTBuilder();
-//			Expression expr = b.buildExpression(cond);
-//			
-//		}
 			case "sort":
 			case "lex":
 				return Nonterminal.withName(getName(symbol));
@@ -362,6 +366,40 @@ public class RascalToIguanaGrammarConverter {
 			case "layouts":
 				return null;
 				
+			// DD part:
+			// FIXME: Fix the expression part
+				
+			case "scope":
+				return Block.block(getSymbolList((IList)symbol.get("symbols")).stream().toArray(Symbol[]::new));
+				
+			case "if":
+				@SuppressWarnings("unused")
+				Expression condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				return IfThen.ifThen(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
+				
+			case "ifElse":
+				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				return IfThenElse.ifThenElse(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
+				
+			case "when":
+				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				return Conditional.when(getSymbol(getSymbolCons(symbol)), org.jgll.datadependent.ast.AST.TRUE);
+			
+			case "do":
+				@SuppressWarnings("unused")
+				Statement block = new ASTBuilder().buildStatement(getBlock(symbol));
+				return Code.code(getSymbol(getSymbolCons(symbol)), new org.jgll.datadependent.ast.Statement[0]);
+			
+			case "while":
+				condition = new ASTBuilder().buildExpression(getCondition(symbol));
+				return While.whileLoop(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
+				
+			case "align":
+				return Align.align(getSymbol(getSymbolCons(symbol)));
+				
+			case "offside":
+				return Offside.offside(getSymbol(getSymbolCons(symbol)));
+								
 			default:
 				throw new UnsupportedOperationException(symbol.toString());
 		}
@@ -472,6 +510,22 @@ public class RascalToIguanaGrammarConverter {
 	
 	public IList getSeparators(IConstructor symbol) {
 		return (IList) symbol.get("separators");
+	}
+	
+	private IConstructor getBlock(IConstructor symbol) {
+		return (IConstructor) symbol.get("block");
+	}
+	
+	private IConstructor getCondition(IConstructor symbol) {
+		return (IConstructor) symbol.get("condition");
+	}
+	
+	private IConstructor getThenPart(IConstructor symbol) {
+		return (IConstructor) symbol.get("ifSymbol");
+	}
+	
+	private IConstructor getElsePart(IConstructor symbol) {
+		return (IConstructor) symbol.get("thenSymbol");
 	}
 
 	private IConstructor getRegularDefinition(ISet alts) {
