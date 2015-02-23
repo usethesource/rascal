@@ -109,7 +109,7 @@ syntax Sym
 	| dependFormals: Sym symbol Type typ Parameters formals  \ "()" // only used in the head 
 	| dependNonterminal: () Nonterminal nonterminal !>> "[" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
-	| dependScope: "{" Sym+ "}"
+	| dependScope: "{" Sym+ symbols "}"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
