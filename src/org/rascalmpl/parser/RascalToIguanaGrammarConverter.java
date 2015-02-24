@@ -32,6 +32,10 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+
+import static org.jgll.datadependent.ast.AST.*;
+
+import org.jgll.datadependent.ast.AbstractAST;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
@@ -61,9 +65,27 @@ import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.IntegerLiteral;
+import org.rascalmpl.ast.Literal;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.BooleanLiteral.Lexical;
+import org.rascalmpl.ast.Expression.Equals;
+import org.rascalmpl.ast.Expression.GreaterThan;
+import org.rascalmpl.ast.Expression.GreaterThanOrEq;
+import org.rascalmpl.ast.Expression.LessThan;
+import org.rascalmpl.ast.Expression.QualifiedName;
+import org.rascalmpl.ast.Literal.Integer;
+import org.rascalmpl.ast.LocalVariableDeclaration.Default;
+import org.rascalmpl.ast.Statement.Assignment;
+import org.rascalmpl.ast.Statement.VariableDeclaration;
+import org.rascalmpl.ast.StringLiteral.NonInterpolated;
+import org.rascalmpl.ast.Variable.Initialized;
+import org.rascalmpl.ast.Variable.UnInitialized;
+import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -306,32 +328,29 @@ public class RascalToIguanaGrammarConverter {
 				return null;
 				
 			// DD part:
-			// FIXME: Fix the expression part
 				
 			case "scope":
 				return Block.block(getSymbolList((IList)symbol.get("symbols")).stream().toArray(Symbol[]::new));
 				
 			case "if":
-				@SuppressWarnings("unused")
 				Expression condition = buildExpression(getCondition(symbol));
-				return IfThen.ifThen(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
+				return IfThen.ifThen((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
 				
 			case "ifElse":
 				condition = buildExpression(getCondition(symbol));
-				return IfThenElse.ifThenElse(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
+				return IfThenElse.ifThenElse((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
 				
 			case "when":
 				condition = buildExpression(getCondition(symbol));
-				return Conditional.when(getSymbol(getSymbolCons(symbol)), org.jgll.datadependent.ast.AST.TRUE);
+				return Conditional.when(getSymbol(getSymbolCons(symbol)), (org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()));
 			
 			case "do":
-				@SuppressWarnings("unused")
 				Statement block = buildStatement(getBlock(symbol));
-				return Code.code(getSymbol(getSymbolCons(symbol)), new org.jgll.datadependent.ast.Statement[0]);
+				return Code.code(getSymbol(getSymbolCons(symbol)), (org.jgll.datadependent.ast.Statement) block.accept(new Visitor()));
 			
 			case "while":
 				condition = buildExpression(getCondition(symbol));
-				return While.whileLoop(org.jgll.datadependent.ast.AST.TRUE, getSymbol(getSymbolCons(symbol)));
+				return While.whileLoop((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
 				
 			case "align":
 				return Align.align(getSymbol(getSymbolCons(symbol)));
@@ -505,6 +524,128 @@ public class RascalToIguanaGrammarConverter {
 		}
 		
 		throw new ImplementationError("This is not a " + "Statement" +  ": " + statement);
+	}
+	
+	public static class Visitor extends NullASTVisitor<AbstractAST> {
+		
+		@Override
+		public AbstractAST visitStatementAssignment(Assignment x) {
+			return stat(assign(x.getAssignable().accept(this).toString(), (org.jgll.datadependent.ast.Expression) x.getStatement().getExpression().accept(this)));
+		}
+		
+		@Override
+		public AbstractAST visitAssignableVariable(org.rascalmpl.ast.Assignable.Variable x) {
+			return var(Names.name(Names.lastName(x.getQualifiedName())));
+		}
+		
+		@Override
+		public AbstractAST visitStatementVariableDeclaration(VariableDeclaration x) {
+			return varDeclStat((org.jgll.datadependent.ast.VariableDeclaration) x.getDeclaration().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitLocalVariableDeclarationDefault(Default x) {
+			return x.getDeclarator().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitDeclaratorDefault(org.rascalmpl.ast.Declarator.Default x) {
+			List<Variable> variables = x.getVariables();
+			if (variables.size() != 1) {
+				throw new RuntimeException("Declarator with multiple variables is not supported!");
+			}
+			return variables.get(0).accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitVariableInitialized(Initialized x) {
+			return varDecl(Names.name(x.getName()), (org.jgll.datadependent.ast.Expression) x.getInitial().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitVariableUnInitialized(UnInitialized x) {
+			return varDecl(Names.name(x.getName()));
+		}
+		
+		@Override
+		public AbstractAST visitStatementExpression(org.rascalmpl.ast.Statement.Expression x) {
+			return stat((org.jgll.datadependent.ast.Expression) x.getExpression().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionLessThan(LessThan x) {
+			return less((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
+				        (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionGreaterThan(GreaterThan x) {
+			return greater((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
+				           (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+			return greaterEq((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
+				             (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionEquals(Equals x) {
+			return equal((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
+					     (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionQualifiedName(QualifiedName x) {
+			return var(Names.name(Names.lastName(x.getQualifiedName())));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionLiteral(org.rascalmpl.ast.Expression.Literal x) {
+			return x.getLiteral().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitLiteralBoolean(Literal.Boolean x) {
+		    return x.getBooleanLiteral().accept(this); 
+		}
+		
+		@Override
+		public AbstractAST visitLiteralInteger(Integer x) {
+			return x.getIntegerLiteral().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitLiteralString(org.rascalmpl.ast.Literal.String x) {
+			return x.getStringLiteral().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitBooleanLiteralLexical(Lexical x) {
+			return x.getString().equals("true")? TRUE : FALSE;
+		}
+		
+		@Override
+		public AbstractAST visitIntegerLiteralDecimalIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x) {
+			return x.getDecimal().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitDecimalIntegerLiteralLexical(org.rascalmpl.ast.DecimalIntegerLiteral.Lexical x) {
+			return integer(java.lang.Integer.valueOf(x.getString()));
+		}
+		
+		@Override
+		public AbstractAST visitStringLiteralNonInterpolated(NonInterpolated x) {
+			return x.getConstant().accept(this);
+		}
+		
+		@Override
+		public AbstractAST visitStringConstantLexical(org.rascalmpl.ast.StringConstant.Lexical x) {
+			return string(x.getString());
+		}
+		
 	}
 	
 }
