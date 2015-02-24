@@ -70,6 +70,7 @@ import org.rascalmpl.ast.Literal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
+import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Equals;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
@@ -570,6 +571,32 @@ public class RascalToIguanaGrammarConverter {
 		@Override
 		public AbstractAST visitStatementExpression(org.rascalmpl.ast.Statement.Expression x) {
 			return stat((org.jgll.datadependent.ast.Expression) x.getExpression().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionCallOrTree(CallOrTree x) {
+			
+			AbstractAST fun = x.getExpression().accept(this);
+			
+			if (!(fun instanceof org.jgll.datadependent.ast.Expression.Name)) {
+				throw new RuntimeException("Unsupported Rascal expression: " + fun);
+			}
+			String id = ((org.jgll.datadependent.ast.Expression.Name) fun).getName();
+			
+			if (!(id.equals("indent") || id.equals("println"))) {
+				throw new RuntimeException("Unsupported function: " + id);
+			}
+			
+			List<Expression> arguments = x.getArguments();
+			org.jgll.datadependent.ast.Expression[] args = new org.jgll.datadependent.ast.Expression[arguments.size()];
+			
+			int j = 0;
+			for (Expression argument : arguments) {
+				args[j] = (org.jgll.datadependent.ast.Expression) argument.accept(this);
+				j++;
+			}
+			
+			return id.equals("indent")? indent(args[0]) : println(args);
 		}
 		
 		@Override
