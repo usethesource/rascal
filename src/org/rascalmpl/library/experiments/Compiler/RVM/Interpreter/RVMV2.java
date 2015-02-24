@@ -527,7 +527,7 @@ public class RVMV2 implements IRVM {
 
 	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
-//		Object[] stack = cf.stack;		                              	// current stack
+		Object[] stack = cf.stack;		                              	// current stack
 //		int sp = cf.function.nlocals;				                  	// current stack pointer
 		stack = cf.stack;		                              	// current stack
 		sp = cf.function.nlocals;				                  	// current stack pointer
@@ -1955,7 +1955,7 @@ public class RVMV2 implements IRVM {
 		stack[sp] = bVal == 1 ? Rascal_TRUE : Rascal_FALSE;
 	}
 
-	public void insnLOADINT(Object[] stack, int sp, int iVal) {
+	public void insnLOADINT(Object[] stack, int sp, int iVal) {	
 		stack[sp] = iVal;
 	}
 
