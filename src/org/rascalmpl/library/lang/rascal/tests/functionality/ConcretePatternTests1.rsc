@@ -2,20 +2,25 @@ module lang::rascal::tests::functionality::ConcretePatternTests1
 
 import ParseTree;
 
-
 syntax OptTestGrammar = A? a B b;
 
 syntax A = "a";
 syntax As = A+;
 
 syntax B = "b";
-syntax Bs = B*;
+syntax Bs = B* bs;
 
 syntax C = "c";
 syntax Cs = {C ","}+;
 
 syntax D = "d";
-syntax Ds = {D ","}*;
+syntax Ds = {D ","}* ds;
+
+lexical E = "e";
+lexical Es = {E ","}* es;
+
+lexical F = "f";
+lexical Fs = F* fs;
 
 lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
 lexical Mies = ([ab] [cd]);
@@ -93,11 +98,23 @@ test bool concreteMatch50() = (Ds) `<{D ","}* ds1>,<{D ","}* ds2>,d` := [Ds] "d"
 test bool concreteMatch51() = (Ds) `<{D ","}* ds1>,d,d,<{D ","}* ds2>,d` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 test bool concreteMatch52() = (Ds) `<{D ","}* ds1>,d,d,d,<{D ","}* ds2>` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 
+test bool concreteListEnum1() = size([x | B x <- ((Bs) ``).bs]) == 0;
+test bool concreteListEnum2() = size([x | B x <- ((Bs) `b`).bs]) == 1;
+test bool concreteListEnum3() = size([x | B x <- ((Bs) `bbbbb`).bs]) == 5;
+test bool concreteListEnum4() = size([x | D x <- ((Ds) ``).ds]) == 0;
+test bool concreteListEnum5() = size([x | D x <- ((Ds) `d`).ds]) == 1;
+test bool concreteListEnum6() = size([x | D x <- ((Ds) `d,d,d,d,d`).ds]) == 5;
+
+test bool lexicalListEnum1() = size([x | E x <- ((Es) `e,e,e,e,e,e,e`).es]) == 7;
+test bool lexicalListEnum2() = size([x | F x <- ((Fs) `ffffff`).fs]) == 6;
+
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
+
+
  
-@ignoreCompiler{Not yet implemented in typechcker}
+@ignoreCompiler{Not yet implemented in typechecker}
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-@ignoreCompiler{Not yet implemented in typechcker}
+@ignoreCompiler{Not yet implemented in typechecker}
 test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;
