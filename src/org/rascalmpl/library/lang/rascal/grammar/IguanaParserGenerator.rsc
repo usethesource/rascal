@@ -24,7 +24,10 @@ iprintln("gr before: <gr>");
   //gr = literals(gr);
   gr = flattenTokens(gr);
   //gr = addHoles(gr);
-  gr = expandKeywords(gr);
+  
+  // TODO: expandKeywords breaks when symbols have Tree children
+  //gr = expandKeywords(gr);
+  
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
