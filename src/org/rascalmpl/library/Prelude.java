@@ -844,6 +844,7 @@ public class Prelude {
 		return w.done();
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -866,6 +867,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprint(IValue arg, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
@@ -880,6 +882,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintToFile(ISourceLocation sloc, IValue arg) {
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		StringWriter sw = new StringWriter();
@@ -892,6 +895,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
@@ -907,11 +911,13 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IEvaluatorContext eval) {
 		eval.getStdOut().println();
 		eval.getStdOut().flush();
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -935,6 +941,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprintln(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -947,6 +954,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprint(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
@@ -1022,7 +1030,6 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue readFile(ISourceLocation sloc){
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
@@ -1035,7 +1042,7 @@ public class Prelude {
 		}
 	}
 	
-	public IValue readFileEnc(ISourceLocation sloc, IString charset){
+	public IString readFileEnc(ISourceLocation sloc, IString charset){
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(reader);
 		} 
@@ -1047,7 +1054,7 @@ public class Prelude {
 		}
 	}
 
-	private IValue consumeInputStream(Reader in) throws IOException {
+	private IString consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[512];
 		int read = 0;
@@ -1135,6 +1142,12 @@ public class Prelude {
 		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
 		}
 		
+		IList newV = computeOutputString(sloc, charset, V, append);
+		if (append && newV.length() != V.length()) { // append has been interpreted
+			append = false;
+		}
+		V = newV;
+		
 		try (OutputStreamWriter out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc, append), charset.getValue(), append)) {
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
@@ -1155,6 +1168,31 @@ public class Prelude {
 		return;
 	}
 	
+	private IList computeOutputString(ISourceLocation sloc, IString charset, IList toWrite, boolean append) {
+		try {
+			URIResolverRegistry reg = URIResolverRegistry.getInstance();
+			
+			sloc = reg.logicalToPhysical(sloc);
+			
+			if (!reg.supportsInputScheme(sloc.getScheme())) {
+				return toWrite;
+			}
+			
+			if (!sloc.hasOffsetLength()) {
+				return toWrite;
+			}
+
+			IString prefix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc),  0, sloc.getOffset() + (append ? sloc.getLength() : 0)), charset);
+			toWrite = toWrite.insert(prefix);
+			IString postfix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc), sloc.getOffset() + sloc.getLength(), 0), charset);
+			toWrite = toWrite.append(postfix);
+			
+			return toWrite;
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
 		try (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false))) {
 			Iterator<IValue> iter = blist.iterator();
@@ -1978,12 +2016,12 @@ public class Prelude {
 	}
 	
 	public INode unset(INode node, IString label) {
-		return node.asWithKeywordParameters().unsetParameter(label.getValue());
+           return node.asWithKeywordParameters().unsetParameter(label.getValue());
 	}
-	
-	public INode unset(INode node) {
-		return node.asWithKeywordParameters().unsetAll();
-	}
+    
+    public INode unset(INode node) {
+        return node.asWithKeywordParameters().unsetAll();
+    }
 	
 	/*
 	 * ParseTree
@@ -2012,7 +2050,8 @@ public class Prelude {
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
 	}
-
+	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
 	}
@@ -3163,7 +3202,6 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IInteger getFileLength(ISourceLocation g) throws IOException {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());

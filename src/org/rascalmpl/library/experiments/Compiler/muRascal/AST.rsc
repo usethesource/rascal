@@ -136,7 +136,9 @@ public data MuExp =
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           
-          | muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)		// switch over cases for specific type
+          | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
+         	
+          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
@@ -186,35 +188,24 @@ public data MuExp =
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
 public MuExp muOne1(muMulti(MuExp exp)) = muOne1(exp);
 
- 
-data MuModule(loc \location = |unknown:///|);
- 
-data MuFunction(loc \location = |unknown:///|);
- 
-data MuVariable(loc \location = |unknown:///|);
- 
-data MuExp(loc \location = |unknown:///|);
- 
-data MuCatch(loc \location = |unknown:///|);
- 
-data MuTypeCase(loc \location = |unknown:///|);
- 
-data Identifier(loc \location = |unknown:///|);
- 
-data VarDecl(loc \location = |unknown:///|);
+anno loc MuModule@\location;
+anno loc MuFunction@\location;
+anno loc MuVariable@\location;
+anno loc MuExp@\location;
+anno loc MuCatch@\location;
+anno loc MuCase@\location;
+anno loc Identifier@\location;
+anno loc VarDecl@\location;
 
- 
-data Module(loc \location = |unknown:///|);
- 
-data TypeDeclaration(loc \location = |unknown:///|);
- 
-data Guard(loc \location = |unknown:///|);
- 
-data Function(loc \location = |unknown:///|);
+anno loc Module@\location;
+anno loc TypeDeclaration@\location;
+anno loc Guard@\location;
+anno loc Function@\location;
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
-data MuTypeCase = muTypeCase(str name, MuExp exp);	  
+data MuTypeCase = muTypeCase(str name, MuExp exp);
+data MuCase = muCase(int fingerprint, MuExp exp);	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
@@ -302,7 +293,8 @@ public data MuExp =
             | preWhile(MuExp cond, list[MuExp] body, bool comma)
             | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
-            | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
+            | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepTypeCases, MuExp \default, bool comma)
+ //           | preSwitch(MuExp exp, lrel[MuCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
             
             | preSubscript(MuExp arr, MuExp index)
@@ -385,9 +377,6 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), m
 
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
-
-// Templates
-MuExp muCallPrim3("value_to_string", [muCon(value v)], loc src) = muCon("<v>");
 
 
 //// muRascal primitives

@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::RascalType
 
 import Type;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Symbols;
@@ -50,7 +51,7 @@ Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(
 Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
 Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
 Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  = sym2symbol(symbol);
+Symbol translateType(t : (Type) `<Sym symbol>`)  = insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
 
 Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
 Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));

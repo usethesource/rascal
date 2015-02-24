@@ -92,7 +92,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -541,19 +540,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isString()) {
 				return TF.nodeType();
 			}
+			
 			if (lambda.isSourceLocation()) {
 				return lambda;
 			}
+			
 			if (lambda.isExternalType()) {
 				if (lambda instanceof FunctionType) {
 					return ((FunctionType) lambda).getReturnType();
 				}
+				
 				if (lambda instanceof OverloadedFunctionType) {
 					return ((OverloadedFunctionType) lambda).getReturnType();
 				}
 			}
 
-			throw new UnsupportedPattern(lambda + "(...)", this);
+			return TF.nodeType();
 		}
 	}
 

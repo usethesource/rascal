@@ -159,7 +159,7 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(list[loc] roots = [|project://rascal/|, |project://rascal/src/org/rascalmpl/tutor|]){
+tuple[set[loc],set[loc]] compileAll(list[loc] roots = [|project://rascal/src|, |project://rascal/src/org/rascalmpl/tutor|]){
 	allFiles = [ *find(root, "rsc") | root <- roots];
 
 	nfiles = size(allFiles);

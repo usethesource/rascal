@@ -2,6 +2,8 @@
 module lang::rascal::upgrade::UpgradeAnnotationsToKeywordParameters
 
 extend lang::rascal::upgrade::UpgradeBase;
+ 
+data Tree(loc origin = |unknown:///|);
 
 list[Message] report(Tree m) 
   = [info("found annotation definition", name.origin) | /(Declaration) `<Tags _> <Visibility v> anno <Type _> <Type _>@<Name name>;` := m]

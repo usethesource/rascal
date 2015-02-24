@@ -37,7 +37,7 @@ var printq = function(o){
         while (args.length > 0) {
             src = args.splice(0, 1)[0];
             if (toString.call(src) == '[object Object]') {
-                for (p in src) {
+                for (var p in src) {
                     if (src.hasOwnProperty(p)) {
                         if (toString.call(src[p]) == '[object Object]') {
                             dst[p] = merge(dst[p] || {}, src[p]);
@@ -62,17 +62,18 @@ var printq = function(o){
       // instantiates the pie chart, passes in the data and
       // draws it.
       function drawChart(figure, w, h) {
-
         // Create the data table.
-        var data = new google.visualization.DataTable();
-        // alert(JSON.stringify(figure.data));
-        for (i=0;i<figure.columns.length;i++) {
-            var x = figure.columns[i];
-            data.addColumn(x);
-            }
-        // alert(JSON.stringify(figure.columns));
-        data.addRows(figure.data);
-        
+        var data;
+        if (figure.columns.length>0) {
+           data = new google.visualization.DataTable();
+           for (var i=0;i<figure.columns.length;i++) {
+              var x = figure.columns[i];
+              data.addColumn(x);
+              }
+           data.addRows(figure.data);
+           }
+        else 
+           data = google.visualization.arrayToDataTable(figure.data, false);
         // Set chart options
         var options = {title:figure.name,            
                         width:w,
@@ -85,11 +86,12 @@ var printq = function(o){
                        };
 
         // Instantiate and draw our chart, passing in some options.
-         var chart = new google.visualization[figure.command](document.getElementById('chart_div'));
+         var chart = new google.visualization[figure.command](document.getElementById('chart_div'+idx));
+         idx = idx + 1;
          // alert(JSON.stringify(options));
          // alert(JSON.stringify(figure.options));
          // alert(JSON.stringify(merge(options, figure.options)));
-        // var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        // var chart = new google.visualization.LineChart(document.getElementById('chart_div1'));
         
         chart.draw(data, merge(options,figure.options));
       }
@@ -100,18 +102,20 @@ var printq = function(o){
 /*				google		 					*/
 /********************************************************/
 
+var idx = 0;
 
 Figure.bboxFunction.google = function(selection) {
     Figure.registerComponent("google", this.name);
-    
     Figure.drawFunction[this.name] = function(figure, x, y, w, h) {
-      figure.svg.append("foreignObject")
+      // alert(x);
+      selection.append("foreignObject")
      .attr("width", figure.width)
      .attr("height", figure.height)
      .attr("x", x).attr("y", y)
      .append("xhtml:body")
-     .attr("id", "chart_div")
-     .attr("style","stroke:none;");  
+     .attr("id", "chart_div"+idx)
+     .attr("style","stroke:none;"); 
+     // alert(figure.width); 
      drawChart(figure, w, h);
      } 
     this.svg = selection.append("svg");    

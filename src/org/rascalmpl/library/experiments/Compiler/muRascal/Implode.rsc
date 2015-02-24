@@ -51,7 +51,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
        }
        locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals.vardecls[0] ] );
        //locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
-       assert size(locals) == size({ *locals });
+       assert size(locals) == size({ *locals }) : "Incorrect number of locals in preprocess";
        
        vdfs = ("<locals[i].var>" : i  | int i <- index(locals));
        vardefs =  vardefs + (uid : vdfs);
@@ -69,7 +69,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, {}, [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), pmod.\location);
+   return muModule(pmod.name, {}, [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), pmod@\location);
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
@@ -137,8 +137,8 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
    list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals.vardecls[0], vdecl has initializer ];
    //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
-   return (f is preCoroutine) ? muCoroutine(uid, f.name, scopeIn, size(f.formals), size(vardefs[uid]), f.origin, refs,  muBlock(body))
-                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, f.origin, [], (), muBlock(body));
+   return (f is preCoroutine) ? muCoroutine(uid, f.name, scopeIn, size(f.formals), size(vardefs[uid]), f@location, refs,  muBlock(body))
+                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, f@location, [], (), muBlock(body));
 }
 
 str fuid = "";
@@ -169,7 +169,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
      	       // Specific to delimited continuations (experimental)
      	       case preContLoc()                                                                => muContVar(uid)
      	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
-     	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
+     	       //case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
      	       case preAssignLoc(Identifier id, MuExp exp1) 									=> muAssign(id.var,uid,vardefs[uid][id.var], exp1)
      	       case preAssign(lrel[str,int] funNames1, 
@@ -188,15 +188,20 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case muCallPrim2(str name, loc src)                                            	=> muCallPrim3(name[1..-1], [], src)
                case muCallPrim3(str name, list[MuExp] exps, loc src)						    => muCallPrim3(name[1..-1], exps, src)			// strip surrounding quotes
                
-               case org_exp: preMuCallPrim1(str name)                                           => muCallPrim3(name[1..-1], [],   org_exp.origin)
-               case org_exp:preMuCallPrim2(str name, list[MuExp] exps)							=> muCallPrim3(name[1..-1], exps, org_exp.origin)
+               case org_exp: preMuCallPrim1(str name)                                           => muCallPrim3(name[1..-1], [],   org_exp@location)
+               case org_exp:preMuCallPrim2(str name, list[MuExp] exps)							=> muCallPrim3(name[1..-1], exps, org_exp@location)
                
-               case org_exp: preThrow(MuExp exp1)												=> muThrow(exp1, org_exp.origin)
+               case org_exp: preThrow(MuExp exp1)												=> muThrow(exp1, org_exp@location)
                
-               case org_exp: muCall(preVar(mvar("typeOf")), [exp1])                             => muCallPrim3("typeOf", [exp1], org_exp.origin)
-               case org_exp: muCall(preVar(mvar("elementTypeOf")), [exp1])                      => muCallPrim3("elementTypeOf", [exp1], org_exp.origin)
-               case org_exp: muCall(preVar(mvar("subtype")), [exp1, exp2])                      => muCallPrim3("subtype", [exp1, exp2], org_exp.origin)
-               
+              // Calls that are directly mapped to RascalPrimitives
+                   
+               case org_exp: muCall(preVar(mvar("typeOf")), [exp1])                             => muCallPrim3("typeOf", [exp1], org_exp@location)
+               case org_exp: muCall(preVar(mvar("elementTypeOf")), [exp1])                      => muCallPrim3("elementTypeOf", [exp1], org_exp@location)
+               case org_exp: muCall(preVar(mvar("value_is_subtype")), [exp1, exp2])      		=> muCallPrim3("subtype_value_type", [exp1, exp2], org_exp@location)
+               case org_exp: muCall(preVar(mvar("subtype")), [exp1, exp2])                      => muCallPrim3("subtype", [exp1, exp2], org_exp@location)
+               case org_exp: muCall(preVar(mvar("is_element")), [exp1, exp2])					=> muCallPrim3("elm_in_set", [exp1, exp2], org_exp@\location)
+               case org_exp: muCall(preVar(mvar("subset")), list[MuExp] exps)					=> muCallPrim3("set_lessequal_set", exps, org_exp@location)
+               case org_exp: muCall(preVar(mvar("make_tuple")), list[MuExp] exps)				=> muCallPrim3("tuple_create", exps, org_exp@location)
                
                // Calls that are directly mapped to muPrimitives
                
@@ -217,7 +222,6 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("size_tuple")), [exp1])									=> muCallMuPrim("size_tuple", [exp1])
                case muCall(preVar(mvar("size")),[exp1])                             	        => muCallMuPrim("size",[exp1])
                case muCall(preVar(mvar("is_defined")), [exp1])									=> muCallMuPrim("is_defined", [exp1])
-               case muCall(preVar(mvar("is_element")), [exp1, exp2])							=> muCallMuPrim("is_element", [exp1, exp2])
                case muCall(preVar(mvar("is_tail")), [exp1, exp2, exp3])							=> muCallMuPrim("is_tail_str_str_mint", [exp1, exp2, exp3])
                case muCall(preVar(mvar("substring")), [exp1, exp2, exp3])						=> muCallMuPrim("substring_str_mint_mint", [exp1, exp2, exp3])
                case muCall(preVar(mvar("is_element_mset")), [exp1, exp2])						=> muCallMuPrim("is_element_mset", [exp1, exp2])
@@ -246,7 +250,6 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("starts_with")), [exp1, exp2, exp3])						=> muCallMuPrim("starts_with", [exp1, exp2, exp3])
                case muCall(preVar(mvar("sublist")), list[MuExp] exps)							=> muCallMuPrim("sublist_list_mint_mint", exps)
                case muCall(preVar(mvar("occurs")), list[MuExp] exps)							=> muCallMuPrim("occurs_list_list_mint", exps)
-               case org_exp: muCall(preVar(mvar("subset")), list[MuExp] exps)					=> muCallPrim3("set_lessequal_set", exps, org_exp.origin)
                case muCall(preVar(mvar("subset_set_mset")), list[MuExp] exps)					=> muCallMuPrim("set_is_subset_of_mset", exps)
                case muCall(preVar(mvar("mset_destructive_subtract_mset")), list[MuExp] exps)	=> muCallMuPrim("mset_destructive_subtract_mset", exps)
                case muCall(preVar(mvar("mset_destructive_add_mset")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_mset", exps)
@@ -261,7 +264,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
                case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
                case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
-               case org_exp: muCall(preVar(mvar("make_tuple")), list[MuExp] exps)				=> muCallPrim3("tuple_create", exps, org_exp.origin)
+               
                case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
                case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)						
                case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)
@@ -292,9 +295,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
       	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun2(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
-      	       case org_exp: muAll(list[MuExp] exps)                                            => makeMu("ALL",exps,org_exp.origin)
-      	       case org_exp: muOr(list[MuExp] exps)                                             => makeMu("OR",exps,org_exp.origin)
-      	       case org_exp: muOne2(list[MuExp] exps)                                           => makeMuOne("ALL",exps,org_exp.origin)
+      	       case org_exp: muAll(list[MuExp] exps)                                            => makeMu("ALL",exps,org_exp@location)
+      	       case org_exp: muOr(list[MuExp] exps)                                             => makeMu("OR",exps,org_exp@location)
+      	       case org_exp: muOne2(list[MuExp] exps)                                           => makeMuOne("ALL",exps,org_exp@location)
       	       
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
@@ -307,8 +310,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
                                                      list[MuExp] elsePart, bool comma2)         => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
-               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepCases, 
-                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepCases<0>, \default)
+               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepTypeCases, 
+                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepTypeCases<0>, \default)
                case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
                
                case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])

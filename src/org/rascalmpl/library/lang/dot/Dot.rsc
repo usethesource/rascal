@@ -105,13 +105,13 @@ public str getParent(Dotline g, str v) {
     }
 */ 
 /*--------------------------------------------------------------------------------------------------------------------------*/
-
+/*
 DotGraph g1(int n) {
     Stms ts = [E(i, "<i>", (i+1) mod n) |int i<-[0,1..n]];
     Stm t = S([A("rank","source"), N(5)]);
     return digraph("g1", ts+t);
     }
-
+*/
 str reLabel(str prop, str val) {
   // println(prop);
   if (prop=="label") {
@@ -135,7 +135,7 @@ str oCompassPt(CompassPt id) {
     case W(): return "w";
     case NW(): return "nw";
     case C(): return "c";
-    case _(): return "_";
+    // case _(): return "_";
     }
     return "_";
     }
@@ -162,7 +162,7 @@ str oStm(Stm x) {
         case E(Id from, Id to, Attrs attrs): return "<from>-\><to><oAttrs(attrs)>";
         
         case E(NodeId from, Id to): return "<oNodeId(from)>-\><to>";
-        case E(Id from, Id to, Attrs attrs): return "<oNodeId(from)>-\><to><oAttrs(attrs)>";
+        case E(Id from, Id to, Attrs attrs): return "<from>-\><to><oAttrs(attrs)>";
         
         case E(Stm from, Id to): return "<oStm(from)>-\><to>";
         case E(Stm from, Id to, Attrs attrs): return "<oStm(from)>-\><to><oAttrs(attrs)>";
@@ -171,7 +171,7 @@ str oStm(Stm x) {
         case E(Id from, NodeId to, Attrs attrs): return "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
         case E(NodeId from, NodeId to): return "<oNodeId(from)>-\><oNodeId(to)>";
-        case E(Id from, NodeId to, Attrs attrs): return "<oNodeId(from)>-\><oNodeId(to)><oAttr(attrs)>";
+        case E(Id from, NodeId to, Attrs attrs): return "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
         case E(Stm from, NodeId to): return "<oStm(from)>-\><oNodeId(to)>";
         case E(Stm from, NodeId to, Attrs attrs): return "<oStm(from)>-\><oNodeId(to)><oAttrs(attrs)>";
@@ -180,9 +180,9 @@ str oStm(Stm x) {
         case E(Id from, Stm to, Attrs attrs): return "<from>-\><oStm(to)><oAttrs(attrs)>";
         
         case E(NodeId from, Stm to): return "<oNodeId(from)>-\><oStm(to)>";
-        case E(Id from, Stm to, Attrs attrs): return "<oNodeId(from)>-\><oStm(to)><oAttrs(attrs)>";
+        case E(Id from, Stm to, Attrs attrs): return "<from>-\><oStm(to)><oAttrs(attrs)>";
         
-        case E(Stm from, Stm to): return "<oStm(from)>-\><oStmt(to)>";
+        case E(Stm from, Stm to): return "<oStm(from)>-\><oStm(to)>";
         case E(Stm from, Stm to, Attrs attrs): return "<oStm(from)>-\><oStm(to)><oAttrs(attrs)>";
         
         case S(Stms stms): return "subgraph {<oStms(stms,";")>} ";

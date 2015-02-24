@@ -153,7 +153,7 @@ public class RVM {
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
-		MuPrimitive.init(vf, stdout, rex.getProfile());
+		MuPrimitive.init(vf);
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 		
@@ -479,7 +479,6 @@ public class RVM {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
 		rex.setCurrentModuleName(moduleName);
@@ -677,6 +676,22 @@ public class RVM {
 					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
 					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_SWITCH:
+					val = (IValue) stack[--sp];
+					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					int caseDefault = CodeBlock.fetchArg2(instruction);
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					
+					IInteger x = (IInteger) caseLabels.get(fp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
+					if(x == null){
+							stack[sp++] = vf.bool(false);
+							pc = caseDefault;
+					} else {
+						pc = x.intValue();
+					}
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADTYPE:
 					stack[sp++] = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
@@ -779,7 +794,7 @@ public class RVM {
 					s = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
 
-					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) { 
 						if (fr.scopeId == s) {
 							ref = (Reference) fr.stack[pos];
 							ref.stack[ref.pos] = stack[sp - 1];
@@ -915,7 +930,7 @@ public class RVM {
 						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity)
+						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, cf, null, arity)  // changed root to cf
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
 					
@@ -949,6 +964,20 @@ public class RVM {
 						constructor = c_ofun_call_next.nextConstructor(constructorStore);
 						sp = sp - arity;
 						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CHECKARGTYPEANDCOPY:
+					pos = CodeBlock.fetchArg1(instruction);
+					Type argType = ((IValue) stack[pos]).getType();
+					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
+					
+					int pos2 = instructions[pc++];
+					if(argType.isSubtypeOf(paramType)){
+						stack[pos2] = stack[pos];
+						stack[sp++] = vf.bool(true);
+					} else {
+						stack[sp++] = vf.bool(false);
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -1313,18 +1342,6 @@ public class RVM {
 					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
-					
-				case Opcode.OP_CHECKARGTYPE:
-					Type argType =  ((IValue) stack[sp - 2]).getType();
-					Type paramType = ((Type) stack[sp - 1]);
-//					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
-//					if(!argType.isSubtypeOf(paramType)){
-//						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
-//						boolean b = argType.isSubtypeOf(paramType);
-//					}
-					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
-					sp--;
-					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
 					throw new CompilerError("LABEL instruction at runtime", cf);
@@ -1456,6 +1473,7 @@ public class RVM {
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
+					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
@@ -1477,6 +1495,10 @@ public class RVM {
 						}
 					}
 					// If a handler has not been found in the caller functions...
+					stdout.println("EXCEPTION " + thrown + " at: " + cf.src);
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						stdout.println("\t" + f.toString());
+					}
 					return thrown;
 				}
 				
@@ -1486,7 +1508,8 @@ public class RVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause(), cf );
+			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
+			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
@@ -1653,32 +1676,15 @@ public class RVM {
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
-			"org.rascalmpl.library.PreludeCompiled.exists",
-			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			
 			"org.rascalmpl.library.PreludeCompiled.implode",
-			"org.rascalmpl.library.PreludeCompiled.isDirectory",
-			"org.rascalmpl.library.PreludeCompiled.isFile",
-			"org.rascalmpl.library.PreludeCompiled.remove",
-			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
-			"org.rascalmpl.library.PreludeCompiled.listEntries",
 			"org.rascalmpl.library.PreludeCompiled.parse",
-			"org.rascalmpl.library.PreludeCompiled.readFile",
-			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
-			"org.rascalmpl.library.PreludeCompiled.writeFile",
-			"org.rascalmpl.library.PreludeCompiled.writeFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.writeBytes",
-			"org.rascalmpl.library.PreludeCompiled.appendToFile",
-			"org.rascalmpl.library.PreludeCompiled.appendToFileEnc",
-			"org.rascalmpl.library.PreludeCompiled.readFileLines",
-			"org.rascalmpl.library.PreludeCompiled.readFileLinesEnc",
-			"org.rascalmpl.library.PreludeCompiled.readFileBytes",
-			"org.rascalmpl.library.PreludeCompiled.getFileLength",
-			"org.rascalmpl.library.PreludeCompiled.readBinaryValueFile",
-			"org.rascalmpl.library.PreludeCompiled.readTextValueFile",
-			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
-			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
-			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.PreludeCompiled.print",
+			"org.rascalmpl.library.PreludeCompiled.println",
+			"org.rascalmpl.library.PreludeCompiled.iprint",
+			"org.rascalmpl.library.PreludeCompiled.iprintln",
+			"org.rascalmpl.library.PreludeCompiled.rprint",
+			"org.rascalmpl.library.PreludeCompiled.rprintln",
 			"org.rascalmpl.library.util.MonitorCompiled.startJob",
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
@@ -1686,6 +1692,7 @@ public class RVM {
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
 
 			/*

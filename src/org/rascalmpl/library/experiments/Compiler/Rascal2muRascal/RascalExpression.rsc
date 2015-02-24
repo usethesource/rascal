@@ -9,6 +9,7 @@ import Map;
 import Set;
 import String;
 import ParseTree;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
@@ -171,7 +172,6 @@ MuExp add(Expression e){
 }
 
 MuExp translateAddFunction(Expression e){
-
   //println("translateAddFunction: <e>");
   lhsType = getType(e.lhs.origin);
   rhsType = getType(e.rhs.origin);
@@ -299,23 +299,40 @@ MuExp translate((Literal) `<StringLiteral n>`) =
 	   = @category="Constant" [\>] StringCharacter* [\"] ;
 */	
 
+// -- translateStringLiteral
+
 private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) {
-    str fuid = topFunctionScope();
-	preResult = nextTmp();
-	return muBlock( [ muAssignTmp(preResult, fuid, translatePreChars(pre)),
-                      muCallPrim3("template_addunindented", [ translateTemplate(template, computeIndent(pre), preResult, fuid), *translateTail(tail)], s.origin)
+    preIndent = computeIndent(pre);
+	return muBlock( [ muCallPrim3("template_open", translatePreChars(pre), pre.origin),
+                      *translateTemplate(preIndent, template),
+                      *translateTail(preIndent, tail),
+                      muCallPrim3("template_close", [], tail.origin)
                     ]);
 }
     
 private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) {
-    str fuid = topFunctionScope();
-    preResult = nextTmp();
-    return muBlock( [ muAssignTmp(preResult, fuid, translatePreChars(pre)),
-					  muCallPrim3("template_addunindented", [ translateTemplate(expression, computeIndent(pre), preResult, fuid), *translateTail(tail)], s.origin)
+    preIndent = computeIndent(pre);
+    return muBlock( [ muCallPrim3("template_open", translatePreChars(pre), pre.origin),
+    				  *translateExpInStringLiteral(preIndent, expression),
+    				  *translateTail(preIndent, tail),
+    				  muCallPrim3("template_close", [], tail.origin)
 					]   );
 }
                     
 private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString(removeMargins("<constant>")));
+
+// --- translateExpInStringLiteral
+
+private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){
+    if(indent == ""){
+    	return [ muCallPrim3("template_add", [translate(expression)], expression.origin)];
+    }	
+	return [ muCallPrim3("template_indent", [muCon(indent)], expression.origin),
+    	     muCallPrim3("template_add", [translate(expression)], expression.origin),
+    		 muCallPrim3("template_unindent", [muCon(indent)], expression.origin)
+    	   ];
+}
+// --- removeMargins
 
 private str removeMargins(str s) {
 	if(findFirst(s, "\n") < 0){
@@ -325,6 +342,8 @@ private str removeMargins(str s) {
 	}
 }
 
+// --- computeIndent 
+
 private str computeIndent(str s) {
    lines = split("\n", removeMargins(s)); 
    return isEmpty(lines) ? "" : left("", size(lines[-1]));
@@ -333,17 +352,17 @@ private str computeIndent(str s) {
 private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(deescape("<pre>"[1..-1])));
 private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(deescape("<mid>"[1..-1])));
 
-private MuExp translateChars(str s) = muCon(removeMargins(deescape(s[1..-1])))
-when bprintln(s[1..-1]);
+private list[MuExp] translatePreChars(PreStringChars pre) {
+   spre = removeMargins(deescape("<pre>"[1..-1]));
+   return spre == "" ? [] : [ muCon(spre) ];
+}	
 
-private MuExp translatePreChars(PreStringChars pre) =
-  muCon(removeMargins(deescape("<pre>"[1..-1])));
+private list[MuExp] translateMidChars(MidStringChars mid) {
+  smid = removeMargins(deescape("<mid>"[1..-1]));
+  return mid == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid.origin) ];
+}
 
-private MuExp translateMidChars(MidStringChars mid) =
-  muCon(removeMargins(deescape("<mid>"[1..-1])));
-
-
-private str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
 
 /* Recap of relevant rules from Rascal grammar:
 
@@ -365,54 +384,58 @@ private str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t
         | midTemplate: MidStringChars mid StringTemplate template StringTail tail ;
 */
 
-public MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins(deescape("<mid>"[1..-1])));
+// --- translateMiddle
 
-public MuExp translateMiddle(s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
-    str fuid = topFunctionScope();
-    midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, fuid, translateMidChars(mid)),
-   			          muCallPrim3("template_addunindented", [ translateTemplate(template, computeIndent(mid), midResult, fuid), translateMiddle(tail) ], s.origin)
-   			        ]);
+public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
+	mids = removeMargins(deescape("<mid>"[1..-1]));
+	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(mids)], mid.origin) ];
+}
+
+public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
+	midIndent = computeIndent(mid);
+    return [ *translateMidChars(mid),
+   			 *translateTemplate(indent + midIndent, template),
+   			 *translateMiddle(indent, tail)
+   		   ];
    	}
 
-public MuExp translateMiddle(s: (StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
-    str fuid = topFunctionScope();
-    midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, fuid, translateMidChars(mid)),
-                      muCallPrim3("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult, fuid), translateMiddle(tail) ], s.origin)
-                    ]);
+public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
+	midIndent = computeIndent(mid);
+    return [ *translateMidChars(mid),
+    		 *translateExpInStringLiteral(midIndent, expression),
+             *translateMiddle(indent + midIndent, tail)
+           ];
 }
-  
-private list[MuExp] translateTail(s: (StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
-    str fuid = topFunctionScope();
-    midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, fuid, translateMidChars(mid)),
-                      muCallPrim3("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult, fuid), *translateTail(tail)], s.origin)
+
+// --- translateTail
+
+private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
+    midIndent = computeIndent(mid);
+    return [ muBlock( [ *translateMidChars(mid),
+    					*translateExpInStringLiteral(midIndent, expression),
+                        *translateTail(indent + midIndent, tail)
                     ])
            ];
 }
 	
-private list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
+private list[MuExp] translateTail(str indent, (StringTail) `<PostStringChars post>`) {
   content = removeMargins(deescape("<post>"[1..-1]));
-  return size(content) == 0 ? [] : [muCon(deescape(content))];
+  return size(content) == 0 ? [] : [muCallPrim3("template_add", [ muCon(deescape(content)) ], post.origin)];
 }
 
-private list[MuExp] translateTail(s: (StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
-    str fuid = topFunctionScope();
-    midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, fuid, translateMidChars(mid)),
-                        muCallPrim3("template_addunindented", [ translateTemplate(template, computeIndent(mid), midResult, fuid), *translateTail(tail) ], s.origin)
+private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
+    midIndent = computeIndent(mid);
+    return [ muBlock( [ *translateMidChars(mid),
+                        *translateTemplate(indent + midIndent, template),
+                        *translateTail(indent + midIndent,tail)
                     ])
            ];
- }  
+ } 
  
- private MuExp translateTemplate(Expression e, str indent, str preResult, str prefuid){
-    str fuid = topFunctionScope();
-    result = nextTmp();
-    return muBlock([ muAssignTmp(result, fuid, muCallPrim3("template_open", [muCon(indent), muTmp(preResult,prefuid)], e.origin)),
-    				 muAssignTmp(result, fuid, muCallPrim3("template_add", [ muTmp(result,fuid), muCallPrim3("value_to_string", [translate(e)], e.origin) ], e.origin)),
-                     muCallPrim3("template_close", [muTmp(result,fuid)], e.origin)
-                   ]);
+ // --- translateTemplate 
+ 
+ private list[MuExp] translateTemplate(str indent, Expression expression){
+ 	return translateExpInStringLiteral(indent, expression);
  }
  
 // -- location literal  ----------------------------------------------
@@ -555,12 +578,20 @@ MuExp getConstructor(str cons) {
 */
 
 
-MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
-    fragType = getType(e.origin);
-    println("translateConcrete, fragType = <fragType>");
+Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
+	fragType = getType(e.origin);
+    //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
-    println("translateConcrete, reified: <reifiedFragType>");
-    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e.origin, getGrammar());
+    return parseFragment(getModuleName(), reifiedFragType, e, e.origin, getGrammar());
+} 
+
+MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+    //fragType = getType(e.origin);
+    //println("translateConcrete, fragType = <fragType>");
+    //reifiedFragType = symbolToValue(fragType);
+    //println("translateConcrete, reified: <reifiedFragType>");
+    //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e.origin, getGrammar());
+    Tree parsedFragment = parseConcrete(e);
     //println("parsedFragment, before"); iprintln(parsedFragment);
     return translateConcreteParsed(parsedFragment, parsedFragment.origin);
 }
@@ -569,18 +600,18 @@ default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muC
 
 MuExp translateConcreteParsed(Tree e, loc src){
    if(appl(Production prod, list[Tree] args) := e){
-       my_src = e has origin ? e.origin : src;
-       iprintln(e);
+       my_src = e.origin ? src;
+       //iprintln(e);
        if(prod.def == label("hole", lex("ConcretePart"))){
            varloc = args[0].args[4].args[0].origin;		// TODO: refactor (see concrete patterns)
-           println("varloc = <getType(varloc)>");
+           //println("varloc = <getType(varloc)>");
            <fuid, pos> = getVariableScope("ConcreteVar", varloc);
            
            return muVar("ConcreteVar", fuid, pos);
         } 
         MuExp translated_elems;
         if(any(arg <- args, isConcreteListVar(arg))){ 
-           println("splice in concrete list");      
+           //println("splice in concrete list");      
            str fuid = topFunctionScope();
            writer = nextTmp();
         
@@ -719,8 +750,8 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   return
     muBlock(
     [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e.origin)),
-      muWhile(loopname, makeMu("ALL", [ rangecode ], e.origin), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e.origin)]),
-      muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e.origin) 
+      muWhile(loopname, makeMu("ALL", [ rangecode ], e.origin), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
+      muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
     
 }
@@ -739,9 +770,9 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   
   return
     muBlock(
-    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e.origin)),
-      muWhile(loopname, makeMu("ALL", [ rangecode ], e.origin), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e.origin)]),
-      muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e.origin) 
+    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
+      muWhile(loopname, makeMu("ALL", [ rangecode ], e@\loc), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
+      muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
 }
 
@@ -753,7 +784,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 // 
 // The global translation scheme is to translate each visit to a function PHI, with local functions per case.
 // For the fixedpoint strategies innermost and outermost, a wrapper function PHI_FIXPOINT is generated that
-// carries out the fixed point computation. PHI and PHIFIXPOINT have 5 common formal parameters, and the latter has
+// carries out the fixed point computation. PHI and PHIFIXPOINT have 6 common formal parameters, and the latter has
 // two extra local variables:
 //
 // PHI:	iSubject		PHI_FIXPOINT:	iSubject
@@ -761,6 +792,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 //		hasInsert						hasInsert
 //		begin							begin
 //		end								end
+//		descriptor						descriptor
 //										changed
 //										val
 
@@ -771,18 +803,19 @@ private int matchedPos = 1;
 private int hasInsertPos = 2;
 private int beginPos = 3;
 private int endPos = 4;
+private int iDescDescriptorPos = 5;
 
-private int NumberOfPhiFormals = 5;
+private int NumberOfPhiFormals = 6;
 
 // Generated PHI_FIXPOINT functions
-// iSubjectPos, matchedPos, hasInsert, begin, end as for PHI
+// iSubjectPos, matchedPos, hasInsert, begin, end, descriptor (as for PHI)
 // Extra locals
 
-private int changedPos = 5;
-private int valPos = 6;
+private int changedPos = 6;
+private int valPos = 7;
 
-private int NumberOfPhiFixFormals = 5;
-private int NumberOfPhiFixLocals = 7;
+private int NumberOfPhiFixFormals = 6;
+private int NumberOfPhiFixLocals = 8;
 
 
 MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
@@ -816,17 +849,28 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "PHI_<i>";
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),	// iSubject
-	                                                   Symbol::\bool(),		// matched
-	                                                   Symbol::\bool(),		// hasInsert
-	                                                   Symbol::\int(),		// begin
-	                                                   Symbol::\int()		// end
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),				// iSubject
+	                                                   Symbol::\bool(),					// matched
+	                                                   Symbol::\bool(),					// hasInsert
+	                                                   Symbol::\int(),					// begin
+	                                                   Symbol::\int(),					// end
+	                                                   Symbol::\list(Symbol::\value()),	// iDescDescriptor
+	                                                   Symbol::\bool()					// concreteMatch
 	                                                  ]);
 	
 	enterVisit();
 	enterFunctionScope(phi_fuid);
+	cases = [ c | Case c <- \visit.cases ];
 	
-	MuExp body = translateVisitCases([ c | Case c <- \visit.cases ], phi_fuid, getType(\visit.subject.origin));
+	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), cases);
+	concreteMatch = hasConcretePatternsOnly(cases);
+	tc = getTypesAndConstructorsInVisit(cases);
+	reachable = getReachableTypes(getType(\visit.subject@\loc), tc.constructors, tc.types, concreteMatch);
+	println("reachableTypesInVisit: <reachable>");
+	
+	
+	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+	
 	
 	// ***Note: (fixes issue #434) 
 	//    (1) All the variables introduced within a visit scope should become local variables of the phi-function
@@ -834,19 +878,21 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	//                                 (b) introduced within the phi's scope as part of translation
 	//        are affected
 	// TODO: It seems possible to perform this lifting during translation 
-	rel[str fuid,int pos] decls = getAllVariablesAndFunctionsOfBlockScope(\visit.origin);
+	rel[str fuid,int pos] decls = getAllVariablesAndFunctionsOfBlockScope(\visit@\loc);
 	
 	//println("getAllVariablesAndFunctionsOfBlockScope:");
 	//for(tup <- decls){
 	//	println(tup);
 	//}
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end)
+	
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor)
 	int pos_in_phi = NumberOfPhiFormals;
+	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
 	map[tuple[str,int],tuple[str,int]] mapping = ();
 	for(<str fuid,int pos> <- decls, pos != -1) {
-	    assert fuid == scopeId;
-	    mapping[<scopeId,pos>] = <phi_fuid,pos_in_phi>;
+	    assert fuid == scopeId : "translateVisit: fuid != scopeId";
+	    mapping[<scopeId,pos>] = <phi_fuid, pos_in_phi>;
 	    pos_in_phi = pos_in_phi + 1;
 	}
 	
@@ -877,7 +923,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	
 	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
-	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, NumberOfPhiFormals, pos_in_phi, false, \visit.origin, [], (), body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, NumberOfPhiFormals, pos_in_phi, false, \visit@\loc, [], (), body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -887,7 +933,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 		
 		enterFunctionScope(phi_fixpoint_fuid);
 		
-		// Local variables of 'phi_fixpoint_fuid': 'iSubject', 'matched', 'hasInsert', 'begin', 'end', 'changed', 'val'
+		// Local variables of 'phi_fixpoint_fuid': iSubject, matched, hasInsert, begin, end, iReachableTypes, concreteMatch, changed, val
 		list[MuExp] body_exps = [];
 		body_exps += muAssign("changed", phi_fixpoint_fuid, changedPos, muBool(true));
 		body_exps += muWhile(nextLabel(), muVar("changed", phi_fixpoint_fuid, changedPos), 
@@ -896,17 +942,18 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 						                                                     muVar("matched", phi_fixpoint_fuid, matchedPos), 
 						                                                     muVar("hasInsert", phi_fixpoint_fuid, hasInsertPos),
 						                                                     muVar("begin", phi_fixpoint_fuid, beginPos),	
-						                                                     muVar("end", phi_fixpoint_fuid, endPos)			                                                                                   
+						                                                     muVar("end", phi_fixpoint_fuid, endPos),
+						                                                     descriptor			                                                                                   
 						                                                   ])),
 						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim3("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
-						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit.origin) ], \visit.origin ),
+						                                                               muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit@\loc) ], \visit@\loc ),
 						  						[ muAssign("changed", phi_fixpoint_fuid,changedPos, muBool(false)) ], 
 						  						[ muAssign("iSubject", phi_fixpoint_fuid, iSubjectPos, muVar("val", phi_fixpoint_fuid, valPos)) ] )]);
 		body_exps += muReturn1(muVar("iSubject", phi_fixpoint_fuid, iSubjectPos));
 		
 		leaveFunctionScope();
 		
-		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, \visit.origin, [], (), muBlock(body_exps)));
+		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, \visit@\loc, [], (), muBlock(body_exps)));
 	
 	    // Local variables of the surrounding function
 		str hasMatch = asTmp(nextLabel());
@@ -922,6 +969,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					 	 						      muTmpRef(beenChanged,scopeId), 
 					 	 						      muTmpRef(begin,scopeId), 
 					 	 						      muTmpRef(end,scopeId),
+					 	 						      descriptor,
 					 	 						      muBool(rebuild) ]) 
 				   	   ]);
 	}
@@ -940,66 +988,115 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					                        muTmpRef(beenChanged,scopeId), 
 					                        muTmpRef(begin,scopeId), 
 					 	 					muTmpRef(end,scopeId),
+					 	 					descriptor,
 					                        muBool(rebuild) ]) 
 				   ]);
 }
 
-@doc{Generates the body of a phi function}
-MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
-	// TODO: conditional
-	if(size(cases) == 0) {
-		return muReturn1(muVar("iSubject", fuid, iSubjectPos));
-	}
-	
-	c = head(cases);
-	
-	if(c is patternWithAction) {
-		pattern = c.patternWithAction.pattern;
-		typePat = getType(pattern.origin);
-		cond = muMulti(muApply(translatePatInVisit(pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
-		ifname = nextLabel();
-		enterBacktrackingScope(ifname);
-		if(c.patternWithAction is replacing) {
-			replacement = translate(c.patternWithAction.replacement.replacementExpression);
-			list[MuExp] conditions = [];
-			if(c.patternWithAction.replacement is conditional) {
-				conditions = [ translate(e) | Expression e <- c.patternWithAction.replacement.conditions ];
-			}
-			replacementType = getType(c.patternWithAction.replacement.replacementExpression.origin);
-			tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
-			                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], c.origin) ], c.origin);
-			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-			                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
-			                      replacement ];
-        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pattern.origin), [ muReturn1(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid, subjectType) ]);
-        	leaveBacktrackingScope();
-        	return exp;
-		} else {
-			// Arbitrary
-			case_statement = c.patternWithAction.statement;
-			\case = translate(case_statement);
-			insertType = topCaseType();
-			clearCaseType();
-			tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], c.origin) ], c.origin);
-			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
-			if(!(muBlock([]) := \case)) {
-				cbody += \case;
-			}
-			cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
-			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pattern.origin), cbody, [ translateVisitCases(tail(cases),fuid, subjectType) ]);
-        	leaveBacktrackingScope();
-			return exp;
+map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, PatternWithAction pwa, map[int, MuExp] table, int key){
+	cond = muMulti(muApply(translatePatInVisit(pwa.pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
+	ifname = nextLabel();
+	enterBacktrackingScope(ifname);
+	if(pwa is replacing) {
+		replacement = translate(pwa.replacement.replacementExpression);
+		list[MuExp] conditions = [];
+		if(pwa.replacement is conditional) {
+			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
+		replacementType = getType(pwa.replacement.replacementExpression@\loc);
+		tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
+		                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
+		                      replacement ];
+    	table[key] = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pwa.pattern@\loc), 
+    				          [ muReturn1(muBlock(cbody)) ], 
+    				          [ table[key] ? muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+    	leaveBacktrackingScope();
 	} else {
-		// Default
-		return muBlock([ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-		                 translate(c.statement), 
-		                 muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+		// Arbitrary
+		case_statement = pwa.statement;
+		\case = translate(case_statement);
+		insertType = topCaseType();
+		clearCaseType();
+		tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
+		if(!(muBlock([]) := \case)) {
+			cbody += \case;
+		}
+		cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
+		table[key] = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pwa.pattern@\loc), cbody, 
+		                      [ table[key] ? muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+    	leaveBacktrackingScope();
 	}
+	return table;
+}
+
+private int fingerprintDefault = getFingerprint("default");
+
+@doc{Generates the body of a phi function}
+MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases) {
+	// TODO: conditional
+	
+	map[int,MuExp] table = ();		// label + generated code per case
+	
+	default_code = muReturn1(muVar("iSubject", fuid, iSubjectPos));
+	
+	for(c <- reverse(cases)){
+		if(c is patternWithAction) {
+		  if(!isSpoiler(c.patternWithAction.pattern)){
+			 pwa = c.patternWithAction;
+			 key = fingerprint(pwa.pattern);
+			 table = addPatternWithActionCode(fuid, subjectType, pwa, table, key);
+		  }
+		} else {
+			// Default
+			default_code = muBlock([ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+			                translate(c.statement), 
+			                muReturn1(muVar("iSubject", fuid, iSubjectPos)) ]);
+		}
+	}
+	default_table = (fingerprintDefault : default_code);
+    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+	  default_table = addPatternWithActionCode(fuid, subjectType, c.patternWithAction, default_table, fingerprintDefault);
+   }
+   
+   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   case_code = [ muCase(key, table[key]) | key <- table];
+   default_code =  default_table[fingerprintDefault];
+   return muSwitch(muVar("iSubject", fuid, iSubjectPos), case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+	
+}
+
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
+	reachableTypes = {};
+	reachableConstructors = {};
+	for(c <- cases){
+		if(c is patternWithAction){
+			tc = getTypesAndConstructors(c.patternWithAction.pattern);
+			reachableConstructors += tc.constructors;
+			reachableTypes += tc.types;
+		} else {
+			return <{\value()}, {}>;		// A default cases is present: everything can match
+		}
+	}
+	return <reachableTypes, reachableConstructors>;
+}
+
+bool hasConcretePatternsOnly(list[Case] cases){
+	for(c <- cases){
+		if(c is patternWithAction){
+			if(!isConcretePattern((c.patternWithAction.pattern))){
+				return false;
+			}
+		} else {
+			return false;		// A default cases is present: everything can match
+		}
+	}
+	return true;
 }
 
 private bool hasTopLevelInsert(Case c) {
-	println("Look for an insert...");
 	top-down-break visit(c) {
 		case (Statement) `insert <DataTarget dt> <Statement stat>`: return true;
 		case Visit v: ;
@@ -1042,7 +1139,7 @@ MuExp translateReducer(Expression e){ //Expression init, Expression result, {Exp
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp,fuid);
-    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti(makeMu("ALL", [ translate(g) | g <- generators ], e.origin), e.origin), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
+    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti(makeMu("ALL", [ translate(g) | g <- generators ], e@\loc), e@\loc), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
     popIt();
     return muBlock(code);
 }
@@ -1051,7 +1148,7 @@ MuExp translateReducer(Expression e){ //Expression init, Expression result, {Exp
 
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
 	
-    return muCallPrim3("reifiedType_create", [translate(symbol), translate(definitions)], e.origin);
+    return muCallPrim3("reifiedType_create", [translate(symbol), translate(definitions)], e@\loc);
     
 }
 
@@ -1122,29 +1219,28 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //println("BACK at translate <e>");
    
    if(getOuterType(expression) == "str"){
-   		return muCallPrim3("node_create", [receiver, *args, *kwargs], e.origin);
+   		return muCallPrim3("node_create", [receiver, *args, *kwargs], e@\loc);
        //return muCallPrim3("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
    }
   
    if(getOuterType(expression) == "loc"){
-       return muCallPrim3("loc_with_offset_create", [receiver, *args], e.origin);
+       return muCallPrim3("loc_with_offset_create", [receiver, *args], e@\loc);
    }
    if(muFun1(str _) := receiver || muFun2(str _, str _) := receiver || muConstr(str _) := receiver) {
        return muCall(receiver, args + [ kwargs ]);
    }
    
    // Now overloading resolution...
-   ftype = getType(expression.origin); // Get the type of a receiver
+   ftype = getType(expression@\loc); // Get the type of a receiver
                                      // and a version with type parameters uniquely renamed
    ftype_renamed = visit(ftype) { case parameter(str name, Symbol sym) => parameter("1" + name, sym) };
    
    if(isOverloadedFunction(receiver) && hasOverloadingResolver(receiver.fuid)){
        // Get the types of arguments
-       list[Symbol] targs = [ getType(arg.origin) | arg <- arguments ];
+       list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)#<e.origin.offset>_<e.origin.length>";
-       
-// Resolve alternatives for this specific call
+       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)#<e@\loc.offset>_<e@\loc.length>";
+       // Resolve alternatives for this specific call
        OFUN of = getOverloadedFunction(receiver.fuid);
        
        list[int] resolved = [];
@@ -1216,7 +1312,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    } catch invalidMatch(_,_): {
                        return false; 
                    } catch err: {
-                       println("WARNING: Cannot match <ftype> against <t> for location: <expression.origin>! <err>");
+                       println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
                //println("matches returns: <function_subtype(ftype, t)>");
@@ -1244,7 +1340,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        } catch invalidMatch(_,_): {
                            ;
                        } catch err: {
-                           println("WARNING: Cannot match <alt> against <t> for location: <expression.origin>! <err>");
+                           println("WARNING: Cannot match <alt> against <t> for location: <expression@\loc>! <err>");
                        }
                    }
                    return false;
@@ -1272,7 +1368,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                matches(t);
                println("ALT: <t> ftype: <ftype>");
            }
-           throw "ERROR in overloading resolution: <ftype>; <expression.origin>";
+           throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
        
    //    if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
@@ -1286,7 +1382,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //    		catch "NotConstant":  /* pass */;
    //    }
        	addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);      
-       	return muOCall3(muOFun(ofqname), args + [ kwargs ], e.origin);
+       	return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
    if(isOverloadedFunction(receiver) && !hasOverloadingResolver(receiver.fuid)) {
       throw "The use of a function has to be managed via an overloading resolver!";
@@ -1295,7 +1391,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    return muOCall4(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)) ]), 
    				  args + [ kwargs ],
-   				  e.origin);
+   				  e@\loc);
 }
 
 MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
@@ -1320,7 +1416,7 @@ MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArgument
 
 // -- any expression ------------------------------------------------
 
-MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne("ALL",[ translate(g) | g <- generators ], e.origin);
+MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne("ALL",[ translate(g) | g <- generators ], e@\loc);
 
 // -- all expression ------------------------------------------------
 
@@ -1362,9 +1458,9 @@ private list[MuExp] translateComprehensionContribution(str kind, str tmp, str fu
   return 
 	  for( r <- results){
 	    if((Expression) `* <Expression exp>` := r){
-	       append muCallPrim3("<kind>writer_splice", [muTmp(tmp,fuid), translate(exp)], exp.origin);
+	       append muCallPrim3("<kind>writer_splice", [muTmp(tmp,fuid), translate(exp)], exp@\loc);
 	    } else {
-	      append muCallPrim3("<kind>writer_add", [muTmp(tmp,fuid), translate(r)], r.origin);
+	      append muCallPrim3("<kind>writer_add", [muTmp(tmp,fuid), translate(r)], r@\loc);
 	    }
 	  }
 } 
@@ -1376,9 +1472,9 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
     tmp = asTmp(loopname);
     return
     muBlock(
-    [ muAssignTmp(tmp, fuid, muCallPrim3("listwriter_open", [], c.origin)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c.origin), c.origin), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
-      muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], c.origin) 
+    [ muAssignTmp(tmp, fuid, muCallPrim3("listwriter_open", [], c@\loc)),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
+      muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
 
@@ -1389,9 +1485,9 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
     tmp = asTmp(loopname); 
     return
     muBlock(
-    [ muAssignTmp(tmp, fuid, muCallPrim3("setwriter_open", [], c.origin)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c.origin), c.origin), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
-      muCallPrim3("setwriter_close", [muTmp(tmp,fuid)], c.origin) 
+    [ muAssignTmp(tmp, fuid, muCallPrim3("setwriter_open", [], c@\loc)),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
+      muCallPrim3("setwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
 
@@ -1402,9 +1498,9 @@ private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <E
     tmp = asTmp(loopname); 
     return
     muBlock(
-    [ muAssignTmp(tmp, fuid, muCallPrim3("mapwriter_open", [], c.origin)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c.origin), c.origin), [muCallPrim3("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)], c.origin)]), 
-      muCallPrim3("mapwriter_close", [muTmp(tmp,fuid)], c.origin) 
+    [ muAssignTmp(tmp, fuid, muCallPrim3("mapwriter_open", [], c@\loc)),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), [muCallPrim3("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)], c@\loc)]), 
+      muCallPrim3("mapwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
 
@@ -1428,22 +1524,22 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
        str fuid = topFunctionScope();
        writer = nextTmp();
        enterWriter(writer);
-       code = [ muAssignTmp(writer, fuid, muCallPrim3("<kind>writer_open", [], e.origin)) ];
+       code = [ muAssignTmp(writer, fuid, muCallPrim3("<kind>writer_open", [], e@\loc)) ];
        for(elem <- es){
            if(elem is splice){
-              code += muCallPrim3("<kind>writer_splice", [muTmp(writer,fuid), translate(elem.argument)], elem.argument.origin);
+              code += muCallPrim3("<kind>writer_splice", [muTmp(writer,fuid), translate(elem.argument)], elem.argument@\loc);
             } else {
-              code += muCallPrim3("<kind>writer_add", [muTmp(writer,fuid), translate(elem)], elem.origin);
+              code += muCallPrim3("<kind>writer_add", [muTmp(writer,fuid), translate(elem)], elem@\loc);
            }
        }
-       code += [ muCallPrim3("<kind>writer_close", [ muTmp(writer,fuid) ], e.origin) ];
+       code += [ muCallPrim3("<kind>writer_close", [ muTmp(writer,fuid) ], e@\loc) ];
        leaveWriter();
        return muBlock(code);
     } else {
       //if(size(es) == 0 || all(elm <- es, isConstant(elm))){
       //   return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
       //} else 
-        return muCallPrim3("<kind>_create", [ translate(elem) | elem <- es ], e.origin);
+        return muCallPrim3("<kind>_create", [ translate(elem) | elem <- es ], e@\loc);
     }
 }
 
@@ -1458,7 +1554,7 @@ MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
     //if(isConstant(e)){
     //  return muCon(readTextValueString("<e>"));
     //} else
-        return muCallPrim3("tuple_create", [ translate(elem) | elem <- elements ], e.origin);
+        return muCallPrim3("tuple_create", [ translate(elem) | elem <- elements ], e@\loc);
 }
 
 // -- map expression ------------------------------------------------
@@ -1467,7 +1563,7 @@ MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) {
    //if(isConstant(e)){
    //  return muCon(readTextValueString("<e>"));
    //} else 
-     return muCallPrim3("map_create", [ translate(m.from), translate(m.to) | m <- mappings ], e.origin);
+     return muCallPrim3("map_create", [ translate(m.from), translate(m.to) | m <- mappings ], e@\loc);
 }   
 
 // -- it expression (in reducer) ------------------------------------
@@ -1481,12 +1577,12 @@ MuExp translate((Expression) `<QualifiedName v>`) =
     translate(v);
  
 MuExp translate(q:(QualifiedName) `<QualifiedName v>`) =
-    mkVar("<v>", v.origin);
+    mkVar("<v>", v@\loc);
 
 // For the benefit of names in regular expressions
 
 MuExp translate((Name) `<Name name>`) =
-    mkVar(unescape("<name>"), name.origin);
+    mkVar(unescape("<name>"), name@\loc);
 
 // -- subscript expression ------------------------------------------
 
@@ -1500,7 +1596,7 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
     
-    return muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e.origin);
+    return muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
 }
 
 // -- slice expression ----------------------------------------------
@@ -1514,31 +1610,31 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 	translateSlice(expression, optFirst, second, optLast);
 
 MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression.origin);
+    muCallPrim3("<getOuterType(expression)>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
 
 MuExp translateOpt(OptionalExpression optExp) =
     optExp is noExpression ? muCon("false") : translate(optExp.expression);
 
 MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression.origin);
+    muCallPrim3("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
 
 // -- field access expression ---------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
-   tp = getType(expression.origin);
+   tp = getType(expression@\loc);
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
    op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
-   if(op == "label") println("field_access: <tp>, <e>");
-   return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e.origin);
+   //if(op == "label") println("field_access: <tp>, <e>");
+   return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
 }
 
 // -- field update expression ---------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) {
    
-    tp = getType(expression.origin);  
+    tp = getType(expression@\loc);  
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -1547,20 +1643,20 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } else if(isADTType(tp)){
-        return muCallPrim3("adt_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e.origin);
+        return muCallPrim3("adt_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
     } else if(isLocType(tp)){
-     	return muCallPrim3("loc_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e.origin);
+     	return muCallPrim3("loc_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
     }
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
     }	
-    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ], e.origin);
+    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ], e@\loc);
 }
 
 // -- field project expression --------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
-    tp = getType(expression.origin);   
+    tp = getType(expression@\loc);   
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -1574,7 +1670,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }	
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
-    return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e.origin);
+    return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
 }
 
 // -- set annotation expression -------------------------------------
@@ -1582,24 +1678,24 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
 
 
 MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) =
-    muCallPrim3("annotation_set", [translate(expression), muCon(unescape("<name>")), translate(val)], e.origin);
+    muCallPrim3("annotation_set", [translate(expression), muCon(unescape("<name>")), translate(val)], e@\loc);
 
 // -- get annotation expression -------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
-    muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e.origin);
+    muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- is expression --------------------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
-    muCallPrim3("is", [translate(expression), muCon(unescape("<name>"))], e.origin);
+    muCallPrim3("is", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- has expression -----------------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     outer = getOuterType(expression);
-    return (outer == "adt") ? muCallPrim3("adt_has_field", [translate(expression), muCon(unescape("<name>"))], e.origin)
-  						    : muCon(hasField(getType(expression.origin), unescape("<name>")));   
+    return (outer == "adt") ? muCallPrim3("adt_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc)
+  						    : muCon(hasField(getType(expression@\loc), unescape("<name>")));   
 }
 // -- transitive closure expression ---------------------------------
 
@@ -1614,26 +1710,29 @@ MuExp translate(e:(Expression) `<Expression argument> *`) =
 // -- isDefined expression ------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression argument> ?`) =
-    generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false), e.origin);
+    generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false), e@\loc);
 
 // -- isDefinedOtherwise expression ---------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) =
-    generateIfDefinedOtherwise(translate(lhs), translate(rhs), e.origin);
+    generateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 
 MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
-	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
+    
+	// Check if evaluation of the expression throws one of a few specific exceptions;
 	// do this by checking equality of the value constructor names
 	
-	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ])]);
-	cond2 = muCallMuPrim("equal", [ muCon("NoSuchKey"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-	cond3 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
-		
-	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
-	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
-	catchBody = muIfelse(nextLabel(), cond1, [ muRHS ], [ elsePart2 ]);
+	cond = muCallPrim3("elm_in_set", [ muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]),
+									   muCon({"UninitializedVariable",
+									          "NoSuchKey",
+									          "NoSuchAnnotation",
+											  "IndexOutOfBounds",
+											  "NoSuchField"})
+								      ], src);
+	
+	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
@@ -1660,7 +1759,7 @@ MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
    muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
-   					    e.origin);
+   					    e@\loc);
    
 // -- composition expression ----------------------------------------
 
@@ -1771,12 +1870,12 @@ MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`) =
 // -- enumerate expression ------------------------------------------
 
 MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
-    <fuid, pos> = getVariableScope("<name>", name.origin);
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
 MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
-    <fuid, pos> = getVariableScope("<name>", name.origin);
+    <fuid, pos> = getVariableScope("<name>", name@\loc);
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
@@ -1841,7 +1940,7 @@ bool backtrackFree(Expression e){
     	return false;
     case (Expression) `<Pattern pat> := <Expression exp>`:
     	return false;
-    	case (Expression) `<Pattern pat> !:= <Expression exp>`:
+    case (Expression) `<Pattern pat> !:= <Expression exp>`:
     	return false;
     }
     return true;
@@ -1849,19 +1948,19 @@ bool backtrackFree(Expression e){
 
 // Boolean expressions
 
-MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = makeMu("ALL",[translate(lhs), translate(rhs)], e.origin); //translateBoolBinaryOp("and", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = makeMu("ALL",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("and", lhs, rhs);
 
-MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e.origin); //translateBoolBinaryOp("or", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("or", lhs, rhs);
 
 MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) {
-	println("Implication <lhs> (<lhs.origin>) <rhs>  (<rhs.origin>) "); 
-	return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e.origin); }//translateBoolBinaryOp("implies", lhs, rhs);
+	//println("Implication <lhs> (<lhs@\loc>) <rhs>  (<rhs@\loc>) "); 
+	return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); }//translateBoolBinaryOp("implies", lhs, rhs);
 
-MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e.origin); //translateBoolBinaryOp("equivalent", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
 
 MuExp translateBool((Expression) `! <Expression lhs>`) =
 	backtrackFree(lhs) ? muCallMuPrim("not_mbool", [translateBool(lhs)])
-  					   : muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)], lhs.origin) ]);
+  					   : muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)], lhs@\loc) ]);
  
 MuExp translateBool(e: (Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(e);
    

@@ -37,9 +37,11 @@ Pitfalls:
 
 * repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
 * the registry is an intentional memory leak; so make sure you use it wisely.
+* when the files references by the physical locations are being written to (edited, removed), then you
+may expect problems. The registry is not automatically invalidated.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java void registerLocations(str scheme, str authority, map[loc,loc] m);
+java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
 @doc{
 Synopsis: undo the effect of [registerLocations]
@@ -329,17 +331,6 @@ Create a directory at location `file`.
 @javaClass{org.rascalmpl.library.Prelude}
 public java void mkDirectory(loc file)
 throws PathNotFound(loc file), IO(str msg);
-
-//@doc{
-//Synopsis: Remove a file or a directory (recursively)
-//
-//Description:
-//Removes the file or the directory indicated by _file_. The removal will be recursive.
-//}
-//@javaClass{org.rascalmpl.library.Prelude}
-//@reflect{Uses URI Resolver Registry}
-//public java void remove(loc file) throws IO(str msg);
-
 
 @doc{
 Synopsis: Print a value without subsequent newline.

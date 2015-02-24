@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module experiments::Concept::DotVis
+module analysis::formalconcepts::DotVis
 import lang::dot::Dot;
 import vis::Figure;
 import vis::Render; 
@@ -72,9 +72,9 @@ Attrs getEdgeAttributes(Stms stms) {
 list[Figure] getNodes(Stms stms, Attrs nodeAttrs) {
    map[str, Figure] m = 
      (from:
-   vertice(from, nodeAttrs)| E(Id from, _)<-stms)
+   vertice(from, nodeAttrs)| E(Id from, Id x)<-stms)
    + (to:
-   vertice(to, nodeAttrs)| E(_, Id to)<-stms)   
+   vertice(to, nodeAttrs)| E(Id x, Id to)<-stms)   
    + (s:
    vertice(s, nodeAttrs+attrs) | N(Id s, attrs)<-stms)
    + (s:
