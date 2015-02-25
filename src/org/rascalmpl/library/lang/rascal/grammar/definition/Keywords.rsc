@@ -5,6 +5,13 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@doc{
+Keyword definitions in Rascal grammars are a collection of non-terminals with a specific 
+semantics. Namely, statically they can not have recursion or lists, so they generate finite languages.
+The \ operator and !>> and !<< will accept them because they are finite. Generally the definitions
+are use to define (open) sets of reserved keywords, hence the name "keyword". This module
+flattens all definitions into one big regular expression for further processing.
+}
 module lang::rascal::grammar::definition::Keywords
 
 import Grammar;
@@ -13,11 +20,20 @@ import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Productions;
 import IO;
 
-public Grammar expandKeywords(Grammar g) {
-  return visit(g) {
-    case conditional(sym, conds) => conditional(sym, expandKeywords(g, conds)) 
+Grammar expandKeywords(Grammar g)  
+  = top-down-break visit(g) {
+    case Symbol s => expandKeywords(s)
   };
-}
+  
+Symbol expandKeywords(Symbol s) 
+  = top-down-break visit(s) {
+     case \if(c, s) => \if(c, expandKeyword(s))
+     case \ifElse(c, Symbol i, Symbol t) => \ifElse(c, expandKeywords(i), expandKeywords(t))
+     case \when(s, c) => \when(expandKeywords(s), c)
+     case \do(s, b) => \do(expandKeywords(s), b)
+     case \while(c, s) => \while(c, expandKeywords(s))
+     case \conditional(sym, conds) => \conditional(sym, expandKeywords(g, conds))
+  };  
 
 @memo
 bool isFinite(Grammar g, \lit(str _)) = true;
@@ -31,7 +47,7 @@ bool isFinite(Grammar g, \char-class(list[CharRange] _)) = true;
 @memo default 
 bool isFinite(Grammar g, Symbol s) = (true | it && isFinite(g,e) | /prod(_,[e],_) := g.rules[s]); 
 
-public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
+set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   names = {};
   done = {};
   todo = conds;
@@ -55,6 +71,6 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   return done;  
 }
 
-public set[Production] getKeywords(Grammar g) {
+set[Production] getKeywords(Grammar g) {
   return {g.rules[s] | s:keywords(_) <- g.rules}; 
 }
