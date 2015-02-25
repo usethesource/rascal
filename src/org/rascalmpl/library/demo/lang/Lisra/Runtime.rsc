@@ -12,7 +12,7 @@ data Lval       /*1*/
 alias Scope  = map[Lval,Lval]; /*2*/
 alias Env    = list[Scope];
 
-Env emptyEnv = [()];
+public Env emptyEnv = [()];
 
 Env makeEnv(list[Lval] vars, list[Lval] values, Env outer) = /*3*/
    [(vars[i] : values[i] | i <- index(vars))] + outer;
@@ -24,8 +24,8 @@ int find(Lval sym, Env e){ /*4*/
    return -1;
 }
 
-Lval TRUE  = Atom("#t");   /*5*/
-Lval FALSE = Atom("#f");
+public Lval TRUE  = Atom("#t");   /*5*/
+public Lval FALSE = Atom("#f");
 
 alias Result = tuple[Lval val, Env env]; /*6*/
 
