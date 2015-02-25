@@ -2174,12 +2174,23 @@ public enum MuPrimitive {
 	 * @return true if v is a 'lit' or 'cilit'.
 	 */
 	private static boolean $is_literal(final IValue v){
-		if(v instanceof IConstructor){
-			IConstructor cons = (IConstructor) v;
-			return TreeAdapter.isLiteral(cons) || TreeAdapter.isCILiteral(cons);
+
+		if(v.getType().isAbstractData()){
+			IConstructor appl = (IConstructor) v;
+			if(appl.getName().equals("appl")){
+				IConstructor prod = (IConstructor) appl.get(0);
+				IConstructor symbol = (IConstructor) prod.get(0);
+				return symbol.getName().equals("lit");
+			}
 		}
 		return false;
 	}
+	//		if(v instanceof IConstructor){
+	//			IConstructor cons = (IConstructor) v;
+	//			return TreeAdapter.isLiteral(cons) || TreeAdapter.isCILiteral(cons);
+	//		}
+	//		return false;
+// }
 	
 	/**
 	 * @param descendantDescriptor
