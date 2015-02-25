@@ -81,7 +81,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 11 * name.hashCode() + 157 * bound.hashCode() ; 
+      return 173 + 3 * name.hashCode() + 797 * bound.hashCode() ; 
     } 
   
     
@@ -141,7 +141,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 773 * name.hashCode() ; 
+      return 139 + 757 * name.hashCode() ; 
     } 
   
     
