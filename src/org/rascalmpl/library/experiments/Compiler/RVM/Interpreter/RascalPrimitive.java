@@ -3006,11 +3006,7 @@ public enum RascalPrimitive {
 						break;
 					}
 				}
-
-				delta = TreeAdapter.getSeparatorCount(treeSubject);
-				if(nonLayoutSeparator && layoutPresent){
-					delta = 4;
-				}
+				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
 			}
 
 			for (int i = 0; i < children.length();) {
