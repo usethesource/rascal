@@ -2988,7 +2988,15 @@ public enum RascalPrimitive {
 			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
 			IConstructor symbol = TreeAdapter.getType(treeSubject);
-			int delta = 1;
+			boolean layoutPresent = false;
+			if(children.length() > 1){
+				IConstructor child1 = (IConstructor)children.get(1);
+				if(TreeAdapter.getType(child1).getName().equals("layouts")){
+					layoutPresent = true;
+				}
+			}
+			int delta = layoutPresent ? 2 : 1;
+			
 			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
 				IList separators = SymbolAdapter.getSeparators(symbol);
 				boolean nonLayoutSeparator = false;
@@ -2998,15 +3006,14 @@ public enum RascalPrimitive {
 						break;
 					}
 				}
-				if(TreeAdapter.isSeparatedList(treeSubject)){
-					delta = TreeAdapter.getSeparatorCount(treeSubject);
-					if(children.length() > 1 && nonLayoutSeparator && TreeAdapter.isLayout((IConstructor)children.get(1))){
-						delta = 3;
-					}
+
+				delta = TreeAdapter.getSeparatorCount(treeSubject);
+				if(nonLayoutSeparator && layoutPresent){
+					delta = 4;
 				}
 			}
 
-			for (int i = 0; i < children.length(); ++i) {
+			for (int i = 0; i < children.length();) {
 				IValue kid = children.get(i);
 				writer.append(kid);
 				// skip layout and/or separators
