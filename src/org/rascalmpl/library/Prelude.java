@@ -41,6 +41,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -2054,6 +2055,71 @@ public class Prelude {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
 		System.out.println(g.getConstructorCode());
+	}
+	
+	public void generate(IValue grammar, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		
+		System.out.println("Path: " + loc.getPath());
+		
+		try {
+			PrintWriter writer = new PrintWriter(loc.getPath() + "GeneratedTest.java", "UTF-8");		
+			writer.println("package org.jgll.parser.datadependent;");
+			writer.println("import org.jgll.datadependent.ast.AST;");
+			writer.println("import org.jgll.grammar.Grammar;");
+			writer.println("import org.jgll.grammar.GrammarGraph;");
+			writer.println("import org.jgll.grammar.symbol.*;");
+			writer.println("import org.jgll.grammar.symbol.Character;");
+			writer.println("import static org.jgll.grammar.symbol.LayoutStrategy.*;");
+			writer.println("import org.jgll.grammar.transformation.EBNFToBNF;");
+			writer.println("import org.jgll.parser.GLLParser;");
+			writer.println("import org.jgll.parser.ParseResult;");
+			writer.println("import org.jgll.parser.ParserFactory;");
+			writer.println("import org.jgll.regex.*;");
+			writer.println("import org.jgll.util.Configuration;");
+			writer.println("import org.jgll.util.Input;");
+			writer.println("import org.jgll.util.Visualization;");
+			writer.println();
+			writer.println("import org.junit.Test;");
+			writer.println();
+			writer.println("public class GeneratedTest {");
+			writer.println();
+			writer.println("    @Test");
+			writer.println("    public void test() {");
+			writer.println("         Grammar grammar =");
+			writer.println();
+			writer.println(g.getConstructorCode() + ";");
+			writer.println("         grammar = new EBNFToBNF().transform(grammar);");
+			writer.println("         System.out.println(grammar);");
+			writer.println();
+			writer.println("         Input input = Input.fromString(\"" + input.getValue() + "\");");
+			writer.println("         GrammarGraph graph = grammar.toGrammarGraph(input, Configuration.DEFAULT);");
+			writer.println();
+			writer.println("         // Visualization.generateGrammarGraph(\"" + loc.getPath() + "\", graph);");
+			writer.println();
+			writer.println("         GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);");
+			writer.println("         ParseResult result = parser.parse(input, graph, Nonterminal.withName(\"\"));");
+			writer.println();
+			writer.println("         if (result.isParseSuccess()) {");
+			writer.println("             System.out.println(\"Success\");");
+			writer.println();
+			writer.println("             // Visualization.generateSPPFGraph(\"" + loc.getPath() + "\","); 
+			writer.println("             //                   result.asParseSuccess().getRoot(), input);");
+			writer.println();
+			writer.println("         } else {");
+			writer.println("             System.out.println(\"Parse error!\");");
+			writer.println("        }");
+			writer.println("    }");
+			writer.println("}");
+			writer.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+				
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
