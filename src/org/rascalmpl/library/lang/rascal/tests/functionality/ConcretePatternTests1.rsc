@@ -98,21 +98,21 @@ test bool concreteMatch50() = (Ds) `<{D ","}* ds1>,<{D ","}* ds2>,d` := [Ds] "d"
 test bool concreteMatch51() = (Ds) `<{D ","}* ds1>,d,d,<{D ","}* ds2>,d` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 test bool concreteMatch52() = (Ds) `<{D ","}* ds1>,d,d,d,<{D ","}* ds2>` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 
-test bool concreteListEnum1() = size([x | B x <- ((Bs) ``).bs]) == 0;
-test bool concreteListEnum2() = size([x | B x <- ((Bs) `b`).bs]) == 1;
-test bool concreteListEnum3() = size([x | B x <- ((Bs) `bbbbb`).bs]) == 5;
-test bool concreteListEnum4() = size([x | D x <- ((Ds) ``).ds]) == 0;
-test bool concreteListEnum5() = size([x | D x <- ((Ds) `d`).ds]) == 1;
-test bool concreteListEnum6() = size([x | D x <- ((Ds) `d,d,d,d,d`).ds]) == 5;
+test bool concreteListEnum1() = ["<x>" | B x <- ((Bs) ``).bs] == [];
+test bool concreteListEnum2() = ["<x>" | B x <- ((Bs) `b`).bs] == ["b"];
+test bool concreteListEnum3() = ["<x>" | B x <- ((Bs) `bbbbb`).bs] == ["b", "b", "b", "b", "b"];
+test bool concreteListEnum4() = ["<x>" | D x <- ((Ds) ``).ds] == [];
+test bool concreteListEnum5() = ["<x>" | D x <- ((Ds) `d`).ds] == ["d"];
+test bool concreteListEnum6() = ["<x>" | D x <- ((Ds) `d,d,d,d,d`).ds] == ["d", "d", "d", "d", "d"];
 
-test bool lexicalListEnum1() = size([x | E x <- ((Es) `e,e,e,e,e,e,e`).es]) == 7;
-test bool lexicalListEnum2() = size([x | F x <- ((Fs) `ffffff`).fs]) == 6;
+test bool lexicalListEnum1() = ["<x>" | E x <- ((Es) `e,e,e,e,e,e,e`).es] == ["e", "e", "e", "e", "e", "e", "e"];
+test bool lexicalListEnum2() = ["<x>" | F x <- ((Fs) `ffffff`).fs] == ["f", "f", "f", "f", "f", "f"];
 
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
 
-
+value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  
 @ignoreCompiler{Not yet implemented in typechecker}
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
