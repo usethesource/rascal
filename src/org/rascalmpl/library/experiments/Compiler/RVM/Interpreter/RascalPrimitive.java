@@ -2988,23 +2988,24 @@ public enum RascalPrimitive {
 			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
 			IConstructor symbol = TreeAdapter.getType(treeSubject);
-			IList separators = SymbolAdapter.getSeparators(symbol);
-			boolean nonLayoutSeparator = false;
-			for(IValue sep : separators){
-				if(!((IConstructor) sep).getName().equals("layouts")){
-					nonLayoutSeparator = true;
-					break;
-				}
-			}
-			
 			int delta = 1;
-			if(TreeAdapter.isSeparatedList(treeSubject)){
-				delta = TreeAdapter.getSeparatorCount(treeSubject);
-				if(children.length() > 1 && nonLayoutSeparator && TreeAdapter.isLayout((IConstructor)children.get(1))){
-					delta = 3;
+			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+				IList separators = SymbolAdapter.getSeparators(symbol);
+				boolean nonLayoutSeparator = false;
+				for(IValue sep : separators){
+					if(!((IConstructor) sep).getName().equals("layouts")){
+						nonLayoutSeparator = true;
+						break;
+					}
+				}
+				if(TreeAdapter.isSeparatedList(treeSubject)){
+					delta = TreeAdapter.getSeparatorCount(treeSubject);
+					if(children.length() > 1 && nonLayoutSeparator && TreeAdapter.isLayout((IConstructor)children.get(1))){
+						delta = 3;
+					}
 				}
 			}
-			
+
 			for (int i = 0; i < children.length(); ++i) {
 				IValue kid = children.get(i);
 				writer.append(kid);
@@ -5905,13 +5906,16 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IValue subject = (IValue) stack[sp - 2];
 			Type subjectType = subject.getType();
-			
 			Type type = (Type) stack[sp - 1];
 			
-			if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject) && type instanceof NonTerminalType){
-				NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
-				NonTerminalType typeNT = (NonTerminalType) type;
-				stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
+			if(type instanceof NonTerminalType){
+				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
+					NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
+					NonTerminalType typeNT = (NonTerminalType) type;
+					stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
+				} else {
+					stack[sp - 2] = Rascal_FALSE;
+				}
 			} else {
 				stack[sp - 2] = vf.bool(subjectType.isSubtypeOf(type));
 			}
