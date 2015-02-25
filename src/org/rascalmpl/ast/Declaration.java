@@ -169,7 +169,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 79 * tags.hashCode() + 727 * visibility.hashCode() + 331 * user.hashCode() + 421 * base.hashCode() ; 
+      return 353 + 2 * tags.hashCode() + 179 * visibility.hashCode() + 601 * user.hashCode() + 463 * base.hashCode() ; 
     } 
   
     
@@ -255,7 +255,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 659 * tags.hashCode() + 269 * visibility.hashCode() + 761 * annoType.hashCode() + 853 * onType.hashCode() + 941 * name.hashCode() ; 
+      return 761 + 389 * tags.hashCode() + 137 * visibility.hashCode() + 997 * annoType.hashCode() + 563 * onType.hashCode() + 647 * name.hashCode() ; 
     } 
   
     
@@ -350,7 +350,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 653 * tags.hashCode() + 193 * visibility.hashCode() + 641 * user.hashCode() + 757 * commonKeywordParameters.hashCode() + 677 * variants.hashCode() ; 
+      return 647 + 619 * tags.hashCode() + 23 * visibility.hashCode() + 461 * user.hashCode() + 73 * commonKeywordParameters.hashCode() + 113 * variants.hashCode() ; 
     } 
   
     
@@ -443,7 +443,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 + 887 * tags.hashCode() + 71 * visibility.hashCode() + 887 * user.hashCode() + 179 * commonKeywordParameters.hashCode() ; 
+      return 499 + 23 * tags.hashCode() + 751 * visibility.hashCode() + 647 * user.hashCode() + 239 * commonKeywordParameters.hashCode() ; 
     } 
   
     
@@ -521,7 +521,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 83 * functionDeclaration.hashCode() ; 
+      return 229 + 701 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -580,7 +580,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 761 * tags.hashCode() + 953 * visibility.hashCode() + 53 * kind.hashCode() + 137 * name.hashCode() + 587 * types.hashCode() ; 
+      return 673 + 307 * tags.hashCode() + 257 * visibility.hashCode() + 563 * kind.hashCode() + 349 * name.hashCode() + 619 * types.hashCode() ; 
     } 
   
     
@@ -673,7 +673,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 211 + 257 * tags.hashCode() + 97 * visibility.hashCode() + 241 * type.hashCode() + 691 * variables.hashCode() ; 
+      return 941 + 197 * tags.hashCode() + 929 * visibility.hashCode() + 521 * type.hashCode() + 331 * variables.hashCode() ; 
     } 
   
     
