@@ -242,7 +242,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 577 * dataTarget.hashCode() + 811 * statement.hashCode() ; 
+      return 947 + 163 * dataTarget.hashCode() + 433 * statement.hashCode() ; 
     } 
   
     
@@ -302,7 +302,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 401 * expression.hashCode() ; 
+      return 61 + 859 * expression.hashCode() ; 
     } 
   
     
@@ -355,7 +355,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 953 * expression.hashCode() + 3 * message.hashCode() ; 
+      return 499 + 631 * expression.hashCode() + 521 * message.hashCode() ; 
     } 
   
     
@@ -419,7 +419,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 373 * assignable.hashCode() + 67 * operator.hashCode() + 547 * statement.hashCode() ; 
+      return 269 + 751 * assignable.hashCode() + 859 * operator.hashCode() + 479 * statement.hashCode() ; 
     } 
   
     
@@ -488,7 +488,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 227 * target.hashCode() ; 
+      return 173 + 757 * target.hashCode() ; 
     } 
   
     
@@ -539,7 +539,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 89 * target.hashCode() ; 
+      return 41 + 991 * target.hashCode() ; 
     } 
   
     
@@ -594,7 +594,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 977 * label.hashCode() + 157 * body.hashCode() + 827 * condition.hashCode() ; 
+      return 491 + 547 * label.hashCode() + 383 * body.hashCode() + 31 * condition.hashCode() ; 
     } 
   
     
@@ -661,7 +661,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 ; 
+      return 389 ; 
     } 
   
     	
@@ -703,7 +703,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 719 * expression.hashCode() ; 
+      return 257 + 131 * expression.hashCode() ; 
     } 
   
     
@@ -754,7 +754,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 491 * target.hashCode() ; 
+      return 173 + 349 * target.hashCode() ; 
     } 
   
     
@@ -803,7 +803,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 ; 
+      return 173 ; 
     } 
   
     	
@@ -849,7 +849,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 + 313 * label.hashCode() + 743 * generators.hashCode() + 373 * body.hashCode() ; 
+      return 11 + 523 * label.hashCode() + 419 * generators.hashCode() + 857 * body.hashCode() ; 
     } 
   
     
@@ -918,7 +918,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 + 17 * functionDeclaration.hashCode() ; 
+      return 139 + 67 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -971,7 +971,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 + 593 * type.hashCode() + 739 * names.hashCode() ; 
+      return 719 + 313 * type.hashCode() + 379 * names.hashCode() ; 
     } 
   
     
@@ -1035,7 +1035,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 191 * label.hashCode() + 479 * conditions.hashCode() + 269 * thenStatement.hashCode() ; 
+      return 101 + 491 * label.hashCode() + 97 * conditions.hashCode() + 499 * thenStatement.hashCode() ; 
     } 
   
     
@@ -1110,7 +1110,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 179 * label.hashCode() + 467 * conditions.hashCode() + 7 * thenStatement.hashCode() + 47 * elseStatement.hashCode() ; 
+      return 761 + 607 * label.hashCode() + 863 * conditions.hashCode() + 41 * thenStatement.hashCode() + 719 * elseStatement.hashCode() ; 
     } 
   
     
@@ -1190,7 +1190,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 983 * dataTarget.hashCode() + 977 * statement.hashCode() ; 
+      return 433 + 163 * dataTarget.hashCode() + 613 * statement.hashCode() ; 
     } 
   
     
@@ -1252,7 +1252,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 577 * label.hashCode() + 587 * statements.hashCode() ; 
+      return 911 + 607 * label.hashCode() + 293 * statements.hashCode() ; 
     } 
   
     
@@ -1312,7 +1312,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 311 * statement.hashCode() ; 
+      return 239 + 647 * statement.hashCode() ; 
     } 
   
     
@@ -1367,7 +1367,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 911 * variables.hashCode() + 461 * bound.hashCode() + 997 * body.hashCode() ; 
+      return 547 + 149 * variables.hashCode() + 467 * bound.hashCode() + 701 * body.hashCode() ; 
     } 
   
     
@@ -1440,7 +1440,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 241 * label.hashCode() + 269 * expression.hashCode() + 131 * cases.hashCode() ; 
+      return 37 + 677 * label.hashCode() + 617 * expression.hashCode() + 181 * cases.hashCode() ; 
     } 
   
     
@@ -1509,7 +1509,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 881 * statement.hashCode() ; 
+      return 317 + 271 * statement.hashCode() ; 
     } 
   
     
@@ -1562,7 +1562,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 757 * body.hashCode() + 571 * handlers.hashCode() ; 
+      return 719 + 317 * body.hashCode() + 607 * handlers.hashCode() ; 
     } 
   
     
@@ -1626,7 +1626,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 919 * body.hashCode() + 139 * handlers.hashCode() + 173 * finallyBody.hashCode() ; 
+      return 419 + 509 * body.hashCode() + 2 * handlers.hashCode() + 23 * finallyBody.hashCode() ; 
     } 
   
     
@@ -1695,7 +1695,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 271 * declaration.hashCode() ; 
+      return 947 + 881 * declaration.hashCode() ; 
     } 
   
     
@@ -1748,7 +1748,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 59 * label.hashCode() + 401 * visit.hashCode() ; 
+      return 761 + 673 * label.hashCode() + 11 * visit.hashCode() ; 
     } 
   
     
@@ -1812,7 +1812,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 + 971 * label.hashCode() + 311 * conditions.hashCode() + 397 * body.hashCode() ; 
+      return 619 + 677 * label.hashCode() + 89 * conditions.hashCode() + 911 * body.hashCode() ; 
     } 
   
     

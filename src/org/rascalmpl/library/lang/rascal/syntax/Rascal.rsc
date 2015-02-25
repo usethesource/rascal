@@ -99,15 +99,15 @@ syntax Signature
 
 syntax Sym
 // named non-terminals
-	= nonterminal: Nonterminal nonterminal !>> "["
+	= nonterminal: Nonterminal nonterminal !>> "[" !>> "("
 	| parameter: "&" Nonterminal nonterminal 
 	| parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
 	// data-dependent non-terminals
-	| dependVoidFormals: Sym symbol Parameters formals \ "()" // only used in the head
-	| dependFormals: Sym symbol Type typ Parameters formals  \ "()" // only used in the head 
-	| dependNonterminal: () Nonterminal nonterminal !>> "[" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+	| dependVoidFormals: Sym symbol >> "(" Parameters formals \ "()" // only used in the head
+	| dependFormals: Sym symbol Type typ >> "(" Parameters formals  \ "()" // only used in the head 
+	| dependNonterminal: () Nonterminal nonterminal !>> "[" !>> "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependScope: "{" Sym+ symbols "}"
 // literals 
@@ -131,7 +131,7 @@ syntax Sym
 	| except:   Sym symbol "!" NonterminalLabel label
 	> \dependAlign: "align" Sym symbol
 	| \dependOffside: "offside" Sym symbol
-	> dependCode: Sym symbol "do" Statement block
+	> dependCode: Sym symbol "do" Statement+ block
 	> dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
 	> dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
 	| dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart

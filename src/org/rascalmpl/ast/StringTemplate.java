@@ -155,7 +155,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 353 * preStats.hashCode() + 73 * body.hashCode() + 991 * postStats.hashCode() + 389 * condition.hashCode() ; 
+      return 743 + 283 * preStats.hashCode() + 467 * body.hashCode() + 683 * postStats.hashCode() + 709 * condition.hashCode() ; 
     } 
   
     
@@ -239,7 +239,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 631 * generators.hashCode() + 757 * preStats.hashCode() + 479 * body.hashCode() + 127 * postStats.hashCode() ; 
+      return 613 + 211 * generators.hashCode() + 5 * preStats.hashCode() + 571 * body.hashCode() + 281 * postStats.hashCode() ; 
     } 
   
     
@@ -323,7 +323,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 619 * conditions.hashCode() + 463 * preStats.hashCode() + 73 * body.hashCode() + 17 * postStats.hashCode() ; 
+      return 379 + 787 * conditions.hashCode() + 499 * preStats.hashCode() + 617 * body.hashCode() + 787 * postStats.hashCode() ; 
     } 
   
     
@@ -413,7 +413,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 433 * conditions.hashCode() + 181 * preStatsThen.hashCode() + 421 * thenString.hashCode() + 877 * postStatsThen.hashCode() + 911 * preStatsElse.hashCode() + 11 * elseString.hashCode() + 929 * postStatsElse.hashCode() ; 
+      return 433 + 853 * conditions.hashCode() + 647 * preStatsThen.hashCode() + 853 * thenString.hashCode() + 389 * postStatsThen.hashCode() + 479 * preStatsElse.hashCode() + 151 * elseString.hashCode() + 541 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -524,7 +524,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 887 + 859 * condition.hashCode() + 197 * preStats.hashCode() + 79 * body.hashCode() + 103 * postStats.hashCode() ; 
+      return 131 + 727 * condition.hashCode() + 479 * preStats.hashCode() + 181 * body.hashCode() + 137 * postStats.hashCode() ; 
     } 
   
     

@@ -81,7 +81,7 @@ public abstract class Declarator extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 197 * type.hashCode() + 421 * variables.hashCode() ; 
+      return 271 + 881 * type.hashCode() + 79 * variables.hashCode() ; 
     } 
   
     
