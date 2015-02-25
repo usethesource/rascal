@@ -601,7 +601,7 @@ default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muC
 MuExp translateConcreteParsed(Tree e, loc src){
    if(appl(Production prod, list[Tree] args) := e){
        my_src = e@\loc ? src;
-       //iprintln(e);
+       //iprintln("translateConcreteParsed:"); iprintln(e);
        if(prod.def == label("hole", lex("ConcretePart"))){
            varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
            //println("varloc = <getType(varloc)>");
@@ -626,13 +626,16 @@ MuExp translateConcreteParsed(Tree e, loc src){
         } else {
            translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
            if(allConstant(translated_args)){
-        	  return muCon(appl(prod, [ce | muCon(ce) <- translated_args]));
+        	  return muCon(appl(prod, [ce | muCon(ce) <- translated_args])[@\loc=my_src]);
            }
            translated_elems = muCallPrim3("list_create", translated_args, my_src);
         }
-        
-        return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                      [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
+        return muCallPrim3("annotation_set", [muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+                                                    [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]),
+        								     muCon("loc"), 
+        								     muCon(my_src)], e@\loc);
+        //return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+        //              [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
     } else {
         return muCon(e);
     }
@@ -1759,7 +1762,7 @@ MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
    muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
-   					    e@\loc);
+   					    argument@\loc);
    
 // -- composition expression ----------------------------------------
 
