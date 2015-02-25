@@ -1,11 +1,10 @@
-module experiments::Compiler::Examples::Tst4
+module experiments::Compiler::Examples::ExpressionsInRascal
 
 import ParseTree;
 import lang::rascal::\syntax::Rascal;
 import util::Benchmark;
 import IO;
 import util::Reflective;
-
 
 value main(list[value] args) {
 	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
@@ -15,6 +14,6 @@ value main(list[value] args) {
 	for(int i <- [0..10]){
 		new = [ e | /Expression e := m ];
 	}	
-	println("size = <size(new)>");
-	return (cpuTime() - t)/1000000;
+	println("Time = <(cpuTime() - t)/1000000>");
+	return size(new);
 }

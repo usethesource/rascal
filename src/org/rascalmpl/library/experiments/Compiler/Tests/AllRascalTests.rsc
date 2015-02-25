@@ -180,7 +180,17 @@ list[str] files_with_tests =
 "util/UUID"                                         // OK
 ];
 
-
+list[str] reachability_tests = [
+"ConcretePatternTests1",	// OK
+"ConcretePatternTests2",	// OK
+"ConcreteSyntaxTests1",     // OK
+"ConcreteSyntaxTests2",     // OK
+"ParsingTests",
+"PatternTests",				// OK
+"PatternDescendantTests",
+"StatementTests",			// OK			
+"VisitTests"	
+];
 
 lrel[loc,str] crashes = [];
 lrel[loc,str] partial_results = [];
@@ -218,12 +228,14 @@ value main(list[value] args){
   partial_results = [];
   all_results = [];
    
-  all_results += runTests(files_with_tests, |std:///|);
+  //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
    
   all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
   all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
   all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
   all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  
+  all_results += runTests(files_with_tests, |std:///|);
   //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
