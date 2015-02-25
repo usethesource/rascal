@@ -362,7 +362,7 @@ private list[MuExp] translateMidChars(MidStringChars mid) {
   return mid == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid@\loc) ];
 }
 
-private str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
 
 /* Recap of relevant rules from Rascal grammar:
 
@@ -784,7 +784,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 // 
 // The global translation scheme is to translate each visit to a function PHI, with local functions per case.
 // For the fixedpoint strategies innermost and outermost, a wrapper function PHI_FIXPOINT is generated that
-// carries out the fixed point computation. PHI and PHIFIXPOINT have 7 common formal parameters, and the latter has
+// carries out the fixed point computation. PHI and PHIFIXPOINT have 6 common formal parameters, and the latter has
 // two extra local variables:
 //
 // PHI:	iSubject		PHI_FIXPOINT:	iSubject
@@ -792,8 +792,7 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 //		hasInsert						hasInsert
 //		begin							begin
 //		end								end
-//		iReachableTypes					iReachableTypes
-//		concreteMatch					concreteMatch
+//		descriptor						descriptor
 //										changed
 //										val
 
@@ -804,21 +803,19 @@ private int matchedPos = 1;
 private int hasInsertPos = 2;
 private int beginPos = 3;
 private int endPos = 4;
-private int iDescIdPos = 5;
-private int iReachableTypesPos = 6;
-private int concreteMatchPos = 7;
+private int iDescDescriptorPos = 5;
 
-private int NumberOfPhiFormals = 8;
+private int NumberOfPhiFormals = 6;
 
 // Generated PHI_FIXPOINT functions
-// iSubjectPos, matchedPos, hasInsert, begin, end, iReachableTypes and concreteMatch (as for PHI)
+// iSubjectPos, matchedPos, hasInsert, begin, end, descriptor (as for PHI)
 // Extra locals
 
-private int changedPos = 8;
-private int valPos = 9;
+private int changedPos = 6;
+private int valPos = 7;
 
-private int NumberOfPhiFixFormals = 8;
-private int NumberOfPhiFixLocals = 10;
+private int NumberOfPhiFixFormals = 6;
+private int NumberOfPhiFixLocals = 8;
 
 
 MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
@@ -857,8 +854,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	                                                   Symbol::\bool(),					// hasInsert
 	                                                   Symbol::\int(),					// begin
 	                                                   Symbol::\int(),					// end
-	                                                   Symbol::\str(),					// iDescId
-	                                                   Symbol::\set(Symbol::\value()),	// iReachableTypes
+	                                                   Symbol::\list(Symbol::\value()),	// iDescDescriptor
 	                                                   Symbol::\bool()					// concreteMatch
 	                                                  ]);
 	
@@ -867,9 +863,14 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	cases = [ c | Case c <- \visit.cases ];
 	
 	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), cases);
-	iReachableTypes = reachableTypesInVisit(cases);
-	println("reachableTypesInVisit: <iReachableTypes>");
-	concreteMatch = false;
+	concreteMatch = hasConcretePatternsOnly(cases);
+	tc = getTypesAndConstructorsInVisit(cases);
+	reachable = getReachableTypes(getType(\visit.subject@\loc), tc.constructors, tc.types, concreteMatch);
+	println("reachableTypesInVisit: <reachable>");
+	
+	
+	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+	
 	
 	// ***Note: (fixes issue #434) 
 	//    (1) All the variables introduced within a visit scope should become local variables of the phi-function
@@ -884,7 +885,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	//	println(tup);
 	//}
 	
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, iReachableTypes, concreteMatch)
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor)
 	int pos_in_phi = NumberOfPhiFormals;
 	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
@@ -942,9 +943,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 						                                                     muVar("hasInsert", phi_fixpoint_fuid, hasInsertPos),
 						                                                     muVar("begin", phi_fixpoint_fuid, beginPos),	
 						                                                     muVar("end", phi_fixpoint_fuid, endPos),
-						                                                     muCon(phi_fuid),
-						                                                     muCon(iReachableTypes),
-						                                                     muCon(concreteMatch)			                                                                                   
+						                                                     descriptor			                                                                                   
 						                                                   ])),
 						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim3("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
 						                                                               muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit@\loc) ], \visit@\loc ),
@@ -970,9 +969,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					 	 						      muTmpRef(beenChanged,scopeId), 
 					 	 						      muTmpRef(begin,scopeId), 
 					 	 						      muTmpRef(end,scopeId),
-					 	 						      muCon(phi_fuid),
-					 	 						      muCon(iReachableTypes),
-						                              muCon(concreteMatch),
+					 	 						      descriptor,
 					 	 						      muBool(rebuild) ]) 
 				   	   ]);
 	}
@@ -991,9 +988,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 					                        muTmpRef(beenChanged,scopeId), 
 					                        muTmpRef(begin,scopeId), 
 					 	 					muTmpRef(end,scopeId),
-					 	 					muCon(phi_fuid),
-					 	 					muCon(iReachableTypes),
-					 	 					muCon(concreteMatch),
+					 	 					descriptor,
 					                        muBool(rebuild) ]) 
 				   ]);
 }
@@ -1073,16 +1068,32 @@ MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases) {
 	
 }
 
-set[Symbol] reachableTypesInVisit(list[Case] cases){
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
 	reachableTypes = {};
+	reachableConstructors = {};
 	for(c <- cases){
 		if(c is patternWithAction){
-			reachableTypes += getReachableTypes(getType(c.patternWithAction.pattern@\loc));
+			tc = getTypesAndConstructors(c.patternWithAction.pattern);
+			reachableConstructors += tc.constructors;
+			reachableTypes += tc.types;
 		} else {
-			return {\value()};		// A default cases is present: everything can match
+			return <{\value()}, {}>;		// A default cases is present: everything can match
 		}
 	}
-	return reachableTypes;
+	return <reachableTypes, reachableConstructors>;
+}
+
+bool hasConcretePatternsOnly(list[Case] cases){
+	for(c <- cases){
+		if(c is patternWithAction){
+			if(!isConcretePattern((c.patternWithAction.pattern))){
+				return false;
+			}
+		} else {
+			return false;		// A default cases is present: everything can match
+		}
+	}
+	return true;
 }
 
 private bool hasTopLevelInsert(Case c) {
@@ -1929,7 +1940,7 @@ bool backtrackFree(Expression e){
     	return false;
     case (Expression) `<Pattern pat> := <Expression exp>`:
     	return false;
-    	case (Expression) `<Pattern pat> !:= <Expression exp>`:
+    case (Expression) `<Pattern pat> !:= <Expression exp>`:
     	return false;
     }
     return true;

@@ -110,9 +110,9 @@ import experiments::Compiler::Examples::Extending;
 
 import experiments::Compiler::Examples::FunctionWithVarargsAndKeyword;
 import experiments::Compiler::Examples::ModuleVarInitWithRange;
+import experiments::Compiler::Examples::ExpressionsInRascal;
 
 loc base = |std:///experiments/Compiler/Examples/|;
-
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =
   execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile, profile=profile);
@@ -239,3 +239,5 @@ test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures:
 test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::AnotherFor::main([]);
 
 test bool tst() = demo("Extending") == experiments::Compiler::Examples::Extending::main([]);
+
+test bool tst() = demo("ExpressionsInRascal") == experiments::Compiler::Examples::ExpressionsInRascal::main([]);
