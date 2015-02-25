@@ -158,7 +158,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 67 * receiver.hashCode() + 241 * annotation.hashCode() ; 
+      return 829 + 3 * receiver.hashCode() + 67 * annotation.hashCode() ; 
     } 
   
     
@@ -218,7 +218,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 937 * arg.hashCode() ; 
+      return 467 + 11 * arg.hashCode() ; 
     } 
   
     
@@ -271,7 +271,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 127 * name.hashCode() + 181 * arguments.hashCode() ; 
+      return 977 + 947 * name.hashCode() + 953 * arguments.hashCode() ; 
     } 
   
     
@@ -333,7 +333,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 787 * receiver.hashCode() + 251 * field.hashCode() ; 
+      return 743 + 271 * receiver.hashCode() + 269 * field.hashCode() ; 
     } 
   
     
@@ -395,7 +395,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 997 * receiver.hashCode() + 953 * defaultExpression.hashCode() ; 
+      return 863 + 401 * receiver.hashCode() + 379 * defaultExpression.hashCode() ; 
     } 
   
     
@@ -459,7 +459,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 911 * receiver.hashCode() + 449 * optFirst.hashCode() + 641 * optLast.hashCode() ; 
+      return 229 + 823 * receiver.hashCode() + 349 * optFirst.hashCode() + 157 * optLast.hashCode() ; 
     } 
   
     
@@ -534,7 +534,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 103 * receiver.hashCode() + 71 * optFirst.hashCode() + 787 * second.hashCode() + 821 * optLast.hashCode() ; 
+      return 11 + 499 * receiver.hashCode() + 929 * optFirst.hashCode() + 277 * second.hashCode() + 991 * optLast.hashCode() ; 
     } 
   
     
@@ -614,7 +614,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 271 * receiver.hashCode() + 197 * subscript.hashCode() ; 
+      return 223 + 421 * receiver.hashCode() + 409 * subscript.hashCode() ; 
     } 
   
     
@@ -674,7 +674,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 653 * elements.hashCode() ; 
+      return 73 + 239 * elements.hashCode() ; 
     } 
   
     
@@ -725,7 +725,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 131 * qualifiedName.hashCode() ; 
+      return 167 + 2 * qualifiedName.hashCode() ; 
     } 
   
     

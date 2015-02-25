@@ -81,7 +81,7 @@ public abstract class DataTypeSelector extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 + 59 * sort.hashCode() + 107 * production.hashCode() ; 
+      return 541 + 349 * sort.hashCode() + 409 * production.hashCode() ; 
     } 
   
     
