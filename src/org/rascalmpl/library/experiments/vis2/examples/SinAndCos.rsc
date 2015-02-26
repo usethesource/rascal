@@ -17,7 +17,11 @@ void tbox1(){ ex("box1", box1); }
 
 void sinAndCos(){
       ChartOptions options = chartOptions(curveType="function",
-           		hAxis = axis(title="Time", minValue = 0, maxValue = 10), 
+           		hAxis = axis(title="Time", minValue = 0, maxValue = 10
+           		//,ticks = [tick(v=2, f = "\u03C0")]
+           		// , titleTextStyle = textStyle(bold=true)
+           		), 
+           		
            		vAxis = axis(title="Voltage"),
            		chartArea = chartArea(width="80%", height = "70%"
            		             ,backgroundColor="antiquewhite"
@@ -28,7 +32,7 @@ void sinAndCos(){
                 lineWidth = 1,
                 legend = legend(position="top")
         	    );
-        println(adt2json(options));
+        // println(adt2json(options));
         ex("sinAndCos", 
         	combochart(charts=[
         	       line([<x, round(sin(x/1),0.001)>     | x <- [0.0, 1.0 .. 10.0]], name="Sine Wave"),
