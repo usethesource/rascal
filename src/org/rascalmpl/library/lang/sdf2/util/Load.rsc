@@ -15,8 +15,9 @@ import Exception;
 import String;
 import ParseTree;
 import Set;
+import util::Reflective;
 
-public SDF loadSDF2Module(str name, list[loc] path) {
+public SDF loadSDF2Module(str name) {
   set[Module] modules = {};
   set[str] newnames = {name};
   set[str] done = {};
@@ -25,7 +26,7 @@ public SDF loadSDF2Module(str name, list[loc] path) {
     <n,newnames> = takeOneFrom(newnames);
     
     if (n notin done) {
-      file = find(n + ".sdf", path);
+      file = getSearchPathLocation(n + ".sdf");
       \mod = parse(#start[Module], file).top;
       modules += \mod;
       newnames += getImports(\mod);
