@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: p2.osgi.bundle:org.eclipse.jdt.core:3.9.2.v20140114-1555">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/p2/osgi/bundle/org.eclipse.jdt.core/3.9.2.v20140114-1555/org.eclipse.jdt.core-3.9.2.v20140114-1555.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/p2/osgi/bundle/org.eclipse.jdt.core/3.9.2.v20140114-1555/org.eclipse.jdt.core-3.9.2.v20140114-1555-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/p2/osgi/bundle/org.eclipse.jdt.core/3.9.2.v20140114-1555/org.eclipse.jdt.core-3.9.2.v20140114-1555-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.eclipse.imp:org.eclipse.imp.pdb.values:0.4.1.qualifier">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/org.eclipse.imp.pdb.values/0.4.1.qualifier/org.eclipse.imp.pdb.values-0.4.1.qualifier.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/org.eclipse.imp.pdb.values/0.4.1.qualifier/org.eclipse.imp.pdb.values-0.4.1.qualifier-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/org.eclipse.imp.pdb.values/0.4.1.qualifier/org.eclipse.imp.pdb.values-0.4.1.qualifier-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
