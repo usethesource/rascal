@@ -225,17 +225,6 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("translateConcretePattern, concrete = <concrete>");
-  //fragType = getType(p@\loc);
-  //println("translateConcretePattern, fragType = <fragType>");
-  //reifiedFragType = symbolToValue(fragType);
-  //println("translateConcretePattern, reified: <reifiedFragType>");
-  //g = getGrammar();
-  //println("GRAMMAR:");
-  //for(nt <- g) println("<nt> : <g[nt]>");
-  //parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  //println("++++ parsedFragment: <parsedFragment>");
-  //iprintln(parsedFragment);
   return translateParsedConcretePattern(parseConcrete(concrete));
 }
 
@@ -456,7 +445,7 @@ MuExp translateQualifiedNamePat(QualifiedName name)
    return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("<name>", fuid, pos)]);
 } 
 
-// -- types name pattern ---------------------------------------------
+// -- typed name pattern ---------------------------------------------
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
    if("<name>" == "_"){

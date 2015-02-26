@@ -175,20 +175,19 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
-"lang/yaml/Model",                                  // OK
+"lang/rascal/types/tests/AbstractKindTests",
+"lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/UtilTests",
+"lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
 
 list[str] reachability_tests = [
-"ConcretePatternTests1",	// OK
-"ConcretePatternTests2",	// OK
-"ConcreteSyntaxTests1",     // OK
-"ConcreteSyntaxTests2",     // OK
-"ParsingTests",
-"PatternTests",				// OK
+"ConcretePatternTests2",
+"PatternTests",
 "PatternDescendantTests",
-"StatementTests",			// OK			
+"StatementTests",						
 "VisitTests"	
 ];
 

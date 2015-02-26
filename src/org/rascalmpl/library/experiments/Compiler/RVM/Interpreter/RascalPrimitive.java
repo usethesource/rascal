@@ -42,12 +42,15 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -2972,6 +2975,51 @@ public enum RascalPrimitive {
 		}	
 	},
 	
+	get_concrete_list_elements {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IConstructor treeSubject = (IConstructor) stack[sp - 1];
+			if (!TreeAdapter.isList(treeSubject)) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
+				throw new ImplementationError(
+						"This is not a context-free list production: " + treeSubject);
+			}
+			IList children = TreeAdapter.getArgs(treeSubject);
+			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+
+			IConstructor symbol = TreeAdapter.getType(treeSubject);
+			boolean layoutPresent = false;
+			if(children.length() > 1){
+				IConstructor child1 = (IConstructor)children.get(1);
+				if(TreeAdapter.getType(child1).getName().equals("layouts")){
+					layoutPresent = true;
+				}
+			}
+			int delta = layoutPresent ? 2 : 1;
+			
+			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+				IList separators = SymbolAdapter.getSeparators(symbol);
+				boolean nonLayoutSeparator = false;
+				for(IValue sep : separators){
+					if(!((IConstructor) sep).getName().equals("layouts")){
+						nonLayoutSeparator = true;
+						break;
+					}
+				}
+				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
+			}
+
+			for (int i = 0; i < children.length();) {
+				IValue kid = children.get(i);
+				writer.append(kid);
+				// skip layout and/or separators
+				i += delta;
+			}
+			stack[sp - 1] = writer.done();
+			return sp;
+		}	
+	},
+	
 	get_tree_type_as_symbol {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5274,7 +5322,7 @@ public enum RascalPrimitive {
 			IValue source = (IValue) stack[sp - 1];
 			if(source.getType().isString()){
 				IString s = (IString) source;
-				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame.src, currentFrame);
 			} else {
 				ISourceLocation s = (ISourceLocation) source;
 				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
@@ -5861,13 +5909,16 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IValue subject = (IValue) stack[sp - 2];
 			Type subjectType = subject.getType();
-			
 			Type type = (Type) stack[sp - 1];
 			
-			if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject) && type instanceof NonTerminalType){
-				NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
-				NonTerminalType typeNT = (NonTerminalType) type;
-				stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
+			if(type instanceof NonTerminalType){
+				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
+					NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
+					NonTerminalType typeNT = (NonTerminalType) type;
+					stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
+				} else {
+					stack[sp - 2] = Rascal_FALSE;
+				}
 			} else {
 				stack[sp - 2] = vf.bool(subjectType.isSubtypeOf(type));
 			}
@@ -6045,7 +6096,7 @@ public enum RascalPrimitive {
 			
 			IValue subject = (IValue) stack[sp - 2];
 			Object[] descriptor = (Object[]) stack[sp - 1];
-			stack[sp - 2] = $should_descent_on_value(subject, descriptor);
+			stack[sp - 2] = $should_descent_in_value(subject, descriptor);
 			return sp - 1;
 		}
 	},
@@ -6068,7 +6119,7 @@ public enum RascalPrimitive {
 			
 			Type key_type = subject.getType().getKeyType();
 			
-			stack[sp - 2] = $should_descent_on_type(key_type, symbolset);	
+			stack[sp - 2] = $should_descent_in_type(key_type, symbolset);	
 			return sp - 1;
 		}
 	},
@@ -6089,7 +6140,7 @@ public enum RascalPrimitive {
 			
 			Type val_type = subject.getType().getValueType();
 			
-			stack[sp - 2] = $should_descent_on_type(val_type, symbolset);	
+			stack[sp - 2] = $should_descent_in_type(val_type, symbolset);	
 			return sp - 1;
 		}
 	},
@@ -7179,39 +7230,45 @@ public enum RascalPrimitive {
 	 * @return
 	 */
 	
-	private static IBool $should_descent_on_value(final IValue subject, final Object[] descriptor){
-		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		
-		if(subject instanceof IConstructor){
-			if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((IConstructor)subject)){
-				IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
-				if(symbolset.contains(prod)){
-					return Rascal_TRUE;
-				}
-				
-				Type prodConsType = prod.getConstructorType();
-				
-				if(prodConsType == Factory.Production_Regular){
-					IValue regularType = prod.get("def");
-					return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
-				}
-				if(prodConsType == Factory.Symbol_ParameterizedLex || prodConsType == Factory.Symbol_ParameterizedSort){
-					return Rascal_TRUE;
-				}
-				return Rascal_FALSE;
-			} else 
-			if(symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)){
-				return Rascal_TRUE;
-			}
-		}
-		return $should_descent_on_type(subject.getType(), symbolset);
+	private static IBool $should_descent_in_value(IValue subject, final Object[] descriptor){
+		return Rascal_TRUE;
+//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
+//		if(subject instanceof INode){
+//			if(subject instanceof IConstructor){
+//				if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((IConstructor)subject)){
+//					IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
+//					if(symbolset.contains(prod)){
+//						return Rascal_TRUE;
+//					}
+//
+//					Type prodConsType = prod.getConstructorType();
+//
+//					if(prodConsType == Factory.Production_Regular){
+//						IValue regularType = prod.get("def");
+//						return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
+//					}
+//					if(prodConsType == Factory.Symbol_ParameterizedLex || prodConsType == Factory.Symbol_ParameterizedSort){
+//						return Rascal_TRUE;
+//					}
+//					return Rascal_FALSE;
+//				} else  {
+//					IConstructor cons = (IConstructor) subject;
+//					subject = SymbolAdapter.delabel(cons); //TODO what if subject is no longer an INode?
+//					return symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(subject.getType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)
+//						? Rascal_TRUE : Rascal_FALSE;
+//					}
+//			}
+//			return 	Rascal_TRUE; //symbolset.contains(nodeType) || symbolset.contains(valueType) ? Rascal_TRUE : Rascal_FALSE;
+//		}
+//		return $should_descent_in_type(subject.getType(), symbolset);
 	}
 	
-	private static IBool $should_descent_on_type(final Type type, final HashSet<Object> symbolset){
-		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
-			return Rascal_TRUE;
-		}
-		return Rascal_FALSE;
+	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
+		return Rascal_TRUE;
+//		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
+//			return Rascal_TRUE;
+//		}
+//		return Rascal_FALSE;
 	}
 }
 

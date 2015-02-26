@@ -209,7 +209,7 @@ public class TreeAdapter {
 		return writer.done();
 	}
 
-	private static int getSeparatorCount(IConstructor tree) {
+	public static int getSeparatorCount(IConstructor tree) {
 		return SymbolAdapter.getSeparators(ProductionAdapter.getType(getProduction(tree))).length();
 	}
 
@@ -228,7 +228,7 @@ public class TreeAdapter {
 				: false;
 	}
 
-	private static boolean isSeparatedList(IConstructor tree) {
+	public static boolean isSeparatedList(IConstructor tree) {
 		return isAppl(tree) ? isList(tree)
 				&& ProductionAdapter.isSeparatedList(getProduction(tree))
 				: false;

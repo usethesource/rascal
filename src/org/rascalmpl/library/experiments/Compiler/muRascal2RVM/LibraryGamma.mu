@@ -16,7 +16,10 @@ function NEXT(gen) {
 
 // Semantics of the all operator
 
-coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } {
+coroutine ALL(tasks) 
+guard { 
+	var len = size_array(tasks); len > 0 
+} {
     var workers = make_array(len),
         j = 0  
     workers[j] = create(tasks[j]())
@@ -37,7 +40,10 @@ coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } {
     }
 }
 
-coroutine OR(tasks) guard { var len = size_array(tasks); len > 0 } {
+coroutine OR(tasks)
+guard { 
+	var len = size_array(tasks); len > 0 
+} {
     var j = 0 
     while(j < len) {
         tasks[j]()()
@@ -110,7 +116,10 @@ coroutine ENUM_LITERAL(iLit, rVal) {
     yield iLit
 }
 
-coroutine ENUM_LIST(iLst, rVal) guard { var len = size_list(iLst); len > 0 } {
+coroutine ENUM_LIST(iLst, rVal)
+guard { 
+	var len = size_list(iLst); len > 0
+} {
     var j = 0
     while(j < len) {
         yield get_list(iLst, j)
@@ -148,29 +157,18 @@ guard {
 
 coroutine ENUM_NODE(iNd, rVal) 
 {
-   var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
+   var array, iLst, len, j = 0
    
    //println("ENUM_NODE", iNd);
-   if(equal(get_name(iNd), "appl")){            // A concrete list?
-      children = get_children(iNd)
-      prod = children[0]
-      //println("prod", prod);
-      //println("get_name(prod)", get_name(prod))
-      if(equal(get_name(prod), "regular")){     // regular(opname(), ...)
-         op = get_children(prod)[0]
-         opname = get_name(op)
-         //println("opname", opname)
-         // Consider layout and separators
-         if(equal(opname, "iter-seps") || equal(opname, "iter-star-seps")){
-            delta = 1 + size_list(get_children(op)[1]);
-         }
-         iLst = children[1]
+   if(prim("is_appl", iNd)){            	// A appl (concrete) node?
+      if(prim("is_concrete_list", iNd)){	// regular(opname(), ...)
+         iLst = prim("get_concrete_list_elements", iNd);
          len = size_list(iLst)
-         if(len > 0){
-            while(j < len) {
+         //println("ENUM_NODE", len,  iLst);
+        
+         while(j < len) {
                yield muprim("subscript_list_mint", iLst, j)
-               j = j + delta
-            }
+               j = j + 1
          }
       } else {                                    
         return iNd;                                // Concrete node, but not a concrete list
@@ -179,7 +177,7 @@ coroutine ENUM_NODE(iNd, rVal)
       array = get_children_and_keyword_values(iNd)
       len = size_array(array)                    
     
-         if(len > 0){
+      if(len > 0){
          while(j < len) {
             yield array[j]
             j = j + 1
@@ -205,7 +203,10 @@ coroutine ENUM_NODE_NO_KEYWORD_PARAMS(iNd, rVal)
     }
 }
 
-coroutine ENUM_TUPLE(iTup, rVal) guard { var len = size_tuple(iTup); len > 0 } {
+coroutine ENUM_TUPLE(iTup, rVal)
+guard {
+	var len = size_tuple(iTup); len > 0
+} {
     var j = 0
     while(j < len) {
         yield get_tuple(iTup, j)
@@ -398,7 +399,7 @@ guard {
     ipats[j] = create(pats[j], subjects[j])
     //println("MATCH_N, plen, slen", plen, slen);
     while((j >= 0) && (j < plen)) {
-         //println("MATCH_N", j, "pats[j]", pats[j], "subjects[j]", subjects[j])
+        //println("MATCH_N", j, "pats[j]", pats[j], "subjects[j]", subjects[j])
         pat = ipats[j]
         if(next(pat)) {
             if(j < (plen - 1)) {
@@ -415,7 +416,10 @@ guard {
 
 // Match a call pattern with a simple string as function symbol
 
-coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is node {
+coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
+guard
+	iSubject is node
+{
     var args 
     //println("MATCH_SIMPLE_CALL_OR_TREE, iName, pats, iSubject:", iName, pats, iSubject)  
  
@@ -434,12 +438,19 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is nod
 
 // Match a call pattern with an arbitrary pattern as function symbol
 
-coroutine MATCH_CALL_OR_TREE(pats, iSubject) guard iSubject is node {
+coroutine MATCH_CALL_OR_TREE(pats, iSubject)
+guard
+	iSubject is node
+{
     var args = get_name_and_children_and_keyword_mmap(iSubject)
+    //println("MATCH_CALL_OR_TREE", args)
     MATCH_N(pats, args)
 }
 
-coroutine MATCH_KEYWORD_PARAMS(keywords, pats, kwMap) guard kwMap is mmap { 
+coroutine MATCH_KEYWORD_PARAMS(keywords, pats, kwMap)
+guard
+	kwMap is mmap
+{ 
     var len = size_array(keywords), 
         subjects, j, kw
     //println("MATCH_KEYWORD_PARAMS", len, keywords, pats, kwMap)
@@ -461,7 +472,10 @@ coroutine MATCH_KEYWORD_PARAMS(keywords, pats, kwMap) guard kwMap is mmap {
     MATCH_N(pats, subjects)
 }
 
-coroutine MATCH_REIFIED_TYPE(pat, iSubject) guard iSubject is node { 
+coroutine MATCH_REIFIED_TYPE(pat, iSubject)
+guard
+	iSubject is node
+{ 
     var nc = get_name_and_children_and_keyword_mmap(iSubject), // TODO kw args?
         konstructor = nc[0], 
         symbol = nc[1]
@@ -470,13 +484,21 @@ coroutine MATCH_REIFIED_TYPE(pat, iSubject) guard iSubject is node {
     }
 }
 
-coroutine MATCH_TUPLE(pats, iSubject) guard iSubject is tuple {
+coroutine MATCH_TUPLE(pats, iSubject)
+guard
+	iSubject is tuple
+{
     MATCH_N(pats, get_tuple_elements(iSubject))
 }
 
-coroutine MATCH_LITERAL(pat, iSubject) guard equal(pat, iSubject) {
-    //println("MATCH_LITERAL", pat, iSubject)
+coroutine MATCH_LITERAL(pat, iSubject)
+guard
+	equal(pat, iSubject)
+{
+ 
+    //println("MATCH_LITERAL, true", pat, iSubject)
     yield
+   
 }
 
 coroutine MATCH_SUBSTRING(pat, rBegin, rEnd, iSubject)
@@ -512,13 +534,16 @@ coroutine MATCH_TYPED_VAR(typ, rVar, iSubject)
 guard 
     value_is_subtype(iSubject, typ)   
 {
-    	//println("MATCH_TYPED_VAR", typ, prim("value_to_string", iSubject))
-    	yield iSubject
-    	undefine(rVar)
-    	exhaust
+    //println("MATCH_TYPED_VAR", typ, prim("value_to_string", iSubject))
+    yield iSubject
+    undefine(rVar)
+    exhaust
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject) guard value_is_subtype(iSubject, typ) {
+coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject) 
+guard 
+	value_is_subtype(iSubject, typ)
+{
     yield
 }
 
@@ -529,14 +554,20 @@ coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     }
 }
 
-coroutine MATCH_TYPED_VAR_BECOMES(typ, rVar, pat, iSubject) guard value_is_subtype(iSubject, typ) {
+coroutine MATCH_TYPED_VAR_BECOMES(typ, rVar, pat, iSubject) 
+guard 
+	value_is_subtype(iSubject, typ)
+{
     var cpat = create(pat, iSubject)
     while(next(cpat)) {
         yield iSubject
     }
 }
 
-coroutine MATCH_AS_TYPE(typ, pat, iSubject) guard value_is_subtype(iSubject, typ) {
+coroutine MATCH_AS_TYPE(typ, pat, iSubject)
+guard
+	value_is_subtype(iSubject, typ)
+{
     pat(iSubject)
 }
 
@@ -602,7 +633,10 @@ coroutine MATCH_COLLECTION(pats,       // Coroutines to match collection element
 
 // List matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_LIST(pats, iList) guard iList is list {
+coroutine MATCH_LIST(pats, iList)
+guard
+	iList is list
+{
     var subject = MAKE_SUBJECT(iList, 0)
     MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject)
 }
@@ -912,11 +946,12 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
 // Primitives for matching of concrete list patterns
 
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
-coroutine MATCH_APPL_IN_LIST(iProd, argspat, rSubject)  guard { 
+coroutine MATCH_APPL_IN_LIST(iProd, argspat, rSubject) 
+guard { 
     var iList = GET_LIST(deref rSubject),
         start = GET_CURSOR(deref rSubject);
         start < size_list(iList) 
-    } {
+} {
     var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
@@ -929,11 +964,12 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, rSubject)  guard {
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
-coroutine MATCH_LIT_IN_LIST(iProd, rSubject)  guard { 
+coroutine MATCH_LIT_IN_LIST(iProd, rSubject)
+guard { 
     var iList = GET_LIST(deref rSubject),
         start = GET_CURSOR(deref rSubject); 
         start < size_list(iList) 
-    } {
+} {
     var iElem = get_list(iList, start), 
         children = get_children(iElem)
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
@@ -1118,7 +1154,10 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
 
 // Set matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_SET(iLiterals, pats, iSubject) guard iSubject is set {
+coroutine MATCH_SET(iLiterals, pats, iSubject)
+guard
+	iSubject is set
+{
     //println("MATCH_SET:", iLiterals, iSubject)
     if(size_set(iLiterals) == 0 || subset(iLiterals, iSubject)) {
         //iSubject = prim("set_subtract_set", iSubject, iLiterals)
@@ -1147,7 +1186,11 @@ coroutine ENUM_MSET(set, rElm) {
 // - available: the remaining, unmatched, elements in the subject set
 // - rRemaining: reference parameter to return remaining set elements
 
-coroutine MATCH_PAT_IN_SET(pat, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+coroutine MATCH_PAT_IN_SET(pat, rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
     var gen = create(ENUM_MSET, available, ref elm), 
         cpat, elm
     while(next(gen)) {
@@ -1159,7 +1202,11 @@ coroutine MATCH_PAT_IN_SET(pat, rSubject) guard { var available = deref rSubject
     }
 }
 
-coroutine MATCH_VAR_IN_SET(rVar, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+coroutine MATCH_VAR_IN_SET(rVar, rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
     var elm, gen  
     if(is_defined(rVar)) {
         elm = deref rVar
@@ -1177,7 +1224,11 @@ coroutine MATCH_VAR_IN_SET(rVar, rSubject) guard { var available = deref rSubjec
     undefine(rVar)
 }
 
-coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) {
@@ -1188,7 +1239,11 @@ coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject) guard { var available = de
     }
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_SET(rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+coroutine MATCH_ANONYMOUS_VAR_IN_SET(rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) { 
@@ -1197,7 +1252,11 @@ coroutine MATCH_ANONYMOUS_VAR_IN_SET(rSubject) guard { var available = deref rSu
    }
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) { 
@@ -1283,12 +1342,20 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, rSubject) {
     }
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET(typ, rVar, rSubject) guard { var available = deref rSubject; subtype(typeOfMset(available), typ) } {
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET(typ, rVar, rSubject)
+guard {
+	var available = deref rSubject;
+	subtype(typeOfMset(available), typ)
+} {
     yield(set(available), mset_empty())
     deref rSubject = available
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, rSubject) guard { var available = deref rSubject; subtype(typeOfMset(available), typ) } {
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, rSubject)
+guard {
+	var available = deref rSubject;
+	subtype(typeOfMset(available), typ)
+} {
     yield mset_empty()
     deref rSubject = available
 }
@@ -1338,18 +1405,16 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 // - HashMap of types and constructors
 // - concreteMatch (to distinguish abstract/concrete match)
 
-coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
-guard prim("should_descent", iVal, descendantDescriptor)
-{
-	DESCENT_AND_MATCH1(pat, descendantDescriptor, iVal) 
-}
-
-coroutine DESCENT_AND_MATCH1(pat, descendantDescriptor, iVal) 
+//coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 //guard prim("should_descent", iVal, descendantDescriptor)
+//{
+//	DESCENT_AND_MATCH1(pat, descendantDescriptor, iVal) 
+//}
+
+coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	//if(prim("should_descent", iVal, descendantDescriptor)){
-		//println("Enter:", typeOf(iVal))
+	if(prim("should_descent", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1362,11 +1427,8 @@ coroutine DESCENT_AND_MATCH1(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	    //println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	    pat(iVal)
-	 //} 
-	 //else {
-	 //	println("Skip:", typeOf(iVal));
-	 //}
+	 }
+	 pat(iVal) 
 }
 
 coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
@@ -1374,7 +1436,7 @@ coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
         yield
         exhaust
     }
-    DESCENT_AND_MATCH1(MATCH_LITERAL(pat), iSubject) 	
+    DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject) 	
 }
 
 coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst) 
@@ -1383,7 +1445,7 @@ coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
         j = 0;
     //println("DESCENT_AND_MATCH_LIST", iLst, j, last)
     while(j < last) {
-        DESCENT_AND_MATCH1(pat, descendantDescriptor, get_list(iLst, j))
+        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
         j = j + 1
     }
 }
@@ -1395,7 +1457,7 @@ coroutine DESCENT_AND_MATCH_SET(pat, descendantDescriptor, iSet)
         j = 0;
     //println("DESCENT_AND_MATCH_SET", iSet, j, last)
     while(j < last) {
-        DESCENT_AND_MATCH1(pat, descendantDescriptor, get_list(iLst, j))
+        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
         j = j + 1
     }
 }
@@ -1408,14 +1470,15 @@ coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
         j = 0;
     //println("DESCENT_AND_MATCH_MAP", iMap, j, last)
     while(j < last) {
-        DESCENT_AND_MATCH1(pat, descendantDescriptor, get_list(iKlst, j))
-        DESCENT_AND_MATCH1(pat, descendantDescriptor, get_list(iVlst, j))  
+        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iKlst, j))
+        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iVlst, j))  
         j = j + 1
     }
 }
 
 coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
-guard prim("should_descent", iNd, descendantDescriptor)
+guard
+	prim("should_descent", iNd, descendantDescriptor)
 {
    var array, iLst, len, children, j = 0, prod, op, opname, sort, val
    
@@ -1432,7 +1495,7 @@ guard prim("should_descent", iNd, descendantDescriptor)
             while(j < len) {
                val = muprim("subscript_list_mint", iLst, j)
                //println("DESCENT_AND_MATCH_NODE, list element:", j, val);
-               DESCENT_AND_MATCH1(pat,descendantDescriptor,  val)
+               DESCENT_AND_MATCH(pat,descendantDescriptor,  val)
                j = j + 1
             }
          }
@@ -1450,7 +1513,7 @@ guard prim("should_descent", iNd, descendantDescriptor)
       while(j < len) {
             val = muprim("subscript_list_mint", iLst, j)
             //println("DESCENT_AND_MATCH_NODE, is_appl, arg j = ", j, val);
-            DESCENT_AND_MATCH1(pat, descendantDescriptor, val)
+            DESCENT_AND_MATCH(pat, descendantDescriptor, val)
             j = j + 2
       }
       //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
@@ -1462,7 +1525,7 @@ guard prim("should_descent", iNd, descendantDescriptor)
    len = size_array(array)                    
     
    while(j < len) {
-         DESCENT_AND_MATCH1(pat, descendantDescriptor, array[j])
+         DESCENT_AND_MATCH(pat, descendantDescriptor, array[j])
          j = j + 1
    }
 }
@@ -1473,7 +1536,7 @@ coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
         j = 0;
     while(j < last) {
     	val = get_tuple(iTup, j)
-        DESCENT_AND_MATCH1(pat, descendantDescriptor, val)
+        DESCENT_AND_MATCH(pat, descendantDescriptor, val)
         j = j + 1
     }
 }
@@ -1533,16 +1596,16 @@ coroutine MATCH_REGEXP_IN_VISIT(iRegexp, varrefs, rBegin, rEnd, iSubject) {
 //   - hasInsert
 //   - rBegin
 //   - rEnd
-//	 - iDescId
-//   - iReachableTypes
-//   - concreteMatch
+//	- descendant descriptor
 // - iSubject, the subject value to be traversed
 // - rHasMatch, a reference parameter that records successfull matches
 // - rBeenChanged, a reference parameter that records subject replacements (due to insert or =>)
 // - rBegin, indicates start point of match (inclusive)
 // - rEnd, indicates end point of match (exclusive); for now used for string visit to indicate size of matched substring
-// - iReachableTypes, a set of types that should be visited
-// - concreteMatch, true if all visit cases are concrete patterns
+// - descriptor:
+//	- unique id
+//	- symbolset, a set of types, constructors and productions that should be visited
+//  - concreteMatch, true if all visit cases are concrete patterns
 // - rebuild, a boolean indicating whether a new value for the subject should be built
 
 function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild) {
@@ -1550,7 +1613,7 @@ function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd,
         changed = false
     //println("TRAVERSE_TOP_DOWN", phi, iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
     
-    if(prim("should_descent", iSubject, descendantDescriptor)){
+    //if(prim("should_descent", iSubject, descendantDescriptor)){
 	    if(iSubject is str){
 	       iSubject = iSubject    // avoid duplicate traversal of string
 	    } else {
@@ -1565,7 +1628,7 @@ function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd,
 	        return iSubject
 	    }
 	    return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN::8, phi, rHasMatch, ref changed, rBegin, rEnd, descendantDescriptor, rebuild)
-	}
+	//}
 	return iSubject
 }
 
@@ -1573,7 +1636,7 @@ function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin,
     var matched = false, 
         changed = false
     
-    if(prim("should_descent", iSubject, descendantDescriptor)){
+    //if(prim("should_descent", iSubject, descendantDescriptor)){
 	    if(iSubject is str){
 	        iSubject = iSubject    // avoid duplicate traversal of string
 	    } else {
@@ -1590,7 +1653,7 @@ function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin,
 	        return iSubject
 	    }
 	    return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::8, phi, rHasMatch, ref changed, rBegin, rEnd, descendantDescriptor, rebuild)
-    }
+    //}
     return iSubject
 }
 
@@ -1598,7 +1661,7 @@ function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd
     var matched = false, 
         changed = false
     //println("TRAVERSE_BOTTOM_UP", phi, iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
-    if(prim("should_descent", iSubject, descendantDescriptor)){
+    //if(prim("should_descent", iSubject, descendantDescriptor)){
 	    if(rebuild) {
 	        iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::8, phi, rHasMatch, ref changed, rBegin, rEnd, descendantDescriptor, rebuild)
 	        deref rBeenChanged = changed || deref rBeenChanged
@@ -1612,7 +1675,7 @@ function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd
 	    
 	    iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd, descendantDescriptor)
 	    deref rBeenChanged = changed || deref rBeenChanged
-	}
+	//}
     return iSubject
 }
 
@@ -1620,7 +1683,7 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin
     var matched = false, 
         changed = false
     
-    if(prim("should_descent", iSubject, descendantDescriptor)){
+    //if(prim("should_descent", iSubject, descendantDescriptor)){
 	    if(rebuild) {
 	        iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::8, phi, rHasMatch, ref changed, rBegin, rEnd, descendantDescriptor, rebuild)
 	        deref rBeenChanged = changed || deref rBeenChanged
@@ -1634,7 +1697,7 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin
 	    iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd, descendantDescriptor)
 	    deref rHasMatch = matched || deref rHasMatch
 	    deref rBeenChanged = changed || deref rBeenChanged    
-    }
+    //}
     return iSubject
 }
 
@@ -1647,8 +1710,8 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin
 function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild) { 
     var children
     
-    //println("VISIT_CHILDREN", iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
-    //if(prim("should_descent", iSubject, descendantDescriptor)){
+   // println("VISIT_CHILDREN", iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
+    if(prim("should_descent", iSubject, descendantDescriptor)){
 	    typeswitch(iSubject){
 	        case list: {
 	                children = VISIT_ELEMENTS(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
@@ -1685,7 +1748,7 @@ function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rB
 	        default:
 	            return iSubject;
 	    }
-    //}
+    }
    // println("VISIT_CHILDREN, returns", iSubject);
     
     return iSubject
@@ -1849,7 +1912,8 @@ function VISIT_STR(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin,
 // - rHasMatch, rBeenChanged, rBegin, rEnd, rebuild as above
 
 function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild) {  
-	//if(prim("should_descent", iSubject, descendantDescriptor)){  
+	//println("VISIT_CHILDREN_VOID", iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
+	if(prim("should_descent", iSubject, descendantDescriptor)){  
 	    typeswitch(iSubject){
 	    case list:
 	        VISIT_ELEMENTS_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
@@ -1872,7 +1936,7 @@ function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChange
 	    default:
 	        return iSubject
 	    }
-	//} 
+	} 
     return iSubject
 }
 
@@ -1902,14 +1966,14 @@ function VISIT_NODE_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, r
 
     while(next(enumerator)) { 
         childHasMatch = false
-        traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
+        //if(prim("should_descent", iChild, descendantDescriptor)){
+        	traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
+        //}
         deref rHasMatch = childHasMatch || deref rHasMatch
     }    
     while(j < len) {
         childHasMatch = false
-        //if(prim("should_descent", iSubject, descendantDescriptor)){
-        	traverse_fun(phi, get_mmap(kwMap, keywords[j]), ref childHasMatch, ref childBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
-        //}
+        traverse_fun(phi, get_mmap(kwMap, keywords[j]), ref childHasMatch, ref childBeenChanged, rBegin, rEnd, descendantDescriptor, rebuild)
         deref rHasMatch = childHasMatch || deref rHasMatch
         j = j + 1
     }

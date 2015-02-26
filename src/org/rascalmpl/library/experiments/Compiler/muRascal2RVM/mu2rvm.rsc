@@ -243,8 +243,8 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   }
   
   functionScope = module_init_fun;
-  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!										// TODO: fix location 
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown-init:///|, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  code = trvoidblock(initializations); // compute code first since it may generate new locals!
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
