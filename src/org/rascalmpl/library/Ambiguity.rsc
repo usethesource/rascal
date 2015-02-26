@@ -158,8 +158,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
  
  
   // find parents of literals, and transfer location
-  polX = {<p,l[src=t.origin]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
-  polY = {<l[src=t.origin],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
+  polX = {<p,l[origin=t.origin]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
+  polY = {<l[origin=t.origin],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
   overloadedLits = [info("Literal \"<l>\" is used in both
                      '  <alt2rascal(p)> and
                      '  <alt2rascal(q)>", l.origin) | <p,l> <- polX, <l,q> <- polY, p != q, !(p in pY || q in pX)];
