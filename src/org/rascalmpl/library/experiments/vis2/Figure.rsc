@@ -306,7 +306,10 @@ data Animation(
       bool startup = false
       ) = animation();
 
-data Tick(num f = -1, str v  ="") = tick();
+data Tick(num v = -1, str f  ="") = tick();
+
+data TextStyle(str color="", str fontName="", int fontSize=-1, 
+       bool bold = false, bool italic = false) = textStyle();
     
 data Axis(str title="",
           num minValue = -1,
@@ -317,7 +320,10 @@ data Axis(str title="",
           int slantedTextAngle = -1, 
           str textPosition = "",
           str format = "", 
-           Gridlines gridlines =  Gridlines::gridlines()) 
+           Gridlines gridlines =  Gridlines::gridlines() ,
+          list[Tick] tick = [],
+          TextStyle titleTextSyle = textStyle(),
+          TextStyle textStyle = textStyle())
           = axis();
           
                
