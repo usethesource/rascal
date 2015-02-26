@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.eclipse.imp:pdb.values-api:0.4.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/pdb.values-api/0.4.1-SNAPSHOT/pdb.values-api-0.4.1-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/pdb.values-api/0.4.1-SNAPSHOT/pdb.values-api-0.4.1-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/imp/pdb.values-api/0.4.1-SNAPSHOT/pdb.values-api-0.4.1-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
