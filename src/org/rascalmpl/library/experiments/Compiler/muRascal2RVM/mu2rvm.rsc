@@ -342,7 +342,7 @@ INS tr(muVar(str id, str fuid, int pos)) {
 
 INS tr(muLoc(str id, int pos)) { localNames[pos] = id; return [LOADLOC(pos)];}
 
-INS tr(muReset(int pos)) { return [RESETLOC(pos)];}
+INS tr(muResetLoc(int pos)) { return [RESETLOC(pos)];}
 
 INS tr(muTmp(str id,str fuid)) = [fuid == functionScope ? LOADLOC(getTmp(id,fuid)) : LOADVAR(fuid,getTmp(id,fuid))];
 
