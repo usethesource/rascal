@@ -560,6 +560,32 @@ test bool descendant27() = [n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]]  == [1,2
 @ignoreInterpreter{Not implemented}	
 test bool descendant28() = [s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]]  == ["white", "red"];
   	
+// Match in loops
+
+test bool matchInLoop1(){
+	lst = [1, 2, 3];
+	cnt = 0;
+	for(int x <- lst){
+		switch(x){
+			case n: cnt += n;
+		}
+	}
+	return cnt == (0 | it + x | x <- lst);
+}
+
+test bool matchInLoop2(){
+	lst = [1, 2, 3];
+	cnt = 0;
+	i = 0;
+	while(i < size(lst)){
+		switch(lst[i]){
+			case n: cnt += n;
+		}
+		i += 1;
+	}
+	return cnt == (0 | it + x | x <- lst);
+}
+
 // listCount1
  
    test bool listCount1(list[int] L){
