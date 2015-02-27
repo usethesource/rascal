@@ -54,6 +54,7 @@ import org.jgll.grammar.symbol.IfThenElse;
 import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Offside;
+import org.jgll.grammar.symbol.Precedence;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.grammar.symbol.Terminal;
@@ -149,6 +150,11 @@ public class RascalToIguanaGrammarConverter {
 		return layouts.isEmpty() ? null : Nonterminal.withName(layouts.get(0)); 
 	}
 	
+	private int index;
+	
+	private Precedence lowest;
+	private Precedence highest;
+	
 	private List<Rule> getAlternatives(IValue nonterminal, IMap definitions, LayoutStrategy strategy) {
 		
 		List<Rule> rules = new ArrayList<>();
@@ -158,6 +164,7 @@ public class RascalToIguanaGrammarConverter {
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
 		
+		index = 0;
 		getAlternatives(head, choice, strategy, rules);
 		
 		return rules;
@@ -165,43 +172,69 @@ public class RascalToIguanaGrammarConverter {
 	
 	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules) {
 		
-		if (production.getName().equals("choice")) {
+		switch (production.getName()) {
+		
+			case "choice":
 			
-			ISet alternatives = (ISet) production.get("alternatives");
+				ISet alternatives = (ISet) production.get("alternatives");
 			
-			for (IValue alternative : alternatives) 
-				getAlternatives(head, (IConstructor) alternative, strategy, rules);
+				for (IValue alternative : alternatives) 
+					getAlternatives(head, (IConstructor) alternative, strategy, rules);
+				
+				break;
 			
-		} else if (production.getName().equals("priority")) {
+			case "priority":
 			
-			IList choices = (IList) production.get("choices");
+				IList choices = (IList) production.get("choices");
 			
-			for (IValue choice : choices)
-				getAlternatives(head, (IConstructor) choice, strategy, rules);
+				for (IValue choice : choices.reverse()) {
+					
+					lowest = new Precedence(index);
+					highest = new Precedence();
+					
+					getAlternatives(head, (IConstructor) choice, strategy, rules);
+					
+					highest.set(index - 1);
+				}
+				
+				break;
 			
-		} else if (production.getName().equals("associativity")) {
+			case "associativity":
 			
-			ISet alternatives = (ISet) production.get("alternatives");
+				alternatives = (ISet) production.get("alternatives");
 			
-			for (IValue alternative : alternatives) 
-				getAlternatives(head, (IConstructor) alternative, strategy, rules);
+				for (IValue alternative : alternatives) 
+					getAlternatives(head, (IConstructor) alternative, strategy, rules);
+				
+				break;
 			
-		} else if (production.getName().equals("prod")) {
+			case "prod":
 			
-			SerializableValue object = null;
+				SerializableValue object = null;
 			
-			IList rhs = (IList) production.get("symbols");
+				IList rhs = (IList) production.get("symbols");
+				ISet attributes = (ISet) production.get("attributes");
+				
+				boolean hasAssocAttr = false;
+				for (IValue attr : attributes) {
+					
+				}
 
-			List<Symbol> body = getSymbolList(rhs);
+				List<Symbol> body = getSymbolList(rhs);
 			
-			Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
-			rulesMap.put(production, rule);
-			rules.add(rule);
+				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
+				rulesMap.put(production, rule);
+				rules.add(rule);
+				index++;
+				
+				break;
 			
-		} else if (production.getName().equals("regular")) {
+			case "regular":
+				break;
 			
-		} else {
-			new RuntimeException("Unexpected type of a production: " + production.getName());
+			default:
+				new RuntimeException("Unexpected type of a production: " + production.getName());
+			
 		}
 	}
 
