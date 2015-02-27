@@ -157,27 +157,52 @@ public class RascalToIguanaGrammarConverter {
 		
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
-		ISet alts = (ISet) choice.get("alternatives");
-
-		for (IValue alt : alts) {
-
-			IConstructor prod = (IConstructor) alt;
-
-			SerializableValue object = null;
-
-			if (!prod.getName().equals("regular")) {
-
-				IList rhs = (IList) prod.get("symbols");
-
-				List<Symbol> body = getSymbolList(rhs);
-				
-				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
-				rulesMap.put(prod, rule);
-				rules.add(rule);
-			}
-		}
+		
+		getAlternatives(head, choice, strategy, rules);
 		
 		return rules;
+	}
+	
+	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules) {
+		
+		if (production.getName().equals("choice")) {
+			
+			ISet alternatives = (ISet) production.get("alternatives");
+			
+			for (IValue alternative : alternatives) 
+				getAlternatives(head, (IConstructor) alternative, strategy, rules);
+			
+		} else if (production.getName().equals("priority")) {
+			
+			IList choices = (IList) production.get("choices");
+			
+			for (IValue choice : choices)
+				getAlternatives(head, (IConstructor) choice, strategy, rules);
+			
+		} else if (production.getName().equals("associativity")) {
+			
+			ISet alternatives = (ISet) production.get("alternatives");
+			
+			for (IValue alternative : alternatives) 
+				getAlternatives(head, (IConstructor) alternative, strategy, rules);
+			
+		} else if (production.getName().equals("prod")) {
+			
+			SerializableValue object = null;
+			
+			IList rhs = (IList) production.get("symbols");
+
+			List<Symbol> body = getSymbolList(rhs);
+			
+			Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
+			rulesMap.put(production, rule);
+			rules.add(rule);
+			
+		} else if (production.getName().equals("regular")) {
+			
+		} else {
+			new RuntimeException("Unexpected type of a production: " + production.getName());
+		}
 	}
 
 	@SuppressWarnings("unused")

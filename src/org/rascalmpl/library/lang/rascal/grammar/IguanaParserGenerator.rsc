@@ -17,7 +17,7 @@ public Grammar lexToToken(Grammar g) = visit(g) {
   
 public Grammar preprocess(map[Symbol,Production] definitions, bool lexToTok = false) {
   gr = grammar({}, definitions);
-iprintln("gr before: <gr>");
+  iprintln("gr before: <gr>");
   if (lexToTok) 
     gr = lexToToken(gr);
     
@@ -26,11 +26,11 @@ iprintln("gr before: <gr>");
   //gr = addHoles(gr);
   
   // TODO: expandKeywords breaks when symbols have Tree children
-  //gr = expandKeywords(gr);
+  gr = expandKeywords(gr);
   
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
-  gr = prioAssocToChoice(gr);
+  //gr = prioAssocToChoice(gr);
   return gr;
 } 
