@@ -180,7 +180,7 @@ public class RVMonJVM implements IRVM {
 
 			for (Function f : functionStore) {
 				// TODO: new finalize
-				//f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
+				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 
 			// All functions are created create int based dispatcher
@@ -234,6 +234,8 @@ public class RVMonJVM implements IRVM {
 
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
+				
+				codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClass = new ClassLoader(RVMonJVM.class.getClassLoader()) {

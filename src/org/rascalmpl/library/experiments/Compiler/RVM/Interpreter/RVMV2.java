@@ -528,7 +528,7 @@ public class RVMV2 implements IRVM {
 	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              	// current stack
-//		int sp = cf.function.nlocals;				                  	// current stack pointer
+		int sp = cf.function.nlocals;				                  	// current stack pointer
 		stack = cf.stack;		                              	// current stack
 		sp = cf.function.nlocals;				                  	// current stack pointer
 		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -633,7 +633,7 @@ public class RVMV2 implements IRVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADBOOL:
-					insnLOADBOOL(stack, sp,CodeBlock.fetchArg1(instruction));
+					insnLOADBOOL(stack, sp++,CodeBlock.fetchArg1(instruction));
 					//stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
 					
@@ -751,6 +751,22 @@ public class RVMV2 implements IRVM {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADVAR:
+					varScope = CodeBlock.fetchArg1(instruction);
+					pos = CodeBlock.fetchArg2(instruction);
+					
+					if(CodeBlock.isMaxArg2(pos)){				
+						stack[sp++] = moduleVariables.get(cf.function.constantStore[varScope]);
+						continue NEXT_INSTRUCTION;
+					}
+					
+					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == varScope) {					
+							stack[sp++] = fr.stack[pos] ;
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope, cf);
+
 				case Opcode.OP_LOADVARREF: {
 					varScope = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
@@ -1204,14 +1220,10 @@ public class RVMV2 implements IRVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_NEXT0:
-				case Opcode.OP_NEXT1:
 					Coroutine coroutine = (Coroutine) stack[--sp];
 					
 					// Merged the hasNext and next semantics
 					if(!coroutine.hasNext()) {
-						if(op == Opcode.OP_NEXT1) {
-							--sp;
-						}
 						stack[sp++] = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
@@ -1222,8 +1234,33 @@ public class RVMV2 implements IRVM {
 					
 					instructions = coroutine.frame.function.codeblock.getInstructions();
 				
-					coroutine.frame.stack[coroutine.frame.sp++] = 		// Always leave an entry on the stack
-							(op == Opcode.OP_NEXT1) ? stack[--sp] : null;
+					coroutine.frame.stack[coroutine.frame.sp++] = null ;		// Always leave an entry on the stack
+					
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = coroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_NEXT1:
+					coroutine = (Coroutine) stack[--sp];
+					
+					// Merged the hasNext and next semantics
+					if(!coroutine.hasNext()) {
+						stack[sp-1] = Rascal_FALSE;
+						continue NEXT_INSTRUCTION;
+					}
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(coroutine);
+					ccf = coroutine.start;
+					coroutine.next(cf);
+					
+					instructions = coroutine.frame.function.codeblock.getInstructions();
+				
+					coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp] ;		// Always leave an entry on the stack
 					
 					cf.pc = pc;
 					cf.sp = sp;
@@ -2844,7 +2881,6 @@ public class RVMV2 implements IRVM {
 
 	public void insnLOADVARKWP() {
 		return;
-
 	}
 
 	public void insnSTORELOCKWP() {
@@ -2853,12 +2889,10 @@ public class RVMV2 implements IRVM {
 		HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
 		/* stack[cf.function.nformals - 1] = */kargs.put(name, val);
 		return;
-
 	}
 
 	public void insnSTOREVARKWP() {
 		return;
-
 	}
 
 	public void insnLOADCONT() {
