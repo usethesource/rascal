@@ -619,6 +619,12 @@ public class RVM {
 					stack[sp++] = stack[pos];
 					continue NEXT_INSTRUCTION;
 					
+				case Opcode.OP_RESETLOC:
+					pos = CodeBlock.fetchArg1(instruction);
+					stack[sp++] = stack[pos];
+					stack[pos] = null;
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_LOADBOOL:
 					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
@@ -1083,6 +1089,7 @@ public class RVM {
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Exception e){
 						e.printStackTrace(stderr);
+						stderr.flush();
 						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
 					} 
 					
@@ -1499,6 +1506,7 @@ public class RVM {
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						stdout.println("\t" + f.toString());
 					}
+					stdout.flush();
 					return thrown;
 				}
 				
@@ -1507,9 +1515,16 @@ public class RVM {
 			if(e instanceof Thrown){
 				throw e;
 			}
+			stdout.println("EXCEPTION " + e + " at: " + cf.src);
+			for(Frame f = cf; f != null; f = f.previousCallFrame) {
+				stdout.println("\t" + f.toString());
+			}
+			stdout.flush();
 			e.printStackTrace(stderr);
+			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
 			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
+			
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
