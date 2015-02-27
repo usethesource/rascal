@@ -10,6 +10,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.NameMangler;
 
 
 public class Function {
@@ -52,6 +54,23 @@ public class Function {
 		this.codeblock = codeblock;
 		this.src = src;
 		this.continuationPoints = cpts ;
+	}
+	
+
+	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+
+		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints,false);
+
+		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
+		
+		this.scopeId = codeblock.getFunctionIndex(name);
+		if (funIn != null) {
+			this.scopeIn = codeblock.getFunctionIndex(funIn);
+		}
+		this.constantStore = codeblock.getConstants();
+		this.typeConstantStore = codeblock.getTypeConstants();
+
+		codeEmittor.closeMethod();
 	}
 	
 	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){

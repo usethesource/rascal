@@ -95,7 +95,7 @@ public class RVMRun implements IRVM {
 	public RascalExecutionContext rex;
 	private boolean trackCalls;
 	private boolean finalized;
-	private ILocationCollector locationCollector;
+	protected ILocationCollector locationCollector;
 
 	public IEvaluatorContext getEvaluatorContext() {
 		return rex.getEvaluatorContext();
@@ -135,7 +135,7 @@ public class RVMRun implements IRVM {
 		return rex;
 	}
 
-	public RVMRun(RascalExecutionContext rascalExecutionContext) {
+	public RVMRun(RascalExecutionContext rex) {
 		super();
 
 		this.vf = rex.getValueFactory();
@@ -1158,7 +1158,7 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public int insnCHECKARGTYPANDCOPY(Object[] stack, int sp,int loc, int type, int toLoc) {
+	public int insnCHECKARGTYPEANDCOPY(Object[] stack, int sp,int loc, int type, int toLoc) {
 		Type argType = ((IValue) stack[loc]).getType();
 		Type paramType = cf.function.typeConstantStore[type];
 		

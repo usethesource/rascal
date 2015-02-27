@@ -13,8 +13,8 @@ public class Frame {
 	int scopeId;
     Frame previousCallFrame;
     final Frame previousScope;
-	final Object[] stack;
-	int sp;
+	public final Object[] stack;
+	public int sp;
 	int pc;
 	ISourceLocation src;
 	final Function function;
