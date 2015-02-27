@@ -586,6 +586,10 @@ public class Execute {
 								 getStrField(instruction, "caseDefault"));
 				break;
 				
+			case "RESETLOC":
+				codeblock.RESETLOC(getIntField(instruction, "pos"));
+				break;	
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}

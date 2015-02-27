@@ -495,7 +495,6 @@ coroutine MATCH_LITERAL(pat, iSubject)
 guard
 	equal(pat, iSubject)
 {
- 
     //println("MATCH_LITERAL, true", pat, iSubject)
     yield
    
@@ -644,6 +643,7 @@ guard
 // A list match is acceptable when the cursor points at the end of the list
 
 function ACCEPT_LIST_MATCH(subject) {
+   //println("ACCEPT_LIST_MATCH", GET_CURSOR(subject), size_list(GET_LIST(subject)) == GET_CURSOR(subject))
    return size_list(GET_LIST(subject)) == GET_CURSOR(subject)
 }
 
@@ -652,6 +652,11 @@ function GET_LIST(subject) {
 }
 
 function GET_CURSOR(subject) { 
+    /*if(subject[1] < size_list(subject[0])){
+    	println("GET_CURSOR", subject[1], get_list(subject[0], subject[1]))
+    } else {
+    	println("GET_CURSOR", subject[1])
+    }*/	
     return subject[1] 
 }
 
@@ -709,13 +714,16 @@ guard {
 {
     var iElem = get_list(iList, start), 
         iVal
+    //println("MATCH_VAR_IN_LIST", iElem);
     if(is_defined(rVar)) {
+        println("MATCH_VAR_IN_LIST, var is defined:", deref rVar);
         iVal = deref rVar
         if(equal(iElem, iVal)) {
             yield(iElem, MAKE_SUBJECT(iList, start + 1))
         }
         exhaust
     }
+    //println("MATCH_VAR_IN_LIST, var is undefined");
     yield(iElem, MAKE_SUBJECT(iList, start + 1))
     undefine(rVar)
 }
@@ -801,7 +809,7 @@ guard {
         }
         deref rSubject = MAKE_SUBJECT(iList, start)
         exhaust
-    }  
+    } 
     while(len <= maxLen) {               // TODO: loop?
         yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
         len = len + 1
@@ -989,6 +997,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
             prod = children[0]
             prodchildren = get_children(prod)
             if(equal(get_name(prodchildren[0]), "layouts")) {
+                //println("MATCH_OPTIONAL_LAYOUT_IN_LIST, skipping:", iElem)
                 yield MAKE_SUBJECT(iList, start + 1)
                 exhaust
             }
@@ -1012,7 +1021,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, ap
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
-    }   
+    }  
     while(clen <= maxLen) {
         end = start + clen
         yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
@@ -1053,6 +1062,7 @@ function SKIP_OPTIONAL_SEPARATOR(iList, start, offset, sep, available) {
             prod = children[0]
             prodchildren = get_children(prod)
             if(equal(prodchildren[0], sep)) {
+                //println("SKIP_OPTIONAL_SEPARATOR, skipping separator:", elm)
                 return 2
             }
         }
@@ -1071,7 +1081,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
         iVal, sublen, end             
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iList, start)) {         // TODO: check length
+        if(occurs(iVal, iList, start)) {         /* TODO: check length */
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
@@ -1112,7 +1122,7 @@ guard {
     var iVal, end  
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iList, start)) {	     // TODO: check length
+        if(occurs(iVal, iList, start)) {	     /* TODO: check length */
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust

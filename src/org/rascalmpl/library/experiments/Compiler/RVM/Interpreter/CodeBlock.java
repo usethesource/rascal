@@ -73,6 +73,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
@@ -661,6 +662,11 @@ public class CodeBlock {
 	
 	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
 		return add(new Switch(this, caseLabels, caseDefault));
+	}
+	
+	public CodeBlock RESETLOC(int pos) {
+		return add(new ResetLoc(this, pos));
+		
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
