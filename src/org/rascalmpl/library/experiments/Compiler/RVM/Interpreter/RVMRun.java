@@ -175,7 +175,7 @@ public class RVMRun implements IRVM {
 
 		moduleVariables = new HashMap<IValue, IValue>();
 
-		MuPrimitive.init(vf, stdout, rex.getProfile());
+		MuPrimitive.init(vf);
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 
@@ -784,49 +784,49 @@ public class RVMRun implements IRVM {
 		return --sp;
 	}
 
-	// public void insnLOADLOC0() {
-	// stack[sp++] = stack[0];
-	// }
-	//
-	// public void insnLOADLOC1() {
-	// stack[sp++] = stack[1];
-	// }
-	//
-	// public void insnLOADLOC2() {
-	// stack[sp++] = stack[2];
-	// }
-	//
-	// public void insnLOADLOC3() {
-	// stack[sp++] = stack[3];
-	// }
-	//
-	// public void insnLOADLOC4() {
-	// stack[sp++] = stack[4];
-	// }
-	//
-	// public void insnLOADLOC5() {
-	// stack[sp++] = stack[5];
-	// }
-	//
-	// public void insnLOADLOC6() {
-	// stack[sp++] = stack[6];
-	// }
-	//
-	// public void insnLOADLOC7() {
-	// stack[sp++] = stack[7];
-	// }
-	//
-	// public void insnLOADLOC8() {
-	// stack[sp++] = stack[8];
-	// }
-	//
-	// public void insnLOADLOC9() {
-	// stack[sp++] = stack[9];
-	// }
-	//
-	// public void insnLOADLOC(int i) {
-	// stack[sp++] = stack[i];
-	// }
+	 public void insnLOADLOC0() {
+	 stack[sp++] = stack[0];
+	 }
+	
+	 public void insnLOADLOC1() {
+	 stack[sp++] = stack[1];
+	 }
+	
+	 public void insnLOADLOC2() {
+	 stack[sp++] = stack[2];
+	 }
+	
+	 public void insnLOADLOC3() {
+	 stack[sp++] = stack[3];
+	 }
+	
+	 public void insnLOADLOC4() {
+	 stack[sp++] = stack[4];
+	 }
+	
+	 public void insnLOADLOC5() {
+	 stack[sp++] = stack[5];
+	 }
+	
+	 public void insnLOADLOC6() {
+	 stack[sp++] = stack[6];
+	 }
+	
+	 public void insnLOADLOC7() {
+	 stack[sp++] = stack[7];
+	 }
+	
+	 public void insnLOADLOC8() {
+	 stack[sp++] = stack[8];
+	 }
+	
+	 public void insnLOADLOC9() {
+	 stack[sp++] = stack[9];
+	 }
+	
+	 public void insnLOADLOC(int i) {
+	 stack[sp++] = stack[i];
+	 }
 
 	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_TRUE;
