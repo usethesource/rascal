@@ -9,9 +9,11 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public class IValueAdapter extends TypeAdapter<IValue> {
+	private final boolean compact;
+	
 	@Override
 	public void write(JsonWriter out, IValue value) throws IOException {
-		value.accept(new JSONWritingValueVisitor(out));
+		value.accept(new JSONWritingValueVisitor(out, compact));
 	}
 
 	@Override
@@ -19,7 +21,8 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 		throw new AssertionError("should not be used");
 	}
 
-	
-
+	public IValueAdapter(boolean compact) {
+	   this.compact = compact;
+	}
 	
 }

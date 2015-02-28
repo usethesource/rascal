@@ -175,12 +175,21 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
-"lang/yaml/Model",                                  // OK
+"lang/rascal/types/tests/AbstractKindTests",
+"lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/UtilTests",
+"lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
 
-
+list[str] reachability_tests = [
+"ConcretePatternTests2",
+"PatternTests",
+"PatternDescendantTests",
+"StatementTests",						
+"VisitTests"	
+];
 
 lrel[loc,str] crashes = [];
 lrel[loc,str] partial_results = [];
@@ -218,12 +227,14 @@ value main(list[value] args){
   partial_results = [];
   all_results = [];
    
-  all_results += runTests(files_with_tests, |std:///|);
+  //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
    
   all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
   all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
   all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
   all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  
+  all_results += runTests(files_with_tests, |std:///|);
   //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");

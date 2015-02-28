@@ -231,7 +231,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, fun.src, required_frame_size, code))
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, fun.src, required_frame_size, code, exceptions))
     							   : (fun.qname : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
   
   	if(listing){
@@ -243,8 +243,8 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   }
   
   functionScope = module_init_fun;
-  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!										// TODO: fix location 
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown-init:///|, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  code = trvoidblock(initializations); // compute code first since it may generate new locals!
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),

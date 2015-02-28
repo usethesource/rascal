@@ -1,168 +1,30 @@
+
 module experiments::Compiler::Examples::Tst2
-import IO;
-//import Grammar;
-//import ParseTree;
-//import Node;
-//import String;
-//import Set;
-////import lang::rascal::grammar::ParserGenerator;
-//import util::Reflective;
-//
-//anno int Symbol@id;
-//
-//map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
-//
-//map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
-//
-//public str escId(str s){
-//    res = escape(s, javaIdEscapes);
-//    println("escId(<s>) =\> <res>");
-//    return res;
-//}
-//
-//str v2iX(value v) {	
-//    switch (v) {
-//        case item(p:prod(Symbol u,_,_), int i) : return "<v2iY(u)>.<v2iY(p)>_<v2iY(i)>";
-//        case label(str x,Symbol u) : return escId(x) + "_" + v2iY(u);
-//        case layouts(str x) : return "layouts_<escId(x)>";
-//        case conditional(Symbol s,_) : return v2iY(s);
-//        case sort(str s)   : return "<s>";
-//        case \lex(str s)   : return "<s>";
-//        case keywords(str s)   : return "<s>";
-//        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2iY(arg)>" | arg <- args);
-//        case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2iY(arg)>" | arg <- args);
-//        case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
-//	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>";
-//        case int i         : return i < 0 ? "min_<-i>" : "<i>";
-//        case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
-//        case str s()       : return escId(s);
-//        case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2iY(c) | c <- getChildren(n))>";
-//        case list[value] l : return ("" | it + "_" + v2iY(e) | e <- l);
-//        case set[value] s  : return ("" | it + "_" + v2iY(e) | e <- sort(s));
-//        default            : throw "value not supported <v>";
-//    }
-//}
-//
-//str v2iY(value v){
-//	println("v2iX(<v>)");
-//	res = v2iX(v);
-//	println("v2iX(<v>) =\> <res>");
-//	return res;
-//}
-//
-//value main(list[value] args) = v2iY(prod(lit("0")[@id=9],[\char-class([range(48,48)])[@id=10]],{}));
 
-// value main(list[value] args) =  diff(generateNewItems(makeUnique(G0)),
-// (
-//  sort("S")[
-//    @id=5
-//  ]:(item(
-//      prod(
-//        sort("S")[
-//          @id=5
-//        ],
-//        [lit("0")[
-//            @id=6
-//          ]],
-//        {}),
-//      0):<"new LiteralStackNode\<IConstructor\>(6, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",6>),
-//  lit("0")[
-//    @id=9
-//  ]:(item(
-//      prod(
-//        lit("0")[
-//          @id=9
-//        ],
-//        [\char-class([range(48,48)])[
-//            @id=10
-//          ]],
-//        {}),
-//      0):<"new CharStackNode\<IConstructor\>(10, 0, new int[][]{{48,48}}, null, null)",10>)
-//)
-//);
-	
-	
-	
-	//v2iX(prod(lit("0")[@id=19],[\char-class([range(48,48)])[@id=20]],{}));
 
-//data D = d(int i) | d();
-// 
-//int sw4(value e){ 	
-// 	int n = 0;
-// 	switch(e){
-// 		case "abc": 		n = 1;
-//		case str s: /def/: 	n = 2;
-//		case 3: 			n = 3;
-//		case d(): 			n = 4;
-//		case d(z): 			n = 5;
-//		case str s(3): 		n = 6;
-//		case [1,2,3]: 		n = 7;
-//		case [1,2,3,4]: 	n = 8;
-//		default: 			n = 9;
-// 	}
-// 	return n;
-// }
- 
- //test bool testSwitch4a() = sw4("abc") 		== 1;
- //test bool testSwitch4b() = sw4("def") 		== 2;
- //test bool testSwitch4c() = sw4(3)     		== 3;
- //test bool testSwitch4d() = sw4(d())   		== 4;
- //test bool testSwitch4e() = sw4(d(2))  		== 5;
- //test bool testSwitch4f() = sw4("abc"(3))	== 6;
- //test bool testSwitch4g() = sw4([1,2,3]) 	== 7;
- //test bool testSwitch4h() = sw4([1,2,3,4]) 	== 8;
- //test bool testSwitch4i() = sw4(<-1,-1>) 	== 9;
- // 	
- // 	value main(list[value] args) = sw4("def");
-
+//import Prelude;
 import ParseTree;
-layout Whitespace = [\ ]*;
-lexical IntegerLiteral = [0-9]+; 
-lexical Identifier = [a-z]+;
+import demo::lang::Lisra::Syntax;
+import demo::lang::Lisra::Runtime;
+import demo::lang::Lisra::Parse;
 
-syntax Exp 
-  = IntegerLiteral  
-  | Identifier        
-  | bracket "(" Exp ")"     
-  > left Exp "*" Exp        
-  > left Exp "+" Exp  
-  | Exp "==" Exp      
-  ;
+//public Lval parse(str txt) = build(parse(#LispExp, txt));                          /*1*/
 
-syntax Stat 
-   = Identifier ":=" Exp
-   | "if" Exp "then" {Stat ";"}* "else" {Stat ";"}* "fi"
-   ;
+// Build Abstract Synax Tree: Transform a LispExp to an Lval
+
+//public Lval build((LispExp)`<IntegerLiteral il>`) = Integer(toInt("<il>"));        /*2*/
+//public Lval build((LispExp)`<AtomExp at>`)        = Atom("<at>");                  /*3*/
+//public Lval build((LispExp)`( <LispExp* lst> )`)  = List([build1(le) | le <- lst]); /*4*/
 
 
-value main(list[value] args) { 
-	e = [Exp] "2";
-	n = 0;
-	switch(e){
+public test bool b01() = build((LispExp) `42`) == Integer(42);
+public test bool b02() = build((LispExp) `abc`) == Atom("abc");
+public test bool b03() = build((LispExp) `(abc 42)`) == List([Atom("abc"), Integer(42)]);
 
-	case (Exp) `1`: n = 1;
-	case (Exp) `2`: n = 2;
-	case (Exp) `1* 2`:n = 3;
-	case (Exp) `1==2`: n = 4;
-	case (Exp) `5==5`: n = 6;
-	default:n = 6;
-	}
-	return n;
-}
+//test bool parse1() = parse("123") == Integer(123);
+//test bool parse2() = parse("abc") == Atom("abc");
+//test bool parse3() = parse("()") == List([]);
+//test bool parse4() = parse("(123)") == List([Integer(123)]);
+//test bool parse5() = parse("(123 abc)") == List([Integer(123), Atom("abc")]);
 
-
-
-
-//data D = d() | d(int n) | d(str s, int m);	
-//
-//value main(list[value] args) { 
-//	x = d("abc",2);
-//	switch(x){
-//
-//	case d(): println("case 1");
-//	case d(z): println("case 2");
-//	case node q: d("abc",2): println("case 3");
-//	default: println("default");
-//	}
-//	return true;
-//}
+value main(list[value] args) = build((LispExp) `(abc 42)`);

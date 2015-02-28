@@ -225,17 +225,6 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("translateConcretePattern, concrete = <concrete>");
-  //fragType = getType(p@\loc);
-  //println("translateConcretePattern, fragType = <fragType>");
-  //reifiedFragType = symbolToValue(fragType);
-  //println("translateConcretePattern, reified: <reifiedFragType>");
-  //g = getGrammar();
-  //println("GRAMMAR:");
-  //for(nt <- g) println("<nt> : <g[nt]>");
-  //parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  //println("++++ parsedFragment: <parsedFragment>");
-  //iprintln(parsedFragment);
   return translateParsedConcretePattern(parseConcrete(concrete));
 }
 
@@ -456,7 +445,7 @@ MuExp translateQualifiedNamePat(QualifiedName name)
    return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("<name>", fuid, pos)]);
 } 
 
-// -- types name pattern ---------------------------------------------
+// -- typed name pattern ---------------------------------------------
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
    if("<name>" == "_"){
@@ -786,23 +775,48 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 	int i = nextVisit();	
 	// Generate and add a nested function 'phi'
 	str descId = topFunctionScope() + "/" + "DESC_<i>";
-    reachable = getReachableTypes(getType(pattern@\loc));
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  muCon(descId), muCon(reachable), muCon(isConcretePattern(pattern))]);
+	concreteMatch = isConcretePattern(pattern);
+	tc = getTypesAndConstructors(pattern);
+    reachable = getReachableTypes(\value(), tc.constructors, tc.types, concreteMatch);
+    descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  descriptor]);
 }
+
+// is  a pattern a concretePattern?
     
-private bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
+bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
 	isConcreteType(getType(p@\loc));
 	
-private bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
+bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
 	isConcreteType(getType(p@\loc));	
 	
-private bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
 	isConcretePattern(pattern);	
 
-private bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
 	isConcretePattern(pattern);
 		
-private default bool isConcretePattern(Pattern p) = false;
+default bool isConcretePattern(Pattern p) = false;
+
+// get the types and constructor names from a pattern
+
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<QualifiedName qualifiedName>`) =
+	<{getType(p@\loc)}, {}>;
+	
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name>`) =
+	<{getType(p@\loc)}, {}>;	
+	
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+	getTypesAndConstructors(pattern);	
+
+tuple[set[Symbol] types, set[str] constructors]  getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+	getTypesAndConstructors(pattern);
+		
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
+	(expression is qualifiedName) ? <{}, {deescape("<expression>")}> : <{getType(p@\loc)}, {}>;
+
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(Pattern p) = <{getType(p@\loc)}, {}>;
+
 // -- anti pattern ---------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =

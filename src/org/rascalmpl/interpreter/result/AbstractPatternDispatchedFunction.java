@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final Map<String, List<AbstractFunction>> alternatives;
@@ -169,8 +170,15 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
     }
     
     if (argTypes[0].isAbstractData() || argTypes[0].isConstructor()) {
-      label = ((IConstructor) argValues[0]).getConstructorType().getName();
+      IConstructor cons = (IConstructor) argValues[0];
+      label = cons.getConstructorType().getName();
       List<AbstractFunction> funcs = alternatives.get(label);
+      
+      // for abstract patterns on concrete trees
+      if (funcs == null && TreeAdapter.isAppl(cons)) {
+    	  label = TreeAdapter.getConstructorName(cons);
+    	  funcs = alternatives.get(label);
+      }
       
       if (funcs != null) {
         for (AbstractFunction candidate : funcs) {

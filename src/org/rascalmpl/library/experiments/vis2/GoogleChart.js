@@ -62,16 +62,8 @@ var printq = function(o){
       // instantiates the pie chart, passes in the data and
       // draws it.
       function drawChart(figure, w, h) {
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        // alert(JSON.stringify(figure.data));
-        for (var i=0;i<figure.columns.length;i++) {
-            var x = figure.columns[i];
-            data.addColumn(x);
-            }
-        // alert(JSON.stringify(figure.data));
-        data.addRows(figure.data);
-        
+        // Create the data table.    
+        var data = google.visualization.arrayToDataTable(figure.data, false);
         // Set chart options
         var options = {title:figure.name,            
                         width:w,
@@ -85,12 +77,7 @@ var printq = function(o){
 
         // Instantiate and draw our chart, passing in some options.
          var chart = new google.visualization[figure.command](document.getElementById('chart_div'+idx));
-         idx = idx + 1;
-         // alert(JSON.stringify(options));
-         // alert(JSON.stringify(figure.options));
-         // alert(JSON.stringify(merge(options, figure.options)));
-        // var chart = new google.visualization.LineChart(document.getElementById('chart_div1'));
-        
+         idx = idx + 1;    
         chart.draw(data, merge(options,figure.options));
       }
 
