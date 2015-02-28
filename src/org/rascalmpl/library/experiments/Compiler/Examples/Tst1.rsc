@@ -1,22 +1,15 @@
 module experiments::Compiler::Examples::Tst1
-	
-	
-data A = a(int n) | a (int n, int m);
 
-data B = b(str s) | b(str s, str t);
+import ParseTree;
 
-data C = c(bool b) | c(A ca, B cB) | c(int n, C cc);
+syntax D = dd: "d";
+syntax D = ee: "e" D d;
 
 
-C cnt(C t) {
-	return 
-	  top-down visit(t) {
-		case true => false
-	}
-}	
+bool dispatch(ee(D _)) = true;
+bool dispatch(dd()) = false;
 
+bool fun(int n) = true;
+bool fun(str s) = true;
 
-value main(list[value] args) = cnt(c(true));
-
-
-//visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} ; //== "aBBcaBBcAA";
+value main(list[value] args) = dispatch((D) `ed`); // && !*/ dispatch((D) `d`);

@@ -42,7 +42,7 @@ list[Chart] getData() {
     
 public void regEq() {  
      // println(getData());
-     ex("RegressionLine", combo(charts = getData(), 
+     ex("RegressionLine", combochart(charts = getData(), 
           options = chartOptions(
            		hAxis = axis(title="X"), 
            		vAxis = axis(title="Y"),

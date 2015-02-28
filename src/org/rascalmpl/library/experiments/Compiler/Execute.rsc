@@ -43,8 +43,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
-    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body)
-    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body,[]);
+    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
+    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body, []);
   	}
   	// Specific to delimited continuations (experimental)
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
