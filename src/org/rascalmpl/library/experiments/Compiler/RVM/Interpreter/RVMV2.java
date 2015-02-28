@@ -152,7 +152,7 @@ public class RVMV2 implements IRVM {
 
 		moduleVariables = new HashMap<IValue, IValue>();
 
-		MuPrimitive.init(vf, stdout, rex.getProfile());
+		MuPrimitive.init(vf);
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 
