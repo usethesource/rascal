@@ -597,7 +597,7 @@ public class Execute {
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src, continuationPoint);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, rvm);
