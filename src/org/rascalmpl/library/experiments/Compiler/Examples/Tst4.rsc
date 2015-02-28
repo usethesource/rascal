@@ -15,7 +15,7 @@ import lang::rascal::tests::types::StaticTestingUtils;
 
 // Sanity check on the testing utilities themselves
 
-value main(list[value] args) = checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
+value main(list[value] args) = checkOK("13;", importedModules = ["util::Math"]);
 
 //test bool testUtils0() = checkOK("13;");
 //

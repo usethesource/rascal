@@ -1,24 +1,62 @@
-@bootstrapParser
+
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::types::AbstractName;
-import lang::rascal::types::AbstractType;
-import lang::rascal::\syntax::Rascal;
-import lang::rascal::types::Util;
-import Relation;
+import ParseTree;
+import IO;
 
-public rel[RName,loc] regExpPatternNames(RegExpLiteral rl) {
-    rel[RName,loc] names = { };
-        
-    top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
-        	if (Name regExpVarName := prds[1]) { 
-        		names += < convertName(regExpVarName), prds[1]@\loc >;
-        	}
-        }
-    }
-    
-    return names;
+layout Whitespace = [\ ]*;
+syntax V = "A" | "B";
+syntax DATA = V;
+
+syntax BODY = {DATA ";"}* datas;
+
+value main(list[value] args) {
+	b = [BODY] "A; B";
+	for(DATA d <- b.datas){
+		println("switch on <d>");
+		switch(d){
+		
+		case (DATA) `<V _>`: println("<d> matches");
+		
+		}
+	}
+	return true;
 }
 
-value main(list[value] args) = domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) ;
+//import lang::rascal::\syntax::Rascal;
+//import IO;
+//import ParseTree;
+//
+//
+//value main(list[value] args) {
+//	if((Body)`<Toplevel* tls>` := [Body] "data Bool = and(Bool, Bool); data Prop = or(Prop, Prop);") {
+//    	list[Declaration] typesAndTags = [ ];
+//		bool first = true;
+//		
+//		for ((Toplevel)`<Declaration decl>` <- tls) {
+//			println("checkModule: switch on <decl>");
+//			if(first){
+//				first = false;
+//				switch(decl) {
+//					case (Declaration)`data <UserType _> = <Variant _> ;` : {
+//						typesAndTags = typesAndTags + decl;
+//						println("checkModule, added to typesAndTags: <decl>");
+//						}
+//					default: println("checkModule: no case for <decl>");
+//				}
+//			} else {
+//				switch(decl) {
+//					case (Declaration)`data <UserType _> = <Variant _> ;` : {
+//						typesAndTags = typesAndTags + decl;
+//						println("checkModule, added to typesAndTags: <decl>");
+//						}
+//					default: println("checkModule: no case for <decl>");
+//				}
+//			}
+//			
+//		}
+//		println("checkModule, typesAndTags after for:"); for(t <- typesAndTags) println("    <t>");
+//		return true;
+//	}
+//	return false;
+//}	
