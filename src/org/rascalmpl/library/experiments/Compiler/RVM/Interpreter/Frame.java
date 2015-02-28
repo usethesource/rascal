@@ -11,7 +11,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
 	int scopeId;
-    Frame previousCallFrame;
+    public Frame previousCallFrame;
     final Frame previousScope;
 	public final Object[] stack;
 	public int sp;
