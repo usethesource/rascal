@@ -80,7 +80,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
 
 list[MuExp] resetBlockVars(Statement body){
 	introduced_vars = getAllVariablesAndFunctionsOfBlockScope(body@\loc);
-	return [muReset(pos) | <str fuid, int pos> <- introduced_vars, fuid == topFunctionScope()];
+	return [muResetLoc(pos) | <str fuid, int pos> <- introduced_vars, fuid == topFunctionScope()];
 }
 
 MuExp translateLoopBody(Statement body){
@@ -88,7 +88,7 @@ MuExp translateLoopBody(Statement body){
 	return isEmpty(reset_vars) ? translate(body) : muBlock([*reset_vars, translate(body)]);	
 }
 
-// Due to the similarity of some statement and their template version, we present both version together
+// Due to the similarity of some statements and their template version, we present both versions together
 
 MuExp translateTemplate(str indent, s: (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     str fuid = topFunctionScope();

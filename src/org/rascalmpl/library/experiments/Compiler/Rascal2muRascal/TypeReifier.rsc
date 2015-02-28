@@ -215,7 +215,7 @@ rel[Symbol, Symbol] getConstructorDependencies(Symbol from, c:Symbol::\cons(Symb
 // - visit
 
 private void computeReachableTypesAndConstructors(){
-
+	return;
 	definitions = getDefinitions();
 	rel[value,value] cleaned_productions = { <strip(def), p> | /Production p:prod(def,_,_) := grammar };
 	
@@ -244,6 +244,7 @@ private void computeReachableTypesAndConstructors(){
 // so these are not needed in the generated descent_into set
 
 set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
+	return {};
 	println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
 	
 	if(concreteMatch){
@@ -284,7 +285,7 @@ set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol]
 	if(adt("Tree", []) in desiredTypes)
 		initial_types += adt("Tree", []);
 	
-	println("initial_types [<size(initial_types)>]"); for(elm <- initial_types){println("\t<elm>");};
+	//println("initial_types [<size(initial_types)>]"); for(elm <- initial_types){println("\t<elm>");};
 	adts_with_constructors = {};
 
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
@@ -304,7 +305,7 @@ set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol]
 	}
 	
 	//descent_into -= (adts_with_constructors - {\node(), \str(), \value(),adt("Tree", [])});
-	println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	//println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }
@@ -371,7 +372,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	initial_types -= \value();
 	
 	set[value] descent_into = initial_types;
-	println("initial: <initial_types>");
+	//println("initial: <initial_types>");
 	nonterminals_with_productions = {};
 	
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
@@ -387,7 +388,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	
 	descent_into = { elm | elm <- descent_into, desiredInConcreteMatch(elm) };
 
-	println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	//println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }
