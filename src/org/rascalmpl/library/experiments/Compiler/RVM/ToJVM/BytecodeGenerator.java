@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.objectweb.asm.ClassWriter;
@@ -1274,5 +1275,27 @@ public class BytecodeGenerator implements Opcodes {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean debug) {
+		if (!emit)
+			return;	
+		
+		Label[] switchTable;
+
+		int nrLabels = caseLabels.size();
+		switchTable = new Label[nrLabels];
+		int lcount = 0 ;
+
+		for (IValue vlabel : caseLabels) {
+			String label = ((IString) vlabel).getValue();
+			switchTable[lcount++] = getNamedLabel(label);
+		}
+		Label defaultLabel = getNamedLabel(caseDefault) ;
+		
+		// TODO: Label helper?? 
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "()I");
+		mv.visitTableSwitchInsn(0, nrLabels - 1, defaultLabel, switchTable);
 	}
 }
