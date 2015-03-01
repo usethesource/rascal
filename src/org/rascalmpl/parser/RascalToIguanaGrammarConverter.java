@@ -56,7 +56,6 @@ import org.jgll.grammar.symbol.IfThenElse;
 import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Offside;
-import org.jgll.grammar.symbol.Precedence;
 import org.jgll.grammar.symbol.PrecedenceGroup;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
@@ -167,12 +166,15 @@ public class RascalToIguanaGrammarConverter {
 		assert choice.getName().equals("choice");
 		
 		index = 0;
-		level = new PrecedenceGroup(new Precedence(index), new Precedence());
+		level = new PrecedenceGroup(index);
 		
 		ISet alternatives = (ISet) choice.get("alternatives");
 		
 		for (IValue alternative : alternatives)
 			getAlternatives(head, (IConstructor) alternative, strategy, rules);
+		
+		if (level.getLhs() == index) level.setRhs(index);
+		else level.setRhs(index - 1);
 		
 		return rules;
 	}
@@ -188,7 +190,7 @@ public class RascalToIguanaGrammarConverter {
 					
 					IConstructor alt = (IConstructor) choice;
 					
-					level = new PrecedenceGroup(new Precedence(index), new Precedence());
+					level = new PrecedenceGroup(index);
 					
 					switch(alt.getName()) {
 						case "choice":
@@ -199,7 +201,7 @@ public class RascalToIguanaGrammarConverter {
 							ISet alternatives = (ISet) alt.get("alternatives");
 							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							associativity2Rules(head, alternatives, associativity, new AssociativityGroup(level.getLhs(), new Precedence()), strategy, rules);
+							associativity2Rules(head, alternatives, associativity, new AssociativityGroup(associativity, level.getLhs()), strategy, rules);
 							
 							break;
 							
@@ -214,8 +216,8 @@ public class RascalToIguanaGrammarConverter {
 						default: throw new RuntimeException("Uexpected type of a production: " + alt.getName());
 					}
 					
-					if (level.getLhs().get() == index) level.getRhs().set(index);
-					else level.getRhs().set(index - 1);
+					if (level.getLhs() == index) level.setRhs(index);
+					else level.setRhs(index - 1);
 					index++;
 				}
 				
@@ -235,7 +237,7 @@ public class RascalToIguanaGrammarConverter {
 							ISet alts = (ISet) alt.get("alternatives");
 							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							associativity2Rules(head, alts, associativity, new AssociativityGroup(new Precedence(index++), new Precedence()), strategy, rules);
+							associativity2Rules(head, alts, associativity, new AssociativityGroup(associativity, index++), strategy, rules);
 							
 							break;
 							
@@ -243,7 +245,7 @@ public class RascalToIguanaGrammarConverter {
 							
 							associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : new Precedence(index++)).build();
+							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : index++).build();
 							rulesMap.put(alt, rule);
 							rules.add(rule);
 							
@@ -267,19 +269,19 @@ public class RascalToIguanaGrammarConverter {
 			IConstructor alt = (IConstructor) alternative;
 			Associativity assoc = getAssociativity((ISet) alt.get("attributes"));
 			
-			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : new Precedence(index++)).build();
+			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : index++).build();
 			
 			rulesMap.put(alt, rule);
 			rules.add(rule);
 			
 		}
 		
-		if (assocGroup.getLhs().get() == index) assocGroup.getRhs().set(index);
-		else assocGroup.getRhs().set(index - 1);
+		if (assocGroup.getLhs() == index) assocGroup.setRhs(index);
+		else assocGroup.setRhs(index - 1);
 		
 	}
 	
-	private Rule.Builder prod2Rule(Nonterminal head, IConstructor production, LayoutStrategy strategy, Precedence precedence) {
+	private Rule.Builder prod2Rule(Nonterminal head, IConstructor production, LayoutStrategy strategy, int precedence) {
 		assert production.getName().equals("prod");
 		
 		SerializableValue object = null;
