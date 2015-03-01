@@ -15,6 +15,212 @@ module lang::rascal::tests::functionality::VisitTests
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 
+test bool visit1(){
+	return visit([1,2,3]) {
+				case list[int] l => [ ( 0 | it + i | int i <- l) ]
+				case int i => i + 100
+			} +
+			top-down visit([1,2,3]) {
+				case list[int] l => [ ( 0 | it + i | int i <- l) ]
+				case int i => i + 100
+			}
+			== [306,106];
+}
+
+test bool visit1a() {
+	return visit([1,2,3]) {
+				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
+				case int i: { i = i + 100; insert i; i = i + 200; }
+			} +
+			top-down visit([1,2,3]) {
+				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
+				case int i: { i = i + 100; insert i; i = i + 200; }
+			}
+			== [306,106];
+}
+
+test bool visit2(){
+	return visit( (1:"1",2:"2",3:"3") ) { // ( 306:"1 + 100; 2 + 100; 3 + 100; " )
+				case map[int,str] m => ( ( 0 | it + k | int k <- m) : ( "" | it + m[k] | int k <- m) )
+				case int i => i + 100
+				case str s => s + " + 100; "
+			} +
+			top-down visit( (1:"1",2:"2",3:"3") ) { // ( 106:"321 + 100; " )
+				case map[int,str] m => ( ( 0 | it + k | int k <- m) : ( "" | it + m[k] | int k <- m) )
+				case int i => i + 100
+				case str s => s + " + 100; "
+			}
+			== (106:"132 + 100; ",306:"3 + 100; 2 + 100; 1 + 100; ");
+}
+
+test bool visit3() {
+	return visit({ [1,1], [2,2], [3,3] }) { // { [202], [204], [206], [4,5] }
+				case set[list[int]] s => s + { [4,5] }
+				case list[int] l => [ ( 0 | it + i | int i <- l) ]
+				case int i => i + 100
+			} +
+			top-down visit({ [1,1], [2,2], [3,3] }) { // { [102], [104], [106], [109] }
+				case set[list[int]] s => s + { [4,5] }
+				case list[int] l => [ ( 0 | it + i | int i <- l) ]
+				case int i => i + 100
+			}
+			== { [206], [4,5], [109], [204], [202], [106], [104], [102] };
+}
+
+test bool visit4() {
+	return visit({ <1,1>, <2,2>, <3,3> }) {
+				case set[tuple[int,int]] s => s + { <4,5> }
+				case tuple[int,int] t => { elem = ( 0 | it + i | int i <- t); <elem,elem>; }
+				case int i => i + 100
+			} +
+			top-down visit({ <1,1>, <2,2>, <3,3> }) {
+				case set[tuple[int,int]] s => s + { <4,5> }
+				case tuple[int,int] t => { elem = ( 0 | it + i | int i <- t); <elem,elem>; }
+				case int i => i + 100
+			}
+			== {<106,106>,<104,104>,<204,204>,<202,202>,<206,206>,<109,109>,<4,5>,<102,102>};
+}
+
+test bool visit5() {
+	return visit({ "a"(1,1), "b"(2,2), "c"(3,3) }) {
+				case set[node] s => s + { "d"(4,5) }
+				case node n:str s(int x,int y) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
+				case int i => i + 100
+			} 
+			+
+			top-down visit({ "a"(1,1), "b"(2,2), "c"(3,3) }) {
+				case set[node] s => s + { "d"(4,5) }
+				case node n:str s(int x,int y) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
+				case int i => i + 100
+			}
+			== 
+			{ "a_been_here"(202,202),
+  			  "d"(4,5),
+  			  "c_been_here"(206,206),
+  			  "c_been_here"(106,106),
+  			  "b_been_here"(104,104),
+  			  "d_been_here"(109,109),
+  			  "a_been_here"(102,102),
+  			  "b_been_here"(204,204)
+			};
+}
+
+data ABCD = a(int x, int y) | b(int x, int y) | c(int x, int y) | d(int x, int y);
+
+test bool visit6() {
+	return visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
+				case set[list[ABCD]] s => s + { [ d(4,5) ] }
+				case a(int x, int y) => a(x + 1000, y + 1000)
+				case ABCD nd => { elem = ( 0 | it + i | int i <- nd); a(elem,elem); }
+				case int i => i + 100
+			} 
+			+
+			top-down visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
+				case set[list[ABCD]] s => s + { [ d(4,5) ] }
+				case a(int x, int y) => b(x + 1000, y + 1000)
+				case ABCD nd => { elem = ( 0 | it + i | int i <- nd); a(elem,elem); }
+				case int i => i + 100
+			}
+			== { [d(4,5)],
+  				 [a(1101,1101)],
+ 				 [a(206,206)],
+ 				 [a(109,109)],
+ 				 [b(1101,1101)],
+ 				 [a(104,104)],
+ 				 [a(204,204)],
+ 				 [a(106,106)]
+			   };
+}
+
+test bool visit7() {
+	return bottom-up-break visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
+				case set[list[ABCD]] s => s + { [ d(5,5) ] }  // should not match
+				case list[ABCD] l => l + [ d(4,4) ]           // should match only for [ c(3,3) ]
+				case a(int x, int y) => a(x + 1000, y + 1000) // should match
+				case b(int x, int y) => b(x + 1000, y + 1000) // should not match
+				case 2 => 102
+			} // { [ b(102,102) ], [ c(3,3), d(4,4) ], [ a(1001,1001) ] }
+			+
+			top-down-break visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
+				// case set[list[ABCD]] s => s + { [ d(5,5) ] } 
+				case [ a(int x, int y) ] => [ a(x + 10, y + 10), d(4,4) ]
+				case a(int x, int y) => a(x + 1000, y + 1000)
+				case b(int x, int y) => b(x + 1000, y + 1000)
+				case int i => i + 100
+			} 
+			== {
+  				[a(11,11), d(4,4)],
+  				[b(1002,1002)],
+  				[b(102,102)],
+ 				[a(1001,1001)],
+  				[c(103,103)],
+  				[c(3,3), d(4,4)]
+			   };
+}
+
+test bool visit8() {
+	
+	l = [ 1,0,1,1,0,1,0,1,0,1,0 ]; // 11
+
+	return outermost visit({ l }) {
+		case [*int sub, 1, 0] => [ 10, *sub ]
+		case 10 => 20
+	}
+	== 
+	{[20,20,20,20,1,0,1]};
+}
+
+test bool visit9() {
+	l = [ 1,0,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,0 ];
+
+	return outermost visit({ l }) {
+		case [*int sub, 1, 0] => [ 998, *sub ]
+		case [*int sub, 1, 1] => [ 666, *sub ]
+		case 998 => 999
+	}
+	==
+	{[666,999,999,666,666,999,999,999,999,1,0,1,0,1]};
+}
+
+data LIST = lst(list[int] elems);
+
+//test bool visit10() {	// turn into test
+//	return [ visit(lst([1])) {
+//				// list[str] <: list[value]; typeOf(subject) <: list[value] 
+//				// '+' list[str] <: typeOf(subject)
+//				case list[value] l: insert [ "666" ];
+//				case list[int] l: { insert l + [ 666 ]; l = l + [ 777 ]; }
+//				case int i: insert 999;
+//		     } ]
+//		   +
+//		   [ visit(lst([1])) {
+//				case list[value] l => [ "666" ]
+//				case list[int] l => l + [ 666 ]
+//				case int i => 999
+//		     } ]
+//		   ==
+//		   [ lst([999,666]),lst([999,666]) ];
+//}
+
+test bool visit11() {
+	return visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
+			  		case a(x,y) => a(x + 1000, y + 2000)
+			    }
+		==      { [a(1001,2001)],
+  				  [c(3,3)],
+ 				  [b(2,2)]
+				};
+}
+
+value visit12() {
+	return visit([1,2]) {
+    		case list[int] l => [f]when [1,f] := l 
+		   }
+		   ==
+		   [1, 2];
+}
+
+
 data NODE1 = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2)|h(value V1, value V2, value V3);
 
 data T = knot(int i, T l, T r) | tip(int i);
