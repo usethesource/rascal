@@ -43,6 +43,8 @@ import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
 import org.jgll.grammar.symbol.Align;
+import org.jgll.grammar.symbol.Associativity;
+import org.jgll.grammar.symbol.AssociativityGroup;
 import org.jgll.grammar.symbol.Block;
 import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterRange;
@@ -55,6 +57,7 @@ import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Offside;
 import org.jgll.grammar.symbol.Precedence;
+import org.jgll.grammar.symbol.PrecedenceGroup;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.grammar.symbol.Terminal;
@@ -152,8 +155,7 @@ public class RascalToIguanaGrammarConverter {
 	
 	private int index;
 	
-	private Precedence lowest;
-	private Precedence highest;
+	private PrecedenceGroup level;
 	
 	private List<Rule> getAlternatives(IValue nonterminal, IMap definitions, LayoutStrategy strategy) {
 		
@@ -165,7 +167,12 @@ public class RascalToIguanaGrammarConverter {
 		assert choice.getName().equals("choice");
 		
 		index = 0;
-		getAlternatives(head, choice, strategy, rules);
+		level = new PrecedenceGroup(new Precedence(index), new Precedence());
+		
+		ISet alternatives = (ISet) choice.get("alternatives");
+		
+		for (IValue alternative : alternatives)
+			getAlternatives(head, (IConstructor) alternative, strategy, rules);
 		
 		return rules;
 	}
@@ -173,69 +180,120 @@ public class RascalToIguanaGrammarConverter {
 	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules) {
 		
 		switch (production.getName()) {
-		
-			case "choice":
-			
-				ISet alternatives = (ISet) production.get("alternatives");
-			
-				for (IValue alternative : alternatives) 
-					getAlternatives(head, (IConstructor) alternative, strategy, rules);
-				
-				break;
 			
 			case "priority":
-			
 				IList choices = (IList) production.get("choices");
 			
 				for (IValue choice : choices.reverse()) {
 					
-					lowest = new Precedence(index);
-					highest = new Precedence();
+					IConstructor alt = (IConstructor) choice;
 					
-					getAlternatives(head, (IConstructor) choice, strategy, rules);
+					level = new PrecedenceGroup(new Precedence(index), new Precedence());
 					
-					highest.set(index - 1);
+					switch(alt.getName()) {
+						case "choice":
+							getAlternatives(head, alt, strategy, rules);
+							break;
+							
+						case "associativity":
+							ISet alternatives = (ISet) alt.get("alternatives");
+							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
+							
+							associativity2Rules(head, alternatives, associativity, new AssociativityGroup(level.getLhs(), new Precedence()), strategy, rules);
+							
+							break;
+							
+						case "prod":
+							
+							Rule rule = prod2Rule(head, alt, strategy, level.getLhs()).build();
+							rulesMap.put(alt, rule);
+							rules.add(rule);
+							
+							break;
+							
+						default: throw new RuntimeException("Uexpected type of a production: " + alt.getName());
+					}
+					
+					if (level.getLhs().get() == index) level.getRhs().set(index);
+					else level.getRhs().set(index - 1);
+					index++;
+				}
+				
+				break;
+				
+			case "choice":
+				ISet alternatives = (ISet) production.get("alternatives");
+			
+				for (IValue alternative : alternatives) {
+					
+					IConstructor alt = (IConstructor) alternative;
+					
+					switch(alt.getName()) {
+					
+						case "associativity":
+							
+							ISet alts = (ISet) alt.get("alternatives");
+							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
+							
+							associativity2Rules(head, alts, associativity, new AssociativityGroup(new Precedence(index++), new Precedence()), strategy, rules);
+							
+							break;
+							
+						case "prod":
+							
+							associativity = getAssociativity((IConstructor) alt.get("assoc"));
+							
+							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : new Precedence(index++)).build();
+							rulesMap.put(alt, rule);
+							rules.add(rule);
+							
+							break;
+							
+						default: throw new RuntimeException("Uexpected type of a production: " + alt.getName());
+					}
+					
 				}
 				
 				break;
 			
-			case "associativity":
-			
-				alternatives = (ISet) production.get("alternatives");
-			
-				for (IValue alternative : alternatives) 
-					getAlternatives(head, (IConstructor) alternative, strategy, rules);
-				
-				break;
-			
-			case "prod":
-			
-				SerializableValue object = null;
-			
-				IList rhs = (IList) production.get("symbols");
-				ISet attributes = (ISet) production.get("attributes");
-				
-				boolean hasAssocAttr = false;
-				for (IValue attr : attributes) {
-					
-				}
-
-				List<Symbol> body = getSymbolList(rhs);
-			
-				Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy).build();
-				rulesMap.put(production, rule);
-				rules.add(rule);
-				index++;
-				
-				break;
-			
-			case "regular":
-				break;
-			
-			default:
-				new RuntimeException("Unexpected type of a production: " + production.getName());
+			default: throw new RuntimeException("Unexpected type of a production: " + production.getName());
 			
 		}
+	}
+	
+	private void associativity2Rules(Nonterminal head, ISet alternatives, Associativity associativity, AssociativityGroup assocGroup, LayoutStrategy strategy, List<Rule> rules) {
+		for (IValue alternative : alternatives) {
+			
+			IConstructor alt = (IConstructor) alternative;
+			Associativity assoc = getAssociativity((ISet) alt.get("attributes"));
+			
+			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : new Precedence(index++)).build();
+			
+			rulesMap.put(alt, rule);
+			rules.add(rule);
+			
+		}
+		
+		if (assocGroup.getLhs().get() == index) assocGroup.getRhs().set(index);
+		else assocGroup.getRhs().set(index - 1);
+		
+	}
+	
+	private Rule.Builder prod2Rule(Nonterminal head, IConstructor production, LayoutStrategy strategy, Precedence precedence) {
+		assert production.getName().equals("prod");
+		
+		SerializableValue object = null;
+		
+		IList rhs = (IList) production.get("symbols");
+		ISet attributes = (ISet) production.get("attributes");
+		
+		Associativity associativity = getAssociativity(attributes);
+		
+		List<Symbol> body = getSymbolList(rhs);
+		
+		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
+									.setAssociativity(associativity)
+									.setPrecedence(precedence);
 	}
 
 	@SuppressWarnings("unused")
@@ -585,7 +643,35 @@ public class RascalToIguanaGrammarConverter {
 		throw new ImplementationError("This is not a " + "Statement" +  ": " + statement);
 	}
 	
-	public static class Visitor extends NullASTVisitor<AbstractAST> {
+	private static Associativity getAssociativity(ISet attributes) {
+		for (IValue attribute : attributes) {
+			if (((IConstructor) attribute).getName().equals("assoc")) {
+				return getAssociativity((IConstructor)((IConstructor) attribute).get("assoc"));
+			}
+		}
+		return Associativity.UNDEFINED;
+	}
+	
+	private static Associativity getAssociativity(IConstructor assoc) {
+		switch(assoc.getName()) {	
+			case "left":
+				return Associativity.LEFT;
+			
+			case "right":
+				return Associativity.RIGHT;
+			
+			case "assoc":
+				return Associativity.UNDEFINED;
+			
+			case "non-assoc":
+				return Associativity.NON_ASSOC;
+			
+			default:
+				return Associativity.UNDEFINED;
+		}
+	}
+	
+public static class Visitor extends NullASTVisitor<AbstractAST> {
 		
 		@Override
 		public AbstractAST visitStatementAssignment(Assignment x) {
