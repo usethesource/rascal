@@ -50,6 +50,7 @@ import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterRange;
 import org.jgll.grammar.symbol.Code;
 import org.jgll.grammar.symbol.Conditional;
+import org.jgll.grammar.symbol.EOF;
 import org.jgll.grammar.symbol.Epsilon;
 import org.jgll.grammar.symbol.IfThen;
 import org.jgll.grammar.symbol.IfThenElse;
@@ -57,6 +58,7 @@ import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Offside;
 import org.jgll.grammar.symbol.PrecedenceGroup;
+import org.jgll.grammar.symbol.Recursion;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.grammar.symbol.Terminal;
@@ -67,6 +69,7 @@ import org.jgll.regex.Plus;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
+import org.jgll.traversal.ISymbolVisitor;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.Literal;
@@ -213,7 +216,7 @@ public class RascalToIguanaGrammarConverter {
 							
 							break;
 							
-						default: throw new RuntimeException("Uexpected type of a production: " + alt.getName());
+						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
 					}
 					
 					if (level.getLhs() == index) level.setRhs(index);
@@ -245,13 +248,13 @@ public class RascalToIguanaGrammarConverter {
 							
 							associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : index++).build();
+							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : -1).build();
 							rulesMap.put(alt, rule);
 							rules.add(rule);
 							
 							break;
 							
-						default: throw new RuntimeException("Uexpected type of a production: " + alt.getName());
+						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
 					}
 					
 				}
@@ -269,7 +272,7 @@ public class RascalToIguanaGrammarConverter {
 			IConstructor alt = (IConstructor) alternative;
 			Associativity assoc = getAssociativity((ISet) alt.get("attributes"));
 			
-			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : index++).build();
+			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : -1).build();
 			
 			rulesMap.put(alt, rule);
 			rules.add(rule);
@@ -293,9 +296,12 @@ public class RascalToIguanaGrammarConverter {
 		
 		List<Symbol> body = getSymbolList(rhs);
 		
+		boolean isLeft = body.get(0).accept(new IsRecursive(head, Recursion.LEFT));
+		boolean isRight = body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT));
+		
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
 									.setAssociativity(associativity)
-									.setPrecedence(precedence);
+									.setPrecedence(precedence != -1? precedence : ((isLeft || isRight)? index++ : precedence));
 	}
 
 	@SuppressWarnings("unused")
@@ -378,6 +384,7 @@ public class RascalToIguanaGrammarConverter {
 		List<Symbol> result = new ArrayList<>();
 		
 		for(int i = 0; i < rhs.length(); i++) {
+			
 			IConstructor current = (IConstructor) rhs.get(i);
 			
 			Symbol symbol = getSymbol(current);
@@ -673,7 +680,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 	}
 	
-public static class Visitor extends NullASTVisitor<AbstractAST> {
+	public static class Visitor extends NullASTVisitor<AbstractAST> {
 		
 		@Override
 		public AbstractAST visitStatementAssignment(Assignment x) {
@@ -817,6 +824,120 @@ public static class Visitor extends NullASTVisitor<AbstractAST> {
 		@Override
 		public AbstractAST visitStringConstantLexical(org.rascalmpl.ast.StringConstant.Lexical x) {
 			return string(x.getString());
+		}
+		
+	}
+	
+	private static class IsRecursive implements ISymbolVisitor<Boolean> {
+		
+		private final Recursion recursion;
+		private final Nonterminal head;
+		
+		public IsRecursive(Nonterminal head, Recursion recursion) {
+			this.recursion = recursion;
+			this.head = head;
+		}
+
+		@Override
+		public Boolean visit(Align symbol) {
+			return symbol.accept(this);
+		}
+
+		@Override
+		public Boolean visit(Block symbol) {
+			Symbol[] symbols = symbol.getSymbols();
+			if (recursion == Recursion.LEFT)
+				return symbols[0].accept(this);
+			else
+				return symbols[symbols.length - 1].accept(this);
+		}
+
+		@Override
+		public Boolean visit(Character symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(CharacterRange symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(Code symbol) {
+			return symbol.getSymbol().accept(this);
+		}
+
+		@Override
+		public Boolean visit(Conditional symbol) {
+			return symbol.getSymbol().accept(this);
+		}
+
+		@Override
+		public Boolean visit(EOF symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(Epsilon symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(IfThen symbol) {
+			return symbol.getThenPart().accept(this);
+		}
+
+		@Override
+		public Boolean visit(IfThenElse symbol) {
+			return symbol.getThenPart().accept(this)
+					|| symbol.getElsePart().accept(this);
+		}
+
+		@Override
+		public Boolean visit(Nonterminal symbol) {
+			return symbol.getName().equals(head.getName())
+					&& ((head.getParameters() == null && symbol.getArguments() == null)
+							|| (head.getParameters().length == symbol.getArguments().length));
+		}
+
+		@Override
+		public Boolean visit(Offside symbol) {
+			return symbol.getSymbol().accept(this);
+		}
+
+		@Override
+		public Boolean visit(Terminal symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(While symbol) {
+			return symbol.getBody().accept(this);
+		}
+
+		@Override
+		public <E extends Symbol> Boolean visit(Alt<E> symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(Opt symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(Plus symbol) {
+			return false;
+		}
+
+		@Override
+		public <E extends Symbol> Boolean visit(Sequence<E> symbol) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(Star symbol) {
+			return false;
 		}
 		
 	}
