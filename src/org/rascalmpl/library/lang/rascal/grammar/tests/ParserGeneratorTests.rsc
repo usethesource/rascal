@@ -523,10 +523,7 @@ grammar(
           {})})
   ));
   
-list[str] removeEmptyLines(str s) =
-	[ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
 
-bool sameLines(str s1, str s2) = size(removeEmptyLines(s1) - removeEmptyLines(s2)) == 0;
  
 test bool tstNewGenerateGEMPTY() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY), 

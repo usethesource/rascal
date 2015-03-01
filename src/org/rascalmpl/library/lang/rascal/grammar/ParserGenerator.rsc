@@ -587,3 +587,10 @@ str v2i(value v) {
         default            : throw "value not supported <v>";
     }
 }    
+
+// For the benefit of various tests
+
+list[str] removeEmptyLines(str s) =
+	[ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
+
+bool sameLines(str s1, str s2) = size(removeEmptyLines(s1) - removeEmptyLines(s2)) == 0;
