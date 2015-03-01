@@ -619,10 +619,12 @@ public class RVM {
 					stack[sp++] = stack[pos];
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_RESETLOC:
-					pos = CodeBlock.fetchArg1(instruction);
-					stack[sp++] = stack[pos];
-					stack[pos] = null;
+				case Opcode.OP_RESETLOCS:
+					IList positions = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					for(IValue v : positions){
+						stack[((IInteger) v).intValue()] = null;
+					}
+					stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADBOOL:
@@ -1406,7 +1408,34 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADVARKWP:
-					continue NEXT_INSTRUCTION;
+				{
+					varScope = CodeBlock.fetchArg1(instruction);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
+					
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						if (f.scopeId == varScope) {	
+							HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+							if(kargs.containsKey(name)) {
+								val = kargs.get(name);
+								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = val;
+									continue NEXT_INSTRUCTION;
+								//}
+							}
+							defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+							
+							if(defaults.containsKey(name)) {
+								defaultValue = defaults.get(name);
+								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = defaultValue.getValue();
+									continue NEXT_INSTRUCTION;
+								//}
+							}
+						}
+					}				
+					
+					throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope, cf);
+				}
 					
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
@@ -1416,7 +1445,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
-					continue NEXT_INSTRUCTION;
+					throw new CompilerError("OP_LOADVARKWP not yet implemented", cf);
 					
 				case Opcode.OP_LOADCONT:
 					s = CodeBlock.fetchArg1(instruction);

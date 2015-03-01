@@ -80,7 +80,12 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
 
 list[MuExp] resetBlockVars(Statement body){
 	introduced_vars = getAllVariablesAndFunctionsOfBlockScope(body@\loc);
-	return [muResetLoc(pos) | <str fuid, int pos> <- introduced_vars, fuid == topFunctionScope()];
+	locals = [pos | <str fuid, int pos> <- introduced_vars, pos >= 0, fuid == topFunctionScope()];
+	if(!isEmpty(locals)){
+		//println("<body@\loc>: <introduced_vars>, <locals>");
+		return [muResetLocs(locals)];
+	}
+	return [];
 }
 
 MuExp translateLoopBody(Statement body){
