@@ -20,10 +20,7 @@ import experiments::Compiler::Examples::Odd;
 import experiments::Compiler::Examples::SendMoreMoney;
 import experiments::Compiler::Examples::SetMatch;
 import experiments::Compiler::Examples::SetMatchMix;
-import experiments::Compiler::Examples::Descent;
-import experiments::Compiler::Examples::DescentLiteral;
-import experiments::Compiler::Examples::DescentTuple;
-import experiments::Compiler::Examples::DescentList;
+
 import experiments::Compiler::Examples::TestSuite;
 import experiments::Compiler::Examples::Template;
 
@@ -38,15 +35,11 @@ import experiments::Compiler::Examples::IfDefinedOtherwise;
 import experiments::Compiler::Examples::IfDefinedOtherwise2;
 import experiments::Compiler::Examples::UseLibrary;
 
-import experiments::Compiler::Examples::FailWithLabel1;
-import experiments::Compiler::Examples::FailWithLabel2;
-import experiments::Compiler::Examples::FailWithinElse;
 import experiments::Compiler::Examples::WhilePlusBacktracking;
 import experiments::Compiler::Examples::IsTrio;
 import experiments::Compiler::Examples::Or;
 import experiments::Compiler::Examples::AnotherOr;
 import experiments::Compiler::Examples::NestedOr;
-import experiments::Compiler::Examples::WeirdAppend;
 
 import experiments::Compiler::Examples::IMP3;
 
@@ -64,8 +57,6 @@ import experiments::Compiler::Examples::Template1;
 import experiments::Compiler::Examples::Template2;
 
 import experiments::Compiler::Examples::Closures;
-
-import experiments::Compiler::Examples::AnotherFor;
 
 import experiments::Compiler::Examples::Extending;
 
@@ -93,10 +84,7 @@ test bool tst() = demo("Fib") == experiments::Compiler::Examples::Fib::main([]);
 test bool tst() = demo("ListMatch") == experiments::Compiler::Examples::ListMatch::main([]);
 test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch::main([]);
 test bool tst() = demo("SetMatchMix") == experiments::Compiler::Examples::SetMatchMix::main([]);
-test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::main([]);
-test bool tst() = demo("DescentLiteral") == experiments::Compiler::Examples::DescentLiteral::main([]);
-test bool tst() = demo("DescentTuple") == experiments::Compiler::Examples::DescentTuple::main([]);
-test bool tst() = demo("DescentList") == experiments::Compiler::Examples::DescentList::main([]);
+
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
@@ -125,15 +113,12 @@ test bool tst() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibr
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
 
 // Fail with labels
-test bool tst() = demo("FailWithLabel1") == experiments::Compiler::Examples::FailWithLabel1::main([]);
-test bool tst() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
-test bool tst() = demo("FailWithinElse") == experiments::Compiler::Examples::FailWithinElse::main([]);
+
 test bool tst() = demo("WhilePlusBacktracking") == experiments::Compiler::Examples::WhilePlusBacktracking::main([]);
 test bool tst() = demo("IsTrio") == experiments::Compiler::Examples::IsTrio::main([]);
 test bool tst() = demo("Or") == experiments::Compiler::Examples::Or::main([]);
 test bool tst() = demo("AnotherOr") == experiments::Compiler::Examples::AnotherOr::main([]);
 test bool tst() = demo("NestedOr") == experiments::Compiler::Examples::NestedOr::main([]);
-test bool tst() = demo("WeirdAppend") == experiments::Compiler::Examples::WeirdAppend::main([]);
 
 // Keyword parameters
 test bool tst() = demo("KWP1") == experiments::Compiler::Examples::KWP1::main([]);
@@ -160,8 +145,6 @@ test bool tst() = demo("Template1") == experiments::Compiler::Examples::Template
 test bool tst() = demo("Template2") == experiments::Compiler::Examples::Template2::main([]);
 
 test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures::main([]);
-
-test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::AnotherFor::main([]);
 
 test bool tst() = demo("Extending") == experiments::Compiler::Examples::Extending::main([]);
 
