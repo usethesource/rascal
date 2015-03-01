@@ -72,7 +72,7 @@ public data MuExp =
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
-          | muResetLoc(int pos)									// Reset value of local variable to undefined (null)
+          | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
           | muTmp(str name, str fuid)							// Temporary variable introduced by front-end
        

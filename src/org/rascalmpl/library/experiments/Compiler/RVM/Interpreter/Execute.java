@@ -248,6 +248,9 @@ public class Execute {
 	private ISourceLocation getLocField(IConstructor instruction, String field) {
 		return ((ISourceLocation) instruction.get(field));
 	}
+	private IList getListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
+	}
 
 	/**
 	 * Load the instructions of a function in a RVM.
@@ -586,8 +589,8 @@ public class Execute {
 								 getStrField(instruction, "caseDefault"));
 				break;
 				
-			case "RESETLOC":
-				codeblock.RESETLOC(getIntField(instruction, "pos"));
+			case "RESETLOCS":
+				codeblock.RESETLOCS(getListField(instruction, "positions"));
 				break;	
 				
 			default:

@@ -716,7 +716,7 @@ guard {
         iVal
     //println("MATCH_VAR_IN_LIST", iElem);
     if(is_defined(rVar)) {
-        println("MATCH_VAR_IN_LIST, var is defined:", deref rVar);
+        //println("MATCH_VAR_IN_LIST, var is defined:", deref rVar);
         iVal = deref rVar
         if(equal(iElem, iVal)) {
             yield(iElem, MAKE_SUBJECT(iList, start + 1))
