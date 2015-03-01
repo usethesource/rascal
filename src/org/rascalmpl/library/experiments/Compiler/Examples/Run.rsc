@@ -26,32 +26,9 @@ import experiments::Compiler::Examples::DescentTuple;
 import experiments::Compiler::Examples::DescentList;
 import experiments::Compiler::Examples::TestSuite;
 import experiments::Compiler::Examples::Template;
-import experiments::Compiler::Examples::Overloading1;
-import experiments::Compiler::Examples::Overloading2;
-import experiments::Compiler::Examples::Overloading3;
-import experiments::Compiler::Examples::OverloadingMatch;
-import experiments::Compiler::Examples::OverloadingPlusBacktracking1;
-import experiments::Compiler::Examples::OverloadingPlusBacktracking2;
-import experiments::Compiler::Examples::OverloadingDynamicCall;
-import experiments::Compiler::Examples::OverloadingPlusVarArgs;
-import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
-import experiments::Compiler::Examples::OverloadingPlusPolymorphism1;
-import experiments::Compiler::Examples::OverloadingPlusPolymorphism2;
+
 import experiments::Compiler::Examples::FunctionWithWhen;
-import experiments::Compiler::Examples::ExceptionHandling1;
-import experiments::Compiler::Examples::ExceptionHandling2;
-import experiments::Compiler::Examples::ExceptionHandling3;
-import experiments::Compiler::Examples::ExceptionHandling4;
-import experiments::Compiler::Examples::ExceptionHandlingFinally1;
-import experiments::Compiler::Examples::ExceptionHandlingFinally2;
-import experiments::Compiler::Examples::ExceptionHandlingFinally3;
-import experiments::Compiler::Examples::ExceptionHandlingFinally4;
-import experiments::Compiler::Examples::ExceptionHandlingFinally5;
-import experiments::Compiler::Examples::ExceptionHandlingFinally6;
-import experiments::Compiler::Examples::ExceptionHandlingFinally7;
-import experiments::Compiler::Examples::ExceptionHandlingFinally8;
-import experiments::Compiler::Examples::ExceptionHandlingNotHandled;
-import experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple;
+
 import experiments::Compiler::Examples::RascalRuntimeExceptions;
 import experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading;
 import experiments::Compiler::Examples::IsDefined;
@@ -110,7 +87,7 @@ import experiments::Compiler::Examples::Extending;
 
 import experiments::Compiler::Examples::FunctionWithVarargsAndKeyword;
 import experiments::Compiler::Examples::ModuleVarInitWithRange;
-import experiments::Compiler::Examples::ExpressionsInRascal;
+import experiments::Compiler::Examples::RascalExtraction;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
@@ -138,32 +115,9 @@ test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
 test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
-test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
-test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
-test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
-test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
-test bool tst() = demo("OverloadingPlusBacktracking1") == experiments::Compiler::Examples::OverloadingPlusBacktracking1::main([]);
-test bool tst() = demo("OverloadingPlusBacktracking2") == experiments::Compiler::Examples::OverloadingPlusBacktracking2::main([]);
-test bool tst() = demo("OverloadingDynamicCall") == experiments::Compiler::Examples::OverloadingDynamicCall::main([]);
-test bool tst() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examples::OverloadingPlusVarArgs::main([]);
-test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
-test bool tst() = demo("OverloadingPlusPolymorphism1") == experiments::Compiler::Examples::OverloadingPlusPolymorphism1::main([]);
-test bool tst() = demo("OverloadingPlusPolymorphism2") == experiments::Compiler::Examples::OverloadingPlusPolymorphism2::main([]);
+
 test bool tst() = demo("FunctionWithWhen") == experiments::Compiler::Examples::FunctionWithWhen::main([]);
-test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
-test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
-test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
-test bool tst() = demo("ExceptionHandling4") == experiments::Compiler::Examples::ExceptionHandling4::main([]);
-test bool tst() = demo("ExceptionHandlingFinally1") == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
-test bool tst() = demo("ExceptionHandlingFinally2") == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
-test bool tst() = demo("ExceptionHandlingFinally3") == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);
-test bool tst() = demo("ExceptionHandlingFinally4") == experiments::Compiler::Examples::ExceptionHandlingFinally4::main([]);
-test bool tst() = demo("ExceptionHandlingFinally5") == experiments::Compiler::Examples::ExceptionHandlingFinally5::main([]);
-test bool tst() = demo("ExceptionHandlingFinally6") == experiments::Compiler::Examples::ExceptionHandlingFinally6::main([]);
-test bool tst() = demo("ExceptionHandlingFinally7") == experiments::Compiler::Examples::ExceptionHandlingFinally7::main([]);
-test bool tst() = demo("ExceptionHandlingFinally8") == experiments::Compiler::Examples::ExceptionHandlingFinally8::main([]);
-test bool tst() = demo("ExceptionHandlingNotHandled") == experiments::Compiler::Examples::ExceptionHandlingNotHandled::expectedResult;
-test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple::expectedResult;
+
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("RascalRuntimeExceptionsPlusOverloading") == experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading::main([]);
 
@@ -240,4 +194,4 @@ test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::Another
 
 test bool tst() = demo("Extending") == experiments::Compiler::Examples::Extending::main([]);
 
-test bool tst() = demo("ExpressionsInRascal") == experiments::Compiler::Examples::ExpressionsInRascal::main([]);
+test bool tst() = demo("RascalExtraction") == experiments::Compiler::Examples::RascalExtraction::main([]);
