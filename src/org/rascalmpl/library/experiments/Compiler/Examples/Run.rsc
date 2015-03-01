@@ -37,20 +37,6 @@ import experiments::Compiler::Examples::UninitializedVariables;
 import experiments::Compiler::Examples::IfDefinedOtherwise;
 import experiments::Compiler::Examples::IfDefinedOtherwise2;
 import experiments::Compiler::Examples::UseLibrary;
-import experiments::Compiler::Examples::Visit1;
-import experiments::Compiler::Examples::Visit1a;
-import experiments::Compiler::Examples::Visit2;
-import experiments::Compiler::Examples::Visit3;
-import experiments::Compiler::Examples::Visit4;
-import experiments::Compiler::Examples::Visit5;
-import experiments::Compiler::Examples::Visit6;
-import experiments::Compiler::Examples::Visit7;
-import experiments::Compiler::Examples::Visit8;
-import experiments::Compiler::Examples::Visit9;
-import experiments::Compiler::Examples::Visit10;
-import experiments::Compiler::Examples::Visit11;
-import experiments::Compiler::Examples::Visit12;
-import experiments::Compiler::Examples::VisitWithWhen;
 
 import experiments::Compiler::Examples::FailWithLabel1;
 import experiments::Compiler::Examples::FailWithLabel2;
@@ -134,21 +120,6 @@ test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefine
 test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
 
 test bool tst() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
-
-test bool tst1()  = demo("Visit1")  == experiments::Compiler::Examples::Visit1::main([]);
-test bool tst1a() = demo("Visit1a") == experiments::Compiler::Examples::Visit1::main([]);
-test bool tst2()  = demo("Visit2")  == experiments::Compiler::Examples::Visit2::main([]);
-test bool tst3()  = demo("Visit3")  == experiments::Compiler::Examples::Visit3::main([]);
-test bool tst4()  = demo("Visit4")  == experiments::Compiler::Examples::Visit4::main([]);
-test bool tst5()  = demo("Visit5")  == experiments::Compiler::Examples::Visit5::main([]);
-test bool tst6()  = demo("Visit6")  == experiments::Compiler::Examples::Visit6::main([]);
-test bool tst7()  = demo("Visit7")  == experiments::Compiler::Examples::Visit7::main([]);
-test bool tst8()  = demo("Visit8")  == experiments::Compiler::Examples::Visit8::main([]);
-test bool tst9()  = demo("Visit9")  == experiments::Compiler::Examples::Visit9::main([]);
-test bool tst10() = demo("Visit10") == experiments::Compiler::Examples::Visit10::expectedResult;
-test bool tst11() = demo("Visit11") == experiments::Compiler::Examples::Visit11::main([]);
-test bool tst12() = demo("Visit12") == experiments::Compiler::Examples::Visit12::main([]);
-test bool tst13() = demo("VisitWithWhen") == experiments::Compiler::Examples::VisitWithWhen::main([]);
 
 // Overloading resolution & imports
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
