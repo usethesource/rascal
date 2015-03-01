@@ -36,6 +36,7 @@ public class Switch extends Instruction {
 			String label = ((IString)caseLabels.get(key)).getValue();
 			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
+		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, dcode) ;
 		codeblock.addCode2(opcode.getOpcode(), 
 							codeblock.getConstantIndex(w.done()), 
 							codeblock.getLabelPC(caseDefault));

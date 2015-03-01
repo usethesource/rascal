@@ -1351,6 +1351,11 @@ public class RVMRun implements IRVM {
 		return ToplevelType.getToplevelTypeAsInt(t);
 	}
 
+	public int switchHelper() {
+		IValue val = (IValue) stack[--sp];
+		return 0;
+	}
+
 	public boolean guardHelper() {
 		Object rval = stack[sp - 1];
 		boolean precondition;
