@@ -199,7 +199,10 @@ public class RascalToIguanaGrammarConverter {
 							
 						case "prod":
 							
-							Rule rule = prod2Rule(head, alt, strategy, level.getLhs()).build();
+							ISet attributes = (ISet) alt.get("attributes");
+							Associativity associativity = getAssociativity(attributes);
+							
+							Rule rule = prod2Rule(head, alt, strategy, associativity, level.getLhs()).build();
 							rulesMap.put(alt, rule);
 							rules.add(rule);
 							
@@ -235,9 +238,7 @@ public class RascalToIguanaGrammarConverter {
 							
 						case "prod":
 							
-							Associativity associativity = getAssociativity((ISet) alt.get("attributes"));
-							
-							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : -1).build();
+							Rule rule = prod2Rule(head, alt, strategy, Associativity.UNDEFINED, level.getLhs()).build();
 							rulesMap.put(alt, rule);
 							rules.add(rule);
 							
@@ -262,9 +263,11 @@ public class RascalToIguanaGrammarConverter {
 		for (IValue alternative : alternatives) {
 			
 			IConstructor alt = (IConstructor) alternative;
-			Associativity assoc = getAssociativity((ISet) alt.get("attributes"));
 			
-			Rule rule = prod2Rule(head, alt, strategy, assoc == assocGroup.getAssociativity()? assocGroup.getLhs() : -1).setAssociativityGroup(assocGroup).build();
+			Rule rule = prod2Rule(head, alt, strategy, assocGroup.getAssociativity(), assocGroup.getLhs()).setAssociativityGroup(assocGroup).build();
+			
+			if (rule.getPrecedence() != assocGroup.getLhs())
+				assocGroup.add(rule.getPrecedence(), rule.getAssociativity());
 			
 			rulesMap.put(alt, rule);
 			rules.add(rule);
@@ -275,7 +278,7 @@ public class RascalToIguanaGrammarConverter {
 		
 	}
 	
-	private Rule.Builder prod2Rule(Nonterminal head, IConstructor production, LayoutStrategy strategy, int precedence) {
+	private Rule.Builder prod2Rule(Nonterminal head, IConstructor production, LayoutStrategy strategy, Associativity assoc, int precedence) {
 		assert production.getName().equals("prod");
 		
 		SerializableValue object = null;
@@ -298,10 +301,28 @@ public class RascalToIguanaGrammarConverter {
 		else if (isRight)
 			recursion = Recursion.RIGHT;
 		
+		int pr = -1;
+		
+		if (associativity == assoc)
+			pr = precedence;
+		
+		if (associativity != assoc && (recursion == Recursion.LEFT || recursion == Recursion.RIGHT) 
+				&& (associativity == Associativity.LEFT || associativity == Associativity.RIGHT)) {
+			
+			pr = precedence;
+			
+		} else if (associativity != assoc && (isLeft || isRight)) 
+			pr = index++;
+		
+		if ((recursion == Recursion.LEFT || recursion == Recursion.RIGHT) 
+			     && (associativity == Associativity.LEFT || associativity == Associativity.RIGHT))
+			associativity = Associativity.UNDEFINED;
+			
+		
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
 									.setRecursion(recursion)
 									.setAssociativity(associativity)
-									.setPrecedence(precedence != -1? precedence : (isLeft || isRight? index++ : precedence))
+									.setPrecedence(pr)
 									.setPrecedenceGroup(level);
 	}
 
