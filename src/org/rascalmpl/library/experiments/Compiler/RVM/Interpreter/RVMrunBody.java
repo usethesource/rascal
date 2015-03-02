@@ -19,6 +19,18 @@ public class RVMrunBody extends RVMRun {
 		locationCollector.registerLocation(cf.src);
 	}
 
+	public int caseImplementation(int c) {
+		int val = 0 ;
+		switch (c) {
+		case -1 : val = 1 ;
+		case 0 : val = 1 ;
+		case 3 : val = 3 ;
+		case 5 : val = 5 ;
+		case 7 : val = 7 ;
+		case 10011 : val = 9 ;
+		}
+		return val ;
+	}
 	public void insnCallPRIM(int i) {
 
 		//setLocCol(cf, i);

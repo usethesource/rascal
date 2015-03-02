@@ -87,7 +87,7 @@ public class RVMRun implements IRVM {
 								// coroutine
 	// (coroutine's main function)
 	protected Frame cccf = null; // The candidate coroutine's start frame; used
-								 // by theguard semantics
+									// by theguard semantics
 	IEvaluatorContext ctx;
 
 	private List<ClassLoader> classLoaders;
@@ -784,49 +784,49 @@ public class RVMRun implements IRVM {
 		return --sp;
 	}
 
-	 public void insnLOADLOC0() {
-	 stack[sp++] = stack[0];
-	 }
-	
-	 public void insnLOADLOC1() {
-	 stack[sp++] = stack[1];
-	 }
-	
-	 public void insnLOADLOC2() {
-	 stack[sp++] = stack[2];
-	 }
-	
-	 public void insnLOADLOC3() {
-	 stack[sp++] = stack[3];
-	 }
-	
-	 public void insnLOADLOC4() {
-	 stack[sp++] = stack[4];
-	 }
-	
-	 public void insnLOADLOC5() {
-	 stack[sp++] = stack[5];
-	 }
-	
-	 public void insnLOADLOC6() {
-	 stack[sp++] = stack[6];
-	 }
-	
-	 public void insnLOADLOC7() {
-	 stack[sp++] = stack[7];
-	 }
-	
-	 public void insnLOADLOC8() {
-	 stack[sp++] = stack[8];
-	 }
-	
-	 public void insnLOADLOC9() {
-	 stack[sp++] = stack[9];
-	 }
-	
-	 public void insnLOADLOC(int i) {
-	 stack[sp++] = stack[i];
-	 }
+	public void insnLOADLOC0() {
+		stack[sp++] = stack[0];
+	}
+
+	public void insnLOADLOC1() {
+		stack[sp++] = stack[1];
+	}
+
+	public void insnLOADLOC2() {
+		stack[sp++] = stack[2];
+	}
+
+	public void insnLOADLOC3() {
+		stack[sp++] = stack[3];
+	}
+
+	public void insnLOADLOC4() {
+		stack[sp++] = stack[4];
+	}
+
+	public void insnLOADLOC5() {
+		stack[sp++] = stack[5];
+	}
+
+	public void insnLOADLOC6() {
+		stack[sp++] = stack[6];
+	}
+
+	public void insnLOADLOC7() {
+		stack[sp++] = stack[7];
+	}
+
+	public void insnLOADLOC8() {
+		stack[sp++] = stack[8];
+	}
+
+	public void insnLOADLOC9() {
+		stack[sp++] = stack[9];
+	}
+
+	public void insnLOADLOC(int i) {
+		stack[sp++] = stack[i];
+	}
 
 	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_TRUE;
@@ -1158,11 +1158,11 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public int insnCHECKARGTYPEANDCOPY(Object[] stack, int sp,int loc, int type, int toLoc) {
+	public int insnCHECKARGTYPEANDCOPY(Object[] stack, int sp, int loc, int type, int toLoc) {
 		Type argType = ((IValue) stack[loc]).getType();
 		Type paramType = cf.function.typeConstantStore[type];
-		
-		if(argType.isSubtypeOf(paramType)){
+
+		if (argType.isSubtypeOf(paramType)) {
 			stack[toLoc] = stack[loc];
 			stack[sp++] = vf.bool(true);
 		} else {
@@ -1353,7 +1353,9 @@ public class RVMRun implements IRVM {
 
 	public int switchHelper() {
 		IValue val = (IValue) stack[--sp];
-		return 0;
+		IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+        int toReturn = fp.intValue() ;
+        return toReturn ;
 	}
 
 	public boolean guardHelper() {
