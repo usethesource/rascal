@@ -2,14 +2,9 @@ module experiments::Compiler::Examples::Tst1
 
 import ParseTree;
 
-syntax D = dd: "d";
-syntax D = ee: "e" D d;
+//lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
+lexical A = [A-Z a-z _] [0-9 A-Z _ a-z]*;
+value main(list[value] args) = (A) `a` := (A) `a`;
 
 
-bool dispatch(ee(D _)) = true;
-bool dispatch(dd()) = false;
-
-bool fun(int n) = true;
-bool fun(str s) = true;
-
-value main(list[value] args) = dispatch((D) `ed`); // && !*/ dispatch((D) `d`);
+//(MyName) `location` := (MyName) `location`;
