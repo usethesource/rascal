@@ -1736,6 +1736,7 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 								      ], src);
 	
 	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
+	println("catchbody: <catchBody>");
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }

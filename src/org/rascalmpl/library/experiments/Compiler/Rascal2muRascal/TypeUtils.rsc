@@ -521,7 +521,7 @@ void extractScopes(Configuration c){
     	}
     	// The alternatives of the overloaded function may come from different scopes 
     	// but only in case of module scopes;
-    	assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
+    	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     

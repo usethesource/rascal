@@ -421,17 +421,17 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE, iName, pats, iSubject:", iName, pats, iSubject)  
+    println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
+        println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
         MATCH_N(pats, args)
         exhaust
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
+        println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
         MATCH_N(pats, args)
     }
 }
@@ -445,6 +445,22 @@ guard
     var args = get_name_and_children_and_keyword_mmap(iSubject)
     //println("MATCH_CALL_OR_TREE", args)
     MATCH_N(pats, args)
+}
+
+// Match a concrete syntax tree of the form appl(prod, args)
+
+coroutine MATCH_CONCRETE_TREE(prod, pat, iSubject)
+guard
+	prim("is_appl", iSubject)
+{
+	var args = get_children(iSubject),
+	    cpat;
+	if(equal(args[0], prod)){
+		 cpat = create(pat, args[1])
+    	 while(next(cpat)) {
+        	yield
+    	}
+	}
 }
 
 coroutine MATCH_KEYWORD_PARAMS(keywords, pats, kwMap)
@@ -492,11 +508,16 @@ guard
 }
 
 coroutine MATCH_LITERAL(pat, iSubject)
-guard
-	equal(pat, iSubject)
+//guard
+//	equal(pat, iSubject)
 {
-    //println("MATCH_LITERAL, true", pat, iSubject)
-    yield
+	if(equal(pat, iSubject)){
+    	//println("MATCH_LITERAL, true", pat, iSubject)
+    	yield
+    } else {
+    	//println("MATCH_LITERAL, false", pat, iSubject)
+    	exhaust
+    }
    
 }
 
@@ -608,19 +629,24 @@ coroutine MATCH_COLLECTION(pats,       // Coroutines to match collection element
     matchers = make_array(patlen)
     matchers[j] = create(pats[j], ref subject)   
     while(true) {
+    	
         while(next(matchers[j])) {                       // Move forward
+        	//println("MATCH_COLLECTION", j);
             if((j == patlen - 1) && accept(subject)) {
                 yield 
             } else {
                 if(j < patlen - 1) {
+                //println("MATCH_COLLECTION, move forwards");
                     j = j + 1
                     matchers[j] = create(pats[j], ref subject)
                 }  
             }
         } 
         if(j > 0) {                                      // If possible, move backward
+        	//println("MATCH_COLLECTION, move backwards");
             j  = j - 1
         } else {
+        	//println("MATCH_COLLECTION, exhausted");
             exhaust
         }
     }
@@ -664,6 +690,7 @@ function MAKE_SUBJECT(iList, cursor) {
    var ar = make_array(2)
    ar[0] = iList
    ar[1] = cursor
+   //println("MAKE_SUBJECT", cursor, iList) 
    return ar
 }
 
@@ -683,6 +710,7 @@ guard {
 } 
 { 
     var cpat = create(pat, get_list(iList, start))
+    //println("MATCH_PAT_IN_LIST", pat, start)
     while(next(cpat)) {
         yield MAKE_SUBJECT(iList, start + 1)   
     }
@@ -692,17 +720,27 @@ guard {
 // A literal in a list
 
 coroutine MATCH_LITERAL_IN_LIST(pat, rSubject) 
-guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject) 
-    start < size_list(iList) 
-} 
+//guard { 
+//   var iList = GET_LIST(deref rSubject), 
+//        start = GET_CURSOR(deref rSubject) 
+//    start < size_list(iList) 
+//} 
 {
-    var elm = get_list(iList, start)
-    if(equal(pat, elm)){
-        yield MAKE_SUBJECT(iList, start + 1)
+	var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject),
+        elm; 
+ 
+    if(start < size_list(iList)){ 
+	    elm = get_list(iList, start)
+	    //println("MATCH_LITERAL_IN_LIST, true", pat, elm);
+	    if(equal(pat, elm)){
+	        yield MAKE_SUBJECT(iList, start + 1)
+    	} 
+    	deref rSubject = MAKE_SUBJECT(iList, start)
+    } else {
+    	//println("MATCH_LITERAL_IN_LIST, false", pat, elm);
+    	exhaust
     }
-    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
 coroutine MATCH_VAR_IN_LIST(rVar, rSubject) 
@@ -963,6 +1001,7 @@ guard {
     var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
+    //println("MATCH_APPL_IN_LIST", iProd, iElem)
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
@@ -980,6 +1019,7 @@ guard {
 } {
     var iElem = get_list(iList, start), 
         children = get_children(iElem)
+    //println("MATCH_LIT_IN_LIST", iProd, iElem)
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
     }
@@ -992,6 +1032,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
         iElem, children, prod, prodchildren;
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
+        //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
         if(iElem is node && equal(get_name(iElem), "appl")) {
             children = get_children(iElem)
             prod = children[0]
@@ -1001,6 +1042,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
                 yield MAKE_SUBJECT(iList, start + 1)
                 exhaust
             }
+            //println("MATCH_OPTIONAL_LAYOUT_IN_LIST, no layout")
         }
     }
     yield MAKE_SUBJECT(iList, start)
