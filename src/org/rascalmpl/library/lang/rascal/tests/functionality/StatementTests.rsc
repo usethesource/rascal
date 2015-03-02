@@ -72,7 +72,53 @@ test bool doWhile2() {return {int n = 0; m = 2; do {m = m * m; n = n + 1;} while
   
 test bool testWhile1() {return {int n = 0; int m = 2; while(n != 0){ m = m * m;}; (n == 0)&& (m == 2);};}
 test bool testWhile2() {return {int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);};}
-  	
+
+test bool testWhileWithBacktracking() {
+    list[list[int]] res = [];
+    l:while([*int x, *int y] := [1,2,3]) {
+        res = res + [ x ];
+        fail l;
+    }
+    
+    while(true) {
+        res = res + [ [999] ];
+        fail;
+    }
+    
+    n = 0;
+    while([*int x, *int y] := [3,4,3,4], n < 3) {
+        if(x == y) {
+            res = res + [ x ];
+            n = n + 1;
+        } else {
+            res = res + [ [0] ];
+            fail;
+        }
+    }
+    
+    n = 0;
+    while(n < 3) {
+        res = res + [ [10] ];
+        n = n + 1;
+    }
+    
+    n = 0;
+    while(1 == 1, n < 3) {
+        res = res + [ [11] ];
+        n = n + 1;
+    }
+    
+    n = 0;
+    while(1 == 2 || n < 3) {
+        res = res + [ [12] ];
+        n = n + 1;
+    }
+    
+    return res == [[],[1],[1,2],[1,2,3],[999],[0],[0],[3,4],[0],[0],[3,4],
+  				   [0],[0],[3,4],[10],[10],[10],[11],[11],[11],[12],[12],[12]
+  				  ];
+}
+ 	
 data D = d(int i) | d();
   
 D d(int i) { if (i % 2 == 0) fail d; else return d();}
