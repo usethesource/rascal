@@ -5,10 +5,10 @@ import Set;
 
 test bool overloading1(){
 	int f(0) = -1;
-	int f(int n) = n;
+	default int f(int n) = n;
 	
 	int f("0") = -2;
-	int f(str s) = -3;
+	default int f(str s) = -3;
 	
 	int f(int n, str s) = -4;
 	
