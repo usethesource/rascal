@@ -3,7 +3,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
@@ -48,8 +52,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public BytecodeGenerator(String packageName2, String className2, ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore) {
-		emit = true ;
-		
+		emit = true;
+
 		fullClassName = packageName2 + "." + className2;
 		fullClassName = fullClassName.replace('.', '/');
 		this.functionStore = functionStore;
@@ -156,13 +160,13 @@ public class BytecodeGenerator implements Opcodes {
 	public void closeMethod() {
 		if (!emit)
 			return;
-		
+
 		// This label should never be reached, it is
 		// placed to
-		// keep JVM verifier happy. (Reason: code generated 
-		// by the compiler jumps sometimes to a non existing 
+		// keep JVM verifier happy. (Reason: code generated
+		// by the compiler jumps sometimes to a non existing
 		// location)
-		if (exitLabel != null) { 
+		if (exitLabel != null) {
 			mv.visitLabel(exitLabel);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/eclipse/imp/pdb/facts/IString;");
@@ -288,7 +292,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineReturn0(boolean debug) {
 		if (!emit)
 			return;
-		
+
 		Label normalReturn = new Label();
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 3);
@@ -578,7 +582,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l4);
 
-		if (exitLabel != null) { 
+		if (exitLabel != null) {
 			// The label for the hot entry
 			// Store reentry label in current frame.
 			// System.out.println(currentName + " GU : entrypoint :"
@@ -760,7 +764,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
-		if (exitLabel != null) { 
+		if (exitLabel != null) {
 			// The label for the hot entry
 			// Store reentry label in current frame.
 			// System.out.println(currentName + " GU : entrypoint :"
@@ -799,7 +803,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
-		if (exitLabel != null) { 
+		if (exitLabel != null) {
 			// The label for the hot entry
 			// Store reentry label in current frame.
 			// System.out.println(currentName + " GU : entrypoint :"
@@ -916,7 +920,8 @@ public class BytecodeGenerator implements Opcodes {
 			emitCall("dinsnCALLPRIM", 1);
 
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(), "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
@@ -924,27 +929,25 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(arity);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute", "([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute",
+				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		
-		
-		
-		
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
-//				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
-//		mv.visitVarInsn(ALOAD, 3);
-//
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//
-//		emitIntValue(arity);
-//
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "stacktrace", "Ljava/util/ArrayList;");
-//
-//		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute", "([Ljava/lang/Object;IILjava/util/List;)I");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
+		// mv.visitVarInsn(ALOAD, 0);
+		// mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+		// "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		// mv.visitVarInsn(ALOAD, 3);
+		//
+		// mv.visitVarInsn(ALOAD, 0);
+		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		//
+		// emitIntValue(arity);
+		//
+		// mv.visitVarInsn(ALOAD, 0);
+		// mv.visitFieldInsn(GETFIELD, fullClassName, "stacktrace", "Ljava/util/ArrayList;");
+		//
+		// mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute", "([Ljava/lang/Object;IILjava/util/List;)I");
+		// mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitInlineLoadBool(boolean b, boolean debug) {
@@ -1193,9 +1196,7 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	/*
-	 * emitOptimizedOcall emits a call to a full ocall implementation or: 
-	 * 1: There is only one funtion emit direct call 
-	 * 2: There is only a constructor call constructor
+	 * emitOptimizedOcall emits a call to a full ocall implementation or: 1: There is only one funtion emit direct call 2: There is only a constructor call constructor
 	 */
 	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
 		if (!emit)
@@ -1207,7 +1208,7 @@ public class BytecodeGenerator implements Opcodes {
 			if (ctors.length == 0) {
 				Function fu = functionStore.get(functions[0]);
 				if (of.getScopeFun() == null) {
-					emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity) ;
+					emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity);
 				} else {
 					// Nested fucntion needs link to containing frame
 					emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
@@ -1216,9 +1217,8 @@ public class BytecodeGenerator implements Opcodes {
 				// Has a constructor.
 				emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 			}
-		}
-		else {
-			emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);			
+		} else {
+			emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 		}
 	}
 
@@ -1279,23 +1279,29 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean debug) {
 		if (!emit)
-			return;	
-		
-		Label[] switchTable;
+			return;
+
+		Map<Integer, String> jumpBlock = new TreeMap<Integer, String>(); // This map is sorted on its keys.
 
 		int nrLabels = caseLabels.size();
-		switchTable = new Label[nrLabels];
-		int lcount = 0 ;
+
+		Label[] switchTable = new Label[nrLabels];
+		int[] intTable = new int[nrLabels];
 
 		for (IValue vlabel : caseLabels) {
-			String label = ((IString) vlabel).getValue();
-			switchTable[lcount++] = getNamedLabel(label);
+			jumpBlock.put(((IInteger) vlabel).intValue(), ((IString) caseLabels.get(vlabel)).getValue());
 		}
-		Label defaultLabel = getNamedLabel(caseDefault) ;
-		
-		// TODO: Label helper?? 
+
+		nrLabels  = 0 ;
+		for (Map.Entry<Integer, String> entry : jumpBlock.entrySet()) {
+			intTable[nrLabels] = entry.getKey() ;
+			switchTable[nrLabels++] = getNamedLabel(entry.getValue()) ;
+		}
+
+		Label defaultLabel = getNamedLabel(caseDefault);
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "()I");
-		mv.visitTableSwitchInsn(0, nrLabels - 1, defaultLabel, switchTable);
+		mv.visitLookupSwitchInsn(defaultLabel, intTable, switchTable);
 	}
 }
