@@ -229,11 +229,14 @@ MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) {
   return translateParsedConcretePattern(parseConcrete(concrete), getType(p@\loc));
 }
 
+bool isConcreteHole(appl(Production prod, list[Tree] args)) = prod.def == label("hole", lex("ConcretePart"));
+
+loc getConcreteHoleVarLoc(appl(Production prod, list[Tree] args)) = args[0].args[4].args[0]@\loc;
+
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), Symbol symbol){
  //println("translateParsedConcretePattern: <prod>, <symbol>");
-  if(prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
-     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+  if(isConcreteHole(t)){
+     <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
      return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("ConcreteVar", fuid, pos)]);
   }
   //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
@@ -267,8 +270,8 @@ bool isLayoutPat(Tree pat) = appl(prod(layouts(_), _, _), _) := pat;
 bool isSeparator(Tree pat, Symbol sep) = appl(prod(sep, _, _), _) := pat;
 
 tuple[bool, Symbol] isIterHoleWithSeparator(Tree pat){
-  if(appl(Production prod, list[Tree] args) := pat && prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(t:appl(Production prod, list[Tree] args) := pat && isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      if(isIterWithSeparator(holeType)){
@@ -350,8 +353,8 @@ default Symbol getSeparator(Symbol sym) { throw "Cannot determine separator: <sy
 
 // What is is the minimal iteration count of a pattern (as Tree)?
 int nIter(Tree pat){
-  if(appl(Production prod, list[Tree] args) := pat && prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(t:appl(Production prod, list[Tree] args) := pat && isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      if(isIterWithSeparator(holeType)){
@@ -363,8 +366,8 @@ int nIter(Tree pat){
 
 MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
   //println("translatePatAsConcreteListElem: <listProd>, <applProd>");
-    if(applProd.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+    if(isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      //println("holeType = <holeType>");
@@ -410,8 +413,8 @@ default MuExp translateApplAsListElem(Production listProd, Production prod, list
 // Is an appl node a concrete multivar?
 
 bool isConcreteMultiVar(t:appl(Production prod, list[Tree] args)){
-  if(prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      holeType = getType(varloc);
      return isIter(holeType);
   }
