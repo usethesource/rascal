@@ -19,3 +19,18 @@ test bool interpolateForNested() =
 test bool interpolatePreFor() = "<for (i <- [1,2,3]) { j = i + 1;> <j> <}>" == " 2  3  4 ";
 
 test bool interpolatePostWhile() { x = 5; return "<while (x > 0) {> <x> < x -= 1; }>" == " 5  4  3  2  1 ";}
+
+test bool interpolateFor2() {
+    str s = "<for(i <- [0..10]) {>
+            '    <if(i % 2 == 0) {>
+            '        i = <i>
+            '    <}>
+            '<}>";
+    return s ==
+    "\n    \n        i = 0\n    \n\n    \n\n    \n        i = 2\n    \n\n    \n\n    \n        i = 4\n    \n\n    \n\n    \n        i = 6\n    \n\n    \n\n    \n        i = 8\n    \n\n    \n";    
+}
+
+test bool interpolateQuotes() {
+    str s = " \" <0 + 0> \" ";
+    return s == " \" 0 \" ";   
+}
