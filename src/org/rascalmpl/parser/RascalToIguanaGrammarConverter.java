@@ -196,15 +196,16 @@ public class RascalToIguanaGrammarConverter {
 					level = new PrecedenceGroup(index);
 					
 					switch(alt.getName()) {
+					
 						case "choice":
 							getAlternatives(head, alt, strategy, rules);
 							break;
 							
 						case "associativity":
-							ISet alternatives = (ISet) alt.get("alternatives");
-							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							associativity2Rules(head, alternatives, associativity, new AssociativityGroup(associativity, level.getLhs()), strategy, rules);
+							ISet alternatives = (ISet) alt.get("alternatives");
+							
+							associativity2Rules(head, alternatives, new AssociativityGroup(getAssociativity((IConstructor) alt.get("assoc")), level.getLhs()), strategy, rules);
 							
 							break;
 							
@@ -219,9 +220,10 @@ public class RascalToIguanaGrammarConverter {
 						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
 					}
 					
-					if (level.getLhs() == index) level.setRhs(index);
-					else level.setRhs(index - 1);
-					index++;
+					if (level.getLhs() == index) {
+						level.setRhs(index);
+						index++;
+					} else level.setRhs(index - 1);
 				}
 				
 				break;
@@ -238,15 +240,14 @@ public class RascalToIguanaGrammarConverter {
 						case "associativity":
 							
 							ISet alts = (ISet) alt.get("alternatives");
-							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
-							associativity2Rules(head, alts, associativity, new AssociativityGroup(associativity, index++), strategy, rules);
+							associativity2Rules(head, alts, new AssociativityGroup(getAssociativity((IConstructor) alt.get("assoc")), index), strategy, rules);
 							
 							break;
 							
 						case "prod":
 							
-							associativity = getAssociativity((IConstructor) alt.get("assoc"));
+							Associativity associativity = getAssociativity((IConstructor) alt.get("assoc"));
 							
 							Rule rule = prod2Rule(head, alt, strategy, associativity == Associativity.UNDEFINED? level.getLhs() : -1).build();
 							rulesMap.put(alt, rule);
@@ -266,13 +267,13 @@ public class RascalToIguanaGrammarConverter {
 		}
 	}
 	
-	private void associativity2Rules(Nonterminal head, ISet alternatives, Associativity associativity, AssociativityGroup assocGroup, LayoutStrategy strategy, List<Rule> rules) {
+	private void associativity2Rules(Nonterminal head, ISet alternatives, AssociativityGroup assocGroup, LayoutStrategy strategy, List<Rule> rules) {
 		for (IValue alternative : alternatives) {
 			
 			IConstructor alt = (IConstructor) alternative;
 			Associativity assoc = getAssociativity((ISet) alt.get("attributes"));
 			
-			Rule rule = prod2Rule(head, alt, strategy, assoc == associativity? assocGroup.getLhs() : -1).build();
+			Rule rule = prod2Rule(head, alt, strategy, assoc == assocGroup.getAssociativity()? assocGroup.getLhs() : -1).setAssociativityGroup(assocGroup).build();
 			
 			rulesMap.put(alt, rule);
 			rules.add(rule);
@@ -299,9 +300,19 @@ public class RascalToIguanaGrammarConverter {
 		boolean isLeft = body.get(0).accept(new IsRecursive(head, Recursion.LEFT));
 		boolean isRight = body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT));
 		
+		Recursion recursion = Recursion.NON_REC;
+		if (isLeft && isRight) 
+			recursion = Recursion.LEFT_RIGHT;
+		else if (isLeft)
+			recursion = Recursion.LEFT;
+		else if (isRight)
+			recursion = Recursion.RIGHT;
+		
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
+									.setRecursion(recursion)
 									.setAssociativity(associativity)
-									.setPrecedence(precedence != -1? precedence : ((isLeft || isRight)? index++ : precedence));
+									.setPrecedence(precedence != -1? precedence : ((isLeft || isRight)? index++ : precedence))
+									.setPrecedenceGroup(level);
 	}
 
 	@SuppressWarnings("unused")
