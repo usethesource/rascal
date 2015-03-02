@@ -27,7 +27,6 @@ value main(list[value] args) {
 		calls = [ e | /Expression e := m, e is callOrTree];
 		patterns = [ p | /Pattern p := m ];
 	}
-	println("comments:");for(n <- comments) println("<n>");
 	println("Time = <(cpuTime() - t)/1000000>");
 	//writeTextValueFile(|home:///names-<inCompiledMode() ? "comp" : "itp">.txt|, names);
 	return [
