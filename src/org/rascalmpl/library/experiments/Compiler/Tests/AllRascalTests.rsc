@@ -16,7 +16,7 @@ list[str] basicTests = [
 "Functions",				// OK
 "Integers",                 // OK
 "IO",						// OK
-
+"IsDefined",				// OK
 "ListRelations",			// OK
 "Lists",                    // OK
 "Locations",			    // OK
@@ -24,6 +24,7 @@ list[str] basicTests = [
 "Matching",					// OK
 "Memoization",
 "Nodes",					// OK
+"Overloading",
 "Relations"	,				// OK
 "Sets",						// OK
 "SolvedIssues",				// OK
@@ -46,13 +47,14 @@ list[str] functionalityTests = [
 "ConcretePatternTests2",	// OK
 "ConcreteSyntaxTests1",     // OK
 "ConcreteSyntaxTests2",     // OK
-
+"ConcreteTerms",			// OK
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
 "DeclarationTests",			// OK
 "FunctionCompositionTests",	// OK
 "InterpolationTests",
 "KeywordParameterImportTests",
+"KeywordParameterTests",
 "ParsingTests",
 "PatternTests",				// OK
 "PatternDescendantTests",
@@ -97,19 +99,22 @@ list[str] libraryTests = [
 ];
 
 list[str] importTests = [
-
+"Extending",				// OK
 "ImportTests1",             // OK
 "ImportTests2",             // OK
 "ImportTests3",             // OK
 "ImportTests4",             // OK
 "ImportTests5",             // OK
 "ImportTests6",             // OK
-"ImportTests7"              // OK
+"ImportTests7",              // OK
+"ImportTests8",              // OK
+"ModuleInitRange"
 ];
 
 list[str] typeTests = [
-//"AccumulatingTCTests",
-//"AliasTCTests",
+//"StaticTestingUtilsTests",	// OK
+//"AccumulatingTCTests",			// OK
+//"AliasTCTests",					// Overflow
 //"AllStaticIssues",
 //"AnnotationTCTests",
 //"AssignmentTCTests",
@@ -125,7 +130,7 @@ list[str] typeTests = [
 //"ScopeTCTests",
 //"StatementTCTests",
 //"SubscriptTCTests",
-//"VisitTCTests"
+"VisitTCTests"
 ];
 
 
@@ -164,7 +169,7 @@ list[str] files_with_tests =
 "lang/rascal/grammar/definition/Characters",        // OK
 "lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
-"lang/rascal/grammar/ParserGenerator",              // ok
+"lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
 "lang/rascal/grammar/tests/PicoGrammar",            // ok
 "lang/rascal/grammar/tests/CGrammar",            	// ok
 "lang/rascal/grammar/tests/RascalGrammar",          // ok

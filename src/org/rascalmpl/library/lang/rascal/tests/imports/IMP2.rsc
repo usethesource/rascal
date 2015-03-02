@@ -1,6 +1,6 @@
-module experiments::Compiler::Examples::IMP2
+module lang::rascal::tests::imports::IMP2
 
-import experiments::Compiler::Examples::IMP1;
+import lang::rascal::tests::imports::IMP1;
 
 public str dup_imp2(str s) = s + s + "_imp2";
 

@@ -529,3 +529,47 @@ test bool exceptionHandlingNotHandledSimple(){
 		return v == ArithmeticException("/ by zero");
 	}
 }
+
+test bool rascalException1() {
+	map[int,str] m = (0:"0", 1:"1",2:"2");
+	
+	str trace = "";
+	
+	try {
+		m[3];
+	} catch NoSuchKey(k): {
+		trace = trace + "<k> (not found)";
+	} finally {
+		trace = "map key: " + trace;
+	}
+	return trace == "map key: 3 (not found)";
+}
+
+test bool rascalRuntimeExceptionsPlusOverloading(){
+	str trace = "";
+
+	void f(int i) {
+	    map[int,str] m = (0:"0", 1:"1",2:"2");
+	    trace = trace + "Bad function f; ";
+	    m[3];
+	}
+	
+	void g(0) {
+	    try {
+	        return f(0);
+	    } catch NoSuchKey(k): {
+			trace = trace + "map key: <k> (not found); ";
+		} finally {
+			trace = trace + "finally; ";
+		}
+		fail;
+	}
+	
+	default void g(int i) {
+	    trace = trace + "default void g(int);";
+	}
+	
+	trace = "";
+	g(0);
+	return trace == "Bad function f; map key: 3 (not found); finally; default void g(int);";
+}	
