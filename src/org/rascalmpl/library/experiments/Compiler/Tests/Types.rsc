@@ -12,8 +12,8 @@ import Set;
 
 import IO;
 
-//layout LAYOUT = [\ \n\t]*; 
-//syntax D2 = "d";
+layout LAYOUT = [\ \n\t]*; 
+syntax D2 = "d";
 
 data D1 = d1(int \int) | d2(str \str);
 

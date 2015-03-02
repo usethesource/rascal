@@ -212,12 +212,12 @@ test bool visit11() {
 				};
 }
 
-value visit12() {
+test bool visit12() {
 	return visit([1,2]) {
-    		case list[int] l => [f]when [1,f] := l 
+    		case list[int] l => l when [1,2] := l 
 		   }
 		   ==
-		   [1, 2];
+		  [1, 2];
 }
 
 

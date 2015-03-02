@@ -75,3 +75,15 @@ data F10 = f10(int i, int delta = 100);
 test bool keywordParam10() {
     return f10(0,delta=1).delta == 1;
 }
+
+test bool keywordParam11(){
+	bool f(bool c = false){
+		bool g(){
+			return c;
+		}
+		return g();
+	}
+	return f() == false;
+}
+
+
