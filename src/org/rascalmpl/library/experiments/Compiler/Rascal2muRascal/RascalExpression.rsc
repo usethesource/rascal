@@ -602,7 +602,7 @@ MuExp translateConcreteParsed(Tree e, loc src){
    if(t:appl(Production prod, list[Tree] args) := e){
        my_src = e@\loc ? src;
        //iprintln("translateConcreteParsed:"); iprintln(e);
-       if(isconcreteHole(t)){
+       if(isConcreteHole(t)){
            varloc = getConcreteHoleVarLoc(t);
            //println("varloc = <getType(varloc)>");
            <fuid, pos> = getVariableScope("ConcreteVar", varloc);

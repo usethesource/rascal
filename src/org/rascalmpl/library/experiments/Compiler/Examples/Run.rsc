@@ -3,7 +3,7 @@ module experiments::Compiler::Examples::Run
 import Prelude;
 import experiments::Compiler::Execute;
 
-import demo::basic::Bottles;
+import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
 import experiments::Compiler::Examples::SendMoreMoney;

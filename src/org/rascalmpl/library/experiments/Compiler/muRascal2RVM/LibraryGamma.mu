@@ -421,17 +421,17 @@ guard
 	iSubject is node
 {
     var args 
-    println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
-        println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
         MATCH_N(pats, args)
         exhaust
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
-        println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
         MATCH_N(pats, args)
     }
 }
