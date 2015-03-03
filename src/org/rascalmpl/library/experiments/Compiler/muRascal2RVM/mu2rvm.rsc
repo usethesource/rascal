@@ -289,7 +289,11 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  return ins + tr(exps[-1]);
+  ins += tr(exps[-1]);
+  if(!producesValue(exps[-1])){
+  	ins += LOADCON(666);
+  }
+  return ins;
 }
 
 //default INS trblock(MuExp exp) = tr(exp);
