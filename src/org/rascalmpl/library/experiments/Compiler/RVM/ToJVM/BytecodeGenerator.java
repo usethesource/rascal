@@ -626,10 +626,10 @@ public class BytecodeGenerator implements Opcodes {
 			emitCall("dinsnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnPOP", "(I)I");
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(ISUB);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
@@ -638,8 +638,7 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 
 		if (debug) { // That we can trace the method call!
-			emitCall("insnSTORELOC", loc);
-			return;
+			emitCall("dinsnSTORELOC", loc);
 		}
 		mv.visitVarInsn(ALOAD, 3);
 		emitIntValue(loc);
@@ -1298,10 +1297,29 @@ public class BytecodeGenerator implements Opcodes {
 			switchTable[nrLabels++] = getNamedLabel(entry.getValue()) ;
 		}
 
-		Label defaultLabel = getNamedLabel(caseDefault);
+		//Label defaultLabel = getNamedLabel(caseDefault);
+		
+		Label trampolineLabel = getNamedLabel(caseDefault+"_trampoline");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "()I");
-		mv.visitLookupSwitchInsn(defaultLabel, intTable, switchTable);
+		mv.visitLookupSwitchInsn(trampolineLabel, intTable, switchTable);
+		
+		emitLabel(caseDefault+"_trampoline");
+				
+		// In case of default push RASCAL_FALSE on stack.  Ask Paul why?
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(AASTORE);
+		
+		emitJMP(caseDefault);
+		
 	}
 }

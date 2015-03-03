@@ -1683,6 +1683,10 @@ public class RVMRun implements IRVM {
 	// A field for tracing only used by dummy dinsnXXX()
 	public int jmpTarget = 0;
 
+	public void dinsnSTORELOC(int target) {
+		jmpTarget = target;
+	}
+
 	public void dinsnTYPESWITCH(int target) {
 		jmpTarget = target;
 	}
