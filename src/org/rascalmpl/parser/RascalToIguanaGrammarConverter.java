@@ -269,17 +269,15 @@ public class RascalToIguanaGrammarConverter {
 			Rule rule = prod2Rule(head, alt, strategy);
 			int precedence = assocGroup.getPrecedence(rule);
 			
-			if (precedence != -1) {
-				if (level.isUndefined(precedence))
-					rule = rule.copyBuilder().setPrecedence(precedence).setPrecedenceLevel(level).build();
-				else
-					rule = rule.copyBuilder().setPrecedence(precedence).setPrecedenceLevel(level).setAssociativityGroup(assocGroup).build();
-			}
+			if (precedence != -1)
+				rule = rule.copyBuilder().setPrecedence(precedence).setPrecedenceLevel(level).setAssociativityGroup(assocGroup).build();
 			
 			rulesMap.put(alt, rule);
 			rules.add(rule);
 			
 		}
+		
+		assocGroup.done();
 				
 	}
 	
