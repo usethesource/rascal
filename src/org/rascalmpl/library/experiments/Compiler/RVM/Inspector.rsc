@@ -22,13 +22,27 @@ import experiments::Compiler::Compile;
  
 void inspect(loc srcLoc,                // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
-          list[str] select = [],     	// select unction names to be shown
+          list[str] select = [],     	// select function names to be shown
           bool listing = false          // show instruction listing
           ){
-
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
+    RVMProgram p;
     try {
-        p = readTextValueFile(#RVMProgram, rvmLoc);
+    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm"){
+    		decls = readTextValueFile(#list[Declaration], rvmLoc);
+    		p = rvm("LibraryGamma",
+		      {},
+			  [],
+              (), 
+              (),
+              (d.qname : d | d <- decls),
+              [], 
+              (), 
+              [],
+              rvmLoc);
+    	} else {
+        	p = readTextValueFile(#RVMProgram, rvmLoc);
+        }	
         
         println("RVM PROGRAM: <p.name>");
          
