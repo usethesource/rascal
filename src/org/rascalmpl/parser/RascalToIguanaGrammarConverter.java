@@ -306,8 +306,12 @@ public class RascalToIguanaGrammarConverter {
 		else if (isRight)
 			recursion = Recursion.RIGHT;
 		
-		if (recursion != Recursion.LEFT_RIGHT)
-			associativity = Associativity.UNDEFINED;
+		if (recursion == Recursion.NON_REC)
+				associativity = Associativity.UNDEFINED;
+		
+		if ((recursion == Recursion.LEFT || recursion == Recursion.RIGHT)
+						&& associativity != Associativity.NON_ASSOC) 
+				associativity = Associativity.UNDEFINED;
 			
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
 									.setRecursion(recursion)
