@@ -106,9 +106,9 @@ syntax Sym
 	| labeled: Sym symbol NonterminalLabel label
 	// data-dependent non-terminals
 	| dependVoidFormals: Nonterminal nonterminal >> "(" Parameters formals \ "()" // only used in the head
-	| dependVoidFormalsParametrized: Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()" // only used in the head
+	| dependVoidFormalsParametrized: () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()" // only used in the head
 	| dependFormals: Nonterminal nonterminal Type typ >> "(" Parameters formals  \ "()" // only used in the head
-	| dependFormalsParametrized: Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()" // only used in the head  
+	| dependFormalsParametrized: () () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()" // only used in the head  
 	| dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependScope: "{" Sym+ symbols "}"
@@ -743,7 +743,7 @@ syntax Type
 	| basic: BasicType basic 
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
-	| symbol: Sym!nonterminal!labeled!parametrized!parameter!dependVoidFormals!dependFormals!dependNonterminal!dependParametrized symbol
+	| symbol: Sym!nonterminal!labeled!parametrized!parameter!dependVoidFormals!dependVoidFormalsParametrized!dependFormals!dependFormalsParametrized!dependNonterminal!dependParametrized symbol
 	;
 	
 syntax Declaration

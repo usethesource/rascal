@@ -72,7 +72,7 @@ public abstract class Commands extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 601 * commands.hashCode() ; 
+      return 797 + 821 * commands.hashCode() ; 
     } 
   
     

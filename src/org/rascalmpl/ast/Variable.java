@@ -81,7 +81,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 337 * name.hashCode() + 557 * initial.hashCode() ; 
+      return 757 + 19 * name.hashCode() + 251 * initial.hashCode() ; 
     } 
   
     
@@ -141,7 +141,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 223 * name.hashCode() ; 
+      return 547 + 769 * name.hashCode() ; 
     } 
   
     

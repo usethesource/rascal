@@ -97,7 +97,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 + 547 * pre.hashCode() + 811 * expression.hashCode() + 947 * tail.hashCode() ; 
+      return 907 + 223 * pre.hashCode() + 359 * expression.hashCode() + 991 * tail.hashCode() ; 
     } 
   
     
@@ -166,7 +166,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 29 * pathChars.hashCode() ; 
+      return 967 + 53 * pathChars.hashCode() ; 
     } 
   
     
