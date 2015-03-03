@@ -541,7 +541,7 @@ public class RVM {
 		pos = 0;
 		last_function_name = "";
 		
-		if(trackCalls) { cf.printEnter(stdout); }
+		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -897,7 +897,7 @@ public class RVM {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					if(trackCalls) { cf.printEnter(stdout); }
+					if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -930,7 +930,7 @@ public class RVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							//if(trackCalls) { cf.printEnter(stdout); }
+							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -963,7 +963,7 @@ public class RVM {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
 						cf = frame;
-						//if(trackCalls) { cf.printEnter(stdout); }
+						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1062,7 +1062,7 @@ public class RVM {
 							return NONE;
 						}
 					}
-					//if(trackCalls) { cf.printBack(stdout); }
+					if(trackCalls) { cf.printBack(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
