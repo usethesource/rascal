@@ -72,7 +72,7 @@ public abstract class Formals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 347 * formals.hashCode() ; 
+      return 17 + 11 * formals.hashCode() ; 
     } 
   
     

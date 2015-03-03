@@ -88,7 +88,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 43 + 233 * name.hashCode() + 71 * actuals.hashCode() ; 
+      return 509 + 887 * name.hashCode() + 821 * actuals.hashCode() ; 
     } 
   
     
@@ -152,7 +152,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 83 * name.hashCode() + 349 * actuals.hashCode() + 37 * renamings.hashCode() ; 
+      return 127 + 307 * name.hashCode() + 727 * actuals.hashCode() + 557 * renamings.hashCode() ; 
     } 
   
     
@@ -221,7 +221,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 211 * name.hashCode() ; 
+      return 239 + 467 * name.hashCode() ; 
     } 
   
     
@@ -274,7 +274,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 673 * name.hashCode() + 101 * renamings.hashCode() ; 
+      return 727 + 569 * name.hashCode() + 71 * renamings.hashCode() ; 
     } 
   
     

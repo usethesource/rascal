@@ -100,7 +100,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 257 * declaration.hashCode() ; 
+      return 367 + 593 * declaration.hashCode() ; 
     } 
   
     
@@ -151,7 +151,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 331 * expression.hashCode() ; 
+      return 149 + 193 * expression.hashCode() ; 
     } 
   
     
@@ -202,7 +202,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 + 997 * imported.hashCode() ; 
+      return 953 + 443 * imported.hashCode() ; 
     } 
   
     
@@ -253,7 +253,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 67 * command.hashCode() ; 
+      return 349 + 587 * command.hashCode() ; 
     } 
   
     
@@ -304,7 +304,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 733 * statement.hashCode() ; 
+      return 239 + 439 * statement.hashCode() ; 
     } 
   
     
