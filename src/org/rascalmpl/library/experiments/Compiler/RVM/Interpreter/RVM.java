@@ -546,8 +546,8 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				assert pc >=0 && pc < instructions.length : "Illegal pc value: " + pc;
-				assert sp >= cf.function.nlocals :          "Illegal sp value: " + sp;
+				assert pc >=0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
+				assert sp >= cf.function.nlocals :          "Illegal sp value: " + sp + " at " + cf.src;
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
@@ -574,47 +574,58 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC0:
+					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
 					assert stack[0] != null: "Local variable 0 is null";
 					stack[sp++] = stack[0]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
+					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
 					assert stack[1] != null: "Local variable 1 is null";
 					stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
+					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
 					assert stack[2] != null: "Local variable 2 is null";
 					stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
+					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
 					assert stack[3] != null: "Local variable 3 is null";
 					stack[sp++] = stack[3]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
+					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
 					assert stack[4] != null: "Local variable 4 is null";
 					stack[sp++] = stack[4]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
+					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
 					assert stack[5] != null: "Local variable 5 is null";
 					stack[sp++] = stack[5]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
+					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
 					assert stack[6] != null: "Local variable 6 is null";
 					stack[sp++] = stack[6]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
+					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
 					assert stack[7] != null: "Local variable 7 is null";
 					stack[sp++] = stack[7]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
+					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
 					assert stack[8] != null: "Local variable 8 is null";
 					stack[sp++] = stack[8]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
+					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
 					assert stack[9] != null: "Local variable 9 is null";
 					stack[sp++] = stack[9]; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
 					assert stack[pos] != null: "Local variable " + pos + " is null";
 					stack[sp++] = stack[pos];
 					continue NEXT_INSTRUCTION;
@@ -712,8 +723,15 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STORELOC:
+					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "STORELOC: pos larger that nlocals at " + cf.src;
+					stack[pos] = stack[sp - 1];
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_UNWRAPTHROWNLOC: {
-					stack[CodeBlock.fetchArg1(instruction)] = (op == Opcode.OP_STORELOC) ? stack[sp - 1] : ((Thrown) stack[--sp]).value;
+					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
+					stack[pos] = ((Thrown) stack[--sp]).value;
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -990,7 +1008,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FAILRETURN:
-					assert cf.previousCallFrame == c_ofun_call.cf;
+					assert cf.previousCallFrame == c_ofun_call.cf : "FAILRETURN, incorrect frame at" + cf.src;
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
 					if(frame != null) {
@@ -1179,15 +1197,15 @@ public class RVM {
 					if(op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
-						assert arity <= fun.nformals;
-						assert fun.scopeIn == -1;
+						assert arity <= fun.nformals : "APPLY/APPLYDYN, too many arguments at " + cf.src;
+						assert fun.scopeIn == -1 : "APPLY/APPLYDYN, illegal scope at " + cf.src;
 						fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 					} else {
 						Object src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							fun_instance = (FunctionInstance) src;
 							arity = CodeBlock.fetchArg1(instruction);
-							assert arity + fun_instance.next <= fun_instance.function.nformals;
+							assert arity + fun_instance.next <= fun_instance.function.nformals : "APPLY/APPLYDYN, too many arguments at " + cf.src;
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
 							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
