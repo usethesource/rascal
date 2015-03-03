@@ -599,11 +599,11 @@ MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){
 default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muCon(c);
 
 MuExp translateConcreteParsed(Tree e, loc src){
-   if(appl(Production prod, list[Tree] args) := e){
+   if(t:appl(Production prod, list[Tree] args) := e){
        my_src = e@\loc ? src;
        //iprintln("translateConcreteParsed:"); iprintln(e);
-       if(prod.def == label("hole", lex("ConcretePart"))){
-           varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
+       if(isConcreteHole(t)){
+           varloc = getConcreteHoleVarLoc(t);
            //println("varloc = <getType(varloc)>");
            <fuid, pos> = getVariableScope("ConcreteVar", varloc);
            
@@ -642,8 +642,8 @@ MuExp translateConcreteParsed(Tree e, loc src){
 }
 
 bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
-   if(prod.def == label("hole", lex("ConcretePart"))){
-      varloc = args[0].args[4].args[0]@\loc;
+   if(isConcreteHole(e)){
+      varloc = getConcreteHoleVarLoc(e);
       varType = getType(varloc);
       typeName = getName(varType);
       return typeName in {"iter", "iter-star", "iter-seps", "iter-star-seps"};
@@ -1736,6 +1736,7 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 								      ], src);
 	
 	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
+	println("catchbody: <catchBody>");
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }

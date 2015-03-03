@@ -30,7 +30,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	Object[] args;
 	int next = 0;
 	
-	public FunctionInstance(Function function, Frame env, IRVM rvm) {
+	public FunctionInstance(final Function function, final Frame env, final IRVM rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -39,7 +39,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, IRVM rvm) {
+	public static FunctionInstance computeFunctionInstance(final Function function, final Frame cf, final int scopeIn, final IRVM rvm) {
 		assert scopeIn != -1;
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
@@ -58,7 +58,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: arity < function.nformals 
 	 */
-	public static FunctionInstance applyPartial(Function function, Frame env, IRVM rvm, int arity, Object[] stack, int sp) {
+	public static FunctionInstance applyPartial(final Function function, final Frame env, final IRVM rvm, final int arity, final Object[] stack, final int sp) {
 		assert arity < function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
@@ -75,7 +75,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: next + arity < function.nformals 
 	 */
-	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
+	public FunctionInstance applyPartial(final int arity, final Object[] stack, final int sp) {
 		assert next + arity < function.nformals;
 		if(arity == 0) {
 			return this;

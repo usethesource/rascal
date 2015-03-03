@@ -72,7 +72,53 @@ test bool doWhile2() {return {int n = 0; m = 2; do {m = m * m; n = n + 1;} while
   
 test bool testWhile1() {return {int n = 0; int m = 2; while(n != 0){ m = m * m;}; (n == 0)&& (m == 2);};}
 test bool testWhile2() {return {int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);};}
-  	
+
+test bool testWhileWithBacktracking() {
+    list[list[int]] res = [];
+    l:while([*int x, *int y] := [1,2,3]) {
+        res = res + [ x ];
+        fail l;
+    }
+    
+    while(true) {
+        res = res + [ [999] ];
+        fail;
+    }
+    
+    n = 0;
+    while([*int x, *int y] := [3,4,3,4], n < 3) {
+        if(x == y) {
+            res = res + [ x ];
+            n = n + 1;
+        } else {
+            res = res + [ [0] ];
+            fail;
+        }
+    }
+    
+    n = 0;
+    while(n < 3) {
+        res = res + [ [10] ];
+        n = n + 1;
+    }
+    
+    n = 0;
+    while(1 == 1, n < 3) {
+        res = res + [ [11] ];
+        n = n + 1;
+    }
+    
+    n = 0;
+    while(1 == 2 || n < 3) {
+        res = res + [ [12] ];
+        n = n + 1;
+    }
+    
+    return res == [[],[1],[1,2],[1,2,3],[999],[0],[0],[3,4],[0],[0],[3,4],
+  				   [0],[0],[3,4],[10],[10],[10],[11],[11],[11],[12],[12],[12]
+  				  ];
+}
+ 	
 data D = d(int i) | d();
   
 D d(int i) { if (i % 2 == 0) fail d; else return d();}
@@ -81,6 +127,48 @@ D d(int i) { if (i % 2 == 0) fail d; else return d();}
   
 test bool fail1() = d(2) := d(2);
 test bool fail2() = d(3) == d();
+
+test bool fail3() {
+    int n = 0; 
+    loop:for(int i <- [1,2,3,4], n <= 3) { 
+        if(n == 3) {
+            fail loop;
+        } 
+        n = n + 1; 
+    } 
+    return n == 3;
+}
+
+test bool fail4() {
+	int main(){
+	    if1:if(x <- [1,2,3,4], x <= 3) {
+	        if2:if(y <- [4,3,2,1], y >= 3) {
+	            if(x != 3) {
+	                fail if1;
+	            } else if(y != 3) {
+	                fail if2;
+	            }
+	            return x + y;
+	        }
+	    }
+    }
+    return main() == 6;
+}
+
+test bool fail5() {
+    str trace = "";
+    if(true) {
+        if(false) {
+           ;
+        } else {
+           trace += "fail inner!";
+           fail;
+        }
+    } else {
+        trace += "else outer!";
+    }
+    return trace == "fail inner!else outer!";
+}
   		
 // testFor
   
@@ -96,6 +184,19 @@ test bool testFor5() {int n = 0; loop:for(int i <- [1,2,3,4], n <= 3){ if (n == 
 //test bool testAppend() for(int i <- [1,2,3,4]){ 3 * i; } == 12;));
 test bool testAppend1() { L = for(int i <- [1,2,3,4]){ append 3 * i; }; return L == [3,6,9,12];}
 test bool testAppend2() { L = for(int i <- [1,2,3,4]){ append 3 * i; append 4 *i;}; return L == [3,4,6,8,9,12,12,16];}
+
+test bool testAppend3() {
+    res1 = for(2 > 1) append 0;
+    res1 = res1 + [ 1 | 2 > 1 ];
+    res2 = for(2 < 1) append 2;
+    res2 = res2 + [ 3 | 2 < 1 ];
+    return res1 + res2 == [0, 1];
+}
+
+test bool testAppend4() {
+    res = for(x <- [1,2,3,4]) { int f() { append x; return 4; }; append f(); };
+    return res == [1,4,2,4,3,4,4,4];
+}
 
 // ifThen
   
