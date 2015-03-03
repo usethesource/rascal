@@ -15,7 +15,7 @@ public class JmpTrue extends Instruction {
 	public String toString() { return "JMPTRUE " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitJMPTRUE(label, true);
+		codeEmittor.emitJMPTRUE(label, dcode);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }
