@@ -81,7 +81,7 @@ public abstract class Renaming extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 331 * from.hashCode() + 31 * to.hashCode() ; 
+      return 647 + 29 * from.hashCode() + 73 * to.hashCode() ; 
     } 
   
     

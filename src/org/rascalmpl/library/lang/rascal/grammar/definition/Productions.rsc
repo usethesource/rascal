@@ -16,7 +16,7 @@ import lang::rascal::grammar::definition::Attributes;
 import lang::rascal::grammar::definition::Names;
 
 import Grammar;
-import List; 
+import List;  
 import String;    
 import ParseTree;
 import IO;  
