@@ -3020,6 +3020,20 @@ public enum RascalPrimitive {
 		}	
 	},
 	
+	strip_lexical {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IConstructor lexSubject = (IConstructor) stack[sp - 1];
+			if(lexSubject.getName().equals("conditional")){
+				lexSubject = (IConstructor) lexSubject.get("symbol");
+			}
+			
+			stack[sp - 1] = lexSubject;
+			return sp;
+		}	
+	},
+	
 	get_tree_type_as_symbol {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {

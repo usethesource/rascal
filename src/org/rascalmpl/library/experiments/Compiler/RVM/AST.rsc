@@ -59,6 +59,7 @@ public data Instruction =
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
+		| RESETLOCS(list[int] positions)			// Reset selected local variables to undefined (null)
 		
 		| LOADLOCKWP(str name)                      // Load value of a keyword parameter
 		| STORELOCKWP(str name)                     // Store value on top-of-stack in the keyword parameter (value remains on stack)

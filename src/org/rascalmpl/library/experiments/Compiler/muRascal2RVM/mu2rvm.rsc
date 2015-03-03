@@ -342,6 +342,8 @@ INS tr(muVar(str id, str fuid, int pos)) {
 
 INS tr(muLoc(str id, int pos)) { localNames[pos] = id; return [LOADLOC(pos)];}
 
+INS tr(muResetLocs(list[int] positions)) { return [RESETLOCS(positions)];}
+
 INS tr(muTmp(str id,str fuid)) = [fuid == functionScope ? LOADLOC(getTmp(id,fuid)) : LOADVAR(fuid,getTmp(id,fuid))];
 
 INS tr(muLocKwp(str name)) = [ LOADLOCKWP(name) ];

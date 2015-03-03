@@ -10,7 +10,7 @@ import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
-	int scopeId;
+	final int scopeId;
     public Frame previousCallFrame;
     final Frame previousScope;
 	public final Object[] stack;
@@ -23,15 +23,15 @@ public class Frame {
 	public int hotEntryPoint;
 	public Frame nextFrame;
 		
-	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
+	public Frame(final int scopeId, final Frame previousCallFrame,final int stackSize, final Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
 	}
 	
-	public Frame(int scopeId, Frame previousCallFrame, Frame previousScope, int stackSize, Function function){
+	public Frame(final int scopeId, final Frame previousCallFrame, final Frame previousScope, final int stackSize, final Function function){
 		this(scopeId, previousCallFrame, previousScope, function, new Object[stackSize]);
 	}
 	
-	private Frame(int scopeId, Frame previousCallFrame, Frame previousScope, Function function, final Object[] stack) {
+	private Frame(final int scopeId, final Frame previousCallFrame, final Frame previousScope, final Function function, final Object[] stack) {
 		this.scopeId = scopeId;
 		this.previousCallFrame = previousCallFrame;
 		this.previousScope = previousScope;
@@ -46,7 +46,7 @@ public class Frame {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public Frame getCoroutineFrame(Function f, int scopeIn, int arity, int sp) {
+	public Frame getCoroutineFrame(final Function f, final int scopeIn, final int arity, final int sp) {
 		for(Frame env = this; env != null; env = env.previousCallFrame) {
 			if (env.scopeId == f.scopeIn) {
 				return getCoroutineFrame(f, env, arity, sp);
@@ -62,7 +62,7 @@ public class Frame {
 	 * (re)setting the stack pointer of both the current and new frame, and
 	 * returns the new frame.
 	 */
-	public Frame getCoroutineFrame(Function f, Frame previousScope, int arity, int sp) {
+	public Frame getCoroutineFrame(final Function f, final Frame previousScope, final int arity, final int sp) {
 		Frame frame = new Frame(f.scopeId, null, previousScope, f.maxstack, f);
 		if(arity != f.nformals) {
 			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals, previousScope);
@@ -80,7 +80,7 @@ public class Frame {
 	 * creates a new frame (frame) (similar to the method above) to be wrapped inside a coroutine object,
 	 * that gives a coroutine instance to be immediately initialized (i.e., all the coroutine arguments are assumed to be provided)
 	 */
-	public Frame getCoroutineFrame(FunctionInstance fun_instance, int arity, int sp) {
+	public Frame getCoroutineFrame(final FunctionInstance fun_instance, final int arity, final int sp) {
 		Function f = fun_instance.function;
 		Object[] args = fun_instance.args;
 		Frame frame = new Frame(f.scopeId, this, fun_instance.env, f.maxstack, f);
@@ -108,19 +108,19 @@ public class Frame {
 	 * (re)setting the stack pointer of both the current and the new frame, and 
 	 * returns the new frame to the caller.
 	 */
-	public Frame getFrame(Function f, Frame previousScope, int arity, int sp) {
+	public Frame getFrame(final Function f, final Frame previousScope, final int arity, final int sp) {
 		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
 		return frame;
 	}
 		
-	public Frame getFrame(Function f, Frame previousScope, Object[] args) {
+	public Frame getFrame(final Function f, final Frame previousScope, final Object[] args) {
 		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		this.sp = frame.pushFunctionArguments(args.length, args, args.length);
 		return frame;
 	}
 	
-	public Frame getFrame(Function f, Frame previousScope, Object[] args, int arity, int sp) {
+	public Frame getFrame(final Function f, final Frame previousScope, final Object[] args,final int arity, final int sp) {
 		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		if(args != null) {
 			for(Object arg : args) {
@@ -146,7 +146,7 @@ public class Frame {
 	 * returns a new stack pointer for the given stack
 	 * (in case of the given stack being an array of arguments: stack.length == arity == sp && start == 0).
 	 */
-	private int pushFunctionArguments(int arity, Object[] stack, int sp) {
+	private int pushFunctionArguments(final int arity, final Object[] stack, final int sp) {
 		int start = sp - arity;
 		if(!function.isVarArgs) {
 			assert this.sp + arity == function.nformals;

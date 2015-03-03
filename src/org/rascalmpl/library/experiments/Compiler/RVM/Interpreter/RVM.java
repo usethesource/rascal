@@ -539,7 +539,7 @@ public class RVM implements IRVM {
 		pos = 0;
 		last_function_name = "";
 		
-		if(trackCalls) { cf.printEnter(stdout); }
+		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -615,6 +615,14 @@ public class RVM implements IRVM {
 					pos = CodeBlock.fetchArg1(instruction);
 					assert stack[pos] != null: "Local variable " + pos + " is null";
 					stack[sp++] = stack[pos];
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_RESETLOCS:
+					IList positions = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					for(IValue v : positions){
+						stack[((IInteger) v).intValue()] = null;
+					}
+					stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADBOOL:
@@ -887,7 +895,7 @@ public class RVM implements IRVM {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					if(trackCalls) { cf.printEnter(stdout); }
+					if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -920,7 +928,7 @@ public class RVM implements IRVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							//if(trackCalls) { cf.printEnter(stdout); }
+							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -953,7 +961,7 @@ public class RVM implements IRVM {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
 						cf = frame;
-						//if(trackCalls) { cf.printEnter(stdout); }
+						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1052,7 +1060,7 @@ public class RVM implements IRVM {
 							return NONE;
 						}
 					}
-					//if(trackCalls) { cf.printBack(stdout); }
+					if(trackCalls) { cf.printBack(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1081,6 +1089,7 @@ public class RVM implements IRVM {
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Exception e){
 						e.printStackTrace(stderr);
+						stderr.flush();
 						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
 					} 
 					
@@ -1397,7 +1406,34 @@ public class RVM implements IRVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADVARKWP:
-					continue NEXT_INSTRUCTION;
+				{
+					varScope = CodeBlock.fetchArg1(instruction);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
+					
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						if (f.scopeId == varScope) {	
+							HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+							if(kargs.containsKey(name)) {
+								val = kargs.get(name);
+								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = val;
+									continue NEXT_INSTRUCTION;
+								//}
+							}
+							defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+							
+							if(defaults.containsKey(name)) {
+								defaultValue = defaults.get(name);
+								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = defaultValue.getValue();
+									continue NEXT_INSTRUCTION;
+								//}
+							}
+						}
+					}				
+					
+					throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope, cf);
+				}
 					
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
@@ -1407,7 +1443,7 @@ public class RVM implements IRVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
-					continue NEXT_INSTRUCTION;
+					throw new CompilerError("OP_LOADVARKWP not yet implemented", cf);
 					
 				case Opcode.OP_LOADCONT:
 					s = CodeBlock.fetchArg1(instruction);
@@ -1497,6 +1533,7 @@ public class RVM implements IRVM {
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						stdout.println("\t" + f.toString());
 					}
+					stdout.flush();
 					return thrown;
 				}
 				
@@ -1505,9 +1542,16 @@ public class RVM implements IRVM {
 			if(e instanceof Thrown){
 				throw e;
 			}
+			stdout.println("EXCEPTION " + e + " at: " + cf.src);
+			for(Frame f = cf; f != null; f = f.previousCallFrame) {
+				stdout.println("\t" + f.toString());
+			}
+			stdout.flush();
 			e.printStackTrace(stderr);
+			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
 			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
+			
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());

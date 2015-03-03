@@ -27,8 +27,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 	
 	final IRVM rvm;
 	
-	public OverloadedFunctionInstance(int[] functions, int[] constructors, Frame env, 
-										List<Function> functionStore, List<Type> constructorStore, IRVM rvm) {
+	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env,
+									  final List<Function> functionStore, final List<Type> constructorStore, final IRVM rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -40,8 +40,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
-	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
-			                                                                     List<Function> functionStore, List<Type> constructorStore, IRVM rvm) {
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
+			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final IRVM rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
