@@ -47,10 +47,14 @@ public Symbol sym2symbol(Sym sym) {
       return \align(sym2symbol(s));
     case dependOffside(Sym s):
       return \offside(sym2symbol(s));
-    case dependVoidFormals(Sym s, Parameters f) :
-      return addParameters(sym2symbol(s), f);
-    case dependFormals(Sym s, Type t, Parameters f) :
-      return addParameters(sym2symbol(s), type2symbol(t), f);
+    case dependVoidFormals(Nonterminal n, Parameters f) :
+      return addParameters(sort("<n>"), f);
+    case dependVoidFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Parameters f) :
+      return addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), f);
+    case dependFormals(Nonterminal n, Type t, Parameters f) :
+      return addParameters(sort("<n>"), type2symbol(t), f);
+    case dependFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Type t, Parameters f) :
+      return addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), type2symbol(t), f);
     case dependNonterminal(_, Nonterminal n, {Expression ","}* a, kwArgs) :
       return addActuals(sort("<n>"), a); // TODO don't forget about the kwArgs
     case dependParametrized(_, Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, kwArgs) :

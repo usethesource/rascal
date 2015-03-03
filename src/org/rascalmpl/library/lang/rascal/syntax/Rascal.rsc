@@ -105,9 +105,11 @@ syntax Sym
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
 	// data-dependent non-terminals
-	| dependVoidFormals: Sym symbol >> "(" Parameters formals \ "()" // only used in the head
-	| dependFormals: Sym symbol Type typ >> "(" Parameters formals  \ "()" // only used in the head 
-	| dependNonterminal: () Nonterminal nonterminal !>> "[" !>> "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+	| dependVoidFormals: Nonterminal nonterminal >> "(" Parameters formals \ "()" // only used in the head
+	| dependVoidFormalsParametrized: Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()" // only used in the head
+	| dependFormals: Nonterminal nonterminal Type typ >> "(" Parameters formals  \ "()" // only used in the head
+	| dependFormalsParametrized: Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()" // only used in the head  
+	| dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependScope: "{" Sym+ symbols "}"
 // literals 
