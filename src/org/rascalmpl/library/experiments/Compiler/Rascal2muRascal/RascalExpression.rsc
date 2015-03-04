@@ -1589,7 +1589,10 @@ MuExp translate((Name) `<Name name>`) =
 
 // -- subscript expression ------------------------------------------
 
-MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
+MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`) =
+	translateSubscript(e, false);
+
+MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isDefined){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
@@ -1598,7 +1601,9 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
-    
+    if(isDefined){
+    	op = "is_defined_<op>";
+    }
     return muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
 }
 
@@ -1713,14 +1718,40 @@ MuExp translate(e:(Expression) `<Expression argument> *`) =
 // -- isDefined expression ------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression argument> ?`) =
-    generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false), e@\loc);
+	translateIsDefined(argument);
+
+MuExp translateIsDefined(Expression exp){
+	println("translateIsDefined: <exp>");
+	switch(exp){
+		case (Expression) `( <Expression exp1> )`:
+			return translateIsDefined(exp1);
+		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
+			return translateSubscript(exp, true);
+		case (Expression) `<Expression expression> @ <Name name>`:
+    		return muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc);
+		default:
+    		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
+    }
+}
 
 // -- isDefinedOtherwise expression ---------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) =
-    generateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
+MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
+	switch(lhs){
+		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
+			return muIfelse(nextLabel(), translateSubscript(lhs, true), [translateSubscript(lhs, false)], [translate(rhs)]);
+		case (Expression) `<Expression expression> @ <Name name>`:
+    		return muIfelse(nextLabel(), 
+    						muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc),
+    						[muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc)],
+    						[translate(rhs)]);
+		default:
+    		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
+	}
+}
+    //translateIfDefinedOtherwise(translateIsDefined(lhs), translate(rhs), e@\loc);
 
-MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
+MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
     
@@ -1736,7 +1767,7 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 								      ], src);
 	
 	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
-	println("catchbody: <catchBody>");
+	//println("catchbody: <catchBody>");
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
