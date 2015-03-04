@@ -286,6 +286,8 @@ public class RascalToIguanaGrammarConverter {
 		
 		SerializableValue object = null;
 		
+		addLabel(head, production);
+		
 		IList rhs = (IList) production.get("symbols");
 		ISet attributes = (ISet) production.get("attributes");
 		
@@ -455,7 +457,14 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 	
 			case "conditional":
-				return getSymbol(getSymbolCons(symbol)).copyBuilder()
+				Symbol sym = getSymbol(getSymbolCons(symbol));
+				if (sym instanceof Nonterminal)
+					return ((Nonterminal) sym).copyBuilder().addExcepts(getExcepts(symbol))
+												.addPreConditions(getPreConditions(symbol))
+												.addPostConditions(getPostConditions(symbol))
+												.build();
+				
+				return sym.copyBuilder()
 							.addPreConditions(getPreConditions(symbol))
 							.addPostConditions(getPostConditions(symbol))
 							.build();
@@ -694,6 +703,36 @@ public class RascalToIguanaGrammarConverter {
 			default:
 				return Associativity.UNDEFINED;
 		}
+	}
+	
+	private static void addLabel(Nonterminal head, IConstructor production) {
+		IConstructor symbol = (IConstructor) production.get("def");
+		switch(symbol.getName()) {
+			case "label":
+				IString name = (IString) symbol.get("name");
+				head.addLabel(name.getValue());
+				break;
+			default:
+		}
+	}
+	
+	private static Set<String> getExcepts(IConstructor symbol) {
+		ISet conditions = (ISet) symbol.get("conditions");
+		
+		Set<String> conds = new HashSet<>();
+		
+		for (IValue condition : conditions) {
+			IConstructor cond = (IConstructor) condition;
+			
+			switch(cond.getName()) {
+				case "except":
+					String label = ((IString) cond.get("label")).getValue();
+					conds.add(label); 
+					break;
+				default:
+			}
+		}
+		return conds;
 	}
 	
 	public static class Visitor extends NullASTVisitor<AbstractAST> {
