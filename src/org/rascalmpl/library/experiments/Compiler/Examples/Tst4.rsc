@@ -1,17 +1,6 @@
 module experiments::Compiler::Examples::Tst4
 
+import lang::rascal::tests::types::StaticTestingUtils;
 import ParseTree;
-import lang::rascal::\syntax::Rascal;
-import util::Benchmark;
-import IO;
-import util::Reflective;
 
-
-value main(list[value] args) {
-	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst5.rsc|; //Rascal2muRascal/RascalExpression.rsc|;
-	m = parse(#start[Module], moduleLoc).top;
-	t = cpuTime();
-	new = [ e | /Expression e := m ];
-	println("size = <size(new)>, <new>");
-	return (cpuTime() - t)/1000000;
-}
+value main(list[value] args) = unexpectedType("String vs = visit ([1,2,3]) {case 1: insert \"abc\";} == [\"abc\", 2, 3];;");

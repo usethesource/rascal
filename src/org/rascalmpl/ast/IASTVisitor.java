@@ -657,6 +657,8 @@ public interface IASTVisitor<T> {
 
   public T visitSymDependFormals(Sym.DependFormals x);
 
+  public T visitSymDependFormalsParametrized(Sym.DependFormalsParametrized x);
+
   public T visitSymDependLoop(Sym.DependLoop x);
 
   public T visitSymDependNonterminal(Sym.DependNonterminal x);
@@ -668,6 +670,8 @@ public interface IASTVisitor<T> {
   public T visitSymDependScope(Sym.DependScope x);
 
   public T visitSymDependVoidFormals(Sym.DependVoidFormals x);
+
+  public T visitSymDependVoidFormalsParametrized(Sym.DependVoidFormalsParametrized x);
 
   public T visitSymEmpty(Sym.Empty x);
 

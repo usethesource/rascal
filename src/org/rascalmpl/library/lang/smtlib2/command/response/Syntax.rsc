@@ -32,7 +32,8 @@ syntax GetValue = model:"(" Model* models ")";
 syntax Model = val:"(" Expr var Expr val ")";
 
 syntax Expr
-	= lit: Literal lit
+	= customFunctionCall: "(" Expr functionName Expr* params ")"
+	| lit: Literal lit
 	| var: Id varName
 	;
 

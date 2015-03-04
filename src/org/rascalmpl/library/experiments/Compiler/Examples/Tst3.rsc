@@ -1,10 +1,9 @@
 module experiments::Compiler::Examples::Tst3
 
+import lang::rascal::types::AbstractType;
+import Message;
 
-import ParseTree;
-
-lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
-
-
-value main(list[value] args) = (MyName) `location` := (MyName) `location`;
- 
+value main(list[value] args) {
+	rt = failure({error("Type String not declared",|unknown:///|(2,6,<1,2>,<1,8>))});
+	return isFailType(rt);
+}	

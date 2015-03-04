@@ -29,36 +29,44 @@ syntax Exp
   | com: Exp "," Exp
   ;
 
+syntax F = left "-" F | "f" | right F "+";
+syntax G = left (G "+" G | "-" G) | "g" | right (G "-" G | G "+");
+
 syntax Opt = Exp!com? "?";  
 syntax Seq = (Exp!com Exp!number);
 syntax Alt = (Exp!com | (Exp "," Exp));
 
-public Exp noBrackets(Exp e) = visit (e) { case (Exp) `(<Exp a>)` => a };
-public bool hasAmb(Tree x) = /amb(_) := x;
+test bool safeLeft() = F _ := parse(#F,"--f");
+test bool safeRight() = F _ := parse(#F,"f++");
+test bool safeGroupLeft() = G _ := parse(#G,"--g");
+test bool safeGroupRight() = G _ := parse(#G,"g++");
 
-public test bool \assoc() = noBrackets(parse(#Exp,"(a + b) + c")) == parse(#Exp, "a + b + c");
+Exp noBrackets(Exp e) = visit (e) { case (Exp) `(<Exp a>)` => a };
+bool hasAmb(Tree x) = /amb(_) := x;
 
-public test bool \mutualAssoc1() = noBrackets(parse(#Exp,"(a - b) + c")) == parse(#Exp, "a - b + c");
+test bool \assoc() = noBrackets(parse(#Exp,"(a + b) + c")) == parse(#Exp, "a + b + c");
 
-public test bool \mutualAssoc2() = noBrackets(parse(#Exp,"(a + b) - c")) == parse(#Exp, "a + b - c");
+test bool \mutualAssoc1() = noBrackets(parse(#Exp,"(a - b) + c")) == parse(#Exp, "a - b + c");
 
-public test bool \prio() = noBrackets(parse(#Exp,"(a*b)+c")) == parse(#Exp, "a*b+c");
+test bool \mutualAssoc2() = noBrackets(parse(#Exp,"(a + b) - c")) == parse(#Exp, "a + b - c");
 
-public test bool \safePrio1() = parse(#Exp,"a[a+b]") is ind;
+test bool \prio() = noBrackets(parse(#Exp,"(a*b)+c")) == parse(#Exp, "a*b+c");
 
-public test bool \safePrio2() = parse(#Exp,"a**b") is mul;
+test bool \safePrio1() = parse(#Exp,"a[a+b]") is ind;
 
-public test bool \safePrio3() = parse(#Exp,"a*b*") is mul;
+test bool \safePrio2() = parse(#Exp,"a**b") is mul;
 
-public test bool \safePrio4() = parse(#Exp,"(a*)[b]") is ind;
+test bool \safePrio3() = parse(#Exp,"a*b*") is mul;
 
-public test bool \transPrio() = noBrackets(parse(#Exp,"a,(b*c)")) == parse(#Exp,"a,b*c");
+test bool \safePrio4() = parse(#Exp,"(a*)[b]") is ind;
+
+test bool \transPrio() = noBrackets(parse(#Exp,"a,(b*c)")) == parse(#Exp,"a,b*c");
     
-public test bool \exceptNormal() = parse(#Exp,"a+[a]") is add;
+test bool \exceptNormal() = parse(#Exp,"a+[a]") is add;
 
-public test bool \exceptInList() = !hasAmb(parse(#Exp,"[a,a]"));
+test bool \exceptInList() = !hasAmb(parse(#Exp,"[a,a]"));
 
-public test bool \exceptInOpt() {
+test bool \exceptInOpt() {
   try {
     parse(#Opt,"a,a?");
     return false;
@@ -68,7 +76,7 @@ public test bool \exceptInOpt() {
   }
 }
 
-public test bool \exceptInSeq1() {
+test bool \exceptInSeq1() {
   try {
     parse(#Seq,"a,a a");
     return false;
@@ -78,7 +86,7 @@ public test bool \exceptInSeq1() {
   }
 }
 
-public test bool \exceptInSeq2() {
+test bool \exceptInSeq2() {
   try {
     parse(#Seq,"a+a 1");
     return false;
@@ -88,4 +96,4 @@ public test bool \exceptInSeq2() {
   }
 }
 
-public test bool \exceptInAlt() = !hasAmb(parse(#Alt,"a,a"));
+test bool \exceptInAlt() = !hasAmb(parse(#Alt,"a,a"));

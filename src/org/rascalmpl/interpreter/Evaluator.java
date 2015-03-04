@@ -781,12 +781,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location){
 		IRascalMonitor old = setMonitor(monitor);
 		
-		try{
+		try {
 			char[] input = getResourceContent(location);
 			return parseObject(startSort, robust, location, input);
-		}catch(IOException ioex){
+		}
+		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{
+		}
+		finally{
 			setMonitor(old);
 		}
 	}
