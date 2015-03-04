@@ -10,7 +10,7 @@ import experiments::Compiler::RVM::AST;
 
 alias INS = list[Instruction];
 
-INS peephole(INS instructions) = peephole1(instructions, false);
+INS peephole(INS instructions) = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
 
 INS peephole1(INS instructions, bool isSplit){
 	if(size(instructions) < 500){

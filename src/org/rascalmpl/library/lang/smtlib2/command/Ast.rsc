@@ -41,7 +41,7 @@ data Expr
 	= var(str name)
 	| lit(Literal lit)
 	| named(Expr labeledExpr, str label)
-	| customFunctionCall(str functionName, list[Expr] params)
+	| customFunctionCall(str name, list[Expr] params)
 	;
 
 data Literal; 

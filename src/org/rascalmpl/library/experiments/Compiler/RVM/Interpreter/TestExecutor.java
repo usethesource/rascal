@@ -38,17 +38,12 @@ public class TestExecutor {
 
 	public void test(String moduleName, int nTests) {
 		testResultListener.start(nTests);
-		IValueFactory vf = eval.getValueFactory();
-		ISourceLocation src = null;
 		try {
-			src = vf.sourceLocation("rascal", "", moduleName.replaceAll("::",  "/") + ".rsc");
+			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
 			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
 			eval.call("executeTests", src);
 			//System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		catch (Exception e) {
 			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
 			throw e;

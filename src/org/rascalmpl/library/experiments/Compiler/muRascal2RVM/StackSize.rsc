@@ -37,6 +37,7 @@ private int estimate(muConstr(str fuid)) = 1;
 private int estimate(muVar(str id, str fuid, int pos)) = 1;
 private int estimate(muLoc(str id, int pos)) = 1;
 private int estimate(muTmp(str id, str fuid)) = 1;
+private int estimate(muResetLocs(list[int] positions)) = 1;
 
 private int estimate(muLocKwp(str name)) = 1;
 private int estimate(muVarKwp(str fuid, str name)) = 1;

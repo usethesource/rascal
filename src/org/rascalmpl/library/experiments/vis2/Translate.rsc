@@ -521,24 +521,6 @@ num getClass(num lo, num hi, int N, num v) {
     return r;
     }
 
-XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
-      XYData r =  [<getClass(min(x[1]), max(x[1]), x.nTickMarks, d), 1>|d <-x[1]];
-      // println(r);
-      return r;
-      }
-
-//XYData inject(XYData r, num(list[num]) f) {
-//     if (f == nullFunction) {return r;}
-//     return [<k, f([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
-//     }
-//     
-//XYLabeledData inject(LabeledData r, num(list[num]) f) {
-//     if (f == nullFunction) {return r;}
-//     return [<k, f([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
-//     }
-// LabeledData
-
-
 
 // ---------- Utility for all charts -------------------
 
@@ -547,7 +529,7 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
     list[Chart] charts = chart.charts;
     str d = 
       toJSON(joinData(charts, chart.tickLabels, chart.tooltipColumn), true);
-    str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)]);
+    // str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)]);
     str cmd = "ComboChart";
     ChartOptions options = updateOptions(charts, chart.options);
     if (options.width>=0) chart.width = options.width;
@@ -555,79 +537,87 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
     return 
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
-    ' \"options\": <trOptions(options)>,
-    ' \"data\": <d>,
-    '\"columns\": [<c>] 
+    ' \"options\": <toJSON(adt2map(options), true)>,
+    ' \"data\": <d>
     '  <propsToJSON(chart, parent)> 
     '}";   
    
     }
     
- str trChart(Figure chart, Figure parent, str cmd) {
-    // str d = intercalate(",", strip(chart.\data));
-    str d = toJSON(strip(chart.\data), true);
-    list[Column] columns = [
-        column(\type="string", role="domain", label = "domain"),
-        column(\type="number", role="data", label = "value")
-        ];
-    str c = intercalate(",", [trColumn(q)|q<-columns]);
+ str trChart(Figure chart, Figure parent, str cmd, str d) {   
     ChartOptions options = chart.options;
     if (options.width>=0) chart.width = options.width;
     if (options.height>=0) chart.height = options.height;
     return 
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
-    ' \"options\": <trOptions(options)>,
+    ' \"options\": <adt2json(options)>,
     ' \"data\": <d>,
-    '\"columns\": [<c>] 
-    '  <propsToJSON(chart, parent)>  
+    '\"columns\": [] 
+    '  <propsToJSON(chart, parent)> 
     '}";   
    
     }
 
-// ---------- barChart ----------
+// ---------- googleChart ----------
 
-//str figToJSON(chart: barChart(), Figure parent) {
-//
-//	if(chart.orientation notin {"vertical", "horizontal"}){
-//		throw "orientation has illegal value: <chart.orientation>";
-//	}
-//	return trChart("barChart", chart, parent, 
-//		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
-//}
-
-
-//str figToJSON(chart: vegaChart(), Figure parent) {
-//	return trVega(chart, parent);
-//}
 
 str figToJSON(chart: combochart(), Figure parent) {
     // println("trCombo");
 	return trCombo(chart, parent);
 }
 
-str figToJSON(chart: piechart(), Figure parent) {
+str figToJSON(chart: piechart(XYLabeledData d), Figure parent) {
     // println("trPiechart");
-	return trChart(chart, parent, "PieChart");
+    str dat = toJSON(strip(d, true), true);
+	return trChart(chart, parent, "PieChart", dat);
 }
 
-str figToJSON(chart: linechart(), Figure parent) {
-    // println("trPiechart");
-	return trChart(chart, parent, "LineChart");
+str figToJSON(chart: linechart(XYLabeledData d), Figure parent) {
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "LineChart", dat);
 }
 
-str figToJSON(chart: barchart(), Figure parent) {
-    // println("trPiechart");
-	return trChart(chart, parent, "BarChart");
+str figToJSON(chart: linechart(XYData d), Figure parent) {
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "LineChart", dat);
 }
 
-// ---------- lineChart ----------
+str figToJSON(chart: scatterchart(XYLabeledData d), Figure parent) {  
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat);
+}
 
-// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+str figToJSON(chart: scatterchart(XYData d), Figure parent) {
+    str dat = toJSON(strip(d), true);
+    println(dat);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat);
+}
 
+str figToJSON(chart: barchart(XYLabeledData d), Figure parent) {
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "BarChart", dat);
+}
 
-// ---------- graph ----------
-// str orientation = "topDown", int nodeSep = 10, int edgeSep=10, int layerSep= 10, 
+str figToJSON(chart: candlestickchart(BoxData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat);
+}
+
+str figToJSON(chart: candlestickchart(BoxLabeledData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat);
+}
 
 str figToJSON(figure: graph(), Figure parent) { 
 	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
@@ -658,31 +648,6 @@ str figToJSON(figure: graph(), Figure parent) {
 	'}";
 }
 
-//str figToJSON(figure: graph(), Figure parent) { 
-//	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
-//		throw "Unknow graph flavor \"<figure.flavor>\"";
-//	}
-//	nodes = figure.nodes;
-//	edges = figure.edges;
-//	println("nodes = <nodes>");
-//	println("edges = <edges>");
-//	return
-//	"{\"figure\": \"graph\", 
-//	' \"flavor\": \"<figure.flavor>\",
-//	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"name\": \"<f>\",
-//	'                                      \"value\" : {\"label\": \"<f>\",
-//														\"inner\":  <figToJSON(nodes[f], parent)>
-//	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
-//	'             ],  
-//	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"source\" : \"<from>\",
-//	'									  \"v\": \"<to>\", \"target\": \"<to>\",
-//	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
-//	'         ]
-//	' <propsToJSON(figure, parent)> 
-//	'}";
-//}
-
-// edge
 
 str figToJSON(figure: edge(str from, str to, str lab)) {
 	throw "edge should not be translated on its own";
@@ -787,3 +752,6 @@ str figToJSON(figure: strInput(), Figure parent) =
 
 default str figToJSON(Figure f, Figure parent) { throw "figToJSON: cannot translate <f>"; }
 
+public void main() {
+   println(toJSON("aap"));
+   }
