@@ -93,7 +93,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.symbol.Nonterminal;
-import org.jgll.grammar.transformation.DesugarPrecedenceAndAssociativity;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
@@ -2074,7 +2073,7 @@ public class Prelude {
 		
 		try {
 			PrintWriter writer = new PrintWriter(file.getAbsolutePath(), "UTF-8");		
-			writer.println("package org.jgll.parser.datadependent;");
+			writer.println("package org.jgll.parser.datadependent.precedence;");
 			writer.println("import org.jgll.datadependent.ast.AST;");
 			writer.println("import org.jgll.grammar.Grammar;");
 			writer.println("import org.jgll.grammar.GrammarGraph;");
@@ -2110,7 +2109,7 @@ public class Prelude {
 			writer.println("         Input input = Input.fromString(\"" + input.getValue() + "\");");
 			writer.println("         GrammarGraph graph = grammar.toGrammarGraph(input, Configuration.DEFAULT);");
 			writer.println();
-			writer.println("         // Visualization.generateGrammarGraph(\"" + loc.getPath() + "\", graph);");
+			writer.println("         // Visualization.generateGrammarGraph(\"" + file.getAbsolutePath().replaceAll(name + ".java", "") + "\", graph);");
 			writer.println();
 			writer.println("         GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);");
 			writer.println("         ParseResult result = parser.parse(input, graph, Nonterminal.withName(" + symbol.toString() + "));");
@@ -2118,7 +2117,7 @@ public class Prelude {
 			writer.println("         if (result.isParseSuccess()) {");
 			writer.println("             System.out.println(\"Success\");");
 			writer.println();
-			writer.println("             // Visualization.generateSPPFGraph(\"" + loc.getPath() + "\","); 
+			writer.println("             // Visualization.generateSPPFGraph(\"" + file.getAbsolutePath().replaceAll(name + ".java", "") + "\","); 
 			writer.println("             //                   result.asParseSuccess().getRoot(), input);");
 			writer.println();
 			writer.println("         } else {");
