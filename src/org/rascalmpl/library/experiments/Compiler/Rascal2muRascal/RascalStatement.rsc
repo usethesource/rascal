@@ -68,7 +68,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
              muWhile(whilename, muCon(true), [ muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ], s@\loc), 
-                                                                [ visit(translate(body)) { case muFail(whileName) => muFail(ifname) } ], 
+                                                                [ visit(translateLoopBody(body)) { case muFail(whileName) => muFail(ifname) } ], 
                                                                 [ muBreak(whilename) ]) ]),
              muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
            ];
@@ -78,7 +78,22 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     return muBlock(code);
 }
 
-// Due to the similarity of some statement and their template version, we present both version together
+list[MuExp] resetBlockVars(Statement body){
+	introduced_vars = getAllVariablesAndFunctionsOfBlockScope(body@\loc);
+	locals = [pos | <str fuid, int pos> <- introduced_vars, pos >= 0, fuid == topFunctionScope()];
+	if(!isEmpty(locals)){
+		//println("<body@\loc>: <introduced_vars>, <locals>");
+		return [muResetLocs(locals)];
+	}
+	return [];
+}
+
+MuExp translateLoopBody(Statement body){
+	reset_vars = resetBlockVars(body);
+	return isEmpty(reset_vars) ? translate(body) : muBlock([*reset_vars, translate(body)]);	
+}
+
+// Due to the similarity of some statements and their template version, we present both versions together
 
 MuExp translateTemplate(str indent, s: (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     str fuid = topFunctionScope();
@@ -113,7 +128,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)), 
              muWhile(doname, muCon(true), [ 
-                visit(translate(body)) { case muFail(doname) => muFail(ifname) }, 
+                visit(translateLoopBody(body)) { case muFail(doname) => muFail(ifname) }, 
                 muIfelse(ifname, makeMu("ALL", [ translate(condition) ], condition@\loc), 
                                  [ muContinue(doname) ], 
                                  [ muBreak(doname) ]) ]),
@@ -156,7 +171,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
              muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ], s@\loc), s@\loc), 
-                              [ translate(body) ]),
+                              [ translateLoopBody(body) ]),
              muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();

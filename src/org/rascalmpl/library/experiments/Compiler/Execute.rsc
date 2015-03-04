@@ -21,9 +21,10 @@ import lang::rascal::types::CheckTypes;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
+import util::Reflective;
 
-public loc MuLibrary = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
-public loc MuLibraryCompiled = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
+public loc MuLibrary = getSearchPathLocation("/experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
+public loc MuLibraryCompiled = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.rvm");
 
 // Specific for delimited continuations (experimental)
 // public loc MuLibrary = |std:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
@@ -43,8 +44,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
-    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body)
-    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body,[]);
+    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
+    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body, []);
   	}
   	// Specific to delimited continuations (experimental)
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];

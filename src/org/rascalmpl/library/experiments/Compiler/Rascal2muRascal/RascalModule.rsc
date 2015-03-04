@@ -309,7 +309,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
-  println("r2mu: Compiling <fd.signature.name>");
+  println("r2mu: Compiling \uE007[](<fd@\loc><fd.signature.name>");
   //setFunctionUID(fd@\loc);
   
   try {
@@ -367,7 +367,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   leaveFunctionScope();
   
   } catch e: {
-        throw "EXCEPTION in translateFunctionDeclaration: <e>";
+        throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
 }
 
@@ -467,5 +467,5 @@ private void generate_tests(str module_name, loc src){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |std:///|, [], (), code));
+   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, src, [], (), code));
 }

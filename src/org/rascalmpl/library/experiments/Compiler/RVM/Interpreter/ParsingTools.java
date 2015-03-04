@@ -128,6 +128,18 @@ public class ParsingTools {
 	}
 	
 	/**
+	 * Parse text from a string
+	 * @param start		Start symbol
+	 * @param input		Text to be parsed as string
+	 * @param location	Location of that text
+	 * @param currentFrame TODO
+	 * @return ParseTree or Exception
+	 */
+	public IValue parse(IString moduleName, IValue start, IString input, ISourceLocation location, Frame currentFrame) {
+		return parse(moduleName, start, vf.mapWriter().done(), location, input.getValue().toCharArray(), currentFrame);
+	}
+	
+	/**
 	 * Parse text at a location
 	 * @param moduleName Name of module in which grammar is defined
 	 * @param start		Start symbol
