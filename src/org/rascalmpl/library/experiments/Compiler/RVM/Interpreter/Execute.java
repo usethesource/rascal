@@ -248,6 +248,9 @@ public class Execute {
 	private ISourceLocation getLocField(IConstructor instruction, String field) {
 		return ((ISourceLocation) instruction.get(field));
 	}
+	private IList getListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
+	}
 
 	/**
 	 * Load the instructions of a function in a RVM.
@@ -586,6 +589,10 @@ public class Execute {
 								 getStrField(instruction, "caseDefault"));
 				break;
 				
+			case "RESETLOCS":
+				codeblock.RESETLOCS(getListField(instruction, "positions"));
+				break;	
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
@@ -596,6 +603,10 @@ public class Execute {
 		}
 		
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		
+		IList exceptions = (IList) declaration.get("exceptions");
+		function.attachExceptionTable(exceptions, rvm);
+		
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");
@@ -606,8 +617,7 @@ public class Execute {
 			}
 			function.refs = refs;
 		} else {
-			IList exceptions = (IList) declaration.get("exceptions");
-			function.attachExceptionTable(exceptions, rvm);
+			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

@@ -9,13 +9,13 @@ public class OverloadedFunction {
 	final String funIn;
 	int scopeIn = -1;
 	
-	public OverloadedFunction(int[] functions, int[] constructors, String funIn) {
+	public OverloadedFunction(final int[] functions, final int[] constructors, final String funIn) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.funIn = funIn;
 	}
 	
-	public void  finalize(Map<String, Integer> functionMap){
+	public void  finalize(final Map<String, Integer> functionMap){
 		if(funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}

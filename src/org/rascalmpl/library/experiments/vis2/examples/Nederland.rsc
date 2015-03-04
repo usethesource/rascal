@@ -73,10 +73,12 @@ public void nederland() {
                 title = d[k]
            		,width=300
                 , height=200
+                , legend = legend(position="left")
+                , is3D = true
                 );
                 
-    Figures fs = [piechart(\data= exampleNederland(3), options = options(3)),
-                  piechart(\data= exampleNederland(4), options = options(4))
+    Figures fs = [piechart(exampleNederland(3), options = options(3)),
+                  piechart(exampleNederland(4), options = options(4))
                  ];
     Figure f = hcat(figs = fs, align = top);
     ex("Nederland", f) ;  

@@ -67,6 +67,7 @@ Export-Package:
  org.rascalmpl.parser.gtd.stack.filter.precede,
  org.rascalmpl.parser.gtd.util,
  org.rascalmpl.parser.uptr,
+ org.rascalmpl.parser.uptr.action,
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
  org.rascalmpl.tasks.facts,

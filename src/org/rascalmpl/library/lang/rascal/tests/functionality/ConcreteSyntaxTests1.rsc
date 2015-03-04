@@ -5,7 +5,11 @@ import ParseTree;
 layout Whitespace = [\ \t\n]*;
 
 start syntax A = "a";
+start syntax A = "A";
+start syntax As = A+;
 start syntax B = "b";
+start syntax B = "B";
+start syntax Bs = B+;
 start syntax C = A B;
 start syntax D = "d";
 start syntax DS = D+;
@@ -29,6 +33,10 @@ test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` 
 test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` == (DS)`d d d`;
 
 test bool sortsInGrammar() {A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E ","}+ vES2; return true;}
+
+test bool asType1() = < [As] "aaaa", [Bs] "bbb" > == < (As) `aaaa`, (Bs) `bbb` >;
+
+test bool asType2() = < [As] "aaAA", [Bs] "bbBB" > == < (As) `aaAA`, (Bs) `bbBB` >;
 
 /*
 

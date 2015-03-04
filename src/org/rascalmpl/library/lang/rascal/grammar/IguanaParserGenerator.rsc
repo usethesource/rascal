@@ -30,7 +30,7 @@ public Grammar preprocess(map[Symbol,Production] definitions, bool lexToTok = fa
   
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
-  gr = addNotAllowedSets(gr);
+  gr = addNotAllowedSets(expandRegularSymbols(makeRegularStubs(gr)));
   //gr = prioAssocToChoice(gr);
   return gr;
 } 
