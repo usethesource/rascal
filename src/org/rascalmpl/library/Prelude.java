@@ -93,6 +93,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.symbol.Nonterminal;
+import org.jgll.grammar.transformation.DesugarPrecedenceAndAssociativity;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
@@ -2059,12 +2060,20 @@ public class Prelude {
 	
 	public void generate(IValue grammar, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		IValue symbol = ((IConstructor)((IConstructor) grammar).get("symbol")).get("name");
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
 		
-		System.out.println("Path: " + loc.getPath());
+		if (!loc.getScheme().equals("file"))
+			throw new RuntimeException("Unexpected scheme of a source location.");
+		
+		File file = new File(loc.getPath());
+		
+		String name = file.getName().replaceAll(".java", "");
+		
+		System.out.println("Path: " + loc.getPath() + "; file name: " + file.getName() + "; class name: " + name);
 		
 		try {
-			PrintWriter writer = new PrintWriter(loc.getPath() + "GeneratedTest.java", "UTF-8");		
+			PrintWriter writer = new PrintWriter(file.getAbsolutePath(), "UTF-8");		
 			writer.println("package org.jgll.parser.datadependent;");
 			writer.println("import org.jgll.datadependent.ast.AST;");
 			writer.println("import org.jgll.grammar.Grammar;");
@@ -2072,6 +2081,7 @@ public class Prelude {
 			writer.println("import org.jgll.grammar.symbol.*;");
 			writer.println("import org.jgll.grammar.symbol.Character;");
 			writer.println("import static org.jgll.grammar.symbol.LayoutStrategy.*;");
+			writer.println("import org.jgll.grammar.transformation.DesugarPrecedenceAndAssociativity;");
 			writer.println("import org.jgll.grammar.transformation.EBNFToBNF;");
 			writer.println("import org.jgll.parser.GLLParser;");
 			writer.println("import org.jgll.parser.ParseResult;");
@@ -2083,15 +2093,19 @@ public class Prelude {
 			writer.println();
 			writer.println("import org.junit.Test;");
 			writer.println();
-			writer.println("public class GeneratedTest {");
+			writer.println("@SuppressWarnings(\"unused\")");
+			writer.println("public class " + name +" {");
 			writer.println();
 			writer.println("    @Test");
 			writer.println("    public void test() {");
 			writer.println("         Grammar grammar =");
 			writer.println();
 			writer.println(g.getConstructorCode() + ";");
-			writer.println("         grammar = new EBNFToBNF().transform(grammar);");
+			writer.println("         // grammar = new EBNFToBNF().transform(grammar);");
 			writer.println("         System.out.println(grammar);");
+			writer.println();
+			writer.println("         grammar = new DesugarPrecedenceAndAssociativity().transform(grammar);");
+			writer.println("         System.out.println(grammar.toStringWithOrderByPrecedence());");
 			writer.println();
 			writer.println("         Input input = Input.fromString(\"" + input.getValue() + "\");");
 			writer.println("         GrammarGraph graph = grammar.toGrammarGraph(input, Configuration.DEFAULT);");
@@ -2099,7 +2113,7 @@ public class Prelude {
 			writer.println("         // Visualization.generateGrammarGraph(\"" + loc.getPath() + "\", graph);");
 			writer.println();
 			writer.println("         GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);");
-			writer.println("         ParseResult result = parser.parse(input, graph, Nonterminal.withName(\"\"));");
+			writer.println("         ParseResult result = parser.parse(input, graph, Nonterminal.withName(" + symbol.toString() + "));");
 			writer.println();
 			writer.println("         if (result.isParseSuccess()) {");
 			writer.println("             System.out.println(\"Success\");");
