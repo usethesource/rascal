@@ -23,6 +23,7 @@ import experiments::Compiler::Compile;
 void inspect(loc srcLoc,                // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
           list[str] select = [],     	// select function names to be shown
+          int line = -1,				// select line of function to be shown
           bool listing = false          // show instruction listing
           ){
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
@@ -46,10 +47,15 @@ void inspect(loc srcLoc,                // location of Rascal source file
         
         println("RVM PROGRAM: <p.name>");
          
+        if(line >= 0){
+         	listDecls(p, select, line, listing);
+         	return;
+         }	
+         
         if(size(select) > 0){
-            listDecls(p, select, listing);
-            printOverloaded(p.overloaded_functions, select);
-            printResolver(p.resolver, select);
+            listDecls(p, select, line, listing);
+            printOverloaded(p.overloaded_functions, select, line);
+            printResolver(p.resolver, select, line);
             return;
         }
        
@@ -70,7 +76,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
             iprintln(init);
         }
         
-        printResolver(p.resolver, select);
+        printResolver(p.resolver, select, line);
         
         printOverloaded(p.overloaded_functions, select);
         
@@ -114,7 +120,7 @@ void printImports(list[loc] imports){
     }
 }
 
-void printResolver(map[str, int] resolver, list[str] select){
+void printResolver(map[str, int] resolver, list[str] select, int line){
 	if(size(resolver) > 0){
 		println("RESOLVER:");
 		for(f <- resolver){
@@ -125,12 +131,12 @@ void printResolver(map[str, int] resolver, list[str] select){
     }
 }
 
-void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select){
+void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select, int line){
 	if(size(overloaded) > 0){
     	println("OVERLOADED FUNCTIONS:");
         for(int i <- index(overloaded)){
         	t = overloaded[i];
-        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false))){
+        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false)) || containsLine(p.declarations[dname].src, line)){
             	println("\t<right("<i>", 6)>: <t>");
             }
         }
@@ -154,11 +160,14 @@ bool matchesSelection(str info, list[str] select, bool atStart = false){
 	return any(sel <- select, int i := findFirst(toLowerCase(info), sel), atStart ? i == 0 : i >= 0);
 }
 
-void listDecls(RVMProgram p, list[str] select, bool listing){
+bool containsLine(loc src, int line) =
+	line >= 0 && line >= src.begin.line && line <= src.end.line;
+
+void listDecls(RVMProgram p, list[str] select, int line, bool listing){
     select = [toLowerCase(sel) | sel <- select];
     for(dname <- p.declarations){
         uqname = p.declarations[dname].uqname;
-        if(matchesSelection(uqname, select, atStart = true)){
+        if(matchesSelection(uqname, select, atStart = true) || containsLine(p.declarations[dname].src, line)){
         	printDecl(p.declarations[dname]);
             if(listing){
  				for(ins <- p.declarations[dname].instructions){
