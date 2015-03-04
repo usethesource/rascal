@@ -39,7 +39,7 @@ public class OverloadedFunction {
 	}
 	
 	public String toString(){
-		StringBuilder sb = new StringBuilder("Overloaded: ");
+		StringBuilder sb = new StringBuilder("Overloaded[");
 		if(functions.length > 0){
 			sb.append("functions:");
 			for(int i = 0; i < functions.length; i++){
@@ -47,11 +47,15 @@ public class OverloadedFunction {
 			}
 		}
 		if(constructors.length > 0){
-			sb.append("; constructors:");
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
 			for(int i = 0; i < constructors.length; i++){
 				sb.append(" ").append(constructors[i]);
 			}
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 
