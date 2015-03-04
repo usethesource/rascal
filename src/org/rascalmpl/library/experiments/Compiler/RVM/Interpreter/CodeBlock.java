@@ -310,6 +310,8 @@ public class CodeBlock {
 	public final static int maskArg2 = (1 << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
+	
+	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
 	public static int encode0(int op){
 		return op;
@@ -687,6 +689,14 @@ public class CodeBlock {
 		for(int i = 0; i < typeConstantStore.size(); i++) {
 			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
+		
+		if(constantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+		}
+		if(typeConstantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+		}
+		
 		if(listing){
 			listing(fname);
 		}
