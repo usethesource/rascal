@@ -293,23 +293,23 @@ public class RascalToIguanaGrammarConverter {
 		
 		List<Symbol> body = getSymbolList(rhs);
 		
-		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT));
-		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT));
+		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT_REC));
+		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT_REC));
 		
 		Recursion recursion = Recursion.NON_REC;
 		int precedence = -1;
 		
 		if (isLeft && isRight)
-			recursion = Recursion.LEFT_RIGHT;
+			recursion = Recursion.LEFT_RIGHT_REC;
 		else if (isLeft)
-			recursion = Recursion.LEFT;
+			recursion = Recursion.LEFT_REC;
 		else if (isRight)
-			recursion = Recursion.RIGHT;
+			recursion = Recursion.RIGHT_REC;
 		
 		if (recursion == Recursion.NON_REC)
 				associativity = Associativity.UNDEFINED;
 		
-		if ((recursion == Recursion.LEFT || recursion == Recursion.RIGHT)
+		if ((recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC)
 						&& associativity != Associativity.NON_ASSOC) 
 				associativity = Associativity.UNDEFINED;
 			
@@ -862,7 +862,7 @@ public class RascalToIguanaGrammarConverter {
 		@Override
 		public Boolean visit(Block symbol) {
 			Symbol[] symbols = symbol.getSymbols();
-			if (recursion == Recursion.LEFT)
+			if (recursion == Recursion.LEFT_REC)
 				return symbols[0].accept(this);
 			else
 				return symbols[symbols.length - 1].accept(this);
