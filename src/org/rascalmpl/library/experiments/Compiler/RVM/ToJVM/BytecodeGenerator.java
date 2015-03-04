@@ -435,10 +435,19 @@ public class BytecodeGenerator implements Opcodes {
 		// 3 coroutine
 		// 4 frame
 
+		// TODO:  BUG in argument alignment should be
+		// 0 = THIS
+		// 1 = CF
+		// 2 = SP
+		// 3 = stack[]
+		// 4 = local boolean 
+		// 5 = coroutine
+		// 6 = rval 
+		
 		// Get guard precondition
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "guardHelper", "()Z");
-		mv.visitVarInsn(ISTORE, 2);
+/**/		mv.visitVarInsn(ISTORE, 2);
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
@@ -459,7 +468,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ASTORE, 4);
-		mv.visitVarInsn(ILOAD, 2);
+/**/		mv.visitVarInsn(ILOAD, 2);
 
 		mv.visitJumpInsn(IFEQ, l1);
 		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine");
@@ -520,7 +529,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(IADD);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ILOAD, 2);
+/**/		mv.visitVarInsn(ILOAD, 2);
 
 		mv.visitJumpInsn(IFEQ, l2);
 		mv.visitVarInsn(ALOAD, 3);
@@ -537,7 +546,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
 		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-		mv.visitVarInsn(ILOAD, 2);
+/**/		mv.visitVarInsn(ILOAD, 2);
 
 		mv.visitJumpInsn(IFNE, l4);
 		mv.visitVarInsn(ALOAD, 0);
