@@ -154,9 +154,7 @@ tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts,
   for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        //for (/Production father:prod(Symbol rhs, lhs:[_*,Symbol r],as) <- rest, match(r,rhs)) 
-        //  result += {<father, size(lhs) - 1, child>};
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties), bprintln("<father>: <size(lhs)>")};  
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};  
       case \assoc():
         result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};
       case \right():
