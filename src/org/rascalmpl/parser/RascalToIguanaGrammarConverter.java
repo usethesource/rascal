@@ -167,7 +167,7 @@ public class RascalToIguanaGrammarConverter {
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
 		
-		level = PrecedenceLevel.from(1);
+		level = PrecedenceLevel.getFirst();
 		getAlternatives(head, choice, strategy, rules, true);
 		
 		return rules;
