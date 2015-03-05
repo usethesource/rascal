@@ -30,7 +30,7 @@ syntax Exp
   ;
 
 syntax F = left "-" F | "f" | right F "+";
-syntax G = left (G "+" G | "-" G) | "g" | right (G "-" G | G "+");
+syntax G = left (G "+" G | "-" G | "^" G) | "g" | right (G "-" G | G "+");
 
 syntax Opt = Exp!com? "?";  
 syntax Seq = (Exp!com Exp!number);
