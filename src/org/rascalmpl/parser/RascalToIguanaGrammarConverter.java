@@ -41,7 +41,8 @@ import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
-import org.jgll.grammar.precedence.OperatorPrecedence;
+import org.jgll.grammar.patterns.ExceptPattern;
+import org.jgll.grammar.patterns.PrecedencePattern;
 import org.jgll.grammar.symbol.Align;
 import org.jgll.grammar.symbol.Associativity;
 import org.jgll.grammar.symbol.AssociativityGroup;
@@ -322,7 +323,9 @@ public class RascalToIguanaGrammarConverter {
 	}
 
 	@SuppressWarnings("unused")
-	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
+	private List<PrecedencePattern> getPrecedencePatterns(IMap notAllowed) {
+		
+		List<PrecedencePattern> precedencePatterns = new ArrayList<>();
 
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 
@@ -339,14 +342,18 @@ public class RascalToIguanaGrammarConverter {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				op.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				precedencePatterns.add(PrecedencePattern.from(rule, position, rulesMap.get(iterator.next())));
 			}
 		}
-	}
+		
+		return precedencePatterns;
+	}	
 	
 	@SuppressWarnings("unused")
-	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
+	private List<ExceptPattern> getExceptPatterns(IMap map) {
 
+		List<ExceptPattern> exceptPatterns = new ArrayList<>();
+		
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
 
 		while (it.hasNext()) {
@@ -362,9 +369,11 @@ public class RascalToIguanaGrammarConverter {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				op.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				exceptPatterns.add(ExceptPattern.from(rule, position, rulesMap.get(iterator.next())));
 			}
 		}
+		
+		return exceptPatterns;
 	}
 
 	private static List<CharacterRange> buildRanges(IConstructor symbol) {
