@@ -112,9 +112,9 @@ list[str] importTests = [
 ];
 
 list[str] typeTests = [
-//"StaticTestingUtilsTests",	// OK
-//"AccumulatingTCTests",			// OK
-//"AliasTCTests",					// Overflow
+"StaticTestingUtilsTests",	// OK
+"AccumulatingTCTests",			// OK
+"AliasTCTests",					// Overflow
 //"AllStaticIssues",
 //"AnnotationTCTests",
 //"AssignmentTCTests",
@@ -177,7 +177,7 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
-"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+//"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
 "lang/rascal/types/tests/AbstractKindTests",
@@ -234,13 +234,13 @@ value main(list[value] args){
    
   //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
    
-  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
-  all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
-  
-  all_results += runTests(files_with_tests, |std:///|);
-  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  //all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
+  //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //
+  //all_results += runTests(files_with_tests, |std:///|);
+  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

@@ -78,7 +78,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
         
         printResolver(p.resolver, select, line);
         
-        printOverloaded(p.overloaded_functions, select);
+        printOverloaded(p.overloaded_functions, select, line);
         
         return;
     } catch e: {
