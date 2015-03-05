@@ -286,9 +286,6 @@ public class RascalToIguanaGrammarConverter {
 		
 		SerializableValue object = null;
 		
-		String label = addLabel(production);
-		if (label != null) head.addLabel(label);
-		
 		IList rhs = (IList) production.get("symbols");
 		ISet attributes = (ISet) production.get("attributes");
 		
@@ -321,7 +318,7 @@ public class RascalToIguanaGrammarConverter {
 									.setAssociativity(associativity)
 									.setPrecedence(precedence)
 									.setPrecedenceLevel(level)
-									.setLabel(label).build();
+									.setLabel(addLabel(production)).build();
 	}
 
 	@SuppressWarnings("unused")

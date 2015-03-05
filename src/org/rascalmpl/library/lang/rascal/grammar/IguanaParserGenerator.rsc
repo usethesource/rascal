@@ -26,7 +26,7 @@ public Grammar preprocess(map[Symbol,Production] definitions, bool lexToTok = fa
   //gr = addHoles(gr);
   
   // TODO: expandKeywords breaks when symbols have Tree children
-  gr = expandKeywords(gr);
+  // gr = expandKeywords(gr);
   
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
