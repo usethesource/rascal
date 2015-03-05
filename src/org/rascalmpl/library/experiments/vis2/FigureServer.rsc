@@ -13,7 +13,6 @@ import util::Cursor;
 import lang::json::IO;
 import Type;
 import Exception;
-import experiments::vis2::vega::Vega;
 
 /************************* Figure server *********************************
  This server responds to two requests:
@@ -53,10 +52,8 @@ res = "\<html\>
         
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
        
-        '   \<!-- NVD3 --\>
-        '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
-        '	\<script src=\"lib/nv.d3.js\"\>\</script\>
-        '	\<script src=\"lib/vega-min.js\"\>\</script\>
+        '   \<!-- GoogleChart --\>
+        '   \<script src=\"https://www.google.com/jsapi\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
         '	\<script src=\"lib/dagre-d3.js\"\>\</script\>
@@ -68,9 +65,8 @@ res = "\<html\>
         '	\<script src=\"lib/MarkdownConverter.js\"\>\</script\>
         
         '	\<script src=\"JSFigure.js\"\>\</script\>
-        '	\<script src=\"Chart.js\"\>\</script\>
-        '	\<script src=\"VegaChart.js\"\>\</script\>
  		'	\<script src=\"Graph.js\"\>\</script\>
+ 		'	\<script src=\"GoogleChart.js\"\>\</script\>
         
         '   \<style\>
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
@@ -118,23 +114,6 @@ default Response page(post(), str path, map[str, str] parameters){
 default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
-
-Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
-      map[str, str] parameters) {
-      if(visualizations[name]?){
-		    descr = visualizations[name];
-		    // println("get: descr: <descr>");
-		    VEGA s = descr.figure.command();
-		    // println(s);
-		    // println(vegaToJSON(s));
-		    return response(vegaToJSON(s));
-		    }
-      else {
-    	  throw "get_initial_figure: visualization <name> unknown";
-    	  }
-    }
-   
-        
 
 
 /********************** web server creation ********************/
@@ -185,9 +164,9 @@ private str get_initial_figure(str name){
 	if(visualizations[name]?){  
 		descr = visualizations[name];
 		f = descr.visualize("init", "all", makeCursor(descr.model));
-		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
+		println("get_initial_figure: <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
-    	// println("get_initial_server: res = <res>");
+    	println("get_initial_server: res = <res>");
     	return res;
     } else {
     	throw "get_initial_figure: visualization <name> unknown";

@@ -186,6 +186,8 @@ test bool setComprehension65() = {{5*n, fset(n)} | n <- [ 1 .. 4 ]} == {{5,{1,3}
 test bool setComprehension66() = {{5*n, *fset(n)} | n <- [ 1 .. 4 ]} == {{5,1,3},{10,2,6},{15,3,9}};
 test bool setComprehension67() = {5*n, fset(n) | n <- [ 1 .. 4 ]} == {5,{1,3},10,{2,6},15,{3,9}};
 test bool setComprehension68() = {5*n, *fset(n) | n <- [ 1 .. 4 ]} == {5,1,3,10,2,6,15,3,9};
+
+test bool setComprehension69() = {m = (1:10,2:20); return {m[n] | n <- {1,2,3}, m[n]?} == {10,20};};
   	
 // setComprehensionNested
   
@@ -311,6 +313,8 @@ test bool listComprehension60() = [5*n, *flist(n) | n <- [ 1 .. 4 ]] == [5,1,3,1
   		
 test bool listComprehension61() = [[5*n, flist(n)] | n <- [ 1 .. 4 ]] == [[5,[1,3]],[10,[2,6]],[15,[3,9]]];
 test bool listComprehension62() = [[5*n, *flist(n)] | n <- [ 1 .. 4 ]] == [[5,1,3],[10,2,6],[15,3,9]];
+
+test bool listComprehension63() = {m = (1:10,2:20); return [m[n] | n <- [1,2,3], m[n]?] == [10,20];};
   
 // listComprehensionNested
   
@@ -372,6 +376,8 @@ test bool mapComprehension3()  = ( X : 2 * X | int X <- {1, 2}) == (1:2,2:4);
 test bool mapComprehension4()  = ( X : 2 * X | int X <- [1, 2]) == (1:2,2:4);
   		
 test bool mapComprehension5()  = ( X: 2 * X| int X<- [1,2,3] ) == (1:2,2:4,3:6);
+
+test bool mapComprehension6() = {m = (1:10,2:20); return (100*n : m[n] | n <- [1,2,3], m[n]?) == (100:10, 200:20);};
   	
 // mapComprehensionNested
   

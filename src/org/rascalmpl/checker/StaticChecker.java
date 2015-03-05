@@ -13,11 +13,11 @@
 package org.rascalmpl.checker;
 
 import java.io.PrintWriter;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -52,7 +52,7 @@ public class StaticChecker {
 	
 	private IValue eval(IRascalMonitor monitor, String cmd) {
 		try {
-			return eval.eval(monitor, cmd, URIUtil.rootScheme("checker")).getValue();
+			return eval.eval(monitor, cmd, URIUtil.rootLocation("checker")).getValue();
 		} catch (ParseError pe) {
 			throw new ImplementationError("syntax error in static checker modules", pe);
 		}
@@ -78,7 +78,7 @@ public class StaticChecker {
 	}
 	
 	@SuppressWarnings("unused")
-  private IConstructor resolveImports(IRascalMonitor monitor, IConstructor moduleParseTree) {
+	private IConstructor resolveImports(IRascalMonitor monitor, IConstructor moduleParseTree) {
 		ISet imports = (ISet) eval.call(monitor, "importedModules", moduleParseTree);
 		
 		eval.getStdErr().println("imports: " + imports);
@@ -86,8 +86,8 @@ public class StaticChecker {
 		IMapWriter mw = VF.mapWriter();
 		
 		for (IValue i : imports) {
-			URI uri = eval.getRascalResolver().resolveModule(((IString) i).getValue());
-			mw.put(i, VF.sourceLocation(uri));
+			ISourceLocation uri = eval.getRascalResolver().resolveModule(((IString) i).getValue());
+			mw.put(i, uri);
 		}
 		
 		eval.getStdErr().println("locations: " + mw.done());
@@ -117,7 +117,7 @@ public class StaticChecker {
 		return checkerEnabled;
 	}
 
-	public void addRascalSearchPath(URI uri) {
+	public void addRascalSearchPath(ISourceLocation uri) {
 		eval.addRascalSearchPath(uri);
 	}
 	

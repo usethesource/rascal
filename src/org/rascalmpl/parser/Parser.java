@@ -84,14 +84,15 @@ public class Parser {
 		if (rascalGrammar != null) {
 			return rascalGrammar;
 		}
-		
-		try {
-			IConstructor g = (IConstructor) new StandardTextReader().read(vf, URIResolverRegistry.getInstance().getCharacterReader(URIUtil.assumeCorrect("std", "", "/lang/rascal/syntax/Rascal.grammar")));
-			return new RascalToIguanaGrammarConverter().convert("rascal-bootstrap", g);
-		} catch (FactTypeUseException | IOException e1) {
-			assert false;
-			throw new ImplementationError("can not get bootstrap parser", e1);
-		}
+		return null;
+//		
+//		try {
+//			IConstructor g = (IConstructor) new StandardTextReader().read(vf, URIResolverRegistry.getInstance().getCharacterReader(URIUtil.assumeCorrect("std", "", "/lang/rascal/syntax/Rascal.grammar")));
+//			return new RascalToIguanaGrammarConverter().convert("rascal-bootstrap", g);
+//		} catch (FactTypeUseException | IOException e1) {
+//			assert false;
+//			throw new ImplementationError("can not get bootstrap parser", e1);
+//		}
 		
 	}
 	

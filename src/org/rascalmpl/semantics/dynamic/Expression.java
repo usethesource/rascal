@@ -91,7 +91,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -540,19 +539,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isString()) {
 				return TF.nodeType();
 			}
+			
 			if (lambda.isSourceLocation()) {
 				return lambda;
 			}
+			
 			if (lambda.isExternalType()) {
 				if (lambda instanceof FunctionType) {
 					return ((FunctionType) lambda).getReturnType();
 				}
+				
 				if (lambda instanceof OverloadedFunctionType) {
 					return ((OverloadedFunctionType) lambda).getReturnType();
 				}
 			}
 
-			throw new UnsupportedPattern(lambda + "(...)", this);
+			return TF.nodeType();
 		}
 	}
 
@@ -1062,12 +1064,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				if (result.getType().isString()) {
 					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
-						this.getLocation().getURI(),
+						this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray());
 				}
 				else if (result.getType().isSourceLocation()) {
 					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
-							((ISourceLocation) result.getValue()).getURI());
+							((ISourceLocation) result.getValue()));
 				}
 				
 				assert tree != null; // because we checked earlier

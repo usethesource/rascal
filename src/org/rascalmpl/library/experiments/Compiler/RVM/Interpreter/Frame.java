@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -61,10 +60,10 @@ public class Frame {
 	 * (re)setting the stack pointer of both the current and new frame, and
 	 * returns the new frame.
 	 */
-	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
-		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
+	public Frame getCoroutineFrame(Function f, Frame previousScope, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, null, previousScope, f.maxstack, f);
 		if(arity != f.nformals) {
-			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals, env);
+			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals, previousScope);
 		}
 		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
@@ -107,20 +106,20 @@ public class Frame {
 	 * (re)setting the stack pointer of both the current and the new frame, and 
 	 * returns the new frame to the caller.
 	 */
-	public Frame getFrame(Function f, Frame env, int arity, int sp) {
-		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+	public Frame getFrame(Function f, Frame previousScope, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
 		return frame;
 	}
 		
-	public Frame getFrame(Function f, Frame env, Object[] args) {
-		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+	public Frame getFrame(Function f, Frame previousScope, Object[] args) {
+		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		this.sp = frame.pushFunctionArguments(args.length, args, args.length);
 		return frame;
 	}
 	
-	public Frame getFrame(Function f, Frame env, Object[] args, int arity, int sp) {
-		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+	public Frame getFrame(Function f, Frame previousScope, Object[] args, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		if(args != null) {
 			for(Object arg : args) {
 				if(arg == null) {
@@ -181,10 +180,19 @@ public class Frame {
 		return newFrame;
 	}
 	
+	private int MAXLEN = 40;
+	
+	private String abbrev(String repr) {
+		return (repr.length() < MAXLEN) ? repr : repr.substring(0, 40) + "...";
+	}
+	
 	public String toString(){
-		StringBuilder s = new StringBuilder(); //new StringBuilder("\tin ");
+		StringBuilder s = new StringBuilder();
+		if(src != null){
+			s.append(" \uE007[](").append(src);
+	    }
 		s.append(this.function.getPrintableName()).append("(");
-		for(int i = 0; i < function.nformals-1; i++){
+		for(int i = 0; i < function.nformals; i++){
 			if(i > 0) s.append(", ");
 			String repr;
 			if(stack[i] instanceof IValue ) {
@@ -196,24 +204,21 @@ public class Frame {
 					repr = repr.substring(n + 1, repr.length());
 				}
 			}
-			s.append(repr);
+			
+			s.append(abbrev(repr));
 		}
 	
-		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
-			@SuppressWarnings("unchecked")
-			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
-			if(m.size() > 0){
-				for(String key : m.keySet()){
-					s.append(", ").append(key).append("=").append(m.get(key));
-				}
-			}
-		}
+//		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
+//			@SuppressWarnings("unchecked")
+//			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
+//			if(m.size() > 0){
+//				for(String key : m.keySet()){
+//					s.append(", ").append(key).append("=").append(m.get(key));
+//				}
+//			}
+//		}
 		
 		s.append(")");
-		if(src != null){
-				s.//append(" at ").append(src).
-				append(" \uE007[](").append(src);
-		}
 		return s.toString();
 	}
 	
@@ -232,17 +237,17 @@ public class Frame {
 	}
 	
 	public void printEnter(PrintWriter stdout){
-		stdout.println(indent().append("--> ").append(this.toString())); stdout.flush();
+		stdout.println(indent().append(this.toString())); stdout.flush();
 		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 	public void printBack(PrintWriter stdout){
-		stdout.println(indent().append("--- ").append(this.toString())); stdout.flush();
+		stdout.println(indent().append(this.toString())); stdout.flush();
 		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 	public void printLeave(PrintWriter stdout){
-		stdout.println(indent().append("<-- ").append(this.toString())); stdout.flush();
+		stdout.println(indent().append(this.toString())); stdout.flush();
 		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	

@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascal.grammar.tests;
+package org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers;
 
 import java.io.IOException;
 import java.io.StringReader;
