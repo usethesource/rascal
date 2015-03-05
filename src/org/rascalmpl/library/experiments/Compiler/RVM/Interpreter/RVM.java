@@ -182,6 +182,24 @@ public class RVM {
 	public void resetLocationCollector(){
 		this.locationCollector = NullLocationCollector.getInstance();
 	}
+	
+	public void validateInstructionAdressingLimits(){
+		int nfs = functionStore.size();
+		System.out.println("size functionStore: " + nfs);
+		if(nfs >= CodeBlock.maxArg){
+			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+		}
+		int ncs = constructorStore.size();
+		System.out.println("size constructorStore: " + ncs);
+		if(ncs >= CodeBlock.maxArg){
+			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+		}
+		int nov = overloadedStore.size();
+		System.out.println("size overloadedStore: " + nov);
+		if(nov >= CodeBlock.maxArg){
+			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+		}
+	}
 
 	public void declare(Function f){
 //		if(f.getName().lastIndexOf("complement") >= 0){
@@ -326,7 +344,11 @@ public class RVM {
 			return w.toString() + " [Object[]]";
 		}
 		if(o instanceof Coroutine){
-			return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
+			if(((Coroutine)o).frame  != null && ((Coroutine)o).frame.function != null){
+				return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
+			} else {
+				return "Coroutine[**no name**]";
+			}
 		}
 		if(o instanceof Function){
 			return "Function[" + ((Function)o).getName() + "]";
@@ -546,8 +568,8 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				assert pc >=0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
-				assert sp >= cf.function.nlocals :          "Illegal sp value: " + sp + " at " + cf.src;
+				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
+				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
@@ -942,13 +964,12 @@ public class RVM {
 						// 	1. FunctionInstance due to closures
 						if(funcObject instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) funcObject;
-							//stdout.println("OCALLDYN: " + fun_instance.function.name);
 							cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 							instructions = cf.function.codeblock.getInstructions();
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+							//if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -1071,6 +1092,7 @@ public class RVM {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
+					if(trackCalls) { cf.printBack(stdout, rval); }
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
@@ -1080,7 +1102,7 @@ public class RVM {
 							return NONE;
 						}
 					}
-					if(trackCalls) { cf.printBack(stdout); }
+					
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
