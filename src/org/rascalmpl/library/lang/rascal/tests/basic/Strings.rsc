@@ -14,6 +14,9 @@ test bool subscription(str S){
   return R == S;
 }
 
+test bool sliceOverEnd() = "/"[1..] == "";
+test bool sliceOverEnd2() = "/"[2..] == "";
+
 test bool subscriptionWrapped(str S){
   for(int i <- [0 .. size(S)]){
       if(S[i] != S[i - size(S)]){
