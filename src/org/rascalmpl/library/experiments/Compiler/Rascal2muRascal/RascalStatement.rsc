@@ -692,8 +692,8 @@ MuExp translate(s: (Statement) `throw <Statement statement>`) =
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
 	= { fillCaseType(getType(statement@\loc)); 
-		muBlock([ muAssignVarDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
-				  muReturn1(translate(statement)) ]); };
+	    muInsert(translate(statement));
+	  };
 
 // -- append statement -----------------------------------------------
 
