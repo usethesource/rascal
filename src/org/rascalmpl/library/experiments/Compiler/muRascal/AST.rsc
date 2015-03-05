@@ -113,12 +113,14 @@ public data MuExp =
           			   list[MuExp] largs)						// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
-          | muReturn1(MuExp exp)									// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          | muReturn1(MuExp exp)								// Return from a function with value
+          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
+          
+          | muInsert(MuExp exp)									// Insert statement
               
-           // Assignment, If and While
+          // Assignment, If and While
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
