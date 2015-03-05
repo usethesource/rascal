@@ -188,6 +188,8 @@ test bool sliceFirstSecond(list[int] L) {
 }
 
 
+test bool sliceOverEnd() = [0][1..] == [];
+
 test bool sliceEnd(list[int] L) {
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
