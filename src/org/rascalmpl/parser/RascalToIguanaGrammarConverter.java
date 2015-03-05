@@ -286,7 +286,8 @@ public class RascalToIguanaGrammarConverter {
 		
 		SerializableValue object = null;
 		
-		addLabel(head, production);
+		String label = addLabel(production);
+		if (label != null) head.addLabel(label);
 		
 		IList rhs = (IList) production.get("symbols");
 		ISet attributes = (ISet) production.get("attributes");
@@ -319,7 +320,8 @@ public class RascalToIguanaGrammarConverter {
 									.setRecursion(recursion)
 									.setAssociativity(associativity)
 									.setPrecedence(precedence)
-									.setPrecedenceLevel(level).build();
+									.setPrecedenceLevel(level)
+									.setLabel(label).build();
 	}
 
 	@SuppressWarnings("unused")
@@ -705,15 +707,14 @@ public class RascalToIguanaGrammarConverter {
 		}
 	}
 	
-	private static void addLabel(Nonterminal head, IConstructor production) {
+	private static String addLabel(IConstructor production) {
 		IConstructor symbol = (IConstructor) production.get("def");
 		switch(symbol.getName()) {
 			case "label":
-				IString name = (IString) symbol.get("name");
-				head.addLabel(name.getValue());
-				break;
+				return ((IString) symbol.get("name")).getValue();
 			default:
 		}
+		return null;
 	}
 	
 	private static Set<String> getExcepts(IConstructor symbol) {
