@@ -21,7 +21,7 @@ data Command
 	| declareSort(str name, int arity)
 	| defineSort(str name, list[str] sorts, list[Sort] types)
 	| declareFunction(str name, list[Sort] params, Sort returnType)
-	| defineFunction(str name, list[Sort] params, Sort returnType, Expr body)
+	| defineFunction(str name, list[SortedVar] sParams, Sort returnType, Expr body)
 	| \assert(Expr expr)
 	| checkSatisfiable()
 	| getValue(list[Expr] exprs)
@@ -31,6 +31,8 @@ data Command
 	| exit()
 	;
 
+data SortedVar = sortedVar(str name, Sort sort);
+
 // Sorts are filled by the different theories	
 data Sort = custom(str name);
 
@@ -39,7 +41,7 @@ data Expr
 	= var(str name)
 	| lit(Literal lit)
 	| named(Expr labeledExpr, str label)
-	| customFunctionCall(str functionName, list[Expr] params)
+	| customFunctionCall(str name, list[Expr] params)
 	;
 
 data Literal; 

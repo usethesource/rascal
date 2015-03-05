@@ -20,6 +20,9 @@ module lang::json::IO
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
+public java str toJSON(value v, bool compact);
+
+@javaClass{org.rascalmpl.library.lang.json.IO}
 @reflect{Uses type store}
 public java &T fromJSON(type[&T] typ, str src);
 

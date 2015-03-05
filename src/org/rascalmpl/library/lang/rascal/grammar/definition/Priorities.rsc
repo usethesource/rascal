@@ -18,60 +18,16 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::analyze::Recursion;
 import lang::rascal::grammar::Lookahead;
+import lang::rascal::grammar::definition::Regular;
 
-public alias Priorities = rel[Production father, Production child];
-public alias DoNotNest = rel[Production father, int position, Production child];
 
 data Grammar(NotAllowedSet notAllowed = {});
 data Grammar(NotAllowedSet excepts = {});
 
-public DoNotNest doNotNest(Grammar g) {
-  DoNotNest result = {};
-  
-  for (s <- g.rules) {
-    lefties = {s};
-    righties = {s};
-    <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
-    result += ass;
-    
-    ordering = ordering+; // priority is transitive
-   
-    for (<Production father, Production child> <- ordering) {
-      switch (father) {
-        case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
-          if (match(l,lefties) && match(r,righties)) {
-            if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-            result += {<father, 0, child>};
-          }
-          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-            result += {<father, size(lhs) - 1, child>};
-          }
-        }   
-        else fail;
-      }
-      case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
-        if (match(l,lefties), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-          result += {<father, 0, child>};
-        }   
-        else { 
-          fail;
-        }
-      case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
-        if (match(r,righties), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-          result += {<father, size(lhs) - 1, child>};
-        }   
-        else { 
-          fail;
-        }
-      }
-    } 
-  }
-  
-  return result 
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular};
-}
+public alias Priorities = rel[Production father, Production child];
+public alias DoNotNest = rel[Production father, int position, Production child];
 
-public DoNotNest doNotNestIguana(Grammar g) {
+public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
   
   for (s <- g.rules) {
@@ -113,31 +69,17 @@ public DoNotNest doNotNestIguana(Grammar g) {
     } 
   }
   
-  return result;
+  return result; 
 }
-
-public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];
 
 public DoNotNest exceptPatterns(Grammar g)  = {*except(p, g) | /Production p <- g, p is prod || p is regular};
 
-
-@doc{
-  Simply replace the structures for priority and associativity by normal alternatives, ceteris paribus.
-}
-public Grammar prioAssocToChoice(Grammar g) = visit(g) {
-  case \priority(def, list[Production] levels) => choice(def, {*levels})
-  case \associativity(def, _, alts)            => choice(def, alts)
-};
+public alias NotAllowedSet = map[tuple[Production, int] slot, set[Production] notallowed];
 
 public Grammar addNotAllowedSets(Grammar g) {
- g.notAllowed = getNotAllowed(g);
- g.excepts = getExceptPatterns(g);
- return g;
-}
-
-public Grammar addNotAllowedSetsIguana(Grammar g) {
- g.notAllowed = getNotAllowedIguana(g);
- g.excepts = getExceptPatterns(g);
+ bnfGrammar = expandRegularSymbols(makeRegularStubs(g));
+ g.notAllowed = getNotAllowed(bnfGrammar);
+ g.excepts = getExceptPatterns(bnfGrammar);
  return g;
 }
 
@@ -145,9 +87,6 @@ private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
 
 private NotAllowedSet getNotAllowed(Grammar g) 
  = (<father, index> : dnn[father,index] | dnn := doNotNest(g), <father, index, _> <- dnn);
- 
-private NotAllowedSet getNotAllowedIguana(Grammar g) 
- = (<father, index> : dnn[father,index] | dnn := doNotNestIguana(g), <father, index, _> <- dnn);
 
 private NotAllowedSet getExceptPatterns(Grammar g) 
  = (<father, index> : dnn[father,index] | dnn := exceptPatterns(g), <father, index, _> <- dnn);
@@ -172,8 +111,18 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
       if (match(t, righties)) return <{},{<p, size(\o), p>}>;
     case prod(s,[t,_*],{_*,\assoc(\right())}) :
       if (match(t, lefties)) return <{},{<p, 0, p>}>; 
-    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
+      
+	case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
       if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
+      
+    //case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) : {
+    //  if (match(t, lefties) && match(u, righties)) 
+    //  	    return <{},{<p, 0, p>, <p,size(\o) + 1,p>}>;
+    //  if (match(t, lefties)) 
+    //  	    return <{},{<p, 0, p>}>;
+    //  	if (match(u, righties)) 
+    //  	    return <{},{<p,size(\o) + 1,p>}>; 
+    //}
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
       if (match(t, lefties)) return <{},{<p, 0, p>}>; 
     case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :
@@ -257,4 +206,9 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   
   return <ordering, as>;
 }
+
+public Grammar prioAssocToChoice(Grammar g) = visit(g) {
+  case \priority(def, list[Production] levels) => choice(def, {*levels})
+  case \associativity(def, _, alts)            => choice(def, alts)
+};
 

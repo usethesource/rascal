@@ -110,9 +110,9 @@ import experiments::Compiler::Examples::Extending;
 
 import experiments::Compiler::Examples::FunctionWithVarargsAndKeyword;
 import experiments::Compiler::Examples::ModuleVarInitWithRange;
+import experiments::Compiler::Examples::ExpressionsInRascal;
 
 loc base = |std:///experiments/Compiler/Examples/|;
-
 
 value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =
   execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile, profile=profile);
@@ -167,8 +167,9 @@ test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Comp
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("RascalRuntimeExceptionsPlusOverloading") == experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading::main([]);
 
-//test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
+test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
 
+// Interpreter now complains about unitialized variables
 // RVM now assumes that all variables have been initialized
 //test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
 //test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
@@ -230,7 +231,6 @@ test bool tst() = demo("NestedFunctions4") == experiments::Compiler::Examples::N
 test bool tst() = demo("FunctionWithVarargsAndKeyword") == experiments::Compiler::Examples::FunctionWithVarargsAndKeyword::main([]);
 test bool tst() = demo("ModuleVarInitWithRange") == experiments::Compiler::Examples::ModuleVarInitWithRange::main([]);
 
-// Bug in the compiler, issue #543
 test bool tst() = demo("Template1") == experiments::Compiler::Examples::Template1::main([]);
 test bool tst() = demo("Template2") == experiments::Compiler::Examples::Template2::main([]);
 
@@ -239,3 +239,5 @@ test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures:
 test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::AnotherFor::main([]);
 
 test bool tst() = demo("Extending") == experiments::Compiler::Examples::Extending::main([]);
+
+test bool tst() = demo("ExpressionsInRascal") == experiments::Compiler::Examples::ExpressionsInRascal::main([]);

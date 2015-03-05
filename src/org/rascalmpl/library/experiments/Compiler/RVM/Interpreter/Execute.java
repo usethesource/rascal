@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -547,8 +548,10 @@ public class Execute {
 				codeblock.SUBTYPE();
 				break;
 				
-			case "CHECKARGTYPE":
-				codeblock.CHECKARGTYPE();
+			case "CHECKARGTYPEANDCOPY":
+				codeblock.CHECKARGTYPEANDCOPY(getIntField(instruction, "pos1"),
+									  rvm.symbolToType((IConstructor) instruction.get("type")),
+									  getIntField(instruction, "pos2"));
 				break;
 				
 			case "JMPINDEXED":
@@ -577,9 +580,14 @@ public class Execute {
 				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), 
 									      getIntField(instruction, "pos"));
 				break;
+			
+			case "SWITCH":
+				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
+								 getStrField(instruction, "caseDefault"));
+				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
@@ -588,6 +596,10 @@ public class Execute {
 		}
 		
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		
+		IList exceptions = (IList) declaration.get("exceptions");
+		function.attachExceptionTable(exceptions, rvm);
+		
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");
@@ -598,8 +610,7 @@ public class Execute {
 			}
 			function.refs = refs;
 		} else {
-			IList exceptions = (IList) declaration.get("exceptions");
-			function.attachExceptionTable(exceptions, rvm);
+			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

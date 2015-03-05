@@ -49,6 +49,9 @@ test bool testMap7() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] += [
 test bool testMap8() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] -= [2]; return M==(0:[1,3],1:[10,20,30]);}
 test bool testMap9() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] ?= [4]; return M==(0:[1,2,3],1:[10,20,30]);}
 test bool testMap10() {map[int, list[int]] M = (0:[1,2,3],1:[10,20,30]); M[2] ?= [4]; return M==(0:[1,2,3],1:[10,20,30], 2:[4]);}
+
+test bool testMap11() {map[int,int] M = (1:10, 2:20); M[2] ? 0 += 30; return M==(1:10, 2:50);}
+test bool testMap11() {map[int,int] M = (1:10, 2:20); M[3] ? 0 += 30; return M==(1:10, 2:20, 3:30);}
   	
 // testSet
   

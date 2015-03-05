@@ -36,7 +36,8 @@ import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
-import org.jgll.grammar.precedence.OperatorPrecedence;
+import org.jgll.grammar.patterns.ExceptPattern;
+import org.jgll.grammar.patterns.PrecedencePattern;
 import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterRange;
 import org.jgll.grammar.symbol.Epsilon;
@@ -51,6 +52,7 @@ import org.jgll.regex.Plus;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
+import org.jgll.util.CollectionsUtil;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class RascalToIguanaGrammarConverter {
@@ -92,7 +94,46 @@ public class RascalToIguanaGrammarConverter {
 			}
 		}
 		
-		return builder.setLayout(layout).build();
+		Grammar grammar = builder.setLayout(layout).build();
+		System.out.println("public static Grammar grammar =");
+		System.out.println(grammar.getConstructorCode() + ";");
+		
+		
+		List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
+		List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
+	
+		List<List<PrecedencePattern>> split = CollectionsUtil.split(precedencePatterns, 300);
+		
+		System.out.println("public static List<PrecedencePattern> precedencePatterns() {");
+		System.out.println("   List<PrecedencePattern> list = new ArrayList<>();");
+		for (int j = 0; j < split.size(); j++) {
+			System.out.println("   list.addAll(precedencePatterns" + (j + 1) + "());");
+		}
+		System.out.println("   return list;");
+		System.out.println("}");
+		
+		int i = 0;
+		for (List<PrecedencePattern> l : split) {
+			System.out.println("private static List<PrecedencePattern> precedencePatterns" + ++i + "() {");
+			System.out.println("  return Arrays.asList(");
+			l.forEach(p -> {
+				System.out.println("  // " + p);
+				System.out.println("     " + p.getConstructorCode() + ", ");	
+			});
+			System.out.println(");");
+			System.out.println("}");
+		}
+		
+		System.out.println("public static List<ExceptPattern> exceptPatterns() {");
+		System.out.println("   return Arrays.asList(");
+		exceptPatterns.forEach(p -> {
+			System.out.println("   // " + p);
+			System.out.println("   " + p.getConstructorCode() + ", ");
+		});
+		System.out.println(");");
+		System.out.println("}");
+		
+		return grammar;
 	}
 	
 	public Nonterminal getLayoutNonterminal(IConstructor rascalGrammar) {
@@ -143,7 +184,9 @@ public class RascalToIguanaGrammarConverter {
 		return rules;
 	}
 
-	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
+	private List<PrecedencePattern> getPrecedencePatterns(IMap notAllowed) {
+		
+		List<PrecedencePattern> precedencePatterns = new ArrayList<>();
 
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 
@@ -160,13 +203,17 @@ public class RascalToIguanaGrammarConverter {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				op.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				precedencePatterns.add(PrecedencePattern.from(rule, position, rulesMap.get(iterator.next())));
 			}
 		}
+		
+		return precedencePatterns;
 	}
 	
-	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
+	private List<ExceptPattern> getExceptPatterns(IMap map) {
 
+		List<ExceptPattern> exceptPatterns = new ArrayList<>();
+		
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
 
 		while (it.hasNext()) {
@@ -182,9 +229,11 @@ public class RascalToIguanaGrammarConverter {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				op.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				exceptPatterns.add(ExceptPattern.from(rule, position, rulesMap.get(iterator.next())));
 			}
 		}
+		
+		return exceptPatterns;
 	}
 
 	private static List<CharacterRange> buildRanges(IConstructor symbol) {
@@ -313,6 +362,10 @@ public class RascalToIguanaGrammarConverter {
 					IConstructor notFollow = getSymbolCons((IConstructor) condition);
 					set.add(RegularExpressionCondition.notFollow((RegularExpression) getSymbol(notFollow)));
 					break;
+					
+				case "far-not-follow":
+					set.add(RegularExpressionCondition.notFollowIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
+					break;
 	
 				case "follow":
 					IConstructor follow = getSymbolCons((IConstructor) condition);
@@ -384,7 +437,7 @@ public class RascalToIguanaGrammarConverter {
 	}
 	
 	private String getLabel(IConstructor symbol) {
-		return ((IString) symbol.get("name")).getValue();
+		return ((IString) symbol.get("label")).getValue();
 	}
 
 	private IConstructor getSymbolCons(IConstructor symbol) {
@@ -401,17 +454,6 @@ public class RascalToIguanaGrammarConverter {
 	
 	public IList getSeparators(IConstructor symbol) {
 		return (IList) symbol.get("separators");
-	}
-
-	private IConstructor getRegularDefinition(ISet alts) {
-		IConstructor value = null;
-		for (IValue alt : alts) {
-			IConstructor prod = (IConstructor) alt;
-			if (prod.getName().equals("regular")) {
-				value = prod;
-			}
-		}
-		return value;
 	}
 	
 }

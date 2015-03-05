@@ -573,7 +573,7 @@ Synopsis: substitute substrings in a string based on a substitution map from loc
 Examples:
 <screen>
 import String;
-substitute("abc", (|file://-|(1,1): "d"))
+substitute("abc", (|stdin://|(1,1): "d"))
 </screen>
 }
 str substitute(str src, map[loc,str] s) { 

@@ -1,0 +1,845 @@
+package org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers;
+
+import java.io.IOException;
+import java.io.StringReader;
+
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.rascalmpl.parser.gtd.stack.*;
+import org.rascalmpl.parser.gtd.stack.filter.*;
+import org.rascalmpl.parser.gtd.stack.filter.follow.*;
+import org.rascalmpl.parser.gtd.stack.filter.match.*;
+import org.rascalmpl.parser.gtd.stack.filter.precede.*;
+import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.IntegerList;
+import org.rascalmpl.parser.gtd.util.IntegerMap;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
+
+@SuppressWarnings("all")
+public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IConstructor, ISourceLocation> {
+  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+
+  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
+    try {
+      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
+    }
+    catch (FactTypeUseException e) {
+      throw new RuntimeException("unexpected exception in generated parser", e);  
+    } catch (IOException e) {
+      throw new RuntimeException("unexpected exception in generated parser", e);  
+    }
+  }
+	
+  protected static java.lang.String _concat(java.lang.String ...args) {
+    int length = 0;
+    for (java.lang.String s :args) {
+      length += s.length();
+    }
+    java.lang.StringBuilder b = new java.lang.StringBuilder(length);
+    for (java.lang.String s : args) {
+      b.append(s);
+    }
+    return b.toString();
+  }
+  protected static final TypeFactory _tf = TypeFactory.getInstance();
+ 
+  private static final IntegerMap _resultStoreIdMappings;
+  private static final IntegerKeyedHashMap<IntegerList> _dontNest;
+	
+  protected static void _putDontNest(IntegerKeyedHashMap<IntegerList> result, int parentId, int childId) {
+    IntegerList donts = result.get(childId);
+    if (donts == null) {
+      donts = new IntegerList();
+      result.put(childId, donts);
+    }
+    donts.add(parentId);
+  }
+    
+  protected int getResultStoreId(int parentId) {
+    return _resultStoreIdMappings.get(parentId);
+  }
+    
+  protected static IntegerKeyedHashMap<IntegerList> _initDontNest() {
+    IntegerKeyedHashMap<IntegerList> result = new IntegerKeyedHashMap<IntegerList>(); 
+    
+    
+    
+    
+    _putDontNest(result, 185, 200);
+    
+    _putDontNest(result, 185, 209);
+    
+    _putDontNest(result, 190, 190);
+    
+    _putDontNest(result, 190, 200);
+    
+    _putDontNest(result, 190, 209);
+    
+    _putDontNest(result, 200, 200);
+    
+    _putDontNest(result, 200, 209);
+    
+    _putDontNest(result, 209, 200);
+    
+    _putDontNest(result, 209, 209);
+   return result;
+  }
+    
+  protected static IntegerMap _initDontNestGroups() {
+    IntegerMap result = new IntegerMap();
+    int resultStoreId = result.size();
+    
+    
+    ++resultStoreId;
+    
+    result.putUnsafe(185, resultStoreId);
+    result.putUnsafe(200, resultStoreId);
+    result.putUnsafe(209, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(190, resultStoreId);
+      
+    return result;
+  }
+  
+  protected boolean hasNestingRestrictions(java.lang.String name){
+		return (_dontNest.size() != 0); // TODO Make more specific.
+  }
+    
+  protected IntegerList getFilteredParents(int childId) {
+		return _dontNest.get(childId);
+  }
+    
+  // initialize priorities     
+  static {
+    _dontNest = _initDontNest();
+    _resultStoreIdMappings = _initDontNestGroups();
+  }
+    
+  // Production declarations
+	
+  private static final IConstructor prod__empty__ = (IConstructor) _read("prod(empty(),[],{})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_33_range__35_16777215__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_51_51_41_44_114_97_110_103_101_40_51_53_44_49_54_55_55_55_50_49_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_33_range__35_16777215 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,33),range(35,16777215)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,33),range(35,16777215)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,33),range(35,16777215)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_9_range__11_16777215__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_49_54_55_55_55_50_49_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_9_range__11_16777215 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,9),range(11,16777215)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,9),range(11,16777215)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,9),range(11,16777215)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_36_range__38_16777215__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_51_54_41_44_114_97_110_103_101_40_51_56_44_49_54_55_55_55_50_49_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__1_36_range__38_16777215 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,36),range(38,16777215)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(1,36),range(38,16777215)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(1,36),range(38,16777215)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_57__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,57)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,57)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_57_range__97_122__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__48_57_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(97,122)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(48,57),range(97,122)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(48,57),range(97,122)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Id__char_class___range__0_0_lit___115_111_114_116_40_34_73_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Id = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Id\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Id\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"Id\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Natural__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Natural = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Natural\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Natural\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"Natural\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_String__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__String = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"String\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"String\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"String\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__WhitespaceAndComment = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"WhitespaceAndComment\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"WhitespaceAndComment\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(lex(\"WhitespaceAndComment\"))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__WhitespaceAndComment = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"WhitespaceAndComment\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"WhitespaceAndComment\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"WhitespaceAndComment\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Declaration__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Declaration\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"Declaration\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Declaration\"),[layouts(\"Layout\"),lit(\",\"),layouts(\"Layout\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Declaration__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declaration = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Declaration\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Declaration\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Declaration\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Declarations__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declarations = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Declarations\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Declarations\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Declarations\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Expression__char_class___range__0_0_lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Expression\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Expression\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Expression\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Program__char_class___range__0_0_lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Program = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Program\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Program\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Program\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"Statement\\\"),[lit(\\\";\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Statement\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Statement\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Type__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Type = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Type\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Type\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Type\")))})", Factory.Production);
+  private static final IConstructor prod__add_Expression__lhs_Expression_layouts_Layout_lit___43_layouts_Layout_rhs_Expression__assoc__left = (IConstructor) _read("prod(label(\"add\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"+\"),layouts(\"Layout\"),label(\"rhs\",sort(\"Expression\"))],{assoc(left())})", Factory.Production);
+  private static final IConstructor prod__asgStat_Statement__var_Id_layouts_Layout_lit___58_61_layouts_Layout_val_Expression_ = (IConstructor) _read("prod(label(\"asgStat\",sort(\"Statement\")),[label(\"var\",lex(\"Id\")),layouts(\"Layout\"),lit(\":=\"),layouts(\"Layout\"),label(\"val\",sort(\"Expression\"))],{})", Factory.Production);
+  private static final IConstructor prod__conc_Expression__lhs_Expression_layouts_Layout_lit___124_124_layouts_Layout_rhs_Expression__assoc__left = (IConstructor) _read("prod(label(\"conc\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"||\"),layouts(\"Layout\"),label(\"rhs\",sort(\"Expression\"))],{assoc(left())})", Factory.Production);
+  private static final IConstructor prod__decl_Declaration__id_Id_layouts_Layout_lit___58_layouts_Layout_tp_Type_ = (IConstructor) _read("prod(label(\"decl\",sort(\"Declaration\")),[label(\"id\",lex(\"Id\")),layouts(\"Layout\"),lit(\":\"),layouts(\"Layout\"),label(\"tp\",sort(\"Type\"))],{})", Factory.Production);
+  private static final IConstructor prod__id_Expression__name_Id_ = (IConstructor) _read("prod(label(\"id\",sort(\"Expression\")),[label(\"name\",lex(\"Id\"))],{})", Factory.Production);
+  private static final IConstructor prod__ifElseStat_Statement__lit_if_layouts_Layout_cond_Expression_layouts_Layout_lit_then_layouts_Layout_thenPart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_else_layouts_Layout_elsePart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_fi_ = (IConstructor) _read("prod(label(\"ifElseStat\",sort(\"Statement\")),[lit(\"if\"),layouts(\"Layout\"),label(\"cond\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"then\"),layouts(\"Layout\"),label(\"thenPart\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")])),layouts(\"Layout\"),lit(\"else\"),layouts(\"Layout\"),label(\"elsePart\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")])),layouts(\"Layout\"),lit(\"fi\")],{})", Factory.Production);
+  private static final IConstructor prod__natCon_Expression__natcon_Natural_ = (IConstructor) _read("prod(label(\"natCon\",sort(\"Expression\")),[label(\"natcon\",lex(\"Natural\"))],{})", Factory.Production);
+  private static final IConstructor prod__natural_Type__lit_natural_ = (IConstructor) _read("prod(label(\"natural\",sort(\"Type\")),[lit(\"natural\")],{})", Factory.Production);
+  private static final IConstructor prod__program_Program__lit_begin_layouts_Layout_decls_Declarations_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_end_ = (IConstructor) _read("prod(label(\"program\",sort(\"Program\")),[lit(\"begin\"),layouts(\"Layout\"),label(\"decls\",sort(\"Declarations\")),layouts(\"Layout\"),label(\"body\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")])),layouts(\"Layout\"),lit(\"end\")],{})", Factory.Production);
+  private static final IConstructor prod__strCon_Expression__string_String_ = (IConstructor) _read("prod(label(\"strCon\",sort(\"Expression\")),[label(\"string\",lex(\"String\"))],{})", Factory.Production);
+  private static final IConstructor prod__string_Type__lit_string_ = (IConstructor) _read("prod(label(\"string\",sort(\"Type\")),[lit(\"string\")],{})", Factory.Production);
+  private static final IConstructor prod__sub_Expression__lhs_Expression_layouts_Layout_lit___layouts_Layout_rhs_Expression__assoc__left = (IConstructor) _read("prod(label(\"sub\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"-\"),layouts(\"Layout\"),label(\"rhs\",sort(\"Expression\"))],{assoc(left())})", Factory.Production);
+  private static final IConstructor prod__whileStat_Statement__lit_while_layouts_Layout_cond_Expression_layouts_Layout_lit_do_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_od_ = (IConstructor) _read("prod(label(\"whileStat\",sort(\"Statement\")),[lit(\"while\"),layouts(\"Layout\"),label(\"cond\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"do\"),layouts(\"Layout\"),label(\"body\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")])),layouts(\"Layout\"),lit(\"od\")],{})", Factory.Production);
+  private static final IConstructor prod__ws2_WhitespaceAndComment__lit___37_iter__char_class___range__1_36_range__38_16777215_lit___37__tag__category___67_111_109_109_101_110_116 = (IConstructor) _read("prod(label(\"ws2\",lex(\"WhitespaceAndComment\")),[lit(\"%\"),iter(\\char-class([range(1,36),range(38,16777215)])),lit(\"%\")],{tag(\"category\"(\"Comment\"))})", Factory.Production);
+  private static final IConstructor prod__ws3_WhitespaceAndComment__lit___37_37_iter_star__char_class___range__1_9_range__11_16777215__tag__category___67_111_109_109_101_110_116 = (IConstructor) _read("prod(label(\"ws3\",lex(\"WhitespaceAndComment\")),[lit(\"%%\"),conditional(\\iter-star(\\char-class([range(1,9),range(11,16777215)])),{\\end-of-line()})],{tag(\"category\"(\"Comment\"))})", Factory.Production);
+  private static final IConstructor prod__layouts_$default$__ = (IConstructor) _read("prod(layouts(\"$default$\"),[],{})", Factory.Production);
+  private static final IConstructor prod__layouts_Layout__iter_star__WhitespaceAndComment_ = (IConstructor) _read("prod(layouts(\"Layout\"),[conditional(\\iter-star(lex(\"WhitespaceAndComment\")),{\\not-follow(\\char-class([range(9,10),range(13,13),range(32,32),range(37,37)]))})],{})", Factory.Production);
+  private static final IConstructor prod__Id__char_class___range__97_122_iter_star__char_class___range__48_57_range__97_122_ = (IConstructor) _read("prod(lex(\"Id\"),[\\char-class([range(97,122)]),conditional(\\iter-star(\\char-class([range(48,57),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(97,122)]))})],{})", Factory.Production);
+  private static final IConstructor prod__Natural__iter__char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"Natural\"),[iter(\\char-class([range(48,57)]))],{})", Factory.Production);
+  private static final IConstructor prod__String__lit___34_iter_star__char_class___range__1_33_range__35_16777215_lit___34_ = (IConstructor) _read("prod(lex(\"String\"),[lit(\"\\\"\"),\\iter-star(\\char-class([range(1,33),range(35,16777215)])),lit(\"\\\"\")],{})", Factory.Production);
+  private static final IConstructor prod__WhitespaceAndComment__char_class___range__9_10_range__13_13_range__32_32_ = (IConstructor) _read("prod(lex(\"WhitespaceAndComment\"),[\\char-class([range(9,10),range(13,13),range(32,32)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___34__char_class___range__34_34_ = (IConstructor) _read("prod(lit(\"\\\"\"),[\\char-class([range(34,34)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___37__char_class___range__37_37_ = (IConstructor) _read("prod(lit(\"%\"),[\\char-class([range(37,37)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___37_37__char_class___range__37_37_char_class___range__37_37_ = (IConstructor) _read("prod(lit(\"%%\"),[\\char-class([range(37,37)]),\\char-class([range(37,37)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___40__char_class___range__40_40_ = (IConstructor) _read("prod(lit(\"(\"),[\\char-class([range(40,40)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___41__char_class___range__41_41_ = (IConstructor) _read("prod(lit(\")\"),[\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___43__char_class___range__43_43_ = (IConstructor) _read("prod(lit(\"+\"),[\\char-class([range(43,43)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___44__char_class___range__44_44_ = (IConstructor) _read("prod(lit(\",\"),[\\char-class([range(44,44)])],{})", Factory.Production);
+  private static final IConstructor prod__lit____char_class___range__45_45_ = (IConstructor) _read("prod(lit(\"-\"),[\\char-class([range(45,45)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___58__char_class___range__58_58_ = (IConstructor) _read("prod(lit(\":\"),[\\char-class([range(58,58)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___58_61__char_class___range__58_58_char_class___range__61_61_ = (IConstructor) _read("prod(lit(\":=\"),[\\char-class([range(58,58)]),\\char-class([range(61,61)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___59__char_class___range__59_59_ = (IConstructor) _read("prod(lit(\";\"),[\\char-class([range(59,59)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_51_51_41_44_114_97_110_103_101_40_51_53_44_49_54_55_55_55_50_49_53_41_93_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__92_92_char_class___range__99_99_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__40_40_char_class___range__91_91_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__49_49_char_class___range__44_44_char_class___range__51_51_char_class___range__51_51_char_class___range__41_41_char_class___range__44_44_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__51_51_char_class___range__53_53_char_class___range__44_44_char_class___range__49_49_char_class___range__54_54_char_class___range__55_55_char_class___range__55_55_char_class___range__55_55_char_class___range__50_50_char_class___range__49_49_char_class___range__53_53_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star(\\\\char-class([range(1,33),range(35,16777215)]))\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(92,92)]),\\char-class([range(99,99)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(91,91)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(49,49)]),\\char-class([range(44,44)]),\\char-class([range(51,51)]),\\char-class([range(51,51)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(51,51)]),\\char-class([range(53,53)]),\\char-class([range(44,44)]),\\char-class([range(49,49)]),\\char-class([range(54,54)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(50,50)]),\\char-class([range(49,49)]),\\char-class([range(53,53)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_49_54_55_55_55_50_49_53_41_93_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__92_92_char_class___range__99_99_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__40_40_char_class___range__91_91_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__49_49_char_class___range__44_44_char_class___range__57_57_char_class___range__41_41_char_class___range__44_44_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__49_49_char_class___range__49_49_char_class___range__44_44_char_class___range__49_49_char_class___range__54_54_char_class___range__55_55_char_class___range__55_55_char_class___range__55_55_char_class___range__50_50_char_class___range__49_49_char_class___range__53_53_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star(\\\\char-class([range(1,9),range(11,16777215)]))\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(92,92)]),\\char-class([range(99,99)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(91,91)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(49,49)]),\\char-class([range(44,44)]),\\char-class([range(57,57)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(49,49)]),\\char-class([range(49,49)]),\\char-class([range(44,44)]),\\char-class([range(49,49)]),\\char-class([range(54,54)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(50,50)]),\\char-class([range(49,49)]),\\char-class([range(53,53)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__92_92_char_class___range__99_99_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__40_40_char_class___range__91_91_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__52_52_char_class___range__56_56_char_class___range__44_44_char_class___range__53_53_char_class___range__55_55_char_class___range__41_41_char_class___range__44_44_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__57_57_char_class___range__55_55_char_class___range__44_44_char_class___range__49_49_char_class___range__50_50_char_class___range__50_50_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star(\\\\char-class([range(48,57),range(97,122)]))\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(92,92)]),\\char-class([range(99,99)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(91,91)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(52,52)]),\\char-class([range(56,56)]),\\char-class([range(44,44)]),\\char-class([range(53,53)]),\\char-class([range(55,55)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(57,57)]),\\char-class([range(55,55)]),\\char-class([range(44,44)]),\\char-class([range(49,49)]),\\char-class([range(50,50)]),\\char-class([range(50,50)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__87_87_char_class___range__104_104_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__112_112_char_class___range__97_97_char_class___range__99_99_char_class___range__101_101_char_class___range__65_65_char_class___range__110_110_char_class___range__100_100_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star(sort(\\\"WhitespaceAndComment\\\"))\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(87,87)]),\\char-class([range(104,104)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(115,115)]),\\char-class([range(112,112)]),\\char-class([range(97,97)]),\\char-class([range(99,99)]),\\char-class([range(101,101)]),\\char-class([range(65,65)]),\\char-class([range(110,110)]),\\char-class([range(100,100)]),\\char-class([range(67,67)]),\\char-class([range(111,111)]),\\char-class([range(109,109)]),\\char-class([range(109,109)]),\\char-class([range(101,101)]),\\char-class([range(110,110)]),\\char-class([range(116,116)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star-seps(sort(\\\"Declaration\\\"),[lit(\\\",\\\")])\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(101,101)]),\\char-class([range(112,112)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(68,68)]),\\char-class([range(101,101)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(105,105)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(91,91)]),\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(44,44)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__59_59_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"\\\\iter-star-seps(sort(\\\"Statement\\\"),[lit(\\\";\\\")])\"),[\\char-class([range(92,92)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(115,115)]),\\char-class([range(101,101)]),\\char-class([range(112,112)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(83,83)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(109,109)]),\\char-class([range(101,101)]),\\char-class([range(110,110)]),\\char-class([range(116,116)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(91,91)]),\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(59,59)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_begin__char_class___range__98_98_char_class___range__101_101_char_class___range__103_103_char_class___range__105_105_char_class___range__110_110_ = (IConstructor) _read("prod(lit(\"begin\"),[\\char-class([range(98,98)]),\\char-class([range(101,101)]),\\char-class([range(103,103)]),\\char-class([range(105,105)]),\\char-class([range(110,110)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_declare__char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"declare\"),[\\char-class([range(100,100)]),\\char-class([range(101,101)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(101,101)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_do__char_class___range__100_100_char_class___range__111_111_ = (IConstructor) _read("prod(lit(\"do\"),[\\char-class([range(100,100)]),\\char-class([range(111,111)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"else\"),[\\char-class([range(101,101)]),\\char-class([range(108,108)]),\\char-class([range(115,115)]),\\char-class([range(101,101)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_end__char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_ = (IConstructor) _read("prod(lit(\"end\"),[\\char-class([range(101,101)]),\\char-class([range(110,110)]),\\char-class([range(100,100)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_fi__char_class___range__102_102_char_class___range__105_105_ = (IConstructor) _read("prod(lit(\"fi\"),[\\char-class([range(102,102)]),\\char-class([range(105,105)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_if__char_class___range__105_105_char_class___range__102_102_ = (IConstructor) _read("prod(lit(\"if\"),[\\char-class([range(105,105)]),\\char-class([range(102,102)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_51_54_41_44_114_97_110_103_101_40_51_56_44_49_54_55_55_55_50_49_53_41_93_41_41__char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__40_40_char_class___range__92_92_char_class___range__99_99_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__40_40_char_class___range__91_91_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__49_49_char_class___range__44_44_char_class___range__51_51_char_class___range__54_54_char_class___range__41_41_char_class___range__44_44_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__51_51_char_class___range__56_56_char_class___range__44_44_char_class___range__49_49_char_class___range__54_54_char_class___range__55_55_char_class___range__55_55_char_class___range__55_55_char_class___range__50_50_char_class___range__49_49_char_class___range__53_53_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"iter(\\\\char-class([range(1,36),range(38,16777215)]))\"),[\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(92,92)]),\\char-class([range(99,99)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(91,91)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(49,49)]),\\char-class([range(44,44)]),\\char-class([range(51,51)]),\\char-class([range(54,54)]),\\char-class([range(41,41)]),\\char-class([range(44,44)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(51,51)]),\\char-class([range(56,56)]),\\char-class([range(44,44)]),\\char-class([range(49,49)]),\\char-class([range(54,54)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(55,55)]),\\char-class([range(50,50)]),\\char-class([range(49,49)]),\\char-class([range(53,53)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41__char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__40_40_char_class___range__92_92_char_class___range__99_99_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__40_40_char_class___range__91_91_char_class___range__114_114_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_char_class___range__101_101_char_class___range__40_40_char_class___range__52_52_char_class___range__56_56_char_class___range__44_44_char_class___range__53_53_char_class___range__55_55_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"iter(\\\\char-class([range(48,57)]))\"),[\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(40,40)]),\\char-class([range(92,92)]),\\char-class([range(99,99)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(45,45)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(40,40)]),\\char-class([range(91,91)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(101,101)]),\\char-class([range(40,40)]),\\char-class([range(52,52)]),\\char-class([range(56,56)]),\\char-class([range(44,44)]),\\char-class([range(53,53)]),\\char-class([range(55,55)]),\\char-class([range(41,41)]),\\char-class([range(93,93)]),\\char-class([range(41,41)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_natural__char_class___range__110_110_char_class___range__97_97_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_ = (IConstructor) _read("prod(lit(\"natural\"),[\\char-class([range(110,110)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(117,117)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(108,108)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_od__char_class___range__111_111_char_class___range__100_100_ = (IConstructor) _read("prod(lit(\"od\"),[\\char-class([range(111,111)]),\\char-class([range(100,100)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Declaration\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(68,68)]),\\char-class([range(101,101)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(105,105)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Declarations\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(68,68)]),\\char-class([range(101,101)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(105,105)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(115,115)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Expression\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(69,69)]),\\char-class([range(120,120)]),\\char-class([range(112,112)]),\\char-class([range(114,114)]),\\char-class([range(101,101)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(105,105)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_73_100_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__100_100_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Id\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(73,73)]),\\char-class([range(100,100)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Natural\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(78,78)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(117,117)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(108,108)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__80_80_char_class___range__114_114_char_class___range__111_111_char_class___range__103_103_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Program\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(80,80)]),\\char-class([range(114,114)]),\\char-class([range(111,111)]),\\char-class([range(103,103)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(109,109)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Statement\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(83,83)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(109,109)]),\\char-class([range(101,101)]),\\char-class([range(110,110)]),\\char-class([range(116,116)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"String\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(83,83)]),\\char-class([range(116,116)]),\\char-class([range(114,114)]),\\char-class([range(105,105)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_84_121_112_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"Type\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(84,84)]),\\char-class([range(121,121)]),\\char-class([range(112,112)]),\\char-class([range(101,101)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__87_87_char_class___range__104_104_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__112_112_char_class___range__97_97_char_class___range__99_99_char_class___range__101_101_char_class___range__65_65_char_class___range__110_110_char_class___range__100_100_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"WhitespaceAndComment\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(87,87)]),\\char-class([range(104,104)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(115,115)]),\\char-class([range(112,112)]),\\char-class([range(97,97)]),\\char-class([range(99,99)]),\\char-class([range(101,101)]),\\char-class([range(65,65)]),\\char-class([range(110,110)]),\\char-class([range(100,100)]),\\char-class([range(67,67)]),\\char-class([range(111,111)]),\\char-class([range(109,109)]),\\char-class([range(109,109)]),\\char-class([range(101,101)]),\\char-class([range(110,110)]),\\char-class([range(116,116)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_string__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_ = (IConstructor) _read("prod(lit(\"string\"),[\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(114,114)]),\\char-class([range(105,105)]),\\char-class([range(110,110)]),\\char-class([range(103,103)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_then__char_class___range__116_116_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_ = (IConstructor) _read("prod(lit(\"then\"),[\\char-class([range(116,116)]),\\char-class([range(104,104)]),\\char-class([range(101,101)]),\\char-class([range(110,110)])],{})", Factory.Production);
+  private static final IConstructor prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"while\"),[\\char-class([range(119,119)]),\\char-class([range(104,104)]),\\char-class([range(105,105)]),\\char-class([range(108,108)]),\\char-class([range(101,101)])],{})", Factory.Production);
+  private static final IConstructor prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_ = (IConstructor) _read("prod(lit(\"||\"),[\\char-class([range(124,124)]),\\char-class([range(124,124)])],{})", Factory.Production);
+  private static final IConstructor prod__Declarations__lit_declare_layouts_Layout_decls_iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout_layouts_Layout_lit___59_ = (IConstructor) _read("prod(sort(\"Declarations\"),[lit(\"declare\"),layouts(\"Layout\"),label(\"decls\",\\iter-star-seps(sort(\"Declaration\"),[layouts(\"Layout\"),lit(\",\"),layouts(\"Layout\")])),layouts(\"Layout\"),lit(\";\")],{})", Factory.Production);
+  private static final IConstructor prod__Expression__lit___40_layouts_Layout_e_Expression_layouts_Layout_lit___41__bracket = (IConstructor) _read("prod(sort(\"Expression\"),[lit(\"(\"),layouts(\"Layout\"),label(\"e\",sort(\"Expression\")),layouts(\"Layout\"),lit(\")\")],{bracket()})", Factory.Production);
+  private static final IConstructor prod__start__Program__layouts_Layout_top_Program_layouts_Layout_ = (IConstructor) _read("prod(start(sort(\"Program\")),[layouts(\"Layout\"),label(\"top\",sort(\"Program\")),layouts(\"Layout\")],{})", Factory.Production);
+  private static final IConstructor regular__iter__char_class___range__1_36_range__38_16777215 = (IConstructor) _read("regular(iter(\\char-class([range(1,36),range(38,16777215)])))", Factory.Production);
+  private static final IConstructor regular__iter__char_class___range__48_57 = (IConstructor) _read("regular(iter(\\char-class([range(48,57)])))", Factory.Production);
+  private static final IConstructor regular__iter_star__char_class___range__48_57_range__97_122 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(48,57),range(97,122)])))", Factory.Production);
+  private static final IConstructor regular__iter_star__char_class___range__1_33_range__35_16777215 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(1,33),range(35,16777215)])))", Factory.Production);
+  private static final IConstructor regular__iter_star__char_class___range__1_9_range__11_16777215 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(1,9),range(11,16777215)])))", Factory.Production);
+  private static final IConstructor regular__iter_star__WhitespaceAndComment = (IConstructor) _read("regular(\\iter-star(lex(\"WhitespaceAndComment\")))", Factory.Production);
+  private static final IConstructor regular__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout = (IConstructor) _read("regular(\\iter-star-seps(sort(\"Declaration\"),[layouts(\"Layout\"),lit(\",\"),layouts(\"Layout\")]))", Factory.Production);
+  private static final IConstructor regular__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout = (IConstructor) _read("regular(\\iter-star-seps(sort(\"Statement\"),[layouts(\"Layout\"),lit(\";\"),layouts(\"Layout\")]))", Factory.Production);
+    
+  // Item declarations
+	
+	
+  protected static class layouts_$default$ {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__layouts_$default$__(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new EpsilonStackNode<IConstructor>(213, 0);
+      builder.addAlternative(PicoParser.prod__layouts_$default$__, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__layouts_$default$__(builder);
+      
+    }
+  }
+	
+  protected static class layouts_Layout {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__layouts_Layout__iter_star__WhitespaceAndComment_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new ListStackNode<IConstructor>(499, 0, regular__iter_star__WhitespaceAndComment, new NonTerminalStackNode<IConstructor>(496, 0, "WhitespaceAndComment", null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,10},{13,13},{32,32},{37,37}})});
+      builder.addAlternative(PicoParser.prod__layouts_Layout__iter_star__WhitespaceAndComment_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__layouts_Layout__iter_star__WhitespaceAndComment_(builder);
+      
+    }
+  }
+	
+  protected static class Id {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Id__char_class___range__0_0_lit___115_111_114_116_40_34_73_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Id(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[0] = new CharStackNode<IConstructor>(459, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(464, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(461, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(463, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(462, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(460, 1, prod__lit___115_111_114_116_40_34_73_100_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__100_100_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,73,100,34,41}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Id__char_class___range__0_0_lit___115_111_114_116_40_34_73_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Id, tmp);
+	}
+    protected static final void _init_prod__Id__char_class___range__97_122_iter_star__char_class___range__48_57_range__97_122_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
+      
+      tmp[0] = new CharStackNode<IConstructor>(452, 0, new int[][]{{97,122}}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(456, 1, regular__iter_star__char_class___range__48_57_range__97_122, new CharStackNode<IConstructor>(453, 0, new int[][]{{48,57},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{97,122}})});
+      builder.addAlternative(PicoParser.prod__Id__char_class___range__97_122_iter_star__char_class___range__48_57_range__97_122_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Id__char_class___range__0_0_lit___115_111_114_116_40_34_73_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Id(builder);
+      
+        _init_prod__Id__char_class___range__97_122_iter_star__char_class___range__48_57_range__97_122_(builder);
+      
+    }
+  }
+	
+  protected static class Natural {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Natural__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Natural(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[2] = new LiteralStackNode<IConstructor>(862, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(865, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(860, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(861, 1, prod__lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,78,97,116,117,114,97,108,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(864, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(863, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Natural__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Natural, tmp);
+	}
+    protected static final void _init_prod__Natural__iter__char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new ListStackNode<IConstructor>(857, 0, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(856, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(PicoParser.prod__Natural__iter__char_class___range__48_57_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Natural__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_116_117_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Natural(builder);
+      
+        _init_prod__Natural__iter__char_class___range__48_57_(builder);
+      
+    }
+  }
+	
+  protected static class String {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_String__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__String(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(139, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(138, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(136, 1, prod__lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,114,105,110,103,34,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(140, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(137, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(135, 0, new int[][]{{0,0}}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_String__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__String, tmp);
+	}
+    protected static final void _init_prod__String__lit___34_iter_star__char_class___range__1_33_range__35_16777215_lit___34_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
+      
+      tmp[1] = new ListStackNode<IConstructor>(145, 1, regular__iter_star__char_class___range__1_33_range__35_16777215, new CharStackNode<IConstructor>(144, 0, new int[][]{{1,33},{35,16777215}}, null, null), false, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(143, 0, prod__lit___34__char_class___range__34_34_, new int[] {34}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(146, 2, prod__lit___34__char_class___range__34_34_, new int[] {34}, null, null);
+      builder.addAlternative(PicoParser.prod__String__lit___34_iter_star__char_class___range__1_33_range__35_16777215_lit___34_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_String__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__String(builder);
+      
+        _init_prod__String__lit___34_iter_star__char_class___range__1_33_range__35_16777215_lit___34_(builder);
+      
+    }
+  }
+	
+  protected static class WhitespaceAndComment {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__WhitespaceAndComment(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[1] = new LiteralStackNode<IConstructor>(618, 1, prod__lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__87_87_char_class___range__104_104_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__112_112_char_class___range__97_97_char_class___range__99_99_char_class___range__101_101_char_class___range__65_65_char_class___range__110_110_char_class___range__100_100_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,87,104,105,116,101,115,112,97,99,101,65,110,100,67,111,109,109,101,110,116,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(621, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(620, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(622, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(617, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(619, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__WhitespaceAndComment, tmp);
+	}
+    protected static final void _init_prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__WhitespaceAndComment(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new CharStackNode<IConstructor>(639, 4, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(638, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(637, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(634, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(636, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(635, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__87_87_char_class___range__104_104_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__112_112_char_class___range__97_97_char_class___range__99_99_char_class___range__101_101_char_class___range__65_65_char_class___range__110_110_char_class___range__100_100_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,87,104,105,116,101,115,112,97,99,101,65,110,100,67,111,109,109,101,110,116,34,41,41}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__WhitespaceAndComment, tmp);
+	}
+    protected static final void _init_prod__ws2_WhitespaceAndComment__lit___37_iter__char_class___range__1_36_range__38_16777215_lit___37__tag__category___67_111_109_109_101_110_116(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
+      
+      tmp[2] = new LiteralStackNode<IConstructor>(614, 2, prod__lit___37__char_class___range__37_37_, new int[] {37}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(613, 1, regular__iter__char_class___range__1_36_range__38_16777215, new CharStackNode<IConstructor>(612, 0, new int[][]{{1,36},{38,16777215}}, null, null), true, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(611, 0, prod__lit___37__char_class___range__37_37_, new int[] {37}, null, null);
+      builder.addAlternative(PicoParser.prod__ws2_WhitespaceAndComment__lit___37_iter__char_class___range__1_36_range__38_16777215_lit___37__tag__category___67_111_109_109_101_110_116, tmp);
+	}
+    protected static final void _init_prod__ws3_WhitespaceAndComment__lit___37_37_iter_star__char_class___range__1_9_range__11_16777215__tag__category___67_111_109_109_101_110_116(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
+      
+      tmp[0] = new LiteralStackNode<IConstructor>(626, 0, prod__lit___37_37__char_class___range__37_37_char_class___range__37_37_, new int[] {37,37}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(629, 1, regular__iter_star__char_class___range__1_9_range__11_16777215, new CharStackNode<IConstructor>(627, 0, new int[][]{{1,9},{11,16777215}}, null, null), false, null, new ICompletionFilter[] {new AtEndOfLineRequirement()});
+      builder.addAlternative(PicoParser.prod__ws3_WhitespaceAndComment__lit___37_37_iter_star__char_class___range__1_9_range__11_16777215__tag__category___67_111_109_109_101_110_116, tmp);
+	}
+    protected static final void _init_prod__WhitespaceAndComment__char_class___range__9_10_range__13_13_range__32_32_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new CharStackNode<IConstructor>(631, 0, new int[][]{{9,10},{13,13},{32,32}}, null, null);
+      builder.addAlternative(PicoParser.prod__WhitespaceAndComment__char_class___range__9_10_range__13_13_range__32_32_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__WhitespaceAndComment(builder);
+      
+        _init_prod__$MetaHole_WhitespaceAndComment__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_87_104_105_116_101_115_112_97_99_101_65_110_100_67_111_109_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__WhitespaceAndComment(builder);
+      
+        _init_prod__ws2_WhitespaceAndComment__lit___37_iter__char_class___range__1_36_range__38_16777215_lit___37__tag__category___67_111_109_109_101_110_116(builder);
+      
+        _init_prod__ws3_WhitespaceAndComment__lit___37_37_iter_star__char_class___range__1_9_range__11_16777215__tag__category___67_111_109_109_101_110_116(builder);
+      
+        _init_prod__WhitespaceAndComment__char_class___range__9_10_range__13_13_range__32_32_(builder);
+      
+    }
+  }
+	
+  protected static class Declaration {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Declaration__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declaration(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(274, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(273, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(271, 1, prod__lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,68,101,99,108,97,114,97,116,105,111,110,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(270, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(275, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(272, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Declaration__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declaration, tmp);
+	}
+    protected static final void _init_prod__$MetaHole_Declaration__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[1] = new LiteralStackNode<IConstructor>(249, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,45,115,101,112,115,40,115,111,114,116,40,34,68,101,99,108,97,114,97,116,105,111,110,34,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(252, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(251, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(250, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(253, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(248, 0, new int[][]{{0,0}}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Declaration__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout, tmp);
+	}
+    protected static final void _init_prod__decl_Declaration__id_Id_layouts_Layout_lit___58_layouts_Layout_tp_Type_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new NonTerminalStackNode<IConstructor>(265, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(263, 1, "layouts_Layout", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(261, 0, "Id", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(266, 4, "Type", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(264, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      builder.addAlternative(PicoParser.prod__decl_Declaration__id_Id_layouts_Layout_lit___58_layouts_Layout_tp_Type_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Declaration__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declaration(builder);
+      
+        _init_prod__$MetaHole_Declaration__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout(builder);
+      
+        _init_prod__decl_Declaration__id_Id_layouts_Layout_lit___58_layouts_Layout_tp_Type_(builder);
+      
+    }
+  }
+	
+  protected static class Declarations {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Declarations__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declarations(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(117, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(116, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(114, 1, prod__lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,68,101,99,108,97,114,97,116,105,111,110,115,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(113, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(118, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(115, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Declarations__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declarations, tmp);
+	}
+    protected static final void _init_prod__Declarations__lit_declare_layouts_Layout_decls_iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout_layouts_Layout_lit___59_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new LiteralStackNode<IConstructor>(130, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(127, 2, regular__iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout, new NonTerminalStackNode<IConstructor>(123, 0, "Declaration", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(124, 1, "layouts_Layout", null, null), new LiteralStackNode<IConstructor>(125, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(126, 3, "layouts_Layout", null, null)}, false, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(121, 0, prod__lit_declare__char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_, new int[] {100,101,99,108,97,114,101}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(129, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(122, 1, "layouts_Layout", null, null);
+      builder.addAlternative(PicoParser.prod__Declarations__lit_declare_layouts_Layout_decls_iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout_layouts_Layout_lit___59_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Declarations__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declarations(builder);
+      
+        _init_prod__Declarations__lit_declare_layouts_Layout_decls_iter_star_seps__Declaration__layouts_Layout_lit___44_layouts_Layout_layouts_Layout_lit___59_(builder);
+      
+    }
+  }
+	
+  protected static class Expression {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Expression__char_class___range__0_0_lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Expression(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(159, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(158, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(157, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(160, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(156, 1, prod__lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(155, 0, new int[][]{{0,0}}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Expression__char_class___range__0_0_lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Expression, tmp);
+	}
+    protected static final void _init_prod__add_Expression__lhs_Expression_layouts_Layout_lit___43_layouts_Layout_rhs_Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new NonTerminalStackNode<IConstructor>(199, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(197, 1, "layouts_Layout", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(200, 4, "Expression", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(198, 2, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(195, 0, "Expression", null, null);
+      builder.addAlternative(PicoParser.prod__add_Expression__lhs_Expression_layouts_Layout_lit___43_layouts_Layout_rhs_Expression__assoc__left, tmp);
+	}
+    protected static final void _init_prod__conc_Expression__lhs_Expression_layouts_Layout_lit___124_124_layouts_Layout_rhs_Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new NonTerminalStackNode<IConstructor>(190, 4, "Expression", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(185, 0, "Expression", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(187, 1, "layouts_Layout", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(189, 3, "layouts_Layout", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(188, 2, prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_, new int[] {124,124}, null, null);
+      builder.addAlternative(PicoParser.prod__conc_Expression__lhs_Expression_layouts_Layout_lit___124_124_layouts_Layout_rhs_Expression__assoc__left, tmp);
+	}
+    protected static final void _init_prod__id_Expression__name_Id_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new NonTerminalStackNode<IConstructor>(170, 0, "Id", null, null);
+      builder.addAlternative(PicoParser.prod__id_Expression__name_Id_, tmp);
+	}
+    protected static final void _init_prod__natCon_Expression__natcon_Natural_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new NonTerminalStackNode<IConstructor>(174, 0, "Natural", null, null);
+      builder.addAlternative(PicoParser.prod__natCon_Expression__natcon_Natural_, tmp);
+	}
+    protected static final void _init_prod__strCon_Expression__string_String_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new NonTerminalStackNode<IConstructor>(166, 0, "String", null, null);
+      builder.addAlternative(PicoParser.prod__strCon_Expression__string_String_, tmp);
+	}
+    protected static final void _init_prod__sub_Expression__lhs_Expression_layouts_Layout_lit___layouts_Layout_rhs_Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new NonTerminalStackNode<IConstructor>(209, 4, "Expression", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(207, 2, prod__lit____char_class___range__45_45_, new int[] {45}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(204, 0, "Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(208, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(206, 1, "layouts_Layout", null, null);
+      builder.addAlternative(PicoParser.prod__sub_Expression__lhs_Expression_layouts_Layout_lit___layouts_Layout_rhs_Expression__assoc__left, tmp);
+	}
+    protected static final void _init_prod__Expression__lit___40_layouts_Layout_e_Expression_layouts_Layout_lit___41__bracket(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[2] = new NonTerminalStackNode<IConstructor>(179, 2, "Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(181, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(178, 1, "layouts_Layout", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(177, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(182, 4, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      builder.addAlternative(PicoParser.prod__Expression__lit___40_layouts_Layout_e_Expression_layouts_Layout_lit___41__bracket, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Expression__char_class___range__0_0_lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Expression(builder);
+      
+        _init_prod__add_Expression__lhs_Expression_layouts_Layout_lit___43_layouts_Layout_rhs_Expression__assoc__left(builder);
+      
+        _init_prod__conc_Expression__lhs_Expression_layouts_Layout_lit___124_124_layouts_Layout_rhs_Expression__assoc__left(builder);
+      
+        _init_prod__id_Expression__name_Id_(builder);
+      
+        _init_prod__natCon_Expression__natcon_Natural_(builder);
+      
+        _init_prod__strCon_Expression__string_String_(builder);
+      
+        _init_prod__sub_Expression__lhs_Expression_layouts_Layout_lit___layouts_Layout_rhs_Expression__assoc__left(builder);
+      
+        _init_prod__Expression__lit___40_layouts_Layout_e_Expression_layouts_Layout_lit___41__bracket(builder);
+      
+    }
+  }
+	
+  protected static class Program {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Program__char_class___range__0_0_lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Program(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[0] = new CharStackNode<IConstructor>(1105, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(1107, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(1110, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(1106, 1, prod__lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__80_80_char_class___range__114_114_char_class___range__111_111_char_class___range__103_103_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,80,114,111,103,114,97,109,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(1109, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(1108, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Program__char_class___range__0_0_lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Program, tmp);
+	}
+    protected static final void _init_prod__program_Program__lit_begin_layouts_Layout_decls_Declarations_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_end_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
+      
+      tmp[0] = new LiteralStackNode<IConstructor>(1114, 0, prod__lit_begin__char_class___range__98_98_char_class___range__101_101_char_class___range__103_103_char_class___range__105_105_char_class___range__110_110_, new int[] {98,101,103,105,110}, null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(1123, 4, regular__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout, new NonTerminalStackNode<IConstructor>(1119, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(1120, 1, "layouts_Layout", null, null), new LiteralStackNode<IConstructor>(1121, 2, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null), new NonTerminalStackNode<IConstructor>(1122, 3, "layouts_Layout", null, null)}, false, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(1116, 2, "Declarations", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(1126, 6, prod__lit_end__char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,110,100}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(1118, 3, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(1115, 1, "layouts_Layout", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(1125, 5, "layouts_Layout", null, null);
+      builder.addAlternative(PicoParser.prod__program_Program__lit_begin_layouts_Layout_decls_Declarations_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_end_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Program__char_class___range__0_0_lit___115_111_114_116_40_34_80_114_111_103_114_97_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Program(builder);
+      
+        _init_prod__program_Program__lit_begin_layouts_Layout_decls_Declarations_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_end_(builder);
+      
+    }
+  }
+	
+  protected static class Statement {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Statement__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new CharStackNode<IConstructor>(820, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(817, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(815, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(819, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(818, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(816, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__59_59_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,45,115,101,112,115,40,115,111,114,116,40,34,83,116,97,116,101,109,101,110,116,34,41,44,91,108,105,116,40,34,59,34,41,93,41}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Statement__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout, tmp);
+	}
+    protected static final void _init_prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new CharStackNode<IConstructor>(811, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(808, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(806, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(810, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(809, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(807, 1, prod__lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,97,116,101,109,101,110,116,34,41}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement, tmp);
+	}
+    protected static final void _init_prod__asgStat_Statement__var_Id_layouts_Layout_lit___58_61_layouts_Layout_val_Expression_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new NonTerminalStackNode<IConstructor>(784, 3, "layouts_Layout", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(785, 4, "Expression", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(782, 1, "layouts_Layout", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(780, 0, "Id", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(783, 2, prod__lit___58_61__char_class___range__58_58_char_class___range__61_61_, new int[] {58,61}, null, null);
+      builder.addAlternative(PicoParser.prod__asgStat_Statement__var_Id_layouts_Layout_lit___58_61_layouts_Layout_val_Expression_, tmp);
+	}
+    protected static final void _init_prod__ifElseStat_Statement__lit_if_layouts_Layout_cond_Expression_layouts_Layout_lit_then_layouts_Layout_thenPart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_else_layouts_Layout_elsePart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_fi_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[13];
+      
+      tmp[6] = new SeparatedListStackNode<IConstructor>(765, 6, regular__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout, new NonTerminalStackNode<IConstructor>(761, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(762, 1, "layouts_Layout", null, null), new LiteralStackNode<IConstructor>(763, 2, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null), new NonTerminalStackNode<IConstructor>(764, 3, "layouts_Layout", null, null)}, false, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(769, 9, "layouts_Layout", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(758, 3, "layouts_Layout", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(776, 11, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(755, 1, "layouts_Layout", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(760, 5, "layouts_Layout", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(767, 7, "layouts_Layout", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(768, 8, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(759, 4, prod__lit_then__char_class___range__116_116_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {116,104,101,110}, null, null);
+      tmp[12] = new LiteralStackNode<IConstructor>(777, 12, prod__lit_fi__char_class___range__102_102_char_class___range__105_105_, new int[] {102,105}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(756, 2, "Expression", null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(774, 10, regular__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout, new NonTerminalStackNode<IConstructor>(770, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(771, 1, "layouts_Layout", null, null), new LiteralStackNode<IConstructor>(772, 2, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null), new NonTerminalStackNode<IConstructor>(773, 3, "layouts_Layout", null, null)}, false, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(754, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      builder.addAlternative(PicoParser.prod__ifElseStat_Statement__lit_if_layouts_Layout_cond_Expression_layouts_Layout_lit_then_layouts_Layout_thenPart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_else_layouts_Layout_elsePart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_fi_, tmp);
+	}
+    protected static final void _init_prod__whileStat_Statement__lit_while_layouts_Layout_cond_Expression_layouts_Layout_lit_do_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_od_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
+      
+      tmp[6] = new SeparatedListStackNode<IConstructor>(800, 6, regular__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout, new NonTerminalStackNode<IConstructor>(796, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(797, 1, "layouts_Layout", null, null), new LiteralStackNode<IConstructor>(798, 2, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null), new NonTerminalStackNode<IConstructor>(799, 3, "layouts_Layout", null, null)}, false, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(791, 2, "Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(793, 3, "layouts_Layout", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(794, 4, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new int[] {100,111}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(789, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(802, 7, "layouts_Layout", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(790, 1, "layouts_Layout", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(795, 5, "layouts_Layout", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(803, 8, prod__lit_od__char_class___range__111_111_char_class___range__100_100_, new int[] {111,100}, null, null);
+      builder.addAlternative(PicoParser.prod__whileStat_Statement__lit_while_layouts_Layout_cond_Expression_layouts_Layout_lit_do_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_od_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Statement__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_44_91_108_105_116_40_34_59_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout(builder);
+      
+        _init_prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement(builder);
+      
+        _init_prod__asgStat_Statement__var_Id_layouts_Layout_lit___58_61_layouts_Layout_val_Expression_(builder);
+      
+        _init_prod__ifElseStat_Statement__lit_if_layouts_Layout_cond_Expression_layouts_Layout_lit_then_layouts_Layout_thenPart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_else_layouts_Layout_elsePart_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_fi_(builder);
+      
+        _init_prod__whileStat_Statement__lit_while_layouts_Layout_cond_Expression_layouts_Layout_lit_do_layouts_Layout_body_iter_star_seps__Statement__layouts_Layout_lit___59_layouts_Layout_layouts_Layout_lit_od_(builder);
+      
+    }
+  }
+	
+  protected static class Type {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__$MetaHole_Type__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Type(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[4] = new CharStackNode<IConstructor>(239, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(234, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(238, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(237, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(235, 1, prod__lit___115_111_114_116_40_34_84_121_112_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,121,112,101,34,41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(236, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      builder.addAlternative(PicoParser.prod__$MetaHole_Type__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Type, tmp);
+	}
+    protected static final void _init_prod__natural_Type__lit_natural_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new LiteralStackNode<IConstructor>(231, 0, prod__lit_natural__char_class___range__110_110_char_class___range__97_97_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_, new int[] {110,97,116,117,114,97,108}, null, null);
+      builder.addAlternative(PicoParser.prod__natural_Type__lit_natural_, tmp);
+	}
+    protected static final void _init_prod__string_Type__lit_string_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new LiteralStackNode<IConstructor>(243, 0, prod__lit_string__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_, new int[] {115,116,114,105,110,103}, null, null);
+      builder.addAlternative(PicoParser.prod__string_Type__lit_string_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__$MetaHole_Type__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Type(builder);
+      
+        _init_prod__natural_Type__lit_natural_(builder);
+      
+        _init_prod__string_Type__lit_string_(builder);
+      
+    }
+  }
+	
+  protected static class start__Program {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_prod__start__Program__layouts_Layout_top_Program_layouts_Layout_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
+      
+      tmp[1] = new NonTerminalStackNode<IConstructor>(55, 1, "Program", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(57, 2, "layouts_Layout", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(54, 0, "layouts_Layout", null, null);
+      builder.addAlternative(PicoParser.prod__start__Program__layouts_Layout_top_Program_layouts_Layout_, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_prod__start__Program__layouts_Layout_top_Program_layouts_Layout_(builder);
+      
+    }
+  }
+	
+  // Parse methods    
+  
+  public AbstractStackNode<IConstructor>[] layouts_$default$() {
+    return layouts_$default$.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] layouts_Layout() {
+    return layouts_Layout.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Id() {
+    return Id.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Natural() {
+    return Natural.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] String() {
+    return String.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] WhitespaceAndComment() {
+    return WhitespaceAndComment.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Declaration() {
+    return Declaration.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Declarations() {
+    return Declarations.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Expression() {
+    return Expression.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Program() {
+    return Program.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Statement() {
+    return Statement.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] Type() {
+    return Type.EXPECTS;
+  }
+  public AbstractStackNode<IConstructor>[] start__Program() {
+    return start__Program.EXPECTS;
+  }
+}

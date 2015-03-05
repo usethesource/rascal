@@ -39,6 +39,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   solve(todo) {  
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
+
       if (cond has symbol, cond.symbol is lex || cond.symbol is sort || cond.symbol is keywords, isFinite(g, cond.symbol)) {
         if (cond.symbol.name in names) {
           continue;
@@ -47,6 +48,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
         todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
       }
       else {
+
         done += cond;
       }
     }

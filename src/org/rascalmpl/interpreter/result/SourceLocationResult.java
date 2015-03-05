@@ -144,7 +144,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		case "user": 
 		case "port": 
 			URI uri = value.getURI();
-			if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
+			if (!URIResolverRegistry.getInstance().supportsHost(value)) {
 				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the " + name + " field, use authority instead.", tf.sourceLocationType(), ctx.getCurrentAST());
 			}
 			if (name.equals("host")) {
@@ -251,17 +251,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		case "ls": {
 			try {
-				ISourceLocation resolved = ctx.getHeap().resolveSourceLocation(value);
-				if (!URIResolverRegistry.getInstance().isDirectory(resolved.getURI())) {
+				if (!URIResolverRegistry.getInstance().isDirectory(value)) {
 					throw RuntimeExceptionFactory.io(vf.string("You can only access ls on a directory, or a container."), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
-				Result<IValue> resRes = makeResult(getType(), resolved, ctx);
 
 				IListWriter w = ctx.getValueFactory().listWriter();
-				Type stringType = tf.stringType();
 
-				for (String elem : URIResolverRegistry.getInstance().listEntries(resolved.getURI())) {
-					w.append(resRes.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
+				for (ISourceLocation elem : URIResolverRegistry.getInstance().list(value)) {
+					w.append(elem);
 				}
 
 				IList result = w.done();
@@ -376,7 +373,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(value)) {
 					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeHost(uri, newStringValue);
@@ -488,7 +485,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				URI uri = loc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(value)) {
 					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				if (uri.getHost() != null) {
@@ -503,7 +500,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 				
 				URI uri = loc.getURI();
-				if (!URIResolverRegistry.getInstance().supportsHost(uri)) {
+				if (!URIResolverRegistry.getInstance().supportsHost(value)) {
 					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				if (uri.getHost() != null) {

@@ -7,17 +7,16 @@ public class CompilerError extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	
 	public CompilerError(String msg) {
-	
-		super("Internal compiler error: " + msg);
+		super(msg);
 	}
 	
 	public CompilerError(String msg, Frame currentFrame) {
-		super("Internal compiler error: " + msg);
+		super(msg);
 		printStackTrace(currentFrame, new PrintWriter(System.out));
 	}
 	
 	public CompilerError(String msg, PrintWriter out, Frame currentFrame) {
-		super("Internal compiler error: " + msg);
+		super(msg);
 		printStackTrace(currentFrame, out);
 	}
 	
@@ -28,7 +27,7 @@ public class CompilerError extends RuntimeException {
 
 			for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
 				//stdout.println("at " + f.function.name);
-				stdout.println("\t in " + f);
+				stdout.println("\t" + f);
 			}
 		} else {
 			stdout.println("No call stack available");

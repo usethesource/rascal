@@ -86,31 +86,6 @@ public class GlobalEnvironment {
 		sourceResolvers.put(scheme, function);
 	}
 	
-	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
-		int pos;
-		
-		ICallableValue resolver = sourceResolvers.get(scheme);
-		if (resolver == null) {
-			for (char sep : new char[] {'+',':'}) {
-				pos = scheme.indexOf(sep);
-				if (pos != -1) {
-					scheme = scheme.substring(0, pos);
-				}
-			}
-
-			resolver = sourceResolvers.get(scheme);
-			if (resolver == null) {
-				return loc;
-			}
-		}
-		
-		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-		IValue[] argValues = new IValue[] { loc };
-		
-		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
-	}
-	
 	/**
 	 * Allocate a new module on the heap
 	 * @param name
@@ -206,6 +181,7 @@ public class GlobalEnvironment {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
+
 	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
 		return getParser(rascalParsersForModules, module, productions);
 	}
