@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.load;
 
-import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -19,9 +18,9 @@ public class SourceLocationListContributor implements IRascalSearchPathContribut
   }
   
   @Override
-  public void contributePaths(List<URI> path) {
+  public void contributePaths(List<ISourceLocation> path) {
     for (IValue elem : locs) {
-      path.add(((ISourceLocation) elem).getURI());
+      path.add(((ISourceLocation) elem));
     }
   }
 

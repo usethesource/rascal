@@ -14,52 +14,78 @@ public class OverloadedFunctionInstanceCall {
 	final int[] constructors;
 	final Frame cf;
 	
-	final Frame env;
+	final Frame previousScope;
 	final Type types;
 	
 	final int arity;
 	final Object[] stack;
 	final int sp;
 	
-	int i = 0;
+	int alternative = 0;
 	
-	public OverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, Frame env, Type types, int arity) {
+	public OverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final Frame previousScope, final Type types, final int arity) {
 		this.cf = cf;
+		assert functions.length + constructors.length > 0;
+		assert functions.length == 0 && types == null ? constructors.length > 0 : true;
 		this.functions = functions;
 		this.constructors = constructors;
-		this.env = env;
+		this.previousScope = previousScope;
 		this.types = types;
 		this.arity = arity;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 	}
 	
+	public String toString(List<Function> functionStore, List<Type> constructorStore){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstanceCall[");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				int fi = functions[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(constructors.length > 0){
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				int ci = constructors[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, int scopeIn, Type types, int arity) {
-		for(Frame env = cf; env != null; env = env.previousScope) {
-			if (env.scopeId == scopeIn) {
-				return new OverloadedFunctionInstanceCall(cf, functions, constructors, env, types, arity);
+	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final int scopeIn, final Type types, final int arity) {
+		assert scopeIn != -1 : "OverloadedFunctionInstanceCall, scopeIn should not be -1";
+		for(Frame previousScope = cf; previousScope != null; previousScope = previousScope.previousScope) {
+			if (previousScope.scopeId == scopeIn) {
+				return new OverloadedFunctionInstanceCall(cf, functions, constructors, previousScope, types, arity);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, cf);
 	}
 	
-	public Frame nextFrame(List<Function> functionStore) {
+	public Frame nextFrame(final List<Function> functionStore) {
 		Function f = this.nextFunction(functionStore);
 		if(f == null) {
 			return null;
 		}
-		return cf.getFrame(f, env, arity, sp);
+		return cf.getFrame(f, previousScope, arity, sp);
 	}
 	
-	public Function nextFunction(List<Function> functionStore) {
+	public Function nextFunction(final List<Function> functionStore) {
 		if(types == null) {
-			return i < functions.length ? functionStore.get(functions[i++]) : null;
+			return alternative < functions.length ? functionStore.get(functions[alternative++]) : null;
 		} else {
-			while(i < functions.length) {
-				Function fun = functionStore.get(functions[i++]);
+			while(alternative < functions.length) {
+				Function fun = functionStore.get(functions[alternative++]);
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -74,8 +100,12 @@ public class OverloadedFunctionInstanceCall {
 		return null;
 	}
 	
-	public Type nextConstructor(List<Type> constructorStore) {
+	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
+			if(constructors.length == 0){
+				System.err.println("empty constructor list!");
+			}
+			assert constructors.length >= 1;
 			return constructorStore.get(constructors[0]);
 		} else {
 			for(int index : constructors) {
@@ -100,7 +130,7 @@ public class OverloadedFunctionInstanceCall {
 	 * - only constructors without keyword parameters may be directly called within an overloaded function call, 
 	 * - constructors with keyword parameters are indirectly called via companion functions.
 	 */
-	public IValue[] getConstructorArguments(int arity) {
+	public IValue[] getConstructorArguments(final int arity) {
 		IValue[] args = new IValue[arity];
 		for(int i = 0; i < arity; i++) {
 			args[i] = (IValue) stack[sp - this.arity + i]; 

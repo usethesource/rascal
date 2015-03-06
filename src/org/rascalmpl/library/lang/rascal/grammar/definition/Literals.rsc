@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -26,7 +26,11 @@ public list[Symbol] str2syms(str x) {
   return [\char-class([range(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
 }
 
-private list[Symbol] cistr2syms(str x) {
+test bool tstStr2Syms0() = str2syms("") == [];
+test bool tstStr2Syms1() = str2syms("a") == [\char-class([range(97,97)])];
+test bool tstStr2Syms2() = str2syms("ab") == [\char-class([range(97,97)]),\char-class([range(98,98)])];
+
+list[Symbol] cistr2syms(str x) {
   return for (i <- [0..size(x)], int c:= charAt(x,i)) {
      if (c >= 101 && c <= 132) // A-Z
         append \char-class([range(c,c),range(c+40,c+40)]);
@@ -36,6 +40,10 @@ private list[Symbol] cistr2syms(str x) {
         append \char-class([range(c,c)]);
   } 
 }
+
+test bool tsCistr2syms0() = cistr2syms("") == [];
+test bool tsCistr2syms1() = cistr2syms("a") == [\char-class([range(97,97)])];
+test bool tsCistr2syms2() = cistr2syms("A") == [\char-class([range(65,65)])];
 
 public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
@@ -76,4 +84,7 @@ public str unescape(str s) {
     case /\\\>/ => "\>"    
   };      
 }
+
+test bool tstUnescape1() = unescape("a\\tb") == "a\tb";
+test bool tstUnescape2() = unescape("a\\tb\\\'c") == "a\tb\'c";
 

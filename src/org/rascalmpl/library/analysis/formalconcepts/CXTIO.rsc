@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -29,4 +29,11 @@ public FormalContext[str, str] readCxt(loc input)  {
          }
     return toFormalContext(vb);
     }
-   
+
+loc input = |file:///ufs/bertl/cxt/digits.cxt|;
+
+public void main() {
+     FormalContext[str, str] d = readCxt(input);
+     ConceptLattice[str, str] e = fca(d);
+     println(toDotString(e));
+     }  

@@ -1,8 +1,11 @@
 @bootstrapParser
 module experiments::Compiler::Compile
 
-import Prelude;
+import IO;
+import ValueIO;
+import String;
 import Message;
+import ParseTree;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
@@ -109,7 +112,7 @@ private RVMProgram compile1(loc moduleLoc, bool listing=false, bool recompile=fa
        	    for(e:error(_,_) <- messages){
        	        println(e);
        	    }
-       	    rvmProgram = errorRVMProgram(muMod.name, messages);
+       	    rvmProgram = errorRVMProgram(muMod.name, messages, muMod.src);
        	} else {
        	    imp_messages = {};
        	    imp_with_errors = {};
@@ -127,14 +130,14 @@ private RVMProgram compile1(loc moduleLoc, bool listing=false, bool recompile=fa
            	    for(Message e:error(_,_) <- imp_messages){
                     println(e);
                 }
-           	    rvmProgram = errorRVMProgram(muMod.name, messages + imp_messages);
+           	    rvmProgram = errorRVMProgram(muMod.name, messages + imp_messages, muMod.src);
            	} else {
            	    println("compile: Generating rvm for <moduleLoc>");
            	    rvmProgram = mu2rvm(muMod, listing=listing); 
            	}                         
         }
    	} catch x : {
-   	    rvmProgram = errorRVMProgram(basename(moduleLoc), {error("Fatal compilation error: <x>", moduleLoc)});
+   	    rvmProgram = errorRVMProgram(basename(moduleLoc), {error("Fatal compilation error: <x>", moduleLoc)}, moduleLoc);
    	}
    	
    	println("compile: Writing compiled version <rvmProgramLoc>");

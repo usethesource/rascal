@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -46,6 +46,8 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   return grammar(starts, rules);
 } 
            
+Grammar grammar(type[&T <: Tree] sym)
+	= grammar({sym.symbol}, sym.definitions);
 
   
 @doc{
@@ -65,11 +67,37 @@ public Grammar compose(Grammar g1, Grammar g2) {
     else
       g1.rules[s] = g2.rules[s];
   g1.starts += g2.starts;
-  return innermost visit(g1) {
-    case c:choice(_, {p, *r, Production x:priority(_,/p)}) => c[alternatives = {x, *r}]
-    case c:choice(_, {p, *r, Production x:associativity(_,_,/p)}) => c[alternatives = {x, *r}]
-  };
+
+  reduced_rules = ();
+  for(s <- g1.rules){
+  	  c = g1.rules[s];
+  	  c.alternatives -= { *choices | priority(_, choices) <- c.alternatives } +
+  		                { *alts | associativity(_, _, alts) <- c.alternatives};
+  	  reduced_rules[s] = c;
+  }
+  
+  return grammar(g1.starts, reduced_rules);
 }    
+
+// TODO:COMPILER
+// The above code (temporarily?) replaces the following code
+// Reason: the algorithm is faster and compiled code chokes in the set matches
+// for not yet known reason.
+
+//public Grammar compose(Grammar g1, Grammar g2) {
+//  set[Production] empty = {};
+//  for (s <- g2.rules)
+//    if (g1.rules[s]?)
+//      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+//    else
+//      g1.rules[s] = g2.rules[s];
+//  g1.starts += g2.starts;
+//
+//  return innermost visit(g1) {
+//    case c:choice(_, {p, *r, Production x:priority(_,/p)}) => c[alternatives = {x, *r}]
+//    case c:choice(_, {p, *r, Production x:associativity(_,_,/p)}) => c[alternatives = {x, *r}]
+//  };
+//}    
 
 public rel[str, str] extends(GrammarDefinition def) {
   return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
@@ -78,4 +106,5 @@ public rel[str, str] extends(GrammarDefinition def) {
 public rel[str,str] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
+
 

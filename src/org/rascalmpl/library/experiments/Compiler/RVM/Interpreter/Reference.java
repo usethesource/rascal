@@ -10,7 +10,7 @@ public class Reference {
 	final Object[] stack;
 	final int pos;
 	
-	public Reference(Object[] stack, int pos) {
+	public Reference(final Object[] stack, final int pos) {
 		this.stack = stack;
 		this.pos = pos;
 	}
@@ -31,5 +31,9 @@ public class Reference {
 	 */
 	public void undefine(){
 		stack[pos] = null;
+	}
+	
+	public String toString(){
+		return "ref[@" + stack.hashCode() + ":" + pos + " => " + stack[pos] + "]";
 	}
 }

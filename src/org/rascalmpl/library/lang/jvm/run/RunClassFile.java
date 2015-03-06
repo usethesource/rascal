@@ -32,7 +32,8 @@ public class RunClassFile {
 	
 	private Class<?> getClass(ISourceLocation path, IEvaluatorContext ctx,BinaryClassLoader load){
 		try {
-			URI input = ctx.getResolverRegistry().getResourceURI(path.getURI());
+			assert path.getURI().getScheme().equals("file");
+			URI input = path.getURI();
 			Class<?> c = load.defineClass(input);
 			return c;
 		} catch(IOException e){

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -75,8 +75,13 @@ For every position in the production that is restricted, and for every restricti
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), g.rules[s]?, except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
-  
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
+ 
+
+//TODO: compiler issues when  g.rules[s]? is inlined
+bool isdef(Grammar g, Symbol s) = g.rules[s]?;
+
+
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
@@ -110,12 +115,12 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {
-    case prod(s, [*Symbol \o, t],{_*,\assoc(left())}) :
-      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
-    case prod(s,[*Symbol \o, t],{_*,\assoc(\assoc())}) :
-      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
-    case prod(s,[t,_*],{_*,\assoc(\right())}) :
-      if (match(t, lefties)) return <{},{<p, 0, p>}>; 
+    case prod(s, [t, *Symbol \o, u],{_*,\assoc(left())}) :
+      if (match(t, lefties), match(u,righties)) return <{},{<p, size(\o) + 1, p>}>;
+    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\assoc())}) :
+      if (match(t, lefties), match(u, righties)) return <{},{<p, size(\o) + 1, p>}>;
+    case prod(s,[t,_*,u],{_*,\assoc(\right())}) :
+      if (match(t, lefties), match(u, righties)) return <{},{<p, 0, p>}>; 
     case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
       if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
@@ -149,8 +154,7 @@ tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts,
   for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        for (/Production father:prod(Symbol rhs, lhs:[_*,Symbol r],_) <- rest, match(r,rhs)) 
-          result += {<father, size(lhs) - 1, child>};
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};  
       case \assoc():
         result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};
       case \right():

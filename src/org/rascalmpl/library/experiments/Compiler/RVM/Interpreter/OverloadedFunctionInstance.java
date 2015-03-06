@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -26,8 +27,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 	
 	final RVM rvm;
 	
-	public OverloadedFunctionInstance(int[] functions, int[] constructors, Frame env, 
-										List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
+									  final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -36,21 +37,45 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		this.rvm = rvm;
 	}
 	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstance[");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				int fi = functions[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(constructors.length > 0){
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				int ci = constructors[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
-	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
-			                                                                     List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
+			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, rvm.getStdErr(), cf);
 	}
 
 	@Override
 	public Type getType() {
+		// TODO: this information should probably be available statically?
 		if(this.type != null) {
 			return this.type;
 		}
@@ -60,7 +85,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		}
 		for(int constr : this.constructors) {
 			Type type = constructorStore.get(constr);
-			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), type.getKeywordParameterTypes()));
+			// TODO: void type for the keyword parameters is not right. They should be retrievable from a type store dynamically.
+			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), TypeFactory.getInstance().voidType()));
 		}
 		this.type = RascalTypeFactory.getInstance().overloadedFunctionType(types);
 		return this.type;

@@ -5,6 +5,7 @@ import Node;
 import String;
 import IO;
 import List;
+import ListRelation;
 import util::Cursor;
 import Type;
 import lang::json::IO;
@@ -18,7 +19,8 @@ private str site = ""; // localhost as string (for current translation)
  
  str figToJSON(Figure fig, str s){
  	site = s;
- 	return figToJSON(fig, emptyFigure());
+ 	// println(fig);
+ 	return r = figToJSON(fig, emptyFigure());
  }
  
  
@@ -258,7 +260,7 @@ str trCursor(value v, bool deep = false){
 
 str toJSNumber(num n) {
 	s = "<n>";
-	return s[-1] == "." ? "<s>0" : s;
+	return (s[-1] == "." ? "<s>0" : s);
 }
 
 str escape(str s) = escape(s, (	"\"" : "\\\"", 
@@ -506,114 +508,116 @@ str figToJSON(figure: rotate(num angle, Figure fig), Figure parent){
 // --------- Describe all flavors of all chart layouts
 
 map[str, set[str]] layoutFlavors = (
-	"barChart":	
-		{"nvBarChart", "vegaBarChart"},
-	"lineChart":
-		{"nvLineChart", "nvLineWithFocusChart"},
 	"graph":
 		{"layeredGraph", "springGraph"}
 );
 
 // ---------- Generate different output formats
 
-// ---------- NVD3 output
 
-str trNvDataset(Datasets ds) = 
-	"\"datasets\": [ <intercalate(",\n", [ trNvSeries(key, ds[key]) | key <- ds ])> ]";
+num getClass(num lo, num hi, int N, num v) {
+    num r = round(lo +  floor(N*(v-lo)/(hi-lo))*(hi-lo)/N, 0.01);
+    // println("getClassR:<lo> <hi> <N> <r>");
+    return r;
+    }
 
-str trNvSeries(str key, lrel[num x, num y] xyData) {
-	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- xyData]);
-	return
-		"{ \"key\":    \"<key>\",
-		'  \"values\": [ <xy> 
-		'	           ]
-		'}";
-}
-
-str trNvSeries(str key, lrel[str label, num val] labeledData) {
-	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- labeledData]);
-	return
-		"{ \"key\":    \"<key>\",
-		'  \"values\": [ <values> 
-		'	           ]
-		'}";
-}
-
-str trNVSeries(str key, Datasets[&T] ds) {
-	throw "trNVSeries: not recognized: <ds>";
-}
-
-// ---------- Vega output
-
-str trVegaDataset(Datasets ds) = 
-	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
-
-str trVegaSeries(str key, lrel[num x, num y] xyData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- xyData ]);
-
-str trVegaSeries(str key, lrel[str label, num val] labeledData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- labeledData ]);
-
-str trVegaSeries(str key, Datasets[&T] ds) {
-	throw "trVegaSeries: not recognized: <ds>";
-}
 
 // ---------- Utility for all charts -------------------
 
-str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
-	if(!layoutFlavors[chartType]? || chart.flavor notin layoutFlavors[chartType]){
-		throw "Unknow chart flavor \"<chart.flavor>\" for <chartType>";
-	}
-	xaxis = chart.xAxis;
-	yaxis = chart.yAxis;
-	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
-	return
-	"{\"figure\": \"<chartType>\",
-	' \"flavor\": \"<chart.flavor>\", 
-	' \"xAxis\":  {\"label\": \"<xaxis.label>\", \"tick\": \"<xaxis.tick>\" },
-	' \"yAxis\":  {\"label\": \"<yaxis.label>\", \"tick\": \"<yaxis.tick>\" },
-	' <datasets>
-	'  <isEmpty(extraProps) ? "" : ", <extraProps>"> <propsToJSON(chart, parent)> 
-	'}";
-}
-
-str trVega(Figure chart, Figure parent) {
-    str modul    = chart.\module;
-    str dataFile = chart.dataFile;
-    str datasets = trVegaDataset(chart.datasets); 
-    // println(datasets);
+    
+ str trCombo(Figure chart, Figure parent) {
+    list[Chart] charts = chart.charts;
+    str d = 
+      toJSON(joinData(charts, chart.tickLabels, chart.tooltipColumn), true);
+    // str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)]);
+    str cmd = "ComboChart";
+    ChartOptions options = updateOptions(charts, chart.options);
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
     return 
-    "{\"figure\": \"vega\",
-    ' \"module\": \"<modul>\",
-    ' <isEmpty(dataFile)?datasets:"\"data\":\"<dataFile>\"">
-    ' <propsToJSON(chart, parent)>
+    "{\"figure\": \"google\",
+     '\"command\": \"<cmd>\",
+    ' \"options\": <toJSON(adt2map(options), true)>,
+    ' \"data\": <d>
+    '  <propsToJSON(chart, parent)> 
+    '}";   
+   
+    }
+    
+ str trChart(Figure chart, Figure parent, str cmd, str d) {   
+    ChartOptions options = chart.options;
+    if (options.width>=0) chart.width = options.width;
+    if (options.height>=0) chart.height = options.height;
+    return 
+    "{\"figure\": \"google\",
+     '\"command\": \"<cmd>\",
+    ' \"options\": <adt2json(options)>,
+    ' \"data\": <d>,
+    '\"columns\": [] 
+    '  <propsToJSON(chart, parent)> 
     '}";   
    
     }
 
-// ---------- barChart ----------
-
-//str figToJSON(chart: barChart(), Figure parent) {
-//
-//	if(chart.orientation notin {"vertical", "horizontal"}){
-//		throw "orientation has illegal value: <chart.orientation>";
-//	}
-//	return trChart("barChart", chart, parent, 
-//		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
-//}
+// ---------- googleChart ----------
 
 
-str figToJSON(chart: vegaChart(), Figure parent) {
-	return trVega(chart, parent);
+str figToJSON(chart: combochart(), Figure parent) {
+    // println("trCombo");
+	return trCombo(chart, parent);
 }
 
-// ---------- lineChart ----------
+str figToJSON(chart: piechart(XYLabeledData d), Figure parent) {
+    // println("trPiechart");
+    str dat = toJSON(strip(d, true), true);
+	return trChart(chart, parent, "PieChart", dat);
+}
 
-// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+str figToJSON(chart: linechart(XYLabeledData d), Figure parent) {
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "LineChart", dat);
+}
 
+str figToJSON(chart: linechart(XYData d), Figure parent) {
+    str dat = toJSON(strip(d), true);
+	return trChart(chart, parent, "LineChart", dat);
+}
 
-// ---------- graph ----------
-// str orientation = "topDown", int nodeSep = 10, int edgeSep=10, int layerSep= 10, 
+str figToJSON(chart: scatterchart(XYLabeledData d), Figure parent) {  
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat);
+}
+
+str figToJSON(chart: scatterchart(XYData d), Figure parent) {
+    str dat = toJSON(strip(d), true);
+    println(dat);
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+	return trChart(chart, parent, "LineChart", dat);
+}
+
+str figToJSON(chart: barchart(XYLabeledData d), Figure parent) {
+    str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "BarChart", dat);
+}
+
+str figToJSON(chart: candlestickchart(BoxData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat);
+}
+
+str figToJSON(chart: candlestickchart(BoxLabeledData d, BoxHeader header), Figure parent) {
+    // println("candelestick");
+    str dat = toJSON(strip(d, header), true);
+	return trChart(chart, parent, "CandlestickChart", dat);
+}
 
 str figToJSON(figure: graph(), Figure parent) { 
 	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
@@ -638,39 +642,14 @@ str figToJSON(figure: graph(), Figure parent) {
 									    '  \"inner\":  <figToJSON(f[1], figure)>
  										'}" | f <- nodes])>
 	'           ],  
-	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<label>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, figure)>}"| e: edge(from,to,label) <- edges])>
+	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<lab>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, figure)>}"| e: edge(from,to,lab) <- edges])>
 	'         ]
 	' <propsToJSON(figure, parent)> 
 	'}";
 }
 
-//str figToJSON(figure: graph(), Figure parent) { 
-//	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
-//		throw "Unknow graph flavor \"<figure.flavor>\"";
-//	}
-//	nodes = figure.nodes;
-//	edges = figure.edges;
-//	println("nodes = <nodes>");
-//	println("edges = <edges>");
-//	return
-//	"{\"figure\": \"graph\", 
-//	' \"flavor\": \"<figure.flavor>\",
-//	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"name\": \"<f>\",
-//	'                                      \"value\" : {\"label\": \"<f>\",
-//														\"inner\":  <figToJSON(nodes[f], parent)>
-//	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
-//	'             ],  
-//	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"source\" : \"<from>\",
-//	'									  \"v\": \"<to>\", \"target\": \"<to>\",
-//	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
-//	'         ]
-//	' <propsToJSON(figure, parent)> 
-//	'}";
-//}
 
-// edge
-
-str figToJSON(figure: edge(int from, int to)) {
+str figToJSON(figure: edge(str from, str to, str lab)) {
 	throw "edge should not be translated on its own";
 }
 
@@ -678,21 +657,21 @@ str figToJSON(figure: edge(int from, int to)) {
 
 // ---------- choice ----------
 
-str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) { 
-	int selection = figure.selection;
-	choices = figure.figs;
-	if(isCursor(selection)){
-	   return 
-		"{\"figure\": 	\"choice\",
-		' \"selector\":	<trCursor(selection)>,
-    	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
-   	    '              ] 
-   	    ' <propsToJSON(figure, parent)>
-    	'}";
-    } else {
-    	throw "choice: selection should be a cursor: <selection>";
-    }
- }
+//str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) { 
+//	int selection = figure.selection;
+//	choices = figure.figs;
+//	if(isCursor(selection)){
+//	   return 
+//		"{\"figure\": 	\"choice\",
+//		' \"selector\":	<trCursor(selection)>,
+//    	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
+//   	    '              ] 
+//   	    ' <propsToJSON(figure, parent)>
+//    	'}";
+//    } else {
+//    	throw "choice: selection should be a cursor: <selection>";
+//    }
+// }
 
  // ---------- visible ----------
  
@@ -773,3 +752,6 @@ str figToJSON(figure: strInput(), Figure parent) =
 
 default str figToJSON(Figure f, Figure parent) { throw "figToJSON: cannot translate <f>"; }
 
+public void main() {
+   println(toJSON("aap"));
+   }

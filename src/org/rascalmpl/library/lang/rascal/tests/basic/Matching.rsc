@@ -10,7 +10,7 @@ syntax As = as: A+ alist;
 
 syntax C = c: A a "x" As as;
 
-syntax D = d: "d";
+syntax D = d: "d" | e: "e" D d;
 
 syntax Ds = ds: {D ","}+ dlist;
 
@@ -106,3 +106,9 @@ test bool tstQNameInPatterns() {
 	return tst && tstSwitch && tstFuncCalls;
 }
 
+test bool deepMatchKeywordParameter() = /int i := "f"("f"(x=[1]));
+
+bool dispatch(e(D _)) = true;
+bool dispatch(d()) = false;
+
+test bool dispatchTest() = dispatch((D) `ed`) && !dispatch((D) `d`);

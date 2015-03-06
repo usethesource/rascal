@@ -1,7 +1,9 @@
 module experiments::Compiler::muRascal::AST
 
-import Prelude;
 import Message;
+import List;
+import Node;
+import Type;   
 
 /*
  * Abstract syntax for muRascal.
@@ -23,10 +25,11 @@ public data MuModule =
                        int nlocals_in_initializations,
                        map[str,int] resolver,
                        lrel[str,list[str],list[str]] overloaded_functions,
-                       map[Symbol, Production] grammar)
+                       map[Symbol, Production] grammar,
+                       loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], ());
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -69,8 +72,10 @@ public data MuExp =
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
+          | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
           | muTmp(str name, str fuid)							// Temporary variable introduced by front-end
+       
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, str fuid, int pos)
@@ -108,12 +113,14 @@ public data MuExp =
           			   list[MuExp] largs)						// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
-          | muReturn1(MuExp exp)									// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          | muReturn1(MuExp exp)								// Return from a function with value
+          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
+          
+          | muInsert(MuExp exp)									// Insert statement
               
-           // Assignment, If and While
+          // Assignment, If and While
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
@@ -133,7 +140,9 @@ public data MuExp =
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
           
-          | muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)		// switch over cases for specific type
+          | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
+         	
+          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
@@ -183,11 +192,24 @@ public data MuExp =
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
 public MuExp muOne1(muMulti(MuExp exp)) = muOne1(exp);
 
-anno loc MuExp@\loc;
+anno loc MuModule@\location;
+anno loc MuFunction@\location;
+anno loc MuVariable@\location;
+anno loc MuExp@\location;
+anno loc MuCatch@\location;
+anno loc MuCase@\location;
+anno loc Identifier@\location;
+anno loc VarDecl@\location;
+
+anno loc Module@\location;
+anno loc TypeDeclaration@\location;
+anno loc Guard@\location;
+anno loc Function@\location;
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
-data MuTypeCase = muTypeCase(str name, MuExp exp);	  
+data MuTypeCase = muTypeCase(str name, MuExp exp);
+data MuCase = muCase(int fingerprint, MuExp exp);	  
        	  
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
@@ -275,7 +297,8 @@ public data MuExp =
             | preWhile(MuExp cond, list[MuExp] body, bool comma)
             | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
-            | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
+            | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepTypeCases, MuExp \default, bool comma)
+ //           | preSwitch(MuExp exp, lrel[MuCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
             
             | preSubscript(MuExp arr, MuExp index)
@@ -286,12 +309,11 @@ public bool isOverloadedFunction(muOFun(str _)) = true;
 //public bool isOverloadedFunction(muOFun(str _, str _)) = true;
 public default bool isOverloadedFunction(MuExp _) = false;
 
-MuExp muCallPrim(str name) = muCallPrim2(name, |unknown:///no-location-available|);
-MuExp muCallPrim(str name, list[MuExp] exps) = muCallPrim3(name, exps, |unknown:///no-location-available|);
-
 
 //--------------- constant folding rules ----------------------------------------
-// These rules should go to experiments::Compiler::RVM::Interpreter::ConstantFolder.rsc
+// TODO:
+// - These rules should go to a separate module
+// - Introduce a library function applyPrim(str name, list[value] args) to simplify these rules and cover more cases
 
 
 bool allConstant(list[MuExp] args) { b = isEmpty(args) || all(a <- args, muCon(_) := a); /*println("allConstant: <args> : <b>"); */return b; }
@@ -309,7 +331,16 @@ MuExp muCallPrim3("int_add_int", [muCallPrim3("int_add_int", [MuExp e, muCon(int
 
 MuExp muCallPrim3("int_add_int", [muCon(int n1), muCallPrim3("int_add_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
       muCallPrim3("int_add_int", [muCon(n1 + n2), e], src2);
-      
+
+// Integer subtraction
+ 
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
+
+MuExp muCallPrim3("int_subtract_int", [muCallPrim3("int_subtract_int", [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muCallPrim3("int_subtract_int", [e, muCon(n1 - n2)], src2);
+
+MuExp muCallPrim3("int_subtract_int", [muCon(int n1), muCallPrim3("int_subtract_int", [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muCallPrim3("int_subtract_int", [muCon(n1 - n2), e], src2);      
 
 // Integer multiplication
 
@@ -331,7 +362,7 @@ MuExp muCallPrim3("str_add_str", [muCallPrim3("str_add_str", [MuExp e, muCon(str
 MuExp muCallPrim3("str_add_str", [muCon(str s1), muCallPrim3("str_add_str", [muCon(str s2), MuExp e], loc src1)], loc src2)  =
       muCallPrim3("str_add_str", [muCon(s1 + s2), e], src2);
 
-// Composite datatypes
+// Create composite datatypes
 
 MuExp muCallPrim3("list_create", list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
       when allConstant(args);
@@ -350,9 +381,8 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), m
 
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
-      
-MuExp muCallPrim3("appl_create", [muCon(value prod), muCon(list[value] args)], loc src) = muCon(makeNode("appl", prod, args));
 
-// muRascal primitives
 
-//MuExp muCallMuPrim(str name, list[MuExp] exps) = x;
+//// muRascal primitives
+//
+////MuExp muCallMuPrim(str name, list[MuExp] exps) = x;

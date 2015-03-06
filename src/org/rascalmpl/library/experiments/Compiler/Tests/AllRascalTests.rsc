@@ -5,6 +5,7 @@ import Type;
 import List;
 import DateTime;
 import experiments::Compiler::Execute;
+import String;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -15,7 +16,7 @@ list[str] basicTests = [
 "Functions",				// OK
 "Integers",                 // OK
 "IO",						// OK
-
+"IsDefined",				// OK
 "ListRelations",			// OK
 "Lists",                    // OK
 "Locations",			    // OK
@@ -23,6 +24,7 @@ list[str] basicTests = [
 "Matching",					// OK
 "Memoization",
 "Nodes",					// OK
+"Overloading",
 "Relations"	,				// OK
 "Sets",						// OK
 "SolvedIssues",				// OK
@@ -39,20 +41,24 @@ list[str] functionalityTests = [
 "AssignmentTests",			// OK
 "BacktrackingTests",		// OK
 "CallTests",				// OK
+"CallTestsAux",
 "ComprehensionTests",		// OK, 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "ConcretePatternTests1",	// OK
 "ConcretePatternTests2",	// OK
 "ConcreteSyntaxTests1",     // OK
 "ConcreteSyntaxTests2",     // OK
-
+"ConcreteTerms",			// OK
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
 "DeclarationTests",			// OK
 "FunctionCompositionTests",	// OK
 "InterpolationTests",
+"KeywordParameterImportTests",
+"KeywordParameterTests",
+"ParsingTests",
 "PatternTests",				// OK
-"PatternTestsDescendant",
-"PatternTestsList3",
+"PatternDescendantTests",
+"PatternList3Tests",
 "ProjectionTests", 			// OK
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 "ReducerTests",				// OK
@@ -71,8 +77,7 @@ list[str] libraryTests = [
 
 // OK
 
-"lang/csv/CSVIOTests",      // OK
-"lang/json/JSONIOTests",    // OK
+
 "BooleanTests",			    // OK
 "GraphTests",			    // OK
 "IntegerTests",			    // OK
@@ -85,14 +90,54 @@ list[str] libraryTests = [
 "RelationTests",		    // OK
 "SetTests",				    // OK
 "StringTests",			    // OK
-"ValueIOTests"
+"TypeTests",
+"ValueIOTests",
+"analysis/statistics/DescriptiveTests",
+"analysis/statistics/RangeUtils",
+"lang/csv/CSVIOTests",      // OK
+"lang/json/JSONIOTests"    // OK
+];
+
+list[str] importTests = [
+"Extending",				// OK
+"ImportTests1",             // OK
+"ImportTests2",             // OK
+"ImportTests3",             // OK
+"ImportTests4",             // OK
+"ImportTests5",             // OK
+"ImportTests6",             // OK
+"ImportTests7",              // OK
+"ImportTests8",              // OK
+"ModuleInitRange"
+];
+
+list[str] typeTests = [
+"StaticTestingUtilsTests",	// OK
+"AccumulatingTCTests",			// OK
+"AliasTCTests",					// Overflow
+//"AllStaticIssues",
+//"AnnotationTCTests",
+//"AssignmentTCTests",
+//"CallTCTests",
+//"ComprehensionTCTests",
+//"DataDeclarationTCTests",
+//"DataTypeTCTests",
+//"DeclarationTCTests",
+//"ImportTCTests",
+//"PatternTCTests",
+//"ProjectionTCTests",
+//"RegExpTCTests",
+//"ScopeTCTests",
+//"StatementTCTests",
+//"SubscriptTCTests",
+"VisitTCTests"
 ];
 
 
 list[str] files_with_tests =
 [
 "demo/basic/Ackermann",                             // OK
-"demo/basic/Bubble",                                // 1 fails
+"demo/basic/Bubble",                                // OK
 "demo/basic/Factorial",                             // OK
 "demo/common/Calls",                                // OK
 "demo/common/ColoredTrees",                         // OK
@@ -109,7 +154,7 @@ list[str] files_with_tests =
 "demo/common/WordCount/WordCount",                  // OK
 "demo/Dominators",                                  // OK
 "demo/lang/Exp/Abstract/Eval",                      // OK
-"demo/lang/Exp/Combined/Automatic/Eval",            // 1 fails
+"demo/lang/Exp/Combined/Automatic/Eval",            // OK
 "demo/lang/Exp/Combined/Manual/Eval",               // static errors
 "demo/lang/Exp/Concrete/NoLayout/Eval",             // 4 fail, parse error, incomplete grammar info
 "demo/lang/Exp/Concrete/WithLayout/Eval",           // 4 fail parse error, incomplete grammar info
@@ -120,22 +165,36 @@ list[str] files_with_tests =
 "demo/Slicing",                                     // OK
 "demo/Uninit",                                      // OK
 "lang/rascal/format/Escape",                        // OK
-"lang/rascal/format/Grammar",                       // 2 fail
-"lang/rascal/grammar/definition/Characters",        // 1 fails
-"lang/rascal/grammar/Lookahead",                    // 2 fail
+"lang/rascal/format/Grammar",                       // OK
+"lang/rascal/grammar/definition/Characters",        // OK
+"lang/rascal/grammar/definition/Literals",          // OK
+"lang/rascal/grammar/Lookahead",                    // OK
+"lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
+"lang/rascal/grammar/tests/PicoGrammar",            // ok
+"lang/rascal/grammar/tests/CGrammar",            	// ok
+"lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
-"lang/rascal/syntax/tests/KnownIssues",             // 1 fail, parse error
-"lang/rascal/syntax/tests/ParsingRegressionTests",  // 2 fail
-"lang/rascal/syntax/tests/PreBootstrap",            // 2 fail
-"lang/rascal/syntax/tests/SolvedIssues",            // 10 fail, parse errors
-"lang/yaml/Model",                                  // 1 fails, illegal argument
+"lang/rascal/syntax/tests/KnownIssues",             // OK
+//"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+"lang/rascal/syntax/tests/PreBootstrap",            // OK
+"lang/rascal/syntax/tests/SolvedIssues",            // OK
+"lang/rascal/types/tests/AbstractKindTests",
+"lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/UtilTests",
+"lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
 
-
+list[str] reachability_tests = [
+"ConcretePatternTests2",
+"PatternTests",
+"PatternDescendantTests",
+"StatementTests",						
+"VisitTests"	
+];
 
 lrel[loc,str] crashes = [];
 lrel[loc,str] partial_results = [];
@@ -145,11 +204,17 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(tst <- names){
       prog = base + (tst + ".rsc");
       try {
-	      if(lrel[loc,int,str] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
 	         all_test_results += test_results;
+	         
+	          for(msg <- test_results.msgs){
+                if(msg != "" && msg != "FALSE" && findFirst(msg, "test fails for arguments:") < 0){
+                    crashes += <prog, msg>;
+                } 
+              }
 	      } else {
 	         println("testsuite did not return a list of test results");
 	      }
@@ -167,12 +232,16 @@ value main(list[value] args){
   partial_results = [];
   all_results = [];
    
-  all_results += runTests(files_with_tests, |rascal:///|);
+  //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
    
-  //all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
-  //all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
-  //all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
-  
+  //all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
+  //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //
+  //all_results += runTests(files_with_tests, |std:///|);
+  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
   for(<prog, s> <- partial_results)

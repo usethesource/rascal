@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -29,13 +29,11 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
       todo -= {cond};
       
       if (cond has symbol, keywords(str name) := cond.symbol) {
-        if (name in names) {
-          continue;
-        }
-        names += {name};
-        todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
-      }
-      else {
+        if (name notin names) {
+        	names += {name};
+        	todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+      	}  
+      } else {
         done += cond;
       }
     }

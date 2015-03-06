@@ -5,7 +5,7 @@ import ValueIO;
 import Type;
 
 void main(list[value] args){
-  l = |rascal:///experiments/Compiler/Tests/XXX|;
+  l = |std:///experiments/Compiler/Tests/XXX|;
   v = #int;
   writeTextValueFile(l, v);
   w = readTextValueFile(type(\value(), #Symbol.definitions), l);

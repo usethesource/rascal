@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -209,10 +209,6 @@ test bool prioTest() {
    	         <minimum, minVal, Q> = extractMinimum(Q);
    	         sorted = sorted + [minimum];
    }
-   
-   println("Q=<toString(Q)>");
-   
-   println("sorted=<sorted>");  
    
    return true;
 }

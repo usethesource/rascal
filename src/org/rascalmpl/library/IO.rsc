@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -13,6 +13,48 @@
 module IO
 
 import Exception;
+
+@doc{
+Synopsis: register a logical file scheme including the resolution method via a table.
+
+Description:
+
+Logical source location schemes, such as `|java+interface://JRE/java/util/List|` are used for
+precise qualified names of artifacts while abstracting from their physical location in a specific part
+of a file on disk or from some webserver or source repository location.
+
+Using this function you can create your own schemes. The authority field is used for scoping the 
+names you wish to resolve to certain projects. This way one name can resolve to different locations 
+in different projects.
+
+
+Benefits:
+
+* Logical source locations are supported by IDE features such as hyperlinks
+* Logical source locations are supported by all [IO] functions as well
+
+Pitfalls:
+
+* repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
+* the registry is an intentional memory leak; so make sure you use it wisely.
+* when the files references by the physical locations are being written to (edited, removed), then you
+may expect problems. The registry is not automatically invalidated.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
+
+@doc{
+Synopsis: undo the effect of [registerLocations]
+
+Description:
+
+For debugging or for memory management you may wish to remove a lookup table.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void unregisterLocations(str scheme, str authority);
+
+@javaClass{org.rascalmpl.library.Prelude}
+java loc resolveLocation(loc l);
 
 @doc{
 Synopsis: Append a value to a file.
@@ -32,7 +74,6 @@ Pitfalls:
 * The same encoding pitfalls as the [readFile] function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -49,7 +90,6 @@ Append a textual representation of some values to an existing or a newly created
 Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void appendToFileEnc(loc file, str charset, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -116,7 +156,6 @@ exists(|std:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool exists(loc file);
 
 
@@ -145,7 +184,6 @@ Description:
 Check whether the location `file` is a directory.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool isDirectory(loc file);
 
 @doc{
@@ -182,7 +220,6 @@ import IO;
 iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 </screen>
 }
-@reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintToFile(loc file, value arg); 
 
@@ -248,7 +285,6 @@ Description:
 Check whether location `file` is actually a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java bool isFile(loc file);
 
 
@@ -266,7 +302,6 @@ lastModified(|clib-rascal:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java datetime lastModified(loc file);
 
 @doc{
@@ -284,7 +319,6 @@ listEntries(|std:///|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] listEntries(loc file);
 
 
@@ -295,20 +329,8 @@ Description:
 Create a directory at location `file`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void mkDirectory(loc file)
 throws PathNotFound(loc file), IO(str msg);
-
-//@doc{
-//Synopsis: Remove a file or a directory (recursively)
-//
-//Description:
-//Removes the file or the directory indicated by _file_. The removal will be recursive.
-//}
-//@javaClass{org.rascalmpl.library.Prelude}
-//@reflect{Uses URI Resolver Registry}
-//public java void remove(loc file) throws IO(str msg);
-
 
 @doc{
 Synopsis: Print a value without subsequent newline.
@@ -459,9 +481,7 @@ Pitfalls:
   you might get an decoding error or just strange looking characters.
 
 }
-
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str readFile(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -473,20 +493,13 @@ Return the contents (decoded using the Character set supplied) of a file locatio
 Also see [readFileLinesEnc].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str readFileEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
-
-@deprecated{Use @see str readFile(loc file)}
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[str] readFile(str filename)
-throws IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a file and return it as a list of bytes.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[int] readFileBytes(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -507,7 +520,6 @@ Pitfalls:
   you might get an decoding error or just strange looking characters (see [readFile]).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -519,13 +531,11 @@ Return the contents (decoded using the Character set supplied) of a file locatio
 Also see [readFileLines].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java list[str] readFileLinesEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void remove(loc file) throws IO(str msg);
 
 @doc{
@@ -541,7 +551,6 @@ Write a textual representation of some values to a file:
 Files are encoded in UTF-8, in case this is not desired, use [writeFileEnc].
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -549,7 +558,6 @@ throws PathNotFound(loc file), IO(str msg);
 Synopsis: Write a list of bytes to a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -566,7 +574,6 @@ Write a textual representation of some values to a file:
 Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java void writeFileEnc(loc file, str charset, value V...)
 throws PathNotFound(loc file), IO(str msg);
 
@@ -586,7 +593,6 @@ MD5 hash the contents of a file location.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
 public java str md5HashFile(loc file)
 throws PathNotFound(loc file), IO(str msg);
 

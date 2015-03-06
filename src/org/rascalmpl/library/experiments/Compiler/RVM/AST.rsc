@@ -26,7 +26,8 @@ public data Declaration =
 		  		    list[int] refs,
 		  		    loc src,
 		  		    int maxStack, 
-		  		    list[Instruction] instructions)
+		  		    list[Instruction] instructions,
+		  		    lrel[str from, str to, Symbol \type, str target] exceptions)
 		;
 
 public data RVMProgram = 
@@ -38,10 +39,11 @@ public data RVMProgram =
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
-              lrel[str,list[str],list[str]] overloaded_functions)
+              lrel[str,list[str],list[str]] overloaded_functions,
+              loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages) = rvm(name, messages, [], (), (), (), [], (), []);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -57,6 +59,7 @@ public data Instruction =
 		
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
+		| RESETLOCS(list[int] positions)			// Reset selected local variables to undefined (null)
 		
 		| LOADLOCKWP(str name)                      // Load value of a keyword parameter
 		| STORELOCKWP(str name)                     // Store value on top-of-stack in the keyword parameter (value remains on stack)
@@ -112,7 +115,11 @@ public data Instruction =
 		| JMPTRUE(str label)						// Jump to labelled instruction when top-of-stack is true (stack is popped)
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
-		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
+		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and jumps to the corresponding label in the list
+		| SWITCH(map[int,str] caseLabels, str caseDefault)
+										 			// Switch on arbitrary value. Takes the "fingerprint" of the value on the stack, 
+													// finds associated label in map and jumps to it			
+													
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
 		| CREATE(str fuid, int arity)               // Creates a co-routine instance 
@@ -140,7 +147,8 @@ public data Instruction =
 		
 		| TYPEOF()									// Get type of top element
 		| SUBTYPE()									// Subtype between top two IValues
-		| CHECKARGTYPE()							// Check the type of an argument
+		| CHECKARGTYPEANDCOPY(
+			int pos1, Symbol \type, int pos2)		// Check the type of argument at pos1 and assign to pos2
 		
 		// Delimited continuations (experimental)
 		| LOADCONT(str fuid)

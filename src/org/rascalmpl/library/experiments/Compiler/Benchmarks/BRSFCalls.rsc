@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import lang::rsf::IO;
 import IO;
 
 public value main(list[value] args){
-  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf"/*, "Eclipse202a.rsf"*/]);
+  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz"/*, "Eclipse202a.rsf"*/]);
 }
 
 public bool measureOne(){
@@ -28,7 +28,7 @@ public bool measureOne(){
 
 public bool measure(list[str] names){
 
-	loc p = |rascal:///experiments/Compiler/Benchmarks/|;
+	loc p = |compressed+std:///experiments/Compiler/Benchmarks/|;
 	
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);

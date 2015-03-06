@@ -8,7 +8,15 @@ module experiments::Compiler::Benchmarks::Run
  * - Go and drink 99 bottles of beer :-(
  */
  
-import Prelude;
+
+import IO;
+import DateTime;
+import Relation;
+import Map;
+import List;
+import Set;
+import String;
+import ValueIO;
 import util::Benchmark;
 import util::Math;
 import analysis::statistics::Descriptive;
@@ -106,7 +114,10 @@ map[str name,  value(list[value]) job] jobs = (
 "BSudoku":					experiments::Compiler::Benchmarks::BSudoku::main
 );
 
-loc base = |rascal:///experiments/Compiler/Benchmarks/|;
+loc base = |std:///experiments/Compiler/Benchmarks/|;
+
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted.value|;
+
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
@@ -128,7 +139,7 @@ list[Analysis] run_benchmarks(int n, list[str] jobs){
   report(results);
   report_latex(results);
   measurementsInterpreted += (prevMeasurementsInterpreted - measurementsInterpreted);
-  writeTextValueFile(base + "MeasurementsInterpreted.value", measurementsInterpreted);
+  writeTextValueFile(mfile, measurementsInterpreted);
   return results;
 }
 
@@ -137,7 +148,7 @@ void initialize(int n){
   measurementsCompiled = ();
   nsamples = n;
   try {
-     prevMeasurementsInterpreted = readTextValueFile(#map[str, list[num]], base + "measurementsInterpreted.value");
+     prevMeasurementsInterpreted = readTextValueFile(#map[str, list[num]], mfile);
   } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
@@ -278,7 +289,7 @@ void main_paper1(){
 
 void main_paper2(){
    run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
-   						"BRSFCalls",
+   						//"BRSFCalls",
    						"BSendMoreMoney",
    						//"BSendMoreMoneyNotTyped",
    						"BSudoku","BTemplate"

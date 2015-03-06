@@ -49,6 +49,9 @@ test bool testMap7() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] += [
 test bool testMap8() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] -= [2]; return M==(0:[1,3],1:[10,20,30]);}
 test bool testMap9() {map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] ?= [4]; return M==(0:[1,2,3],1:[10,20,30]);}
 test bool testMap10() {map[int, list[int]] M = (0:[1,2,3],1:[10,20,30]); M[2] ?= [4]; return M==(0:[1,2,3],1:[10,20,30], 2:[4]);}
+
+test bool testMap11() {map[int,int] M = (1:10, 2:20); M[2] ? 0 += 30; return M==(1:10, 2:50);}
+test bool testMap11() {map[int,int] M = (1:10, 2:20); M[3] ? 0 += 30; return M==(1:10, 2:20, 3:30);}
   	
 // testSet
   
@@ -85,19 +88,19 @@ anno int F @ pos;
   
 // testAnnotations
  
-test bool testAnnotations1() {	 		F X = f(); X @ pos = 1; return X @ pos == 1; }
+test bool testAnnotations1() { F X = f(); X @ pos = 1; return X @ pos == 1; }
   
-test bool testAnnotations2() {	 	X = f(); X @ pos = 2; X @ pos += 3; return X @ pos == 5; }
+test bool testAnnotations2() { X = f(); X @ pos = 2; X @ pos += 3; return X @ pos == 5; }
 
-test bool testAnnotations3() { 		X = f(); X @ pos = 3; X @ pos -= 2;  return X @ pos == 1; }
+test bool testAnnotations3() { X = f(); X @ pos = 3; X @ pos -= 2;  return X @ pos == 1; }
 
 test bool testAnnotations4() { X = f(); X @ pos = 2; X @ pos *= 3; return X @ pos == 6; }
 
-test bool testAnnotations5() { 		X = f(); 		X @ pos = 6; X @ pos /= 3;  return X @ pos == 2; }
+test bool testAnnotations5() { X = f(); X @ pos = 6; X @ pos /= 3;  return X @ pos == 2; }
 
-test bool testAnnotations6() { 		X = f(); X @ pos = 6; X @ pos ?= 3;  return X @ pos == 6; }
+test bool testAnnotations6() { X = f(); X @ pos = 6; X @ pos ?= 3;  return X @ pos == 6; }
 
-test bool testAnnotations7() { 		X = f(); X @ pos ?= 3; return X @ pos == 3; }
+test bool testAnnotations7() { X = f(); X @ pos ?= 3; return X @ pos == 3; }
   	
 // assigningClosureToVariableBug877
   
@@ -106,6 +109,20 @@ test bool assigningClosureToVariableBug8771() {
     		return x() == true;
 }
   	
-  
-  	
- 
+data FK(int kw1 = 0) = h(int w = -1);
+
+@ignoreCompiler{Not yet implemented}
+test bool testKwParams1() { 
+  FK X = h();
+  assert X.w == -1;
+  X.w *= 2;
+  return X.w == -2;
+}
+
+@ignoreCompiler{Not yet implemented}
+test bool testKwParams2() { 
+  FK X = h();
+  assert X.kw1 == 0;
+  X.kw1 = 2;
+  return X.kw1 == 2;
+}

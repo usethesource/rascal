@@ -1,7 +1,11 @@
 module experiments::Compiler::muRascal2RVM::mu2rvm
 
-import Prelude;
-
+import IO;
+import Type;
+import List;
+import ListRelation;
+import Message;
+import String;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -158,12 +162,13 @@ void resetShiftCounter() {
 
 RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imports, map[str,Symbol] types,  map[Symbol, Production] symbol_definitions,
                            list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, int nlocals_in_initializations,
-                           map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
+                           map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar, loc src), 
                   bool listing=false){
   
   if(any(m <- messages, error(_,_) := m)){
-    return errorRVMProgram(module_name, messages);
+    return errorRVMProgram(module_name, messages, src);
   }
+ 
   main_fun = getUID(module_name,[],"MAIN",2);
   module_init_fun = getUID(module_name,[],"#<module_name>_init",2);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
@@ -204,7 +209,13 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    code = peephole(tr(fun.body)) + [LABEL("FAIL_<fun.uqname>"), FAILRETURN()] + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    code = tr(fun.body);
+    if(!contains(fun.qname, "_testsuite")){
+    	code = peephole(code);
+    }
+    
+    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -216,11 +227,11 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, |unknown:///|, required_frame_size, code))
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, fun.src, required_frame_size, code, exceptions))
     							   : (fun.qname : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
   
   	if(listing){
@@ -232,8 +243,8 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   }
   
   functionScope = module_init_fun;
-  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown:///|, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  code = trvoidblock(initializations); // compute code first since it may generate new locals!
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -258,7 +269,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, messages, imports, types, symbol_definitions, funMap, [], resolver, overloaded_functions);
+  res = rvm(module_name, messages, imports, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
   return res;
 }
 
@@ -278,7 +289,11 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  return ins + tr(exps[-1]);
+  ins += tr(exps[-1]);
+  if(!producesValue(exps[-1])){
+  	ins += LOADCON(666);
+  }
+  return ins;
 }
 
 //default INS trblock(MuExp exp) = tr(exp);
@@ -330,6 +345,8 @@ INS tr(muVar(str id, str fuid, int pos)) {
 }
 
 INS tr(muLoc(str id, int pos)) { localNames[pos] = id; return [LOADLOC(pos)];}
+
+INS tr(muResetLocs(list[int] positions)) { return [RESETLOCS(positions)];}
 
 INS tr(muTmp(str id,str fuid)) = [fuid == functionScope ? LOADLOC(getTmp(id,fuid)) : LOADVAR(fuid,getTmp(id,fuid))];
 
@@ -409,7 +426,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type", list[MuExp] args)) = [*tr(args), CHECKARGTYPE()];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
@@ -698,6 +715,21 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
+	
+INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+   defaultLab = nextLabel();
+   continueLab = mkContinue(defaultLab);
+   labels = ();
+   caseCode =  [];
+   for(cs <- cases){
+		caseLab = defaultLab + "_<cs.fingerprint>";
+		labels[cs.fingerprint] = caseLab;
+		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
+   }
+	 
+   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
+   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+}
 
 // Multi/One/All/Or outside conditional context
     
@@ -715,7 +747,7 @@ INS tr(e:muOne1(MuExp exp)) =
 
 // The above list of muExps is exhaustive, no other cases exist
 
-default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
+default INS tr(MuExp e) { throw "mu2rvm: Unknown node in the muRascal AST: <e>"; }
 
 /*********************************************************************/
 /*      End of muRascal expressions                                  */

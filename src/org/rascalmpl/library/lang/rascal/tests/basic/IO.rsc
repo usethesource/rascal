@@ -64,7 +64,7 @@ test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 }
 
 test bool readOffsetStart(str a, str b) {
-	if (size(a) + size(b) == size(a + b)) {
+	if (a != "", b != "", size(a) + size(b) == size(a + b)) {
 		writeFileEnc(aFile, "UTF8", a + b);
 		return readFileEnc(aFile[offset=0][length=size(a)], "utf8") == a;
 	}
@@ -91,4 +91,37 @@ test bool readOffsetMiddle(str a, str b, str c) {
 test bool md5Hash(){
 	writeFileEnc(|home:///wr.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
 	return md5HashFile(|home:///wr.txt|) == "931210fcfae2c4979e5d51a264648b82";
+}
+
+data Compression 
+	= gzip()
+	//| Z() // read-only
+	| xz()
+	| bzip2()
+	//| lzma() //read-only
+	;
+
+map[Compression, str] comprExtension
+	= (
+		gzip() : "gz",
+		//Z() : "Z",
+		xz() : "xz",
+		bzip2() : "bz2"//,
+		//lzma() : "lzma"	
+	);
+
+@tries{100}
+test bool compressionWorks(str a, Compression comp) {
+	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
+	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
+	writeFile(targetFile, a);
+	return readFile(targetFile) == a;
+}
+
+@tries{100}
+test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
+	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
+	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
+	writeFileEnc(targetFile, encodingNames[enc], a);
+	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }

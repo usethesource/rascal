@@ -30,7 +30,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	Object[] args;
 	int next = 0;
 	
-	public FunctionInstance(Function function, Frame env, RVM rvm) {
+	public FunctionInstance(final Function function, final Frame env, final RVM rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -39,19 +39,27 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
+	public static FunctionInstance computeFunctionInstance(final Function function, final Frame cf, final int scopeIn, final RVM rvm) {
+		assert scopeIn != -1;
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new FunctionInstance(function, env, rvm);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested function instance: " + scopeIn);
+		System.err.println("computeFunctionInstance " + function.name + ", scopeIn=" + scopeIn);
+		System.err.println("Searched scopes:");
+		for(Frame env = cf; env != null; env = env.previousScope) {
+			System.err.println(env.scopeId);
+		}
+		
+		throw new CompilerError("Inside " + cf.function.name + " (" + cf.src + ") and scope " + scopeIn + ": cannot find matching scope when looking for nested function " + function.name, rvm.getStdErr(), cf);
 	}
 	
 	/**
-	 * Assumption: arity < function.nformals 
+	 * Assumption: arity <= function.nformals 
 	 */
-	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
+	public static FunctionInstance applyPartial(final Function function, final Frame env, final RVM rvm, final int arity, final Object[] stack, final int sp) {
+		assert arity <= function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
 			return fun_instance;
@@ -65,9 +73,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 	
 	/**
-	 * Assumption: next + arity < function.nformals 
+	 * Assumption: next + arity <= function.nformals 
 	 */
-	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
+	public FunctionInstance applyPartial(final int arity, final Object[] stack, final int sp) {
+		assert next + arity <= function.nformals;
 		if(arity == 0) {
 			return this;
 		}
@@ -127,7 +136,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		return true;
 	}
 
@@ -180,6 +189,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
     throw new IllegalOperationException(
         "Cannot be viewed as with keyword parameters", getType());
+  }
+  
+  public String toString(){
+	  return "FunctionInstance[" + function.name + "]";
   }
 
 }

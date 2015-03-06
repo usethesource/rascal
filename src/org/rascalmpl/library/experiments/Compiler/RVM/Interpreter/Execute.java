@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -52,8 +53,13 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IList argumentsAsList,
-								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
-		
+								 IBool debug, 
+								 IBool testsuite, 
+								 IBool profile, 
+								 IBool trackCalls, 
+								 IBool coverage,
+								 IEvaluatorContext ctx) {
+			
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
 		
@@ -75,7 +81,10 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), ctx, testResultListener));
+		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
+		
+		ProfileLocationCollector profilingCollector = null;
+		CoverageLocationCollector coverageCollector = null;
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -88,6 +97,9 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
+//			if(((IString) declaration.get("qname")).getValue().indexOf("complement") > 0){
+//				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
+//			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				
@@ -144,16 +156,30 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
+		rvm.validateInstructionAdressingLimits();
+		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
 		}
+		
+		if(profile.getValue()){
+			profilingCollector = new ProfileLocationCollector();
+			rvm.setLocationCollector(profilingCollector);
+			profilingCollector.start();
+	
+		} else if(coverage.getValue()){
+			coverageCollector = new CoverageLocationCollector();
+			rvm.setLocationCollector(coverageCollector);
+		}
+		
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
-			rvm.executeProgram(initializer, arguments);
+			rvm.executeProgram("UNDEFINED", initializer, arguments);
 		}
 		
 		if((uid_module_init == null)) {
+			// TODO remove collector
 			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
@@ -164,11 +190,12 @@ public class Execute {
 				/*
 				 * Execute as testsuite
 				 */
-				rvm.executeProgram(uid_module_init, arguments);
+				rvm.executeProgram("TESTSUITE", uid_module_init, arguments);
 
 				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
-					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
+					RascalPrimitive.reset();
+					IList test_results = (IList)rvm.executeProgram("TESTSUITE", uid_testsuite, arguments);
 					w.insertAll(test_results);
 				}
 				result = w.done();
@@ -179,14 +206,19 @@ public class Execute {
 				if((uid_main == null)) {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
-			
-				rvm.executeProgram(uid_module_init, arguments);
-				result = rvm.executeProgram(uid_main, arguments);
+				rvm.executeProgram(moduleName, uid_module_init, arguments);
+				result = rvm.executeProgram(moduleName, uid_main, arguments);
 			}
 			long now = Timing.getCpuTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
+			if(profile.getValue()){
+				profilingCollector.report(rvm.getStdOut());
+			} else if(coverage.getValue()){
+				coverageCollector.report(rvm.getStdOut());
+			}
+			
 			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {
@@ -218,6 +250,9 @@ public class Execute {
 	private ISourceLocation getLocField(IConstructor instruction, String field) {
 		return ((ISourceLocation) instruction.get(field));
 	}
+	private IList getListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
+	}
 
 	/**
 	 * Load the instructions of a function in a RVM.
@@ -243,7 +278,7 @@ public class Execute {
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
-		CodeBlock codeblock = new CodeBlock(vf);
+		CodeBlock codeblock = new CodeBlock(name, vf);
 		// Loading instructions
 		try {
 		for (int i = 0; i < code.length(); i++) {
@@ -518,8 +553,10 @@ public class Execute {
 				codeblock.SUBTYPE();
 				break;
 				
-			case "CHECKARGTYPE":
-				codeblock.CHECKARGTYPE();
+			case "CHECKARGTYPEANDCOPY":
+				codeblock.CHECKARGTYPEANDCOPY(getIntField(instruction, "pos1"),
+									  rvm.symbolToType((IConstructor) instruction.get("type")),
+									  getIntField(instruction, "pos2"));
 				break;
 				
 			case "JMPINDEXED":
@@ -548,9 +585,18 @@ public class Execute {
 				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), 
 									      getIntField(instruction, "pos"));
 				break;
+			
+			case "SWITCH":
+				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
+								 getStrField(instruction, "caseDefault"));
+				break;
+				
+			case "RESETLOCS":
+				codeblock.RESETLOCS(getListField(instruction, "positions"));
+				break;	
 				
 			default:
-				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
@@ -559,6 +605,10 @@ public class Execute {
 		}
 		
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		
+		IList exceptions = (IList) declaration.get("exceptions");
+		function.attachExceptionTable(exceptions, rvm);
+		
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");
@@ -569,8 +619,7 @@ public class Execute {
 			}
 			function.refs = refs;
 		} else {
-			IList exceptions = (IList) declaration.get("exceptions");
-			function.attachExceptionTable(exceptions, rvm);
+			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

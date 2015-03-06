@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -15,17 +15,12 @@ module util::Reflective
 import Exception;
 import Message;
 import ParseTree;
-import Grammar;
 import IO;
 
 public Tree getModuleParseTree(str modulePath) {
     mloc = getModuleLocation(modulePath);
     return parseModule(mloc);
 }
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the grammars imported by \mod}
-public java Grammar getModuleGrammar(loc \mod);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}
@@ -56,3 +51,30 @@ public java loc getModuleLocation(str modulePath);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a path name in the Rascal search path}
 public java loc getSearchPathLocation(str filePath);
+
+@doc{Is the current Rascal code executed by the compiler or the interpreter?}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java bool inCompiledMode();
+
+@doc{Give a textual diff between two values.}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str diff(value old, value new);
+
+@doc{Watch value val: 
+- running in interpreted mode: write val to a file, 
+- running in compiled mode: compare val with previously written value}
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
+public java &T watch(type[&T] tp, &T val, str name);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
+public java &T watch(type[&T] tp, &T val, str name, value suffix);
+
+@doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val);
+
+@doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprint(value val, int arity);
