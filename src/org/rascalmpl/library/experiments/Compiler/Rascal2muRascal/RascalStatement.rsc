@@ -465,7 +465,6 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     if(isEmpty(defaultCases)) {
     	lubOfPatterns = ( lubOfPatterns | lub(it, getType(p@\loc)) | Pattern p <- patterns );
     }
-    
     // Introduce a temporary variable that is bound within a catch block to a thrown value
     str fuid = topFunctionScope();
     varname = asTmp(nextLabel());
@@ -507,14 +506,18 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
       list[MuExp] conds = [];
       list[MuExp] then = [];
       if(c.pattern is literal) {
-          conds = [ muCallMuPrim("equal", [ muTmp(asUnwrapedThrown(varname),varfuid), translate(c.pattern.literal) ]) ];
+          conds = [ muCallMuPrim("equal", [ muTmp(asUnwrappedThrown(varname),varfuid), translate(c.pattern.literal) ]) ];
           then = [ translate(c.body) ];
       } else if(c.pattern is typedVariable) {
-          conds = [ muCallMuPrim("check_arg_type", [ muTmp(asUnwrapedThrown(varname),varfuid), muTypeCon(translateType(c.pattern.\type)) ]) ];
+          conds = [ muCallMuPrim("check_arg_type", [ muTmp(asUnwrappedThrown(varname),varfuid), muTypeCon(translateType(c.pattern.\type)) ]) ];
           <fuid,pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
-          then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrapedThrown(varname),varfuid)), translate(c.body) ];
+          then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), translate(c.body) ];
+      } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
+      	  conds = [ muCon(true) ];
+      	  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
+          then = [ muAssign("<c.pattern.qualifiedName>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), translate(c.body) ]; 
       } else {
-          conds = [ muMulti(muApply(translatePat(c.pattern), [ muTmp(asUnwrapedThrown(varname),varfuid) ])) ];
+          conds = [ muMulti(muApply(translatePat(c.pattern), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
           then = [ translate(c.body) ];
       }
       exp = muIfelse(ifname, makeMu("ALL",conds, c@\loc), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
