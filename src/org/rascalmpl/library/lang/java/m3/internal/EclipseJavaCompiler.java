@@ -17,6 +17,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 @SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
@@ -52,30 +54,20 @@ public class EclipseJavaCompiler {
     this.sourcePathEntries = new ArrayList<String>();
   }
   
-  private void reset() {
-	  this.classPathEntries.clear();
-	  this.sourcePathEntries.clear();
-	  EclipseJavaCompiler.cache.clear();
-  }
-
   public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
 	EclipseJavaCompiler.cache.clear();
     classPathEntries.clear();
     sourcePathEntries.clear();
     for (IValue path : classPaths) {
-      try {
-        classPathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
-      } catch (IOException e) {
-        throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
-      }
+        URI uri = ((ISourceLocation) path).getURI();
+        assert uri.getScheme().equals("file");
+        classPathEntries.add(uri.getPath());
     }
 
     for (IValue path : sourcePaths) {
-      try {
-        sourcePathEntries.add(eval.getResolverRegistry().getResourceURI(((ISourceLocation) path).getURI()).getPath());
-      } catch (IOException e) {
-        throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
-      }
+        URI uri = ((ISourceLocation) path).getURI();
+        assert uri.getScheme().equals("file");
+		sourcePathEntries.add(uri.getPath());
     }
   }
   
@@ -210,13 +202,11 @@ public class EclipseJavaCompiler {
   }
 
   private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
-    loc = ctx.getHeap().resolveSourceLocation(loc);
-
     char[] data;
     Reader textStream = null;
 
     try {
-      textStream = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
+      textStream = URIResolverRegistry.getInstance().getCharacterReader(loc);
       data = InputConverter.toChar(textStream);
     } finally {
       if (textStream != null) {

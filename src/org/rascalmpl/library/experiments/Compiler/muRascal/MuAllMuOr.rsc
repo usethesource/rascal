@@ -1,16 +1,17 @@
 module experiments::Compiler::muRascal::MuAllMuOr
 
+import List;
+import IO;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import Prelude;
 
 
 /*
  * Interface: 
- *     - tuple[MuExp,list[MuFunction]] makeMu(str,str,list[MuExp]);
- *     - tuple[MuExp,list[MuFunction]] makeMulti(MuExp,str);
- *     - tuple[MuExp,list[MuFunction]] makeMuOne(str,str,list[MuExp]);
+ *     - tuple[MuExp,list[MuFunction]] makeMu(str,str,list[MuExp],loc);
+ *     - tuple[MuExp,list[MuFunction]] makeMulti(MuExp,str,loc);
+ *     - tuple[MuExp,list[MuFunction]] makeMuOne(str,str,list[MuExp],loc);
  */
 
 // Produces multi- or backtrack-free expressions
@@ -18,20 +19,20 @@ import Prelude;
  * Reference implementation that uses the generic definitions of ALL and OR  
  */
 /*
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ]) = <makeMuMulti(e),[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne1(_) := e);
-default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ], loc src) = <e,[]>;
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ], loc src) = <makeMuMulti(e),src,[]>;
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ], loc src) = <e,[]> when !(muMulti(_) := e || muOne1(_) := e);
+default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps, loc src) {
     list[MuFunction] functions = [];
-    assert(size(exps) >= 1);
+    assert(size(exps) >= 1) : "makeMu: number of expressions should be >= 1";
     if(MuExp exp <- exps, muMulti(_) := exp) {
         if(muAllOrMuOr == "ALL" || muAllOrMuOr == "OR") {
             // Uses the generic definitions of ALL and OR
         	return <muMulti(muApply(muFun1("Library/<muAllOrMuOr>"),
             	                    [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
-                	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
+                	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid, loc src);
                     	                                            functions = functions + res.functions;
-                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(res.e.exp));
+                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, src, [], (), muReturn(res.e.exp));
                             	                                    muFun2(gen_uid,fuid);
                                 	                              } | MuExp exp <- exps ]) ])),
                 	functions>;
@@ -51,7 +52,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
                 	backtrackfree += true;
             	}
         	}
-        	return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree);;
+        	return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree,src);;
         }
     }
     if(muAllOrMuOr == "ALL") {
@@ -75,11 +76,14 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
  
 bool isMuOne(MuExp e) = e is muOne1 || e is muOne1;
 
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ]) = makeMuMulti(e, fuid);
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
-default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
-    assert(size(exps) >= 1);
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ], loc src) = <e,[]>;
+
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ], loc src) = makeMuMulti(e, fuid, src);
+
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ], loc src) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
+
+default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps, loc src) {
+    assert(size(exps) >= 1) : "makeMu: number of expressions should be \>= 1";
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
         list[MuExp] expressions = [];
         list[bool] backtrackfree = [];
@@ -95,7 +99,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
                 backtrackfree += true;
             }
         }
-        return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree);
+        return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree, src);
     }
     if(muAllOrMuOr == "ALL") {
         return <( exps[0] | muIfelse(nextLabel(), it, [ isMuOne(exps[i]) ? muNext1(muCreate1(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),[]>;
@@ -111,35 +115,35 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
     }
 }
 
-tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid) = <e,[]>;
+tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid, loc src) = <e,[]>;
 
 // TODO: should ONE be also passed a closure? I would say yes
-tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne1(MuExp exp), str fuid) = <muMulti(muApply(mkCallToLibFun("Library", "ONE"),[ exp ])),[]>; // ***Note: multi expression that produces at most one solution
+tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne1(MuExp exp), str fuid, loc src) = <muMulti(muApply(mkCallToLibFun("Library", "ONE"),[ exp ])),[]>; // ***Note: multi expression that produces at most one solution
 
 
-default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
+default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid, loc src) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     list[MuFunction] functions = [];
     str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
-    functions += muCoroutine(gen_uid, "GEN", fuid, 0, 0, |unknown:///|, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn0() ], [ muExhaust() ]) ]));
+    functions += muCoroutine(gen_uid, "GEN", fuid, 0, 0, src, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn0() ], [ muExhaust() ]) ]));
     return <muMulti(muApply(muFun2(gen_uid, fuid),[])),functions>;
 }
 
-tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muMulti(MuExp exp) ]) = <muOne1(exp),[]>;
+tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muMulti(MuExp exp) ], loc src) = <muOne1(exp),[]>;
 
-tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ]) = <e,[]>;
+tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muOne1(MuExp exp) ], loc src) = <e,[]>;
 
-tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
+tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ], loc src) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
 
-default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[MuExp] exps) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps);
+default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps,src);
     if(muMulti(exp) := res.e) {
         return <muOne1(exp),res.functions>;
     }
     return res;
 }
 
-private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str all_uid = "<fuid>/ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i) | int i <- index(exps) ];
@@ -153,11 +157,11 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(all_uid, "ALL", fuid, 0, size(localvars), |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(all_uid, "ALL", fuid, 0, size(localvars), src, [], muBlock(body));
     return <muMulti(muApply(muFun2(all_uid, fuid),[])),functions>;
 }
 
-private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str or_uid = "<fuid>/OR_<getNextOr()>(0)";
     list[MuExp] body = [];
@@ -169,11 +173,11 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(or_uid, "OR", fuid, 0, 0, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(or_uid, "OR", fuid, 0, 0, src, [], muBlock(body));
     return <muMulti(muApply(muFun2(or_uid, fuid),[])),functions>;
 }
 
-private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str impl_uid = "<fuid>/IMPLICATION_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
@@ -197,11 +201,11 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, src, [], muBlock(body));
     return <muMulti(muApply(muFun2(impl_uid, fuid),[])),functions>;
 }
 
-private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str equiv_uid = "<fuid>/EQUIVALENCE_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
@@ -225,7 +229,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[M
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, src, [], muBlock(body));
     return <muMulti(muApply(muFun2(equiv_uid, fuid), [])),functions>;
 }
 

@@ -208,17 +208,17 @@ public class TupleResult extends ElementResult<ITuple> {
 			fieldTypes[i] = leftType.getFieldType(i);
 			fieldNames[i] = leftType.getFieldName(i);
 			fieldValues[i] = left.getValue().get(i);
-			consistentLabels = fieldNames[i] != null;
+			consistentLabels &= fieldNames[i] != null;
 		}
 		
 		for(int i = 0; i < rightArity; i++){
 			fieldTypes[leftArity + i] = rightType.getFieldType(i);
 			fieldNames[leftArity + i] = rightType.getFieldName(i);
 			fieldValues[leftArity + i] = right.getValue().get(i);
-			consistentLabels = fieldNames[i] != null;
+			consistentLabels &= fieldNames[leftArity + i] != null;
 			if (consistentLabels) {
 				for (int j = 0; j < leftArity; j++) {
-					if (fieldNames[j].equals(fieldNames[i])) {
+					if (fieldNames[j].equals(fieldNames[leftArity + i])) {
 						// duplicate field name, so degenerate to unlabeled tuple
 						consistentLabels = false;
 					}

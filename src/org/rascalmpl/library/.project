@@ -9,16 +9,4 @@
 	<natures>
 		<nature>rascal.nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>eclipse</name>
-			<type>2</type>
-			<locationURI>rascal-library://eclipse</locationURI>
-		</link>
-		<link>
-			<name>std</name>
-			<type>1</type>
-			<locationURI>rascal-library://rascal</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

@@ -1,11 +1,14 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@doc{
+Synopsis: Data Types belonging to Formal Concept Analysis.
+}
 
 module analysis::formalconcepts::FCA
 
@@ -15,11 +18,7 @@ import Relation;
 import lang::dot::Dot;
 import IO;
 
-import experiments::Concept::Types;
-
-@doc{
-Synopsis: Data Types belonging to Formal Concept Analysis.
-}
+// import analysis::formalconcepts::Types;
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
 public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
 public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]];
@@ -158,4 +157,12 @@ set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, 
 
 Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z, bool lab) {
      return N("\"<z[c]>\"", lab?[<"label", "<c>">]:[]);
-     }     
+     } 
+     
+   
+@doc{Write relation in .dot format}    
+public str toDotString(ConceptLattice[&Object, &Attribute]  q) {
+     DotGraph d = toDot(q);
+     return toString(d);
+     }
+     

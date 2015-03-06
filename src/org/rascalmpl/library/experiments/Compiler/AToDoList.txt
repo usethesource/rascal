@@ -1,0 +1,35 @@
+This is a global todo list for the compiler
+
+Bootstrapping
+x Compile and test parser generator 
+- Compile and test type checker
+- Compile and test compiler
+
+Runtime environment
+- Detach the execute command from the interpretator and make it stand alone
+- Adapt the debugger to run with compiled code
+- Create a RascalShell for compiled code
+- Replace interpreter by compiler in IDE 
+
+Code improvement
+- TypeUtils and TypeReifier are ready for a rewrite
+- Overall code cleanup.
+- Overal consistency check on naming of primitives in RascalPrimitive and MuPrimitive
+
+Performance improvement
+- Finalize the reachability analysis for visit and descent.
+- Optimize the case of an overloaded function call with only one remaining alternative.
+- Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that
+  variables are always initialized.
+- Potentially, more constant elimination could be done (e.g. replace size([1,2,3]) by 3)
+- Switch to Ferry's RVM structure
+- Connect Ferry's bytecode generator
+- Make a Java/muRascal bridge to allow calling muRascal code from Java. This makes it possible
+  to write parts of the Library in Java (e.g. descent and visit)
+
+Documentation
+x Add comments to all enumeration elements in MuPrimitive
+- Add comments to all enumeration elements in RascalPrimitive
+- Add a global comment to every file
+- Write a global architecture document
+- Write a paper to describe and evaluate the compiler

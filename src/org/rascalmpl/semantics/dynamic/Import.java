@@ -134,29 +134,29 @@ public abstract class Import {
 				moduleText = "@generated\n" + moduleText;
 				
 				try {
-					URIResolverRegistry reg = eval.getResolverRegistry();
+					URIResolverRegistry reg = URIResolverRegistry.getInstance();
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
-					URI ur = null;
+					ISourceLocation ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URIUtil.rootScheme("rascal");
+						ur = URIUtil.rootLocation("cwd");
 					} else {
-						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
+						ur = eval.getRascalResolver().getRootForModule(moduleEnvName);
 					}
-					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
+					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), ur, eval);
 					String modulePath = moduleName.replaceAll("::", "/");
 					loc = loc.add(ResultFactory.makeResult(TF.stringType(), VF.string(modulePath), eval));
 					loc = loc.fieldUpdate("extension", ResultFactory.makeResult(TF.stringType(), VF.string(".rsc"), eval), eval.getCurrentEnvt().getStore());
 					
 					OutputStream outputStream;
 					try {
-						outputStream = reg.getOutputStream(((ISourceLocation) loc.getValue()).getURI(), false);
+						outputStream = reg.getOutputStream(((ISourceLocation) loc.getValue()), false);
 					}
 					catch (IOException e) {
-						outputStream = reg.getOutputStream(URIUtil.rootScheme("cwd"), false);
+						outputStream = reg.getOutputStream(URIUtil.rootLocation("cwd"), false);
 					}
 					
 					if (outputStream == null) {
-						outputStream = reg.getOutputStream(URIUtil.rootScheme("cwd"), false);
+						outputStream = reg.getOutputStream(URIUtil.rootLocation("cwd"), false);
 					}
 					
 					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
@@ -232,7 +232,6 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
-			//System.err.println("importModule: " + name);
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);
@@ -281,7 +280,11 @@ public abstract class Import {
     }
     
     try {
-      Module module = buildModule(name, env, eval);
+    	ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
+    	if (uri == null) {
+    		throw new ModuleImport(name, "can not find in search path", x);
+    	}
+      Module module = buildModule(uri, env, eval);
 
       if (isDeprecated(module)) {
         eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
@@ -332,8 +335,8 @@ public abstract class Import {
     return "";
   }
   
-  private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name));
+  private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
+	IConstructor tree = eval.parseModule(eval, uri);
     return getBuilder().buildModule(tree);
   }
   
@@ -351,7 +354,7 @@ public abstract class Import {
     current.setSyntaxDefined(current.definesSyntax() || module.definesSyntax());
   }
   
-  public static IConstructor parseModule(char[] data, URI location, IEvaluator<Result<IValue>> eval){
+  public static IConstructor parseModule(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
     eval.__setInterrupt(false);
     IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
@@ -359,7 +362,7 @@ public abstract class Import {
       eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
 
-      IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
       if (TreeAdapter.isAmb(tree)) {
         // Ambiguity is dealt with elsewhere
@@ -455,7 +458,7 @@ public abstract class Import {
    * @param parser is the parser to use for the concrete literals
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
-  public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final URI location, final ModuleEnvironment env) {
+  public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
     // TODO: update source code locations!!
     
      return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
@@ -500,7 +503,7 @@ public abstract class Import {
   }
   
   @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, IConstructor, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, URI loc, boolean force) {
+  public static IGTD<IConstructor, IConstructor, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation loc, boolean force) {
     if (currentModule.getBootstrap()) {
       return new RascalParser();
     }
@@ -530,7 +533,6 @@ public abstract class Import {
 
     if (parser == null || force) {
       String parserName = currentModule.getName(); // .replaceAll("::", ".");
-
       parser = pg.getNewParser(eval, loc, parserName, definitions);
       eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
     }
@@ -546,12 +548,12 @@ public abstract class Import {
     }
   }
   
-  private static IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, URI uri) {
+  private static IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, ISourceLocation uri) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     IConstructor lit = TreeAdapter.getArg(tree, "parts");
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     
-    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
+    IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
     
     try {
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
@@ -560,7 +562,7 @@ public abstract class Import {
     
       char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
       
-      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
+      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
       fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
 
       IConstructor prod = TreeAdapter.getProduction(tree);
@@ -572,19 +574,19 @@ public abstract class Import {
     }
     catch (ParseError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return tree.asAnnotatable().setAnnotation("parseError", src);
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), e.getLocation());
       return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), src);
       return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }

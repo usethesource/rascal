@@ -110,7 +110,7 @@ public class Resource {
 		StringBuilder sb = new StringBuilder();
 		sb.append("public ").append(tagStr).append("Type ").append(tagStr).append("() { ");
 		sb.append(" return getTypedResource(").append(uriLoc.toString()).append(",#").append(tagStr).append("Type); }");
-		IConstructor declTree = ctx.getEvaluator().parseCommand(ctx.getEvaluator().getMonitor(), sb.toString(), ctx.getCurrentAST().getLocation().getURI());
+		IConstructor declTree = ctx.getEvaluator().parseCommand(ctx.getEvaluator().getMonitor(), sb.toString(), ctx.getCurrentAST().getLocation());
 		Command cmd = new ASTBuilder().buildCommand(declTree);
 		Environment env = ctx.getCurrentEnvt();
 		ctx.setCurrentEnvt(env.getRoot());

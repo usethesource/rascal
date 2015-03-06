@@ -1,7 +1,11 @@
 module experiments::Compiler::Execute
 
-import Prelude;
+import IO;
+import ValueIO;
+import String;
+import Type;
 import Message;
+import List;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
@@ -17,17 +21,18 @@ import lang::rascal::types::CheckTypes;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
+import util::Reflective;
 
-public loc MuLibrary = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
-public loc MuLibraryCompiled = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
+public loc MuLibrary = getSearchPathLocation("/experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
+public loc MuLibraryCompiled = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.rvm");
 
 // Specific for delimited continuations (experimental)
-// public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
-// public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
+// public loc MuLibrary = |std:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
+// public loc MuLibraryCompiled = |std:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
 // map[str,Symbol] libTypes = ();
 
-public list[loc] defaultImports = [];  //[|rascal:///Exception.rsc|];
-
+public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
+ 
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
@@ -39,8 +44,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
-    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body)
-    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body,[]);
+    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
+    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body, []);
   	}
   	// Specific to delimited continuations (experimental)
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
@@ -53,7 +58,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
 }
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, 
-									bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+									bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage = false, loc bindir = |home:///bin|){
    map[str,Symbol] imported_types = ();
    list[experiments::Compiler::RVM::AST::Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
@@ -134,29 +139,29 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    <v, t> = executeProgram(rvmProgram, imported_types,
    									   imported_functions, 
    									   imported_overloaded_functions, imported_overloading_resolvers, 
-   									   arguments, debug, testsuite, profile);
+   									   arguments, debug, testsuite, profile, trackCalls, coverage);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }
 
-value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
-	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
+value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, loc bindir = |home:///bin|){
+	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage);
 	return v;
 }
 
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
-value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir);
+   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
 value executeTests(loc rascalSource){

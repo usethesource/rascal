@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,7 +71,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -105,6 +104,7 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
@@ -177,7 +177,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
 	private final Stack<String> indentStack = new Stack<String>(); // not sharable
-	private final RascalURIResolver rascalPathResolver; // sharable if frozen
+	private final RascalSearchPath rascalPathResolver; // sharable if frozen
 
 	private final URIResolverRegistry resolverRegistry; // sharable
 
@@ -185,10 +185,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
+		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
 	}
 
-	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalURIResolver rascalPathResolver) {
+	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
 		super();
 		
 		this.vf = vf;
@@ -227,23 +227,23 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInput(https);
 
 		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerInputOutput(cwd);
+		resolverRegistry.registerLogical(cwd);
 
-		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
+		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
 		resolverRegistry.registerInput(library);
 
-		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
 
-		resolverRegistry.registerInputOutput(rascalPathResolver);
-
-		resolverRegistry.registerInputOutput(new HomeURIResolver());
+		resolverRegistry.registerLogical(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		// here we have code that makes sure that courses can be edited by
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
@@ -256,7 +256,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		    }
 		    
 		    @Override
-		    protected String getPath(URI uri) {
+		    protected String getPath(ISourceLocation uri) {
 		      String path = uri.getPath();
 		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
 		    }
@@ -265,10 +265,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses"));
+		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
+		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInput(tutor);
 		
 		// default event trigger to swallow events
@@ -461,13 +461,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return javaBridge;
 	}
 
-	@Override	
-	public URIResolverRegistry getResolverRegistry() {
-		return resolverRegistry;
-	}
-
 	@Override
-	public RascalURIResolver getRascalResolver() {
+	public RascalSearchPath getRascalResolver() {
 		return rascalPathResolver;
 	}
 	
@@ -570,7 +565,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       if (main.getArity() == 1) {
         return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
-      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+      else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
         return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }
@@ -594,7 +589,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
-    Type kwTypes = func.getKeywordArgumentTypes();
+    Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
     for (String kwp : kwTypes.getFieldNames()) {
       expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
@@ -720,7 +715,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	@Override	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
+	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -739,7 +734,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
 		
-		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		return (IConstructor) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
 	}
 	
 	/**
@@ -773,15 +768,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, URI location){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location){
 		IRascalMonitor old = setMonitor(monitor);
 		
-		try{
+		try {
 			char[] input = getResourceContent(location);
 			return parseObject(startSort, robust, location, input);
-		}catch(IOException ioex){
+		}
+		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{
+		}
+		finally{
 			setMonitor(old);
 		}
 	}
@@ -790,7 +787,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, URIUtil.invalidURI(), input.toCharArray());
+			return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray());
 		}finally{
 			setMonitor(old);
 		}
@@ -800,13 +797,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, loc.getURI(), input.toCharArray());
+			return parseObject(startSort, robust, loc, input.toCharArray());
 		}finally{
 			setMonitor(old);
 		}
 	}
 	
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc){
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ISourceLocation loc){
 		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
 
@@ -814,20 +811,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-	}
-	
-	@Override
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			ParserGenerator pgen = getParserGenerator();
-			String main = uri.getAuthority();
-			ModuleEnvironment env = getHeap().getModule(main);
-			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-		}
-		finally {
-			setMonitor(old);
-		}
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
@@ -841,7 +824,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	public IConstructor getExpandedGrammar(IRascalMonitor monitor, URI uri) {
+	public IConstructor getExpandedGrammar(IRascalMonitor monitor, ISourceLocation uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			ParserGenerator pgen = getParserGenerator();
@@ -896,7 +879,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		rascalPathResolver.addPathContributor(contrib);
 	}
 
-	public void addRascalSearchPath(final URI uri) {
+	public void addRascalSearchPath(final ISourceLocation uri) {
 		rascalPathResolver.addPathContributor(new URIContributor(uri));
 	}
  
@@ -968,7 +951,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * @return
 	 */
 	@Override
-	public Result<IValue> eval(IRascalMonitor monitor, String command, URI location) {
+	public Result<IValue> eval(IRascalMonitor monitor, String command, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return eval(command, location);
@@ -990,7 +973,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * @return
 	 */
 	@Override
-	public Result<IValue> evalMore(IRascalMonitor monitor, String commands, URI location) {
+	public Result<IValue> evalMore(IRascalMonitor monitor, String commands, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return evalMore(commands, location);
@@ -1001,11 +984,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	private Result<IValue> eval(String command, URI location)
+	private Result<IValue> eval(String command, ISourceLocation location)
 			throws ImplementationError {
 		__setInterrupt(false);
     IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1020,13 +1003,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return eval(stat);
 	}
 	
-	private Result<IValue> evalMore(String command, URI location)
+	private Result<IValue> evalMore(String command, ISourceLocation location)
 			throws ImplementationError {
 		__setInterrupt(false);
 		IConstructor tree;
 		
 		IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-		tree = new RascalParser().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
 	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1063,7 +1046,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override
-	public IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
+	public IConstructor parseCommand(IRascalMonitor monitor, String command, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return parseCommand(command, location);
@@ -1073,10 +1056,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}	
 	
-	private IConstructor parseCommand(String command, URI location) {
+	private IConstructor parseCommand(String command, ISourceLocation location) {
 		__setInterrupt(false);
     IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1086,12 +1069,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
+	public IConstructor parseCommands(IRascalMonitor monitor, String commands, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
 		  IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-      IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
   
 			if (!noBacktickOutsideStringConstant(commands)) {
 			  tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1188,7 +1171,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
-		  ISourceLocation uri = vf.sourceLocation(URIUtil.rootScheme("import"));
+		  ISourceLocation uri = URIUtil.rootLocation("import");
 		  org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
 		}
 		finally {
@@ -1197,12 +1180,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	public void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation) {
+	public void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation) {
 		reloadModules(monitor, names, errorLocation, true);
 	}
 	
 	// TODO Update for extends; extends need to be cleared and reinterpreted.
-	private void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation, boolean recurseToExtending) {
+	private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			Set<String> onHeap = new HashSet<String>();
@@ -1291,13 +1274,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	private void reloadModule(String name, URI errorLocation) {	
+	private void reloadModule(String name, ISourceLocation errorLocation) {	
 		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
 		heap.addModule(env);
 
 		try {
-			ISourceLocation loc = getValueFactory().sourceLocation(errorLocation);
-      org.rascalmpl.semantics.dynamic.Import.loadModule(loc, name, this);
+			org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
 		} catch (StaticError e) {
 			heap.removeModule(env);
 			throw e;
@@ -1412,7 +1394,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
-	private char[] getResourceContent(URI location) throws IOException{
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
 		Reader textStream = null;
 		
@@ -1435,15 +1417,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * effect of declaring non-terminal types in the given environment.
 	 */
 	@Override
-	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
-	  URI resolved = rascalPathResolver.resolve(location);
-	  if(resolved != null){
-	    location = resolved;
-	  }
+	public IConstructor parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException{
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	
-	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location){
+	public IConstructor parseModule(IRascalMonitor monitor, char[] data, ISourceLocation location){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return org.rascalmpl.semantics.dynamic.Import.parseModule(data, location, this);

@@ -1,22 +1,27 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalPattern
 
-import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
 
 import lang::rascal::\syntax::Rascal;
+
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-
-import experiments::Compiler::muRascal::AST;
-
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
+import experiments::Compiler::muRascal::AST;
+
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
-import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 /*
  * Compile the match operator and all possible patterns
@@ -26,10 +31,9 @@ import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 /*                  Match                                            */
 /*********************************************************************/
 
-MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
-   
-MuExp translateMatch((Expression) `<Pattern pat> !:= <Expression exp>`) =
-    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ]) ]);
+MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp) ;
+MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
+    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
     muMulti(muApply(translatePat(pat), [ translate(exp) ]));
@@ -96,7 +100,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifi
                  ]); 
 }
 
-tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
@@ -152,9 +156,9 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
-                       [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
-                       muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
+   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
+                       [ muCallPrim3("stringwriter_add", [muTmp(swriter,fuid), exp], e@\loc) | exp <- fragmentCode ] +
+                       muCallPrim3("stringwriter_close", [muTmp(swriter,fuid)], e@\loc));
    return <buildRegExp, varrefs>;
    
 }
@@ -221,49 +225,42 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("translateConcretePattern, concrete = <concrete>");
-  fragType = getType(p@\loc);
-  //println("translateConcretePattern, fragType = <fragType>");
-  reifiedFragType = symbolToValue(fragType);
-  //println("translateConcretePattern, reified: <reifiedFragType>");
-  //g = getGrammar();
-  //for(nt <- g) println("<nt> : <g[nt]>");
-  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  println("**** parsedFragment: <parsedFragment>");
-  //iprintln(parsedFragment);
-  return translateParsedConcretePattern(parsedFragment);
+  //println("translateConcretePattern:,<getType(p@\loc)>");
+  return translateParsedConcretePattern(parseConcrete(concrete), getType(p@\loc));
 }
 
-MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
- println("translateParsedConcretePattern: <prod>");
-  if(prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
-     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+bool isConcreteHole(appl(Production prod, list[Tree] args)) = prod.def == label("hole", lex("ConcretePart"));
+
+loc getConcreteHoleVarLoc(appl(Production prod, list[Tree] args)) = args[0].args[4].args[0]@\loc;
+
+MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), Symbol symbol){
+ //println("translateParsedConcretePattern: <prod>, <symbol>");
+  if(isConcreteHole(t)){
+     <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
      return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("ConcreteVar", fuid, pos)]);
   }
-  
-  applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
+  //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
   prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
-  argsCode = translateConcreteListPattern(prod, args);
-  kwParams = muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
-  return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE"), [muCallMuPrim("make_array", [applCode, prodCode, argsCode, kwParams] )]);
+  argsCode = translateConcreteListPattern(prod, args, lex(_) := symbol);
+  //kwParams = muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
+  return muApply(mkCallToLibFun("Library", "MATCH_CONCRETE_TREE"), [muCon(prod), argsCode]);
 }
 
-MuExp translateParsedConcretePattern(cc: char(int c)) {
+MuExp translateParsedConcretePattern(cc: char(int c), Symbol symbol) {
   return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(cc)]);
 }
 
-MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`) {
+MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`, Symbol symbol) {
     throw "translateParsedConcretePattern type() case"; 
 }
 
 // The patterns callOrTree and reifiedType are ambiguous, therefore we need special treatment here.
 
-MuExp translateParsedConcretePattern(amb(set[Tree] alts)) {
+MuExp translateParsedConcretePattern(amb(set[Tree] alts), Symbol symbol) {
    throw "translateParsedConcretePattern: ambiguous, <alts>";
 }
 
-default MuExp translateParsedConcretePattern(Tree c) {
+default MuExp translateParsedConcretePattern(Tree c, Symbol symbol) {
    iprintln(c);
    throw "translateParsedConcretePattern: Cannot handle <c> at <c@\loc>";
 }
@@ -273,8 +270,8 @@ bool isLayoutPat(Tree pat) = appl(prod(layouts(_), _, _), _) := pat;
 bool isSeparator(Tree pat, Symbol sep) = appl(prod(sep, _, _), _) := pat;
 
 tuple[bool, Symbol] isIterHoleWithSeparator(Tree pat){
-  if(appl(Production prod, list[Tree] args) := pat && prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(t:appl(Production prod, list[Tree] args) := pat && isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      if(isIterWithSeparator(holeType)){
@@ -288,7 +285,7 @@ tuple[bool, Symbol] isIterHoleWithSeparator(Tree pat){
 
 list[Tree] removeSeparators(list[Tree] pats){
   n = size(pats);
-  println("removeSeparators(<n>): <for(p <- pats){><p><}>");
+  //println("removeSeparators(<n>): <for(p <- pats){><p><}>");
   if(n <= 0){
   		return pats;
   }
@@ -296,7 +293,7 @@ list[Tree] removeSeparators(list[Tree] pats){
       pat = pats[i];
       <hasSeps, sep> = isIterHoleWithSeparator(pat);
       if(hasSeps){
-         println("removeSeparators: <i>, <n>, <pat>");
+         //println("removeSeparators: <i>, <n>, <pat>");
          ilast = i;
          if(i > 2 && isSeparator(pats[i-2], sep)){ 
             ilast = i - 2; 
@@ -307,22 +304,26 @@ list[Tree] removeSeparators(list[Tree] pats){
          }
          
          res = pats[ .. ilast] + pat + (ifirst < n ? removeSeparators(pats[ifirst ..]) : []);  
-         println("removeSeparators: ifirst = <ifirst>, return: <for(p <- res){><p><}>");  
+         //println("removeSeparators: ifirst = <ifirst>, return: <for(p <- res){><p><}>");  
          return res;  
       }
   }
-  println("removeSeparators returns: <for(p <- pats){><p><}>");
+  //println("removeSeparators returns: <for(p <- pats){><p><}>");
   return pats;
 }
 
-MuExp translateConcreteListPattern(Production listProd, list[Tree] pats){
- println("Before: <for(p <- pats){><p><}>");
+MuExp translateConcreteListPattern(Production listProd, list[Tree] pats, bool isLex){
+ //println("Before: <for(p <- pats){><p><}>");
  pats = removeSeparators(pats);
- println("After: <for(p <- pats){><p><}>");
+ //println("After: <for(p <- pats){><p><}>");
  lookahead = computeConcreteLookahead(pats);  
+ if(isLex){
+ 	return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
+                   [ translatePatAsConcreteListElem(listProd, pats[i], lookahead[i], isLex) | i <- index(pats) ])]);
+ }
  optionalLayoutPat = muApply(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST"), []);
  return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-         [ (i % 2 == 0) ? translatePatAsConcreteListElem(listProd, pats[i], lookahead[i]) : optionalLayoutPat | i <- index(pats) ])]);
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(listProd, pats[i], lookahead[i], isLex) : optionalLayoutPat | i <- index(pats) ])]);
 }
 
 // Is a symbol an iterator type?
@@ -352,8 +353,8 @@ default Symbol getSeparator(Symbol sym) { throw "Cannot determine separator: <sy
 
 // What is is the minimal iteration count of a pattern (as Tree)?
 int nIter(Tree pat){
-  if(appl(Production prod, list[Tree] args) := pat && prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(t:appl(Production prod, list[Tree] args) := pat && isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      if(isIterWithSeparator(holeType)){
@@ -363,57 +364,57 @@ int nIter(Tree pat){
   return 1;
 }
 
-MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production applProd, list[Tree] args), Lookahead lookahead){
-  println("translatePatAsConcreteListElem: <listProd>, <applProd>");
-    if(applProd.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
+  //println("translatePatAsConcreteListElem: <listProd>, <applProd>");
+    if(isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
-     println("holeType = <holeType>");
-     println("appl = <getConstructor("appl")>");
+     //println("holeType = <holeType>");
+     //println("appl = <getConstructor("appl")>");
      if(isIter(holeType)){
         if(isIterWithSeparator(holeType)){
            sep = getSeparator(holeType);
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
-           println("libFun = <libFun>");
-           println("lookahead = <lookahead>");
-           println("listProd= <listProd>");
+           //println("libFun = <libFun>");
+           //println("lookahead = <lookahead>");
+           //println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
                 												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
-           println("libFun = <libFun>");
-           println("lookahead = <lookahead>");
-           println("listProd= <listProd>");
+           //println("libFun = <libFun>");
+           //println("lookahead = <lookahead>");
+           //println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
            														 getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
   }
-  return translateApplAsListElem(listProd, applProd, args);
+  return translateApplAsListElem(listProd, applProd, args, isLex);
 }
 
-MuExp translatePatAsConcreteListElem(Production listProd, cc: char(int c), Lookahead lookahead){
+MuExp translatePatAsConcreteListElem(Production listProd, cc: char(int c), Lookahead lookahead, bool isLex){
   return muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(cc)]);
 }
 
-default MuExp translatePatAsConcreteListElem(Production listProd, Tree c, Lookahead lookahead){
-  return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c)]);
+default MuExp translatePatAsConcreteListElem(Production listProd, Tree c, Lookahead lookahead, bool isLex){
+  return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c, getType(c@\loc))]);
 }
 
 // Translate an appl as element of a concrete list pattern
 
-MuExp translateApplAsListElem(Production listProd, p: prod(lit(str S), _, _), list[Tree] args) = 
+MuExp translateApplAsListElem(Production listProd, p: prod(lit(str S), _, _), list[Tree] args, bool isLex) = 
  	muApply(mkCallToLibFun("Library","MATCH_LIT_IN_LIST"), [muCon(p)]);
  
-default MuExp translateApplAsListElem(Production listProd, Production prod, list[Tree] args) = muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(listProd, args)]);
+default MuExp translateApplAsListElem(Production listProd, Production prod, list[Tree] args, bool isLex) = muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(listProd, args, isLex)]);
 
 // Is an appl node a concrete multivar?
 
 bool isConcreteMultiVar(t:appl(Production prod, list[Tree] args)){
-  if(prod.def == label("hole", lex("ConcretePart"))){
-     varloc = args[0].args[4].args[0]@\loc;
+  if(isConcreteHole(t)){
+     varloc = getConcreteHoleVarLoc(t);
      holeType = getType(varloc);
      return isIter(holeType);
   }
@@ -426,14 +427,14 @@ default bool isConcreteMultiVar(Tree t) = false;
 // Recall that a Lookahead is a tuple of the form <number-of-elements-following, number-of-multi-vars-following>
 
 list[Lookahead] computeConcreteLookahead(list[Tree] pats){
-    println("computeConcreteLookahead: <for(p <- pats){><p><}>");
+    //println("computeConcreteLookahead: <for(p <- pats){><p><}>");
     nElem = 0;
     nMultiVar = 0;
     rprops = for(p <- reverse([p | p <- pats])){
                  append <nElem, nMultiVar>;
                  if(isConcreteMultiVar(p)) {nMultiVar += 1; nElem += nIter(p); } else {nElem += 1;}
              };
-    println("result = <reverse(rprops)>");
+    //println("result = <reverse(rprops)>");
     return reverse(rprops);
 }
      
@@ -451,7 +452,7 @@ MuExp translateQualifiedNamePat(QualifiedName name)
    return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("<name>", fuid, pos)]);
 } 
 
-// -- types name pattern ---------------------------------------------
+// -- typed name pattern ---------------------------------------------
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
    if("<name>" == "_"){
@@ -472,6 +473,7 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
    MuExp fun_pat;
    str fun_name;
+   
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
    //iprintln(expression);
    if(expression is qualifiedName){
@@ -480,7 +482,6 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else if(expression is literal){ // StringConstant
       fun_name = "<expression>"[1..-1];
-      println("fun_name = <fun_name>");
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression);
@@ -492,11 +493,11 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) ``) =
    muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
 
 MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ keywordArgumentList>`) {
-   println("translatePatKWArguments: <keywordArgumentList>");
+   //println("translatePatKWArguments: <keywordArgumentList>");
    keyword_names = [];
    pats = [];
    for(kwarg <- keywordArgumentList){
-       println("kwarg = <kwarg>");
+       //println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
        pats += translatePat(kwarg.expression);
    }
@@ -572,7 +573,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
 }   
 
 default MuExp translatePatAsSetElem(Pattern p, bool last) {
-  println("translatePatAsSetElem, default: <p>");
+  //println("translatePatAsSetElem, default: <p>");
   try {
      return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET"), [muCon(translatePatternAsConstant(p))]);
   } catch:
@@ -654,7 +655,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       }
    }
    MuExp litCode = (all(Literal lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | Literal lit <- literals })
-   		           										           : muCallPrim("set_create", [ translate(lit) | Literal lit <- literals] );
+   		           										           : muCallPrim3("set_create", [ translate(lit) | Literal lit <- literals], p@\loc );
    
     return muApply(mkCallToLibFun("Library","MATCH_SET"), [ litCode, muCallMuPrim("make_array", compiledPats) ]);
    
@@ -755,7 +756,7 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookah
 }   
 
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
-  println("translatePatAsListElem, default: <p>");
+  //println("translatePatAsListElem, default: <p>");
   //try { // Gives error for nodes (~ kw params)
   //   return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(translatePatternAsConstant(p))]);
   //} catch:
@@ -776,8 +777,52 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 
 // -- descendant pattern ---------------------------------------------
 
-MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muApply(mkCallToLibFun("Library","MATCH_AND_DESCENT"), [translatePat(pattern)]);
+MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
+	//println("pattern <pattern>, isConcretePattern = <isConcretePattern(pattern)>");
+	int i = nextVisit();	
+	// Generate and add a nested function 'phi'
+	str descId = topFunctionScope() + "/" + "DESC_<i>";
+	concreteMatch = isConcretePattern(pattern);
+	tc = getTypesAndConstructors(pattern);
+    reachable = getReachableTypes(\value(), tc.constructors, tc.types, concreteMatch);
+    descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  descriptor]);
+}
+
+// is  a pattern a concretePattern?
+    
+bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
+	isConcreteType(getType(p@\loc));
+	
+bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
+	isConcreteType(getType(p@\loc));	
+	
+bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+	isConcretePattern(pattern);	
+
+bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+	isConcretePattern(pattern);
+		
+default bool isConcretePattern(Pattern p) = false;
+
+// get the types and constructor names from a pattern
+
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<QualifiedName qualifiedName>`) =
+	<{getType(p@\loc)}, {}>;
+	
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name>`) =
+	<{getType(p@\loc)}, {}>;	
+	
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+	getTypesAndConstructors(pattern);	
+
+tuple[set[Symbol] types, set[str] constructors]  getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+	getTypesAndConstructors(pattern);
+		
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
+	(expression is qualifiedName) ? <{}, {deescape("<expression>")}> : <{getType(p@\loc)}, {}>;
+
+tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(Pattern p) = <{getType(p@\loc)}, {}>;
 
 // -- anti pattern ---------------------------------------------------
 
@@ -866,7 +911,7 @@ default bool backtrackFree(Pattern p) = true;
 /*                  Signature Patterns                               */
 /*********************************************************************/
 
-MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions){
+MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
    if(isEmpty(formals)) {
       if(isEmpty(when_conditions)){
   	      return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
@@ -874,7 +919,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	      ifname = nextLabel();
           enterBacktrackingScope(ifname);
           conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+          mubody = muIfelse(ifname,makeMu("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	      leaveBacktrackingScope();
 	      return mubody;
   	  }
@@ -885,7 +930,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
-                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions) ],
+                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
                    [ muFailReturn() ]
                   );
       leaveBacktrackingScope();
@@ -897,31 +942,37 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
-                   [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
-                     translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions) 
-                   ],
-                   [ muFailReturn() ]
-                  );
+      exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
+                                                      				  muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
+                                                      				  muCon(pos)
+                                                    				]),
+             				[ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+             				[ muFailReturn() ]);
+      //println(exp);
+      //exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
+      //             [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
+      //               translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
+      //             ],
+      //             [ muFailReturn() ]
+      //            );
       leaveBacktrackingScope();
       return exp;
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
-  bool b = true;
+MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
+  bool simpleArgs = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
-      b = false;
+      simpleArgs = false;
   }
-  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
-  	return translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions);
+  if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
+  	return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
 	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-  	  ifname = nextLabel();
-      enterBacktrackingScope(ifname);
+      enterBacktrackingScope(fname);
       // TODO: account for a variable number of arguments
 	  for(Pattern pat <- formals) {
 	      conditions += muMulti(muApply(translatePat(pat), [ muVar("<i>",topFunctionScope(),i) ]));
@@ -929,13 +980,13 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(fname, makeMu("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
 }
 
-MuExp translateFunctionBody(Expression exp) = translate(exp);
+MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
 MuExp translateFunctionBody(MuExp exp) = exp;
 // TODO: check the interpreter subtyping
 default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);

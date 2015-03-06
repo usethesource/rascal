@@ -17,29 +17,34 @@ public data PADDING = padding(int left = 30, int bottom = 30, int top = 10, int 
 
   
 public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[], 
-                         list[DATUM] \data=[], PADDING padding= padding(), 
+                         list[DATUM] \data=[], PADDING padding= PADDING::padding(), 
                          list[MARK] marks = [], list[LEGEND] legends = [],
                          list[int] viewport = []);
 
 public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properties = (), str title=""
 , bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
-  int tickPadding = 99999, int ticks = 99999, list[value] values = []);
+  int tickPadding = 99999, int ticks = 99999, list[value] values = [],
+  int offset = 99999, int titleOffset = 99999);
 
 
 
 public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[], 
-    map[str, value]  properties = (), DATUM from  = datum(), list[SCALE] scales=[]);
+    map[str, value]  properties = (), DATUM from  = datum(), list[SCALE] scales=[],
+    list[AXE] axes = []);
     
 public data DATUM = datum(str name="", list[TRANSFORM] transform = [], str source = "", str \data="");
 
-public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
+public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="",
+      str by = "", str key = "", str field = "", str expr="", str \test = "", bool assign = false, bool median = false,
+      str as = "");
 
 public data DOMAIN = ref(str \data="", str field = "");
 
 public data RANGE = lit(str key = "")|array(list[value] values =[]);
 
 public data SCALE = scale(str name = "", str \type = "", DOMAIN domain = ref(), RANGE range = lit(),
-             bool nice = false, bool zero = true, bool round = false, real padding = 99999.);
+             bool sort = true, bool nice = false, bool zero = true, 
+             bool round = false, real padding = 99999.);
              
 public data LEGEND = legend(str size = "", str shape = "", str fill = "",
                      str stroke = "", str orient = "", str title = "", 
@@ -66,58 +71,60 @@ JSON toJson(RANGE range) {
          }
      return null();
      }
-
+     
 JSON toJson(AXE axe) {
-     switch (axe) {
-         case axe() : return Object(("scale":toJson(axe.scale), "type":toJson(axe.\type),
+         return Object(("scale":toJson(axe.scale), "type":toJson(axe.\type),
          "properties": propToJson(axe.properties), "title":toJson(axe.title)
          , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.format)
          , "tickSize":toJson(axe.tickSize,99999), "tickPadding":toJson(axe.tickPadding,99999)
          , "ticks":toJson(axe.ticks, 99999), "values":toJson(axe.values)
+         , "offset":toJson(axe.offset, 99999), "titleOffset":toJson(axe.titleOffset, 99999)
          ));     
-         }
-     return null();
-     }   
+     } 
  
 JSON toJson(SCALE scale) {
-     switch (scale) {
-         case scale() : return Object(("name":toJson(scale.name), "type":toJson(scale.\type), "domain":toJson(scale.domain), 
+    return Object(("name":toJson(scale.name), "type":toJson(scale.\type), "domain":toJson(scale.domain), 
             "range":toJson(scale.range), "nice":toJson(scale.nice)
             ,"zero":toJson(scale.zero), "round":toJson(scale.round)
             ,"padding":toJson(scale.padding, 99999.)
+            ,"sort":toJson(scale.sort)
             ));     
-         }
-     return null();
-     } 
+       }
+     
       
 JSON toJson(PADDING padding) {
-     switch (padding) {
-         case padding() : return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
-         }
-     return null();
+      return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
      } 
      
 JSON toJson(TRANSFORM transform) { 
-     switch (transform) {
-         case transform(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
-               "point":toJson(transform.point),  "height":toJson(transform.height),
-               "value":toJson(transform.\value)));
+              JSON r =  Object(
+                (
+                "type":toJson(transform.\type)
+               ,"key":toJson(transform.key)
+               ,"field": toJson(transform.field) 
+               ,"point": toJson(transform.point)
+               ,"by": toJson(transform.by)
+               ,"as": toJson(transform.as)
+               ,"expr": toJson(transform.expr)
+               ,"test": toJson(transform.\test)
+               ,"keys": toJson(transform.keys) 
+               ,"height":toJson(transform.height)
+               ,"value":toJson(transform.\value)
+               ,"assign":toJson(transform.assign)
+               ,"median":toJson(transform.median)
+               ));           
+               return r;
          }
-     return null();    
-     }
+   
  
  JSON toJson(MARK mark) { 
-     switch (mark) {
-        case mark(): return Object (("name": toJson(mark.name),"type":toJson(mark.\type), 
+      return Object (("name": toJson(mark.name),"type":toJson(mark.\type), 
            "marks": toJson(mark.marks), "properties": propToJson(mark.properties),
-           "from": toJson(mark.from), "scales": toJson(mark.scales)));
+           "from": toJson(mark.from), "scales": toJson(mark.scales),"axes": toJson(mark.axes)));
         }
-     return null();
-     }
      
 JSON toJson(LEGEND legend) { 
-     switch (legend) {
-        case legend(): return Object ((
+     return Object ((
             "fill": toJson(legend.fill), 
             "shape": toJson(legend.shape),
             "stroke": toJson(legend.stroke), 
@@ -127,8 +134,7 @@ JSON toJson(LEGEND legend) {
             "values": toJson(legend.values), 
             "properties": propToJson(legend.properties)));       
         }
-     return null();
-     }
+   
      
 JSON toJson(map[str, value] prop) = isEmpty(prop)?null():Object((q : propToJson(prop[q])|q<-prop));
  
@@ -146,15 +152,49 @@ JSON toJson(bool b) {return b?boolean(b):null();}
 
 JSON toJson(bool b, bool dfault) {return b!=dfault?boolean(b):null();}
 
-JSON toJson(list[value] a) =  isEmpty(a)?null():array([toJson(q)|q<-a]);
+JSON _toJson(list[str] a) = isEmpty(a)?null():array([toJson(q)|q<-a]); 
+
+JSON _toJson(list[int] a) = isEmpty(a)?null():array([toJson(q)|q<-a]); 
+
+JSON _toJson(list[real] a) = isEmpty(a)?null():array([toJson(q)|q<-a]); 
+
+JSON _toJson(list[bool] a) = isEmpty(a)?null():array([toJson(q)|q<-a]); 
+
+JSON _toJson(list[SCALE] a) = isEmpty(a)?null():array([toJson(q)|q<-a]);
+
+JSON _toJson(list[AXE] a) = isEmpty(a)?null():array([toJson(q)|q<-a]);
+
+JSON _toJson(list[MARK] a) = isEmpty(a)?null():array([toJson(q)|q<-a]);  
+
+JSON _toJson(list[LEGEND] a) = isEmpty(a)?null():array([toJson(q)|q<-a]); 
+
+JSON _toJson(list[TRANSFORM] a) = isEmpty(a)?null():array([toJson(q)|q<-a]);
+
+JSON _toJson(list[DATUM] a) = isEmpty(a)?null():array([toJson(q)|q<-a]);  
+ 
+
+
+JSON toJson(list[value] v) {
+     switch (v) {
+         case list[int] d:  return _toJson(d);
+         case list[str] d:  return _toJson(d);
+         case list[real] d:  return _toJson(d);
+         case list[bool] d:  return _toJson(d);
+         case list[SCALE] d:  return _toJson(d);
+         case list[TRANSFORM] d:  return _toJson(d);
+         case list[AXE] d:  return _toJson(d);
+         case list[LEGEND] d:  return _toJson(d);
+         case list[DATUM] d:  return _toJson(d);
+         case list[MARK] d:  return _toJson(d);
+         }
+     }
+
     
 JSON toJson(DATUM  datum) {
-    switch (datum) {  
-    case datum(): return Object (("name": toJson(datum.name), "transform" : toJson(datum.transform),
+    return Object (("name": toJson(datum.name), "transform" : toJson(datum.transform),
          "source":toJson(datum.source), "data": toJson(datum.\data)));
     }
-    return null();
-    }
+ 
     
 JSON propToJson(value v) {
     if (real r := v) {return toJson(r,99999.);}
@@ -169,16 +209,14 @@ JSON propToJson(value v) {
  //    vega(list[AXE] axes=[], list[SCALE] scales=[], list[DATUM] \data=[], PADDING padding= padding(), list[MARK] marks = []);
  
  public JSON toJson(VEGA vega) {
-    switch (vega) { 
-         case vega():  return Object (("axes":toJson(vega.axes), "scales":toJson(vega.scales),
+   return Object (("axes":toJson(vega.axes), "scales":toJson(vega.scales),
             "legends":toJson(vega.legends),
             "data":toJson(vega.\data) ,  "padding": toJson(vega.padding), "marks" : toJson(vega.marks),
             "viewport" : toJson(vega.viewport)));
          } 
-    return null();
-    }
+  
     
-public str toJSON(VEGA vega) {
+public str vegaToJSON(VEGA vega) {
     return toJSON(toJson(vega));
     }
 
@@ -232,7 +270,8 @@ public AXE getAxe(VEGA vega, str name) {
 public SCALE getScale(VEGA vega, str name) {
     visit(vega) {
           case v:scale(name=name): return v;
-          } 
+          }
+    return scale(); 
     }
     
  public MARK getMark(VEGA vega, str name) {
@@ -245,6 +284,19 @@ public SCALE getScale(VEGA vega, str name) {
 public VEGA setMark(VEGA vega, str name,  MARK m) {
     return visit(vega) {
           case mark(\type=name) => m
+          } 
+    }
+    
+public TRANSFORM getTransform(VEGA vega, str name) {
+    visit(vega) {
+          case v:transform(\type=name): return v;
+          }
+    return transform();
+    }
+    
+public VEGA setTransform(VEGA vega, str name,  TRANSFORM m) {
+    return visit(vega) {
+          case transform(\type=name) => m
           } 
     }
   
@@ -267,15 +319,64 @@ map [str, value] _tickLabels(str axe, TICKLABELS tickLabels) =
                 ,"title":("dx":("value":tickLabels.title_dx), "dy":("value":tickLabels.title_dy))
                 );
 
+str jsIndexOf(list[str] keys) {
+           if (isEmpty(keys)) return "";
+           str s = "[\"<head(keys)>\"";
+           str t = "<for(q<-tail(keys)){>,\"<q>\"<}>";
+           str u = s+t+"]";
+           str r = "<u>.indexOf(d.data.c)";
+           // println(r);
+           return r;
+           }
+ 
+ // map[str, value] addProp(map[str, value] prop, map[str, map[str, value]] a)  {
+ map[str, value] addProp(value prop, map[str, map[str, value]] a)  {
+           // println("addProp1 <prop>");
+           if (map[str, map[str, value]] m := prop) {
+              m +=  a;
+              // println("addProp2 <m>");
+              return m;
+              }
+           return ();
+           } 
+           
+ MARK lineMark(MARK m, str val) {    
+        m.\type = "line";
+        m.properties["enter"] = addProp(m.properties["enter"], ("stroke":
+              ("scale":"color", "field":"data.c")));
+        m.properties["enter"]= addProp(m.properties["enter"], ("interpolate": 
+                   ("value":val)));
+        return m;
+        }
+        
+ MARK symbolMark(MARK m, str val) {        
+        m.\type = "symbol";
+        m.properties["enter"]= addProp(m.properties["enter"],("fill":
+              ("scale":"color", "field":"data.c")));
+        m.properties["enter"]= addProp(m.properties["enter"],("shape": 
+                   ("value":val)));
+        return m;
+        }
+        
+MARK dupMark(MARK template, str key, str val, bool line) {
+           if (key!="all")
+           template.from.transform =  
+              transform(\type="filter", \test = "d.data.c == \"<key>\"")
+              + template.from.transform;
+           MARK m = template.marks[0];
+           template.marks = [line?lineMark(m, val):symbolMark(m, val)]; 
+           return template;        
+           }
+           
 VEGA update(VEGA r, bool grid = false, 
     map[str, str] title =  (), map[str, str] legends = (),
     map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
     map[str, TICKLABELS] tickLabels = (),
     map[str, str] interpolate = (),  map[str, str] shape = (), 
-    list[str] palette = color12
+    list[str] palette = color12, list[str] groupOrder = [],
+    num offset = 99999
     )
-    {
-        
+    {     
         AXE ax = getAxe(r, "x"); 
         if (title["x"]?) ax.title = title["x"];
         if (format["x"]?) ax.format = format["x"];
@@ -292,31 +393,47 @@ VEGA update(VEGA r, bool grid = false,
         if (tickLabels["y"]?) ay.properties += _tickLabels("y", tickLabels["y"]);     
         r = setAxe(r, "x", ax);
         r = setAxe(r, "y", ay);
-        
         r.legends = [createLegend(k, legends[k], (title[k]?)?title[k]:"")| k <-legends];
         if (!isEmpty(palette)) {
            SCALE color = getScale(r, "color");
            color.range = array(values = hexColors(palette)); 
            r = setScale(r, "color", color);
            }
-       if (interpolate["all"]? || shape["all"]?) {
-         MARK m1 = getMark(r, "line"); 
-         MARK m2 =  getMark(r, "symbol");
-         r = setMark(r, "line", mark(\type="line")); 
-         r = setMark(r, "symbol", mark(\type="symbol"));     
+       else {
+           SCALE color = getScale(r, "color");
+           color.range = array(values = hexColors(color12)); 
+           r = setScale(r, "color", color);
+           }  
+       if (offset!=99999) {
+           MARK mg = getMark(r, "rect");
+           mg.properties["enter"]= addProp(mg.properties["enter"],
+              ("width":("scale":"x", "offset":offset,"band":true
+               )));
+           r = setMark(r, "rect", mg);
+           }     
+       if (!isEmpty(interpolate) || !isEmpty(shape)) { 
+        MARK mg = getMark(r, "group");
+        r.marks = []; 
         if (interpolate["all"]?) {
-              m1.properties["enter"]+=("stroke":
-              ("scale":"color", "field":"data.c"));
-              m1.properties["enter"]+=("interpolate": 
-                   ("value":interpolate["all"]));
-              r = setMark(r, "line", m1);
-             }   
-        if (shape["all"]?) {          
-             m2.properties["enter"]+=("fill": ("scale":"color", "field":"data.c"));    
-             m2.properties+=("shape": ("value":shape["all"]));
-             r = setMark(r, "symbol", m2);
+              r.marks = r.marks + dupMark(mg, "all", interpolate["all"], true);
+             }
+        else r.marks = r.marks + [
+            dupMark(mg, key, interpolate[key], true)|key<-interpolate
+            ];   
+        if (shape["all"]?) {  
+             r.marks = r.marks + dupMark(mg, "all", shape["all"], false);
              }    
-        }  
+        else {
+            r.marks = r.marks + [
+               dupMark(mg, key, shape[key], false)|key<-shape
+               ];   
+            }
+        } 
+        if (!isEmpty(groupOrder)) {
+            TRANSFORM t = getTransform(r, "formula");
+            t.expr = jsIndexOf(groupOrder);
+            r = setTransform(r, "formula", t);
+            }
         return r;
     }
 
@@ -324,6 +441,11 @@ VEGA update(VEGA r, bool grid = false,
 
 // -------------------------------------------------------------------------------- 
 
+z a =    tst([1, 2, 3]);
+
+data z = tst(list[int]);
+
  public void Main() {
-     println(toJson(b));
+     str b = "aap";
+     println(toJSON(b));
      }

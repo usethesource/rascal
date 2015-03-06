@@ -18,6 +18,7 @@ import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -41,16 +42,23 @@ public class IO {
 		super();
 		this.values = values;
 	}
-
-
+	
 	public IString toJSON(IValue value) {
-		IValueAdapter adap = new IValueAdapter();
+		  return toJSON(value, this.values.bool(false));
+	}
+
+
+	public IString toJSON(IValue value, IBool compact) {
+		// System.err.println("hallo");
+		IValueAdapter adap = new IValueAdapter(compact.getValue());
+		// System.err.println(adap);
 		Gson gson = new GsonBuilder()
 		.registerTypeAdapter(IValue.class, adap)
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
+		.disableHtmlEscaping()  // Bert Lisser
 		.create();
 		try {
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());

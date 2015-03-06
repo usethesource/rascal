@@ -1,7 +1,8 @@
 module experiments::Compiler::muRascal2RVM::StackSize
 
-import Prelude;
 import util::Math;
+import List;
+import Type;
 import experiments::Compiler::muRascal::AST;
 
 
@@ -36,6 +37,7 @@ private int estimate(muConstr(str fuid)) = 1;
 private int estimate(muVar(str id, str fuid, int pos)) = 1;
 private int estimate(muLoc(str id, int pos)) = 1;
 private int estimate(muTmp(str id, str fuid)) = 1;
+private int estimate(muResetLocs(list[int] positions)) = 1;
 
 private int estimate(muLocKwp(str name)) = 1;
 private int estimate(muVarKwp(str fuid, str name)) = 1;
@@ -74,8 +76,11 @@ private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
 private int estimate(muFail(str label)) = 0;
 
-private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)) = 
-(1 | max(it, estimate(cs.exp)) | cs <- cases);
+private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)) = 
+max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
+
+private int estimate(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
+max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
        
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
@@ -123,4 +128,4 @@ private int estimate(muContVar(str fuid)) = 1;
 private int estimate(muReset(MuExp fun)) = estimate(fun);
 private int estimate(muShift(MuExp body)) = estimate(body);
 
-private default int estimate(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
+private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; }

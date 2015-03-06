@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
 module experiments::Concept::GetFigure
 
 import analysis::formalconcepts::FCA;
-import experiments::Concept::Types;
+import analysis::formalconcepts::CXTIO;
 import IO;
 import vis::Figure; 
 

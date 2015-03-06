@@ -1,14 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import java.io.PrintWriter;
-import java.util.TreeMap;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-
-
 
 public enum Opcode {
 	/*
@@ -18,51 +15,51 @@ public enum Opcode {
 	 * 
 	 * OPCODENAME(	opcode,	pc increment)
 	 */
-	LOADCON			    (0, 	1), //2),
-	LOADVAR 			(1, 	1), //3),
-	LOADLOC 			(2,		1), //2),
-	STOREVAR 			(3, 	1), //3),
-	STORELOC 			(4, 	1), //2),
-	CALL 				(5, 	1), //3),
-	CALLPRIM	 		(6, 	2), //3),
-	RETURN1 			(7, 	1), //2),
-	JMP 				(8, 	1), //2),
-	JMPTRUE 			(9, 	1), //2),
-	JMPFALSE 			(10, 	1), //2),
+	LOADCON			    (0, 	1),
+	LOADVAR 			(1, 	1),
+	LOADLOC 			(2,		1),
+	STOREVAR 			(3, 	1),
+	STORELOC 			(4, 	1),
+	CALL 				(5, 	1),
+	CALLPRIM	 		(6, 	2),
+	RETURN1 			(7, 	1),
+	JMP 				(8, 	1),
+	JMPTRUE 			(9, 	1),
+	JMPFALSE 			(10, 	1),
 	LABEL 				(11, 	0),
 	HALT 				(12, 	1),
 	POP 				(13, 	1),
-	CALLDYN				(14,	1), //2),
-	LOADFUN				(15,	1), //2), // TODO: to be renamed to LOAD_ROOT_FUN
+	CALLDYN				(14,	1),
+	LOADFUN				(15,	1), // TODO: to be renamed to LOAD_ROOT_FUN
 	NEXT0				(16,	1),
 	NEXT1				(17,	1),
 	YIELD0				(18,	1),
-	YIELD1				(19,	1), //2),
-	CREATE				(20,	1), //3),
-	CREATEDYN           (21,    1), //2),
-	PRINTLN				(22,	1), //2),
+	YIELD1				(19,	1),
+	CREATE				(20,	1),
+	CREATEDYN           (21,    1),
+	PRINTLN				(22,	1),
 	RETURN0				(23,	1),
-	LOADLOCREF			(24,	1), //2),
-	LOADVARREF			(25,	1), //3),
-	LOADLOCDEREF		(26,	1), //2),
-	LOADVARDEREF		(27,	1), //3),
-	STORELOCDEREF		(28,	1), //2),
-	STOREVARDEREF		(29,	1), //3),
-	LOADCONSTR			(30,	1), //2),
-	CALLCONSTR			(31,	1/*2*/), //3), // TODO: plus number of formal parameters
-	LOAD_NESTED_FUN		(32, 	1), //3),
-	LOADTYPE			(33,	1), //2),
-	CALLMUPRIM			(34,	1), //3),
-	LOADBOOL			(35,	1), //2),
-	LOADINT				(36,	1), //2),
+	LOADLOCREF			(24,	1),
+	LOADVARREF			(25,	1),
+	LOADLOCDEREF		(26,	1),
+	LOADVARDEREF		(27,	1),
+	STORELOCDEREF		(28,	1),
+	STOREVARDEREF		(29,	1),
+	LOADCONSTR			(30,	1),
+	CALLCONSTR			(31,	1),
+	LOAD_NESTED_FUN		(32, 	1),
+	LOADTYPE			(33,	1),
+	CALLMUPRIM			(34,	1),
+	LOADBOOL			(35,	1),
+	LOADINT				(36,	1),
 	FAILRETURN			(37, 	1),
-	LOADOFUN        	(38,    1), //2),
-	OCALL           	(39,    2), //3),
-	OCALLDYN	    	(40,	2), //3),
+	LOADOFUN        	(38,    1),
+	OCALL           	(39,    2),
+	OCALLDYN	    	(40,	2),
 	CALLJAVA        	(41,    6),
 	THROW           	(42,    1),
-	TYPESWITCH			(43,	1), //2),
-	UNWRAPTHROWNLOC     (44,    1), //2),
+	TYPESWITCH			(43,	1),
+	UNWRAPTHROWNLOC     (44,    1),
 	FILTERRETURN		(45, 	1),
 	EXHAUST             (46,    1),
 	GUARD               (47,    1),
@@ -75,7 +72,7 @@ public enum Opcode {
 	ANDBOOL				(54,	1),
 	TYPEOF				(55,	1),
 	SUBTYPE				(56,	1),
-	CHECKARGTYPE		(57,	1),
+	CHECKARGTYPEANDCOPY	(57,	2),
 	LOADLOC0			(58, 	1),
 	LOADLOC1			(59, 	1),
 	LOADLOC2			(60, 	1),
@@ -87,16 +84,18 @@ public enum Opcode {
 	LOADLOC8			(66, 	1),
 	LOADLOC9			(67, 	1),
 	JMPINDEXED			(68, 	1),
-	LOADLOCKWP          (69,    1), // 2
-	LOADVARKWP          (70,    1), // 3
-	STORELOCKWP         (71,    1), // 2
-	STOREVARKWP         (72,    1), // 3
-	UNWRAPTHROWNVAR     (73,    1), // 3
-	APPLY               (74,    1), // 3
-	APPLYDYN            (75,    1), // 2
-	LOADCONT            (76,    1), // 2
-	RESET               (77,    1), // 2
-	SHIFT               (78,    1)  // 2
+	LOADLOCKWP          (69,    1),
+	LOADVARKWP          (70,    1),
+	STORELOCKWP         (71,    1),
+	STOREVARKWP         (72,    1),
+	UNWRAPTHROWNVAR     (73,    1),
+	APPLY               (74,    1),
+	APPLYDYN            (75,    1),
+	LOADCONT            (76,    1),
+	RESET               (77,    1),
+	SHIFT               (78,    1),
+	SWITCH   			(79,	1),
+	RESETLOCS			(80,	1)
 	;
 	
 	
@@ -169,7 +168,7 @@ public enum Opcode {
 	static public final int OP_ANDBOOL = 54;
 	static public final int OP_TYPEOF = 55;
 	static public final int OP_SUBTYPE = 56;
-	static public final int OP_CHECKARGTYPE = 57;
+	static public final int OP_CHECKARGTYPEANDCOPY = 57;
 	static public final int OP_LOADLOC0 = 58;
 	static public final int OP_LOADLOC1 = 59;
 	static public final int OP_LOADLOC2 = 60;
@@ -191,6 +190,8 @@ public enum Opcode {
 	static public final int OP_LOADCONT = 76;
 	static public final int OP_RESET = 77;
 	static public final int OP_SHIFT = 78;
+	static public final int OP_SWITCH = 79;
+	static public final int OP_RESETLOCS = 80;
 	
 	
 	/*
@@ -205,18 +206,18 @@ public enum Opcode {
 		this.pc_incr = pc_incr;
 	}
 	 
-	static long opFrequencies[];
+//	static long opFrequencies[];
 	static boolean profiling = false;
-	private static PrintWriter stdout;
+//	private static PrintWriter stdout;
 	
 	public static void init(PrintWriter stdoutWriter, boolean doProfile) {
-	  stdout = stdoutWriter;
+//	  stdout = stdoutWriter;
 	  profiling = doProfile;
-      opFrequencies = new long[values.length];
+//      opFrequencies = new long[values.length];
 	}
 	
 	public static void use(int instruction){
-		opFrequencies[CodeBlock.fetchOp(instruction)]++;
+//		opFrequencies[CodeBlock.fetchOp(instruction)]++;
 	}
 	
 	public static void exit(){
@@ -225,18 +226,18 @@ public enum Opcode {
 	}
 	
 	private static void printProfile(){
-		stdout.println("\nOpcode Frequencies");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(opFrequencies[i] > 0 ){
-				data.put(opFrequencies[i], values[i].name());
-				total += opFrequencies[i];
-			}
-		}
-		for(long t : data.descendingKeySet()){
-			stdout.printf("%30s: %3d%% (%d)\n", data.get(t), t * 100 / total, t);
-		}
+//		stdout.println("\nOpcode Frequencies");
+//		long total = 0;
+//		TreeMap<Long,String> data = new TreeMap<Long,String>();
+//		for(int i = 0; i < values.length; i++){
+//			if(opFrequencies[i] > 0 ){
+//				data.put(opFrequencies[i], values[i].name());
+//				total += opFrequencies[i];
+//			}
+//		}
+//		for(long t : data.descendingKeySet()){
+//			stdout.printf("%30s: %3d%% (%d)\n", data.get(t), t * 100 / total, t);
+//		}
 	}
 	
 	public int getPcIncrement(){
@@ -444,8 +445,11 @@ public enum Opcode {
 		case SUBTYPE:
 			return "SUBTYPE";
 			
-		case CHECKARGTYPE:
-			return "CHECKARGTYPE";
+		case CHECKARGTYPEANDCOPY:
+			return "CHECKARGTYPEANDCOPY " + cb.getConstantValue(arg1) + ", " 
+								  		  + cb.getConstantValue(arg2) + ", "
+								  		  + cb.finalCode[pc + 1];
+					 			  
 		case LOADLOC0:
 			return "LOADLOC0";
 		case LOADLOC1:
@@ -499,6 +503,12 @@ public enum Opcode {
 			
 		case SHIFT:
 			return "SHIFT";
+			
+		case SWITCH:
+			return "SWITCH " + cb.getConstantValue(arg1) + ", " + arg2;
+		
+		case RESETLOCS:
+			return "RESETLOCS " + cb.getConstantValue(arg1);
 		
 		default:
 			break;

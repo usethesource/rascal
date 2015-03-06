@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2014 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -112,6 +112,7 @@ data Configuration = config(set[Message] messages,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
+                            rel[int,loc] narrowedUses,
                             map[loc,int] usedIn,
                             rel[int,int] adtConstructors,
                             rel[int,int] nonterminalConstructors,
@@ -131,7 +132,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -650,7 +651,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
 	
-	int addAlias() {
+	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
 		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
 
@@ -662,14 +663,21 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	}
 
 	if (n notin c.typeEnv) {
-		itemId = addAlias();
+		itemId = addAliasAux();
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
+	} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
+		if (c.store[c.typeEnv[n]].rtype == rt) {
+			c.definitions = c.definitions + < c.typeEnv[n], l >;
+		} else {
+			itemId = addAliasAux();
+			c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
+		}
 	} else if (n in c.typeEnv) {
 		// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
-		itemId = addAlias();
+		itemId = addAliasAux();
 		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
 	}
 	
@@ -1130,7 +1138,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
 
-    if (fullSortName notin c.typeEnv && registerName) {
+    if ((rn notin c.typeEnv && fullSortName notin c.typeEnv) && registerName) {
     	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
     	return c;
     }
@@ -1414,3 +1422,21 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
+
+private bool ignoreDeclaration(Tags tags){
+    map[str,str] getTags(Tags tags){
+       m = ();
+       for(tg <- tags.tags){
+         str name = "<tg.name>";
+         if(tg is \default){
+            cont = "<tg.contents>"[1 .. -1];
+            m[name] = cont;
+         } else if (tg is empty)
+            m[name] = "";
+         else
+            m[name] = "<tg.expression>"[1 .. -1];
+       }
+       return m;
+    }
+    return !isEmpty(domain(getTags(tags)) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+}

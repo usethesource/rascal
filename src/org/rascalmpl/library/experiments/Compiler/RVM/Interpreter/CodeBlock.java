@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,7 +22,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
@@ -71,6 +73,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
@@ -84,6 +87,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Switch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -94,6 +98,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Y
 
 public class CodeBlock {
 
+	private final String name;
 	public final IValueFactory vf;
 	int pc;
 	int labelIndex = 0;
@@ -116,11 +121,12 @@ public class CodeBlock {
 	
 	public int[] finalCode;
 	
-	public CodeBlock(IValueFactory factory){
+	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
+		this.name = name;
 		this.vf = factory;
 		constantMap = new HashMap<IValue, Integer>();
 		this.constantStore = new ArrayList<IValue>();
@@ -134,7 +140,7 @@ public class CodeBlock {
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new CompilerError("Double declaration of label " + label);
+				throw new CompilerError("In function " + name + ": double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -153,7 +159,7 @@ public class CodeBlock {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("Undefined label " + label);
+			throw new CompilerError("In function " + name + " undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -161,7 +167,7 @@ public class CodeBlock {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("Undefined label " + label);
+			throw new CompilerError("In function " + name + ": undefined label " + label);
 		}
 		return info.instruction;
 	}
@@ -172,7 +178,7 @@ public class CodeBlock {
 				return constant;
 			}
 		}
-		throw new CompilerError("Undefined constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined constant index " + n);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -191,7 +197,7 @@ public class CodeBlock {
 				return type;
 			}
 		}
-		throw new CompilerError("Undefined type constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -210,13 +216,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined function index " + n);
+		throw new CompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new CompilerError("Undefined function name " + name);
+			throw new CompilerError("In function " + name + ": undefined function name " + name);
 		}
 		return n;
 	}
@@ -227,13 +233,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined overloaded function index " + n);
+		throw new CompilerError("In function " + name + ": undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("Undefined overloaded function name " + name);
+			throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -243,13 +249,13 @@ public class CodeBlock {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new CompilerError("Undefined constructor index " + n);
+		throw new CompilerError("In function " + name + ": undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new CompilerError("Undefined constructor name " + name);
+			throw new CompilerError("In function " + name + ": undefined constructor name " + name);
 		return n;
 	}
 	
@@ -304,6 +310,8 @@ public class CodeBlock {
 	public final static int maskArg2 = (1 << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
+	
+	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
 	public static int encode0(int op){
 		return op;
@@ -606,8 +614,8 @@ public class CodeBlock {
 		return add(new SubType(this));
 	}
 	
-	public CodeBlock CHECKARGTYPE() {
-		return add(new CheckArgType(this));
+	public CodeBlock CHECKARGTYPEANDCOPY(int pos1, Type type, int pos2) {
+		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
 		
 	public CodeBlock JMPINDEXED(IList labels){
@@ -653,6 +661,15 @@ public class CodeBlock {
 	public CodeBlock SHIFT() {
 		return add(new Shift(this));
 	}
+	
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
+		return add(new Switch(this, caseLabels, caseDefault));
+	}
+	
+	public CodeBlock RESETLOCS(IList positions) {
+		return add(new ResetLocs(this, getConstantIndex(positions)));
+		
+	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
@@ -672,6 +689,14 @@ public class CodeBlock {
 		for(int i = 0; i < typeConstantStore.size(); i++) {
 			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
+		
+		if(constantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+		}
+		if(typeConstantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+		}
+		
 		if(listing){
 			listing(fname);
 		}
@@ -722,6 +747,7 @@ public class CodeBlock {
     	System.out.println("arg1 = " + fetchArg1(w));
     	System.out.println("arg2 = " + fetchArg2(w));
     }
+
 }
 
 class LabelInfo {

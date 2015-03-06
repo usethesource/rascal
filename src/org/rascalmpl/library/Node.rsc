@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -151,6 +151,22 @@ Pitfalls:
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
+
+@doc{
+Synopsis: Set a specific parameter back to default on a node.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node unset(&T <: node x, str label);
+
+@doc{
+Synopsis: Set all keyword parameters back to default.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node unset(&T <: node x);
+
+public &T <: node unsetRec(&T <: node x) = visit(x) { 
+  case node n => unset(n) 
+};
 
 
 @doc{

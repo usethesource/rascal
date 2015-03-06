@@ -14,6 +14,10 @@ test bool subscription(str S){
   return R == S;
 }
 
+test bool sliceEmpty() = ""[0..5] == "";
+test bool sliceOverEnd() = "/"[1..] == "";
+test bool sliceOverEnd2() = "/"[2..] == "";
+
 test bool subscriptionWrapped(str S){
   for(int i <- [0 .. size(S)]){
       if(S[i] != S[i - size(S)]){
@@ -131,28 +135,28 @@ test bool sliceSecondNegative(str L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-test bool assignSlice() { L = "abcdefghij"; L[..] = "XY"; return L == "XYXYXYXYXY";}
-test bool assignSlice() { L = "abcdefghij"; L[2..] = "XY"; return   L == "abXYXYXYXY";}
-test bool assignSlice() { L = "abcdefghij"; L[2..6] = "XY"; return L == "abXYXYghij";}
-test bool assignSlice() { L = "abcdefghij"; L[8..3] = "XY"; return L == "abcdXYXYXj";}
+test bool assignSlice1() { L = "abcdefghij"; L[..] = "XY"; return L == "XYXYXYXYXY";}
+test bool assignSlice2() { L = "abcdefghij"; L[2..] = "XY"; return   L == "abXYXYXYXY";}
+test bool assignSlice3() { L = "abcdefghij"; L[2..6] = "XY"; return L == "abXYXYghij";}
+test bool assignSlice4() { L = "abcdefghij"; L[8..3] = "XY"; return L == "abcdXYXYXj";}
 
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "XYZ"; return L == "XbYdZfXhYj";}
-test bool assignStep() { L = "abcdefghij"; L[,2..] = "XYZPQRS"; return L == "XbYdZfPhQjRS";}
+test bool assignStep1() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
+test bool assignStep2() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
+test bool assignStep3() { L = "abcdefghij"; L[,2..] = "X"; return L == "XbXdXfXhXj";}
+test bool assignStep4() { L = "abcdefghij"; L[,2..] = "XY"; return L == "XbYdXfYhXj";}
+test bool assignStep5() { L = "abcdefghij"; L[,2..] = "XYZ"; return L == "XbYdZfXhYj";}
+test bool assignStep6() { L = "abcdefghij"; L[,2..] = "XYZPQRS"; return L == "XbYdZfPhQjRS";}
 
-test bool assignStep() { L = "abcdefghij"; L[2,4..] = "X"; return L == "abXdXfXhXj";}
-test bool assignStep() { L = "abcdefghij"; L[2,4..6] = "X"; return L == "abXdXfghij";}
+test bool assignStep7() { L = "abcdefghij"; L[2,4..] = "X"; return L == "abXdXfXhXj";}
+test bool assignStep8() { L = "abcdefghij"; L[2,4..6] = "X"; return L == "abXdXfghij";}
 
-test bool assignStep() { L = "abcdefghij"; L[,6..1] = "X"; return L == "abcXefXhiX";}
-test bool assignStep() { L = "abcdefghij"; L[8,6..] = "X"; return L == "XbXdXfXhXj";}
-test bool assignStep() { L = "abcdefghij"; L[8,6..3] = "X"; return L == "abcdXfXhXj";}
+test bool assignStep9() { L = "abcdefghij"; L[,6..1] = "X"; return L == "abcXefXhiX";}
+test bool assignStep10() { L = "abcdefghij"; L[8,6..] = "X"; return L == "XbXdXfXhXj";}
+test bool assignStep11() { L = "abcdefghij"; L[8,6..3] = "X"; return L == "abcdXfXhXj";}
 
 
-test bool assignStep() { L = "abcdefghij"; L[-1,-2..] = "XYZPQ"; return L == "QPZYXQPZYX";}
-test bool assignStep() { L = "abcdefghij"; L[-1,-3..] = "XYZPQ"; return L == "aQcPeZgYiX";}
+test bool assignStep12() { L = "abcdefghij"; L[-1,-2..] = "XYZPQ"; return L == "QPZYXQPZYX";}
+test bool assignStep13() { L = "abcdefghij"; L[-1,-3..] = "XYZPQ"; return L == "aQcPeZgYiX";}
 
 // Library functions
 

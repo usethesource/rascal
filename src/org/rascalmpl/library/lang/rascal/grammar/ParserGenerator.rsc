@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
 str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
-public str newGenerate(str package, str name, Grammar gr) {
+public str newGenerate(str package, str name, Grammar gr) {	
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
@@ -65,8 +65,7 @@ public str newGenerate(str package, str name, Grammar gr) {
  
     event("assigning unique ids to symbols");
     gr = visit(gr) { case Symbol s => s[@id=newItem()] }
-        
-    event("generating item allocations");
+           
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
@@ -587,4 +586,11 @@ str v2i(value v) {
         case set[value] s  : return ("" | it + "_" + v2i(e) | e <- sort(s));
         default            : throw "value not supported <v>";
     }
-}
+}    
+
+// For the benefit of various tests
+
+list[str] removeEmptyLines(str s) =
+	[ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
+
+bool sameLines(str s1, str s2) = size(removeEmptyLines(s1) - removeEmptyLines(s2)) == 0;

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ Synopsis: Largest data value.
 	= (head(nums) | it < n ? n : it | n <- tail(nums));
 
 
-(&T <: num) mean(list[&T<:num] l:[]) {
+real mean(list[&T<:num] l:[]) {
 	throw IllegalArgument(l,"Mean cannot be calculated for empty lists");
 }
 

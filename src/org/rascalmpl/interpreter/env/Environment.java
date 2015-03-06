@@ -38,12 +38,12 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 
 /**
@@ -307,7 +307,6 @@ public class Environment {
 	}
 	
 	public ConstructorFunction getConstructorFunction(Type constructorType) {
-		Type functionType = RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes());
 		List<AbstractFunction> list = new LinkedList<>();
 		getAllFunctions(constructorType.getAbstractDataType(), constructorType.getName(), list);
 		
@@ -316,7 +315,7 @@ public class Environment {
 				ConstructorFunction func = (ConstructorFunction) candidate;
 				
 				if (func.getName().equals(constructorType.getName()) 
-						&& func.getFunctionType() == functionType) {
+						&& constructorType.isSubtypeOf(func.getConstructorType())) {
 					return func;
 				}
 			}
@@ -331,7 +330,7 @@ public class Environment {
 			
 			if (locals != null) {
 				for (AbstractFunction func : locals) {
-					if (func.getReturnType().isSubtypeOf(returnType)) {
+					if (func.getReturnType().comparable(returnType)) {
 						collection.add(func);
 					}
 				}
@@ -709,13 +708,9 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keywordParams, initializers);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordFormal> initializers) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, initializers);
 	}
-
-//	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Object... childrenAndLabels ) {
-//		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, childrenAndLabels);
-//	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {
 		return getRoot().aliasType(name, aliased, parameters);
@@ -896,6 +891,24 @@ public class Environment {
 		
 		if (!isRootScope()) return parent.getFlagsEnvironment(name);
 		return null;
+	}
+
+	public void declareConstructorKeywordParameter(Type onType, String label,
+			Type valueType) {
+		getRoot().declareConstructorKeywordParameter(onType, label, valueType);
+	}
+
+	public Set<GenericKeywordParameters> lookupGenericKeywordParameters(Type adt) {
+		return getRoot().lookupGenericKeywordParameters(adt);
+	}
+
+	public void declareGenericKeywordParameters(Type adt, Type kwTypes,
+			List<KeywordFormal> formals) {
+		getRoot().declareGenericKeywordParameters(adt, kwTypes, formals);
+	}
+
+	public Map<String, Type> getKeywordParameterTypes(Type ontype) {
+		return getRoot().getKeywordParameterTypes(ontype);
 	}
 }
 

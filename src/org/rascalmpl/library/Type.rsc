@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -121,8 +121,34 @@ Synopsis: Choice between alternative productions.
 Description:
 Nested choice is flattened.
 }
-public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
-  = choice(s, a+b);
+public Production choice(Symbol s, set[Production] choices){
+	if(!any(choice(Symbol t, set[Production] b)  <- choices)){
+	   fail;
+	} else {   
+	    // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
+	    //return choice(s, { *(choice(Symbol t, set[Production] b) := ch ? b : {ch}) | ch <- choices });
+	    changed = false;
+	    new_choices = {};
+	    for(ch <- choices){
+	    	if(choice(Symbol t, set[Production] b) := ch){
+	    		changed = true;
+	    		new_choices += b;
+	    	} else {
+	    		new_choices += ch;
+	    	}
+	    }
+	    if(changed){
+	    	return choice(s, new_choices);
+	    } else {
+	    	fail;
+	    }
+   }
+}
+
+//TODO:COMPILER
+//the above code replaces the following code for performance reasons in compiled code
+//public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
+//  = choice(s, a+b);
   
 
 @doc{Functions with variable argument lists are normalized to normal functions}
@@ -468,7 +494,7 @@ public &T typeCast(type[&T] typ, value v) {
 }
 
 @doc{
-Synopsis: instantiate an ADT constructor of a given type with the given children
+Synopsis: instantiate an ADT constructor of a given type with the given children and optional keyword arguments
 
 Description:
 
@@ -476,6 +502,9 @@ This function will build a constructor if the definition exists and throw an exc
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
+
+@javaClass{org.rascalmpl.library.Type}
+public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
 
 @doc{
 Synopsis: returns the dynamic type of a value as a reified type

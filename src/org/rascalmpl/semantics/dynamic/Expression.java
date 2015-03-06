@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
@@ -92,7 +91,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -496,7 +494,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			  
 				if (hasKeywordArguments()) {
 				  KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
-				  Type kwFormals = function.getKeywordArgumentTypes();
+				  Type kwFormals = function.getKeywordArgumentTypes(eval.getCurrentEnvt());
 				
 				  if (keywordArgs.isDefault()){
 				    kwActuals = new HashMap<String,IValue>();
@@ -541,19 +539,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isString()) {
 				return TF.nodeType();
 			}
+			
 			if (lambda.isSourceLocation()) {
 				return lambda;
 			}
+			
 			if (lambda.isExternalType()) {
 				if (lambda instanceof FunctionType) {
 					return ((FunctionType) lambda).getReturnType();
 				}
+				
 				if (lambda instanceof OverloadedFunctionType) {
 					return ((OverloadedFunctionType) lambda).getReturnType();
 				}
 			}
 
-			throw new UnsupportedPattern(lambda + "(...)", this);
+			return TF.nodeType();
 		}
 	}
 
@@ -1048,20 +1049,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
-			if (!result.getType().isSubtypeOf(TF.stringType())) {
+			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
-			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
+			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
-						this.getLocation().getURI(),
+				IConstructor tree = null;
+				
+				if (result.getType().isString()) {
+					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
+						this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray());
+				}
+				else if (result.getType().isSourceLocation()) {
+					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
+							((ISourceLocation) result.getValue()));
+				}
+				
+				assert tree != null; // because we checked earlier
 
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);
