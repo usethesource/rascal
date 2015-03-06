@@ -922,7 +922,7 @@ public class RVMRun implements IRVM {
 				return sp;
 			}
 		}
-		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
+		throw new RuntimeException("insnLOADVAR cannot find matching scope: " + scopeid);
 	}
 
 	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
@@ -1351,14 +1351,14 @@ public class RVMRun implements IRVM {
 		return ToplevelType.getToplevelTypeAsInt(t);
 	}
 
-	public int switchHelper() {
+	public int switchHelper(Object[] stack, int spp) {
 		IValue val = (IValue) stack[--sp];
 		IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
         int toReturn = fp.intValue() ;
         return toReturn ;
 	}
 
-	public boolean guardHelper() {
+	public boolean guardHelper(Object[] stack, int sp) {
 		Object rval = stack[sp - 1];
 		boolean precondition;
 		if (rval instanceof IBool) {
@@ -1369,7 +1369,7 @@ public class RVMRun implements IRVM {
 		return precondition;
 	}
 
-	public void yield1Helper(int arity2, int ep) {
+	public void yield1Helper(Frame cof, Object[] stock, int sop,  int arity2, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
 		Coroutine coroutine = activeCoroutines.pop();
@@ -1377,20 +1377,20 @@ public class RVMRun implements IRVM {
 
 		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
 
-		int[] refs = cf.function.refs;
+		int[] refs = cof.function.refs;
 
 		for (int i = 0; i < arity2; i++) {
-			Reference ref = (Reference) stack[refs[arity2 - 1 - i]];
-			ref.stack[ref.pos] = stack[--sp];
+			Reference ref = (Reference) stock[refs[arity2 - 1 - i]];
+			ref.stack[ref.pos] = stock[--sp];
 		}
 
-		cf.hotEntryPoint = ep;
-		cf.sp = sp;
+		cof.hotEntryPoint = ep;
+		cof.sp = sp;
 
-		coroutine.frame = cf;
+		coroutine.frame = cof;
 		coroutine.suspended = true;
 
-		cf = cf.previousCallFrame;
+		cf = cof.previousCallFrame;
 		sp = cf.sp;
 		stack = cf.stack;
 	}
@@ -1403,13 +1403,13 @@ public class RVMRun implements IRVM {
 
 		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
 
-		cf.hotEntryPoint = ep;
-		cf.sp = sp;
+		cof.hotEntryPoint = ep;
+		cof.sp = sp;
 
-		coroutine.frame = cf;
+		coroutine.frame = cof;
 		coroutine.suspended = true;
 
-		cf = cf.previousCallFrame;
+		cf = cof.previousCallFrame;
 		sp = cf.sp;
 		stack = cf.stack;
 	}
