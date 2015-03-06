@@ -22,16 +22,16 @@ import IO;
 
 Grammar expandKeywords(Grammar g)  
   = top-down-break visit(g) {
-    case Symbol s => expandKeywords(s)
+    case Symbol s => expandKeywords(s, g)
   };
   
-Symbol expandKeywords(Symbol s) 
+Symbol expandKeywords(Symbol s, Grammar g) 
   = top-down-break visit(s) {
-     case \if(c, s) => \if(c, expandKeyword(s))
-     case \ifElse(c, Symbol i, Symbol t) => \ifElse(c, expandKeywords(i), expandKeywords(t))
-     case \when(s, c) => \when(expandKeywords(s), c)
-     case \do(s, b) => \do(expandKeywords(s), b)
-     case \while(c, s) => \while(c, expandKeywords(s))
+     case \if(c, s) => \if(c, expandKeywords(s, g))
+     case \ifElse(c, Symbol i, Symbol t) => \ifElse(c, expandKeywords(i, g), expandKeywords(t, g))
+     case \when(s, c) => \when(expandKeywords(s, g), c)
+     case \do(s, b) => \do(expandKeywords(s, g), b)
+     case \while(c, s) => \while(c, expandKeywords(s, g))
      case \conditional(sym, conds) => \conditional(sym, expandKeywords(g, conds))
   };  
 
