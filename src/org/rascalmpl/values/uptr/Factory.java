@@ -13,6 +13,7 @@
 package org.rascalmpl.values.uptr;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -31,6 +32,7 @@ import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -48,7 +50,7 @@ import org.rascalmpl.interpreter.types.ReifiedType;
  * UPTR is consumed by tools that manipulate parse trees in general (such as
  * automatic syntax high-lighters) or tools that manipulate specific parse trees (such
  * as the Rascal interpreter).
- * 
+ * 1
  */
 public class Factory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore(
@@ -202,23 +204,56 @@ public class Factory extends AbstractValueFactoryAdapter {
 			if (constructor == Tree_Appl) {
 				IConstructor prod = (IConstructor) children[0];
 				IList args = (IList) children[1];
-
-				switch (args.length()) {
-				case 0: return new Appl0(prod);
-				case 1: return new Appl1(prod, args.get(0));
-				case 2: return new Appl2(prod, args.get(0), args.get(1));
-				case 3: return new Appl3(prod, args.get(0), args.get(1), args.get(2));
-				case 4: return new Appl4(prod, args.get(0), args.get(1), args.get(2), args.get(3));
-				case 5: return new Appl5(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));
-				default: return new ApplN(prod, args);
-				}
+				return appl(prod, args);
 			}
 			else if (constructor == Tree_Char) {
-				return new TreeInt(((IInteger) children[0]).intValue());
+				return character(((IInteger) children[0]).intValue());
 			}
 		}
 		
 		return super.constructor(constructor, children);
+	}
+	
+	@Override
+	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
+			throws FactTypeUseException {
+		assert constructor != null;
+		
+		if (constructor.getAbstractDataType() == Tree) {
+			if (constructor == Tree_Appl) {
+				IConstructor prod = (IConstructor) children[0];
+				IList args = (IList) children[1];
+				return appl(prod, args);
+			}
+			else if (constructor == Tree_Char) {
+				return character(((IInteger) children[0]).intValue());
+			}
+		}
+		
+		return super.constructor(constructor, children, kwParams);
+	}
+	
+
+	public IConstructor character(int ch) {
+		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
+			return new TreeByte((byte) ch);
+		}
+		
+		return new TreeInt(ch);
+	}
+
+	public IConstructor appl(IConstructor prod, IList args) {
+		switch (args.length()) {
+		case 0: return new Appl0(prod);
+		case 1: return new Appl1(prod, args.get(0));
+		case 2: return new Appl2(prod, args.get(0), args.get(1));
+		case 3: return new Appl3(prod, args.get(0), args.get(1), args.get(2));
+		case 4: return new Appl4(prod, args.get(0), args.get(1), args.get(2), args.get(3));
+		case 5: return new Appl5(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));
+		case 6: return new Appl6(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5));
+		case 7: return new Appl7(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5), args.get(6));
+		default: return new ApplN(prod, args);
+		}
 	}
 	
 	private class TreeInt implements IConstructor {
@@ -249,6 +284,19 @@ public class Factory extends AbstractValueFactoryAdapter {
 		@Override
 		public Iterable<IValue> getChildren() {
 			return this;
+		}
+		
+		@Override
+		public int hashCode() {
+			return ch;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
 		}
 
 		@Override
@@ -341,7 +389,166 @@ public class Factory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return new TreeInt(((IInteger) newChild).intValue());
+			case 0: return character(((IInteger) newChild).intValue());
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+			return tf.tupleType(tf.integerType());
+		}
+
+		@Override
+		public boolean declaresAnnotation(TypeStore store, String label) {
+			return false;
+		}
+
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private class TreeByte implements IConstructor {
+		final byte ch;
+		
+		public TreeByte(byte ch) {
+			this.ch = ch;
+		}
+
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return integer(ch);
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public int arity() {
+			return 1;
+		}
+
+		@Override
+		public String getName() {
+			return Tree_Char.getName();
+		}
+
+		@Override
+		public Iterable<IValue> getChildren() {
+			return this;
+		}
+		
+		@Override
+		public int hashCode() {
+			return ch;
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+				boolean done = false;
+				
+				@Override
+				public boolean hasNext() {
+					return !done;
+				}
+
+				@Override
+				public IValue next() {
+					done = true;
+					return integer(ch); 
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+
+		@Override
+		public INode replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
+				throws E {
+			return v.visitConstructor(this);
+		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other instanceof TreeByte) {
+				TreeByte o = (TreeByte) other;
+				return o.ch == ch;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
+		}
+
+		@Override
+		public boolean isAnnotatable() {
+			return false;
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return Tree;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+			return Tree_Char;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+			return Tree_Char;
+		}
+
+		@Override
+		public IValue get(String label) {
+			return get(Tree_Char.getFieldIndex(label));
+		}
+
+		@Override
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			return set(Tree_Char.getFieldIndex(label), newChild);
+		}
+
+		@Override
+		public boolean has(String label) {
+			return Tree_Char.hasField(label);
+		}
+
+		@Override
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			switch (index) {
+			case 0: return character(((IInteger) newChild).intValue());
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -385,15 +592,29 @@ public class Factory extends AbstractValueFactoryAdapter {
 		}
 		
 		@Override
+		public int hashCode() {
+			return 41 + 1331 * production.hashCode() + 13331 * getArguments().hashCode(); 
+		}
+		
+		@Override
 		public boolean isEqual(IValue other) {
-			if (other.getClass() == getClass()) {
-				AbstractAppl o = (AbstractAppl) other;
+			if (other instanceof IConstructor) {
+				IConstructor cons = (IConstructor) other;
 				
-				return o.production.isEqual(production)
-						&& getArguments().isEqual(o.getArguments());
+				return cons.getConstructorType() == getConstructorType()
+						&& cons.get(0).isEqual(get(0))
+						&& cons.get(1).isEqual(get(1));
 			}
 			
 			return false;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
 		}
 		
 		
@@ -424,6 +645,11 @@ public class Factory extends AbstractValueFactoryAdapter {
 		@Override
 		public int arity() {
 			return 2;
+		}
+		
+		@Override
+		public String toString() {
+			return StandardTextWriter.valueToString(this);
 		}
 		
 		@Override
@@ -476,8 +702,8 @@ public class Factory extends AbstractValueFactoryAdapter {
 		public IConstructor set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
-			case "prod": return constructor(Tree_Appl, newChild, getArguments());
-			case "args": return constructor(Tree_Appl, production, newChild);
+			case "prod": return appl((IConstructor) newChild, getArguments());
+			case "args": return appl(production, (IList) newChild);
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
@@ -560,6 +786,11 @@ public class Factory extends AbstractValueFactoryAdapter {
 		}
 		
 		@Override
+		public String toString() {
+			return StandardTextWriter.valueToString(this);
+		}
+		
+		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 			return v.visitList(this);
 		}
@@ -582,6 +813,27 @@ public class Factory extends AbstractValueFactoryAdapter {
 			return false;
 		}
 
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
+		}
+		
+		@Override
+		public int hashCode(){
+			int hash = 0;
+
+			Iterator<IValue> iterator = iterator();
+			while(iterator.hasNext()){
+				IValue element = iterator.next();
+				hash = (hash << 1) ^ element.hashCode();
+			}
+
+			return hash;
+		}
+		
 		@Override
 		public Iterator<IValue> iterator() {
 			return new Iterator<IValue>() {
@@ -921,4 +1173,102 @@ public class Factory extends AbstractValueFactoryAdapter {
 			};
 		}
 	}
+	
+	private class Appl6 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+		private final IValue arg2;
+		private final IValue arg3;
+		private final IValue arg4;
+		private final IValue arg5;
+
+		public Appl6(IConstructor production, IValue arg0, IValue arg1, IValue arg2, IValue arg3, IValue arg4, IValue arg5) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+			this.arg2 = arg2;
+			this.arg3 = arg3;
+			this.arg4 = arg4;
+			this.arg5 = arg5;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 6;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					case 2: return arg2;
+					case 3: return arg3;
+					case 4: return arg4;
+					case 5: return arg5;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1, arg2, arg3, arg4, arg5);
+				}
+			};
+		}
+	}
+
+	private class Appl7 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+		private final IValue arg2;
+		private final IValue arg3;
+		private final IValue arg4;
+		private final IValue arg5;
+		private final IValue arg6;
+
+		public Appl7(IConstructor production, IValue arg0, IValue arg1, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+			this.arg2 = arg2;
+			this.arg3 = arg3;
+			this.arg4 = arg4;
+			this.arg5 = arg5;
+			this.arg6 = arg6;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 7;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					case 2: return arg2;
+					case 3: return arg3;
+					case 4: return arg4;
+					case 5: return arg5;
+					case 6: return arg6;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+				}
+			};
+		}
+	}
+
 }
