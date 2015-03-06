@@ -1584,17 +1584,17 @@ public class RVMRun implements IRVM {
 
 		Object rval = null;
 
-		boolean returns = cf.isCoroutine;
+		boolean returns = cof.isCoroutine;
 		if (returns) {
 			rval = Rascal_TRUE;
 		}
 
-		if (cf == ccf) {
+		if (cof == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		cf = cf.previousCallFrame;
+		cf = cof.previousCallFrame;
 
 		stack = cf.stack;
 		sp = cf.sp;
@@ -1605,7 +1605,7 @@ public class RVMRun implements IRVM {
 		return rval;
 	}
 
-	public Object calldynHelper(Object[] st0ck, int sop, Frame c0f, int arity, int ep) {
+	public Object calldynHelper(Object[] lstack, int sp, final Frame cof, int arity, int ep) {
 		// In case of CALLDYN, the stack top value of type 'Type'
 		// leads to a constructor call
 		// This instruction is a monstrosity it should be split in three.
@@ -1613,46 +1613,45 @@ public class RVMRun implements IRVM {
 		Frame tmp;
 		Object rval;
 
-		if (cf.hotEntryPoint != ep) {
-			if (stack[sp - 1] instanceof Type) {
-				Type constr = (Type) stack[--sp];
+		if (cof.hotEntryPoint != ep) {
+			if (lstack[sp - 1] instanceof Type) {
+				Type constr = (Type) lstack[--sp];
 				arity = constr.getArity();
 				IValue[] args = new IValue[arity];
 				for (int i = arity - 1; i >= 0; i--) {
-					args[i] = (IValue) stack[sp - arity + i];
+					args[i] = (IValue) lstack[sp - arity + i];
 				}
 				sp = sp - arity;
-				stack[sp++] = vf.constructor(constr, args);
+				lstack[sp++] = vf.constructor(constr, args);
 				return NONE; // DO not return continue execution
 			}
 
-			if (stack[sp - 1] instanceof FunctionInstance) {
-				FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+			if (lstack[sp - 1] instanceof FunctionInstance) {
+				FunctionInstance fun_instance = (FunctionInstance) lstack[--sp];
 				// In case of partial parameter binding
 				if (fun_instance.next + arity < fun_instance.function.nformals) {
-					fun_instance = fun_instance.applyPartial(arity, stack, sp);
+					fun_instance = fun_instance.applyPartial(arity, lstack, sp);
 					sp = sp - arity;
-					stack[sp++] = fun_instance;
+					lstack[sp++] = fun_instance;
 					return NONE;
 				}
-				tmp = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
-				cf.nextFrame = tmp;
+				tmp = cof.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
+				cof.nextFrame = tmp;
 			} else {
-				throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+				throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(lstack[sp - 1]));
 			}
 		} else {
-			tmp = cf.nextFrame;
+			tmp = cof.nextFrame;
 		}
 
-		tmp.previousCallFrame = cf;
+		tmp.previousCallFrame = cof;
 
 		this.cf = tmp;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(cf.function.funId, cf); // In a inline version we can call the
+		rval = dynRun(cf.function.funId, tmp); // In a inline version we can call the
 												// function directly.
-
 		if (rval.equals(YIELD)) {
 			// Save reentry point
 			cf.hotEntryPoint = ep;
@@ -1670,86 +1669,14 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public void failReturnHelper() {
-		// repair stack after failreturn;
-		// Small helper can be inlined ?
-		// The inline part returns the failure.
-		cf = cf.previousCallFrame;
-		stack = cf.stack;
-		sp = cf.sp;
-	}
-
-	// Next methods are for debug use only. Single step..
-	// A field for tracing only used by dummy dinsnXXX()
-	public int jmpTarget = 0;
-
-	public void dinsnSTORELOC(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnTYPESWITCH(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnJMPTRUE(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnYIELD1(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnYIELD0(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnJMPFALSE(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnOCALALT(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnJMP(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnPOP() {
-		// jmpTarget = sp;
-	}
-
-	public void dinsnGUARD() {
-		// jmpTarget = sp;
-	}
-
-	public void dinsnEXHAUST() {
-		// jmpTarget = sp;
-	}
-
-	public void dinsnOCALL(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnCALL(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnCALLDYN(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnLOADCON(int target) {
-		jmpTarget = target;
-	}
-
-	public void dinsnLOADLOC3() {
-		jmpTarget = 3;
-	}
-
-	public void dinsnFAILRETURN() {
-		jmpTarget = 3;
-	}
+//	public void failReturnHelper() {
+//		// repair stack after failreturn;
+//		// Small helper can be inlined ?
+//		// The inline part returns the failure.
+//		cf = cf.previousCallFrame;
+//		stack = cf.stack;
+//		sp = cf.sp;
+//	}
 
 	// Next methods are forced by the interface implementation
 	// temporarily needed to facilitate 3 RVM implementations.
