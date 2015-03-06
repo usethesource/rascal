@@ -75,7 +75,7 @@ int newLocal(str fuid) {
 // Manage temporaries
 
 map[tuple[str,str],int] temporaries = ();
-str asUnwrapedThrown(str name) = name + "_unwraped";
+str asUnwrappedThrown(str name) = name + "_unwrapped";
 
 int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
@@ -488,6 +488,9 @@ INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
 INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
 
+// Temporary fix for Issue #781
+Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
+
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
@@ -521,7 +524,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
-	exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+	exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 	
 	leaveTry();
 	
@@ -546,7 +549,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Fill in the 'catch' block entry into the current exception table
 	if(!isEmpty(tryBlocks)) {
 		EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlocks();
-		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		leaveCatchAsPartOfTryBlocks();
 	}
 	
@@ -578,14 +581,14 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 					   // load a thrown value,
 					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
 					   // unwrap it and store the unwrapped one in a separate local variable 
-					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrapedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrapedThrown(id),fuid)),
+					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
 		catchBlocks[currentCatchBlock] = [ LABEL(catchAsPartOfTryNew_from), *catchBlocks[currentCatchBlock], LABEL(catchAsPartOfTryNew_to) ];
 		for(currentCatchAsPartOfTryBlock <- catchAsPartOfTryBlocks) {
-			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		}
 	} else {
 		catchBlocks = oldCatchBlocks;
@@ -646,7 +649,7 @@ void inlineMuFinally() {
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table
-			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+			exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 			leaveTry();
 			leaveFinally();
 		}

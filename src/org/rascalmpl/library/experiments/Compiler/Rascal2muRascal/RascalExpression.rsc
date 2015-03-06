@@ -1788,7 +1788,7 @@ MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 	// Check if evaluation of the expression throws one of a few specific exceptions;
 	// do this by checking equality of the value constructor names
 	
-	cond = muCallPrim3("elm_in_set", [ muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]),
+	cond = muCallPrim3("elm_in_set", [ muCallMuPrim("get_name", [ muTmp(asUnwrappedThrown(varname),fuid) ]),
 									   muCon({"UninitializedVariable",
 									          "NoSuchKey",
 									          "NoSuchAnnotation",
