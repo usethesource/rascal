@@ -20,7 +20,7 @@ public class CheckArgTypeAndCopy extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		// TODO:  generate jvm bytecode.
-		codeEmittor.emitCallWithArgsSSIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2);
+		codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,dcode);
 		codeblock.addCode2(opcode.getOpcode(), pos1, type);
 		codeblock.addCode(pos2);
 	}
