@@ -146,12 +146,15 @@ void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select,
 void printDecl(Declaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+    }
+    println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
+    println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+    if(size(d.exceptions) > 0){
+    	for(<str from, str to, Symbol \type, str target> <- d.exceptions){
+    		println("\t\texception: from=<from>, to=<to>, type=<\type>, target=<target>");
+    	}
     }
 }
 
