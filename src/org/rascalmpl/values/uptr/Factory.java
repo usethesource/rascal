@@ -12,9 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -32,6 +30,7 @@ import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -39,7 +38,6 @@ import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
@@ -66,6 +64,8 @@ public class Factory extends AbstractValueFactoryAdapter {
 		uptr.declareAbstractDataType(Type);
 	}
 
+	private final IList EMPTY_LIST = listWriter().done();
+	
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
 	public static final Type Attributes = tf.abstractDataType(uptr, "Attributes");
@@ -175,19 +175,19 @@ public class Factory extends AbstractValueFactoryAdapter {
 	public static final String Location = "loc";
 	public static final String Length = "len";
 
-	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	public static final IValue Attribute_Assoc_Left = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Left));
-	public static final IValue Attribute_Assoc_Right = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Right));
-	public static final IValue Attribute_Assoc_Non_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_NonAssoc));
-	public static final IValue Attribute_Assoc_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Assoc));
-	public static final IValue Attribute_Bracket = vf.constructor(Attr_Bracket);
+	private static final IValueFactory bootFactory = ValueFactory.getInstance(); 
+	public static final IValue Attribute_Assoc_Left = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Left));
+	public static final IValue Attribute_Assoc_Right = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Right));
+	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
+	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
+	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
 	
 	public static TypeStore getStore() {
 		return uptr;
 	}
 	
-	public Factory(IValueFactory factory) {
-		super(factory);
+	public Factory() {
+		super(bootFactory);
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
 	}
@@ -202,10 +202,15 @@ public class Factory extends AbstractValueFactoryAdapter {
 				IConstructor prod = (IConstructor) children[0];
 				IList args = (IList) children[1];
 
-				if (args.length() == 0) {
-					return new Appl0(prod);
+				switch (args.length()) {
+				case 0: return new Appl0(prod);
+				case 1: return new Appl1(prod, args.get(0));
+				case 2: return new Appl2(prod, args.get(0), args.get(1));
+				case 3: return new Appl3(prod, args.get(0), args.get(1), args.get(2));
+				case 4: return new Appl4(prod, args.get(0), args.get(1), args.get(2), args.get(3));
+				case 5: return new Appl5(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));
+				default: return new ApplN(prod, args);
 				}
-
 			}
 			else if (constructor == Tree_Char) {
 				return new TreeInt(((IInteger) children[0]).intValue());
@@ -271,7 +276,6 @@ public class Factory extends AbstractValueFactoryAdapter {
 		@Override
 		public INode replace(int first, int second, int end, IList repl)
 				throws FactTypeUseException, IndexOutOfBoundsException {
-			// TODO
 			throw new UnsupportedOperationException();
 		}
 
@@ -353,57 +357,78 @@ public class Factory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			// TODO
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-			// TODO
 			throw new UnsupportedOperationException();
 		}
 	}
 	
-	private class Appl0 implements IConstructor {
+	private abstract class AbstractAppl implements IConstructor {
 		protected final IConstructor production;
 
-		public Appl0(IConstructor production) {
+		protected AbstractAppl(IConstructor production) {
 			this.production = production;
-		}
-		
-		@Override
-		public IValue get(int i) throws IndexOutOfBoundsException {
-			switch (i) {
-			case 0: return production;
-			case 1: return listWriter().done();
-			default: throw new IndexOutOfBoundsException();
-			}
-		}
-
-		@Override
-		public int arity() {
-			return 0;
 		}
 
 		@Override
 		public String getName() {
 			return Tree_Appl.getName();
 		}
-
+		
 		@Override
 		public Iterable<IValue> getChildren() {
-			return Collections.emptyList();
+			return this;
 		}
+		
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other.getClass() == getClass()) {
+				AbstractAppl o = (AbstractAppl) other;
+				
+				return o.production.isEqual(production)
+						&& getArguments().isEqual(o.getArguments());
+			}
+			
+			return false;
+		}
+		
+		
+		abstract public IList getArguments();
 
 		@Override
 		public Iterator<IValue> iterator() {
-			return getChildren().iterator();
+			return new Iterator<IValue>() {
+				private int count = 0;
+				
+				@Override
+				public boolean hasNext() {
+					return count < 2;
+				}
+
+				@Override
+				public IValue next() {
+					count++;
+					switch(count) {
+					case 1: return production;
+					case 2: return getArguments();
+					default: return null;
+					}
+				}
+			};
 		}
 
 		@Override
+		public int arity() {
+			return 2;
+		}
+		
+		@Override
 		public INode replace(int first, int second, int end, IList repl)
 				throws FactTypeUseException, IndexOutOfBoundsException {
-			throw new IndexOutOfBoundsException();
+			throw new UnsupportedOperationException("Replace not supported on constructor.");
 		}
 
 		@Override
@@ -411,18 +436,7 @@ public class Factory extends AbstractValueFactoryAdapter {
 				throws E {
 			return v.visitConstructor(this);
 		}
-
-		@Override
-		public boolean isEqual(IValue other) {
-			if (other.getClass() == getClass()) {
-				Appl0 o = (Appl0) other;
-				
-				return o.production.isEqual(production);
-			}
-			
-			return false;
-		}
-
+		
 		@Override
 		public boolean isAnnotatable() {
 			return true;
@@ -452,7 +466,7 @@ public class Factory extends AbstractValueFactoryAdapter {
 		public IValue get(String label) {
 			switch (label) {
 			case "prod": return production;
-			case "args": return listWriter().done();
+			case "args": return getArguments();
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
@@ -461,7 +475,7 @@ public class Factory extends AbstractValueFactoryAdapter {
 		public IConstructor set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
-			case "prod": return constructor(Tree_Appl, newChild, listWriter().done());
+			case "prod": return constructor(Tree_Appl, newChild, getArguments());
 			case "args": return constructor(Tree_Appl, production, newChild);
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
@@ -476,7 +490,7 @@ public class Factory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return constructor(Tree_Appl, newChild, listWriter().done());
+			case 0: return constructor(Tree_Appl, newChild, getArguments());
 			case 1: return constructor(Tree_Appl, production, newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
@@ -510,22 +524,400 @@ public class Factory extends AbstractValueFactoryAdapter {
 				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
 				      return new ConstructorWithKeywordParametersFacade(content, parameters);
 				    }
-				    
-				    @Override
-				    public boolean hasParameters() {
-				    	return content.getConstructorType().hasKeywordParameters();
-				    }
+			 }; 
+		}
+		
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return production;
+			case 1: return getArguments();
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+	}
+	
 
-				    @Override
-				    public String[] getParameterNames() {
-				    	return content.getConstructorType().getKeywordParameters();
-				    }
+	
+	private abstract class AbstractArgumentList implements IList {
+		protected abstract IList asNormal();
+		
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return tf.listType(Tree);
+		}
 
-				    @Override
-				    public Map<String, IValue> getParameters() {
-				    	return Collections.unmodifiableMap(parameters);
-				    }
-				  }; 
+		@Override
+		public boolean contains(IValue e) {
+			for (int i = 0; i < length(); i++) {
+				if (get(0).isEqual(e)) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+			return v.visitList(this);
+		}
+		
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other instanceof IList) {
+				IList o = (IList) other;
+				if (o.length() == length()) {
+					for (int i = 0; i < length(); i++) {
+						if (!o.get(i).isEqual(get(i))) {
+							return false;
+						}
+					}
+					
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+				private int count = 0;
+				@Override
+				public boolean hasNext() {
+					return count < length();
+				}
+
+				@Override
+				public IValue next() {
+					count++;
+					return get(count - 1);
+				}
+			};
+		}
+		
+		@Override
+		public boolean isAnnotatable() {
+			return false;
+		}
+
+		@Override
+		public IAnnotatable<? extends IValue> asAnnotatable() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getElementType() {
+			return Tree;
+		}
+
+		@Override
+		public IList reverse() {
+			return asNormal().reverse();
+		}
+
+		@Override
+		public IList append(IValue e) {
+			return asNormal().append(e);
+		}
+
+		@Override
+		public IList insert(IValue e) {
+			return asNormal().insert(e);
+		}
+
+		@Override
+		public IList concat(IList o) {
+			return asNormal().concat(o);
+		}
+
+		@Override
+		public IList put(int i, IValue e) throws FactTypeUseException,
+				IndexOutOfBoundsException {
+			return asNormal().put(i,e);
+		}
+
+		@Override
+		public IList replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			return asNormal().replace(first, second, end, repl);
+		}
+
+
+		@Override
+		public IList sublist(int offset, int length) {
+			return asNormal().sublist(offset,length);
+		}
+
+		public boolean isEmpty() {
+			return false;
+		}
+
+		@Override
+		public IList delete(IValue e) {
+			return asNormal().delete(e);
+		}
+
+		@Override
+		public IList delete(int i) {
+			return asNormal().delete(i);
+		}
+
+		@Override
+		public IList product(IList l) {
+			return asNormal().product(l);
+		}
+
+		@Override
+		public IList intersect(IList l) {
+			return asNormal().intersect(l);
+		}
+
+		@Override
+		public IList subtract(IList l) {
+			return asNormal().subtract(l);
+		}
+
+		@Override
+		public boolean isSubListOf(IList l) {
+			return asNormal().isSubListOf(l);
+		}
+
+		@Override
+		public boolean isRelation() {
+			return false;
+		}
+
+		@Override
+		public IListRelation<IList> asRelation() {
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private class Appl0 extends AbstractAppl {
+		public Appl0(IConstructor production) {
+			super(production);
+		}
+
+		@Override
+		public IList getArguments() {
+			return EMPTY_LIST;
+		}
+	}
+	
+	private class ApplN extends AbstractAppl {
+		private final IList args;
+
+		public ApplN(IConstructor production, IList args) {
+			super(production);
+			this.args = args;
+		}
+
+		@Override
+		public IList getArguments() {
+			return args;
+		}
+	}
+	
+	private class Appl1 extends AbstractAppl {
+		private final IValue arg0;
+
+		public Appl1(IConstructor production, IValue arg) {
+			super(production);
+			this.arg0 = arg;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 1;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0);
+				}
+			};
+		}
+	}
+	
+	private class Appl2 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+
+		public Appl2(IConstructor production, IValue arg0, IValue arg1) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 2;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1);
+				}
+			};
+		}
+	}
+	
+	private class Appl3 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+		private final IValue arg2;
+
+		public Appl3(IConstructor production, IValue arg0, IValue arg1, IValue arg2) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+			this.arg2 = arg2;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 3;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					case 2: return arg2;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1, arg2);
+				}
+			};
+		}
+	}
+	
+	private class Appl4 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+		private final IValue arg2;
+		private final IValue arg3;
+
+		public Appl4(IConstructor production, IValue arg0, IValue arg1, IValue arg2, IValue arg3) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+			this.arg2 = arg2;
+			this.arg3 = arg3;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 4;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					case 2: return arg2;
+					case 3: return arg3;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1, arg2, arg3);
+				}
+			};
+		}
+	}
+	
+	private class Appl5 extends AbstractAppl {
+		private final IValue arg0;
+		private final IValue arg1;
+		private final IValue arg2;
+		private final IValue arg3;
+		private final IValue arg4;
+
+		public Appl5(IConstructor production, IValue arg0, IValue arg1, IValue arg2, IValue arg3, IValue arg4) {
+			super(production);
+			this.arg0 = arg0;
+			this.arg1 = arg1;
+			this.arg2 = arg2;
+			this.arg3 = arg3;
+			this.arg4 = arg4;
+		}
+
+		@Override
+		public IList getArguments() {
+			return new AbstractArgumentList() {
+				@Override
+				public int length() {
+					return 5;
+				}
+				
+				@Override
+				public IValue get(int i) throws IndexOutOfBoundsException {
+					switch(i) {
+					case 0: return arg0;
+					case 1: return arg1;
+					case 2: return arg2;
+					case 3: return arg3;
+					case 4: return arg4;
+					default: throw new IndexOutOfBoundsException();
+					}
+				}
+				
+				@Override
+				protected IList asNormal() {
+					return list(arg0, arg1, arg2, arg3, arg4);
+				}
+			};
 		}
 	}
 }

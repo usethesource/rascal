@@ -20,7 +20,7 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class ValueFactoryFactory{
 	//private final static IValueFactory valueFactory =org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
-	private final static IValueFactory valueFactory = new Factory(org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory.getInstance());
+	private final static IValueFactory valueFactory = new Factory();
 	
 	public static IValueFactory getValueFactory(){
 		return valueFactory;
