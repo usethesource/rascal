@@ -41,10 +41,11 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 
 /**
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
- * an abstract syntax for SDF productions, completed with constructors for parse forests.
+ * an abstract syntax for Rascal production rules, completed with constructors for parse forests.
  * <p>
- * UPTR is produced by the SGLR parser, by the ASF+SDF interpreter and by compiled ASF+SDF
- * programs. UPTR is consumed by tools that manipulate parse trees in general (such as
+ * UPTR is produced by parser implementations (as generated from Rascal grammars for example).
+ * <p>
+ * UPTR is consumed by tools that manipulate parse trees in general (such as
  * automatic syntax high-lighters) or tools that manipulate specific parse trees (such
  * as the Rascal interpreter).
  * 
