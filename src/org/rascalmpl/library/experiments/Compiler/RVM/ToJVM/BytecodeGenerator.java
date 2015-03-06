@@ -324,7 +324,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 	}
 
-	public void emitInlineExhaust() {
+	public void emitInlineExhaust(boolean dcode) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
@@ -854,9 +854,9 @@ public class BytecodeGenerator implements Opcodes {
 		emitEntryLabel(continuationPoint);
 
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3);
-		mv.visitVarInsn(ILOAD, 2);
-		mv.visitVarInsn(ALOAD, 1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitVarInsn(ALOAD, CF);
 
 		emitIntValue(functionIndex);
 		emitIntValue(arity);
@@ -1244,8 +1244,8 @@ public class BytecodeGenerator implements Opcodes {
 			if (ctors.length == 0) {
 				Function fu = functionStore.get(functions[0]);
 				if (of.getScopeFun() == null) {
-					//emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
-					emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity);
+					emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
+					//emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity);
 				} else {
 					// Nested fucntion needs link to containing frame
 					emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
