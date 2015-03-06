@@ -539,6 +539,10 @@ public class RascalToIguanaGrammarConverter {
 					IConstructor notFollow = getSymbolCons((IConstructor) condition);
 					set.add(RegularExpressionCondition.notFollow((RegularExpression) getSymbol(notFollow)));
 					break;
+					
+                case "far-not-follow":
+                    set.add(RegularExpressionCondition.notFollowIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
+                    break;	
 	
 				case "follow":
 					IConstructor follow = getSymbolCons((IConstructor) condition);
