@@ -780,53 +780,53 @@ public class RVMRun implements IRVM {
 	// sp--;
 	// }
 
-	public int insnPOP(int sp) {
-		return --sp;
-	}
-
-	public void insnLOADLOC0() {
-		stack[sp++] = stack[0];
-	}
-
-	public void insnLOADLOC1() {
-		stack[sp++] = stack[1];
-	}
-
-	public void insnLOADLOC2() {
-		stack[sp++] = stack[2];
-	}
-
-	public void insnLOADLOC3() {
-		stack[sp++] = stack[3];
-	}
-
-	public void insnLOADLOC4() {
-		stack[sp++] = stack[4];
-	}
-
-	public void insnLOADLOC5() {
-		stack[sp++] = stack[5];
-	}
-
-	public void insnLOADLOC6() {
-		stack[sp++] = stack[6];
-	}
-
-	public void insnLOADLOC7() {
-		stack[sp++] = stack[7];
-	}
-
-	public void insnLOADLOC8() {
-		stack[sp++] = stack[8];
-	}
-
-	public void insnLOADLOC9() {
-		stack[sp++] = stack[9];
-	}
-
-	public void insnLOADLOC(int i) {
-		stack[sp++] = stack[i];
-	}
+//	public int insnPOP(int sp) {
+//		return --sp;
+//	}
+//
+//	public void insnLOADLOC0() {
+//		stack[sp++] = stack[0];
+//	}
+//
+//	public void insnLOADLOC1() {
+//		stack[sp++] = stack[1];
+//	}
+//
+//	public void insnLOADLOC2() {
+//		stack[sp++] = stack[2];
+//	}
+//
+//	public void insnLOADLOC3() {
+//		stack[sp++] = stack[3];
+//	}
+//
+//	public void insnLOADLOC4() {
+//		stack[sp++] = stack[4];
+//	}
+//
+//	public void insnLOADLOC5() {
+//		stack[sp++] = stack[5];
+//	}
+//
+//	public void insnLOADLOC6() {
+//		stack[sp++] = stack[6];
+//	}
+//
+//	public void insnLOADLOC7() {
+//		stack[sp++] = stack[7];
+//	}
+//
+//	public void insnLOADLOC8() {
+//		stack[sp++] = stack[8];
+//	}
+//
+//	public void insnLOADLOC9() {
+//		stack[sp++] = stack[9];
+//	}
+//
+//	public void insnLOADLOC(int i) {
+//		stack[sp++] = stack[i];
+//	}
 
 	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_TRUE;
@@ -1152,21 +1152,21 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public int insnSUBTYPE(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
-		return sp;
+	public int insnSUBTYPE(Object[] stock, int sop) {
+		sop--;
+		stock[sop - 1] = vf.bool(((Type) stock[sop - 1]).isSubtypeOf((Type) stock[sop]));
+		return sop;
 	}
 
-	public int insnCHECKARGTYPEANDCOPY(Object[] stack, int sp, int loc, int type, int toLoc) {
-		Type argType = ((IValue) stack[loc]).getType();
-		Type paramType = cf.function.typeConstantStore[type];
+	public int insnCHECKARGTYPEANDCOPY(Object[] lstack, int sp, Frame cof, int loc, int type, int toLoc) {
+		Type argType = ((IValue) lstack[loc]).getType();
+		Type paramType = cof.function.typeConstantStore[type];
 
 		if (argType.isSubtypeOf(paramType)) {
-			stack[toLoc] = stack[loc];
-			stack[sp++] = vf.bool(true);
+			lstack[toLoc] = lstack[loc];
+			lstack[sp++] = vf.bool(true);
 		} else {
-			stack[sp++] = vf.bool(false);
+			lstack[sp++] = vf.bool(false);
 		}
 		return sp;
 	}
@@ -1286,20 +1286,20 @@ public class RVMRun implements IRVM {
 
 	public Object return1Helper(Object[] stock, int sop, Frame cof) {
 		Object rval = null;
-		if (cf.isCoroutine) {
+		if (cof.isCoroutine) {
 			rval = Rascal_TRUE;
-			int[] refs = cf.function.refs;
+			int[] refs = cof.function.refs;
 			if (arity != refs.length) {
-				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+				throw new RuntimeException("Coroutine " + cof.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
 			}
 			for (int i = 0; i < arity; i++) {
-				Reference ref = (Reference) stack[refs[arity - 1 - i]];
-				ref.stack[ref.pos] = stack[--sp];
+				Reference ref = (Reference) stock[refs[arity - 1 - i]];
+				ref.stack[ref.pos] = stock[--sp];
 			}
 		} else {
-			rval = stack[sp - 1];
+			rval = stock[sp - 1];
 		}
-		cf = cf.previousCallFrame;
+		cf = cof.previousCallFrame;
 		if (cf != null) {
 			stack = cf.stack;
 			sp = cf.sp;
@@ -1309,8 +1309,8 @@ public class RVMRun implements IRVM {
 	}
 
 	public int jvmCREATE(Object[] stock, int sop, Frame cof, int fun, int arity) {
-		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
-		cccf.previousCallFrame = cf;
+		cccf = cof.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
+		cccf.previousCallFrame = cof;
 		cf = cccf;
 
 		stack = cf.stack;
@@ -1322,7 +1322,7 @@ public class RVMRun implements IRVM {
 	public int jvmCREATEDYN(Object[] stock, int sop, Frame cof, int arity) {
 		FunctionInstance fun_instance;
 
-		Object src = stack[--sp];
+		Object src = stock[--sp];
 
 		if (!(src instanceof FunctionInstance)) {
 			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
@@ -1340,8 +1340,8 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public int typeSwitchHelper() {
-		IValue val = (IValue) stack[--sp];
+	public int typeSwitchHelper(Object[] stack, int sp) { // stackpointer calc is done in the inline part.
+		IValue val = (IValue) stack[sp];
 		Type t = null;
 		if (val instanceof IConstructor) {
 			t = ((IConstructor) val).getConstructorType();
@@ -1580,7 +1580,7 @@ public class RVMRun implements IRVM {
 		stack[sp++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
 
-	public Object return0Helper(Object[] st0ck, int spp, Frame cpf) {
+	public Object return0Helper(Object[] st0ck, int spp, Frame cof) {
 
 		Object rval = null;
 
