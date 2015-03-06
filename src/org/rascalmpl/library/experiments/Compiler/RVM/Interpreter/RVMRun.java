@@ -1414,39 +1414,39 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 	}
 
-	public Object callHelper(Object[] stock, int sop, Frame cof, int funid, int arity, int ep) {
+	public Object callHelper(Object[] lstack, int sop, Frame lcf, int funid, int arity, int ep) {
 		Frame tmp;
 		Function fun;
 		Object rval;
 
-		if (cf.hotEntryPoint != ep) {
+		if (lcf.hotEntryPoint != ep) {
 			fun = functionStore.get(funid);
 			// In case of partial parameter binding
 			if (arity < fun.nformals) {
-				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, lstack, sp);
 				sp = sp - arity;
-				stack[sp++] = fun_instance;
+				lstack[sp++] = fun_instance;
 				return NONE;
 			}
-			tmp = cf.getFrame(fun, root, arity, sp);
-			cf.nextFrame = tmp;
+			tmp = lcf.getFrame(fun, root, arity, sp);
+			lcf.nextFrame = tmp;
 		} else {
 			tmp = cf.nextFrame;
 			fun = tmp.function;
 		}
-		tmp.previousCallFrame = cf;
+		tmp.previousCallFrame = lcf;
 
 		this.cf = tmp;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(fun.funId, cf); // In a full inline version we can call the
+		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 
 		if (rval.equals(YIELD)) {
 			// drop my stack
-			cf.hotEntryPoint = ep;
-			cf.sp = sp;
+			lcf.hotEntryPoint = ep;
+			lcf.sp = sp;
 
 			cf = cf.previousCallFrame;
 			sp = cf.sp;
@@ -1459,25 +1459,25 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public int jvmNEXT0(Object[] stock, int spp, Frame cff) {
-		Coroutine coroutine = (Coroutine) stack[--sp];
+	public int jvmNEXT0(Object[] lstack, int spp, Frame lcf) {
+		Coroutine coroutine = (Coroutine) lstack[--sp];
 
 		// Merged the hasNext and next semantics
 		if (!coroutine.hasNext()) {
-			stack[sp++] = Rascal_FALSE;
+			lstack[sp++] = Rascal_FALSE;
 			return sp;
 		}
 		// put the coroutine onto the stack of active coroutines
 		activeCoroutines.push(coroutine);
 		ccf = coroutine.start;
-		coroutine.next(cf);
+		coroutine.next(lcf);
 
 		// Push something on the stack of the prev yielding function
 		coroutine.frame.stack[coroutine.frame.sp++] = null;
 
-		cf.sp = sp;
+		lcf.sp = sp;
 
-		coroutine.frame.previousCallFrame = cf;
+		coroutine.frame.previousCallFrame = lcf;
 
 		cf = coroutine.entryFrame;
 
@@ -1600,7 +1600,7 @@ public class RVMRun implements IRVM {
 		sp = cf.sp;
 
 		if (returns) {
-			stack[sp++] = rval;
+			cof.previousCallFrame.stack[sp++] = rval;
 		}
 		return rval;
 	}
@@ -1646,25 +1646,25 @@ public class RVMRun implements IRVM {
 
 		tmp.previousCallFrame = cof;
 
-		this.cf = tmp;
-		this.stack = cf.stack;
-		this.sp = cf.sp;
+//		this.cf = tmp;
+//		this.stack = cf.stack;
+//		this.sp = cf.sp;
 
-		rval = dynRun(cf.function.funId, tmp); // In a inline version we can call the
+		rval = dynRun(tmp.function.funId, tmp); // In a inline version we can call the
 												// function directly.
 		if (rval.equals(YIELD)) {
 			// Save reentry point
-			cf.hotEntryPoint = ep;
-			cf.sp = sp;
+			cof.hotEntryPoint = ep;
+			cof.sp = sp;
 
-			// drop my stack, and return
-			cf = cf.previousCallFrame;
-			sp = cf.sp;
-			stack = cf.stack;
+// drop my stack, and return
+//			cf = cf.previousCallFrame;
+//			sp = cf.sp;
+//			stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
 		} else {
-			cf.hotEntryPoint = 0;
-			cf.nextFrame = null; // Allow GC to clean
+			cof.hotEntryPoint = 0;
+			cof.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call will continue execution
 		}
 	}
