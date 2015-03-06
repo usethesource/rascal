@@ -262,11 +262,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			}
 		}
 		
-		if (len == 0) {
-			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
-		}
-		
-		if (firstIndex >= len) {
+		if (len == 0 || firstIndex >= len) {
 			return (Result<U>) makeSlice(0, 1, 0);
 		}
 		if (endIndex > len ) {
