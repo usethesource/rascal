@@ -6950,14 +6950,10 @@ public enum RascalPrimitive {
 			}
 		}
 
-		if (len == 0) {
-			throw RascalRuntimeException.emptyList(currentFrame);
-		}
-		if (firstIndex >= len) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(firstIndex), currentFrame);
-		}
-		if (endIndex > len ) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(endIndex), currentFrame);
+		if(len == 0 || firstIndex >= len){
+			firstIndex = secondIndex = endIndex = 0;
+		} else if(endIndex > len){
+			endIndex = len;
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
