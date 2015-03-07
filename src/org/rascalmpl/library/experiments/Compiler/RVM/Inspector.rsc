@@ -136,7 +136,7 @@ void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select,
     	println("OVERLOADED FUNCTIONS:");
         for(int i <- index(overloaded)){
         	t = overloaded[i];
-        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false)) || containsLine(p.declarations[dname].src, line)){
+        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false))){
             	println("\t<right("<i>", 6)>: <t>");
             }
         }

@@ -354,12 +354,12 @@ private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(dees
 
 private list[MuExp] translatePreChars(PreStringChars pre) {
    spre = removeMargins(deescape("<pre>"[1..-1]));
-   return spre == "" ? [] : [ muCon(spre) ];
+   return "<spre>" == "" ? [] : [ muCon(spre) ];
 }	
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
   smid = removeMargins(deescape("<mid>"[1..-1]));
-  return mid == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid@\loc) ];
+  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid@\loc) ];
 }
 
 str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
@@ -1008,9 +1008,9 @@ MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp descrip
  * This is implemented by wrapping all return values in a tuple of the form <isExitReturn, return value>
  * The isExitReturn has to be checked by the traversal function after each call to the phi function
  */
-MuExp replacementReturn(e) = muReturn1(e);
+MuExp replacementReturn(MuExp e) = muReturn1(e);
  
-MuExp leaveVisitReturn(str fuid, e) =
+MuExp leaveVisitReturn(str fuid, MuExp e) =
 	muBlock([
 		muAssignVarDeref("leaveVisit", fuid, leaveVisitPos, muBool(true)),
 		muReturn1(e)
@@ -1110,7 +1110,7 @@ tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsInVisit(l
 			reachableConstructors += tc.constructors;
 			reachableTypes += tc.types;
 		} else {
-			return <{\value()}, {}>;		// A default cases is present: everything can match
+			return <{Symbol::\value()}, {}>;		// A default cases is present: everything can match
 		}
 	}
 	return <reachableTypes, reachableConstructors>;
@@ -1282,12 +1282,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        // match function use and def, taking varargs into account
        bool function_subtype(Symbol fuse, Symbol fdef){
-       	upar = fuse.parameters;
-       	dpar = fdef.parameters;
+       	list[Symbol] upar = fuse.parameters;
+       	list[Symbol] dpar = fdef.parameters;
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		var_elm_type = dpar[-1][0];
+       		Symbol var_elm_type = dpar[-1][0];
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
