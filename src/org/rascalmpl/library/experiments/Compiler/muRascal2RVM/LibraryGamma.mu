@@ -433,7 +433,7 @@ guard
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, case 2", size_array(args), size_array(pats), pats, args);
         MATCH_N(pats, args)
     }
 }
@@ -566,6 +566,7 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject)
 guard 
 	value_is_subtype(iSubject, typ)
 {
+	//println("MATCH_TYPED_ANONYMOUS_VAR", typ, prim("value_to_string", iSubject))
     yield
 }
 

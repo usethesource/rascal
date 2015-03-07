@@ -221,21 +221,19 @@ public enum MuPrimitive {
 			default:
 				step = 2;
 			}
-
-			int len = (args.length() / step) + 1;
 			int non_lit_len = 0;
 
-			
-			for(int i = 0; i < len; i += step){
-				if(!$is_literal(args.get(i * step))){
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
 					non_lit_len++;
 				}
 			}
 			Object[] elems = new Object[non_lit_len + 1];
+			
 			int j = 0;
-			for(int i = 0; i < len; i += step){
-				if(!$is_literal(args.get(i * step))){
-					elems[j++] = args.get(i * step);
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					elems[j++] = args.get(i);
 				}
 			}
 			elems[non_lit_len] = emptyKeywordMap;
@@ -2180,7 +2178,7 @@ public enum MuPrimitive {
 			if(appl.getName().equals("appl")){
 				IConstructor prod = (IConstructor) appl.get(0);
 				IConstructor symbol = (IConstructor) prod.get(0);
-				return symbol.getName().equals("lit");
+				return symbol.getName().equals("lit")|| symbol.getName().equals("cilit");
 			}
 		}
 		return false;
@@ -2191,6 +2189,19 @@ public enum MuPrimitive {
 	//		}
 	//		return false;
 // }
+	
+	private static boolean $is_layout(final IValue v){
+
+		if(v.getType().isAbstractData()){
+			IConstructor appl = (IConstructor) v;
+			if(appl.getName().equals("appl")){
+				IConstructor prod = (IConstructor) appl.get(0);
+				IConstructor symbol = (IConstructor) prod.get(0);
+				return symbol.getName().equals("layouts");
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * @param descendantDescriptor
