@@ -42,20 +42,23 @@ int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expr
     (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produces multi- or backtrack-free expressions
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,topFunctionScope(),exps,src);
+MuExp makeMu(str operator, list[MuExp] exps, loc src) {
+	//println("makeMu: <operator> <exps>, <src>");
+    tuple[MuExp e,list[MuFunction] functions] res = makeMu(operator,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
 
 MuExp makeMuMulti(MuExp exp, loc src) {
+	//println("makeMuMulti: <exp>, <src>");
     tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,topFunctionScope(),src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,topFunctionScope(),exps,src);
+MuExp makeMuOne(str operator, list[MuExp] exps, loc src) {
+	//println("makeMuOne: <operator> <exps>, <src>");
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(operator,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
@@ -1287,7 +1290,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		Symbol var_elm_type = dpar[-1][0];
+       		var_elm_type = dpar[-1][0];
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
@@ -1453,28 +1456,29 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = make
 
 // -- all expression ------------------------------------------------
 
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMu("RASCAL_ALL",[ translate(g) | g <- generators ], e@\loc);
   
-  // First split generators with a top-level && operator
-  generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
-  isGen = [!backtrackFree(g) | g <- generators1];
-  //println("isGen: <isGen>");
-  tgens = [];
-  for(i <- index(generators1)) {
-     gen = generators1[i];
-     //println("all <i>: <gen>");
-     if(isGen[i]){
-	 	tgen = translate(gen);
-	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
-	 	   tgen = exp;
-	 	}
-	 	tgens += tgen;
-	 } else {
-	    tgens += translateBoolClosure(gen);
-	 }
-  }
-  return muCall(mkCallToLibFun("Library", "RASCAL_ALL"), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
-}
+//  // First split generators with a top-level && operator
+//  generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
+//  isGen = [!backtrackFree(g) | g <- generators1];
+//  println("isGen: <isGen>");
+//  tgens = [];
+//  for(i <- index(generators1)) {
+//     gen = generators1[i];
+//     println("all <i>: <gen>");
+//     if(isGen[i]){
+//	 	tgen = translate(gen);
+//	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
+//	 	   tgen = exp;
+//	 	}
+//	 	tgens += tgen;
+//	 } else {
+//	    tgens += translateBoolClosure(gen);
+//	 }
+//	 println("tgens[<i>]: <tgens[i]>");
+//  }
+//  return muCall(mkCallToLibFun("Library", "RASCAL_ALL"), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+//}
 
 // -- comprehension expression --------------------------------------
 
@@ -1797,7 +1801,6 @@ MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 								      ], src);
 	
 	catchBody = muIfelse(nextLabel(), cond, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
-	//println("catchbody: <catchBody>");
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
