@@ -94,7 +94,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		stderr.println("Storing parser for " + moduleName + "/" + start);
+		//stderr.println("Storing parser for " + moduleName + "/" + start);
 		parsers.put(start, parser);
 	}
 
@@ -106,7 +106,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(start);
-		stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
+		//stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
