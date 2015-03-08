@@ -239,18 +239,10 @@ public class Frame {
 	
 	public void printEnter(PrintWriter stdout){
 		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 	public void printBack(PrintWriter stdout, Object rval){
-		stdout.println(indent().append(this.toString()));
-		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns: ").append(rval.toString())); stdout.flush();
-		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
-	}
-	
-	public void printLeave(PrintWriter stdout){
-		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval.toString())); stdout.flush();
 	}
 	
 }
