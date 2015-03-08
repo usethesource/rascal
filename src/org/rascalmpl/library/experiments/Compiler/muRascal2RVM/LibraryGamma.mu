@@ -54,19 +54,23 @@ guard {
 coroutine ONE(task) {
     return next(create(task))
 }
-
+/*
 function RASCAL_ALL(genArray, generators) { 
     var len = size_array(genArray), 
         genInits = make_array(len),
         j = 0, 
         forward = true, 
-        gen   
+        gen 
+    println("RASCAL_ALL", len, genArray, generators)
     while(true) {
+    	println("RASCAL_ALL, j=", j, forward)
         if(generators[j]) {
+        	println("RASCAL_ALL, generators[j] == true", j, genArray[j])
             if(forward) {
                 genInits[j] = create(genArray[j])
             }
             gen = genInits[j]
+            println("RASCAL_ALL, gen", gen)
             if(next(gen)) {
                 forward = true
                 j = j + 1
@@ -98,7 +102,7 @@ function RASCAL_ALL(genArray, generators) {
         }
     }
 }
-
+*/
 // Initialize a pattern with a given value and exhaust all its possibilities
 
 /******************************************************************************************/
@@ -122,6 +126,7 @@ guard {
 } {
     var j = 0
     while(j < len) {
+    	//println("ENUM_LIST, yields", get_list(iLst, j))
         yield get_list(iLst, j)
         j = j + 1
     }
@@ -423,7 +428,7 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    //("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
@@ -513,6 +518,7 @@ coroutine MATCH_LITERAL(pat, iSubject)
 //guard
 //	equal(pat, iSubject)
 {
+	//println("MATCH_LITERAL", pat, iSubject)
 	if(equal(pat, iSubject)){
     	//println("MATCH_LITERAL, true", pat, iSubject)
     	yield
@@ -1675,7 +1681,7 @@ function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rLeaveVisit, 
 	       iSubject = iSubject    // avoid duplicate traversal of string
 	    } else {
 	        iSubject = phi(iSubject, ref matched, ref changed, rLeaveVisit, rBegin, rEnd, descendantDescriptor)
-	        //println("TRAVERSE_TOP_DOWN, applied phi ", deref rLeaveVisit, iSubject);
+	        //println("TRAVERSE_TOP_DOWN, applied phi ", matched, deref rLeaveVisit, iSubject);
 	        if(deref rLeaveVisit){
 	        	return iSubject
 	        }
