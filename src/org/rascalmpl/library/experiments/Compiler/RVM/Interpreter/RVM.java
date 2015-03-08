@@ -45,8 +45,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
-public class RVM {
+public class RVM implements java.io.Serializable {
 
+	private static final long serialVersionUID = 2178453095307370332L;
+	
 	public final IValueFactory vf;
 	private final TypeFactory tf;
 	private final IBool Rascal_TRUE;
@@ -969,7 +971,7 @@ public class RVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							//if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
