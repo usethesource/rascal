@@ -117,19 +117,19 @@ list[str] typeTests = [
 //"AliasTCTests",			// C & I: Overflow/LOOP?
 //"AllStaticIssues"			// C & I: DOES NOT TERMINATE
 "AnnotationTCTests",		// OK
-"AssignmentTCTests",		// C: 5 fail, I: OK
+"AssignmentTCTests",		// OK
 "CallTCTests",				// C: 1 fail, I : 1 fail
-"ComprehensionTCTests",		// C: 9 fail, I: 2 fail
-"DataDeclarationTCTests",	// C: 1 fail, I : OK
-"DataTypeTCTests",			// C: 6 fail, I: OK
-"DeclarationTCTests",		// C: 20 fail, I : 20 fail
+"ComprehensionTCTests",		// C: 2 fail, I: 2 fail
+"DataDeclarationTCTests",	// OK
+"DataTypeTCTests",			// OK
+"DeclarationTCTests",		// C: 18 fail, I : 20 fail
 "ImportTCTests",			// OK
-"PatternTCTests",			// C: TC errors, I: OK
+"PatternTCTests",			// OK
 "ProjectionTCTests",		// OK
-"RegExpTCTests",			// C: 1 fail, I : OK
+"RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
-"StatementTCTests",			// C: 1 fail, I: OK
-"SubscriptTCTests",			// C: 3 fail, I: OK
+"StatementTCTests",			// OK
+"SubscriptTCTests",			// OK
 "VisitTCTests"				// OK
 ];
 
@@ -234,14 +234,14 @@ value main(list[value] args){
    
   //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
    
-  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
-  all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
+  //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //
+  //all_results += runTests(files_with_tests, |std:///|);
   
-  all_results += runTests(files_with_tests, |std:///|);
-  
-  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

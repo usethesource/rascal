@@ -1,10 +1,8 @@
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
-import ParseTree;
+int f(int x) = g(x);
 
-value main(list[value] args) {
-list[int] L = [0,1,2,3]; L[2] = "abc";
-}
+int g(5) = 50;
+default int g(int x) = x;
 
-//unexpectedType("list[int] L = [0,1,2,3]; L[2] = \"abc\";");
+value main(list[value] args) = f (6);

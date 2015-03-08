@@ -4,9 +4,13 @@ module experiments::Compiler::Examples::Tst1
 import IO;
 
 value main(list[value] args) {
-	try {
-		throw "exception by main";
-	} catch s: { return true;}
-	
-	return false;
+
+
+int x;
+
+x = x ? 1;
+x = x ? 2;
+
+
+return x == 1;
 }
