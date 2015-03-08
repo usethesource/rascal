@@ -9,6 +9,16 @@ import Type;
 
 
 /*
+ * makeMu: given en operator and a list of expressions, return an expression that applies the operator to all arguments.
+ *         When possible, a backtrack free solution is provided that gives a single answer.
+ *         Otherwise, a multi expression is returned.
+ *		   Possible operators are:
+ *			- "ALL": yields true for all true combinations of arguments
+ *		    - "RASCAL_ALL": returns true if all combinations of arguments yield true.
+ *			- OR, "EQUIVALENCE", "IMPLICATION": usual Boolean operator (with backtracking)
+ * makeMuOne: 
+ *		   as makeOne, but always forces a single result (when available).
+ *
  * Interface: 
  *     - tuple[MuExp,list[MuFunction]] makeMu(str,str,list[MuExp],loc);
  *     - tuple[MuExp,list[MuFunction]] makeMuOne(str,str,list[MuExp],loc);
