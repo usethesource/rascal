@@ -552,8 +552,7 @@ num getClass(num lo, num hi, int N, num v) {
     "{\"figure\": \"google\",
      '\"command\": \"<cmd>\",
     ' \"options\": <adt2json(options)>,
-    ' \"data\": <d>,
-    '\"columns\": [] 
+    ' \"data\": <d>
     '  <propsToJSON(chart, parent)> 
     '}";   
    
@@ -567,14 +566,29 @@ str figToJSON(chart: combochart(), Figure parent) {
 	return trCombo(chart, parent);
 }
 
+str figToJSON(chart: combochart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "ComboChart", dat);
+}
+
 str figToJSON(chart: piechart(XYLabeledData d), Figure parent) {
     // println("trPiechart");
     str dat = toJSON(strip(d, true), true);
 	return trChart(chart, parent, "PieChart", dat);
 }
 
+str figToJSON(chart: piechart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "PieChart", dat);
+}
+
 str figToJSON(chart: linechart(XYLabeledData d), Figure parent) {
     str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "LineChart", dat);
+}
+
+str figToJSON(chart: linechart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
 	return trChart(chart, parent, "LineChart", dat);
 }
 
@@ -594,7 +608,6 @@ str figToJSON(chart: scatterchart(XYLabeledData d), Figure parent) {
 
 str figToJSON(chart: scatterchart(XYData d), Figure parent) {
     str dat = toJSON(strip(d), true);
-    println(dat);
     ChartOptions options = chart.options;  
     if (options.lineWidth==-1) options.lineWidth = 0;
     if (options.pointSize==-1) options.pointSize = 3;
@@ -602,8 +615,22 @@ str figToJSON(chart: scatterchart(XYData d), Figure parent) {
 	return trChart(chart, parent, "LineChart", dat);
 }
 
+str figToJSON(chart: sctatterchart(GoogleData d), Figure parent) {
+    ChartOptions options = chart.options;  
+    if (options.lineWidth==-1) options.lineWidth = 0;
+    if (options.pointSize==-1) options.pointSize = 3;
+    chart.options = options;
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "LineChart", dat);
+}
+
 str figToJSON(chart: barchart(XYLabeledData d), Figure parent) {
     str dat = toJSON(strip(d, chart.tickLabels), true);
+	return trChart(chart, parent, "BarChart", dat);
+}
+
+str figToJSON(chart: barchart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
 	return trChart(chart, parent, "BarChart", dat);
 }
 
@@ -613,10 +640,25 @@ str figToJSON(chart: candlestickchart(BoxData d, BoxHeader header), Figure paren
 	return trChart(chart, parent, "CandlestickChart", dat);
 }
 
+str figToJSON(chart: candlestickchart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "CandlestickChart", dat);
+}
+
 str figToJSON(chart: candlestickchart(BoxLabeledData d, BoxHeader header), Figure parent) {
     // println("candelestick");
     str dat = toJSON(strip(d, header), true);
 	return trChart(chart, parent, "CandlestickChart", dat);
+}
+
+str figToJSON(chart: areachart(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "AreaChart", dat);
+}
+
+str figToJSON(chart: sankey(GoogleData d), Figure parent) {
+    str dat = toJSON(d, true);
+	return trChart(chart, parent, "Sankey", dat);
 }
 
 str figToJSON(figure: graph(), Figure parent) { 

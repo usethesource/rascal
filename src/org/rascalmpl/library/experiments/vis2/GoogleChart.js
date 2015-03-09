@@ -53,8 +53,8 @@ var printq = function(o){
 
 
 // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.0', {'packages':['corechart']});
-
+      google.load('visualization', '1.1', {'packages':['corechart']});
+      google.load("visualization", '1.1', {'packages':['sankey']});
       // Set a callback to run when the Google Visualization API is loaded.
      // google.setOnLoadCallback(drawChart);
 
