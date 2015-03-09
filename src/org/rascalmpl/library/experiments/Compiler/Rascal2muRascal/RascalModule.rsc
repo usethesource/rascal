@@ -309,7 +309,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
-  println("r2mu: Compiling <fd.signature.name>");
+  println("r2mu: Compiling \uE007[](<fd@\loc><fd.signature.name>");
   //setFunctionUID(fd@\loc);
   
   try {
@@ -367,7 +367,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   leaveFunctionScope();
   
   } catch e: {
-        throw "EXCEPTION in translateFunctionDeclaration: <e>";
+        throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
 }
 

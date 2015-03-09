@@ -27,7 +27,7 @@ data CheckSat
 	
 data GetUnsatCore = unsatCore(list[str] labels);
 	
-data GetValue = model(list[Model] models);
-data Model = val(Expr var, Expr val);
+data GetValue = foundValues(list[Model] models);
+data Model = model(Expr var, Expr val);
 
 data Expr;

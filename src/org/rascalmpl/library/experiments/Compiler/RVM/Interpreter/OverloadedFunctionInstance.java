@@ -27,8 +27,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 	
 	final RVM rvm;
 	
-	public OverloadedFunctionInstance(int[] functions, int[] constructors, Frame env, 
-										List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
+									  final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -37,11 +37,34 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		this.rvm = rvm;
 	}
 	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstance[");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				int fi = functions[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(constructors.length > 0){
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				int ci = constructors[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
-	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
-			                                                                     List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
+			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);

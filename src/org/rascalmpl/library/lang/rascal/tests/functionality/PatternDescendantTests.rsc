@@ -34,3 +34,47 @@ test bool descendant40() = {n | /int n := [d((a(1) : b("one"), a(2) : b("two")))
 test bool descendant41() = {n | /a(int n) := [d((a(1) : b("one"), a(2) : b("two"))), d((a(10) : b("ten"), a(20) : b("twenty")))] } == {1, 2, 10, 20};
 test bool descendant42() = {s | /str s := [d((a(1) : b("one"), a(2) : b("two"))), d((a(10) : b("ten"), a(20) : b("twenty")))] } == {"one", "two", "ten", "twenty"};
 test bool descendant43() = {s | /b(str s) := [d((a(1) : b("one"), a(2) : b("two"))), d((a(10) : b("ten"), a(20) : b("twenty")))] } == {"one", "two", "ten", "twenty"};
+
+data NODE = nd(NODE lhs, NODE rhs) | leaf(int n);
+
+test bool descendant5() {
+	nd1 = "leaf"(1);
+	nd2 = "nd"(nd1,"leaf"(2));
+	nd3 = "nd"("leaf"(3),"leaf"(4));
+	nd4 = "nd"(nd2,nd3);
+	
+	cnd1 = leaf(1);
+	cnd2 = nd(cnd1,leaf(2));
+	cnd3 = nd(leaf(3),leaf(4));
+	cnd4 = nd(cnd2,cnd3);
+	
+	return <  { v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) }
+			+ { v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) },
+			  [ v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) ]
+			+ [ v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) ]
+		   >
+		   ==
+		   <{"nd"("leaf"(1),"leaf"(2)), nd(leaf(3), leaf(4)), nd(leaf(1), leaf(2)),"nd"("leaf"(3),"leaf"(4))},
+		    ["nd"("leaf"(1),"leaf"(2)),"nd"("leaf"(3),"leaf"(4)),nd(leaf(1),leaf(2)),nd(leaf(3),leaf(4))]
+		   >;
+}
+
+test bool descendant6() {
+    n = 0;
+    for(/v:[*value x] := [ 1, [2], [3,[4,6,[7]]], [[8,[9]],[[[10]]]] ]) {
+        n += 1;
+    }
+    return n == 11;
+}
+
+test bool descendant7() {
+    n = 0;
+    for(/1 := [1,2,3,[1,2,3,[1,2,3]]]) {
+        n += 1;
+    }
+    return n == 3;
+}
+
+test bool descendant8() {
+	return [ v | /v:<value _, int _> <- <<<1,2>,<3,4>>,0> ] == [<1,2>, <3,4>];
+}

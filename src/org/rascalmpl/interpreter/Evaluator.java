@@ -268,11 +268,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
-		
-		// default event trigger to swallow events
-		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+		FileURIResolver testModuleResolver = new TempURIResolver() {
+		    @Override
+		    public String scheme() {
+		      return "test-modules";
+		    }
+		    
+		    @Override
+		    protected String getPath(ISourceLocation uri) {
+		      String path = uri.getPath();
+		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		      return System.getProperty("java.io.tmpdir") + path;
+		    }
+		  };
+		  
+		  resolverRegistry.registerInputOutput(testModuleResolver);
+		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+		  
+		  ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
+		  resolverRegistry.registerInput(tutor);
+
+		  // default event trigger to swallow events
+		  setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
 	private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -771,12 +788,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location){
 		IRascalMonitor old = setMonitor(monitor);
 		
-		try{
+		try {
 			char[] input = getResourceContent(location);
 			return parseObject(startSort, robust, location, input);
-		}catch(IOException ioex){
+		}
+		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{
+		}
+		finally{
 			setMonitor(old);
 		}
 	}

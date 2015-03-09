@@ -10,7 +10,7 @@ import experiments::Compiler::RVM::AST;
 
 alias INS = list[Instruction];
 
-INS peephole(INS instructions) = peephole1(instructions, false);
+INS peephole(INS instructions) = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
 
 INS peephole1(INS instructions, bool isSplit){
 	if(size(instructions) < 500){
@@ -108,7 +108,7 @@ INS unused_labels([ *Instruction instructions ]){
     return 
       for(ins <- instructions){
           if(LABEL(lab) := ins){
-             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "FINALLY"))
+             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "CATCH") || startsWith(lab, "FINALLY"))
                 append ins;
           } else {
             append ins;
