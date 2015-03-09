@@ -1,6 +1,8 @@
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
-import ParseTree;
+int f(int x) = g(x);
 
-value main(list[value] args) = unexpectedType("String vs = visit ([1,2,3]) {case 1: insert \"abc\";} == [\"abc\", 2, 3];;");
+int g(5) = 50;
+default int g(int x) = x;
+
+value main(list[value] args) = f (6);

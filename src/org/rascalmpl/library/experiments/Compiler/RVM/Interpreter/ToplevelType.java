@@ -236,18 +236,18 @@ public enum ToplevelType {
 			@Override
 			public Integer visitConstructor(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
+//				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+//					return cons.get(0).hashCode(); 
+//				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 
 			@Override
 			public Integer visitAbstractData(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
+//				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+//					return cons.get(0).hashCode(); 
+//				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 

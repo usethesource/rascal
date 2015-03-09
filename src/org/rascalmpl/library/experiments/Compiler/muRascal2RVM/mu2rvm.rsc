@@ -75,7 +75,7 @@ int newLocal(str fuid) {
 // Manage temporaries
 
 map[tuple[str,str],int] temporaries = ();
-str asUnwrapedThrown(str name) = name + "_unwraped";
+str asUnwrappedThrown(str name) = name + "_unwrapped";
 
 int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
@@ -289,7 +289,11 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  return ins + tr(exps[-1]);
+  ins += tr(exps[-1]);
+  if(!producesValue(exps[-1])){
+  	ins += LOADCON(666);
+  }
+  return ins;
 }
 
 //default INS trblock(MuExp exp) = tr(exp);
@@ -422,7 +426,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
@@ -484,6 +488,9 @@ INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
 INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
 
+// Temporary fix for Issue #781
+Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
+
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
@@ -517,7 +524,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
-	exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+	exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 	
 	leaveTry();
 	
@@ -542,7 +549,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Fill in the 'catch' block entry into the current exception table
 	if(!isEmpty(tryBlocks)) {
 		EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlocks();
-		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		leaveCatchAsPartOfTryBlocks();
 	}
 	
@@ -574,14 +581,14 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 					   // load a thrown value,
 					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
 					   // unwrap it and store the unwrapped one in a separate local variable 
-					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrapedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrapedThrown(id),fuid)),
+					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
 		catchBlocks[currentCatchBlock] = [ LABEL(catchAsPartOfTryNew_from), *catchBlocks[currentCatchBlock], LABEL(catchAsPartOfTryNew_to) ];
 		for(currentCatchAsPartOfTryBlock <- catchAsPartOfTryBlocks) {
-			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		}
 	} else {
 		catchBlocks = oldCatchBlocks;
@@ -642,7 +649,7 @@ void inlineMuFinally() {
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table
-			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+			exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 			leaveTry();
 			leaveFinally();
 		}

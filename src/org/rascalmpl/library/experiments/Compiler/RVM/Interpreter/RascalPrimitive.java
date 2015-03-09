@@ -1908,6 +1908,23 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	is_defined_annotation_get {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val = (IValue) stack[sp - 2];
+			String label = ((IString) stack[sp - 1]).getValue();
+			try {
+				IValue v = val.asAnnotatable().getAnnotation(label);
+				stack[sp - 2] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+				
+			} catch (FactTypeUseException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
 	annotation_set {
 		@SuppressWarnings("deprecation")
 		@Override
@@ -5385,7 +5402,22 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	
+	is_defined_adt_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons =  (IConstructor) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+				stack[sp - 2] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
 	},
 	node_subscript_int {
 		@Override
@@ -5403,7 +5435,24 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_node_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode node =  (INode) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				if(idx < 0){
+					idx =  node.arity() + idx;
+				}
+				node.get(idx);  
+				stack[sp - 2] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
 	},
 	list_subscript_int {
 		@Override
@@ -5419,6 +5468,21 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_list_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList lst = ((IList) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				lst.get((idx >= 0) ? idx : (lst.length() + idx));
+				stack[sp - 2] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
 	map_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5427,6 +5491,15 @@ public enum RascalPrimitive {
 			if(stack[sp - 2] == null) {
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
+			return sp - 1;
+		}
+	},
+	is_defined_map_subscript {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			Object v = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+			stack[sp - 2] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
 			return sp - 1;
 		}
 	},
@@ -5444,7 +5517,22 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_str_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IString str = ((IString) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				Object v = (idx >= 0) ? str.substring(idx, idx+1)
+						              : str.substring(str.length() + idx, str.length() + idx + 1);
+				stack[sp - 2] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
 	},
 	tuple_subscript_int {
 		@Override
@@ -5460,6 +5548,22 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_tuple_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ITuple tup = (ITuple) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				tup.get((idx >= 0) ? idx : tup.arity() + idx);
+				stack[sp - 2] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				stack[sp - 2] = Rascal_FALSE;
+			}
+			return sp - 1;
+		}
+	},
+	
 	rel_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6846,14 +6950,10 @@ public enum RascalPrimitive {
 			}
 		}
 
-		if (len == 0) {
-			throw RascalRuntimeException.emptyList(currentFrame);
-		}
-		if (firstIndex >= len) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(firstIndex), currentFrame);
-		}
-		if (endIndex > len ) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(endIndex), currentFrame);
+		if(len == 0 || firstIndex >= len){
+			firstIndex = secondIndex = endIndex = 0;
+		} else if(endIndex > len){
+			endIndex = len;
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
