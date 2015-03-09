@@ -113,12 +113,14 @@ public data MuExp =
           			   list[MuExp] largs)						// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
-          | muReturn1(MuExp exp)									// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          | muReturn1(MuExp exp)								// Return from a function with value
+          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
+          
+          | muInsert(MuExp exp)									// Insert statement
               
-           // Assignment, If and While
+          // Assignment, If and While
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
@@ -167,8 +169,8 @@ public data MuExp =
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
-          | muOne1(MuExp exp)                                    // Expression that always produces only the first value
-          | muOne2(list[MuExp] exps)								// Compute one result for a list of boolean expressions
+          | muOne1(MuExp exp)                                   // Expression that always produces only the first value
+          | muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
           | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           

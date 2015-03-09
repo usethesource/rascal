@@ -1,5 +1,16 @@
 module experiments::Compiler::Examples::Tst1
 
-syntax A = "a";
+//import lang::rascal::tests::types::StaticTestingUtils;
+import IO;
 
-value main(list[value] args) = (A) `a` := [A] "a";
+value main(list[value] args) {
+
+
+int x;
+
+x = x ? 1;
+x = x ? 2;
+
+
+return x == 1;
+}

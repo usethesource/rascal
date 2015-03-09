@@ -108,7 +108,7 @@ INS unused_labels([ *Instruction instructions ]){
     return 
       for(ins <- instructions){
           if(LABEL(lab) := ins){
-             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "FINALLY"))
+             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "CATCH") || startsWith(lab, "FINALLY"))
                 append ins;
           } else {
             append ins;

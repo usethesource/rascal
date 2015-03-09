@@ -148,6 +148,7 @@ public class Frame {
 	 */
 	private int pushFunctionArguments(final int arity, final Object[] stack, final int sp) {
 		int start = sp - arity;
+		assert start >= 0;
 		if(!function.isVarArgs) {
 			assert this.sp + arity == function.nformals;
 			for(int i = 0; i < arity; i++){
@@ -176,7 +177,7 @@ public class Frame {
 	
 	public Frame copy() {
 		if(pc != 0)
-			throw new CompilerError("Copying the frame with certain instructions having been already executed.");
+			throw new CompilerError("Cannot copy frame when some instructions having already been executed.");
 		Frame newFrame = new Frame(scopeId, previousCallFrame, previousScope, function, stack.clone());
 		newFrame.sp = sp; 
 		return newFrame;
@@ -191,7 +192,7 @@ public class Frame {
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		if(src != null){
-			s.append(" \uE007[](").append(src);
+			s.append("\uE007[](").append(src);
 	    }
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals; i++){
@@ -240,17 +241,10 @@ public class Frame {
 	
 	public void printEnter(PrintWriter stdout){
 		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
-	public void printBack(PrintWriter stdout){
-		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
-	}
-	
-	public void printLeave(PrintWriter stdout){
-		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+	public void printBack(PrintWriter stdout, Object rval){
+		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval.toString())); stdout.flush();
 	}
 	
 }

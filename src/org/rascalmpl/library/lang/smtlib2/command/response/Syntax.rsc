@@ -28,8 +28,8 @@ syntax CheckSat
 	
 syntax GetUnsatCore = unsatCore: "(" Label* labels ")";
 
-syntax GetValue = model:"(" Model* models ")";
-syntax Model = val:"(" Expr var Expr val ")";
+syntax GetValue = foundValues:"(" Model* models ")";
+syntax Model = model:"(" Expr var Expr val ")";
 
 syntax Expr
 	= customFunctionCall: "(" Expr functionName Expr* params ")"
@@ -39,9 +39,14 @@ syntax Expr
 
 syntax Literal
 	= intVal:Int int
+	| boolVal: Bool b
 	;
 
-lexical Int = '-'? [0-9]+;
+lexical Int = '-'? [0-9]+ !>> [0-9];
 
-lexical Id = [a-z A-Z 0-9 _.] !<< [a-z A-Z][a-z A-Z 0-9 _.]* !>> [a-z A-Z 0-9 _.];
+lexical Bool = "true" | "false";
+
+keyword Keywords = "true" | "false";
+
+lexical Id = ([a-z A-Z 0-9 _.] !<< [a-z A-Z][a-z A-Z 0-9 _.]* !>> [a-z A-Z 0-9 _.]) \Keywords;
 lexical Label = [a-z A-Z 0-9 _.$%|:/,?#\[\]] !<< [a-z A-Z 0-9 _.$%|:/,?#\[\]]* !>> [a-z A-Z 0-9 _.$%|:/,?#\[\]];

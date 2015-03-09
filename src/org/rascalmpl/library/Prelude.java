@@ -293,13 +293,13 @@ public class Prelude {
 		Calendar cal;
 		if (dt.isDate()) {
 			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-			cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth());
+			cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 		} else {
 			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
 			if (dt.isTime()) {
 				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
 			} else {
-				cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+				cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
 			}
 			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
 		}
@@ -569,7 +569,7 @@ public class Prelude {
 		if (inputDate.isDate() || inputDate.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDate.getYear(), inputDate.getMonthOfYear()-1, inputDate.getDayOfMonth());
+			cal.set(inputDate.getYear(), inputDate.getMonthOfYear(), inputDate.getDayOfMonth());
 			return cal;
 		} else {
 			throw new IllegalArgumentException("Cannot get date for a datetime that only represents the time");
@@ -594,7 +594,7 @@ public class Prelude {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear()-1, inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
+			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear(), inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
 			cal.set(Calendar.MILLISECOND, inputDateTime.getMillisecondsOfSecond());
 			return cal;
 		} else {
@@ -611,7 +611,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue(), null, null);
 		}
 	}
 
@@ -633,7 +633,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -646,7 +646,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputDate + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -659,7 +659,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " with format: " + formatString.getValue(), null, null);
 		}			
 	}
 	
@@ -681,7 +681,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -694,7 +694,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -707,7 +707,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue(), null, null);
 		}		
 	}
 
@@ -729,7 +729,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue() +
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue() +
 					" in locale: " + locale.getValue(), null, null);
 		}
 	}
@@ -743,7 +743,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 	

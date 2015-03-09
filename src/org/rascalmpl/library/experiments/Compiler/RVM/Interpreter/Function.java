@@ -126,8 +126,8 @@ public class Function {
 	}
 	
 	public String getPrintableName(){
-		int from = name.indexOf("/")+1;
-		int to = name.indexOf("(");
+		int from = name.lastIndexOf("/")+1;
+		int to = name.indexOf("(", from);
 		if(to < 0){
 			to = name.length();
 		}
