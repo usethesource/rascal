@@ -1303,7 +1303,8 @@ public class RVMRun implements IRVM {
 		if (cf != null) {
 			stack = cf.stack;
 			sp = cf.sp;
-			stack[sp++] = rval;
+			cof.previousCallFrame.stack[sp++] = rval;
+			cof.previousCallFrame.sp++ ;
 		}
 		return rval;
 	}
@@ -1512,7 +1513,7 @@ public class RVMRun implements IRVM {
 	// Problem there was 1 frame and the function failed.
 	public int jvmOCALL(Object[] stock, int sop, Frame lcf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
-		cf.sp = sp;
+		lcf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
 		OverloadedFunction of = overloadedStore.get(ofun);
@@ -1529,7 +1530,7 @@ public class RVMRun implements IRVM {
 			sp = cf.sp;
 			Object rsult = dynRun(cf.function.funId, cf);
 			if (rsult.equals(NONE)) {
-				return sp; // Alternative matched.
+				return lcf.sp; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
@@ -1603,6 +1604,7 @@ public class RVMRun implements IRVM {
 
 		if (returns) {
 			cof.previousCallFrame.stack[sp++] = rval;
+			cof.previousCallFrame.sp++ ;
 		}
 		return rval;
 	}
