@@ -848,9 +848,9 @@ public class RVMRun implements IRVM {
 		return sp++;
 	}
 
-	public int insnLOADLOCREF(Object[] stack, int sp, int args1) {
-		stack[sp++] = new Reference(stack, args1);
-		return sp;
+	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
+		stack[lsp++] = new Reference(lstack, args1);
+		return lsp;
 	}
 
 	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
@@ -1158,17 +1158,17 @@ public class RVMRun implements IRVM {
 		return sop;
 	}
 
-	public int insnCHECKARGTYPEANDCOPY(Object[] lstack, int sp, Frame cof, int loc, int type, int toLoc) {
+	public int insnCHECKARGTYPEANDCOPY(Object[] lstack, int lsp, Frame cof, int loc, int type, int toLoc) {
 		Type argType = ((IValue) lstack[loc]).getType();
 		Type paramType = cof.function.typeConstantStore[type];
 
 		if (argType.isSubtypeOf(paramType)) {
 			lstack[toLoc] = lstack[loc];
-			lstack[sp++] = vf.bool(true);
+			lstack[lsp++] = vf.bool(true);
 		} else {
-			lstack[sp++] = vf.bool(false);
-		}
-		return sp;
+			lstack[lsp++] = vf.bool(false);
+		}	
+		return lsp;
 	}
 
 	public void insnLABEL() {
@@ -1510,15 +1510,15 @@ public class RVMRun implements IRVM {
 	// 2: Not done by nextFrame (there is no frame)
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
-	public void jvmOCALL(Object[] stock, int sop, Frame cof, int ofun, int arity) {
+	public int jvmOCALL(Object[] stock, int sop, Frame lcf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 		cf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
 		OverloadedFunction of = overloadedStore.get(ofun);
 
-		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
-				.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
+				.computeOverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, of.scopeIn, null, arity);
 
 		Frame frame = ofun_call.nextFrame(functionStore);
 
@@ -1529,14 +1529,16 @@ public class RVMRun implements IRVM {
 			sp = cf.sp;
 			Object rsult = dynRun(cf.function.funId, cf);
 			if (rsult.equals(NONE)) {
-				return; // Alternative matched.
+				return sp; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
 		Type constructor = ofun_call.nextConstructor(constructorStore);
-		if (stackPointerAdjusted == false)
+		if (stackPointerAdjusted == false) {
 			sp = sp - arity;
+		}
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
+		return sp;
 	}
 
 	public void jvmOCALLDYN(Object[] stock, int sop, Frame cof, int typesel, int arity) {
