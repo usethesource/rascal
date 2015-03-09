@@ -30,4 +30,5 @@ public interface IRVM {
 	public void resetLocationCollector();
 	public void setLocationCollector(ILocationCollector collector);
 	public PrintWriter getStdOut();
+	public void validateInstructionAdressingLimits();
 }
