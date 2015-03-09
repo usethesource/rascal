@@ -17,6 +17,7 @@ Code improvement
 - Overal consistency check on naming of primitives in RascalPrimitive and MuPrimitive
 
 Performance improvement
+- Finalize the reachability analysis for visit and descent.
 - Optimize the case of an overloaded function call with only one remaining alternative.
 - Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that
   variables are always initialized.

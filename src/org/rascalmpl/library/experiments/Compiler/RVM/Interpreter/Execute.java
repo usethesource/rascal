@@ -156,6 +156,8 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
+		rvm.validateInstructionAdressingLimits();
+		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
@@ -247,6 +249,9 @@ public class Execute {
 
 	private ISourceLocation getLocField(IConstructor instruction, String field) {
 		return ((ISourceLocation) instruction.get(field));
+	}
+	private IList getListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
 	}
 
 	/**
@@ -585,6 +590,10 @@ public class Execute {
 				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
 								 getStrField(instruction, "caseDefault"));
 				break;
+				
+			case "RESETLOCS":
+				codeblock.RESETLOCS(getListField(instruction, "positions"));
+				break;	
 				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);

@@ -6,12 +6,12 @@ import lang::rascal::format::Grammar;
 import lang::rascal::grammar::definition::Modules;
 
 @resource{sdf}
-@doc{
+@doc{ 
   the sdf uri scheme works like this:
   sdf:///<modulename>
 }
 public str generate(str name, loc at) {
-   def = loadSDF2Module(at.path, [|rascal:///|,|rascal:///src|]);
+   def = loadSDF2Module(at.path);
    gr = injectStarts(fuse(dup(sdf2grammar(at.path[1..], def))));
    return "module <name>
           '

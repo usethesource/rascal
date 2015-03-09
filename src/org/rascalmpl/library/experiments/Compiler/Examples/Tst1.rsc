@@ -1,15 +1,16 @@
 module experiments::Compiler::Examples::Tst1
 
-import ParseTree;
+//import lang::rascal::tests::types::StaticTestingUtils;
+import IO;
 
-syntax D = dd: "d";
-syntax D = ee: "e" D d;
+value main(list[value] args) {
 
 
-bool dispatch(ee(D _)) = true;
-bool dispatch(dd()) = false;
+int x;
 
-bool fun(int n) = true;
-bool fun(str s) = true;
+x = x ? 1;
+x = x ? 2;
 
-value main(list[value] args) = dispatch((D) `ed`); // && !*/ dispatch((D) `d`);
+
+return x == 1;
+}

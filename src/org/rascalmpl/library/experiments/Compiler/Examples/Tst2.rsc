@@ -1,30 +1,30 @@
-
+@bootstrapParser
 module experiments::Compiler::Examples::Tst2
 
-
-//import Prelude;
+import IO;
+import Relation;
 import ParseTree;
-import demo::lang::Lisra::Syntax;
-import demo::lang::Lisra::Runtime;
-import demo::lang::Lisra::Parse;
+//import lang::rascal::types::Util;
+//import lang::rascal::types::AbstractName;
+//import lang::rascal::types::AbstractType;
+import lang::rascal::\syntax::Rascal;
 
-//public Lval parse(str txt) = build(parse(#LispExp, txt));                          /*1*/
+//test bool tstGetPatternNames5() =  domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) == {RSimpleName("x")};
+//test bool tstGetPatternNames6() =  domain(getPatternNames((Pattern) `/^\<x:[a-z]+\>aaa\<y:[0-9]+\>$/`)) == {RSimpleName("x"),RSimpleName("y")};
 
-// Build Abstract Synax Tree: Transform a LispExp to an Lval
+value main(list[value] args) = regExpPatternNames((RegExpLiteral) `/\<x:[a-z]+\>/`) ;
 
-//public Lval build((LispExp)`<IntegerLiteral il>`) = Integer(toInt("<il>"));        /*2*/
-//public Lval build((LispExp)`<AtomExp at>`)        = Atom("<at>");                  /*3*/
-//public Lval build((LispExp)`( <LispExp* lst> )`)  = List([build1(le) | le <- lst]); /*4*/
-
-
-public test bool b01() = build((LispExp) `42`) == Integer(42);
-public test bool b02() = build((LispExp) `abc`) == Atom("abc");
-public test bool b03() = build((LispExp) `(abc 42)`) == List([Atom("abc"), Integer(42)]);
-
-//test bool parse1() = parse("123") == Integer(123);
-//test bool parse2() = parse("abc") == Atom("abc");
-//test bool parse3() = parse("()") == List([]);
-//test bool parse4() = parse("(123)") == List([Integer(123)]);
-//test bool parse5() = parse("(123 abc)") == List([Integer(123), Atom("abc")]);
-
-value main(list[value] args) = build((LispExp) `(abc 42)`);
+public set[str] regExpPatternNames(RegExpLiteral rl) {
+    set[str] names = { };
+        
+    top-down visit(rl) {
+        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
+        	println("matches!");
+        	if (Name regExpVarName := prds[1]) { 
+        		names += "<regExpVarName>";
+        	}
+        }
+    }
+    
+    return names;
+}

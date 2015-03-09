@@ -73,6 +73,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
@@ -309,6 +310,8 @@ public class CodeBlock {
 	public final static int maskArg2 = (1 << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
+	
+	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
 	public static int encode0(int op){
 		return op;
@@ -662,6 +665,11 @@ public class CodeBlock {
 	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
 		return add(new Switch(this, caseLabels, caseDefault));
 	}
+	
+	public CodeBlock RESETLOCS(IList positions) {
+		return add(new ResetLocs(this, getConstantIndex(positions)));
+		
+	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
@@ -681,6 +689,14 @@ public class CodeBlock {
 		for(int i = 0; i < typeConstantStore.size(); i++) {
 			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
+		
+		if(constantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+		}
+		if(typeConstantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+		}
+		
 		if(listing){
 			listing(fname);
 		}

@@ -143,7 +143,7 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
 
 str fuid = "";
 
-list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
+private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
    println("Pre-processing a function: <uid>");
    return
@@ -322,7 +322,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
     }    
 }
 
-MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
+private MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
     str all_uid = "<fuid>/ALL_<getNextAll()>";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield0() ];
@@ -340,7 +340,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
     return muMulti(muApply(muFun2(all_uid, fuid), []));
 }
 
-MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
+private MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
     str or_uid = "<fuid>/Or_<getNextOr()>";
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
@@ -358,20 +358,20 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
 }
 
 // Produces multi- or backtrack-free expressions
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps,src);
+private MuExp makeMu(str operator, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMu(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-MuExp makeMuMulti(MuExp exp, loc src) {
+private MuExp makeMuMulti(MuExp exp, loc src) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,fuid,exps,src);
+private MuExp makeMuOne(str operator, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }

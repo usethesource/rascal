@@ -38,7 +38,7 @@ public class Function {
 	 final ISourceLocation src;		
 	 final IMap localNames;
 	
-	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, IMap localNames, int maxstack, CodeBlock codeblock, ISourceLocation src){
+	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, final IMap localNames, final int maxstack, final CodeBlock codeblock, final ISourceLocation src){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -50,7 +50,7 @@ public class Function {
 		this.src = src;
 	}
 	
-	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
 		codeblock.done(name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn != null) {
@@ -60,7 +60,7 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void attachExceptionTable(IList exceptions, RVM rvm) {
+	public void attachExceptionTable(final IList exceptions, final RVM rvm) {
 		froms = new int[exceptions.length()];
 		tos = new int[exceptions.length()];
 		types = new int[exceptions.length()];
@@ -82,7 +82,7 @@ public class Function {
 		}
 	}
 	
-	public int getHandler(int pc, Type type) {
+	public int getHandler(final int pc, final Type type) {
 		int i = 0;
 		for(int from : froms) {
 			if(pc >= from) {
@@ -103,8 +103,8 @@ public class Function {
 	}
 	
 	public String getPrintableName(){
-		int from = name.indexOf("/")+1;
-		int to = name.indexOf("(");
+		int from = name.lastIndexOf("/")+1;
+		int to = name.indexOf("(", from);
 		if(to < 0){
 			to = name.length();
 		}

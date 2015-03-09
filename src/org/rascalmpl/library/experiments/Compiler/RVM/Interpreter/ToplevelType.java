@@ -32,7 +32,7 @@ public enum ToplevelType {
 	private final int toplevelType;
 	private final String representation;
 	
-	private static ToplevelType[] values = ToplevelType.values();
+	private static final ToplevelType[] values = ToplevelType.values();
 
 	public static ToplevelType fromInteger(int prim){
 		return values[prim];
@@ -49,11 +49,11 @@ public enum ToplevelType {
 	public String getToplevelTypeAsString(){
 		return representation;
 	}
-	public static String getToplevelTypeAsString(Type t){
+	public static String getToplevelTypeAsString(final Type t){
 		return getToplevelType(t).representation;
 	}
 	
-	public static ToplevelType getToplevelType(Type t){
+	public static ToplevelType getToplevelType(final Type t){
 		return t.accept(new ITypeVisitor<ToplevelType,RuntimeException>() {
 
 			@Override
@@ -168,91 +168,97 @@ public enum ToplevelType {
 		return getToplevelType(t).getToplevelTypeAsInt();
 	}
 	
+	private static final Integer listHashCode = "list".hashCode();
+	private static final Integer mapHashCode = "map".hashCode();
+	private static final Integer setHashCode = "set".hashCode();
+	private static final Integer tupleHashCode = "tuple".hashCode();
+	private static final Integer valueHashCode = "value".hashCode();
+	
 	public static int getFingerprint(final IValue v){
 		return v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
 
 			@Override
-			public Integer visitReal(Type type) throws RuntimeException {
+			public Integer visitReal(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitInteger(Type type) throws RuntimeException {
+			public Integer visitInteger(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitRational(Type type) throws RuntimeException {
+			public Integer visitRational(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitList(Type type) throws RuntimeException {
-				return "list".hashCode();
+			public Integer visitList(final Type type) throws RuntimeException {
+				return listHashCode;
 			}
 
 			@Override
-			public Integer visitMap(Type type) throws RuntimeException {
-				return "map".hashCode();
+			public Integer visitMap(final Type type) throws RuntimeException {
+				return mapHashCode;
 			}
 
 			@Override
-			public Integer visitNumber(Type type) throws RuntimeException {
+			public Integer visitNumber(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitAlias(Type type) throws RuntimeException {
+			public Integer visitAlias(final Type type) throws RuntimeException {
 				throw new CompilerError("Alias cannot occur in fingerprint");
 			}
 
 			@Override
-			public Integer visitSet(Type type) throws RuntimeException {
-				return "set".hashCode();
+			public Integer visitSet(final Type type) throws RuntimeException {
+				return setHashCode;
 			}
 
 			@Override
-			public Integer visitSourceLocation(Type type)
+			public Integer visitSourceLocation(final Type type)
 					throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitString(Type type) throws RuntimeException {
+			public Integer visitString(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitNode(Type type) throws RuntimeException {
+			public Integer visitNode(final Type type) throws RuntimeException {
 				return ((INode) v).getName().hashCode() << 2 + ((INode) v).arity();
 			}
 
 			@Override
-			public Integer visitConstructor(Type type) throws RuntimeException {
+			public Integer visitConstructor(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
+//				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+//					return cons.get(0).hashCode(); 
+//				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 
 			@Override
-			public Integer visitAbstractData(Type type) throws RuntimeException {
+			public Integer visitAbstractData(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
+//				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+//					return cons.get(0).hashCode(); 
+//				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 
 			@Override
-			public Integer visitTuple(Type type) throws RuntimeException {
-				return "tuple".hashCode() << 2 + ((ITuple) v).arity();
+			public Integer visitTuple(final Type type) throws RuntimeException {
+				return tupleHashCode << 2 + ((ITuple) v).arity();
 			}
 
 			@Override
-			public Integer visitValue(Type type) throws RuntimeException {
-				return "value".hashCode();
+			public Integer visitValue(final Type type) throws RuntimeException {
+				return valueHashCode;
 			}
 
 			@Override
@@ -261,22 +267,22 @@ public enum ToplevelType {
 			}
 
 			@Override
-			public Integer visitBool(Type type) throws RuntimeException {
+			public Integer visitBool(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 
 			@Override
-			public Integer visitParameter(Type type) throws RuntimeException {
+			public Integer visitParameter(final Type type) throws RuntimeException {
 				throw new CompilerError("Parameter cannot occur in fingerprint");
 			}
 
 			@Override
-			public Integer visitExternal(Type type) throws RuntimeException {
+			public Integer visitExternal(final Type type) throws RuntimeException {
 				throw new CompilerError("External cannot occur in fingerprint");
 			}
 
 			@Override
-			public Integer visitDateTime(Type type) throws RuntimeException {
+			public Integer visitDateTime(final Type type) throws RuntimeException {
 				return v.hashCode();
 			}
 		});
