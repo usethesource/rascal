@@ -170,9 +170,9 @@ public data MuExp =
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne1(MuExp exp)                                   // Expression that always produces only the first value
-          | muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
-          | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
+          //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
+         // | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+         // | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
           // Exceptions
           
