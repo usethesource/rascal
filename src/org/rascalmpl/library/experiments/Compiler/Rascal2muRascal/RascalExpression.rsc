@@ -29,6 +29,8 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
 import experiments::Compiler::muRascal::MuBoolExp;
 
+import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
+
 /*
  * Translate a Rascal expression to muRascal using the function: 
  * - MuExp translate(Expression e).
@@ -1198,59 +1200,6 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
     
 }
 
-//MuExp translateConstantCall("List", "size", [muCon(list[value] lst)]) = muCon(size(lst));
-//
-//MuExp translateConstantCall("ParseTree", "left", []) = muCon(\left());
-//MuExp translateConstantCall("ParseTree", "right", []) = muCon(\right());
-//MuExp translateConstantCall("ParseTree", "assoc", []) = muCon(\assoc());
-//MuExp translateConstantCall("ParseTree", "non-assoc", []) = muCon(\non-assoc());
-//
-//MuExp translateConstantCall("ParseTree", "assoc", [muCon(Associativity a)]) = muCon(\assoc(a));
-//MuExp translateConstantCall("ParseTree", "bracket", [muCon(Associativity a)]) = muCon(\bracket());
-//
-//MuExp translateConstantCall("ParseTree", "prod", [muCon(Symbol def), muCon(list[Symbol] symbols), muCon(set[Attr] attributes)]) = muCon(prod(def,symbols,attributes));
-//MuExp translateConstantCall("ParseTree", "regular", [muCon(Symbol def)]) = muCon(regular(def));
-//MuExp translateConstantCall("ParseTree", "error", [muCon(Production prod), muCon(int dot)]) = muCon(error(prod, dot));
-//MuExp translateConstantCall("ParseTree", "skipped", []) = muCon(skipped());
-//
-//MuExp translateConstantCall("ParseTree", "appl", [muCon(Production prod), muCon(list[Tree] args)]) = muCon(appl(prod, args));
-//MuExp translateConstantCall("ParseTree", "cycle", [muCon(Symbol symbol), muCon(int cycleLength)]) = muCon(cycle(symbol, cycleLength));
-//MuExp translateConstantCall("ParseTree", "char", [muCon(int character)]) = muCon(char(character));
-//
-//MuExp translateConstantCall("ParseTree", "range", [muCon(int begin), muCon(int end)]) = muCon(range(begin, end));
-//
-//// Symbol
-//MuExp translateConstantCall("ParseTree", "start", [muCon(Symbol symbol)]) = muCon(\start(symbol));
-//MuExp translateConstantCall("ParseTree", "sort", [muCon(str name)]) = muCon(sort(name));
-//MuExp translateConstantCall("ParseTree", "lex", [muCon(str name)]) = muCon(lex(name));
-//MuExp translateConstantCall("ParseTree", "layouts", [muCon(str name)]) = muCon(layouts(name));
-//MuExp translateConstantCall("ParseTree", "keywords", [muCon(str name)]) = muCon(keywords(name));
-//MuExp translateConstantCall("ParseTree", "parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
-//MuExp translateConstantCall("ParseTree", "parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-lex(name, parameters));
-//
-//MuExp translateConstantCall("ParseTree", "lit", [muCon(str s)]) = muCon(lit(s));
-//MuExp translateConstantCall("ParseTree", "cilit", [muCon(str s)]) = muCon(cilit(s));
-//MuExp translateConstantCall("ParseTree", "char-class", [muCon(list[CharRange] ranges)]) = muCon(\char-class(ranges));
-//
-//
-//MuExp translateConstantCall("ParseTree", "empty", []) = muCon(empty());
-//MuExp translateConstantCall("ParseTree", "opt", [muCon(Symbol symbol)]) = muCon(opt(symbol));
-//MuExp translateConstantCall("ParseTree", "iter", [muCon(Symbol symbol)]) = muCon(iter(symbol));
-//MuExp translateConstantCall("ParseTree", "iter-star", [muCon(Symbol symbol)]) = muCon(\iter-star(symbol));
-//MuExp translateConstantCall("ParseTree", "iter-seps", [muCon(Symbol symbol)], muCon(list[Symbol] separators)) = muCon(\iter-seps(symbol), separators);
-//MuExp translateConstantCall("ParseTree", "iter-star-seps", [muCon(Symbol symbol)], muCon(list[Symbol] separators)) = muCon(\iter-star-seps(symbol), separators);
-//MuExp translateConstantCall("ParseTree", "alt", [muCon(set[Symbol] alternatives)]) = muCon(alt(alternatives));
-//MuExp translateConstantCall("ParseTree", "seq", [muCon(list[Symbol] symbols)]) = muCon(seq(symbols));
-//
-//MuExp translateConstantCall("ParseTree", "conditional", [muCon(Symbol symbol), muCon(list[Symbol] conditions)]) = muCon(conditional(symbol, conditions));
-//
-//MuExp translateConstantCall("ParseTree", "label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
-//MuExp translateConstantCall("Type", "label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
-//
-//
-//
-//default MuExp translateConstantCall(_, _, _) { throw "NotConstant"; }
-
 // -- call expression -----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
@@ -1417,16 +1366,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
        
-   //    if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
-   //    		fuid = resolved[0];
-   //    		name = unescape("<expression>");
-   //    		println("resolved to single function with constant aruments: <fuid>, outer: <uid2addr[fuid]>, <name>");
-			//
-   //    		try {
-   //    			return translateConstantCall(uid2addr[fuid][0], name, args);
-   //    		} 
-   //    		catch "NotConstant":  /* pass */;
-   //    }
+       if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
+       		name = unescape("<expression>");
+       		try {
+       			res = translateConstantCall(name, args);
+       			println("REPLACED <name>, <args> BY CONSTANT");
+       			return res;
+       		} 
+       		catch "NotConstant":  /* pass */;
+       }
        	addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);      
        	return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
