@@ -106,10 +106,10 @@ private int estimate(muReturn2(MuExp exp, list[MuExp] exps)) = estimate_arg_list
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
 
 private int estimate(e:muOne1(MuExp exp)) = estimate(exp) + 1; 
-private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
+//private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
 
-private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
-private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
+//private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
+//private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
     
 private int estimate(muLocDeref(str name, int pos)) = 1;
 private int estimate(muVarDeref(str name, str fuid, int pos)) = 1;
