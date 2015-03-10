@@ -849,7 +849,7 @@ public class RVMRun implements IRVM {
 	}
 
 	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
-		stack[lsp++] = new Reference(lstack, args1);
+		lstack[lsp++] = new Reference(lstack, args1);
 		return lsp;
 	}
 
@@ -1299,10 +1299,10 @@ public class RVMRun implements IRVM {
 		} else {
 			rval = stock[sp - 1];
 		}
-		cf = cof.previousCallFrame;
-		if (cf != null) {
-			stack = cf.stack;
-			sp = cf.sp;
+/**/		cf = cof.previousCallFrame;
+		if (cof.previousCallFrame != null) {
+/**/			stack = cof.previousCallFrame.stack;
+/**/			sp = cof.previousCallFrame.sp;
 			cof.previousCallFrame.stack[sp++] = rval;
 			cof.previousCallFrame.sp++ ;
 		}
@@ -1489,7 +1489,7 @@ public class RVMRun implements IRVM {
 	}
 
 	public Object exhaustHelper(Object[] stock, int sop, Frame cof) {
-		if (cf == ccf) {
+		if (cof == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
@@ -1542,28 +1542,28 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public void jvmOCALLDYN(Object[] stock, int sop, Frame cof, int typesel, int arity) {
-		Object funcObject = stack[--sp];
+	public int jvmOCALLDYN(Object[] lstack, int sop, Frame lcf, int typesel, int arity) {
+		Object funcObject = lstack[--sp];
 		OverloadedFunctionInstanceCall ofunCall = null;
 		cf.sp = sp;
 
 		// Get function types to perform a type-based dynamic
 		// resolution
-		Type types = cf.function.codeblock.getConstantType(typesel);
+		Type types = lcf.function.codeblock.getConstantType(typesel);
 		// Objects of two types may appear on the stack:
 		// 1. FunctionInstance due to closures whom will have no overloading
 		if (funcObject instanceof FunctionInstance) {
 			FunctionInstance fun_instance = (FunctionInstance) funcObject;
-			cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
+			cf = lcf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 			stack = cf.stack;
 			sp = cf.sp;
 			dynRun(cf.function.funId, cf);
-			return;
+			return lcf.sp;
 		}
 		// 2. OverloadedFunctionInstance due to named Rascal
 		// functions
 		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+		ofunCall = new OverloadedFunctionInstanceCall(lcf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 
 		boolean stackPointerAdjusted = false;
 		Frame frame = ofunCall.nextFrame(functionStore);
@@ -1573,14 +1573,17 @@ public class RVMRun implements IRVM {
 			stack = cf.stack;
 			sp = cf.sp;
 			Object rsult = dynRun(cf.function.funId, cf);
-			if (rsult.equals(NONE))
-				return; // Alternative matched.
+			if (rsult.equals(NONE)) {
+				return lcf.sp ; // Alternative matched.
+			}
 			frame = ofunCall.nextFrame(functionStore);
 		}
 		Type constructor = ofunCall.nextConstructor(constructorStore);
-		if (stackPointerAdjusted == false)
+		if (stackPointerAdjusted == false) {
 			sp = sp - arity;
+		}
 		stack[sp++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+		return sp;
 	}
 
 	public Object return0Helper(Object[] st0ck, int spp, Frame cof) {
@@ -1597,10 +1600,10 @@ public class RVMRun implements IRVM {
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		cf = cof.previousCallFrame;
+/**/		cf = cof.previousCallFrame;
 
-		stack = cf.stack;
-		sp = cf.sp;
+/**/		stack = cf.stack;
+/**/		sp = cf.sp;
 
 		if (returns) {
 			cof.previousCallFrame.stack[sp++] = rval;

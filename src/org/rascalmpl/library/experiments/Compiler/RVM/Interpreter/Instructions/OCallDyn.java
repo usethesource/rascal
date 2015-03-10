@@ -19,9 +19,9 @@ public class OCallDyn extends Instruction {
 	
 	public String toString() { return "OCALLDYN " + types + ", " + arity + " " + src; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
 		//codeEmittor.emitCall("jvmOCALLDYN", types, arity);
-		codeEmittor.emitVoidCallWithArgsSSFII("jvmOCALLDYN", types, arity, dcode);
+		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);
 		codeblock.addCode2(opcode.getOpcode(), types, arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}

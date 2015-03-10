@@ -331,16 +331,16 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitVarInsn(ASTORE, LVAL);
 
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, normalReturn);
 		mv.visitVarInsn(ALOAD, LVAL);
 		mv.visitInsn(ARETURN);
-		
+
 		mv.visitLabel(normalReturn);
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
-		mv.visitInsn(ARETURN);
+		mv.visitInsn(ARETURN);		
 	}
 
 	public void emitInlineFailreturn() {
