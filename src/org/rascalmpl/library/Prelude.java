@@ -2129,6 +2129,7 @@ public class Prelude {
 			writer.println("         //                   result.asParseSuccess().getRoot(), input);");
 			writer.println();
 			writer.println("         Assert.assertTrue(result.asParseSuccess().getStatistics().getCountAmbiguousNodes() == 0);");
+			writer.println("    }");
 			writer.println("}");
 			writer.close();
 			
