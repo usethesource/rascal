@@ -199,7 +199,7 @@ public class RVM implements java.io.Serializable {
 		int nov = overloadedStore.size();
 		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
 
