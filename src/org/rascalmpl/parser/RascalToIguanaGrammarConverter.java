@@ -188,6 +188,7 @@ public class RascalToIguanaGrammarConverter {
 					
 						case "choice":
 							getAlternatives(head, alt, strategy, rules, false);
+							level.setUndefinedIfNeeded();
 							break;
 							
 						case "associativity":
@@ -227,6 +228,7 @@ public class RascalToIguanaGrammarConverter {
 						case "priority": // Should only happen at the root
 							assert isRoot;
 							getAlternatives(head, alt, strategy, rules, false);
+							level.setUndefinedIfNeeded();
 							break;
 						
 						case "associativity":
