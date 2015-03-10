@@ -2098,6 +2098,7 @@ public class Prelude {
 			writer.println("import org.jgll.util.Input;");
 			writer.println("import org.jgll.util.Visualization;");
 			writer.println();
+			writer.println("import org.junit.Assert;");
 			writer.println("import org.junit.Test;");
 			writer.println();
 			writer.println("@SuppressWarnings(\"unused\")");
@@ -2122,16 +2123,12 @@ public class Prelude {
 			writer.println("         GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);");
 			writer.println("         ParseResult result = parser.parse(input, graph, Nonterminal.withName(" + symbol.toString() + "));");
 			writer.println();
-			writer.println("         if (result.isParseSuccess()) {");
-			writer.println("             System.out.println(\"Success\");");
+			writer.println("         Assert.assertTrue(result.isParseSuccess());");
 			writer.println();
-			writer.println("             // Visualization.generateSPPFGraph(\"" + file.getAbsolutePath().replaceAll(name + ".java", "") + "\","); 
-			writer.println("             //                   result.asParseSuccess().getRoot(), input);");
+			writer.println("         // Visualization.generateSPPFGraph(\"" + file.getAbsolutePath().replaceAll(name + ".java", "") + "\","); 
+			writer.println("         //                   result.asParseSuccess().getRoot(), input);");
 			writer.println();
-			writer.println("         } else {");
-			writer.println("             System.out.println(\"Parse error!\");");
-			writer.println("        }");
-			writer.println("    }");
+			writer.println("         Assert.assertTrue(result.asParseSuccess().getStatistics().getCountAmbiguousNodes() == 0);");
 			writer.println("}");
 			writer.close();
 			
