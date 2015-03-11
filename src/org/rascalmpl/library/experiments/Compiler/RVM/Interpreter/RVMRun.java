@@ -1312,11 +1312,12 @@ public class RVMRun implements IRVM {
 	public int jvmCREATE(Object[] stock, int sop, Frame cof, int fun, int arity) {
 		cccf = cof.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cof;
-		cf = cccf;
 
-		stack = cf.stack;
-		sp = cf.sp;
-		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
+/**/		cf = cccf;
+/**/		stack = cf.stack;
+/**/		sp = cf.sp;
+		
+		dynRun(fun, cccf); // Run untill guard, leaves coroutine instance in stack.
 		return sp;
 	}
 
@@ -1331,13 +1332,14 @@ public class RVMRun implements IRVM {
 
 		// In case of partial parameter binding
 		fun_instance = (FunctionInstance) src;
-		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-		cccf.previousCallFrame = cf;
-		cf = cccf;
+		cccf = cof.getCoroutineFrame(fun_instance, arity, sp);
+		cccf.previousCallFrame = cof;
 
-		stack = cf.stack;
-		sp = cf.sp;
-		dynRun(fun_instance.function.funId, cf);
+/**/		cf = cccf;
+/**/		stack = cf.stack;
+/**/		sp = cf.sp;
+		
+		dynRun(fun_instance.function.funId, cccf);
 		return sp;
 	}
 
@@ -1432,7 +1434,7 @@ public class RVMRun implements IRVM {
 			tmp = lcf.getFrame(fun, root, arity, sp);
 			lcf.nextFrame = tmp;
 		} else {
-			tmp = cf.nextFrame;
+			tmp = lcf.nextFrame;
 			fun = tmp.function;
 		}
 		tmp.previousCallFrame = lcf;
@@ -1454,8 +1456,8 @@ public class RVMRun implements IRVM {
 			stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
 		} else {
-			cf.hotEntryPoint = 0;
-			cf.nextFrame = null; // Allow GC to clean
+			lcf.hotEntryPoint = 0;
+			lcf.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call will continue execution
 		}
 	}
@@ -1481,26 +1483,27 @@ public class RVMRun implements IRVM {
 		coroutine.frame.previousCallFrame = lcf;
 
 		cf = coroutine.entryFrame;
-
-		stack = cf.stack;
+//		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(coroutine.entryFrame.function.funId, cf);
+		
+		dynRun(coroutine.entryFrame.function.funId, coroutine.entryFrame);
 		return sp;
 	}
 
-	public Object exhaustHelper(Object[] stock, int sop, Frame cof) {
+	public Object exhaustHelper(Object[] lstack, int sop, Frame cof) {
 		if (cof == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		cf = cf.previousCallFrame;
-		if (cf == null) {
+/**/		cf = cof.previousCallFrame;
+		if (cof.previousCallFrame == null) {
 			return Rascal_FALSE;
 		}
-		stack = cf.stack;
-		sp = cf.sp;
-		stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
+		cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
+
+/**/		stack = cof.previousCallFrame.stack;
+/**/		sp = cof.previousCallFrame.sp;
 
 		return NONE;// i.e., signal a failure;
 	}
@@ -1545,7 +1548,7 @@ public class RVMRun implements IRVM {
 	public int jvmOCALLDYN(Object[] lstack, int sop, Frame lcf, int typesel, int arity) {
 		Object funcObject = lstack[--sp];
 		OverloadedFunctionInstanceCall ofunCall = null;
-		cf.sp = sp;
+		lcf.sp = sp;
 
 		// Get function types to perform a type-based dynamic
 		// resolution

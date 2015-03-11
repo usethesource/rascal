@@ -419,8 +419,10 @@ public class BytecodeGenerator implements Opcodes {
 // Get guard precondition		
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ILOAD, SP);
+
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "guardHelper", "([Ljava/lang/Object;I)Z");
 		mv.visitVarInsn(ISTORE, LBOOL);
 
@@ -608,6 +610,9 @@ public class BytecodeGenerator implements Opcodes {
 /**/		emitIntValue(n);
 /**/		mv.visitInsn(AALOAD);
 /**/		mv.visitInsn(AASTORE);
+/**/		mv.visitVarInsn(ALOAD, THIS);
+/**/		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+/**/		mv.visitVarInsn(ISTORE, SP);
 
 	}
 
@@ -643,7 +648,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ISUB);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
-
 	}
 
 	public void emitInlineTypeSwitch(IList labels, boolean dcode) {
@@ -771,15 +775,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
-		if (exitLabel != null) {
-			// The label for the hot entry
-			// Store reentry label in current frame.
-			// System.out.println(currentName + " GU : entrypoint :"
-			// + hotEntryPoint);
-			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
-		} else {
-			System.err.println("Yield1 and no hotentry label!");
-		}
+		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
 
 	public void emitInlineYield0(int hotEntryPoint, boolean debug) {
@@ -959,9 +955,9 @@ public class BytecodeGenerator implements Opcodes {
 				emitCall("insnLOADBOOLFALSE");
 			}
 		} else {
-			mv.visitVarInsn(ALOAD, 3);
+			mv.visitVarInsn(ALOAD, STACK);
 			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitInsn(DUP);
+			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 			mv.visitInsn(DUP_X1);
 			mv.visitInsn(ICONST_1);
@@ -974,6 +970,9 @@ public class BytecodeGenerator implements Opcodes {
 				mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 			}
 			mv.visitInsn(AASTORE);
+			mv.visitVarInsn(ALOAD, THIS);
+			mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+			mv.visitVarInsn(ISTORE, SP);
 		}
 	}
 
