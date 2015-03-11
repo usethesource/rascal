@@ -3,11 +3,12 @@ module lang::rascal::tests::types::PatternTCTests
 import lang::rascal::tests::types::StaticTestingUtils;
 
 import ParseTree;
-import lang::pico::\syntax::Main;
+//import lang::pico::\syntax::Main;
+import demo::lang::Pico::Syntax;
 
-test bool matchNestedList2() = !([[1]] := []);
+test bool matchNestedList() = cannotMatch("[[1]] := [];");
 
-test bool matchNestedSet2() = !({{1}} := {});
+test bool matchNestedSet() = cannotMatch("{{1}} := {};");
 
 data Bool = and(Bool, Bool) | t();
 data Prop = or(Prop, Prop) | f();

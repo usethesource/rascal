@@ -18,28 +18,28 @@ test bool shadowingDeclaration4() = redeclaredVariable("int N = 3; int N := 3;")
 // Variable declaration in imported module
 
 test bool privateVarDeclarationNotVisible(){ 
-	makeModule("M", "private int x = 3;"); 
-	return undeclaredVariable("x;", importedModules=["M"]);
+	makeModule("MMM", "private int x = 3;"); 
+	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisible(){ 
-	makeModule("M", "public int x = 3;"); 
-	return checkOK("x;", importedModules=["M"]);
+	makeModule("MMM", "public int x = 3;"); 
+	return checkOK("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisibleViaQualifiedName(){ 
-	makeModule("M", "public int x = 3;"); 
-	return checkOK("M::x;", importedModules=["M"]);
+	makeModule("MMM", "public int x = 3;"); 
+	return checkOK("M::x;", importedModules=["MMM"]);
 }
 
 test bool DefaultVarDeclarationNotVisible(){ 
-	makeModule("M", "int x = 3;"); 
-	return undeclaredVariable("x;", importedModules=["M"]);
+	makeModule("MMM", "int x = 3;"); 
+	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool RedeclaredVarDeclaration(){
-	makeModule("M", "public int x = 3;"); 
-	return checkOK("int x = 4;", importedModules=["M"]);
+	makeModule("MMM", "public int x = 3;"); 
+	return checkOK("int x = 4;", importedModules=["MMM"]);
 }
 
 
@@ -48,109 +48,109 @@ test bool RedeclaredVarDeclaration(){
 // import errors, in this case the first n is in the imported configuration
 // but the second n isn't since it would raise an error while checking M.
 //test bool moduleRedeclarationError1(){ 
-//	makeModule("M", "public int n = 1; public int n = 2;"); 
-//	return redeclaredVariable("n == 1;", importedModules=["M"]);
+//	makeModule("MMM", "public int n = 1; public int n = 2;"); 
+//	return redeclaredVariable("n == 1;", importedModules=["MMM"]);
 //}
 
 test bool qualifiedScopeTest(){ 
-	makeModule("M", "public int n = 1;"); 
-	return checkOK("M::n == 1;", importedModules=["M"]);
+	makeModule("MMM", "public int n = 1;"); 
+	return checkOK("M::n == 1;", importedModules=["MMM"]);
 }
 
 // Function declaration in imported module
 
 test bool privateFunDeclarationNotVisible(){ 
-	makeModule("M", "private int f() = 3;"); 
-	return undeclaredVariable("x();", importedModules=["M"]);
+	makeModule("MMM", "private int f() = 3;"); 
+	return undeclaredVariable("x();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisible(){ 
-	makeModule("M", "public int f() = 3;"); 
-	return checkOK("f();", importedModules=["M"]);
+	makeModule("MMM", "public int f() = 3;"); 
+	return checkOK("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisibleViaQualifiedName(){ 
-	makeModule("M", "public int f() = 3;"); 
-	return checkOK("M::f();", importedModules=["M"]);
+	makeModule("MMM", "public int f() = 3;"); 
+	return checkOK("M::f();", importedModules=["MMM"]);
 }
 
 test bool DefaultFunDeclarationVisible(){ 
-	makeModule("M", "int f() = 3;"); 
-	return checkOK("f();", importedModules=["M"]);
+	makeModule("MMM", "int f() = 3;"); 
+	return checkOK("f();", importedModules=["MMM"]);
 }
 
 // Non-terminal declaration in imported module
 
 test bool NonTerminalVisible(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("A a;", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("A a;", importedModules=["MMM"]);
 }
 
 test bool QualifiedNonTerminalVisible(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("M::A a;", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("M::A a;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal1(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("[A]\"a\";", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("[A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal2(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("A anA = [A]\"a\";", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("A anA = [A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal3(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("(A)`a`;", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("(A)`a`;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal4(){ 
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("A anA = (A)`a`;", importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("A anA = (A)`a`;", importedModules=["MMM"]);
 }
 
 test bool ExtendNonTerminal(){            // TODO: EmptyList()
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("A a;", initialDecls=["syntax A = \"b\";"], importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("A a;", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 test bool UseExtendedNonTerminal(){       // TODO: EmptyList()
-	makeModule("M", "syntax A = \"a\";"); 
-	return checkOK("A x = [A] \"b\";", initialDecls=["syntax A = \"b\";"], importedModules=["M"]);
+	makeModule("MMM", "syntax A = \"a\";"); 
+	return checkOK("A x = [A] \"b\";", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 // Data declaration in imported module
 
 test bool ADTVisible(){ 
-	makeModule("M", "data DATA = d();"); 
-	return checkOK("DATA x;", importedModules=["M"]);
+	makeModule("MMM", "data DATA = d();"); 
+	return checkOK("DATA x;", importedModules=["MMM"]);
 }
 
 test bool QualifiedADTVisible(){ 
-	makeModule("M", "data DATA = d();"); 
-	return checkOK("M::DATA x;", importedModules=["M"]);
+	makeModule("MMM", "data DATA = d();"); 
+	return checkOK("M::DATA x;", importedModules=["MMM"]);
 }
 
 test bool ExtendADT(){ 
-	makeModule("M", "data DATA = d();"); 
-	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["M"]);
+	makeModule("MMM", "data DATA = d();"); 
+	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["MMM"]);
 }
 
 // MAH: We currently allow redeclarations in cases where the redeclaration exactly matches
 // an existing declaration. The original test was modified to add constructor fields, which
 // will then trigger an error.
 test bool RedeclareConstructorError(){ 
-	makeModule("M", "data DATA = d(int n);"); 
-	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["M"]);
+	makeModule("MMM", "data DATA = d(int n);"); 
+	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
 }
 
 // Alias declaration in imported module
 
 test bool UseImportedAlias(){ 
-	makeModule("M", "alias INT = int;"); 
-	return checkOK("int x = 3;", importedModules=["M"]);
+	makeModule("MMM", "alias INT = int;"); 
+	return checkOK("int x = 3;", importedModules=["MMM"]);
 }
 
 
