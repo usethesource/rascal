@@ -300,8 +300,11 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
     str fuid = topFunctionScope();
     switchname = getLabel(label);
     switchval = asTmp(switchname);
-    <case_code, default_code> = translateSwitchCases(switchval, fuid, [c | c <- cases]);
-    return muSwitch(muAssignTmp(switchval,fuid,translate(expression)), case_code, default_code, muTmp(switchval, fuid));
+    the_cases = [ c | Case c <- cases ];
+
+    useConcreteFingerprint = hasConcretePatternsOnly(the_cases);
+    <case_code, default_code> = translateSwitchCases(switchval, fuid, useConcreteFingerprint, the_cases);
+    return muSwitch(muAssignTmp(switchval,fuid,translate(expression)), useConcreteFingerprint, case_code, default_code, muTmp(switchval, fuid));
 }
 
 /*
@@ -329,7 +332,7 @@ bool isSpoiler(Pattern pattern){
  	   ;
 }
 
-map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAction pwa, map[int, MuExp] table, int key){
+map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, bool useConcreteFingerprint, PatternWithAction pwa, map[int, MuExp] table, int key){
 	if(pwa is arbitrary){
 	   ifname = nextLabel();
 	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
@@ -344,9 +347,9 @@ map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, PatternWithAct
 	 return table;
 }
 
-private int fingerprintDefault = getFingerprint("default");
+private int fingerprintDefault = getFingerprint("default", false);
 
-tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool useConcreteFingerprint, list[Case] cases) {
   map[int,MuExp] table = ();		// label + generated code per case
   
   default_code = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
@@ -355,8 +358,8 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 	  if(c is patternWithAction){
 	    if(!isSpoiler(c.patternWithAction.pattern)){
 	       pwa = c.patternWithAction;
-	       key = fingerprint(pwa.pattern);
-	       table = addPatternWithActionCode(switchval, fuid, pwa, table, key);
+	       key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	       table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, pwa, table, key);
 	    }
 	  } else {
 	       default_code = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
@@ -364,7 +367,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
    }
    default_table = (fingerprintDefault : default_code);
    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
-	  default_table = addPatternWithActionCode(switchval, fuid, c.patternWithAction, default_table, fingerprintDefault);
+	  default_table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, c.patternWithAction, default_table, fingerprintDefault);
    }
    
    println("TABLE DOMAIN(<size(table)>): <domain(table)>");
@@ -373,32 +376,32 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, list[Ca
 
 // Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
 
-int fingerprint(p:(Pattern) `<Literal lit>`) =
-	getFingerprint(readTextValueString("<lit>")) when !(p.literal is regExp);
+int fingerprint(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
+	getFingerprint(readTextValueString("<lit>"), useConcreteFingerprint) when !(p.literal is regExp);
 
-int fingerprint(p:(Pattern) `<Concrete concrete>`) {
-	res = getFingerprint(parseConcrete(concrete));
+int fingerprint(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
+	res = getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
 	//println("fingerprint <res> for <p>");
 	return res;
 }
 
-int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) { 
+int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, bool useConcreteFingerprint) { 
 	args = [a | a <- arguments];	// TODO: work around!
 	res = fingerprintDefault;
 	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
 	   s = "<[ n | n <- nl ][-1]>";
-	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments));
+	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments), useConcreteFingerprint);
 	}
 	//println("fingerprint <res> for <p>");
 	return res;
 }
-int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`) = getFingerprint("set");
-int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = getFingerprint("tuple", size(pats));
-int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`) = getFingerprint("list");
-int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`) = fingerprint(pattern);
-int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) = fingerprint(argument);
-int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = fingerprint(pattern);
-default int fingerprint(Pattern p) = fingerprintDefault;
+int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
+int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
+int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
+int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
+int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint(argument, useConcreteFingerprint);
+int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
+default int fingerprint(Pattern p, bool useConcreteFingerprint) = fingerprintDefault;
 
 // -- fail statement -------------------------------------------------
 
