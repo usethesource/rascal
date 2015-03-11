@@ -1,5 +1,8 @@
 module lang::rascal::grammar::tests::LiteralsTests
 
+import lang::rascal::grammar::definition::Literals;
+import ParseTree;
+
 test bool tstStr2Syms0() = str2syms("") == [];
 test bool tstStr2Syms1() = str2syms("a") == [\char-class([range(97,97)])];
 test bool tstStr2Syms2() = str2syms("ab") == [\char-class([range(97,97)]),\char-class([range(98,98)])];
