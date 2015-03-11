@@ -281,6 +281,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 		
 		assocGroup.done();
+		level.containsAssociativityGroup(assocGroup.getLhs(), assocGroup.getRhs());
 				
 	}
 	
