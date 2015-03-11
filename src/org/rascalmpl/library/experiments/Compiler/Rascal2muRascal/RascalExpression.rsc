@@ -1692,8 +1692,18 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
 
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     outer = getOuterType(expression);
-    return (outer == "adt") ? muCallPrim3("adt_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc)
-  						    : muCon(hasField(getType(expression@\loc), unescape("<name>")));   
+    str op = "";
+    switch(getOuterType(expression)){
+    	case "adt": 	op = "adt";
+    	case "sort":	op = "nonterminal";
+    	case "lex":		op = "nonterminal";
+    	default:
+     		throw "Cannot happen: <e>";
+    }	
+    
+    return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc);
+    
+    //return muCon(hasField(getType(expression@\loc), unescape("<name>")));					    
 }
 // -- transitive closure expression ---------------------------------
 
