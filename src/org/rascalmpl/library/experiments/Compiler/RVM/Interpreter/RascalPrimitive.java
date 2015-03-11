@@ -1917,11 +1917,12 @@ public enum RascalPrimitive {
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
 				IValue v = val.asAnnotatable().getAnnotation(label);
-				stack[sp - 2] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-				
+				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+				temp_array_of_2[1] = v;
 			} catch (FactTypeUseException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5411,11 +5412,13 @@ public enum RascalPrimitive {
 			IConstructor cons =  (IConstructor) stack[sp - 2];
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
-				cons.get((idx >= 0) ? idx : (cons.arity() + idx));
-				stack[sp - 2] = Rascal_TRUE;
+				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+				temp_array_of_2[0] = Rascal_TRUE;
 			} catch(IndexOutOfBoundsException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
+				
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5446,11 +5449,12 @@ public enum RascalPrimitive {
 				if(idx < 0){
 					idx =  node.arity() + idx;
 				}
-				node.get(idx);  
-				stack[sp - 2] = Rascal_TRUE;
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5475,11 +5479,12 @@ public enum RascalPrimitive {
 			IList lst = ((IList) stack[sp - 2]);
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
-				lst.get((idx >= 0) ? idx : (lst.length() + idx));
-				stack[sp - 2] = Rascal_TRUE;
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5499,7 +5504,9 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			Object v = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
-			stack[sp - 2] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+			temp_array_of_2[1] = v;
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5525,12 +5532,13 @@ public enum RascalPrimitive {
 			IString str = ((IString) stack[sp - 2]);
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
-				Object v = (idx >= 0) ? str.substring(idx, idx+1)
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
 						              : str.substring(str.length() + idx, str.length() + idx + 1);
-				stack[sp - 2] = Rascal_TRUE;
 			} catch(IndexOutOfBoundsException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5555,11 +5563,12 @@ public enum RascalPrimitive {
 			ITuple tup = (ITuple) stack[sp - 2];
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
-				tup.get((idx >= 0) ? idx : tup.arity() + idx);
-				stack[sp - 2] = Rascal_TRUE;
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-				stack[sp - 2] = Rascal_FALSE;
+				temp_array_of_2[0] = Rascal_FALSE;
 			}
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -6417,6 +6426,7 @@ public enum RascalPrimitive {
 		return values[prim];
 	}
 
+	private static RascalExecutionContext rex;
 	private static IValueFactory vf;
 	private static TypeFactory tf;
 	private static TypeStore typeStore;
@@ -6433,6 +6443,7 @@ public enum RascalPrimitive {
 	private static IBool Rascal_FALSE;
 	private static Type valueType;
 	private static Type nodeType;
+	private static final Object[] temp_array_of_2 = new Object[2];
 	
 	private static ITestResultListener testResultListener;
 
@@ -6444,8 +6455,9 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(RVM usedRvm, RascalExecutionContext rex){
+	public static void init(RVM usedRvm, RascalExecutionContext usedRex){
 		rvm = usedRvm;
+		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
 		parsingTools = new ParsingTools(vf);
@@ -6466,8 +6478,12 @@ public enum RascalPrimitive {
 	}
 	
 	public static void reset(){
-		parsingTools.reset();
+		parsingTools = new ParsingTools(vf);
+		parsingTools.setContext(rex);
+		//parsingTools.reset();
+		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
+		type2symbolCache = new HashMap<Type,IConstructor>();
 	}
 
 	public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {

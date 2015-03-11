@@ -148,9 +148,9 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
 
 value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage);
-	if(testsuite){
-   	return printTestReport(v);
-   }
+	//if(testsuite){
+ //  	   return printTestReport(v);
+ //   }
    return v;
 }
 
@@ -192,7 +192,7 @@ bool printTestReport(value results){
 		      println("<l>: IGNORED");
 		  }
 	  }
-	  println("\nSUMMARY: " + makeTestSummary(test_results));
+	  println("\nTEST SUMMARY: " + makeTestSummary(test_results));
 	  return size(failed) == 0;
   } else {
     throw "cannot create report for test results: <results>";

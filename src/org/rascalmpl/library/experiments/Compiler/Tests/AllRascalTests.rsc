@@ -118,13 +118,13 @@ list[str] typeTests = [
 //"AllStaticIssues"			// C & I: DOES NOT TERMINATE
 "AnnotationTCTests",		// OK
 "AssignmentTCTests",		// OK
-"CallTCTests",				// C: 1 fail, I : 1 fail
-"ComprehensionTCTests",		// C: 2 fail, I: 2 fail
+"CallTCTests",				// C: 1 fail == I : 1 fail
+"ComprehensionTCTests",		// C: 2 fail, == I: 2 fail
 "DataDeclarationTCTests",	// OK
 "DataTypeTCTests",			// OK
-"DeclarationTCTests",		// C: 18 fail, I : 20 fail
+"DeclarationTCTests",		// C: 12 fail, I : OK
 "ImportTCTests",			// OK
-"PatternTCTests",			// OK
+"PatternTCTests",			// C: TC error; I : OK
 "ProjectionTCTests",		// OK
 "RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
@@ -166,12 +166,12 @@ list[str] files_with_tests =
 "demo/Uninit",                                      // OK
 "lang/rascal/format/Escape",                        // OK
 "lang/rascal/format/Grammar",                       // OK
-"lang/rascal/grammar/definition/Characters",        // OK
-"lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
 "lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
 "lang/rascal/grammar/tests/PicoGrammar",            // ok
 "lang/rascal/grammar/tests/CGrammar",            	// ok
+"lang/rascal/grammar/tests/CharactersTests", 
+"lang/rascal/grammar/tests/LiteralsTests", 
 "lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
