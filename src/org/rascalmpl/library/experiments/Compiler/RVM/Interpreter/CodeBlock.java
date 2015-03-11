@@ -662,8 +662,8 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 	
-	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean concretePatterns) {
-		return add(new Switch(this, caseLabels, caseDefault, concretePatterns));
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean useConcreteFingerprint) {
+		return add(new Switch(this, caseLabels, caseDefault, useConcreteFingerprint));
 	}
 	
 	public CodeBlock RESETLOCS(IList positions) {
