@@ -1941,6 +1941,20 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Object = array[int]
+	 * 
+	 * [ ..., array, int ] => [ ..., Object ]
+	 *
+	 */
+	subscript_array_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
+			return sp - 1;
+		};
+	},
 	
 	/**
 	 * IValue = IList[mint]
