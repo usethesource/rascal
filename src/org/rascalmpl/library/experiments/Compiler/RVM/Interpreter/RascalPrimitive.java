@@ -1886,6 +1886,29 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	nonterminal_has_field {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor appl = (IConstructor) stack[sp - 2];
+			IConstructor prod = (IConstructor) appl.get("prod");
+			IList prod_symbols = (IList) prod.get("symbols");
+			IString field = ((IString) stack[sp - 1]);
+
+			for(int i = 0; i < prod_symbols.length(); i++){
+				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("label")){
+					if(((IString) arg.get(0)).equals(field)){
+						stack[sp - 2] = Rascal_TRUE;
+						return sp - 1;
+					}
+				}
+			}
+			stack[sp - 2] = Rascal_FALSE;
+			return sp - 1;
+		}
+	},
+	
 	/*
 	 * Annotations
 	 */
