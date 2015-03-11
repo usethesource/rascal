@@ -73,8 +73,8 @@ public java &T watch(type[&T] tp, &T val, str name, value suffix);
 
 @doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
-public java int getFingerprint(value val);
+public java int getFingerprint(value val, bool concretePatterns);
 
 @doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
-public java int getFingerprint(value val, int arity);
+public java int getFingerprint(value val, int arity, bool concretePatterns);

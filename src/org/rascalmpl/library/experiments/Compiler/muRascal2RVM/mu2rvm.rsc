@@ -719,7 +719,7 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 	
-INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
    labels = ();
@@ -731,7 +731,7 @@ INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    }
 	 
    caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
-   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+   return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
 }
 
 // Multi/One/All/Or outside conditional context

@@ -724,7 +724,8 @@ public class RVM implements java.io.Serializable {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					boolean useConcreteFingerprint = instructions[pc++] == 1;
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val, useConcreteFingerprint));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
 					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);

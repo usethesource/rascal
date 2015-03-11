@@ -883,8 +883,9 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	enterFunctionScope(phi_fuid);
 	cases = [ c | Case c <- \visit.cases ];
 	
-	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), cases);
 	concreteMatch = hasConcretePatternsOnly(cases);
+	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), concreteMatch, cases);
+	
 	tc = getTypesAndConstructorsInVisit(cases);
 	reachable = getReachableTypes(getType(\visit.subject@\loc), tc.constructors, tc.types, concreteMatch);
 	println("reachableTypesInVisit: <reachable>");
@@ -1080,10 +1081,10 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 	return table;
 }
 
-private int fingerprintDefault = getFingerprint("default");
+private int fingerprintDefault = getFingerprint("default", false);
 
 @doc{Generates the body of a phi function}
-private MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases) {
+private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcreteFingerprint, list[Case] cases) {
 	// TODO: conditional
 	
 	map[int,MuExp] table = ();		// label + generated code per case
@@ -1094,7 +1095,7 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases
 		if(c is patternWithAction) {
 		  if(!isSpoiler(c.patternWithAction.pattern)){
 			 pwa = c.patternWithAction;
-			 key = fingerprint(pwa.pattern);
+			 key = fingerprint(pwa.pattern, useConcreteFingerprint);
 			 table = addPatternWithActionCode(fuid, subjectType, pwa, table, key);
 		  }
 		} else {
@@ -1112,7 +1113,7 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, list[Case] cases
    println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    case_code = [ muCase(key, table[key]) | key <- table];
    default_code =  default_table[fingerprintDefault];
-   return muSwitch(muVar("iSubject", fuid, iSubjectPos), case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+   return muSwitch(muVar("iSubject", fuid, iSubjectPos), useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
 	
 }
 
@@ -1131,7 +1132,7 @@ private tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsI
 	return <reachableTypes, reachableConstructors>;
 }
 
-private bool hasConcretePatternsOnly(list[Case] cases){
+public bool hasConcretePatternsOnly(list[Case] cases){
 	for(c <- cases){
 		if(c is patternWithAction){
 			if(!isConcretePattern((c.patternWithAction.pattern))){
@@ -1715,7 +1716,6 @@ MuExp translate(e:(Expression) `<Expression argument> ?`) =
 	translateIsDefined(argument);
 
 private MuExp translateIsDefined(Expression exp){
-	println("translateIsDefined: <exp>");
 	switch(exp){
 		case (Expression) `( <Expression exp1> )`:
 			return translateIsDefined(exp1);
@@ -1733,7 +1733,6 @@ private MuExp translateIsDefined(Expression exp){
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 	switch(lhs){
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
-			//return muIfelse(nextLabel(), translateSubscript(lhs, true), [translateSubscript(lhs, false)], [translate(rhs)]);
 			return translateSubscriptIsDefinedElse(lhs, rhs);
 		case (Expression) `<Expression expression> @ <Name name>`: {
 			str fuid = topFunctionScope();

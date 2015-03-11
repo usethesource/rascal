@@ -79,7 +79,7 @@ private int estimate(muFail(str label)) = 0;
 private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)) = 
 max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
 
-private int estimate(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
+private int estimate(muSwitch(MuExp exp, bool concretePatterns, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
 max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
        
 private int estimate(muFailReturn()) = 0;
