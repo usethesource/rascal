@@ -589,7 +589,7 @@ public class Execute {
 			case "SWITCH":
 				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
 								 getStrField(instruction, "caseDefault"),
-								 getBooleanField(instruction, "concretePatterns"));
+								 getBooleanField(instruction, "useConcreteFingerprint"));
 				break;
 				
 			case "RESETLOCS":
