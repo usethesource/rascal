@@ -2134,9 +2134,6 @@ public class Prelude {
 			writer.println("         grammar = new DesugarPrecedenceAndAssociativity().transform(grammar);");
 			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
 			writer.println();
-			writer.println("         grammar = new DesugarOffside().transform(grammar);");
-			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
-			writer.println();
 			writer.println("         grammar = new LayoutWeaver().transform(grammar);");
 			writer.println();
 			writer.println("         Input input = Input.fromString(\"" + input.getValue() + "\");");
