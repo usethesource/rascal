@@ -7,7 +7,6 @@ import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import Type;
 
-
 /*
  * makeBoolExp: given Boolean operator and a list of expressions, return an expression that applies the operator to all arguments.
  * 		When possible, a backtrack free solution is provided that gives a single answer.
