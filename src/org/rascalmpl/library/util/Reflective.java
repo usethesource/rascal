@@ -331,5 +331,9 @@ public class Reflective {
 	public IInteger getFingerprint(IValue val, IInteger arity, IBool concretePatterns){
 		return values.integer(ToplevelType.getFingerprint(val, concretePatterns.getValue()) << 2 + arity.intValue());
 	}
+	
+	public IInteger getFingerprintNode(INode nd){
+		return values.integer(ToplevelType.getFingerprintNode(nd));
+	}
 
 }
