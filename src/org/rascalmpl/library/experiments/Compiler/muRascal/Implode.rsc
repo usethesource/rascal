@@ -322,85 +322,16 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
     }    
 }
 
-//private MuExp generateMuCode("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
-//    str all_uid = "<fuid>/ALL_<getNextAll()>";
-//    localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
-//    list[MuExp] body = [ muYield0() ];
-//    for(int i <- index(exps)) {
-//        int j = size(exps) - 1 - i;
-//        if(backtrackfree[j]) {
-//            body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
-//        } else {
-//            body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localvars[j]), body), muCon(222) ];
-//        }
-//    }
-//    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-//    												//TODO scopeIn argument is missing
-//    functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), src, [], muBlock(body));
-//    return muMulti(muApply(muFun2(all_uid, fuid), []));
-//}
-//
-//private MuExp generateMuCode("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
-//    str or_uid = "<fuid>/Or_<getNextOr()>";
-//    localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
-//    list[MuExp] body = [];
-//    for(int i <- index(exps)) {
-//        if(backtrackfree[i]) {
-//            body += muIfelse(nextLabel(), exps[i], [ muYield0() ], [ muCon(222) ]);
-//        } else {
-//            body = body + [ muCall(exps[i],[]) ];
-//        }
-//    }
-//    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-//    												//TODO scopeIn argument is missing
-//    functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  src, [], muBlock(body));
-//    return muMulti(muApply(muFun2(or_uid, fuid), []));
-//}
-
-// Produces multi- or backtrack-free expressions
+// Produces multi-valued or backtrack-free expressions
 private MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
     tuple[MuExp e,list[MuFunction] functions] res = makeBoolExp(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-//private MuExp makeMuMulti(MuExp exp, loc src) {
-//    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid,src);
-//    functions_in_module = functions_in_module + res.functions;
-//    return res.e;
-//}
-
 private MuExp makeSingleValuedBoolExp(str operator, list[MuExp] exps, loc src) {
     tuple[MuExp e,list[MuFunction] functions] res = makeSingleValuedBoolExp(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
-
-// Temporary copy of TmpAndLabel.rsc
-
-private int allCounter = 0;								// *** state
-
-private int getNextAll() {
-    int counter = allCounter;
-    allCounter = allCounter + 1;
-    return counter;
-}
-
-private void resetAllCounter() {
-    allCounter = 0;
-}
-
-private int orCounter = 0;								// *** state
-
-private int getNextOr() {
-    int counter = orCounter;
-    orCounter = orCounter + 1;
-    return counter;
-}
-
-private void resetOrCounter() {
-    orCounter = 0;
-}
-
-
 
