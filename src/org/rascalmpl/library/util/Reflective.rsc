@@ -78,3 +78,7 @@ public java int getFingerprint(value val, bool concretePatterns);
 @doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, int arity, bool concretePatterns);
+
+@doc{Compute a fingerprint of a complete node for the benefit of the compiler and the compiler runtime}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getFingerprintNode(node nd);
