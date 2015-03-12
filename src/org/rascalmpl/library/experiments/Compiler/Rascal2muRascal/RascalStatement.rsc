@@ -316,15 +316,20 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
  *  - a pattern `int n` will spoil type int
  *  - a pattern 'node nd` will spoil all ADT cases
  *  - a pattern `str s(3)` will spoil type node
+ *
  */
 
 bool isSpoiler(Pattern pattern){
 	if(pattern is variableBecomes || pattern is typedVariableBecomes)
 		return isSpoiler(pattern.pattern);
+	if(pattern is splice || pattern is splicePlus || pattern is asType) 
+		return isSpoiler(pattern.argument);
 		
 	return 
-	      pattern is literal && pattern.literal is regExp
- 	   || pattern is qualifiedName
+ 	      pattern is qualifiedName
+ 	   || pattern is multiVariable
+ 	   || pattern is negative
+ 	   || pattern is literal && pattern.literal is regExp
  	   || pattern is typedVariable
  	   || pattern is callOrTree && !(pattern.expression is qualifiedName)
  	   || pattern is descendant 

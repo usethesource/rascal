@@ -1621,7 +1621,7 @@ public enum MuPrimitive {
 				}
 				subject = w.toString();
 			}
-			System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\"");
+			//System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\" len = " + subject.length());
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
