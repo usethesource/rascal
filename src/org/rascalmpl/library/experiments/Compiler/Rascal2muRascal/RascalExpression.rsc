@@ -43,25 +43,15 @@ import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
 int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
     (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
 
-// Produce a multi- or backtrack-free Boolean expression
+// Produce a multi-valued or backtrack-free Boolean expression
 MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
-	//println("makeBoolExp: <operator> <exps>, <src>");
     tuple[MuExp e,list[MuFunction] functions] res = makeBoolExp(operator,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
 
 // Produce a multi-valued Boolean expression
-//MuExp makeMultiValuedBoolExp(MuExp exp, loc src) {
-//	//println("makeMultiValuedBoolExp: <exp>, <src>");
-//    tuple[MuExp e,list[MuFunction] functions] res = makeMultiValuedBoolExp(exp,topFunctionScope(),src);
-//    addFunctionsToModule(res.functions);
-//    return res.e;
-//}
-
-// Produce a multi-valued Boolean expression
 MuExp makeMultiValuedBoolExp(str operator, list[MuExp] exps, loc src) {
-	//println("makeMultiValuedBoolExp: <exp>, <src>");
     tuple[MuExp e,list[MuFunction] functions] res = makeMultiValuedBoolExp(operator, topFunctionScope(),exps, src);
     addFunctionsToModule(res.functions);
     return res.e;
@@ -69,7 +59,6 @@ MuExp makeMultiValuedBoolExp(str operator, list[MuExp] exps, loc src) {
 
 // Produce a single-valued Boolean expression
 MuExp makeSingleValuedBoolExp(str operator, list[MuExp] exps, loc src) {
-	//println("makeSingleValuedBoolExp: <operator> <exps>, <src>");
     tuple[MuExp e,list[MuFunction] functions] res = makeSingleValuedBoolExp(operator,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
@@ -77,18 +66,18 @@ MuExp makeSingleValuedBoolExp(str operator, list[MuExp] exps, loc src) {
 
 // Generate code for completely type-resolved operators
 
-bool isContainerType(str t) = t in {"list", "map", "set", "rel", "lrel"};
+private bool isContainerType(str t) = t in {"list", "map", "set", "rel", "lrel"};
 
-bool areCompatibleContainerTypes({"list", "lrel"}) = true;
-bool areCompatibleContainerTypes({"set", "rel"}) = true;
-bool areCompatibleContainerTypes({str c}) = true;
-default bool areCompatibleContainerTypes(set[str] s) = false;
+private bool areCompatibleContainerTypes({"list", "lrel"}) = true;
+private bool areCompatibleContainerTypes({"set", "rel"}) = true;
+private bool areCompatibleContainerTypes({str c}) = true;
+private default bool areCompatibleContainerTypes(set[str] s) = false;
 
-str reduceContainerType("lrel") = "list";
-str reduceContainerType("rel") = "set";
-default str reduceContainerType(str c) = c;
+private str reduceContainerType("lrel") = "list";
+private str reduceContainerType("rel") = "set";
+private default str reduceContainerType(str c) = c;
 
-str typedBinaryOp(str lot, str op, str rot) {
+public str typedBinaryOp(str lot, str op, str rot) {
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return op;
   }
@@ -98,17 +87,17 @@ str typedBinaryOp(str lot, str op, str rot) {
      return isContainerType(rot) ? "elm_<op>_<rot>" : "<lot>_<op>_<rot>";
 }
 
-MuExp infix(str op, Expression e) = 
+private MuExp infix(str op, Expression e) = 
   muCallPrim3(typedBinaryOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
              [*translate(e.lhs), *translate(e.rhs)],
              e@\loc);
 
-MuExp infix_elm_left(str op, Expression e){
+private MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);
    return muCallPrim3("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
-MuExp infix_rel_lrel(str op, Expression e){
+private MuExp infix_rel_lrel(str op, Expression e){
   lot = getOuterType(e.lhs);
   if(lot == "set") lot = "rel"; else if (lot == "list") lot = "lrel";
   rot = getOuterType(e.rhs);
@@ -118,12 +107,12 @@ MuExp infix_rel_lrel(str op, Expression e){
 
 // ----------- compose: exp o exp ----------------
 
-MuExp compose(Expression e){
+private MuExp compose(Expression e){
   lhsType = getType(e.lhs@\loc);
   return isFunctionType(lhsType) || isOverloadedType(lhsType) ? translateComposeFunction(e) : infix_rel_lrel("compose", e);
 }
 
-MuExp translateComposeFunction(Expression e){
+private MuExp translateComposeFunction(Expression e){
   //println("composeFunction: <e>");
   lhsType = getType(e.lhs@\loc);
   rhsType = getType(e.rhs@\loc);
@@ -181,12 +170,12 @@ MuExp translateComposeFunction(Expression e){
 
 // ----------- addition: exp + exp ----------------
 
-MuExp add(Expression e){
+private  MuExp add(Expression e){
     lhsType = getType(e.lhs@\loc);
     return isFunctionType(lhsType) || isOverloadedType(lhsType) ? translateAddFunction(e) :infix("add", e);
 }
 
-MuExp translateAddFunction(Expression e){
+private MuExp translateAddFunction(Expression e){
   //println("translateAddFunction: <e>");
   lhsType = getType(e.lhs@\loc);
   rhsType = getType(e.rhs@\loc);
@@ -223,21 +212,21 @@ MuExp translateAddFunction(Expression e){
   return muOFun(ofqname);
 }
 
-str typedUnaryOp(str ot, str op) = (ot == "value" || ot == "parameter") ? op : "<op>_<ot>";
+private str typedUnaryOp(str ot, str op) = (ot == "value" || ot == "parameter") ? op : "<op>_<ot>";
  
-MuExp prefix(str op, Expression arg) {
+private MuExp prefix(str op, Expression arg) {
   return muCallPrim3(typedUnaryOp(getOuterType(arg), op), [translate(arg)], arg@\loc);
 }
 
-MuExp postfix(str op, Expression arg) = muCallPrim3(typedUnaryOp(getOuterType(arg), op), [translate(arg)], arg@\loc);
+private MuExp postfix(str op, Expression arg) = muCallPrim3(typedUnaryOp(getOuterType(arg), op), [translate(arg)], arg@\loc);
 
-MuExp postfix_rel_lrel(str op, Expression arg) {
+private MuExp postfix_rel_lrel(str op, Expression arg) {
   ot = getOuterType(arg);
   if(ot == "set" ) ot = "rel"; else if(ot == "list") ot = "lrel";
   return muCallPrim3("<ot>_<op>", [translate(arg)], arg@\loc);
 }
 
-set[str] numeric = {"int", "real", "rat", "num"};
+private set[str] numeric = {"int", "real", "rat", "num"};
 
 MuExp comparison(str op, Expression e) {
  
@@ -255,22 +244,6 @@ MuExp comparison(str op, Expression e) {
   rot = reduceContainerType(rot);
   return muCallPrim3("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
-
-// Determine constant expressions
-
-//bool isConstantLiteral((Literal) `<LocationLiteral src>`) = src.protocolPart is nonInterpolated;
-//bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
-//default bool isConstantLiteral(Literal l) = true;
-//
-//bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size(es) == 0 || all(elm <- es, isConstant(elm));
-//bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size(es) == 0 ||  all(elm <- es, isConstant(elm));
-//bool isConstant(Expression e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) = size(mappings) == 0 || all(m <- mappings, isConstant(m.from), isConstant(m.to));
-//
-//bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size(elements) == 0 ||  all(elm <- elements, isConstant(elm));
-//bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
-//default bool isConstant(Expression e) = false;
-//
-//value getConstantValue(Expression e) = readTextValueString("<e>");
 
 /*********************************************************************/
 /*                  Translate Literals                               */
@@ -503,7 +476,7 @@ MuExp translate((Literal) `<LocationLiteral src>`) =
         = "\>" URLChars "|" ;
  */
  
- private MuExp translateLocationLiteral(l: (LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
+private MuExp translateLocationLiteral(l: (LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
      muCallPrim3("loc_create", [muCallPrim3("str_add_str", [translateProtocolPart(protocolPart), translatePathPart(pathPart)], l@\loc)], l@\loc);
  
 private MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
@@ -547,21 +520,21 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
     return translateConcrete(concrete);
 }
 
-public MuExp getConstructor(str cons) {
-   cons = unescape(cons);
-   uid = -1;
-   for(c <- getConstructors()){
-     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
-     if(cons == getSimpleName(getConfiguration().store[c].name)){
-        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
-        uid = c;
-        break;
-     }
-   }
-   if(uid < 0)
-      throw("No definition for constructor: <cons>");
-   return muConstr(convert2fuid(uid));
-}
+//public MuExp getConstructor(str cons) {
+//   cons = unescape(cons);
+//   uid = -1;
+//   for(c <- getConstructors()){
+//     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
+//     if(cons == getSimpleName(getConfiguration().store[c].name)){
+//        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+//        uid = c;
+//        break;
+//     }
+//   }
+//   if(uid < 0)
+//      throw("No definition for constructor: <cons>");
+//   return muConstr(convert2fuid(uid));
+//}
 
 /* Recap of relevant rules from Rascal grammar:
 
@@ -1139,7 +1112,7 @@ public bool hasConcretePatternsOnly(list[Case] cases){
 				return false;
 			}
 		} else {
-			return false;		// A default cases is present: everything can match
+			;//return false;		// A default case is present: everything can match
 		}
 	}
 	return true;
@@ -1371,7 +1344,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		name = unescape("<expression>");
        		try {
        			res = translateConstantCall(name, args);
-       			println("REPLACED <name>, <args> BY CONSTANT");
+       			//println("REPLACED <name>, <args> BY CONSTANT");
        			return res;
        		} 
        		catch "NotConstant":  /* pass */;
@@ -1691,19 +1664,19 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
 // -- has expression -----------------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
+	
     outer = getOuterType(expression);
+    println("<e>: <outer>, <getType(expression@\loc)>");
     str op = "";
     switch(getOuterType(expression)){
     	case "adt": 	op = "adt";
     	case "sort":	op = "nonterminal";
     	case "lex":		op = "nonterminal";
     	default:
-     		throw "Cannot happen: <e>";
+     		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
     }	
     
-    return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc);
-    
-    //return muCon(hasField(getType(expression@\loc), unescape("<name>")));					    
+    return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc);				    
 }
 // -- transitive closure expression ---------------------------------
 

@@ -791,19 +791,30 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 
 // is  a pattern a concretePattern?
     
-bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
-	isConcreteType(getType(p@\loc));
-	
-bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
-	isConcreteType(getType(p@\loc));	
-	
-bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-	isConcretePattern(pattern);	
+//bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
+//	isConcreteType(getType(p@\loc));
+//	
+//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
+//	isConcreteType(getType(p@\loc));	
+//	
+//bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+//	isConcretePattern(pattern);	
+//
+//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+//	isConcretePattern(pattern);
+//		
+//default bool isConcretePattern(Pattern p) {
+//	println("isConcretePattern: <getType(p@\loc)>");
+//	return false;
+//
+//}
 
-bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-	isConcretePattern(pattern);
-		
-default bool isConcretePattern(Pattern p) = false;
+bool isConcretePattern(Pattern p) {
+	patType = getType(p@\loc);
+	res = isNonTerminalType(patType);
+	println("isConcretePattern: <res>, <patType>, <p>");
+	return res;
+}
 
 // get the types and constructor names from a pattern
 

@@ -120,6 +120,16 @@ public map[Symbol,Production] getDefinitions() {
  	return definitions;
 }
 
+public Production getLabeledProduction(str name, Symbol symbol){
+	println(getGrammar()[symbol]);
+	name = unescape(name);
+	visit(getGrammar()[symbol]){
+		case p:prod(\label(name, symbol), _, _): return p;
+		case p:regular(\label(name, symbol)): return p;
+	};
+	throw "No LabeledProduction for <name>, <symbol>";
+}
+
 // Type reachability functions
 
 rel[Symbol, Symbol] dependentSymbolsInProduction(Symbol from, Symbol sym) {

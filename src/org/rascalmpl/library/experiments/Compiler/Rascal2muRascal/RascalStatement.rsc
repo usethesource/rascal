@@ -18,6 +18,7 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -381,7 +382,7 @@ int fingerprint(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
 
 int fingerprint(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
 	res = getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
-	//println("fingerprint <res> for <p>");
+	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
 	return res;
 }
 
@@ -390,9 +391,14 @@ int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <
 	res = fingerprintDefault;
 	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
 	   s = "<[ n | n <- nl ][-1]>";
-	   res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments), useConcreteFingerprint);
+	   if(useConcreteFingerprint){	// Abstract pattern during concrete match
+	   		pr = getLabeledProduction(s, getType(p@\loc));
+	   		res = getFingerprintNode(pr);
+	   		//println("getProduction= <pr>, <res>");
+	   } else
+	   	 	res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments), useConcreteFingerprint);
 	}
-	//println("fingerprint <res> for <p>");
+	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
 	return res;
 }
 int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
@@ -401,7 +407,10 @@ int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerpri
 int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
 int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint(argument, useConcreteFingerprint);
 int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
-default int fingerprint(Pattern p, bool useConcreteFingerprint) = fingerprintDefault;
+default int fingerprint(Pattern p, bool useConcreteFingerprint) {
+	//println("fingerprint <fingerprintDefault> (default), <getType(p@\loc)> for <p>");
+	return fingerprintDefault;
+}	
 
 // -- fail statement -------------------------------------------------
 
