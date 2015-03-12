@@ -1868,10 +1868,16 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			IConstructor appl = (IConstructor) stack[sp - 2];
-			IList appl_args = (IList) appl.get("args");
-			IConstructor prod = (IConstructor) appl.get("prod");
-			IList prod_symbols = (IList) prod.get("symbols");
 			IString field = ((IString) stack[sp - 1]);
+			IList appl_args = (IList) appl.get("args");
+			if(field.getValue().equals("args")){		// TODO: Not sure does this belong here? Add more fields?
+				stack[sp - 2] = appl_args;
+				return sp - 1;
+			}
+			IConstructor prod = (IConstructor) appl.get("prod");
+			//System.err.println("nonterminal_field_access, prod = " + prod);
+			IList prod_symbols = (IList) prod.get("symbols");
+			
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
