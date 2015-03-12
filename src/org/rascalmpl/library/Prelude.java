@@ -93,8 +93,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.symbol.Nonterminal;
-import org.jgll.grammar.transformation.DesugarAlignAndOffside;
-import org.jgll.grammar.transformation.LayoutWeaver;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;

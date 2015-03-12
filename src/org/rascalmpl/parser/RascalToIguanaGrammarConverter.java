@@ -909,7 +909,7 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Align symbol) {
-			return symbol.accept(this);
+			return symbol.getSymbol().accept(this);
 		}
 
 		@Override
