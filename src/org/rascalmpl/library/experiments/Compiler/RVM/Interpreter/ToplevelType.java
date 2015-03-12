@@ -174,8 +174,13 @@ public enum ToplevelType {
 	private static final Integer tupleHashCode = "tuple".hashCode();
 	private static final Integer valueHashCode = "value".hashCode();
 	
+	public static int getFingerprintNode(INode nd){
+		//System.err.println("getFingerprintNode: " + nd.hashCode() + " for " + nd);
+		return nd.hashCode();
+	}
+	
 	public static int getFingerprint(final IValue v, final boolean useConcreteFingerprint){
-		return v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
+		int res = v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
 
 			@Override
 			public Integer visitReal(final Type type) throws RuntimeException {
@@ -286,5 +291,7 @@ public enum ToplevelType {
 				return v.hashCode();
 			}
 		});
+		//System.err.println("getFingerprint: " + res + ", for useConcreteFingerprint=" + useConcreteFingerprint + " + and " + v);
+		return res;
 	}
 }
