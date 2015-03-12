@@ -1593,17 +1593,19 @@ public enum MuPrimitive {
 	
 	/**
 	 * Compile a RegExp Matcher given:
-	 * - IString1, the regexp
-	 * - IString2, the subject string
+	 * - IString, the regexp
+	 * - IValue, the subject string, either an IString or an arbitrary IValue (always a ParseTree).
 	 * 
-	 * [ ..., IString1, IString2 ] => [ ..., Matcher ]
+	 * [ ..., IString regexp, IValue subject ] => [ ..., Matcher ]
 	 */
 	regexp_compile {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
 			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
-			String subject = ((IString) stack[sp - 1]).getValue();
+			IValue isubject = (IValue) stack[sp - 1];
+			String subject = (isubject instanceof IString) ? ((IString) isubject).getValue()
+														   : isubject.toString();
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
