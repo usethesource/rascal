@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -1604,8 +1607,21 @@ public enum MuPrimitive {
 			assert arity == 2;
 			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
 			IValue isubject = (IValue) stack[sp - 1];
-			String subject = (isubject instanceof IString) ? ((IString) isubject).getValue()
-														   : isubject.toString();
+			String subject;
+			if(isubject instanceof IString){
+				subject =  ((IString) isubject).getValue();
+			} else {
+				StringWriter w = new StringWriter();
+				IConstructor c = (IConstructor) isubject;
+				try {
+					TreeAdapter.unparse(c, w);
+				} catch (FactTypeUseException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				subject = w.toString();
+			}
+			System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\"");
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
