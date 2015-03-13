@@ -12,7 +12,7 @@ public class Yield0 extends Instruction {
 		this.hotEntryPoint = ep ;
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitInlineYield0(hotEntryPoint,dcode) ;
+		codeEmittor.emitInlineYield(0,hotEntryPoint,dcode) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
