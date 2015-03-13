@@ -1299,12 +1299,11 @@ public class RVMRun implements IRVM {
 		} else {
 			rval = stock[sp - 1];
 		}
-/**/		cf = cof.previousCallFrame;
+		cf = cof.previousCallFrame;
 		if (cof.previousCallFrame != null) {
-/**/			stack = cof.previousCallFrame.stack;
-/**/			sp = cof.previousCallFrame.sp;
-			cof.previousCallFrame.stack[sp++] = rval;
-			cof.previousCallFrame.sp++ ;
+			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
+			sp = cof.previousCallFrame.sp ;
+			stack = cof.previousCallFrame.stack;
 		}
 		return rval;
 	}
@@ -1354,9 +1353,9 @@ public class RVMRun implements IRVM {
 		return ToplevelType.getToplevelTypeAsInt(t);
 	}
 
-	public int switchHelper(Object[] stack, int spp) {
+	public int switchHelper(Object[] stack, int spp, boolean useConcreteFingerprint) {
 		IValue val = (IValue) stack[--sp];
-		IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+		IInteger fp = vf.integer(ToplevelType.getFingerprint(val,useConcreteFingerprint));
         int toReturn = fp.intValue() ;
         return toReturn ;
 	}
@@ -1372,47 +1371,52 @@ public class RVMRun implements IRVM {
 		return precondition;
 	}
 
-	public void yield1Helper(Frame cof, Object[] stock, int sop,  int arity2, int ep) {
+	public void yield1Helper(Frame lcf, Object[] lstack, int lsp,  int arity2, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
+		
+/**/		if ( lsp != sp ) throw new RuntimeException() ;
+		
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
 		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
 
-		int[] refs = cof.function.refs;
+		int[] refs = lcf.function.refs;
 
 		for (int i = 0; i < arity2; i++) {
-			Reference ref = (Reference) stock[refs[arity2 - 1 - i]];
-			ref.stack[ref.pos] = stock[--sp];
+			Reference ref = (Reference) lstack[refs[arity2 - 1 - i]];
+			ref.stack[ref.pos] = lstack[--lsp];
 		}
 
-		cof.hotEntryPoint = ep;
-		cof.sp = sp;
+		lcf.hotEntryPoint = ep;
+		lcf.sp = lsp;
 
-		coroutine.frame = cof;
+		coroutine.frame = lcf;
 		coroutine.suspended = true;
 
-		cf = cof.previousCallFrame;
-		sp = cf.sp;
-		stack = cf.stack;
+/**/		cf = lcf.previousCallFrame;
+/**/		sp = cf.sp;
+/**/		stack = cf.stack;
 	}
 
-	public void yield0Helper(Object[] stock, int sop, Frame cof, int ep) {
+	public void yield0Helper(Frame lcf, Object[] lstack, int lsp, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
+/**/		if ( lsp != sp ) throw new RuntimeException() ;
+
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
 		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
 
-		cof.hotEntryPoint = ep;
-		cof.sp = sp;
+		lcf.hotEntryPoint = ep;
+		lcf.sp = lsp;
 
-		coroutine.frame = cof;
+		coroutine.frame = lcf;
 		coroutine.suspended = true;
 
-		cf = cof.previousCallFrame;
+		cf = lcf.previousCallFrame;
 		sp = cf.sp;
 		stack = cf.stack;
 	}
