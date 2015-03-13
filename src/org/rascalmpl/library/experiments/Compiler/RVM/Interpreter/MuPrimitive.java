@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -1593,17 +1596,32 @@ public enum MuPrimitive {
 	
 	/**
 	 * Compile a RegExp Matcher given:
-	 * - IString1, the regexp
-	 * - IString2, the subject string
+	 * - IString, the regexp
+	 * - IValue, the subject string, either an IString or an arbitrary IValue (always a ParseTree).
 	 * 
-	 * [ ..., IString1, IString2 ] => [ ..., Matcher ]
+	 * [ ..., IString regexp, IValue subject ] => [ ..., Matcher ]
 	 */
 	regexp_compile {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
 			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
-			String subject = ((IString) stack[sp - 1]).getValue();
+			IValue isubject = (IValue) stack[sp - 1];
+			String subject;
+			if(isubject instanceof IString){
+				subject =  ((IString) isubject).getValue();
+			} else {
+				StringWriter w = new StringWriter();
+				IConstructor c = (IConstructor) isubject;
+				try {
+					TreeAdapter.unparse(c, w);
+				} catch (FactTypeUseException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				subject = w.toString();
+			}
+			//System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\" len = " + subject.length());
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
@@ -1938,6 +1956,20 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
 			stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+			return sp - 1;
+		};
+	},
+	/**
+	 * Object = array[int]
+	 * 
+	 * [ ..., array, int ] => [ ..., Object ]
+	 *
+	 */
+	subscript_array_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
 			return sp - 1;
 		};
 	},

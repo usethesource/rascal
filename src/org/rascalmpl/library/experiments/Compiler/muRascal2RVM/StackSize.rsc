@@ -79,7 +79,7 @@ private int estimate(muFail(str label)) = 0;
 private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)) = 
 max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
 
-private int estimate(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
+private int estimate(muSwitch(MuExp exp, bool concretePatterns, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
 max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
        
 private int estimate(muFailReturn()) = 0;
@@ -106,10 +106,10 @@ private int estimate(muReturn2(MuExp exp, list[MuExp] exps)) = estimate_arg_list
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
 
 private int estimate(e:muOne1(MuExp exp)) = estimate(exp) + 1; 
-private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
+//private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
 
-private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
-private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
+//private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
+//private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
     
 private int estimate(muLocDeref(str name, int pos)) = 1;
 private int estimate(muVarDeref(str name, str fuid, int pos)) = 1;

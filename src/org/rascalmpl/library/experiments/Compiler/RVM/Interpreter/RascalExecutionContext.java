@@ -17,7 +17,11 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.TempURIResolver;
+import org.rascalmpl.uri.URIUtil;
 
 /**
  * Provide all context information that is needed during the execution of a compiled Rascal program
@@ -38,7 +42,7 @@ public class RascalExecutionContext {
 	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
 	private final IMap symbol_definitions;
-	private RascalSearchPath rascalURIResolver;
+	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
 	//private ILocationCollector locationReporter;
@@ -57,8 +61,25 @@ public class RascalExecutionContext {
 		
 		currentModuleName = "UNDEFINED";
 		
-		rascalURIResolver = new RascalSearchPath();
-		rascalURIResolver.addPathContributor(StandardLibraryContributor.getInstance());
+		rascalSearchPath = new RascalSearchPath();
+		rascalSearchPath.addPathContributor(StandardLibraryContributor.getInstance());
+		
+		FileURIResolver testModuleResolver = new TempURIResolver() {		// Code borrowed from Evaluator
+		    @Override
+		    public String scheme() {
+		      return "test-modules";
+		    }
+		    
+		    @Override
+		    protected String getPath(ISourceLocation uri) {
+		      String path = uri.getPath();
+		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		      return System.getProperty("java.io.tmpdir") + path;
+		    }
+		  };
+		rascalSearchPath.getRegistry().registerInputOutput(testModuleResolver);
+		rascalSearchPath.addPathContributor(new URIContributor(URIUtil.rootLocation("test-modules")));
+		
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
 		stderr = ctx.getEvaluator().getStdErr();
@@ -86,7 +107,7 @@ public class RascalExecutionContext {
 	
 	void setRVM(IRVM rvm){ this.rvm = rvm; }
 	
-	public RascalSearchPath getRascalResolver() { return rascalURIResolver; }
+	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	

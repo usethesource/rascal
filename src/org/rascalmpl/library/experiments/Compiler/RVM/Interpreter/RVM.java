@@ -197,7 +197,7 @@ public class RVM implements IRVM, java.io.Serializable  {
 		int nov = overloadedStore.size();
 		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
 
@@ -722,10 +722,11 @@ public class RVM implements IRVM, java.io.Serializable  {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					boolean useConcreteFingerprint = instructions[pc++] == 1;
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val, useConcreteFingerprint));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
-					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
 							stack[sp++] = vf.bool(false);
 							pc = caseDefault;

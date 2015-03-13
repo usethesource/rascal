@@ -116,9 +116,10 @@ public data Instruction =
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
 		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and jumps to the corresponding label in the list
-		| SWITCH(map[int,str] caseLabels, str caseDefault)
+		| SWITCH(map[int,str] caseLabels, str caseDefault, bool useConcreteFingerprint)
 										 			// Switch on arbitrary value. Takes the "fingerprint" of the value on the stack, 
-													// finds associated label in map and jumps to it			
+													// finds associated label in map and jumps to it. When 	useConcreteFingerprint is true, fingerprints are computed based
+													// non-terminals rather than Tree constructors		
 													
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
