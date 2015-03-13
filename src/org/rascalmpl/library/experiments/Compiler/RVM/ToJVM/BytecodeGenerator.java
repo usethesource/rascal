@@ -750,7 +750,7 @@ public class BytecodeGenerator implements Opcodes {
 		if (debug)
 			emitCall("dinsnYIELD", 1);
 
-		Label l0 = new Label();
+		Label continueAt = new Label();
 
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
@@ -767,18 +767,17 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "yield0Helper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;II)V");			
 		}
 		
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitJumpInsn(IFNONNULL, l0);
-
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitJumpInsn(IFNONNULL, continueAt);
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-
 		mv.visitInsn(ARETURN);
-		mv.visitLabel(l0);
+
+		mv.visitLabel(continueAt);
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
-		mv.visitInsn(ARETURN);
-
+		mv.visitInsn(ARETURN);		
+		
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
 
