@@ -1313,9 +1313,9 @@ public class RVMRun implements IRVM {
 		cccf = cof.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cof;
 
-/**/		cf = cccf;
-/**/		stack = cf.stack;
-/**/		sp = cf.sp;
+///**/		cf = cccf;
+///**/		stack = cf.stack;
+///**/		sp = cf.sp;
 		
 		dynRun(fun, cccf); // Run untill guard, leaves coroutine instance in stack.
 		return sp;
