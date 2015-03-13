@@ -63,7 +63,7 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		ISourceLocation uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
+		ISourceLocation uri = rex.getRascalSearchPath().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RascalRuntimeException.io(modulePath, null);
 		}
@@ -82,7 +82,7 @@ public class ReflectiveCompiled extends Reflective {
 		}
 
 		try {
-			ISourceLocation uri = rex.getRascalResolver().resolvePath(value);
+			ISourceLocation uri = rex.getRascalSearchPath().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 
