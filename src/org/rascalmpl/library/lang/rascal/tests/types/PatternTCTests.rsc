@@ -3,8 +3,6 @@ module lang::rascal::tests::types::PatternTCTests
 import lang::rascal::tests::types::StaticTestingUtils;
 
 import ParseTree;
-//import lang::pico::\syntax::Main;
-import demo::lang::Pico::Syntax;
 
 test bool matchNestedList() = cannotMatch("[[1]] := [];");
 

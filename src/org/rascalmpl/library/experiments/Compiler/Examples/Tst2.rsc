@@ -1,30 +1,26 @@
-@bootstrapParser
+
 module experiments::Compiler::Examples::Tst2
 
-import IO;
-import Relation;
+
+import lang::rascal::tests::types::StaticTestingUtils;
+
 import ParseTree;
-//import lang::rascal::types::Util;
-//import lang::rascal::types::AbstractName;
-//import lang::rascal::types::AbstractType;
-import lang::rascal::\syntax::Rascal;
 
-//test bool tstGetPatternNames5() =  domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) == {RSimpleName("x")};
-//test bool tstGetPatternNames6() =  domain(getPatternNames((Pattern) `/^\<x:[a-z]+\>aaa\<y:[0-9]+\>$/`)) == {RSimpleName("x"),RSimpleName("y")};
+value main(list[value] args) = 
+	cannotMatch("[[1]] := [];");
 
-value main(list[value] args) = regExpPatternNames((RegExpLiteral) `/\<x:[a-z]+\>/`) ;
 
-public set[str] regExpPatternNames(RegExpLiteral rl) {
-    set[str] names = { };
-        
-    top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
-        	println("matches!");
-        	if (Name regExpVarName := prds[1]) { 
-        		names += "<regExpVarName>";
-        	}
-        }
-    }
-    
-    return names;
-}
+//test bool matchNestedList() = cannotMatch("[[1]] := [];");   // NoSuchAnnotation("at")
+
+ 
+//test bool antiPatternDoesNotDeclare1() = undeclaredVariable("![1,int X,3] := [1,2,4] && (X ? 10) == 10;" ); // TODO //NoSuchAnnotation("rtype")
+
+//test bool doubleTypedVariableBecomes() = redeclaredVariable("[int N : 3, int N : 4] := [3,4] && N == 3;");  // Loops
+
+//test bool PicoQuoted1() = 																					// Loops
+//	checkOK("Program program := t1;",
+//			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+//			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);	
+  	
+  	
+  		
