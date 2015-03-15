@@ -108,6 +108,36 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+	// Rebuild a constructor or nodem reusing its annotations
+	rebuild {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IValue subject = (IValue) stack[sp - 3];
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : new HashMap<String, IValue>();
+			if(subject.getType().isAbstractData()){
+				IConstructor cons1 = (IConstructor) subject;
+				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
+				if(annotations.size() > 0){
+					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = cons2;
+				return sp - 2;
+			} else {
+				INode node1 = (INode) subject;
+				INode node2 = vf.node(node1.getName(), args, kwargs);
+				if(annotations.size() > 0){
+					node2 = node2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = node2;
+				return sp - 2;
+			}
+		}
+	},
 	list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1927,7 +1957,12 @@ public enum RascalPrimitive {
 			IValue val = (IValue) stack[sp - 2];
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
+				
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+				
+//				stdout.println("annotation_get: label  = " + label + ", on=" + val);
+//				stdout.println("annotation_get: result = " + stack[sp - 2]);
+			
 				if(stack[sp - 2] == null) {
 					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 				}
@@ -1964,6 +1999,10 @@ public enum RascalPrimitive {
 			String label = ((IString) stack[sp - 2]).getValue();
 			IValue repl = (IValue) stack[sp - 1];
 			stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
+			
+// 				stdout.println("annotation_SET: label  = " + label + ", repl=" + repl + ", on=" + val);
+// 				stdout.println("annotation_SET: result = " + stack[sp - 3]);
+		
 			return sp - 2;
 		}
 	},
