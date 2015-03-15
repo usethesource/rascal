@@ -1906,6 +1906,7 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
         values, iVal
   
     //println("VISIT_NODE", iSubject, len, deref rHasMatch, deref rBeenChanged, deref rLeaveVisit, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
+    //println("VISIT_NODE, enter", iSubject);
     
     // Visit positional arguments
     j = 0;
@@ -1946,12 +1947,17 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
     }
 
     if(deref rBeenChanged){
-        if(iSubject is constructor){
+    	iVal = prim("rebuild", iSubject, iChildren, kwMap);
+    	//println("VISIT_NODE returns", iSubject, iVal);
+    	return iVal;
+    	
+       /* if(iSubject is constructor){
             return prim("constructor", muprim("typeOf_constructor", iSubject), iChildren, kwMap)
         } else {
             return prim("node", muprim("get_name", iSubject), iChildren, kwMap)
-        }
+        }*/
     }
+    //println("VISIT_NODE returns", iSubject);
     return iSubject
 }
 
