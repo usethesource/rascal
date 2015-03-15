@@ -2140,28 +2140,8 @@ public enum MuPrimitive {
 			stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
 			return sp - 1;
 		};
-	},
-
-	/**
-	 * Get type of mint, IConstructor or IValue
-	 * 
-	 * [ ..., IConstructorEtc ] => [ ..., Type ]
-	 *
-	 */
-	typeOf_constructor {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if (stack[sp - 1] instanceof Integer) {
-				stack[sp - 1] = TypeFactory.getInstance().integerType();
-			} else if (stack[sp - 1] instanceof IConstructor) {
-				stack[sp - 1] = ((IConstructor) stack[sp - 1]).getConstructorType();
-			} else {
-				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-			}
-			return sp;
-		}
-	};
+	}
+	;
 
 	private static IValueFactory vf;
 
