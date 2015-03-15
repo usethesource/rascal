@@ -404,6 +404,11 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("asString cannot convert: " + o);
 	}
 	
+	private String asString(Object o, int w){
+		String repr = asString(o);
+		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
+	}
+	
 	private void finalizeInstructions(){
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
@@ -582,7 +587,7 @@ public class RVM implements java.io.Serializable {
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i], 40));
 					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
