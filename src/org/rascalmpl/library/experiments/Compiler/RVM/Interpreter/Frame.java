@@ -244,7 +244,7 @@ public class Frame {
 	}
 	
 	public void printBack(PrintWriter stdout, Object rval){
-		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : rval.toString())); stdout.flush();
+		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	
 }
