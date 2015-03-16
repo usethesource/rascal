@@ -17,6 +17,9 @@ public class Apply extends Instruction {
 	public String toString() { return "APPLY " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if ( !dcode ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSSII("insnAPPLY", codeblock.getFunctionIndex(fuid), arity,dcode);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}

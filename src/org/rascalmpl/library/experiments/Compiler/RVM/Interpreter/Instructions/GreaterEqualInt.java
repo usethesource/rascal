@@ -9,6 +9,9 @@ public class GreaterEqualInt extends Instruction {
 		super(ins, Opcode.GREATEREQUALINT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if ( !dcode ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSS("insnGREATEREQUALINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}
