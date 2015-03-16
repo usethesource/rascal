@@ -14,10 +14,12 @@ public class LoadCon extends Instruction {
 	
 	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
 		
-		//codeEmittor.emitCall("insnLOADCON", constant);
-		codeEmittor.emitCallWithArgsSSFI("insnLOADCON",constant,dcode);
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFI("insnLOADCON",constant,debug);
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 }

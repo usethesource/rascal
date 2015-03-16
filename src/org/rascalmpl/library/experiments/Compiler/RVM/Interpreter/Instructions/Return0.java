@@ -8,8 +8,10 @@ public class Return0 extends Instruction {
 	public Return0(CodeBlock ins) {
 		super(ins, Opcode.RETURN0);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitInlineReturn(0,dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitInlineReturn(0,debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

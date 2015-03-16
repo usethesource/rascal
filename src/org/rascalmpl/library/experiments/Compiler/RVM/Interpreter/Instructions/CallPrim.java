@@ -20,10 +20,12 @@ public class CallPrim extends Instruction {
 	
 	public String toString() { return "CALLPRIM " + prim + ", " + arity + ", " + src; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
 
-		//codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
-		codeEmittor.emitInlineCallPrime(prim, arity, dcode); 
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+
+		codeEmittor.emitInlineCallPrime(prim, arity, debug); 
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}

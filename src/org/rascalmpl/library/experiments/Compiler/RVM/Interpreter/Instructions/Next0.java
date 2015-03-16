@@ -8,8 +8,11 @@ public class Next0 extends Instruction {
 	public Next0(CodeBlock ins) {
 		super(ins, Opcode.NEXT0);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCallWithArgsSSF("jvmNEXT0", dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSF("jvmNEXT0", debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

@@ -17,8 +17,11 @@ public class Create extends Instruction {
 	public String toString() { return "CREATE " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
 	
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCallWithArgsSSFII("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFII("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
 		codeblock.addCode2(opcode.getOpcode(),codeblock.getFunctionIndex(fuid), arity);
 	}
 }

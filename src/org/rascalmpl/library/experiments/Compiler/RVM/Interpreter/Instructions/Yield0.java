@@ -11,8 +11,11 @@ public class Yield0 extends Instruction {
 		super(ins, Opcode.YIELD0);
 		this.hotEntryPoint = ep ;
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitInlineYield(0,hotEntryPoint,dcode) ;
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineYield(0,hotEntryPoint,debug) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

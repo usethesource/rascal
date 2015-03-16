@@ -1320,10 +1320,13 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public int jvmCREATEDYN(Object[] stock, int sop, Frame cof, int arity) {
+	public int jvmCREATEDYN(Object[] lstack, int lsp, Frame lcf, int arity) {
 		FunctionInstance fun_instance;
 
-		Object src = stock[--sp];
+		if ( lsp != sp )  
+			throw new RuntimeException() ;
+		
+		Object src = lstack[--lsp];
 
 		if (!(src instanceof FunctionInstance)) {
 			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
@@ -1331,15 +1334,19 @@ public class RVMRun implements IRVM {
 
 		// In case of partial parameter binding
 		fun_instance = (FunctionInstance) src;
-		cccf = cof.getCoroutineFrame(fun_instance, arity, sp);
-		cccf.previousCallFrame = cof;
+		cccf = lcf.getCoroutineFrame(fun_instance, arity, lsp);
+		cccf.previousCallFrame = lcf;
 
 /**/		cf = cccf;
 /**/		stack = cf.stack;
 /**/		sp = cf.sp;
-		
+		lcf.sp = lsp ;
 		dynRun(fun_instance.function.funId, cccf);
-		return sp;
+		if ( lcf.sp != sp ) {
+			System.err.println("FIXIT SP adjusted " + lcf.sp + " != " + sp);
+			lcf.sp = sp ;
+		}
+		return lcf.sp;
 	}
 
 	public int typeSwitchHelper(Object[] stack, int sp) { // stackpointer calc is done in the inline part.
@@ -1518,9 +1525,13 @@ public class RVMRun implements IRVM {
 	// 2: Not done by nextFrame (there is no frame)
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
-	public int jvmOCALL(Object[] stock, int sop, Frame lcf, int ofun, int arity) {
+	public int jvmOCALL(Object[] lstack, int sop, Frame lcf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
-		lcf.sp = sp;
+		
+		if ( sp != sop ) 
+			throw new RuntimeException() ;
+		
+		lcf.sp = sop;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
 		OverloadedFunction of = overloadedStore.get(ofun);
@@ -1532,10 +1543,12 @@ public class RVMRun implements IRVM {
 
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text
+			
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
-			Object rsult = dynRun(cf.function.funId, cf);
+			
+			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
 				return lcf.sp; // Alternative matched.
 			}
@@ -1545,7 +1558,7 @@ public class RVMRun implements IRVM {
 		if (stackPointerAdjusted == false) {
 			sp = sp - arity;
 		}
-		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
+		lstack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 		return sp;
 	}
 
@@ -1761,5 +1774,330 @@ public class RVMRun implements IRVM {
 			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
-
+	
+	
+	public static void debugPOP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC0(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC1(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC2(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC3(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC4(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC5(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC6(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC7(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC8(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC9(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOC(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugRESETLOCS(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADBOOL(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADINT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADCON(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOCREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALLMUPRIM(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugJMP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugJMPTRUE(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugJMPFALSE(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugTYPESWITCH(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugJMPINDEXED(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSWITCH(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADTYPE(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOCDEREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTORELOC(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugUNWRAPTHROWNLOC(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTORELOCDEREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADFUN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOAD_NESTED_FUN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADOFUN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADCONSTR(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADVAR(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADVARREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADVARDEREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTOREVAR(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugUNWRAPTHROWNVAR(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTOREVARDEREF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALLCONSTR(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALLDYN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALL(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugOCALLDYN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugOCALL(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCHECKARGTYPEANDCOPY(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugFAILRETURN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugFILTERRETURN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugRETURN0(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugRETURN1(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALLJAVA(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCREATE(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCREATEDYN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugGUARD(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugAPPLY(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugAPPLYDYN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugNEXT0(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugNEXT1(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugYIELD0(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugYIELD1(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugEXHAUST(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugCALLPRIM(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSUBSCRIPTARRAY(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSUBSCRIPTLIST(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLESSINT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugGREATEREQUALINT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugADDINT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSUBTRACTINT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugANDBOOL(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugTYPEOF(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSUBTYPE(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLABEL(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugHALT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugPRINTLN(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugTHROW(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADLOCKWP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADVARKWP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTORELOCKWP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSTOREVARKWP(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugLOADCONT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugRESET(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
+	public static void debugSHIFT(Frame lcf, int lsp) {
+		if ( lcf == null )
+			throw new RuntimeException() ;
+	}
 }

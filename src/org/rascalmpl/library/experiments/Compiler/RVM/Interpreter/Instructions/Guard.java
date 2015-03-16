@@ -10,9 +10,13 @@ public class Guard extends Instruction {
 		super(ins, Opcode.GUARD);
 		this.continuationPoint = continuationPoint ;
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 
-		codeEmittor.emitInlineGuard(continuationPoint,dcode) ;
+		codeEmittor.emitInlineGuard(continuationPoint,debug) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
