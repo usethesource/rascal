@@ -19,6 +19,9 @@ public class UnwrapThrownVar extends Instruction {
 	}
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,dcode); 
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
 	}

@@ -10,8 +10,10 @@ public class LoadLoc6 extends Instruction {
 		super(ins, Opcode.LOADLOC6);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (dcode) codeEmittor.emitCall("insnLOADLOC6");
-		else codeEmittor.emitInlineLoadLocN(6,dcode);
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadLocN(6,dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

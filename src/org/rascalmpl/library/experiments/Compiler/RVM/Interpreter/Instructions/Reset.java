@@ -9,6 +9,9 @@ public class Reset extends Instruction {
 		super(ins, Opcode.RESET);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCall("insnRESET");
 		codeblock.addCode0(opcode.getOpcode());
 	}

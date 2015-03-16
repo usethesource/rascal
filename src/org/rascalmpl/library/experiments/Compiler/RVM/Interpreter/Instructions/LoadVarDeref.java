@@ -19,6 +19,8 @@ public class LoadVarDeref extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 

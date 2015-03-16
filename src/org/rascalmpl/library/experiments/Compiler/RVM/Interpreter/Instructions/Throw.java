@@ -19,6 +19,9 @@ public class Throw extends Instruction {
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCall("insnTHROW");
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}

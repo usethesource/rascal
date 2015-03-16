@@ -22,7 +22,6 @@ public class OCall extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		

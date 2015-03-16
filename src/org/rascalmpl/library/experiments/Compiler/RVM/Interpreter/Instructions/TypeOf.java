@@ -9,6 +9,9 @@ public class TypeOf extends Instruction {
 		super(ins, Opcode.TYPEOF);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitVoidCallWithArgsSS("insnTYPEOF",dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}

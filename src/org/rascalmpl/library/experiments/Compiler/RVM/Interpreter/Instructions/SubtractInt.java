@@ -9,6 +9,9 @@ public class SubtractInt extends Instruction {
 		super(ins, Opcode.SUBTRACTINT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSS("insnSUBTRACTINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}
