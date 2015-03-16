@@ -19,9 +19,10 @@ public class CallMuPrim extends Instruction {
 		return "CALLMUPRIM " + muprim + ", " + arity;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		// codeEmittor.emitCall("insnCALLMUPRIM", muprim.ordinal(), arity);
-		codeEmittor.emitInlineCallMuPrime(muprim, arity, dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitInlineCallMuPrime(muprim, arity, debug);
 		codeblock.addCode2(opcode.getOpcode(), muprim.ordinal(), arity);
 	}
 }

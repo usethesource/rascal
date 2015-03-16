@@ -9,11 +9,12 @@ public class Exhaust extends Instruction {
 		super(ins, Opcode.EXHAUST);
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		if (dcode)
-			codeEmittor.emitCall("dinsnEXHAUST");
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 
-		codeEmittor.emitInlineExhaust(dcode);
+		codeEmittor.emitInlineExhaust(debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

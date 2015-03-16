@@ -14,9 +14,11 @@ public class LoadInt extends Instruction {
 	
 	public String toString() { return "LOADINT " + nval; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		//codeEmittor.emitInlineLoadInt(nval, dcode); 
-		codeEmittor.emitCallWithArgsSSI("insnLOADINT", nval, dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSI("insnLOADINT", nval, debug);
 		codeblock.addCode1(opcode.getOpcode(), nval);
 	}
 }

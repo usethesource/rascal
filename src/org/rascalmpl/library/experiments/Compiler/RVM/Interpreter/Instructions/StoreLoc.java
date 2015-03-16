@@ -15,8 +15,11 @@ public class StoreLoc extends  Instruction {
 	
 	public String toString() { return "STORELOC " + pos; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitInlineStoreLoc(pos, dcode);
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineStoreLoc(pos, debug);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

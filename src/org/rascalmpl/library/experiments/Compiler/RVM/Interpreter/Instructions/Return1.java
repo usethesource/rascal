@@ -15,6 +15,9 @@ public class Return1 extends Instruction {
 	public String toString() { return "RETURN1 " + arity; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitInlineReturn(1,debug);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}

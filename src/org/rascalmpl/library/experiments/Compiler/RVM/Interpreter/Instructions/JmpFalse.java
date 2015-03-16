@@ -16,9 +16,12 @@ public class JmpFalse extends Instruction {
 		return "JMPFALSE " + label + " [" + codeblock.getLabelPC(label) + "]";
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
 
-		codeEmittor.emitJMPFALSE(label, dcode);
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitJMPFALSE(label, debug);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }

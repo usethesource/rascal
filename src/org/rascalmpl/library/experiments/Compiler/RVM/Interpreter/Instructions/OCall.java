@@ -21,17 +21,13 @@ public class OCall extends Instruction {
 		return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]" + ", " + src;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
 
-		if (dcode)
-			codeEmittor.emitCall("dinsnOCALL", codeblock.getOverloadedFunctionIndex(fuid));
-
-		// codeEmittor.emitOCall("OverLoadedHandlerOID" + codeblock.getOverloadedFunctionIndex(fuid),continuationPoint) ; // TODO ,arity);
-		// codeEmittor.emitOCallV2(codeblock.getOverloadedFunctionIndex(fuid), arity);
-		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, dcode) ;
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
 		
-		//codeEmittor.emitVoidCallWithArgsSSFII("jvmOCALL", codeblock.getOverloadedFunctionIndex(fuid), arity, dcode);
-
+		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, debug) ;
+		
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
