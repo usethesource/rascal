@@ -44,8 +44,13 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 public class RVMRun implements IRVM {
 
 	public int sp;
-	public Object[] stack;
 	public Frame cf; // current frame
+
+//----------------------------
+// Exit stack.
+// public Object[] stack;
+
+	
 	public IValueFactory vf;
 
 	public static IBool Rascal_TRUE;
@@ -349,7 +354,7 @@ public class RVMRun implements IRVM {
 		Object o = dynRun(func.funId, cf);
 
 		cf = oldCF;
-		stack = cf.stack;
+//		stack = cf.stack;
 		sp = cf.sp;
 
 		postOp = oldPostOp;
@@ -375,19 +380,19 @@ public class RVMRun implements IRVM {
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		cf = root;
 
-		stack = cf.stack;
+//		stack = cf.stack;
 		sp = func.function.nlocals;
 		cf.sp = sp;
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
-			stack[i] = args[i];
+			cf.stack[i] = args[i];
 		}
 
 		Object o = dynRun(func.function.funId, cf);
 
 		cf = oldCF;
-		stack = cf.stack;
+//		stack = cf.stack;
 		sp = cf.sp;
 
 		postOp = oldPostOp;
@@ -1267,10 +1272,10 @@ public class RVMRun implements IRVM {
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
 
-		stack = cf.stack;
+//		stack = cf.stack;
 
-		stack[0] = vf.list(args); // pass the program argument to
-		stack[1] = vf.mapWriter().done();
+		cf.stack[0] = vf.list(args); // pass the program argument to
+		cf.stack[1] = vf.mapWriter().done();
 
 		sp = func.nlocals;
 		cf.sp = this.sp;
