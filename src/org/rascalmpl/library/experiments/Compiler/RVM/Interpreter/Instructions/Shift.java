@@ -9,6 +9,9 @@ public class Shift extends Instruction {
 		super(ins, Opcode.SHIFT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCall("insnSHIFT");
 		codeblock.addCode0(opcode.getOpcode());
 	}

@@ -198,9 +198,6 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		Label lb = getNamedLabel(targetLabel);
 
-		if (debug)
-			emitCall("dinsnJMPTRUE", 1);
-
 		emitInlinePop(false); // pop part of jmp...
 
 		mv.visitVarInsn(ALOAD, 3);
@@ -215,8 +212,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitJMPFALSE(String targetLabel, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnJMPFALSE", 2);
 
 		Label lb = getNamedLabel(targetLabel);
 
@@ -408,8 +403,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
 		if (!emit)
 			return;
-		if (dcode)
-			emitCall("dinsnGUARD");
 
 		mv.visitVarInsn(ALOAD, 1);
 		emitIntValue(hotEntryPoint);
@@ -656,9 +649,6 @@ public class BytecodeGenerator implements Opcodes {
 
 		if (!emit)
 			return;
-		if (debug) {
-			emitCall("dinsnLOADLOCN");
-		}
 
 //		 NEW VERSION
 		 mv.visitVarInsn(ALOAD, STACK);
@@ -695,8 +685,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlinePop(boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnPOP");
 
 		mv.visitIincInsn(SP, -1);
 
@@ -729,8 +717,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineTypeSwitch(IList labels, boolean dcode) {
 		if (!emit)
 			return;
-		if (dcode)
-			emitCall("dinsnTYPESWITCH", 1);
 
 		Label[] switchTable;
 
@@ -762,9 +748,6 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 
-		if (debug) {
-		}
-
 		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0
 															// entry point.
 
@@ -787,8 +770,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineJmpIndexed(IList labels, boolean dcode) {
 		if (!emit)
 			return;
-		if (dcode)
-			emitCall("dinsnJMPINDEXED", 1);
 
 		Label[] switchTable;
 
@@ -823,8 +804,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineYield(int arity, int hotEntryPoint, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnYIELD", 1);
+
 
 		Label continueAt = new Label();
 
@@ -872,8 +852,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineCall(int functionIndex, int arity, int continuationPoint, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnCALL", functionIndex);
 
 		Label l0 = new Label();
 
@@ -903,8 +881,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineCalldyn(int arity, int continuationPoint, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnCALLDYN", 1);
 
 		Label l0 = new Label();
 
@@ -939,8 +915,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineCallMuPrime(MuPrimitive muprim, int arity, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnCALLMUPRIM", 1);
 
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
@@ -964,9 +938,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean debug) {
 		if (!emit)
 			return;
-		if (debug)
-			emitCall("dinsnCALLPRIM", 1);
-
+	
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 

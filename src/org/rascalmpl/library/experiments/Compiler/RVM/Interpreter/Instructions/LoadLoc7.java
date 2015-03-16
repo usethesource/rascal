@@ -10,8 +10,10 @@ public class LoadLoc7 extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		if (dcode) codeEmittor.emitCall("insnLOADLOC7");
-		else codeEmittor.emitInlineLoadLocN(7,dcode);
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadLocN(7,dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

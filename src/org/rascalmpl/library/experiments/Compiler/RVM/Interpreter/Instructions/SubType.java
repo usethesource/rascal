@@ -9,6 +9,9 @@ public class SubType extends Instruction {
 		super(ins, Opcode.SUBTYPE);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSS("insnSUBTYPE");
 		codeblock.addCode0(opcode.getOpcode());
 	}

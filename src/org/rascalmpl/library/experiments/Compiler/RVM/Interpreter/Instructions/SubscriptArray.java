@@ -9,7 +9,6 @@ public class SubscriptArray extends Instruction {
 		super(ins, Opcode.SUBSCRIPTARRAY);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-
 		if ( !debug) 
 			codeEmittor.emitDebugCall(opcode.name());
 

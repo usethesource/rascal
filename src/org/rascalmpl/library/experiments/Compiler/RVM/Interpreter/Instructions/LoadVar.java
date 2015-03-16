@@ -19,10 +19,11 @@ public class LoadVar extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
-		//codeEmittor.emitCall("insnLOADVAR", what, pos, pos == -1);
 		codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,dcode);
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}

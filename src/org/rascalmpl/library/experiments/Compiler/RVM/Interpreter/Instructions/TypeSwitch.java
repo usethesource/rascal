@@ -28,6 +28,9 @@ public class TypeSwitch extends Instruction {
 	}
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		IListWriter w = codeblock.vf.listWriter();
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();

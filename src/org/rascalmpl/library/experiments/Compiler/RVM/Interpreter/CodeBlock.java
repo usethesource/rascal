@@ -681,7 +681,7 @@ public class CodeBlock {
 		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor, debug);
+			ins.generate(codeEmittor, true);
 		}
 		// TODO: BUG  
 		if ( insList.get(insList.size()-1)  instanceof Label ) {

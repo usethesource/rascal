@@ -19,6 +19,8 @@ public class LoadVarKwp extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
 
 		codeEmittor.emitCall("insnLOADVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
 

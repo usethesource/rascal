@@ -33,6 +33,9 @@ public class Switch extends Instruction {
 	}
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		IMapWriter w = codeblock.vf.mapWriter();
 		for(IValue key : caseLabels){
 			String label = ((IString)caseLabels.get(key)).getValue();

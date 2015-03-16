@@ -15,6 +15,9 @@ public class StoreLocDeref extends Instruction {
 	public String toString() { return "STORELOCDEREF " + pos; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, dcode);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}

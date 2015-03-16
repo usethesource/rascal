@@ -9,6 +9,9 @@ public class Next1 extends Instruction {
 		super(ins, Opcode.NEXT1);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if (!dcode)
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCall("jvmNEXT1");
 		codeblock.addCode0(opcode.getOpcode());
 	}
