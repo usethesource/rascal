@@ -9,6 +9,9 @@ public class AddInt extends Instruction {
 		super(ins, Opcode.ADDINT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		if ( !dcode ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsSS("insnADDINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}

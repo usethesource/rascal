@@ -20,8 +20,12 @@ public class Call extends Instruction {
 		return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]";
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,dcode) ;
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
+	
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
 }
