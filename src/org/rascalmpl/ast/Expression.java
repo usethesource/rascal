@@ -347,7 +347,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 313 * lhs.hashCode() + 53 * rhs.hashCode() ; 
+      return 761 + 557 * lhs.hashCode() + 313 * rhs.hashCode() ; 
     } 
   
     
@@ -407,7 +407,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 857 * generators.hashCode() ; 
+      return 953 + 883 * generators.hashCode() ; 
     } 
   
     
@@ -460,7 +460,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 829 * lhs.hashCode() + 593 * rhs.hashCode() ; 
+      return 809 + 521 * lhs.hashCode() + 619 * rhs.hashCode() ; 
     } 
   
     
@@ -520,7 +520,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 853 + 53 * pattern.hashCode() ; 
+      return 157 + 797 * pattern.hashCode() ; 
     } 
   
     
@@ -571,7 +571,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 859 * generators.hashCode() ; 
+      return 929 + 157 * generators.hashCode() ; 
     } 
   
     
@@ -624,7 +624,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 173 * lhs.hashCode() + 919 * rhs.hashCode() ; 
+      return 419 + 179 * lhs.hashCode() + 947 * rhs.hashCode() ; 
     } 
   
     
@@ -686,7 +686,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 23 * type.hashCode() + 409 * argument.hashCode() ; 
+      return 19 + 109 * type.hashCode() + 271 * argument.hashCode() ; 
     } 
   
     
@@ -746,7 +746,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 + 41 * expression.hashCode() ; 
+      return 479 + 557 * expression.hashCode() ; 
     } 
   
     
@@ -801,7 +801,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 37 * expression.hashCode() + 197 * arguments.hashCode() + 211 * keywordArguments.hashCode() ; 
+      return 853 + 83 * expression.hashCode() + 593 * arguments.hashCode() + 829 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -874,7 +874,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 269 * type.hashCode() + 797 * parameters.hashCode() + 149 * statements.hashCode() ; 
+      return 743 + 199 * type.hashCode() + 317 * parameters.hashCode() + 761 * statements.hashCode() ; 
     } 
   
     
@@ -945,7 +945,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 719 * lhs.hashCode() + 547 * rhs.hashCode() ; 
+      return 367 + 3 * lhs.hashCode() + 641 * rhs.hashCode() ; 
     } 
   
     
@@ -1005,7 +1005,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 + 101 * comprehension.hashCode() ; 
+      return 227 + 521 * comprehension.hashCode() ; 
     } 
   
     
@@ -1056,7 +1056,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 499 * concrete.hashCode() ; 
+      return 29 + 941 * concrete.hashCode() ; 
     } 
   
     
@@ -1107,7 +1107,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 733 * pattern.hashCode() ; 
+      return 919 + 991 * pattern.hashCode() ; 
     } 
   
     
@@ -1160,7 +1160,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 571 * lhs.hashCode() + 409 * rhs.hashCode() ; 
+      return 401 + 719 * lhs.hashCode() + 5 * rhs.hashCode() ; 
     } 
   
     
@@ -1222,7 +1222,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 839 * pattern.hashCode() + 107 * expression.hashCode() ; 
+      return 509 + 709 * pattern.hashCode() + 127 * expression.hashCode() ; 
     } 
   
     
@@ -1284,7 +1284,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 557 + 349 * lhs.hashCode() + 761 * rhs.hashCode() ; 
+      return 743 + 193 * lhs.hashCode() + 659 * rhs.hashCode() ; 
     } 
   
     
@@ -1346,7 +1346,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 787 * lhs.hashCode() + 193 * rhs.hashCode() ; 
+      return 251 + 79 * lhs.hashCode() + 337 * rhs.hashCode() ; 
     } 
   
     
@@ -1408,7 +1408,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 571 * expression.hashCode() + 431 * field.hashCode() ; 
+      return 757 + 191 * expression.hashCode() + 479 * field.hashCode() ; 
     } 
   
     
@@ -1470,7 +1470,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 599 * expression.hashCode() + 991 * fields.hashCode() ; 
+      return 457 + 383 * expression.hashCode() + 293 * fields.hashCode() ; 
     } 
   
     
@@ -1534,7 +1534,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 151 * expression.hashCode() + 307 * key.hashCode() + 619 * replacement.hashCode() ; 
+      return 521 + 17 * expression.hashCode() + 97 * key.hashCode() + 773 * replacement.hashCode() ; 
     } 
   
     
@@ -1605,7 +1605,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 11 * expression.hashCode() + 109 * name.hashCode() ; 
+      return 991 + 349 * expression.hashCode() + 673 * name.hashCode() ; 
     } 
   
     
@@ -1667,7 +1667,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 557 + 241 * lhs.hashCode() + 569 * rhs.hashCode() ; 
+      return 809 + 331 * lhs.hashCode() + 797 * rhs.hashCode() ; 
     } 
   
     
@@ -1729,7 +1729,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 317 * lhs.hashCode() + 619 * rhs.hashCode() ; 
+      return 199 + 631 * lhs.hashCode() + 211 * rhs.hashCode() ; 
     } 
   
     
@@ -1791,7 +1791,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 317 * expression.hashCode() + 347 * name.hashCode() ; 
+      return 829 + 937 * expression.hashCode() + 107 * name.hashCode() ; 
     } 
   
     
@@ -1853,7 +1853,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 727 * lhs.hashCode() + 787 * rhs.hashCode() ; 
+      return 593 + 89 * lhs.hashCode() + 907 * rhs.hashCode() ; 
     } 
   
     
@@ -1917,7 +1917,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 773 * condition.hashCode() + 811 * thenExp.hashCode() + 53 * elseExp.hashCode() ; 
+      return 719 + 857 * condition.hashCode() + 409 * thenExp.hashCode() + 61 * elseExp.hashCode() ; 
     } 
   
     
@@ -1988,7 +1988,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 233 * lhs.hashCode() + 503 * rhs.hashCode() ; 
+      return 293 + 11 * lhs.hashCode() + 181 * rhs.hashCode() ; 
     } 
   
     
@@ -2050,7 +2050,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 53 * lhs.hashCode() + 613 * rhs.hashCode() ; 
+      return 373 + 757 * lhs.hashCode() + 37 * rhs.hashCode() ; 
     } 
   
     
@@ -2112,7 +2112,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 967 * lhs.hashCode() + 353 * rhs.hashCode() ; 
+      return 379 + 211 * lhs.hashCode() + 97 * rhs.hashCode() ; 
     } 
   
     
@@ -2174,7 +2174,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 + 23 * lhs.hashCode() + 601 * rhs.hashCode() ; 
+      return 43 + 293 * lhs.hashCode() + 983 * rhs.hashCode() ; 
     } 
   
     
@@ -2236,7 +2236,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 47 * expression.hashCode() + 223 * name.hashCode() ; 
+      return 953 + 617 * expression.hashCode() + 439 * name.hashCode() ; 
     } 
   
     
@@ -2296,7 +2296,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 503 * argument.hashCode() ; 
+      return 719 + 2 * argument.hashCode() ; 
     } 
   
     
@@ -2345,7 +2345,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 ; 
+      return 617 ; 
     } 
   
     	
@@ -2389,7 +2389,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 401 * lhs.hashCode() + 13 * rhs.hashCode() ; 
+      return 383 + 433 * lhs.hashCode() + 541 * rhs.hashCode() ; 
     } 
   
     
@@ -2451,7 +2451,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 + 643 * lhs.hashCode() + 653 * rhs.hashCode() ; 
+      return 13 + 421 * lhs.hashCode() + 691 * rhs.hashCode() ; 
     } 
   
     
@@ -2513,7 +2513,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 883 * lhs.hashCode() + 383 * rhs.hashCode() ; 
+      return 229 + 5 * lhs.hashCode() + 683 * rhs.hashCode() ; 
     } 
   
     
@@ -2573,7 +2573,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 727 * elements0.hashCode() ; 
+      return 191 + 701 * elements0.hashCode() ; 
     } 
   
     
@@ -2624,7 +2624,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 547 * literal.hashCode() ; 
+      return 227 + 409 * literal.hashCode() ; 
     } 
   
     
@@ -2675,7 +2675,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 859 * mappings.hashCode() ; 
+      return 977 + 383 * mappings.hashCode() ; 
     } 
   
     
@@ -2728,7 +2728,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 571 * pattern.hashCode() + 991 * expression.hashCode() ; 
+      return 673 + 5 * pattern.hashCode() + 281 * expression.hashCode() ; 
     } 
   
     
@@ -2790,7 +2790,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 61 * lhs.hashCode() + 433 * rhs.hashCode() ; 
+      return 967 + 61 * lhs.hashCode() + 877 * rhs.hashCode() ; 
     } 
   
     
@@ -2850,7 +2850,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 331 * qualifiedName.hashCode() ; 
+      return 839 + 653 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -2901,7 +2901,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 383 * argument.hashCode() ; 
+      return 173 + 73 * argument.hashCode() ; 
     } 
   
     
@@ -2952,7 +2952,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 887 * argument.hashCode() ; 
+      return 23 + 521 * argument.hashCode() ; 
     } 
   
     
@@ -3005,7 +3005,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 397 * pattern.hashCode() + 241 * expression.hashCode() ; 
+      return 839 + 61 * pattern.hashCode() + 571 * expression.hashCode() ; 
     } 
   
     
@@ -3065,7 +3065,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 + 443 * statements.hashCode() ; 
+      return 199 + 491 * statements.hashCode() ; 
     } 
   
     
@@ -3118,7 +3118,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 787 * lhs.hashCode() + 877 * rhs.hashCode() ; 
+      return 571 + 97 * lhs.hashCode() + 179 * rhs.hashCode() ; 
     } 
   
     
@@ -3180,7 +3180,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 839 * lhs.hashCode() + 97 * rhs.hashCode() ; 
+      return 439 + 199 * lhs.hashCode() + 709 * rhs.hashCode() ; 
     } 
   
     
@@ -3242,7 +3242,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 937 * lhs.hashCode() + 359 * rhs.hashCode() ; 
+      return 601 + 883 * lhs.hashCode() + 421 * rhs.hashCode() ; 
     } 
   
     
@@ -3304,7 +3304,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 863 * lhs.hashCode() + 571 * rhs.hashCode() ; 
+      return 181 + 337 * lhs.hashCode() + 89 * rhs.hashCode() ; 
     } 
   
     
@@ -3364,7 +3364,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 + 479 * qualifiedName.hashCode() ; 
+      return 881 + 383 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -3417,7 +3417,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 457 * first.hashCode() + 149 * last.hashCode() ; 
+      return 73 + 2 * first.hashCode() + 619 * last.hashCode() ; 
     } 
   
     
@@ -3481,7 +3481,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 + 839 * init.hashCode() + 331 * result.hashCode() + 773 * generators.hashCode() ; 
+      return 983 + 389 * init.hashCode() + 631 * result.hashCode() + 947 * generators.hashCode() ; 
     } 
   
     
@@ -3552,7 +3552,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 859 * symbol.hashCode() + 109 * definitions.hashCode() ; 
+      return 467 + 977 * symbol.hashCode() + 971 * definitions.hashCode() ; 
     } 
   
     
@@ -3612,7 +3612,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 251 * type.hashCode() ; 
+      return 211 + 557 * type.hashCode() ; 
     } 
   
     
@@ -3665,7 +3665,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 257 * lhs.hashCode() + 523 * rhs.hashCode() ; 
+      return 631 + 211 * lhs.hashCode() + 271 * rhs.hashCode() ; 
     } 
   
     
@@ -3725,7 +3725,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 + 479 * elements0.hashCode() ; 
+      return 359 + 881 * elements0.hashCode() ; 
     } 
   
     
@@ -3780,7 +3780,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 827 * expression.hashCode() + 61 * name.hashCode() + 131 * value.hashCode() ; 
+      return 761 + 503 * expression.hashCode() + 419 * name.hashCode() + 11 * value.hashCode() ; 
     } 
   
     
@@ -3853,7 +3853,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 991 * expression.hashCode() + 967 * optFirst.hashCode() + 227 * optLast.hashCode() ; 
+      return 131 + 521 * expression.hashCode() + 409 * optFirst.hashCode() + 103 * optLast.hashCode() ; 
     } 
   
     
@@ -3928,7 +3928,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 569 * expression.hashCode() + 461 * optFirst.hashCode() + 11 * second.hashCode() + 109 * optLast.hashCode() ; 
+      return 41 + 929 * expression.hashCode() + 349 * optFirst.hashCode() + 757 * second.hashCode() + 587 * optLast.hashCode() ; 
     } 
   
     
@@ -4006,7 +4006,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 827 * argument.hashCode() ; 
+      return 41 + 151 * argument.hashCode() ; 
     } 
   
     
@@ -4057,7 +4057,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 751 * argument.hashCode() ; 
+      return 241 + 859 * argument.hashCode() ; 
     } 
   
     
@@ -4112,7 +4112,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 109 * first.hashCode() + 547 * second.hashCode() + 613 * last.hashCode() ; 
+      return 691 + 911 * first.hashCode() + 263 * second.hashCode() + 571 * last.hashCode() ; 
     } 
   
     
@@ -4183,7 +4183,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 977 * expression.hashCode() + 31 * subscripts.hashCode() ; 
+      return 971 + 919 * expression.hashCode() + 821 * subscripts.hashCode() ; 
     } 
   
     
@@ -4245,7 +4245,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 809 * lhs.hashCode() + 401 * rhs.hashCode() ; 
+      return 761 + 673 * lhs.hashCode() + 571 * rhs.hashCode() ; 
     } 
   
     
@@ -4305,7 +4305,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 113 * argument.hashCode() ; 
+      return 67 + 271 * argument.hashCode() ; 
     } 
   
     
@@ -4356,7 +4356,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 619 * argument.hashCode() ; 
+      return 419 + 59 * argument.hashCode() ; 
     } 
   
     
@@ -4407,7 +4407,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 + 977 * elements.hashCode() ; 
+      return 577 + 823 * elements.hashCode() ; 
     } 
   
     
@@ -4460,7 +4460,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 239 * type.hashCode() + 283 * name.hashCode() ; 
+      return 971 + 881 * type.hashCode() + 859 * name.hashCode() ; 
     } 
   
     
@@ -4524,7 +4524,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 503 * type.hashCode() + 419 * name.hashCode() + 571 * pattern.hashCode() ; 
+      return 787 + 59 * type.hashCode() + 743 * name.hashCode() + 43 * pattern.hashCode() ; 
     } 
   
     
@@ -4595,7 +4595,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 941 * name.hashCode() + 541 * pattern.hashCode() ; 
+      return 227 + 971 * name.hashCode() + 509 * pattern.hashCode() ; 
     } 
   
     
@@ -4657,7 +4657,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 911 * label.hashCode() + 619 * visit.hashCode() ; 
+      return 719 + 881 * label.hashCode() + 317 * visit.hashCode() ; 
     } 
   
     
@@ -4719,7 +4719,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 433 * parameters.hashCode() + 193 * statements0.hashCode() ; 
+      return 211 + 353 * parameters.hashCode() + 521 * statements0.hashCode() ; 
     } 
   
     
