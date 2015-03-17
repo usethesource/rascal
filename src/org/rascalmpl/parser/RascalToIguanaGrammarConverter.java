@@ -71,6 +71,7 @@ import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
 import org.jgll.traversal.ISymbolVisitor;
+import org.jgll.util.CollectionsUtil;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.Literal;
@@ -135,6 +136,41 @@ public class RascalToIguanaGrammarConverter {
 					break;
  			}
 		}
+		
+		List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
+		List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
+	
+		List<List<PrecedencePattern>> split = CollectionsUtil.split(precedencePatterns, 300);
+		
+		System.out.println("public static List<PrecedencePattern> precedencePatterns() {");
+		System.out.println("   List<PrecedencePattern> list = new ArrayList<>();");
+		for (int j = 0; j < split.size(); j++) {
+			System.out.println("   list.addAll(precedencePatterns" + (j + 1) + "());");
+		}
+		System.out.println("   return list;");
+		System.out.println("}");
+		
+		int i = 0;
+		for (List<PrecedencePattern> l : split) {
+			System.out.println("private static List<PrecedencePattern> precedencePatterns" + ++i + "() {");
+			System.out.println("  return Arrays.asList(");
+			l.forEach(p -> {
+				System.out.println("  // " + p);
+				System.out.println("     " + p.getConstructorCode() + ", ");	
+			});
+			System.out.println(");");
+			System.out.println("}");
+		}
+		
+		System.out.println("public static List<ExceptPattern> exceptPatterns() {");
+		System.out.println("   return Arrays.asList(");
+		exceptPatterns.forEach(p -> {
+			System.out.println("   // " + p);
+			System.out.println("   " + p.getConstructorCode() + ", ");
+		});
+		System.out.println(");");
+		System.out.println("}");
+
 		
 		return builder.setLayout(layout).build();
 	}
@@ -322,7 +358,6 @@ public class RascalToIguanaGrammarConverter {
 									.setLabel(addLabel(production)).build();
 	}
 
-	@SuppressWarnings("unused")
 	private List<PrecedencePattern> getPrecedencePatterns(IMap notAllowed) {
 		
 		List<PrecedencePattern> precedencePatterns = new ArrayList<>();
@@ -349,7 +384,6 @@ public class RascalToIguanaGrammarConverter {
 		return precedencePatterns;
 	}	
 	
-	@SuppressWarnings("unused")
 	private List<ExceptPattern> getExceptPatterns(IMap map) {
 
 		List<ExceptPattern> exceptPatterns = new ArrayList<>();
