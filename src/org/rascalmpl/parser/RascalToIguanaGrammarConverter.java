@@ -224,6 +224,7 @@ public class RascalToIguanaGrammarConverter {
 					
 						case "choice":
 							getAlternatives(head, alt, strategy, rules, false);
+							level.setUndefinedIfNeeded();
 							break;
 							
 						case "associativity":
@@ -263,6 +264,7 @@ public class RascalToIguanaGrammarConverter {
 						case "priority": // Should only happen at the root
 							assert isRoot;
 							getAlternatives(head, alt, strategy, rules, false);
+							level.setUndefinedIfNeeded();
 							break;
 						
 						case "associativity":
@@ -315,6 +317,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 		
 		assocGroup.done();
+		level.containsAssociativityGroup(assocGroup.getLhs(), assocGroup.getRhs());
 				
 	}
 	
@@ -940,7 +943,7 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Align symbol) {
-			return symbol.accept(this);
+			return symbol.getSymbol().accept(this);
 		}
 
 		@Override

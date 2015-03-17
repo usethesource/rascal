@@ -124,7 +124,7 @@ syntax Sym
 	| optional: Sym symbol "?" 
 	| alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| sequence: "(" Sym first Sym+ sequence ")"
-	| bracket \bracket: "(" Sym ")"
+	| bracket \bracket: "(" Sym symbol ")"
 	| empty: "()"
 // conditionals
 	| column: Sym symbol "@" IntegerLiteral column 

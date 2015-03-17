@@ -81,7 +81,7 @@ public abstract class ConcreteHole extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 227 * symbol.hashCode() + 53 * name.hashCode() ; 
+      return 349 + 163 * symbol.hashCode() + 829 * name.hashCode() ; 
     } 
   
     
