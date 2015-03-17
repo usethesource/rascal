@@ -521,7 +521,7 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName(getName(symbol));
 
 			case "layouts":
-				return null;
+				return Nonterminal.withName(getName(symbol));
 				
 			// DD part:
 				
