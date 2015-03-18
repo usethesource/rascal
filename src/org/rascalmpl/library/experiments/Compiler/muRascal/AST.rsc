@@ -61,6 +61,7 @@ public data MuExp =
 		  | muInt(int n)										// muRascal integer constant
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
+          | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
           | muLab(str name)										// Label
           
           | muFun1(str fuid)							            // *muRascal function constant: functions at the root

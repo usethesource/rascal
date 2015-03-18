@@ -4,6 +4,7 @@ import IO;
 import Type;
 import List;
 import ListRelation;
+import Node;
 import Message;
 import String;
 import experiments::Compiler::RVM::AST;
@@ -15,6 +16,7 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
@@ -87,8 +89,20 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
+//bool producesValue(muLab(_)) = false;
+
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+
+bool producesValue(muBreak(_)) = false;
+bool producesValue(muContinue(_)) = false;
+bool producesValue(muFail(_)) = false;
+bool producesValue(muFailReturn(_)) = false;
+
 bool producesValue(muReturn0()) = false;
+
+//bool producesValue(muYield0()) = false;
+//bool producesValue(muExhaust()) = false;
+
 bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
@@ -318,7 +332,11 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) = [LOADCON(c)];
+default INS tr(muCon(value c)) {
+	tp = typeOf(c);
+	
+	return isADTType(tp) && \type(_,_) !:= c && node nd := c ? [LOADCONSTRCON(symbolToValue(tp), toString(nd))] :[LOADCON(c)];
+}		
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
