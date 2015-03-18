@@ -876,6 +876,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	public void emitInlineCalldyn(int arity, int continuationPoint, boolean debug) {
