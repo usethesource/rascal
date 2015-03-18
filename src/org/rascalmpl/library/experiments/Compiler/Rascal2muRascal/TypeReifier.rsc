@@ -59,6 +59,12 @@ public void getDeclarationInfo(Configuration config){
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
             + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
             + { <"Tree", adt("Tree",[])> }
+            + { <"Symbol", adt("Symbol",[])> }
+            + { <"Production", adt("Production",[])> }
+            + { <"Attr", adt("Attr",[])> }
+            + { <"Associativity", adt("Associativity",[])> }
+            + { <"CharRange", adt("CharRange",[])> }
+            + { <"Condition", adt("Condition",[])> }
             ;
     
 
@@ -437,6 +443,7 @@ public type[value] symbolToValue(Symbol symbol) {
 	// Recursively collect all the type definitions associated with a given symbol
 	
 	//symbol = regulars(symbol,activeLayout);	//TODO still needed?
+	
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){
