@@ -49,6 +49,7 @@ public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
+	   	| LOADCONSTRCON(value reified, str repr)	// Push a constructor value, given its type and a string representation of its value
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
 	   	| LOADFUN(str fuid)                         // Push a named *muRascal function
