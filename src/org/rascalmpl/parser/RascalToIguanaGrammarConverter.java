@@ -839,7 +839,9 @@ public class RascalToIguanaGrammarConverter {
 			}
 			String id = ((org.jgll.datadependent.ast.Expression.Name) fun).getName();
 			
-			if (!(id.equals("indent") || id.equals("println"))) {
+			if (!(id.equals("indent") || 
+				  id.equals("println") || 
+				  id.equals("ppLookup"))) {
 				throw new RuntimeException("Unsupported function: " + id);
 			}
 			
@@ -852,7 +854,12 @@ public class RascalToIguanaGrammarConverter {
 				j++;
 			}
 			
-			return id.equals("indent")? indent(args[0]) : println(args);
+			if (id.equals("indent")) 
+				return indent(args[0]);
+			else if (id.equals("ppLookup"))
+				return ppLookup(args[0]);
+			else 
+				return println(args);
 		}
 		
 		@Override
