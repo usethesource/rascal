@@ -101,6 +101,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class RascalToIguanaGrammarConverter {
 	
 	private Map<IValue, Rule> rulesMap;
+	
+	private Nonterminal layout;
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
@@ -110,7 +112,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		rulesMap = new HashMap<>();
 		
-		Nonterminal layout = getLayoutNonterminal(rascalGrammar);
+		layout = getLayoutNonterminal(rascalGrammar);
 		
 		for (IValue nonterminal : definitions) {
 
@@ -521,7 +523,11 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName(getName(symbol));
 
 			case "layouts":
-				return Nonterminal.withName(getName(symbol));
+				String name = getName(symbol);
+				if (name.equals(layout.getName()))
+					return layout;
+				else 
+					return null;
 				
 			// DD part:
 				
