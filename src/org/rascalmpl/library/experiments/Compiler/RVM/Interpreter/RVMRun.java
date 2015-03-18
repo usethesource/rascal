@@ -1391,8 +1391,8 @@ public class RVMRun implements IRVM {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
 
-		/**/if (lsp != sp)
-			throw new RuntimeException();
+//		/**/if (lsp != sp)
+//			throw new RuntimeException();
 
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1420,8 +1420,8 @@ public class RVMRun implements IRVM {
 	public void yield0Helper(Frame lcf, Object[] lstack, int lsp, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
-		/**/if (lsp != sp)
-			throw new RuntimeException();
+//		/**/if (lsp != sp)
+//			throw new RuntimeException();
 
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1486,10 +1486,10 @@ public class RVMRun implements IRVM {
 
 	public int jvmNEXT0(Object[] lstack, int spp, Frame lcf) {
 		
-		if (spp != sp) {
-			System.err.println("FIXIT SP adjusted (entry next) " + spp + " should be " + sp);
-			spp = sp;
-		}
+//		if (spp != sp) {
+//			System.err.println("FIXIT SP adjusted (entry next) " + spp + " should be " + sp);
+//			spp = sp;
+//		}
 
 		Coroutine coroutine = (Coroutine) lstack[--spp];
 		// Merged the hasNext and next semantics
@@ -1515,10 +1515,10 @@ public class RVMRun implements IRVM {
 
 		dynRun(coroutine.entryFrame.function.funId, coroutine.entryFrame);
 		
-		if ( lcf.sp != sp ) {
-			System.err.println("FIXIT SP adjusted (return next) " + spp + " != " + sp);
-			spp = sp;
-	    }
+//		if ( lcf.sp != sp ) {
+//			System.err.println("FIXIT SP adjusted (return next) " + spp + " != " + sp);
+//			spp = sp;
+//	    }
 		return lcf.sp;
 	}
 
@@ -1549,8 +1549,8 @@ public class RVMRun implements IRVM {
 	public int jvmOCALL(Object[] lstack, int sop, Frame lcf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 
-		if (sp != sop)
-			throw new RuntimeException();
+//		if (sp != sop)
+//			throw new RuntimeException();
 
 		lcf.sp = sop;
 
