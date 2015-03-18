@@ -44,7 +44,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 public class RVMRun implements IRVM {
 
 	public int sp;
-	public Frame cf; // current frame
+//	public Frame cf; // current frame
 
 	// ----------------------------
 	// Exit stack.
@@ -1269,7 +1269,7 @@ public class RVMRun implements IRVM {
 		Function func = functionStore.get(n);
 
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-		cf = root;
+//		cf = root;
 
 		// stack = cf.stack;
 
@@ -1412,8 +1412,8 @@ public class RVMRun implements IRVM {
 		coroutine.frame = lcf;
 		coroutine.suspended = true;
 
-		/**/cf = lcf.previousCallFrame;
-		/**/sp = lcf.previousCallFrame.sp;
+//		/**/cf = lcf.previousCallFrame;
+//		/**/sp = lcf.previousCallFrame.sp;
 		// /**/ stack = cf.stack;
 	}
 
@@ -1462,7 +1462,7 @@ public class RVMRun implements IRVM {
 		}
 		tmp.previousCallFrame = lcf;
 
-		cf = tmp;
+//		cf = tmp;
 		sp = tmp.sp;
 
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
@@ -1473,7 +1473,7 @@ public class RVMRun implements IRVM {
 			lcf.hotEntryPoint = ep;
 			// lcf.sp = sp;
 
-			sp = cf.previousCallFrame.sp;
+//			sp = cf.previousCallFrame.sp;
 			// cf = cf.previousCallFrame;
 			// stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
@@ -1528,7 +1528,7 @@ public class RVMRun implements IRVM {
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		/**/cf = cof.previousCallFrame;
+//		/**/cf = cof.previousCallFrame;
 		if (cof.previousCallFrame == null) {
 			return Rascal_FALSE;
 		}
@@ -1565,7 +1565,7 @@ public class RVMRun implements IRVM {
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text
 
-			cf = frame;
+//			cf = frame;
 			// stack = cf.stack;
 			sp = frame.sp;
 
@@ -1612,7 +1612,7 @@ public class RVMRun implements IRVM {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text at OCALL
-			cf = frame;
+//			cf = frame;
 			// stack = cf.stack;
 			sp = frame.sp;
 			Object rsult = dynRun(frame.function.funId, frame);
