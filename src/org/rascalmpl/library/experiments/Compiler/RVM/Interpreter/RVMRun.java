@@ -334,8 +334,8 @@ public class RVMRun implements IRVM {
 	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
-		Frame oldCF = cf;
-		cf.sp = sp;
+//		Frame oldCF = cf;
+//		cf.sp = sp;
 
 		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
@@ -344,17 +344,17 @@ public class RVMRun implements IRVM {
 
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-		cf = root;
+//		cf = root;
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i];
+			root.stack[i] = args[i];
 		}
-		Object o = dynRun(func.funId, cf);
+		Object o = dynRun(func.funId, root);
 
-		cf = oldCF;
+//		cf = oldCF;
 		// stack = cf.stack;
-		sp = cf.sp;
+//		sp = cf.sp;
 
 		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
@@ -368,8 +368,8 @@ public class RVMRun implements IRVM {
 	}
 
 	public IValue executeFunction(FunctionInstance func, IValue[] args) {
-		Frame oldCF = cf;
-		cf.sp = sp;
+//		Frame oldCF = cf;
+//		cf.sp = sp;
 
 		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
@@ -377,22 +377,22 @@ public class RVMRun implements IRVM {
 		int oldarity = arity;
 
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-		cf = root;
+//		cf = root;
 
 		// stack = cf.stack;
-		sp = func.function.nlocals;
-		cf.sp = sp;
+//		sp = func.function.nlocals;
+		root.sp = func.function.nlocals;
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i];
+			root.stack[i] = args[i];
 		}
 
-		Object o = dynRun(func.function.funId, cf);
+		Object o = dynRun(func.function.funId, root);
 
-		cf = oldCF;
+//		cf = oldCF;
 		// stack = cf.stack;
-		sp = cf.sp;
+//		sp = cf.sp;
 
 		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
