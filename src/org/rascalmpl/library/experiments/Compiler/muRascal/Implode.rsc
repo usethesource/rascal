@@ -272,6 +272,10 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
                case muCall(preVar(mvar("mstr")), list[MuExp] exps) 								=> muCallMuPrim("mstr", exps)
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
+               case muCall(preVar(mvar("iterator")), [exp1])									=> muCallMuPrim("make_iterator", [exp1])
+               case muCall(preVar(mvar("hasNext")), [exp1])										=> muCallMuPrim("iterator_hasNext", [exp1])
+               case muCall(preVar(mvar("getNext")), [exp1])										=> muCallMuPrim("iterator_next", [exp1])
+               
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
       	       case preLessEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
