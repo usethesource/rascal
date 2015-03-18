@@ -27,17 +27,16 @@ does require an analysis which resolves the locations of each block
 and the labels which are used to jump to. 
 }
 data ControlNode
-  = \block(loc id)
-  | \fork(loc id)
-  | \entry(loc id)
-  | \exit(loc id)
+  = \block(loc id) // intermediate nodes in an executable unit
+  | \entry(loc id) // start node of an executable unit
+  | \exit(loc id)  // exit node of an executable unit
   ;
 
 data ControlEdge
-  = \choice(bool condition)
-  | \case(int index)
-  | \case(str label)
-  | \jump()
+  = \choice(loc id, bool condition) // if-then-else, while, do-while
+  | \case(loc id, int index)        // switch case with an index
+  | \case(loc id, str label)        // switch case with a string
+  | \jump(loc id)                   // unconditional jump
   ;
        
 alias ControlFlow = rel[ControlNode from, ControlEdge edge, ControlNode to];
