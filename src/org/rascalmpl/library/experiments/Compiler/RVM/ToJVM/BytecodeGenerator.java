@@ -909,6 +909,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);
+		
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	/**
@@ -1376,8 +1380,9 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "([Ljava/lang/Object;I)I");
 		mv.visitLookupSwitchInsn(trampolineLabel, intTable, switchTable);
 
