@@ -32,9 +32,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -2062,6 +2064,16 @@ public class Prelude {
 	public void generate(IValue grammar, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
 		pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+	}
+	
+	public void save(IValue grammar, IString path, IEvaluatorContext ctx) {
+		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
+		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(path.getValue())))) {
+			out.writeObject(g);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	// REFLECT -- copy in PreludeCompiled
