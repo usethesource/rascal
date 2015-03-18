@@ -121,103 +121,70 @@ coroutine ENUM_LITERAL(iLit, rVal) {
 }
 
 coroutine ENUM_LIST(iLst, rVal)
-guard { 
-	var len = size_list(iLst); len > 0
-} {
-    var j = 0
-    while(j < len) {
-    	//println("ENUM_LIST, yields", get_list(iLst, j))
-        yield get_list(iLst, j)
-        j = j + 1
+{
+    var iter = iterator(iLst);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
-coroutine ENUM_SET(iSet, rVal) 
-guard { 
-    var iLst = set2list(iSet), 
-        len = size_list(iLst)
-    len > 0 
-}
+coroutine ENUM_SET(iSet, rVal)
 {
-    var j = 0
-    while(j < len) {
-        yield get_list(iLst, j)
-        j = j + 1
+	var iter = iterator(iSet);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
-coroutine ENUM_MAP(iMap, rVal) 
-guard { 
-    var iKlst = keys(iMap), 
-        len = size_list(iKlst) 
-    len > 0 
-}
+coroutine ENUM_MAP(iMap, rVal)
 {
-    var j = 0
-    while(j < len) {
-        yield get_list(iKlst, j)
-        j = j + 1
+  	var iter = iterator(iMap);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
 coroutine ENUM_NODE(iNd, rVal) 
 {
-   var array, iLst, len, j = 0
+   var iter
    
    //println("ENUM_NODE", iNd);
    if(prim("is_appl", iNd)){            	// A appl (concrete) node?
       if(prim("is_concrete_list", iNd)){	// regular(opname(), ...)
-         iLst = prim("get_concrete_list_elements", iNd)
-         len = size_list(iLst)
-         //println("ENUM_NODE", len,  iLst);
+         iter = iterator(prim("get_concrete_list_elements", iNd))
         
-         while(j < len) {
-               yield muprim("subscript_list_mint", iLst, j)
-               j = j + 1
+         while(hasNext(iter)) {
+               yield getNext(iter)
          }
          666
       } else {                                    
         return iNd;                                // Concrete node, but not a concrete list
       }
    } else {                                        // Not a concrete list
-      array = get_children_and_keyword_values(iNd)
-      len = size_array(array)                    
-    
-      if(len > 0){
-         while(j < len) {
-            yield array[j]
-            j = j + 1
-         }
-       }
-    }
+      iter = iterator(get_children_and_keyword_values(iNd))
+      
+      while(hasNext(iter)){
+      	yield getNext(iter)
+     }
+   }  	                  
 }
 
 coroutine ENUM_NODE_NO_KEYWORD_PARAMS(iNd, rVal) 
 {
-   var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
-   
-   //println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
+   var iter = iterator(get_children(iNd));
+  
    // TODO concrete appl case?
-   array = get_children(iNd)
-   len = size_array(array)                    
-    
-   if(len > 0){
-      while(j < len) {
-         yield array[j]
-         j = j + 1
-       }
-       666
-    }
+ 
+   while(hasNext(iter)){
+   		yield getNext(iter)
+   }                  
 }
 
 coroutine ENUM_TUPLE(iTup, rVal)
-guard {
-	var len = size_tuple(iTup); len > 0
-} {
-    var j = 0
-    while(j < len) {
-        yield get_tuple(iTup, j)
-        j = j + 1
+{
+    var iter = iterator(iTup);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
@@ -687,11 +654,6 @@ function GET_LIST(subject) {
 }
 
 function GET_CURSOR(subject) { 
-    /*if(subject[1] < size_list(subject[0])){
-    	println("GET_CURSOR", subject[1], get_list(subject[0], subject[1]))
-    } else {
-    	println("GET_CURSOR", subject[1])
-    }*/	
     return subject[1] 
 }
 
@@ -699,7 +661,6 @@ function MAKE_SUBJECT(iList, cursor) {
    var ar = make_array(2)
    ar[0] = iList
    ar[1] = cursor
-   //println("MAKE_SUBJECT", cursor, iList) 
    return ar
 }
 
@@ -1232,6 +1193,7 @@ function ACCEPT_SET_MATCH(subject) {
    return size_mset(subject) == 0
 }
 
+/*
 coroutine ENUM_MSET(set, rElm) {
     var iLst = mset2list(set), 
         len = size_list(iLst), 
@@ -1241,6 +1203,16 @@ coroutine ENUM_MSET(set, rElm) {
         j = j + 1
     }
 }
+*/
+
+coroutine ENUM_MSET(set, rElm) {
+	var iter = iterator(set)
+	
+	while(hasNext(iter)){
+		yield getNext(iter)
+	}
+}
+
 
 // All coroutines that may occur in a set pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
@@ -1500,40 +1472,30 @@ coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
     DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject) 	
 }
 
-coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst) 
+coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
 {
-    var last = size_list(iLst), 
-        j = 0;
-    //println("DESCENT_AND_MATCH_LIST", iLst, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
-        j = j + 1
+ 	var iter = iterator(iLst);
+    while(hasNext(iter)){
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
 coroutine DESCENT_AND_MATCH_SET(pat, descendantDescriptor, iSet) 
 {
-    var iLst = set2list(iSet), 
-        last = size_list(iLst),
-        j = 0;
-    //println("DESCENT_AND_MATCH_SET", iSet, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
-        j = j + 1
+	var iter = iterator(iSet);
+    while(hasNext(iter)){
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
 coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
 {
-    var iKlst = keys(iMap), 
-        iVlst = values(iMap), 
-        last = size_list(iKlst), 
-        j = 0;
-    //println("DESCENT_AND_MATCH_MAP", iMap, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iKlst, j))
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iVlst, j))  
-        j = j + 1
+	var iter = iterator(iMap),
+	    iKey;
+    while(hasNext(iter)){
+    	iKey = getNext(iter)
+    	DESCENT_AND_MATCH(pat, descendantDescriptor, iKey)
+        DESCENT_AND_MATCH(pat, descendantDescriptor, prim("map_subscript", iMap, iKey))
     }
 }
 
@@ -1541,7 +1503,7 @@ coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
 guard
 	prim("should_descent", iNd, descendantDescriptor)
 {
-   var array, iLst, len, children, j = 0, prod, op, opname, sort, val
+   var val, iter;
    
    //println("DESCENT_AND_MATCH_NODE");
    
@@ -1550,15 +1512,10 @@ guard
       //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
       if(prim("is_concrete_list", iNd)){
          //println("DESCENT_AND_MATCH_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
-         iLst = prim("get_nonlayout_args", iNd)
-         len = size_list(iLst)
-         if(len > 0){
-            while(j < len) {
-               val = muprim("subscript_list_mint", iLst, j)
-               //println("DESCENT_AND_MATCH_NODE, list element:", j, val);
-               DESCENT_AND_MATCH(pat,descendantDescriptor,  val)
-               j = j + 1
-            }
+         iter = iterator(prim("get_nonlayout_args", iNd))
+         while(hasNext(iter)) {
+         	val = getNext(iter)
+           	DESCENT_AND_MATCH(pat,descendantDescriptor,  val)
          }
          exhaust
       }  
@@ -1567,38 +1524,30 @@ guard
          exhaust
       }
  
-      iLst = prim("get_appl_args", iNd)
-      //println("DESCENT_AND_MATCH_NODE, is_appl, iLst = ", iLst);
-      len = size_list(iLst)
+      iter = iterator(prim("get_appl_args", iNd))
       
-      while(j < len) {
-            val = muprim("subscript_list_mint", iLst, j)
-            //println("DESCENT_AND_MATCH_NODE, is_appl, arg j = ", j, val);
+      while(hasNext(iter)) {
+            val = getNext(iter)
+            //println("DESCENT_AND_MATCH_NODE, is_appl", val);
             DESCENT_AND_MATCH(pat, descendantDescriptor, val)
-            j = j + 2
       }
       //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
       exhaust
    } 
    //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", get_name(iNd))                                 
    // Not a concrete list or appl
-   array = get_children_and_keyword_values(iNd)
-   len = size_array(array)                    
+   iter = iterator(get_children_and_keyword_values(iNd))                  
     
-   while(j < len) {
-         DESCENT_AND_MATCH(pat, descendantDescriptor, array[j])
-         j = j + 1
+   while(hasNext(iter)) {
+         DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
    }
 }
 
 coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
-    var last = size_tuple(iTup), 
-     	val,
-        j = 0;
-    while(j < last) {
-    	val = get_tuple(iTup, j)
-        DESCENT_AND_MATCH(pat, descendantDescriptor, val)
-        j = j + 1
+    var iter = iterator(iTup)
+
+    while(hasNext(iter)) {
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
@@ -1950,12 +1899,6 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
     	iVal = prim("rebuild", iSubject, iChildren, kwMap);
     	//println("VISIT_NODE returns", iSubject, iVal);
     	return iVal;
-    	
-       /* if(iSubject is constructor){
-            return prim("constructor", muprim("typeOf_constructor", iSubject), iChildren, kwMap)
-        } else {
-            return prim("node", muprim("get_name", iSubject), iChildren, kwMap)
-        }*/
     }
     //println("VISIT_NODE returns", iSubject);
     return iSubject
