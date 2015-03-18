@@ -24,6 +24,7 @@ The implementation in this file is intended to work with [M3] models
 module analysis::flow::ObjectFlow
 
 import List;
+extend analysis::Graph;
 
 data FlowProgram = flowProgram(set[FlowDecl] decls, set[FlowStm] statements);
 
