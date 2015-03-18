@@ -1892,6 +1892,11 @@ MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
 
 MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
+    elemType = translateType(tp);
+    generatorType = getType(exp@\loc);
+    if(generatorType == \list(elemType) || generatorType == \set(elemType)){
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+    }
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
