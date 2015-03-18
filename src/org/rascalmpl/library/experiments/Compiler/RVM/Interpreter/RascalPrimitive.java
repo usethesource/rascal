@@ -118,7 +118,7 @@ public enum RascalPrimitive {
 			@SuppressWarnings("unchecked")
 			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
 			
-			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : new HashMap<String, IValue>();
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
 			if(subject.getType().isAbstractData()){
 				IConstructor cons1 = (IConstructor) subject;
 				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
@@ -6502,6 +6502,7 @@ public enum RascalPrimitive {
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
+	private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
