@@ -5,7 +5,9 @@ import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -1115,6 +1117,40 @@ public enum MuPrimitive {
 		};
 	},
 	
+	make_iterator {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Object iteratee = stack[sp - 1];
+			if(iteratee instanceof Object[]){
+				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+			} else {
+				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
+			}
+			return sp;
+		};
+	},
+	iterator_hasNext {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
+			stack[sp - 1] = vf.bool(iter.hasNext());
+			return sp;
+		};
+	},
+	iterator_next {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
+			stack[sp - 1] = iter.next();
+			return sp;
+		};
+	},
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1229,7 +1265,7 @@ public enum MuPrimitive {
 	mset_set_subtract_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
+			assert arity == 2;
 			ISet set1 = ((ISet) stack[sp - 2]);
 			int n = set1.size();
 			ISet set2 = ((ISet) stack[sp - 1]);
@@ -1241,7 +1277,7 @@ public enum MuPrimitive {
 				}
 			}
 			stack[sp - 2] = mset;
-			return sp -1;
+			return sp - 1;
 		};
 	},
 	
@@ -2240,3 +2276,27 @@ public enum MuPrimitive {
 	}
 	 
 }
+
+class ArrayIterator<T> implements Iterator<T> {
+	  private T array[];
+	  private int pos = 0;
+
+	  public ArrayIterator(T anArray[]) {
+	    array = anArray;
+	  }
+
+	  public boolean hasNext() {
+	    return pos < array.length;
+	  }
+
+	  public T next() throws NoSuchElementException {
+	    if (hasNext())
+	      return array[pos++];
+	    else
+	      throw new NoSuchElementException();
+	  }
+
+	  public void remove() {
+	    throw new UnsupportedOperationException();
+	  }
+	}
