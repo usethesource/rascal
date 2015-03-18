@@ -1,3 +1,10 @@
+@doc{
+Synopsis: mapping all of Java to the object flow language
+
+Description:
+
+More information can be found in [ObjectFlow].
+}
 module lang::java::flow::JavaToObjectFlow
 
 import IO;
