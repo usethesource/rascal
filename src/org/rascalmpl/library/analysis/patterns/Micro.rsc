@@ -54,7 +54,7 @@ public set[MicroPattern] DegenerateState
 	= { functionPointer(), functionObject(), cobolLike() };
 	
 public set[MicroPattern] DegenerateBehavior
-	= { stateless(), commonState(), immutable() };
+	= { stateless(), commonState(), immutable(), record(), dataManager() };
 
 public set[MicroPattern] ControlledCreation
 	= { restrictedCreation(), sampler() };
