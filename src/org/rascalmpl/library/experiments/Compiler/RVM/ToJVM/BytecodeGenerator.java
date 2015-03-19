@@ -436,10 +436,12 @@ public class BytecodeGenerator implements Opcodes {
 //		mv.visitVarInsn(ALOAD, 0);
 //		mv.visitVarInsn(ALOAD, 7);
 //		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 7);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitVarInsn(ALOAD, 7);
+//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
@@ -464,10 +466,12 @@ public class BytecodeGenerator implements Opcodes {
 //		mv.visitVarInsn(ALOAD, 0);
 //		mv.visitVarInsn(ALOAD, 7);
 //		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 7);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitVarInsn(ALOAD, 7);
+//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
