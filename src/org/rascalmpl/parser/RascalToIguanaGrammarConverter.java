@@ -73,6 +73,7 @@ import org.jgll.regex.Star;
 import org.jgll.traversal.ISymbolVisitor;
 import org.jgll.util.CollectionsUtil;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Expression.LessThanOrEq;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.Literal;
 import org.rascalmpl.ast.NullASTVisitor;
@@ -80,9 +81,11 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Equals;
+import org.rascalmpl.ast.Expression.FieldAccess;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
 import org.rascalmpl.ast.Expression.LessThan;
+import org.rascalmpl.ast.Expression.Or;
 import org.rascalmpl.ast.Expression.QualifiedName;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.LocalVariableDeclaration.Default;
@@ -847,7 +850,10 @@ public class RascalToIguanaGrammarConverter {
 			
 			if (!(id.equals("indent") || 
 				  id.equals("println") || 
-				  id.equals("ppLookup"))) {
+				  id.equals("ppLookup") ||
+				  id.equals("endOfInput") ||
+				  id.equals("startsWith") ||
+				  id.equals("endsWith"))) {
 				throw new RuntimeException("Unsupported function: " + id);
 			}
 			
@@ -864,14 +870,32 @@ public class RascalToIguanaGrammarConverter {
 				return indent(args[0]);
 			else if (id.equals("ppLookup"))
 				return ppLookup(args[0]);
+			else if (id.equals("endOfInput"))
+				return endOfFile(args[0]);
+			else if (id.equals("startsWith"))
+				return startsWith(args[0], args[1]);
+			else if (id.equals("endsWith")) 
+				return endsWith(args[0], args[1]);
 			else 
 				return println(args);
+		}
+		
+		@Override
+		public AbstractAST visitExpressionOr(Or x) {
+			return or((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this), 
+					  (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionLessThan(LessThan x) {
 			return less((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
 				        (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionLessThanOrEq(LessThanOrEq x) {
+			return lessEq((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
+				          (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
@@ -890,6 +914,25 @@ public class RascalToIguanaGrammarConverter {
 		public AbstractAST visitExpressionEquals(Equals x) {
 			return equal((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
 					     (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionFieldAccess(FieldAccess x) {
+			String name = Names.name(x.getField());
+			
+			Expression expression = x.getExpression();
+			
+			if (!(expression instanceof QualifiedName))
+				throw new RuntimeException("Unsupported expression: " + this);
+			
+			QualifiedName qname = (QualifiedName) expression;
+			
+			if (name.equals("lExt"))
+				return lExt(Names.name(Names.lastName(qname.getQualifiedName())));
+			else if (name.equals("rExt"))
+				return rExt(Names.name(Names.lastName(qname.getQualifiedName())));
+			else
+				throw new RuntimeException("Unsupported expression: " + this);
 		}
 		
 		@Override
