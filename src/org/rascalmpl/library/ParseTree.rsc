@@ -188,11 +188,11 @@ data Symbol(list[Tree] actuals = [], map[str,Tree] keywordActuals = ());
 // data dependent
 data Symbol
      = scope(list[Symbol] symbols)
-     | \if(Tree condition, Symbol symbol)
-     | \ifElse(Tree condition, Symbol ifSymbol, Symbol thenSymbol)
-     | \when(Symbol symbol, Tree condition)
-     | \do(Symbol symbol, Tree block)
-     | \while(Tree condition, Symbol symbol)
+     | \if(str condition, Symbol symbol)
+     | \ifElse(str condition, Symbol ifSymbol, Symbol thenSymbol)
+     | \when(Symbol symbol, str condition)
+     | \do(Symbol symbol, str block)
+     | \while(str condition, Symbol symbol)
      | \align(Symbol symbol)
      | \offside(Symbol symbol)
      ;  

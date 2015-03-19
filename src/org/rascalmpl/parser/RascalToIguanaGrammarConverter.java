@@ -29,6 +29,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -98,6 +99,10 @@ import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -680,11 +685,17 @@ public class RascalToIguanaGrammarConverter {
 	}
 	
 	private IConstructor getBlock(IConstructor symbol) {
-		return (IConstructor) symbol.get("block");
+		IString block = (IString) symbol.get("block");
+		return parseRascal("Statement", block.getValue());
 	}
 	
 	private IConstructor getCondition(IConstructor symbol) {
-		return (IConstructor) symbol.get("condition");
+		 IString condition = (IString) symbol.get("condition");
+		 return  parseRascal("Expression", condition.getValue());
+	}
+	
+	private IConstructor parseRascal(String nt, String input) {
+		 return new RascalParser().parse(nt, URIUtil.rootScheme("datadep"), input.toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	private IConstructor getThenPart(IConstructor symbol) {
