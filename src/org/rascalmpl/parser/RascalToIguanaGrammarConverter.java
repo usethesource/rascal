@@ -849,7 +849,8 @@ public class RascalToIguanaGrammarConverter {
 			String id = ((org.jgll.datadependent.ast.Expression.Name) fun).getName();
 			
 			if (!(id.equals("indent") || 
-				  id.equals("println") || 
+				  id.equals("println") ||
+				  id.equals("ppDeclare") ||
 				  id.equals("ppLookup") ||
 				  id.equals("endOfInput") ||
 				  id.equals("startsWith") ||
@@ -868,6 +869,8 @@ public class RascalToIguanaGrammarConverter {
 			
 			if (id.equals("indent")) 
 				return indent(args[0]);
+			else if (id.equals("ppDeclare"))
+				return ppDeclare(args[0], args[1]);
 			else if (id.equals("ppLookup"))
 				return ppLookup(args[0]);
 			else if (id.equals("endOfInput"))
