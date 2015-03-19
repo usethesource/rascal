@@ -62,15 +62,15 @@ public Symbol sym2symbol(Sym sym) {
     case dependScope(Sym+ syms) :
       return \scope(args2symbols(syms));
     case dependCode(Sym s, Statement block) :
-      return \do(sym2symbol(s), block);
+      return \do(sym2symbol(s), "<block>");
     case dependConditionAfter(Sym s, Expression condition) :
-      return \when(sym2symbol(s), condition);
+      return \when(sym2symbol(s), "<condition>");
     case dependConditionBefore(Expression condition, Sym s) :
-      return \if(condition, sym2symbol(s));
+      return \if("<condition>", sym2symbol(s));
     case dependAlternative(Expression condition, Sym i, Sym e) :
-      return \ifElse(condition, sym2symbol(i), sym2symbol(e));
+      return \ifElse("<condition>", sym2symbol(i), sym2symbol(e));
     case dependLoop(Expression condition, Sym s) :
-      return \while(condition, sym2symbol(s));
+      return \while("<condition>", sym2symbol(s));
     case \start(Nonterminal n) : 
       return \start(sort("<n>"));
     case literal(StringConstant l): 
