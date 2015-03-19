@@ -335,7 +335,12 @@ INS tr(muInt(int n)) = [LOADINT(n)];
 default INS tr(muCon(value c)) {
 	tp = typeOf(c);
 	
-	return isADTType(tp) && \type(_,_) !:= c && node nd := c ? [LOADCONSTRCON(symbolToValue(tp), toString(nd))] :[LOADCON(c)];
+	if(isADTType(tp) && tp != adt("Symbol",[]) && \type(_,_) !:= c && node nd := c){
+		res =  [LOADCONSTRCON(symbolToValue(tp), toString(nd))];
+		//println("muCon(<c>): <tp>, <res>");
+		return res;
+	}
+	return [LOADCON(c)];	
 }		
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];

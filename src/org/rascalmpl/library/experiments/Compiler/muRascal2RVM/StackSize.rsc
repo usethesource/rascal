@@ -11,7 +11,7 @@ public int estimate_stack_size(MuExp exp) = addSlack(estimate(exp));
 	
 public int estimate_stack_size(list[MuExp] exps) = addSlack(estimate_list(exps));
 
-int addSlack(int e) = e + (e+40)/10;
+int addSlack(int e) = 10 + e + (e+40)/10;
 
 private int estimate(muLab(str name)) = 1;
 
@@ -25,8 +25,6 @@ private int estimate_arg_list(list[MuExp] args) = ( 1 | max(it, i + estimate(arg
 
 private int estimate(muBool(bool b)) = 1;
 private int estimate(muInt(int n)) = 1;
-//private int estimate(muCon("true")) = 1;
-//private int estimate(muCon("false")) = 1;
 private default int estimate(muCon(value v)) = 1;
 
 private int estimate(muTypeCon(Symbol sym)) = 1;
@@ -74,7 +72,7 @@ private int estimate(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[
     max(max(estimate(cond), estimate_list(thenPart)), estimate_list(elsePart));
 
 private int estimate(muWhile(str label, MuExp cond, list[MuExp] body)) = 
-    max(estimate(cond), estimate_list(body));
+    1 + max(estimate(cond), estimate_list(body));
  
 private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
@@ -129,4 +127,4 @@ private int estimate(muContVar(str fuid)) = 1;
 private int estimate(muReset(MuExp fun)) = estimate(fun);
 private int estimate(muShift(MuExp body)) = estimate(body);
 
-private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; }
+private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; } 
