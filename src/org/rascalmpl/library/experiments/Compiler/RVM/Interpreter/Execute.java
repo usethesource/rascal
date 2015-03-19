@@ -588,12 +588,17 @@ public class Execute {
 			
 			case "SWITCH":
 				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
-								 getStrField(instruction, "caseDefault"));
+								 getStrField(instruction, "caseDefault"),
+								 getBooleanField(instruction, "useConcreteFingerprint"));
 				break;
 				
 			case "RESETLOCS":
 				codeblock.RESETLOCS(getListField(instruction, "positions"));
 				break;	
+				
+			case "LOADCONSTRCON":
+				codeblock.LOADCONSTRCON((IConstructor) instruction.get("reified"),  getStrField(instruction, "repr"));
+				break;
 				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);

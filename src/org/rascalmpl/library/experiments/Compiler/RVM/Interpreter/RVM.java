@@ -199,7 +199,7 @@ public class RVM implements java.io.Serializable {
 		int nov = overloadedStore.size();
 		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
 
@@ -404,6 +404,11 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("asString cannot convert: " + o);
 	}
 	
+	private String asString(Object o, int w){
+		String repr = asString(o);
+		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
+	}
+	
 	private void finalizeInstructions(){
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
@@ -572,6 +577,18 @@ public class RVM implements java.io.Serializable {
 				
 				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
 				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
+				assert cf.function.isCoroutine || 
+				       cf.function.name.contains("Library/") ||
+				       cf.function.name.contains("/RASCAL_ALL") ||
+				       cf.function.name.contains("/PHI") ||
+				       cf.function.name.contains("/GEN_") ||
+				       cf.function.name.contains("/ALL_") ||
+				       cf.function.name.contains("/OR_") ||
+				       cf.function.name.contains("/IMPLICATION_") ||
+				       cf.function.name.contains("/EQUIVALENCE_") ||
+				       cf.function.name.contains("/closure") ||
+				       cf.stack[cf.function.nformals - 1] instanceof HashMap<?,?>:
+															 "HashMap with keyword parameters expected, got " + cf.stack[cf.function.nformals - 1];
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
@@ -582,7 +599,7 @@ public class RVM implements java.io.Serializable {
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i], 40));
 					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
@@ -724,10 +741,11 @@ public class RVM implements java.io.Serializable {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					boolean useConcreteFingerprint = instructions[pc++] == 1;
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val, useConcreteFingerprint));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
-					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
 							stack[sp++] = vf.bool(false);
 							pc = caseDefault;

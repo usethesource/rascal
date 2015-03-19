@@ -7,10 +7,20 @@ import List;
 import Map;
 
 import experiments::Compiler::RVM::AST;
+import experiments::Compiler::muRascal2RVM::CodeValidator;
 
 alias INS = list[Instruction];
 
-INS peephole(INS instructions) = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
+INS peephole(INS instructions) {
+	
+	//return instructions;
+	res = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
+	//incorrect = validate(res);
+	//if(incorrect != ()){
+	//	throw "Validation: <incorrect>";
+	//}
+	return res;
+}
 
 INS peephole1(INS instructions, bool isSplit){
 	if(size(instructions) < 500){
@@ -103,7 +113,7 @@ INS unused_labels([ *Instruction instructions ]){
        case JMPTRUE(lab): used += lab;
        case TYPESWITCH(labs): used += toSet(labs);
        case JMPINDEXED(labs): used += toSet(labs);
-       case SWITCH(labs, def): used += range(labs) + def;
+       case SWITCH(labs, def, useConcreteFingerprint): used += range(labs) + def;
     };
     return 
       for(ins <- instructions){

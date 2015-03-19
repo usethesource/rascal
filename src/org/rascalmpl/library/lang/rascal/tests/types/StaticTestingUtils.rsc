@@ -168,5 +168,8 @@ void makeModule(str name, str body){
 	}
    
 	mloc = |test-modules:///<name>.rsc|;
-    writeFile(mloc, "module <name>\n<body>");
+    writeFile(mloc, "module <name>
+                     <body>");
+    println("makeModule: <name>, <body>");
+    println("<test_modules>/<name>.rsc: <readFile(mloc)>");
 }

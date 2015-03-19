@@ -60,7 +60,7 @@ alias UID = int;                                    // A UID is a unique identif
 
 alias FUID = str; 
 
-public Configuration getConfiguration() { return config; }
+private Configuration getConfiguration() { return config; }
 
 public map[UID uid, tuple[FUID fuid, int pos] fuid2pos] uid2addr = ();	
 													// map uids to FUIDs and positions
@@ -79,7 +79,7 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 private set[UID] constructors = {};					// declared constructors
 
 public bool isConstructor(UID uid) = uid in constructors;
-public set[UID] getConstructors() = constructors;
+//public set[UID] getConstructors() = constructors;
 
 public set[UID] variables = {};						// declared variables
 
@@ -696,6 +696,22 @@ str convert2fuid(UID uid) {
 	}
 	//println("convert2fuid(<uid>) =\> <name>");
 	return name;
+}
+
+public MuExp getConstructor(str cons) {
+   cons = unescape(cons);
+   uid = -1;
+   for(c <- constructors){
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
+     if(cons == getSimpleName(getConfiguration().store[c].name)){
+        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        uid = c;
+        break;
+     }
+   }
+   if(uid < 0)
+      throw("No definition for constructor: <cons>");
+   return muConstr(convert2fuid(uid));
 }
 
 public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
