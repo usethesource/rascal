@@ -183,6 +183,7 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
 "lang/rascal/types/tests/AbstractKindTests",
 "lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/TypeInstantiationTests",
 "lang/rascal/types/tests/UtilTests",
 "lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
