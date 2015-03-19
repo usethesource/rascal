@@ -104,8 +104,8 @@ syntax Exp  =
 			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"
-			| muOne2:                   "one" "(" {Exp ","}+ exps ")"
-			| muAll:                    "all" "(" {Exp ","}+ exps ")"
+			//| muOne2:                   "one" "(" {Exp ","}+ exps ")"
+			//| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
 			| muCall: 					Exp!muReturn!muYield0!muYield1!muYield2!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"

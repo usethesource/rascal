@@ -4,6 +4,7 @@ import IO;
 import Type;
 import List;
 import ListRelation;
+import Node;
 import Message;
 import String;
 import experiments::Compiler::RVM::AST;
@@ -15,6 +16,7 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
@@ -87,8 +89,20 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
+//bool producesValue(muLab(_)) = false;
+
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+
+bool producesValue(muBreak(_)) = false;
+bool producesValue(muContinue(_)) = false;
+bool producesValue(muFail(_)) = false;
+bool producesValue(muFailReturn(_)) = false;
+
 bool producesValue(muReturn0()) = false;
+
+//bool producesValue(muYield0()) = false;
+//bool producesValue(muExhaust()) = false;
+
 bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
@@ -227,7 +241,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
@@ -318,7 +332,16 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) = [LOADCON(c)];
+default INS tr(muCon(value c)) {
+	tp = typeOf(c);
+	
+	if(isADTType(tp) && tp != adt("Symbol",[]) && \type(_,_) !:= c && node nd := c){
+		res =  [LOADCONSTRCON(symbolToValue(tp), toString(nd))];
+		//println("muCon(<c>): <tp>, <res>");
+		return res;
+	}
+	return [LOADCON(c)];	
+}		
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
@@ -719,7 +742,7 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 	
-INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
    labels = ();
@@ -731,7 +754,7 @@ INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    }
 	 
    caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
-   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+   return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
 }
 
 // Multi/One/All/Or outside conditional context

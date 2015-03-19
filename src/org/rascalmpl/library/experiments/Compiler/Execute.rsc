@@ -140,13 +140,18 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    									   imported_functions, 
    									   imported_overloaded_functions, imported_overloading_resolvers, 
    									   arguments, debug, testsuite, profile, trackCalls, coverage);
-   println("Result = <v>, [<t> msec]");
+   if(!testsuite){
+   	println("Result = <v>, [<t> msec]");
+   }	
    return <v, t>;
 }
 
 value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage);
-	return v;
+	//if(testsuite){
+ //  	   return printTestReport(v);
+ //   }
+   return v;
 }
 
 value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
@@ -156,7 +161,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
 
 value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+   res = execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
 tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
@@ -171,7 +176,7 @@ value executeTests(loc rascalSource){
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
 
-void printTestReport(value results){
+bool printTestReport(value results){
   if(lrel[loc,int,str] test_results := results){
 	  failed = test_results[_,0];
 	  if(size(failed) > 0){
@@ -187,7 +192,8 @@ void printTestReport(value results){
 		      println("<l>: IGNORED");
 		  }
 	  }
-	  println("\nSUMMARY: " + makeTestSummary(test_results));
+	  println("\nTEST SUMMARY: " + makeTestSummary(test_results));
+	  return size(failed) == 0;
   } else {
     throw "cannot create report for test results: <results>";
   }

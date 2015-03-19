@@ -115,16 +115,16 @@ list[str] typeTests = [
 "StaticTestingUtilsTests",	// OK
 "AccumulatingTCTests",		// OK
 //"AliasTCTests",			// C & I: Overflow/LOOP?
-//"AllStaticIssues"			// C & I: DOES NOT TERMINATE
+"AllStaticIssues",			// C & I: DOES NOT TERMINATE
 "AnnotationTCTests",		// OK
 "AssignmentTCTests",		// OK
-"CallTCTests",				// C: 1 fail, I : 1 fail
-"ComprehensionTCTests",		// C: 2 fail, I: 2 fail
+"CallTCTests",				// C: 1 fail == I : 1 fail
+"ComprehensionTCTests",		// C: 2 fail, == I: 2 fail
 "DataDeclarationTCTests",	// OK
 "DataTypeTCTests",			// OK
-"DeclarationTCTests",		// C: 18 fail, I : 20 fail
+"DeclarationTCTests",		// OK
 "ImportTCTests",			// OK
-"PatternTCTests",			// OK
+"PatternTCTests",			// C:3 crash I : OK
 "ProjectionTCTests",		// OK
 "RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
@@ -166,22 +166,24 @@ list[str] files_with_tests =
 "demo/Uninit",                                      // OK
 "lang/rascal/format/Escape",                        // OK
 "lang/rascal/format/Grammar",                       // OK
-"lang/rascal/grammar/definition/Characters",        // OK
-"lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
 "lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
 "lang/rascal/grammar/tests/PicoGrammar",            // ok
 "lang/rascal/grammar/tests/CGrammar",            	// ok
+"lang/rascal/grammar/tests/CharactersTests", 
+"lang/rascal/grammar/tests/LiteralsTests", 
 "lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
 //"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+"lang/rascal/meta/ModuleInfoTests",  
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
 "lang/rascal/types/tests/AbstractKindTests",
 "lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/TypeInstantiationTests",
 "lang/rascal/types/tests/UtilTests",
 "lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK

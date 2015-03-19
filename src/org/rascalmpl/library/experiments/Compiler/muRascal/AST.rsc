@@ -61,6 +61,7 @@ public data MuExp =
 		  | muInt(int n)										// muRascal integer constant
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
             													// Some special cases are handled by preprocessor, see below.
+          | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
           | muLab(str name)										// Label
           
           | muFun1(str fuid)							            // *muRascal function constant: functions at the root
@@ -142,7 +143,7 @@ public data MuExp =
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
          	
-          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
+          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
@@ -170,9 +171,9 @@ public data MuExp =
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne1(MuExp exp)                                   // Expression that always produces only the first value
-          | muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
-          | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
+          //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
+         // | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+         // | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
           // Exceptions
           
@@ -378,6 +379,11 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2)], loc src) = muCon(<v1, 
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6)], loc src) = muCon(<v1, v2, v3, v4, v5, v6>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
 
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);

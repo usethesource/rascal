@@ -1,16 +1,18 @@
 module experiments::Compiler::Examples::Tst1
 
-//import lang::rascal::tests::types::StaticTestingUtils;
-import IO;
+import lang::rascal::tests::types::StaticTestingUtils;	
 
 value main(list[value] args) {
-
-
-int x;
-
-x = x ? 1;
-x = x ? 2;
-
-
-return x == 1;
-}
+	return
+	checkOK("13;",
+		//initialDecls = 
+		//["data Tree = char(int character);",
+		// "public data TreeSearchResult[&T\<:Tree] = treeFound(&T tree) | treeNotFound();",
+		// "public default TreeSearchResult[&T\<:Tree] treeAt(type[&T\<:Tree] t, loc l, Tree root) = treeNotFound();",
+		//  "public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);"				 
+		//				 
+		//				 
+		//				 ]
+		importedModules=["ParseTree"]
+			);
+}		

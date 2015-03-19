@@ -33,7 +33,7 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
 MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp) ;
 MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
-    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
+    muCallMuPrim("not_mbool", [ makeBoolExp("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
     muMulti(muApply(translatePat(pat), [ translate(exp) ]));
@@ -791,19 +791,30 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 
 // is  a pattern a concretePattern?
     
-bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
-	isConcreteType(getType(p@\loc));
-	
-bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
-	isConcreteType(getType(p@\loc));	
-	
-bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-	isConcretePattern(pattern);	
+//bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
+//	isConcreteType(getType(p@\loc));
+//	
+//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
+//	isConcreteType(getType(p@\loc));	
+//	
+//bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+//	isConcretePattern(pattern);	
+//
+//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+//	isConcretePattern(pattern);
+//		
+//default bool isConcretePattern(Pattern p) {
+//	println("isConcretePattern: <getType(p@\loc)>");
+//	return false;
+//
+//}
 
-bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-	isConcretePattern(pattern);
-		
-default bool isConcretePattern(Pattern p) = false;
+bool isConcretePattern(Pattern p) {
+	patType = getType(p@\loc);
+	res = isNonTerminalType(patType);
+	println("isConcretePattern: <res>, <patType>, <p>");
+	return res;
+}
 
 // get the types and constructor names from a pattern
 
@@ -919,7 +930,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	      ifname = nextLabel();
           enterBacktrackingScope(ifname);
           conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeMu("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+          mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	      leaveBacktrackingScope();
 	      return mubody;
   	  }
@@ -973,7 +984,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(fname, makeMu("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
