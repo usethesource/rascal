@@ -1333,6 +1333,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymEndOfFile(Sym.EndOfFile x) { 
+    return null; 
+  }
+
   public T visitSymEndOfLine(Sym.EndOfLine x) { 
     return null; 
   }

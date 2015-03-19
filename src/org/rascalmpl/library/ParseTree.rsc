@@ -213,7 +213,8 @@ data Condition
      | \delete(Symbol symbol)
      | \at-column(int column) 
      | \begin-of-line()  
-     | \end-of-line()  
+     | \end-of-line()
+     | \end-of-file()
      | \except(str label)
      ;
 
