@@ -44,11 +44,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 public class RVMRun implements IRVM {
 
 	public int sp;
-//	public Frame cf; // current frame
 
 	// ----------------------------
-	// Exit stack.
+	// Exit stack, cf.
 	// public Object[] stack;
+    // public Frame cf; // current frame
 
 	public IValueFactory vf;
 
@@ -1276,7 +1276,7 @@ public class RVMRun implements IRVM {
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
 
-		sp = func.nlocals;
+//		sp = func.nlocals;
 		root.sp = func.nlocals;
 
 		Object result = dynRun(n, root);
@@ -1435,7 +1435,7 @@ public class RVMRun implements IRVM {
 		coroutine.suspended = true;
 
 		// cf = lcf.previousCallFrame;
-		sp = lcf.previousCallFrame.sp;
+//		sp = lcf.previousCallFrame.sp;
 		// stack = cf.stack;
 	}
 
@@ -1463,7 +1463,7 @@ public class RVMRun implements IRVM {
 		tmp.previousCallFrame = lcf;
 
 //		cf = tmp;
-		sp = tmp.sp;
+//		sp = tmp.sp;
 
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
@@ -1509,7 +1509,7 @@ public class RVMRun implements IRVM {
 
 		coroutine.frame.previousCallFrame = lcf;
 
-		sp = coroutine.entryFrame.sp;
+//		sp = coroutine.entryFrame.sp;
 		// cf = coroutine.entryFrame;
 		// stack = cf.stack;
 
@@ -1535,7 +1535,7 @@ public class RVMRun implements IRVM {
 		cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
 
 		// /**/ stack = cof.previousCallFrame.stack;
-		/**/sp = cof.previousCallFrame.sp;
+//		/**/sp = cof.previousCallFrame.sp;
 
 		return NONE;// i.e., signal a failure;
 	}
@@ -1567,7 +1567,7 @@ public class RVMRun implements IRVM {
 
 //			cf = frame;
 			// stack = cf.stack;
-			sp = frame.sp;
+//			sp = frame.sp;
 
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
@@ -1614,7 +1614,7 @@ public class RVMRun implements IRVM {
 			stackPointerAdjusted = true; // See text at OCALL
 //			cf = frame;
 			// stack = cf.stack;
-			sp = frame.sp;
+//			sp = frame.sp;
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
 				return lcf.sp; // Alternative matched.
