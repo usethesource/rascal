@@ -526,11 +526,12 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName(getName(symbol));
 
 			case "layouts":
-				String name = getName(symbol);
-				if (name.equals(layout.getName()))
-					return layout;
-				else 
-					return null;
+				if (layout != null) {
+					String name = getName(symbol);
+					if (name.equals(layout.getName()))
+						return layout;
+				} 
+				return null;
 				
 			// DD part:
 				
@@ -602,6 +603,10 @@ public class RascalToIguanaGrammarConverter {
 	
 				case "end-of-line":
 					set.add(new PositionalCondition(ConditionType.END_OF_LINE));
+					break;
+					
+				case "end-of-file":
+					set.add(new PositionalCondition(ConditionType.END_OF_FILE));
 					break;
 	
 				case "except":

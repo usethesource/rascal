@@ -105,6 +105,8 @@ public Symbol sym2symbol(Sym sym) {
       return conditional(sym2symbol(s), {\begin-of-line()});
     case endOfLine(Sym s) : 
       return conditional(sym2symbol(s), {\end-of-line()});
+    case endOfFile(Sym s) : 
+      return conditional(sym2symbol(s), {\end-of-file()});
     case column(Sym s, IntegerLiteral i) : 
       return conditional(sym2symbol(s), {\at-column(toInt("<i>"))}); 
     case follow(Sym s, Sym r) : 

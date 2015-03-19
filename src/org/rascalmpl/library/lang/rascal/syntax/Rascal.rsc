@@ -128,7 +128,8 @@ syntax Sym
 	| empty: "()"
 // conditionals
 	| column: Sym symbol "@" IntegerLiteral column 
-	| endOfLine: Sym symbol "$" 
+	| endOfLine: Sym symbol "$" !>> "$"
+	| endOfFile: Sym symbol "$$"
 	| startOfLine: "^" Sym symbol
 	| except:   Sym symbol "!" NonterminalLabel label
 	> \dependAlign: "align" Sym symbol
