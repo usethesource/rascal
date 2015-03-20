@@ -32,6 +32,7 @@ public class Function {
 	 int[] types;
 	 int[] handlers;
 	 
+	 public IList exceptions = null ;
 	 public int continuationPoints = 0;
 	 
 	 boolean isCoroutine = false;
@@ -60,7 +61,7 @@ public class Function {
 	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
 		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints,false);
-
+		codeEmittor.emitExceptionTable(exceptions) ;
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -103,6 +104,7 @@ public class Function {
 			handlers[i] = codeblock.getLabelPC(handler);			
 			i++;
 		}
+		this.exceptions = exceptions ;
 	}
 	
 	public int getHandler(final int pc, final Type type) {
