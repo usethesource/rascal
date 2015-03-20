@@ -323,6 +323,10 @@ public java void generate(type[&T<:Tree] begin, str input, loc l);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
+public java void save(type[&T<:Tree] begin, str path);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses information about syntax definitions at call site}
 public java void iparse(type[&T<:Tree] begin, str input);
 
 @doc{
