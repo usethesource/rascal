@@ -97,7 +97,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 541 * mid.hashCode() + 607 * expression.hashCode() + 641 * tail.hashCode() ; 
+      return 919 + 149 * mid.hashCode() + 809 * expression.hashCode() + 509 * tail.hashCode() ; 
     } 
   
     
@@ -166,7 +166,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 103 * post.hashCode() ; 
+      return 641 + 691 * post.hashCode() ; 
     } 
   
     

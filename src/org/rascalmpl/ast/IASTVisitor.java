@@ -675,6 +675,8 @@ public interface IASTVisitor<T> {
 
   public T visitSymEmpty(Sym.Empty x);
 
+  public T visitSymEndOfFile(Sym.EndOfFile x);
+
   public T visitSymEndOfLine(Sym.EndOfLine x);
 
   public T visitSymExcept(Sym.Except x);
