@@ -868,7 +868,7 @@ public class RascalToIguanaGrammarConverter {
 				  id.equals("println") ||
 				  id.equals("ppDeclare") ||
 				  id.equals("ppLookup") ||
-				  id.equals("endOfInput") ||
+				  id.equals("endOfFile") ||
 				  id.equals("startsWith") ||
 				  id.equals("endsWith"))) {
 				throw new RuntimeException("Unsupported function: " + id);
@@ -889,7 +889,7 @@ public class RascalToIguanaGrammarConverter {
 				return ppDeclare(args[0], args[1]);
 			else if (id.equals("ppLookup"))
 				return ppLookup(args[0]);
-			else if (id.equals("endOfInput"))
+			else if (id.equals("endOfFile"))
 				return endOfFile(args[0]);
 			else if (id.equals("startsWith"))
 				return startsWith(args[0], args[1]);
