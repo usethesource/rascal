@@ -70,7 +70,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 ; 
+      return 911 ; 
     } 
   
     	
@@ -112,7 +112,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 821 + 173 * name.hashCode() ; 
+      return 811 + 911 * name.hashCode() ; 
     } 
   
     
