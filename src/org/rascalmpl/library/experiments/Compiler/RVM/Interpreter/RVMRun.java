@@ -43,17 +43,20 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 
 public class RVMRun implements IRVM {
 
-	public int sp;
 
 	// ----------------------------
-	// Exit stack, cf.
+	// Exit stack, cf, sp, realized :)
 	// public Object[] stack;
     // public Frame cf; // current frame
+	// public int sp;
+	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 
 	public IValueFactory vf;
 
 	public static IBool Rascal_TRUE;
 	public static IBool Rascal_FALSE;
+	public static IInteger Rascal_ZERO ;
+	public static IInteger Rascal_ONE ;
 
 	private final TypeFactory tf;
 
@@ -161,6 +164,8 @@ public class RVMRun implements IRVM {
 
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+		Rascal_ZERO = vf.integer(0) ;
+		Rascal_ONE = vf.integer(1) ;
 
 		// Return types used in code generator
 		NONE = vf.string("$nothing$");

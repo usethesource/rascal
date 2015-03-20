@@ -18,7 +18,7 @@ public class LoadInt extends Instruction {
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSI("insnLOADINT", nval, debug);
+		codeEmittor.emitInlineLoadInt(nval, debug);
 		codeblock.addCode1(opcode.getOpcode(), nval);
 	}
 }
