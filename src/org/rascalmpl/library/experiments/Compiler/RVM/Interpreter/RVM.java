@@ -1455,12 +1455,15 @@ public class RVM implements java.io.Serializable {
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
-						if(kargs.containsKey(name)) {
-							val = kargs.get(name);
-							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-								stack[sp++] = val;
-								continue NEXT_INSTRUCTION;
+						Object okargs = f.stack[f.function.nformals - 1];
+						if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+							HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+							if(kargs.containsKey(name)) {
+								val = kargs.get(name);
+								if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = val;
+									continue NEXT_INSTRUCTION;
+								}
 							}
 						}
 					}				
@@ -1471,25 +1474,30 @@ public class RVM implements java.io.Serializable {
 				{
 					varScope = CodeBlock.fetchArg1(instruction);
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
-					
+
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						if (f.scopeId == varScope) {	
-							HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
-							if(kargs.containsKey(name)) {
-								val = kargs.get(name);
-								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-									stack[sp++] = val;
-									continue NEXT_INSTRUCTION;
-								//}
-							}
-							defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
-							
-							if(defaults.containsKey(name)) {
-								defaultValue = defaults.get(name);
-								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-									stack[sp++] = defaultValue.getValue();
-									continue NEXT_INSTRUCTION;
-								//}
+							if(f.function.nformals > 0){
+								Object okargs = f.stack[f.function.nformals - 1];
+								if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+									HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+									if(kargs.containsKey(name)) {
+										val = kargs.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = val;
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+									defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+
+									if(defaults.containsKey(name)) {
+										defaultValue = defaults.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = defaultValue.getValue();
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+								}
 							}
 						}
 					}				
@@ -1501,11 +1509,43 @@ public class RVM implements java.io.Serializable {
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
 					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
-					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
+					kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
-					throw new CompilerError("OP_LOADVARKWP not yet implemented", cf);
+				{
+					varScope = CodeBlock.fetchArg1(instruction);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
+					val = (IValue) stack[sp - 1];
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						if (f.scopeId == varScope) {
+							if(f.function.nformals > 0){
+								Object okargs = f.stack[f.function.nformals - 1];
+								if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+									kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+									if(kargs.containsKey(name)) {
+										val = kargs.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										kargs.put(name,  val);
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+									defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+
+									if(defaults.containsKey(name)) {
+										defaultValue = defaults.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = defaultValue.getValue();
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+								}
+							}
+						}
+					}				
+						
+					throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope, cf);
+				}
 					
 				case Opcode.OP_LOADCONT:
 					s = CodeBlock.fetchArg1(instruction);

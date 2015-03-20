@@ -249,7 +249,8 @@ public class CodeBlock {
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
+			return getFunctionIndex(name);
+			//throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
 		}
 		return n;
 	}
