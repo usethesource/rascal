@@ -411,7 +411,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ACONST_NULL);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 1);
-		mv.visitIincInsn(2, -1);
+// is this a bug ???		mv.visitIincInsn(2, -1);
 		mv.visitVarInsn(ILOAD, 2);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ALOAD, 7);
@@ -1314,7 +1314,7 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
-	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean debug) {
+	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean concrete, boolean debug) {
 		if (!emit)
 			return;
 
@@ -1342,20 +1342,26 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ILOAD, SP);
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "([Ljava/lang/Object;I)I");
+		if ( concrete )
+			mv.visitInsn(ICONST_1);
+		else
+			mv.visitInsn(ICONST_0);
+			
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "switchHelper", "([Ljava/lang/Object;IZ)I");
 		mv.visitLookupSwitchInsn(trampolineLabel, intTable, switchTable);
 
 		emitLabel(caseDefault + "_trampoline");
 
 		// In case of default push RASCAL_FALSE on stack. Ask Paul why?.. done
 		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitInsn(DUP);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitInsn(DUP_X1);
-		mv.visitInsn(ICONST_1);
-		mv.visitInsn(IADD);
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+//		mv.visitInsn(DUP);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+//		mv.visitInsn(DUP_X1);
+//		mv.visitInsn(ICONST_1);
+//		mv.visitInsn(IADD);
+//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 		mv.visitInsn(AASTORE);
 
