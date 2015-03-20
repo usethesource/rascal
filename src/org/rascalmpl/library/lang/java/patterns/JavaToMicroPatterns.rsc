@@ -8,6 +8,44 @@ import analysis::patterns::Micro;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
+
+rel[loc entity, MicroPattern pattern] findMicroPatterns(M3 model, set[Declaration] asts) {
+	model = model[@ASTs = asts];
+	return { <e, p> |e <- classes(model) + interfaces(model), <p,f> <- detectors, f(model, e)};
+}
+
+
+private rel[MicroPattern, bool(M3, loc)] detectors = {
+	<designator(), isDesignator>,
+	<taxonomy(), isTaxonomy>,
+	<joiner(), isJoiner>,
+	<pool(), isPool>,
+	<functionPointer(), isFunctionPointer>,
+	<functionObject(), isFunctionObject>,
+	<cobolLike(), isCobolLike>,
+	<stateless(), isStateless>,
+	<commonState(), isCommonState>,
+	<immutable(), isImmutable>,
+	<restrictedCreation(), isRestrictedCreation>,
+	<sampler(), isSampler>,
+	<box(), isBox>,
+	<compoundBox(), isCompoundBox>,
+	<canopy(), isCanopy>,
+	<record(), isRecord>,
+	<dataManager(), isDataManager>,
+	<sink(), isSink>,
+	<outline(), isOutline>,
+	<trait(), isTrait>,
+	<stateMachine(), isStateMachine>,
+	<pureType(), isPureType>,
+	<augmentedType(), isAugmentedType>,
+	<pseudoClass(), isPseudoClass>,
+	<implementor(), isImplementor>,
+	<overrider(), isOverrider>,
+	<extender(), isExtender>
+};
+
+
 anno set[Declaration] M3@ASTs;
 
 @memo
@@ -17,9 +55,6 @@ private Declaration methodAST(M3 m, loc method) {
 	}
 	throw "Cannot find the method in the AST";
 }
-
-private M3 enrichM3(M3 m, set[Declaration] asts) 
-	= m[@ASTs = asts];
 
 private loc Object = |java+class:///java/lang/Object|;
 
@@ -266,7 +301,7 @@ private bool isTrait(M3 m, loc e)
 	;
 		
 @doc{Interfaces with parameter less methods}
-private bool isStatemachine(M3 m, loc e)
+private bool isStateMachine(M3 m, loc e)
 	= isInterface(e)
 	&& fields(m,e) == {}
 	&& all(met <- methods(m, e), endsWith(met.file, "()"))
