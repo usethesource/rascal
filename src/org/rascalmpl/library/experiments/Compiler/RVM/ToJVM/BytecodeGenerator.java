@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -1390,10 +1393,28 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
- 
 		emitIntValue(nval);
-		
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
 		mv.visitInsn(AASTORE);
+	}
+
+	public void emitExceptionTable(IList exceptions) {
+		// TODO emit exception bytecode.
+		for(IValue entry : exceptions) {
+			ITuple tuple = (ITuple) entry;
+			String from = ((IString) tuple.get(0)).getValue();
+			String to = ((IString) tuple.get(1)).getValue();
+			String handler = ((IString) tuple.get(3)).getValue();
+			
+			
+			
+// This might be a real challenge I don't have a RVM.
+//	 Type type = rvm.symbolToType((IConstructor) tuple.get(2));
+
+//   then emit.... 
+		
+		
+		}
+
 	}
 }
