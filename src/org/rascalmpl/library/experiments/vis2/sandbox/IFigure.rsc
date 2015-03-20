@@ -4,10 +4,11 @@ import util::Webserver;
 import lang::json::IO;
 import util::HtmlDisplay;
 import util::Math;
+import experiments::vis2::sandbox::Figure;
 
 private loc base = |std:///experiments/vis2/sandbox|;
 
-public alias Alignment = tuple[num hpos, num vpos];
+// public alias Alignment = tuple[num hpos, num vpos];
 
 public Alignment topLeft      	= <0.0, 0.0>;
 public Alignment topMid         = <0.5, 0.0>;
@@ -21,20 +22,21 @@ public Alignment bottomLeft   	= <0.0, 1.0>;
 public Alignment bottomMid		= <0.5, 1.0>;
 public Alignment bottomRight	= <1.0, 1.0>;
 
-data Event 
+data IEvent 
 	= on()
 	| on(str eventName, void(str, str) callback)
 	;
 
-public data Figure = figure(str id, list[Figure] child);
+public data IFigure = ifigure(str id, list[IFigure] child);
 
-public data Figure = figure(str content);
+public data IFigure = ifigure(str content);
 
-public data Figure = emptyFigure();
+public data IFigure = iemptyFigure();
 
 int seq = 0;
 
 alias Elm = tuple[void(str, str) f, int seq, str id, str begintag, str endtag, str script, int width, int height,
+      int w, int h, 
       Alignment align];
 
 
@@ -56,16 +58,16 @@ public map[str, Elm] widget = ();
 
 public void clearWidget() { widget = ();}
               
-str visitFig(Figure fig) {
-    if (figure(str id, list[Figure] f):= fig) {
+str visitFig(IFigure fig) {
+    if (ifigure(str id, list[IFigure] f):= fig) {
          return 
     "<widget[id].begintag> <for(d<-f){><visitFig(d)><}><widget[id].endtag>\n";
          }
-    if (figure(str content):=fig) return content;
+    if (ifigure(str content):=fig) return content;
     return "";
     }
     
-Figure fig;
+IFigure fig;
                   
 str getIntro() {
    res = "\<html\>
@@ -141,7 +143,8 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
-str innerFigureBegin(Figure fig1) {
+str innerFigureBegin(IFigure fig1) {
+     println("inner:<getId(fig1)> <getWidth(fig1)>");
      if (getWidth(fig1)>=0) {
        num x =  getAlign(fig1).hpos * (100 - getWidth(fig1));
        num y =  getAlign(fig1).vpos * (100 -getHeight(fig1));
@@ -153,14 +156,22 @@ str innerFigureBegin(Figure fig1) {
      return "";
      }
      
-str innerFigureEnd(Figure fig1) {    
+str innerFigureEnd(IFigure fig1) {    
      if (getWidth(fig1)>=0) return"\</svg\>";
      return "";
      }
-
+     
 public void render(Figure fig1, int width = 100, int height = 100, 
      Alignment align = centerMid,
-     str fillColor = "white", str strokeColor = "black")
+     str fillColor = "white", str lineColor = "black")
+     {
+        clearWidget();
+        _render(_translate(fig1), width = width, height = height, align = align, fillColor = fillColor, lineColor = lineColor);
+     }
+
+public void _render(IFigure fig1, int width = 100, int height = 100, 
+     Alignment align = centerMid,
+     str fillColor = "white", str lineColor = "black")
      {
      str id = "figureArea";
      str begintag=
@@ -168,6 +179,7 @@ public void render(Figure fig1, int width = 100, int height = 100,
      ' \<svg width=\"<width>px\" height=\"<height>px\"\>
      '\<!-- \<rect id=\"<id>\" width=\"<100>%\" height=\"<100>%\" stroke=\"blue\" fill=\"none\"/\> --\>
      "; 
+    println(getWidth(fig1));
     begintag += innerFigureBegin(fig1);
     str endtag=innerFigureEnd(fig1); 
     endtag += 
@@ -177,50 +189,61 @@ public void render(Figure fig1, int width = 100, int height = 100,
     widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
-        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<strokeColor>\");       
+        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");       
         "
-       , width, height, align >;
+       , width, height, width, height, align >;
        seq=seq+1;
        state += <id, fillColor>;
        old+=fillColor;
-    fig = figure(id, [fig1]);
+    fig = ifigure(id, [fig1]);
     println("site=<site>");
 	htmlDisplay(site);
 }
 
-str getId(Figure f) {
-    if (figure(id, _) := f) return id;
+str getId(IFigure f) {
+    if (ifigure(id, _) := f) return id;
     return "";
     }
 
-int getWidth(Figure f) {
-    if (figure(id, _) := f) return widget[id].width;
+int getWidth(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].width;
     return -1;
     }
     
-int getHeight(Figure f) {
-    if (figure(id, _) := f) return widget[id].height;
+int getHeight(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].height;
     return -1;
     }
 
-Alignment getAlign(Figure f) {
-    if (figure(id, _) := f) return widget[id].align;
+int getW(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].w;
+    return -1;
+    }
+    
+int getH(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].h;
+    return -1;
+    }
+    
+Alignment getAlign(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].align;
     return <-1, -1>;
     } 
     
-void(str, str) getCallback(Event e) {
+void(str, str) getCallback(IEvent e) {
     if (on(_, void(str, str) callback):=e) return callback;
     return null; 
     }
        
-str getEvent(Event e) {
+str getEvent(IEvent e) {
     if (on(str eventName, _):=e) return eventName;
     return "click"; 
     }
           
 // -----------------------------------------------------------------------
-Figure rect(str id, Event event = on(), int width = 50, int height = 50, str fillColor = "none",
-       str strokeColor = "black", Figure fig = emptyFigure(), Alignment align = centerMid) {
+IFigure _rect(str id, IEvent event = on(), int width = 50, int height = 50, str fillColor = "none",
+       str lineColor = "black", IFigure fig = iemptyFigure(), Alignment align = centerMid,
+       int h = 50, int w = 50) {
        str begintag="
                     ' \<rect id=\"<id>\" width=\"100%\" height=\"100%\"/\>
                     ";  
@@ -230,16 +253,19 @@ Figure rect(str id, Event event = on(), int width = 50, int height = 50, str fil
         "
         'd3.select(\"#<id>\")
         .on(\"<getEvent(event)>\", doFunction(\"<id>\"))        
-        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<strokeColor>\");
-        ", width, height, align >;
+        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");
+        ", width, height, w, h, align >;
        seq=seq+1;
        state += <id, fillColor>;
        old+=fillColor;
-       return figure(id, [fig]);
+       return ifigure(id, [fig]);
        }
-       
-Figure hcat(str id, Figure fig1..., str fillColor = "white", str strokeColor = "black", int width = 100, int height = 100, Alignment align = centerMid, 
-       int cellWidth = 100, int cellHeight = 100) {
+           
+IFigure _hcat(str id, IFigure fig1..., str fillColor = "white", str lineColor = "black", int width = 100, int height = 100, Alignment align = centerMid, 
+       int w = -1, int h = -1) {
+       println("width:<getWidth(fig1[0])>");
+       int w1 = w<0?sum([getW(f)|f<-fig1])+size(fig1)*5:w;
+       int h1 = h<0?max([getH(f)|f<-fig1])+5:h;
        str begintag="
             '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
             '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
@@ -256,19 +282,88 @@ Figure hcat(str id, Figure fig1..., str fillColor = "white", str strokeColor = "
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")       
-        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<strokeColor>\");
-        ", width, height, align >;
+        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");
+        ", width, height, w1, h1, align >;
        seq=seq+1;
        state += <id, fillColor>;
        old+=fillColor;
-       // return figure(id, []);
-       return figure(id, [td("<id>_<getId(f)>", f, width = cellWidth, height = cellHeight)| f<-fig1]);
+       // return ifigure(id, []);
+       return ifigure(id, [td("<id>_<getId(f)>", f, width = max([w, getW(f)]), height = max([h, getH(f)]))| f<-fig1]);
        }
        
-  //  style = \"border: 1px solid red\"     
- Figure td(str id, Figure fig1, int width = 50, int height = 50, Alignment align = centerMid,
- str fillColor = "white", str strokeColor = "black") {
-       str begintag=
+IFigure _vcat(str id, IFigure fig1..., str fillColor = "white", str lineColor = "black", int width = 100, int height = 100, Alignment align = centerMid, 
+       int w = -1, int h = -1) {
+       int w1 = w<0?max([getW(f)|f<-fig1])+size(fig1)*5:w;
+       int h1 = h<0?sum([getH(f)|f<-fig1])+5:h;
+       str begintag="
+            '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
+            '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
+            '\<table style=\"border:1px solid black\"\>
+            ";
+       str endtag="
+            '\</table\>
+            '\<p\>\</p/\>
+            ' \<!--\</body \>--\>
+            '\</foreignObject\>
+            ";
+        widget[id] = <null, seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\")       
+        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");
+        ", width, height, w1, h1, align >;
+       seq=seq+1;
+       state += <id, fillColor>;
+       old+=fillColor;
+       // return ifigure(id, []);
+       return ifigure(id, [td("<id>_<getId(f)>", f, tr = true, width = max([w, getW(f)]), height = max([h, getH(f)]))| f<-fig1]);
+       }
+      
+list[list[IFigure]] transpose(list[list[IFigure]] f) {
+       list[list[IFigure]] r = [[]|i<-[0..max([size(d)|d<-f])]];
+       for (int i<-[0..size(f)]) {
+            for (int j<-[0..size(f[i])]) {
+                r[j] = r[j] + f[i][j];
+            }
+         } 
+       return r; 
+       }
+
+IFigure _grid(str id, list[list[IFigure]] figArray=[[]], str fillColor = "white", str lineColor = "black", int width = 100, int height = 100, Alignment align = centerMid, 
+       int w = -1, int h = -1) {
+       list[list[IFigure]] figArray1 = transpose(figArray);
+       int w1 = w<0?max([sum([getW(f)|f<-fig1])|fig1<-figArray]):w;
+       int h1 = h<0?max ([sum([getH(f)|f<-fig1])|fig1<-figArray1]): h;
+       str begintag="
+            '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
+            '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
+            '\<table style=\"border:1px solid black\"\>
+            ";
+       str endtag="
+            '\</table\>
+            '\<p\>\</p/\>
+            ' \<!--\</body \>--\>
+            '\</foreignObject\>
+            ";
+        widget[id] = <null, seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\")       
+        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");
+        ", width, height, w1, h1, align >;
+       seq=seq+1;
+       state += <id, fillColor>;
+       old+=fillColor;
+       // return ifigure(id, []);
+       list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
+       return ifigure(id, [tr("<id>_<f.idx>", f.f, 
+                 width = max([max([w, getW(d)])|d<-f.f]), 
+                 height = max([max([h, getH(d)])|d<-f.f])
+       ,fillColor = fillColor, lineColor = lineColor)| f<-fig1]);
+       }      
+       
+ IFigure td(str id, IFigure fig1, bool tr = false, int width = 50, int height = 50, Alignment align = centerMid,
+ str fillColor = "white", str lineColor = "black") {
+       str begintag = tr?"\<tr\>":"";
+       begintag +=
      "
      ' \<td\>
      ' \<svg width=\"<width>px\" height=\"<height>px\"\>
@@ -280,13 +375,47 @@ Figure hcat(str id, Figure fig1..., str fillColor = "white", str strokeColor = "
     "
     ' \</svg\>\</td\>
     ";
-    widget[id] = <null, seq, id, begintag, endtag, 
+    if (tr) endtag+="\</tr\>";
+    widget[id] = <null, seq, id, begintag, endtag,
         "
         'd3.select(\"#<id>\").attr(\"fill\",\"<fillColor>\")
-        '.attr(\"stroke\",\"<strokeColor>\")
-        ", width, height, align >;
+        '.attr(\"stroke\",\"<lineColor>\")
+        ", width, height, width, height, align >;
        seq=seq+1;
        state += <id, fillColor>;
        old+= fillColor;
-    return figure(id, [fig1]);
+    return ifigure(id, [fig1]);
+    }
+    
+ IFigure tr(str id, list[IFigure] figs, int width = 50, int height = 50, Alignment align = centerMid,
+    str fillColor = "white", str lineColor = "black") {
+    str begintag = "\<tr\>";
+    str endtag="\</tr\>";
+    widget[id] = <null, seq, id, begintag, endtag,
+        "
+        ", width, height, width, height, align >;
+       seq=seq+1;
+       state += <id, fillColor>;
+       old+= fillColor;
+    return ifigure(id, [td("<id>_<getId(f)>", f, width = max([width, getW(f)]), height = max([height, getH(f)])
+    ,fillColor = fillColor, lineColor = lineColor)| f<-figs]);
+    }
+ 
+IFigure _translate(Figure f) {
+    if (f.size != <0, 0>) {
+       f.width = f.size[0];
+       f.height = f.size[1];
+       }
+    switch(f) {
+        case emptyFigure(): return iemptyFigure();
+        case box(): return _rect(f.id, fig = 
+                        _translate(f.fig)
+                         ,width = f.width, height = f.height,
+                         align = f.align, h = f.h, w = f.w, fillColor = f.fillColor,
+                         lineColor = f.lineColor);
+        case hcat(): return _hcat(f.id, [_translate(q)|q<-f.figs]
+                          // ,width = f.width>0?f.width height = f.height,
+                         align = f.align, h = f.h, w = f.w, fillColor = f.fillColor,
+                         lineColor = f.lineColor);
+        }
     }
