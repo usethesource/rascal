@@ -1,13 +1,17 @@
 module lang::java::patterns::JavaToMicroPatterns
 
-import analys::patterns::Micro;
+import Set;
+import Map;
+import String;
+import Relation;
+import analysis::patterns::Micro;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 anno set[Declaration] M3@ASTs;
 
 @memo
-Declaration methodAST(M3 m, loc method) {
+private Declaration methodAST(M3 m, loc method) {
 	if (/Declaration d := m@ASTs, d is method || d is constructor, d@decl == method) {
 		return d;
 	}
@@ -16,10 +20,6 @@ Declaration methodAST(M3 m, loc method) {
 
 private M3 enrichM3(M3 m, set[Declaration] asts) 
 	= m[@ASTs = asts];
-
-
-@memo
-rel[loc from, loc to] flattenedExtends(M3 m) = m@extends+;
 
 private loc Object = |java+class:///java/lang/Object|;
 
@@ -36,6 +36,45 @@ private bool isObjectMethod(loc f) {
 		case "equals(java.lang.Object)": return true;
 		default: return false;
 	}
+}
+
+@memo
+rel[loc from, loc to] flattenedExtends(M3 m) = m@extends+;
+
+@memo
+private set[loc] instanceFields(M3 m, loc e)
+	= { f | f <- fields(m,e), !(<f,final()> in m@modifiers) };
+
+@memo
+private rel[loc lhs, loc src] assignments(M3 m, loc method)
+	= { <t@decl, a@src> | /a:assignment(t, _, _) := methodAST(m, method)};
+
+@memo
+private set[loc] constructors(M3 m, loc c)
+	= { con | con <- elements(m, c), con.scheme == "java+constructor" };
+	
+private bool isAbstract(M3 m, loc e) = <e, abstract()> in m@modifiers;
+
+@memo 
+private set[loc] abstractMethods(M3 m, loc c)
+	= { met | met <- methods(m,c), isAbstract(m, met) };
+
+@memo
+private set[loc] staticFinalFields(M3 m, loc c)
+	= { f | f <- fields(m,c), <f, static()> in m@modifiers, <f, final()> in m@modifiers };
+	
+@memo
+private set[loc] publicMethods(M3 m, loc c)
+	= { met | met <- methods(m,c), <met, \public()> in m@modifiers };
+	
+private str name(loc l) {
+	if (isMethod(l)) {
+		if (/^<n:.*(>/ := l.file) {
+			return n;
+		}
+		throw "Could not find name";
+	}
+	return l.file;
 }
 
 // TODO: correctly handle external interfaces
@@ -61,8 +100,8 @@ private bool isTaxonomy(M3 m, loc e)
 	||
 	( isClass(e)
 		&& m@implements[e] == {}
-		&& removeConstuctors(m@containment[c]) == {}
-		&& removeConstuctors(m@containment[flattenedExtends(m)[c]]) != {}
+		&& removeConstuctors(m@containment[e]) == {}
+		&& removeConstuctors(m@containment[flattenedExtends(m)[e]]) != {}
 	)
 	;
 
@@ -138,12 +177,6 @@ private bool isCommonState(M3 m, loc e)
 	;
 	
 
-private set[loc] instanceFields(M3 m, loc e)
-	= { f | f <- fields(m,e), !(<f,final()> in m@modifiers) };
-
-private rel[loc lhs, loc src] assignments(M3 m, loc method)
-	= { <t@decl, a@src> | /a:assignment(t, _, _) := methodAST(m, method)};
-
 @doc{A class whose instance fields (more than 1) are only mutated by the constructors}
 private bool isImmutable(M3 m, loc e)
 	= isClass(e)
@@ -181,14 +214,14 @@ private bool isSampler(M3 m, loc e)
 private bool isBox(M3 m, loc e)
 	= isClass(e)
 	&& {f} := instanceFields(m,e)
-	&& { *(assignments(m, met)[f]) | met <- removeConstuctors(methods(m, e)) } != {}
+	&& { *(assignments(m, met)[f]) | met <- methods(m, e) - constructors(m,e) } != {}
 	;
 
 @doc{Variant of box with one non-primitive field, and one or more primitive fields}	
 private bool isCompoundBox(M3 m, loc e)
 	= isClass(e)
-	&& {f} := { f | f <- instanceFields(m,e), t <- m@typeDepedency[f], t.scheme != "java+primitiveType" }
-	&& set[loc] otherFields := { fp | fp <- instanceFields(m,e), t <- m@typeDepedency[fp], t.scheme == "java+primitiveType" }
+	&& {f} := { f | f <- instanceFields(m,e), t <- m@typeDependency[f], t.scheme != "java+primitiveType" }
+	&& set[loc] otherFields := { fp | fp <- instanceFields(m,e), t <- m@typeDependency[fp], t.scheme == "java+primitiveType" }
 	&& { *(assignments(m, met)[f]) | met <- removeConstuctors(methods(m, e)) } != {}
 	&& all(fp <- otherFields, { *(assignments(m, met)[fp]) | met <- removeConstuctors(methods(m, e)) } != {})
 	;
@@ -199,7 +232,98 @@ private bool isRecord(M3 m, loc e)
 	&& all(f <- fields(m,e), <f, \public()> in m@modifiers)
 	&& !(static() in m@modifiers[fields(m,e)])
 	&& !any(met <- methods(m,e), met.scheme =="java+method" && !isObjectMethod(met))
+	;
 
-
+@doc{Only getters and setters}
+private  bool isDataManager(M3 m, loc e)
+	= isClass(e)
+	&& set[loc] fs := instanceFields(m,e)
+	&& fs != {}
+	&& !(\public() in m@modifiers[fs])
+	&& all(meth <- methods(m,e) - constructors(m,e), startsWith(name(meth), "set") || startsWith(name(meth), "get") || isObjectMethod(meth))
+	;
 	
+@doc{Methods do not call any other methods, based on the example given in the paper, the Object methods do not count.}
+private  bool isSink(M3 m, loc e)
+	= isClass(e)
+	&& methods(m,e) != {}
+	&& !any(met <- m@methodInvocation[methods(m,e)], !isObjectMethod(met))
+	;
+
+@doc{Abstract class where two or more declared methods invoke at least one abstract method of the current class }
+private bool isOutline(M3 m, loc e)
+	= isClass(e)
+	&& isAbstract(m,e)
+	&& {_,_,*_} := domain(m@methodInvocation & (methods(m,e) * abstractMethods(m,e)))
+	;
+	
+@doc{Abtract classes with no instance fields, at least one abstract method}
+private bool isTrait(M3 m, loc e)
+	= isClass(e)
+	&& isAbstract(m,e)
+	&& instanceFields(m,e) == {}
+	&& abstractMethods(m, e) != {}
+	;
+		
+@doc{Interfaces with parameter less methods}
+private bool isStatemachine(M3 m, loc e)
+	= isInterface(e)
+	&& fields(m,e) == {}
+	&& all(met <- methods(m, e), endsWith(met.file, "()"))
+	;
+	
+@doc{Classes with no implementations details, everything is abstract, or interfaces without any static definitions}
+private bool isPureType(M3 m, loc e)
+	= (isClass(e) || isInterface(e))
+	&& fields(m,e) == {}
+	&& methods(m,e) != {}
+	&& (isInterface(e) || methods(m,e) == abstractMethods(m,e))
+	;
+
+@memo
+private map[loc, set[loc]] usedTypes(M3 m, set[loc] where) 
+	= toMap(invert((where * where) o m@typeDependency));	
+
+@doc{Like pure type, except that there are 3 or more static final fields/methods of the same type}
+private bool isAugmentedType(M3 m, loc e)
+	= (isClass(e) || isInterface(e))
+	&& methods(m,e) != {}
+	&& (
+		(isInterface(e) && any(t <- usedTypes(m, fields(m,e)), size(usedTypes(m, fields(m,e))) >= 3))
+		||
+		(isClass(e) && any(t <- usedTypes(m, staticFinalFields(m,e)), size(usedTypes(m, staticFinalFields(m,e))) >= 3))
+	)
+	;
+
+@doc{An abstract class with only abstract methods, no instance fields or methods, static fields and methods are allowed}
+private bool isPseudoClass(M3 m, loc e)
+	= isClass(e)
+	&& isAbstract(m,e)
+	&& all(u <- (methods(m,e) - abstractMethods(m,e)) + fields(m, e), <u, static()> in m@modifiers)
+	;
+	
+// unsure if this should be for (super classes)+
+@doc{A class where all the public methods are implementing an abstract method of the super class }
+private bool isImplementor(M3 m, loc e)
+	= isClass(e)
+	&& !isAbstract(m, e)
+	&& {base} := m@extends[e]
+	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == abstractMethods(m, base)
+	&& size(publicMethods(m,e) - constructors(m,e)) == size(abstractMethods(m, base))
+	;
+		
+@doc{A class where all the public methods are overriding non abstract methods of the super class}
+private bool isOverrider(M3 m, loc e) 
+	= isClass(e)
+	&& {base} := m@extends[e]
+	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == ((methods(m, base) - abstractMethods(m, base)) - constructors(m,e))
+	&& size(publicMethods(m,e) - constructors(m,e)) == size(((methods(m, base)) - abstractMethods(m, base))- constructors(m,e))
+	;
+	
+@doc{A class which extends another class but does not override any of it's methods}
+private bool isExtender(M3 m, loc e)
+	= isClass(e)
+	&& m@extends[e] != {}
+	&& m@methodOverrides[methods(m,e) - constructors(m,e)] == {}
+	&& (methods(m,e) - constructors(m,e)) != {}
 	;
