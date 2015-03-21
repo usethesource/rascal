@@ -531,11 +531,11 @@ public class RascalToIguanaGrammarConverter {
 				return Nonterminal.withName(getName(symbol));
 
 			case "layouts":
-				if (layout != null) {
-					String name = getName(symbol);
-					if (name.equals(layout.getName()))
-						return layout;
-				} 
+//				if (layout != null) {
+//					String name = getName(symbol);
+//					if (name.equals(layout.getName()))
+//						return layout;
+//				} 
 				return null;
 				
 			// DD part:
@@ -594,6 +594,10 @@ public class RascalToIguanaGrammarConverter {
 					
                 case "far-not-follow":
                     set.add(RegularExpressionCondition.notFollowIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
+                    break;
+                    
+                case "far-follow":
+                    set.add(RegularExpressionCondition.followIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
                     break;	
 	
 				case "follow":

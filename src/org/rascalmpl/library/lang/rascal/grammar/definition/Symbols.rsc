@@ -61,7 +61,7 @@ public Symbol sym2symbol(Sym sym) {
       return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a);  // TODO don't forget about the kwArgs
     case dependScope(Sym+ syms) :
       return \scope(args2symbols(syms));
-    case dependCode(Sym s, Statement block) :
+    case dependCode(Sym s, Statement+ block) :
       return \do(sym2symbol(s), "<block>");
     case dependConditionAfter(Sym s, Expression condition) :
       return \when(sym2symbol(s), "<condition>");
