@@ -2714,25 +2714,25 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, 1604, 1604);
     
-    _putDontNest(result, 2929, 15795);
+    _putDontNest(result, 2929, 15796);
     
-    _putDontNest(result, 2929, 15806);
+    _putDontNest(result, 2929, 15807);
     
-    _putDontNest(result, 2929, 15829);
+    _putDontNest(result, 2929, 15830);
     
-    _putDontNest(result, 2929, 15896);
+    _putDontNest(result, 2929, 15897);
     
-    _putDontNest(result, 2929, 15937);
+    _putDontNest(result, 2929, 15938);
     
-    _putDontNest(result, 2929, 15951);
+    _putDontNest(result, 2929, 15952);
     
-    _putDontNest(result, 2929, 16003);
+    _putDontNest(result, 2929, 16004);
     
-    _putDontNest(result, 2929, 16019);
+    _putDontNest(result, 2929, 16020);
     
-    _putDontNest(result, 2929, 16048);
+    _putDontNest(result, 2929, 16049);
     
-    _putDontNest(result, 2929, 16055);
+    _putDontNest(result, 2929, 16056);
     
     _putDontNest(result, 5290, 5403);
     
@@ -2834,603 +2834,603 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, 12353, 12106);
     
-    _putDontNest(result, 15560, 1442);
+    _putDontNest(result, 15561, 1442);
     
-    _putDontNest(result, 15728, 16062);
+    _putDontNest(result, 15729, 16063);
     
-    _putDontNest(result, 15728, 16068);
+    _putDontNest(result, 15729, 16069);
     
-    _putDontNest(result, 15728, 16074);
+    _putDontNest(result, 15729, 16075);
     
-    _putDontNest(result, 15728, 16117);
+    _putDontNest(result, 15729, 16118);
     
-    _putDontNest(result, 15728, 16130);
+    _putDontNest(result, 15729, 16131);
     
-    _putDontNest(result, 15728, 16143);
+    _putDontNest(result, 15729, 16144);
     
-    _putDontNest(result, 15728, 16153);
+    _putDontNest(result, 15729, 16154);
     
-    _putDontNest(result, 15728, 16162);
+    _putDontNest(result, 15729, 16163);
     
-    _putDontNest(result, 15728, 16171);
+    _putDontNest(result, 15729, 16172);
     
-    _putDontNest(result, 15728, 16180);
+    _putDontNest(result, 15729, 16181);
     
-    _putDontNest(result, 15728, 16189);
+    _putDontNest(result, 15729, 16190);
     
-    _putDontNest(result, 15728, 16198);
+    _putDontNest(result, 15729, 16199);
     
-    _putDontNest(result, 15728, 16207);
+    _putDontNest(result, 15729, 16208);
     
-    _putDontNest(result, 15728, 16216);
+    _putDontNest(result, 15729, 16217);
     
-    _putDontNest(result, 15728, 16225);
+    _putDontNest(result, 15729, 16226);
     
-    _putDontNest(result, 15738, 15751);
+    _putDontNest(result, 15739, 15752);
     
-    _putDontNest(result, 15738, 16062);
+    _putDontNest(result, 15739, 16063);
     
-    _putDontNest(result, 15738, 16068);
+    _putDontNest(result, 15739, 16069);
     
-    _putDontNest(result, 15738, 16074);
+    _putDontNest(result, 15739, 16075);
     
-    _putDontNest(result, 15738, 16117);
+    _putDontNest(result, 15739, 16118);
     
-    _putDontNest(result, 15738, 16130);
+    _putDontNest(result, 15739, 16131);
     
-    _putDontNest(result, 15738, 16143);
+    _putDontNest(result, 15739, 16144);
     
-    _putDontNest(result, 15738, 16153);
+    _putDontNest(result, 15739, 16154);
     
-    _putDontNest(result, 15738, 16162);
+    _putDontNest(result, 15739, 16163);
     
-    _putDontNest(result, 15738, 16171);
+    _putDontNest(result, 15739, 16172);
     
-    _putDontNest(result, 15738, 16180);
+    _putDontNest(result, 15739, 16181);
     
-    _putDontNest(result, 15738, 16189);
+    _putDontNest(result, 15739, 16190);
     
-    _putDontNest(result, 15738, 16198);
+    _putDontNest(result, 15739, 16199);
     
-    _putDontNest(result, 15738, 16207);
+    _putDontNest(result, 15739, 16208);
     
-    _putDontNest(result, 15738, 16216);
+    _putDontNest(result, 15739, 16217);
     
-    _putDontNest(result, 15738, 16225);
+    _putDontNest(result, 15739, 16226);
     
-    _putDontNest(result, 15756, 16085);
+    _putDontNest(result, 15757, 16086);
     
-    _putDontNest(result, 15756, 16099);
+    _putDontNest(result, 15757, 16100);
     
-    _putDontNest(result, 15756, 16153);
+    _putDontNest(result, 15757, 16154);
     
-    _putDontNest(result, 15756, 16162);
+    _putDontNest(result, 15757, 16163);
     
-    _putDontNest(result, 15756, 16171);
+    _putDontNest(result, 15757, 16172);
     
-    _putDontNest(result, 15756, 16180);
+    _putDontNest(result, 15757, 16181);
     
-    _putDontNest(result, 15756, 16189);
+    _putDontNest(result, 15757, 16190);
     
-    _putDontNest(result, 15756, 16198);
+    _putDontNest(result, 15757, 16199);
     
-    _putDontNest(result, 15756, 16207);
+    _putDontNest(result, 15757, 16208);
     
-    _putDontNest(result, 15756, 16216);
+    _putDontNest(result, 15757, 16217);
     
-    _putDontNest(result, 15756, 16225);
+    _putDontNest(result, 15757, 16226);
     
-    _putDontNest(result, 15845, 16062);
+    _putDontNest(result, 15846, 16063);
     
-    _putDontNest(result, 15845, 16068);
+    _putDontNest(result, 15846, 16069);
     
-    _putDontNest(result, 15845, 16074);
+    _putDontNest(result, 15846, 16075);
     
-    _putDontNest(result, 15845, 16117);
+    _putDontNest(result, 15846, 16118);
     
-    _putDontNest(result, 15845, 16130);
+    _putDontNest(result, 15846, 16131);
     
-    _putDontNest(result, 15845, 16143);
+    _putDontNest(result, 15846, 16144);
     
-    _putDontNest(result, 15845, 16153);
+    _putDontNest(result, 15846, 16154);
     
-    _putDontNest(result, 15845, 16162);
+    _putDontNest(result, 15846, 16163);
     
-    _putDontNest(result, 15845, 16171);
+    _putDontNest(result, 15846, 16172);
     
-    _putDontNest(result, 15845, 16180);
+    _putDontNest(result, 15846, 16181);
     
-    _putDontNest(result, 15845, 16189);
+    _putDontNest(result, 15846, 16190);
     
-    _putDontNest(result, 15845, 16198);
+    _putDontNest(result, 15846, 16199);
     
-    _putDontNest(result, 15845, 16207);
+    _putDontNest(result, 15846, 16208);
     
-    _putDontNest(result, 15845, 16216);
+    _putDontNest(result, 15846, 16217);
     
-    _putDontNest(result, 15845, 16225);
+    _putDontNest(result, 15846, 16226);
     
-    _putDontNest(result, 15902, 16062);
+    _putDontNest(result, 15903, 16063);
     
-    _putDontNest(result, 15902, 16068);
+    _putDontNest(result, 15903, 16069);
     
-    _putDontNest(result, 15902, 16074);
+    _putDontNest(result, 15903, 16075);
     
-    _putDontNest(result, 15902, 16117);
+    _putDontNest(result, 15903, 16118);
     
-    _putDontNest(result, 15902, 16130);
+    _putDontNest(result, 15903, 16131);
     
-    _putDontNest(result, 15902, 16143);
+    _putDontNest(result, 15903, 16144);
     
-    _putDontNest(result, 15902, 16153);
+    _putDontNest(result, 15903, 16154);
     
-    _putDontNest(result, 15902, 16162);
+    _putDontNest(result, 15903, 16163);
     
-    _putDontNest(result, 15902, 16171);
+    _putDontNest(result, 15903, 16172);
     
-    _putDontNest(result, 15902, 16180);
+    _putDontNest(result, 15903, 16181);
     
-    _putDontNest(result, 15902, 16189);
+    _putDontNest(result, 15903, 16190);
     
-    _putDontNest(result, 15902, 16198);
+    _putDontNest(result, 15903, 16199);
     
-    _putDontNest(result, 15902, 16207);
+    _putDontNest(result, 15903, 16208);
     
-    _putDontNest(result, 15902, 16216);
+    _putDontNest(result, 15903, 16217);
     
-    _putDontNest(result, 15902, 16225);
+    _putDontNest(result, 15903, 16226);
     
-    _putDontNest(result, 15968, 16062);
+    _putDontNest(result, 15969, 16063);
     
-    _putDontNest(result, 15968, 16068);
+    _putDontNest(result, 15969, 16069);
     
-    _putDontNest(result, 15968, 16074);
+    _putDontNest(result, 15969, 16075);
     
-    _putDontNest(result, 15968, 16117);
+    _putDontNest(result, 15969, 16118);
     
-    _putDontNest(result, 15968, 16130);
+    _putDontNest(result, 15969, 16131);
     
-    _putDontNest(result, 15968, 16143);
+    _putDontNest(result, 15969, 16144);
     
-    _putDontNest(result, 15968, 16153);
+    _putDontNest(result, 15969, 16154);
     
-    _putDontNest(result, 15968, 16162);
+    _putDontNest(result, 15969, 16163);
     
-    _putDontNest(result, 15968, 16171);
+    _putDontNest(result, 15969, 16172);
     
-    _putDontNest(result, 15968, 16180);
+    _putDontNest(result, 15969, 16181);
     
-    _putDontNest(result, 15968, 16189);
+    _putDontNest(result, 15969, 16190);
     
-    _putDontNest(result, 15968, 16198);
+    _putDontNest(result, 15969, 16199);
     
-    _putDontNest(result, 15968, 16207);
+    _putDontNest(result, 15969, 16208);
     
-    _putDontNest(result, 15968, 16216);
+    _putDontNest(result, 15969, 16217);
     
-    _putDontNest(result, 15968, 16225);
+    _putDontNest(result, 15969, 16226);
     
-    _putDontNest(result, 16006, 16062);
+    _putDontNest(result, 16007, 16063);
     
-    _putDontNest(result, 16006, 16068);
+    _putDontNest(result, 16007, 16069);
     
-    _putDontNest(result, 16006, 16074);
+    _putDontNest(result, 16007, 16075);
     
-    _putDontNest(result, 16006, 16117);
+    _putDontNest(result, 16007, 16118);
     
-    _putDontNest(result, 16006, 16130);
+    _putDontNest(result, 16007, 16131);
     
-    _putDontNest(result, 16006, 16143);
+    _putDontNest(result, 16007, 16144);
     
-    _putDontNest(result, 16006, 16153);
+    _putDontNest(result, 16007, 16154);
     
-    _putDontNest(result, 16006, 16162);
+    _putDontNest(result, 16007, 16163);
     
-    _putDontNest(result, 16006, 16171);
+    _putDontNest(result, 16007, 16172);
     
-    _putDontNest(result, 16006, 16180);
+    _putDontNest(result, 16007, 16181);
     
-    _putDontNest(result, 16006, 16189);
+    _putDontNest(result, 16007, 16190);
     
-    _putDontNest(result, 16006, 16198);
+    _putDontNest(result, 16007, 16199);
     
-    _putDontNest(result, 16006, 16207);
+    _putDontNest(result, 16007, 16208);
     
-    _putDontNest(result, 16006, 16216);
+    _putDontNest(result, 16007, 16217);
     
-    _putDontNest(result, 16006, 16225);
+    _putDontNest(result, 16007, 16226);
     
-    _putDontNest(result, 16040, 15751);
+    _putDontNest(result, 16041, 15752);
     
-    _putDontNest(result, 16040, 16062);
+    _putDontNest(result, 16041, 16063);
     
-    _putDontNest(result, 16040, 16068);
+    _putDontNest(result, 16041, 16069);
     
-    _putDontNest(result, 16040, 16074);
+    _putDontNest(result, 16041, 16075);
     
-    _putDontNest(result, 16040, 16117);
+    _putDontNest(result, 16041, 16118);
     
-    _putDontNest(result, 16040, 16130);
+    _putDontNest(result, 16041, 16131);
     
-    _putDontNest(result, 16040, 16143);
+    _putDontNest(result, 16041, 16144);
     
-    _putDontNest(result, 16040, 16153);
+    _putDontNest(result, 16041, 16154);
     
-    _putDontNest(result, 16040, 16162);
+    _putDontNest(result, 16041, 16163);
     
-    _putDontNest(result, 16040, 16171);
+    _putDontNest(result, 16041, 16172);
     
-    _putDontNest(result, 16040, 16180);
+    _putDontNest(result, 16041, 16181);
     
-    _putDontNest(result, 16040, 16189);
+    _putDontNest(result, 16041, 16190);
     
-    _putDontNest(result, 16040, 16198);
+    _putDontNest(result, 16041, 16199);
     
-    _putDontNest(result, 16040, 16207);
+    _putDontNest(result, 16041, 16208);
     
-    _putDontNest(result, 16040, 16216);
+    _putDontNest(result, 16041, 16217);
     
-    _putDontNest(result, 16040, 16225);
+    _putDontNest(result, 16041, 16226);
     
-    _putDontNest(result, 16052, 16062);
+    _putDontNest(result, 16053, 16063);
     
-    _putDontNest(result, 16052, 16068);
+    _putDontNest(result, 16053, 16069);
     
-    _putDontNest(result, 16052, 16074);
+    _putDontNest(result, 16053, 16075);
     
-    _putDontNest(result, 16052, 16117);
+    _putDontNest(result, 16053, 16118);
     
-    _putDontNest(result, 16052, 16130);
+    _putDontNest(result, 16053, 16131);
     
-    _putDontNest(result, 16052, 16143);
+    _putDontNest(result, 16053, 16144);
     
-    _putDontNest(result, 16052, 16153);
+    _putDontNest(result, 16053, 16154);
     
-    _putDontNest(result, 16052, 16162);
+    _putDontNest(result, 16053, 16163);
     
-    _putDontNest(result, 16052, 16171);
+    _putDontNest(result, 16053, 16172);
     
-    _putDontNest(result, 16052, 16180);
+    _putDontNest(result, 16053, 16181);
     
-    _putDontNest(result, 16052, 16189);
+    _putDontNest(result, 16053, 16190);
     
-    _putDontNest(result, 16052, 16198);
+    _putDontNest(result, 16053, 16199);
     
-    _putDontNest(result, 16052, 16207);
+    _putDontNest(result, 16053, 16208);
     
-    _putDontNest(result, 16052, 16216);
+    _putDontNest(result, 16053, 16217);
     
-    _putDontNest(result, 16052, 16225);
+    _putDontNest(result, 16053, 16226);
     
-    _putDontNest(result, 16062, 16085);
+    _putDontNest(result, 16063, 16086);
     
-    _putDontNest(result, 16062, 16099);
+    _putDontNest(result, 16063, 16100);
     
-    _putDontNest(result, 16062, 16153);
+    _putDontNest(result, 16063, 16154);
     
-    _putDontNest(result, 16062, 16162);
+    _putDontNest(result, 16063, 16163);
     
-    _putDontNest(result, 16062, 16171);
+    _putDontNest(result, 16063, 16172);
     
-    _putDontNest(result, 16062, 16180);
+    _putDontNest(result, 16063, 16181);
     
-    _putDontNest(result, 16062, 16189);
+    _putDontNest(result, 16063, 16190);
     
-    _putDontNest(result, 16062, 16198);
+    _putDontNest(result, 16063, 16199);
     
-    _putDontNest(result, 16062, 16207);
+    _putDontNest(result, 16063, 16208);
     
-    _putDontNest(result, 16062, 16216);
+    _putDontNest(result, 16063, 16217);
     
-    _putDontNest(result, 16062, 16225);
+    _putDontNest(result, 16063, 16226);
     
-    _putDontNest(result, 16068, 16085);
+    _putDontNest(result, 16069, 16086);
     
-    _putDontNest(result, 16068, 16099);
+    _putDontNest(result, 16069, 16100);
     
-    _putDontNest(result, 16068, 16153);
+    _putDontNest(result, 16069, 16154);
     
-    _putDontNest(result, 16068, 16162);
+    _putDontNest(result, 16069, 16163);
     
-    _putDontNest(result, 16068, 16171);
+    _putDontNest(result, 16069, 16172);
     
-    _putDontNest(result, 16068, 16180);
+    _putDontNest(result, 16069, 16181);
     
-    _putDontNest(result, 16068, 16189);
+    _putDontNest(result, 16069, 16190);
     
-    _putDontNest(result, 16068, 16198);
+    _putDontNest(result, 16069, 16199);
     
-    _putDontNest(result, 16068, 16207);
+    _putDontNest(result, 16069, 16208);
     
-    _putDontNest(result, 16068, 16216);
+    _putDontNest(result, 16069, 16217);
     
-    _putDontNest(result, 16068, 16225);
+    _putDontNest(result, 16069, 16226);
     
-    _putDontNest(result, 16074, 16085);
+    _putDontNest(result, 16075, 16086);
     
-    _putDontNest(result, 16074, 16099);
+    _putDontNest(result, 16075, 16100);
     
-    _putDontNest(result, 16074, 16153);
+    _putDontNest(result, 16075, 16154);
     
-    _putDontNest(result, 16074, 16162);
+    _putDontNest(result, 16075, 16163);
     
-    _putDontNest(result, 16074, 16171);
+    _putDontNest(result, 16075, 16172);
     
-    _putDontNest(result, 16074, 16180);
+    _putDontNest(result, 16075, 16181);
     
-    _putDontNest(result, 16074, 16189);
+    _putDontNest(result, 16075, 16190);
     
-    _putDontNest(result, 16074, 16198);
+    _putDontNest(result, 16075, 16199);
     
-    _putDontNest(result, 16074, 16207);
+    _putDontNest(result, 16075, 16208);
     
-    _putDontNest(result, 16074, 16216);
+    _putDontNest(result, 16075, 16217);
     
-    _putDontNest(result, 16074, 16225);
+    _putDontNest(result, 16075, 16226);
     
-    _putDontNest(result, 16078, 16117);
+    _putDontNest(result, 16079, 16118);
     
-    _putDontNest(result, 16078, 16130);
+    _putDontNest(result, 16079, 16131);
     
-    _putDontNest(result, 16078, 16143);
+    _putDontNest(result, 16079, 16144);
     
-    _putDontNest(result, 16078, 16153);
+    _putDontNest(result, 16079, 16154);
     
-    _putDontNest(result, 16078, 16162);
+    _putDontNest(result, 16079, 16163);
     
-    _putDontNest(result, 16078, 16171);
+    _putDontNest(result, 16079, 16172);
     
-    _putDontNest(result, 16078, 16180);
+    _putDontNest(result, 16079, 16181);
     
-    _putDontNest(result, 16078, 16189);
+    _putDontNest(result, 16079, 16190);
     
-    _putDontNest(result, 16078, 16198);
+    _putDontNest(result, 16079, 16199);
     
-    _putDontNest(result, 16078, 16207);
+    _putDontNest(result, 16079, 16208);
     
-    _putDontNest(result, 16078, 16216);
+    _putDontNest(result, 16079, 16217);
     
-    _putDontNest(result, 16078, 16225);
+    _putDontNest(result, 16079, 16226);
     
-    _putDontNest(result, 16089, 16117);
+    _putDontNest(result, 16090, 16118);
     
-    _putDontNest(result, 16089, 16130);
+    _putDontNest(result, 16090, 16131);
     
-    _putDontNest(result, 16089, 16143);
+    _putDontNest(result, 16090, 16144);
     
-    _putDontNest(result, 16089, 16153);
+    _putDontNest(result, 16090, 16154);
     
-    _putDontNest(result, 16089, 16162);
+    _putDontNest(result, 16090, 16163);
     
-    _putDontNest(result, 16089, 16171);
+    _putDontNest(result, 16090, 16172);
     
-    _putDontNest(result, 16089, 16180);
+    _putDontNest(result, 16090, 16181);
     
-    _putDontNest(result, 16089, 16189);
+    _putDontNest(result, 16090, 16190);
     
-    _putDontNest(result, 16089, 16198);
+    _putDontNest(result, 16090, 16199);
     
-    _putDontNest(result, 16089, 16207);
+    _putDontNest(result, 16090, 16208);
     
-    _putDontNest(result, 16089, 16216);
+    _putDontNest(result, 16090, 16217);
     
-    _putDontNest(result, 16089, 16225);
+    _putDontNest(result, 16090, 16226);
     
-    _putDontNest(result, 16117, 16153);
+    _putDontNest(result, 16118, 16154);
     
-    _putDontNest(result, 16117, 16162);
+    _putDontNest(result, 16118, 16163);
     
-    _putDontNest(result, 16117, 16171);
+    _putDontNest(result, 16118, 16172);
     
-    _putDontNest(result, 16117, 16180);
+    _putDontNest(result, 16118, 16181);
     
-    _putDontNest(result, 16117, 16189);
+    _putDontNest(result, 16118, 16190);
     
-    _putDontNest(result, 16117, 16198);
+    _putDontNest(result, 16118, 16199);
     
-    _putDontNest(result, 16117, 16207);
+    _putDontNest(result, 16118, 16208);
     
-    _putDontNest(result, 16117, 16216);
+    _putDontNest(result, 16118, 16217);
     
-    _putDontNest(result, 16117, 16225);
+    _putDontNest(result, 16118, 16226);
     
-    _putDontNest(result, 16130, 16153);
+    _putDontNest(result, 16131, 16154);
     
-    _putDontNest(result, 16130, 16162);
+    _putDontNest(result, 16131, 16163);
     
-    _putDontNest(result, 16130, 16171);
+    _putDontNest(result, 16131, 16172);
     
-    _putDontNest(result, 16130, 16180);
+    _putDontNest(result, 16131, 16181);
     
-    _putDontNest(result, 16130, 16189);
+    _putDontNest(result, 16131, 16190);
     
-    _putDontNest(result, 16130, 16198);
+    _putDontNest(result, 16131, 16199);
     
-    _putDontNest(result, 16130, 16207);
+    _putDontNest(result, 16131, 16208);
     
-    _putDontNest(result, 16130, 16216);
+    _putDontNest(result, 16131, 16217);
     
-    _putDontNest(result, 16130, 16225);
+    _putDontNest(result, 16131, 16226);
     
-    _putDontNest(result, 16143, 16153);
+    _putDontNest(result, 16144, 16154);
     
-    _putDontNest(result, 16143, 16162);
+    _putDontNest(result, 16144, 16163);
     
-    _putDontNest(result, 16143, 16171);
+    _putDontNest(result, 16144, 16172);
     
-    _putDontNest(result, 16143, 16180);
+    _putDontNest(result, 16144, 16181);
     
-    _putDontNest(result, 16143, 16189);
+    _putDontNest(result, 16144, 16190);
     
-    _putDontNest(result, 16143, 16198);
+    _putDontNest(result, 16144, 16199);
     
-    _putDontNest(result, 16143, 16207);
+    _putDontNest(result, 16144, 16208);
     
-    _putDontNest(result, 16143, 16216);
+    _putDontNest(result, 16144, 16217);
     
-    _putDontNest(result, 16143, 16225);
+    _putDontNest(result, 16144, 16226);
     
-    _putDontNest(result, 16148, 16225);
+    _putDontNest(result, 16149, 16226);
     
-    _putDontNest(result, 16153, 16153);
+    _putDontNest(result, 16154, 16154);
     
-    _putDontNest(result, 16153, 16162);
+    _putDontNest(result, 16154, 16163);
     
-    _putDontNest(result, 16153, 16171);
+    _putDontNest(result, 16154, 16172);
     
-    _putDontNest(result, 16153, 16180);
+    _putDontNest(result, 16154, 16181);
     
-    _putDontNest(result, 16153, 16189);
+    _putDontNest(result, 16154, 16190);
     
-    _putDontNest(result, 16153, 16198);
+    _putDontNest(result, 16154, 16199);
     
-    _putDontNest(result, 16153, 16207);
+    _putDontNest(result, 16154, 16208);
     
-    _putDontNest(result, 16153, 16216);
+    _putDontNest(result, 16154, 16217);
     
-    _putDontNest(result, 16153, 16225);
+    _putDontNest(result, 16154, 16226);
     
-    _putDontNest(result, 16157, 16225);
+    _putDontNest(result, 16158, 16226);
     
-    _putDontNest(result, 16162, 16153);
+    _putDontNest(result, 16163, 16154);
     
-    _putDontNest(result, 16162, 16162);
+    _putDontNest(result, 16163, 16163);
     
-    _putDontNest(result, 16162, 16171);
+    _putDontNest(result, 16163, 16172);
     
-    _putDontNest(result, 16162, 16180);
+    _putDontNest(result, 16163, 16181);
     
-    _putDontNest(result, 16162, 16189);
+    _putDontNest(result, 16163, 16190);
     
-    _putDontNest(result, 16162, 16198);
+    _putDontNest(result, 16163, 16199);
     
-    _putDontNest(result, 16162, 16207);
+    _putDontNest(result, 16163, 16208);
     
-    _putDontNest(result, 16162, 16216);
+    _putDontNest(result, 16163, 16217);
     
-    _putDontNest(result, 16162, 16225);
+    _putDontNest(result, 16163, 16226);
     
-    _putDontNest(result, 16166, 16171);
+    _putDontNest(result, 16167, 16172);
     
-    _putDontNest(result, 16166, 16225);
+    _putDontNest(result, 16167, 16226);
     
-    _putDontNest(result, 16171, 16153);
+    _putDontNest(result, 16172, 16154);
     
-    _putDontNest(result, 16171, 16162);
+    _putDontNest(result, 16172, 16163);
     
-    _putDontNest(result, 16171, 16180);
+    _putDontNest(result, 16172, 16181);
     
-    _putDontNest(result, 16171, 16189);
+    _putDontNest(result, 16172, 16190);
     
-    _putDontNest(result, 16171, 16198);
+    _putDontNest(result, 16172, 16199);
     
-    _putDontNest(result, 16171, 16207);
+    _putDontNest(result, 16172, 16208);
     
-    _putDontNest(result, 16171, 16216);
+    _putDontNest(result, 16172, 16217);
     
-    _putDontNest(result, 16171, 16225);
+    _putDontNest(result, 16172, 16226);
     
-    _putDontNest(result, 16175, 16180);
+    _putDontNest(result, 16176, 16181);
     
-    _putDontNest(result, 16175, 16225);
+    _putDontNest(result, 16176, 16226);
     
-    _putDontNest(result, 16180, 16153);
+    _putDontNest(result, 16181, 16154);
     
-    _putDontNest(result, 16180, 16162);
+    _putDontNest(result, 16181, 16163);
     
-    _putDontNest(result, 16180, 16171);
+    _putDontNest(result, 16181, 16172);
     
-    _putDontNest(result, 16180, 16189);
+    _putDontNest(result, 16181, 16190);
     
-    _putDontNest(result, 16180, 16198);
+    _putDontNest(result, 16181, 16199);
     
-    _putDontNest(result, 16180, 16207);
+    _putDontNest(result, 16181, 16208);
     
-    _putDontNest(result, 16180, 16216);
+    _putDontNest(result, 16181, 16217);
     
-    _putDontNest(result, 16180, 16225);
+    _putDontNest(result, 16181, 16226);
     
-    _putDontNest(result, 16184, 16225);
+    _putDontNest(result, 16185, 16226);
     
-    _putDontNest(result, 16189, 16153);
+    _putDontNest(result, 16190, 16154);
     
-    _putDontNest(result, 16189, 16162);
+    _putDontNest(result, 16190, 16163);
     
-    _putDontNest(result, 16189, 16171);
+    _putDontNest(result, 16190, 16172);
     
-    _putDontNest(result, 16189, 16180);
+    _putDontNest(result, 16190, 16181);
     
-    _putDontNest(result, 16189, 16189);
+    _putDontNest(result, 16190, 16190);
     
-    _putDontNest(result, 16189, 16198);
+    _putDontNest(result, 16190, 16199);
     
-    _putDontNest(result, 16189, 16207);
+    _putDontNest(result, 16190, 16208);
     
-    _putDontNest(result, 16189, 16216);
+    _putDontNest(result, 16190, 16217);
     
-    _putDontNest(result, 16189, 16225);
+    _putDontNest(result, 16190, 16226);
     
-    _putDontNest(result, 16193, 16225);
+    _putDontNest(result, 16194, 16226);
     
-    _putDontNest(result, 16198, 16153);
+    _putDontNest(result, 16199, 16154);
     
-    _putDontNest(result, 16198, 16162);
+    _putDontNest(result, 16199, 16163);
     
-    _putDontNest(result, 16198, 16171);
+    _putDontNest(result, 16199, 16172);
     
-    _putDontNest(result, 16198, 16180);
+    _putDontNest(result, 16199, 16181);
     
-    _putDontNest(result, 16198, 16189);
+    _putDontNest(result, 16199, 16190);
     
-    _putDontNest(result, 16198, 16198);
+    _putDontNest(result, 16199, 16199);
     
-    _putDontNest(result, 16198, 16207);
+    _putDontNest(result, 16199, 16208);
     
-    _putDontNest(result, 16198, 16216);
+    _putDontNest(result, 16199, 16217);
     
-    _putDontNest(result, 16198, 16225);
+    _putDontNest(result, 16199, 16226);
     
-    _putDontNest(result, 16202, 16207);
+    _putDontNest(result, 16203, 16208);
     
-    _putDontNest(result, 16202, 16225);
+    _putDontNest(result, 16203, 16226);
     
-    _putDontNest(result, 16207, 16153);
+    _putDontNest(result, 16208, 16154);
     
-    _putDontNest(result, 16207, 16162);
+    _putDontNest(result, 16208, 16163);
     
-    _putDontNest(result, 16207, 16171);
+    _putDontNest(result, 16208, 16172);
     
-    _putDontNest(result, 16207, 16180);
+    _putDontNest(result, 16208, 16181);
     
-    _putDontNest(result, 16207, 16189);
+    _putDontNest(result, 16208, 16190);
     
-    _putDontNest(result, 16207, 16198);
+    _putDontNest(result, 16208, 16199);
     
-    _putDontNest(result, 16207, 16216);
+    _putDontNest(result, 16208, 16217);
     
-    _putDontNest(result, 16207, 16225);
+    _putDontNest(result, 16208, 16226);
     
-    _putDontNest(result, 16211, 16216);
+    _putDontNest(result, 16212, 16217);
     
-    _putDontNest(result, 16211, 16225);
+    _putDontNest(result, 16212, 16226);
     
-    _putDontNest(result, 16216, 16153);
+    _putDontNest(result, 16217, 16154);
     
-    _putDontNest(result, 16216, 16162);
+    _putDontNest(result, 16217, 16163);
     
-    _putDontNest(result, 16216, 16171);
+    _putDontNest(result, 16217, 16172);
     
-    _putDontNest(result, 16216, 16180);
+    _putDontNest(result, 16217, 16181);
     
-    _putDontNest(result, 16216, 16189);
+    _putDontNest(result, 16217, 16190);
     
-    _putDontNest(result, 16216, 16198);
+    _putDontNest(result, 16217, 16199);
     
-    _putDontNest(result, 16216, 16207);
+    _putDontNest(result, 16217, 16208);
     
-    _putDontNest(result, 16216, 16225);
+    _putDontNest(result, 16217, 16226);
     
-    _putDontNest(result, 16225, 16225);
+    _putDontNest(result, 16226, 16226);
    return result;
   }
     
@@ -3441,21 +3441,65 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     ++resultStoreId;
     
-    result.putUnsafe(1502, resultStoreId);
-    result.putUnsafe(1511, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(12082, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(15560, resultStoreId);
+    result.putUnsafe(1576, resultStoreId);
+    result.putUnsafe(1585, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(1493, resultStoreId);
     result.putUnsafe(1507, resultStoreId);
     ++resultStoreId;
     
+    result.putUnsafe(5290, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(12089, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16149, resultStoreId);
+    result.putUnsafe(16158, resultStoreId);
+    result.putUnsafe(16185, resultStoreId);
+    result.putUnsafe(16194, resultStoreId);
+    result.putUnsafe(16226, resultStoreId);
+    ++resultStoreId;
+    
     result.putUnsafe(1498, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1387, resultStoreId);
+    result.putUnsafe(1396, resultStoreId);
+    result.putUnsafe(1405, resultStoreId);
+    result.putUnsafe(1414, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(12082, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1424, resultStoreId);
+    result.putUnsafe(1433, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1326, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16212, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1470, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1437, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1461, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(15561, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16167, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(9653, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(1475, resultStoreId);
@@ -3464,32 +3508,138 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(1489, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1326, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1442, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(12089, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1470, resultStoreId);
+    result.putUnsafe(12072, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(1356, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1424, resultStoreId);
-    result.putUnsafe(1433, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1437, resultStoreId);
-    ++resultStoreId;
-    
     result.putUnsafe(1306, resultStoreId);
     ++resultStoreId;
     
+    result.putUnsafe(16203, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1248, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(876, resultStoreId);
+    result.putUnsafe(957, resultStoreId);
+    result.putUnsafe(1010, resultStoreId);
+    result.putUnsafe(1061, resultStoreId);
+    result.putUnsafe(1137, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16181, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1263, resultStoreId);
+    result.putUnsafe(1272, resultStoreId);
+    result.putUnsafe(1295, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1380, resultStoreId);
+    result.putUnsafe(1391, resultStoreId);
+    result.putUnsafe(1400, resultStoreId);
+    result.putUnsafe(1409, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16217, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(11985, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16079, resultStoreId);
+    result.putUnsafe(16090, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1366, resultStoreId);
+    result.putUnsafe(1375, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1331, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1316, resultStoreId);
+    result.putUnsafe(1336, resultStoreId);
+    result.putUnsafe(1347, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16172, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(15739, resultStoreId);
+    result.putUnsafe(16041, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1231, resultStoreId);
+    result.putUnsafe(1237, resultStoreId);
+    result.putUnsafe(1253, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(12099, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1452, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16176, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1442, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16208, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(15729, resultStoreId);
+    result.putUnsafe(15846, resultStoreId);
+    result.putUnsafe(15903, resultStoreId);
+    result.putUnsafe(15969, resultStoreId);
+    result.putUnsafe(16007, resultStoreId);
+    result.putUnsafe(16053, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1225, resultStoreId);
+    result.putUnsafe(1244, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(8009, resultStoreId);
+    result.putUnsafe(8025, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1589, resultStoreId);
+    result.putUnsafe(1604, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1419, resultStoreId);
+    result.putUnsafe(1428, resultStoreId);
+    ++resultStoreId;
+    
     result.putUnsafe(1299, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(16118, resultStoreId);
+    result.putUnsafe(16131, resultStoreId);
+    result.putUnsafe(16144, resultStoreId);
+    result.putUnsafe(16154, resultStoreId);
+    result.putUnsafe(16163, resultStoreId);
+    result.putUnsafe(16190, resultStoreId);
+    result.putUnsafe(16199, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1258, resultStoreId);
+    result.putUnsafe(1267, resultStoreId);
+    result.putUnsafe(1276, resultStoreId);
+    result.putUnsafe(1290, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1502, resultStoreId);
+    result.putUnsafe(1511, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1286, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(11877, resultStoreId);
@@ -3500,84 +3650,10 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(12194, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1263, resultStoreId);
-    result.putUnsafe(1272, resultStoreId);
-    result.putUnsafe(1295, resultStoreId);
+    result.putUnsafe(8014, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1452, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1461, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(11985, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(2929, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(8009, resultStoreId);
-    result.putUnsafe(8025, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(9653, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16117, resultStoreId);
-    result.putUnsafe(16130, resultStoreId);
-    result.putUnsafe(16143, resultStoreId);
-    result.putUnsafe(16153, resultStoreId);
-    result.putUnsafe(16162, resultStoreId);
-    result.putUnsafe(16189, resultStoreId);
-    result.putUnsafe(16198, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16216, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16202, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1576, resultStoreId);
-    result.putUnsafe(1585, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1286, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16148, resultStoreId);
-    result.putUnsafe(16157, resultStoreId);
-    result.putUnsafe(16184, resultStoreId);
-    result.putUnsafe(16193, resultStoreId);
-    result.putUnsafe(16225, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(12072, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(5290, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1387, resultStoreId);
-    result.putUnsafe(1396, resultStoreId);
-    result.putUnsafe(1405, resultStoreId);
-    result.putUnsafe(1414, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1366, resultStoreId);
-    result.putUnsafe(1375, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16166, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16211, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1316, resultStoreId);
-    result.putUnsafe(1336, resultStoreId);
-    result.putUnsafe(1347, resultStoreId);
+    result.putUnsafe(1194, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(1351, resultStoreId);
@@ -3585,48 +3661,14 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(1370, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1231, resultStoreId);
-    result.putUnsafe(1237, resultStoreId);
-    result.putUnsafe(1253, resultStoreId);
+    result.putUnsafe(15757, resultStoreId);
+    result.putUnsafe(16063, resultStoreId);
+    result.putUnsafe(16069, resultStoreId);
+    result.putUnsafe(16075, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1380, resultStoreId);
-    result.putUnsafe(1391, resultStoreId);
-    result.putUnsafe(1400, resultStoreId);
-    result.putUnsafe(1409, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1331, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1589, resultStoreId);
-    result.putUnsafe(1604, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(876, resultStoreId);
-    result.putUnsafe(957, resultStoreId);
-    result.putUnsafe(1010, resultStoreId);
-    result.putUnsafe(1061, resultStoreId);
-    result.putUnsafe(1137, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16175, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1419, resultStoreId);
-    result.putUnsafe(1428, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16180, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16171, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(15756, resultStoreId);
-    result.putUnsafe(16062, resultStoreId);
-    result.putUnsafe(16068, resultStoreId);
-    result.putUnsafe(16074, resultStoreId);
+    result.putUnsafe(1580, resultStoreId);
+    result.putUnsafe(1594, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(1311, resultStoreId);
@@ -3634,49 +3676,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(1340, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1258, resultStoreId);
-    result.putUnsafe(1267, resultStoreId);
-    result.putUnsafe(1276, resultStoreId);
-    result.putUnsafe(1290, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1248, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(15728, resultStoreId);
-    result.putUnsafe(15845, resultStoreId);
-    result.putUnsafe(15902, resultStoreId);
-    result.putUnsafe(15968, resultStoreId);
-    result.putUnsafe(16006, resultStoreId);
-    result.putUnsafe(16052, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(15738, resultStoreId);
-    result.putUnsafe(16040, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1194, resultStoreId);
-    ++resultStoreId;
-    
     result.putUnsafe(9658, resultStoreId);
     result.putUnsafe(12353, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(12099, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(8014, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1580, resultStoreId);
-    result.putUnsafe(1594, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1225, resultStoreId);
-    result.putUnsafe(1244, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(16207, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(946, resultStoreId);
@@ -3690,8 +3691,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(1210, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(16078, resultStoreId);
-    result.putUnsafe(16089, resultStoreId);
+    result.putUnsafe(2929, resultStoreId);
       
     return result;
   }
@@ -3734,8 +3734,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__RascalKeywords__lit_start_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"start\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_loc_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"loc\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_assoc_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"assoc\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_mod_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"mod\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_public_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"public\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_mod_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"mod\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_ignore_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"ignore\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_bool_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"bool\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_private_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"private\")],{})", Factory.Production);
@@ -3776,39 +3776,39 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__RascalKeywords__lit_type_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"type\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_map_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"map\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_throw_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"throw\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_anno_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"anno\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_insert_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"insert\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_alias_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"alias\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_default_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"default\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_tuple_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"tuple\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_dynamic_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"dynamic\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_catch_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"catch\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_extend_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"extend\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_solve_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"solve\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_bag_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"bag\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_filter_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"filter\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_throws_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"throws\")],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_rat_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"rat\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_anno_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"anno\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_extend_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"extend\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_tuple_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"tuple\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_catch_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"catch\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_dynamic_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"dynamic\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_default_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"default\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_alias_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"alias\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_datetime_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"datetime\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_solve_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"solve\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_rat_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"rat\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_throws_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"throws\")],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_filter_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"filter\")],{})", Factory.Production);
   private static final IConstructor prod__$MetaHole_alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_97_108_116_40_123_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_50_44_52_50_41_93_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_55_44_52_55_41_93_41_41_125_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_52_49_41_44_114_97_110_103_101_40_52_51_44_49_49_49_52_49_49_49_41_93_41_125_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])})),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(alt({conditional(\\\\char-class([range(42,42)]),{\\\\not-follow(\\\\char-class([range(47,47)]))}),\\\\char-class([range(1,41),range(43,1114111)])}))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])}))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42__char_class___range__0_0_lit___97_108_116_40_123_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_50_44_52_50_41_93_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_55_44_52_55_41_93_41_41_125_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_52_49_41_44_114_97_110_103_101_40_52_51_44_49_49_49_52_49_49_49_41_93_41_125_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])})),[\\char-class([range(0,0)]),lit(\"alt({conditional(\\\\char-class([range(42,42)]),{\\\\not-follow(\\\\char-class([range(47,47)]))}),\\\\char-class([range(1,41),range(43,1114111)])})\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])})))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_97_108_116_40_123_115_101_113_40_91_108_105_116_40_34_92_92_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_50_51_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_50_53_41_93_41_93_41_44_115_111_114_116_40_34_84_97_103_83_116_114_105_110_103_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_49_50_50_41_44_114_97_110_103_101_40_49_50_52_44_49_50_52_41_44_114_97_110_103_101_40_49_50_54_44_49_49_49_52_49_49_49_41_93_41_125_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])})),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(alt({seq([lit(\\\"\\\\\\\\\\\"),\\\\char-class([range(123,123),range(125,125)])]),sort(\\\"TagString\\\"),\\\\char-class([range(1,122),range(124,124),range(126,1114111)])}))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])}))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125__char_class___range__0_0_lit___97_108_116_40_123_115_101_113_40_91_108_105_116_40_34_92_92_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_50_51_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_50_53_41_93_41_93_41_44_115_111_114_116_40_34_84_97_103_83_116_114_105_110_103_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_49_50_50_41_44_114_97_110_103_101_40_49_50_52_44_49_50_52_41_44_114_97_110_103_101_40_49_50_54_44_49_49_49_52_49_49_49_41_93_41_125_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])})),[\\char-class([range(0,0)]),lit(\"alt({seq([lit(\\\"\\\\\\\\\\\"),\\\\char-class([range(123,123),range(125,125)])]),sort(\\\"TagString\\\"),\\\\char-class([range(1,122),range(124,124),range(126,1114111)])})\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])})))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42__char_class___range__0_0_lit___97_108_116_40_123_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_50_44_52_50_41_93_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_55_44_52_55_41_93_41_41_125_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_52_49_41_44_114_97_110_103_101_40_52_51_44_49_49_49_52_49_49_49_41_93_41_125_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__alt___char_class___range__1_41_range__43_1114111_char_class___range__42_42 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])})),[\\char-class([range(0,0)]),lit(\"alt({conditional(\\\\char-class([range(42,42)]),{\\\\not-follow(\\\\char-class([range(47,47)]))}),\\\\char-class([range(1,41),range(43,1114111)])})\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(alt({conditional(\\char-class([range(42,42)]),{\\not-follow(\\char-class([range(47,47)]))}),\\char-class([range(1,41),range(43,1114111)])})))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_alt___lit_10_seq___lit_0_char_class___range__48_57_range__65_70_range__97_102__char_class___range__0_0_lit___97_108_116_40_123_108_105_116_40_34_49_48_34_41_44_115_101_113_40_91_108_105_116_40_34_48_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_55_48_41_44_114_97_110_103_101_40_57_55_44_49_48_50_41_93_41_93_41_125_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__alt___lit_10_seq___lit_0_char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({lit(\"10\"),seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])})),[\\char-class([range(0,0)]),lit(\"alt({lit(\\\"10\\\"),seq([lit(\\\"0\\\"),\\\\char-class([range(48,57),range(65,70),range(97,102)])])})\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(alt({lit(\"10\"),seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])})))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_97_108_116_40_123_115_101_113_40_91_108_105_116_40_34_92_92_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_50_51_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_50_53_41_93_41_93_41_44_115_111_114_116_40_34_84_97_103_83_116_114_105_110_103_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_49_50_50_41_44_114_97_110_103_101_40_49_50_52_44_49_50_52_41_44_114_97_110_103_101_40_49_50_54_44_49_49_49_52_49_49_49_41_93_41_125_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125 = (IConstructor) _read("prod(label(\"$MetaHole\",alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])})),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(alt({seq([lit(\\\"\\\\\\\\\\\"),\\\\char-class([range(123,123),range(125,125)])]),sort(\\\"TagString\\\"),\\\\char-class([range(1,122),range(124,124),range(126,1114111)])}))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])}))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__68_68_range__70_70_range__100_100_range__102_102__char_class___range__0_0_lit___111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_56_44_54_56_41_44_114_97_110_103_101_40_55_48_44_55_48_41_44_114_97_110_103_101_40_49_48_48_44_49_48_48_41_44_114_97_110_103_101_40_49_48_50_44_49_48_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)])),[\\char-class([range(0,0)]),lit(\"opt(\\\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_56_41_44_114_97_110_103_101_40_49_49_44_49_50_41_44_114_97_110_103_101_40_49_52_44_51_49_41_44_114_97_110_103_101_40_51_51_44_53_57_41_44_114_97_110_103_101_40_54_49_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_9_range__11_1114111__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_9_range__11_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,9),range(11,1114111)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,9),range(11,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,9),range(11,1114111)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_char_class___range__48_57__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(48,57)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(48,57)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_char_class___range__48_57__char_class___range__0_0_lit___111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57)])),[\\char-class([range(0,0)]),lit(\"opt(\\\\char-class([range(48,57)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(\\char-class([range(48,57)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__48_57__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,57)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,57)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__100_100_range__105_105_range__109_109_range__115_115__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_48_48_44_49_48_48_41_44_114_97_110_103_101_40_49_48_53_44_49_48_53_41_44_114_97_110_103_101_40_49_48_57_44_49_48_57_41_44_114_97_110_103_101_40_49_49_53_44_49_49_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_56_41_44_114_97_110_103_101_40_49_49_44_49_50_41_44_114_97_110_103_101_40_49_52_44_51_49_41_44_114_97_110_103_101_40_51_51_44_53_57_41_44_114_97_110_103_101_40_54_49_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__68_68_range__70_70_range__100_100_range__102_102__char_class___range__0_0_lit___111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_56_44_54_56_41_44_114_97_110_103_101_40_55_48_44_55_48_41_44_114_97_110_103_101_40_49_48_48_44_49_48_48_41_44_114_97_110_103_101_40_49_48_50_44_49_48_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)])),[\\char-class([range(0,0)]),lit(\"opt(\\\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_char_class___range__9_9_range__32_32_range__160_160_range__5760_5760_range__8192_8202_range__8239_8239_range__8287_8287_range__12288_12288__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_57_44_57_41_44_114_97_110_103_101_40_51_50_44_51_50_41_44_114_97_110_103_101_40_49_54_48_44_49_54_48_41_44_114_97_110_103_101_40_53_55_54_48_44_53_55_54_48_41_44_114_97_110_103_101_40_56_49_57_50_44_56_50_48_50_41_44_114_97_110_103_101_40_56_50_51_57_44_56_50_51_57_41_44_114_97_110_103_101_40_56_50_56_55_44_56_50_56_55_41_44_114_97_110_103_101_40_49_50_50_56_56_44_49_50_50_56_56_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__9_9_range__32_32_range__160_160_range__5760_5760_range__8192_8202_range__8239_8239_range__8287_8287_range__12288_12288 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(9,9),range(32,32),range(160,160),range(5760,5760),range(8192,8202),range(8239,8239),range(8287,8287),range(12288,12288)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(9,9),range(32,32),range(160,160),range(5760,5760),range(8192,8202),range(8239,8239),range(8287,8287),range(12288,12288)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(9,9),range(32,32),range(160,160),range(5760,5760),range(8192,8202),range(8239,8239),range(8287,8287),range(12288,12288)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__1_9_range__11_1114111__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__1_9_range__11_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,9),range(11,1114111)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(1,9),range(11,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(1,9),range(11,1114111)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_char_class___range__43_43_range__45_45__char_class___range__0_0_lit___111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_51_44_52_51_41_44_114_97_110_103_101_40_52_53_44_52_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__char_class___range__43_43_range__45_45 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(43,43),range(45,45)])),[\\char-class([range(0,0)]),lit(\"opt(\\\\char-class([range(43,43),range(45,45)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(\\char-class([range(43,43),range(45,45)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__48_57_range__65_70_range__97_102__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_55_48_41_44_114_97_110_103_101_40_57_55_44_49_48_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(65,70),range(97,102)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,57),range(65,70),range(97,102)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,57),range(65,70),range(97,102)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__48_55__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_55 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,55)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,55)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,55)]))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_char_class___range__1_9_range__11_59_range__61_61_range__63_91_range__93_95_range__97_1114111__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_53_57_41_44_114_97_110_103_101_40_54_49_44_54_49_41_44_114_97_110_103_101_40_54_51_44_57_49_41_44_114_97_110_103_101_40_57_51_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__1_9_range__11_59_range__61_61_range__63_91_range__93_95_range__97_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_57__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,57)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,57)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_53_44_52_53_41_44_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__100_100_range__105_105_range__109_109_range__115_115__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_48_48_44_49_48_48_41_44_114_97_110_103_101_40_49_48_53_44_49_48_53_41_44_114_97_110_103_101_40_49_48_57_44_49_48_57_41_44_114_97_110_103_101_40_49_49_53_44_49_49_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_55__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_53_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_55 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,55)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,55)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,55)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__48_57_range__65_70_range__97_102__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_55_48_41_44_114_97_110_103_101_40_57_55_44_49_48_50_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(65,70),range(97,102)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(48,57),range(65,70),range(97,102)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(48,57),range(65,70),range(97,102)]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_char_class___range__1_9_range__11_59_range__61_61_range__63_91_range__93_95_range__97_1114111__char_class___range__0_0_lit___105_116_101_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_44_57_41_44_114_97_110_103_101_40_49_49_44_53_57_41_44_114_97_110_103_101_40_54_49_44_54_49_41_44_114_97_110_103_101_40_54_51_44_57_49_41_44_114_97_110_103_101_40_57_51_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_49_49_52_49_49_49_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter__char_class___range__1_9_range__11_59_range__61_61_range__63_91_range__93_95_range__97_1114111 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)])),[\\char-class([range(0,0)]),lit(\"iter(\\\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(iter(\\char-class([range(1,9),range(11,59),range(61,61),range(63,91),range(93,95),range(97,1114111)]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Backslash__char_class___range__0_0_lit___115_111_114_116_40_34_66_97_99_107_115_108_97_115_104_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Backslash = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Backslash\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Backslash\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"Backslash\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_BooleanLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_66_111_111_108_101_97_110_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__BooleanLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"BooleanLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"BooleanLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"BooleanLiteral\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_CaseInsensitiveStringConstant__char_class___range__0_0_lit___115_111_114_116_40_34_67_97_115_101_73_110_115_101_110_115_105_116_105_118_101_83_116_114_105_110_103_67_111_110_115_116_97_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__CaseInsensitiveStringConstant = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"CaseInsensitiveStringConstant\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"CaseInsensitiveStringConstant\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"CaseInsensitiveStringConstant\")))})", Factory.Production);
@@ -3831,8 +3831,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_Name__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Name = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Name\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Name\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"Name\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Name__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_78_97_109_101_34_41_44_91_108_105_116_40_34_58_58_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Name\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Name\\\"),[lit(\\\"::\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(lex(\"Name\"),[layouts(\"LAYOUTLIST\"),lit(\"::\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_NamedBackslash__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_100_66_97_99_107_115_108_97_115_104_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NamedBackslash = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"NamedBackslash\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"NamedBackslash\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"NamedBackslash\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_NamedRegExp__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_100_82_101_103_69_120_112_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NamedRegExp = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"NamedRegExp\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"NamedRegExp\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"NamedRegExp\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_NamedRegExp__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_78_97_109_101_100_82_101_103_69_120_112_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__NamedRegExp = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"NamedRegExp\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"NamedRegExp\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(lex(\"NamedRegExp\"))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_NamedRegExp__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_100_82_101_103_69_120_112_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NamedRegExp = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"NamedRegExp\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"NamedRegExp\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"NamedRegExp\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Nonterminal__char_class___range__0_0_lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Nonterminal = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"Nonterminal\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Nonterminal\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"Nonterminal\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_NonterminalLabel__char_class___range__0_0_lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_76_97_98_101_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NonterminalLabel = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"NonterminalLabel\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"NonterminalLabel\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"NonterminalLabel\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_OctalIntegerLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_79_99_116_97_108_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__OctalIntegerLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"OctalIntegerLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"OctalIntegerLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"OctalIntegerLiteral\")))})", Factory.Production);
@@ -3851,8 +3851,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_RegExp__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_82_101_103_69_120_112_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__RegExp = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"RegExp\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"RegExp\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(lex(\"RegExp\"))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_RegExpLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_103_69_120_112_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__RegExpLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"RegExpLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"RegExpLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"RegExpLiteral\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_RegExpModifier__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_103_69_120_112_77_111_100_105_102_105_101_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__RegExpModifier = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"RegExpModifier\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"RegExpModifier\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"RegExpModifier\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_StringCharacter__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_67_104_97_114_97_99_116_101_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringCharacter = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"StringCharacter\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringCharacter\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"StringCharacter\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_StringCharacter__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_116_114_105_110_103_67_104_97_114_97_99_116_101_114_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__StringCharacter = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"StringCharacter\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"StringCharacter\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(lex(\"StringCharacter\"))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_StringCharacter__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_67_104_97_114_97_99_116_101_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringCharacter = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"StringCharacter\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringCharacter\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"StringCharacter\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_StringConstant__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_67_111_110_115_116_97_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringConstant = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"StringConstant\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringConstant\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"StringConstant\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_TagString__char_class___range__0_0_lit___115_111_114_116_40_34_84_97_103_83_116_114_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TagString = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"TagString\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"TagString\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"TagString\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_TimePartNoTZ__char_class___range__0_0_lit___115_111_114_116_40_34_84_105_109_101_80_97_114_116_78_111_84_90_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TimePartNoTZ = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"TimePartNoTZ\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"TimePartNoTZ\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"TimePartNoTZ\")))})", Factory.Production);
@@ -3860,34 +3860,34 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_URLChars__char_class___range__0_0_lit___115_111_114_116_40_34_85_82_76_67_104_97_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__URLChars = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"URLChars\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"URLChars\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"URLChars\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_UnicodeEscape__char_class___range__0_0_lit___115_111_114_116_40_34_85_110_105_99_111_100_101_69_115_99_97_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__UnicodeEscape = (IConstructor) _read("prod(label(\"$MetaHole\",lex(\"UnicodeEscape\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"UnicodeEscape\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lex(\"UnicodeEscape\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_lit___44__char_class___range__0_0_lit___111_112_116_40_108_105_116_40_34_44_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__lit___44 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\",\")),[\\char-class([range(0,0)]),lit(\"opt(lit(\\\",\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(lit(\",\"))))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_KeywordArgument__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArgument__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Expression\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_KeywordArgument__Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__KeywordArgument__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Pattern\\\")]),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_KeywordArgument__Pattern__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArgument__Pattern = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Pattern\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_KeywordArgument__Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__KeywordArgument__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Expression\\\")]),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_KeywordArgument__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArgument__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Expression\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArgument\",[sort(\"Expression\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_KeywordArgument__Pattern__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArgument__Pattern = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Pattern\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_KeywordArgument__Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__KeywordArgument__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(\\\\parameterized-sort(\\\"KeywordArgument\\\",[sort(\\\"Pattern\\\")]),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(\\parameterized-sort(\"KeywordArgument\",[sort(\"Pattern\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_KeywordArguments__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArguments__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArguments\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArguments\\\",[sort(\\\"Expression\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArguments\",[sort(\"Expression\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_KeywordArguments__Pattern__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArguments__Pattern = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"KeywordArguments\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"KeywordArguments\\\",[sort(\\\"Pattern\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"KeywordArguments\",[sort(\"Pattern\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Mapping__Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(\\\\parameterized-sort(\\\"Mapping\\\",[sort(\\\"Pattern\\\")]),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Mapping__Pattern__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Mapping__Pattern = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"Mapping\\\",[sort(\\\"Pattern\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Mapping__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"Mapping\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"Mapping\\\",[sort(\\\"Expression\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"Mapping\",[sort(\"Expression\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"Mapping\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(\\\\parameterized-sort(\\\"Mapping\\\",[sort(\\\"Expression\\\")]),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(\\parameterized-sort(\"Mapping\",[sort(\"Expression\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])),[\\char-class([range(0,0)]),lit(\"seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_44_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])),[\\char-class([range(0,0)]),lit(\"seq([\\\\char-class([range(97,122)]),\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Mapping__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",\\parameterized-sort(\"Mapping\",[sort(\"Expression\")])),[\\char-class([range(0,0)]),lit(\"\\\\parameterized-sort(\\\"Mapping\\\",[sort(\\\"Expression\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\parameterized-sort(\"Mapping\",[sort(\"Expression\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])),[\\char-class([range(0,0)]),lit(\"opt(seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_seq___lit___92_char_class___range__123_123_range__125_125__char_class___range__0_0_lit___115_101_113_40_91_108_105_116_40_34_92_92_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_49_50_51_44_49_50_51_41_44_114_97_110_103_101_40_49_50_53_44_49_50_53_41_93_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___lit___92_char_class___range__123_123_range__125_125 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])])),[\\char-class([range(0,0)]),lit(\"seq([lit(\\\"\\\\\\\\\\\"),\\\\char-class([range(123,123),range(125,125)])])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___char_class___range__65_90_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_93_41_44_123_92_110_111_116_45_112_114_101_99_101_100_101_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_93_41_41_125_41_44_99_111_110_100_105_116_105_111_110_97_108_40_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__65_90_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([conditional(\\char-class([range(65,90)]),{\\not-precede(\\char-class([range(65,90)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])),[\\char-class([range(0,0)]),lit(\"seq([conditional(\\\\char-class([range(65,90)]),{\\\\not-precede(\\\\char-class([range(65,90)]))}),conditional(\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\\\not-follow(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([conditional(\\char-class([range(65,90)]),{\\not-precede(\\char-class([range(65,90)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_44_123_92_110_111_116_45_112_114_101_99_101_100_101_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_44_99_111_110_100_105_116_105_111_110_97_108_40_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])),[\\char-class([range(0,0)]),lit(\"seq([conditional(\\\\char-class([range(65,90),range(95,95),range(97,122)]),{\\\\not-precede(\\\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\\\not-follow(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___lit_0_char_class___range__48_57_range__65_70_range__97_102__char_class___range__0_0_lit___115_101_113_40_91_108_105_116_40_34_48_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_55_48_41_44_114_97_110_103_101_40_57_55_44_49_48_50_41_93_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___lit_0_char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])),[\\char-class([range(0,0)]),lit(\"seq([lit(\\\"0\\\"),\\\\char-class([range(48,57),range(65,70),range(97,102)])])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_52_44_52_52_41_44_114_97_110_103_101_40_52_54_44_52_54_41_93_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))])),[\\char-class([range(0,0)]),lit(\"opt(seq([\\\\char-class([range(44,44),range(46,46)]),\\\\char-class([range(48,57)]),opt(seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))]))]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_44_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])),[\\char-class([range(0,0)]),lit(\"seq([\\\\char-class([range(97,122)]),\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_52_44_52_52_41_44_114_97_110_103_101_40_52_54_44_52_54_41_93_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))])),[\\char-class([range(0,0)]),lit(\"seq([\\\\char-class([range(44,44),range(46,46)]),\\\\char-class([range(48,57)]),opt(seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))]))])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Assignable__char_class___range__0_0_lit___115_111_114_116_40_34_65_115_115_105_103_110_97_98_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Assignable = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Assignable\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Assignable\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Assignable\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])),[\\char-class([range(0,0)]),lit(\"seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___lit_0_char_class___range__48_57_range__65_70_range__97_102__char_class___range__0_0_lit___115_101_113_40_91_108_105_116_40_34_48_34_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_55_48_41_44_114_97_110_103_101_40_57_55_44_49_48_50_41_93_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___lit_0_char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])),[\\char-class([range(0,0)]),lit(\"seq([lit(\\\"0\\\"),\\\\char-class([range(48,57),range(65,70),range(97,102)])])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([lit(\"0\"),\\char-class([range(48,57),range(65,70),range(97,102)])])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_44_123_92_110_111_116_45_112_114_101_99_101_100_101_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_44_99_111_110_100_105_116_105_111_110_97_108_40_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])),[\\char-class([range(0,0)]),lit(\"seq([conditional(\\\\char-class([range(65,90),range(95,95),range(97,122)]),{\\\\not-precede(\\\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\\\not-follow(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57__char_class___range__0_0_lit___111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_52_44_52_52_41_44_114_97_110_103_101_40_52_54_44_52_54_41_93_41_44_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_115_101_113_40_91_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_44_111_112_116_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_93_41_41_93_41_41_93_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))])),[\\char-class([range(0,0)]),lit(\"opt(seq([\\\\char-class([range(44,44),range(46,46)]),\\\\char-class([range(48,57)]),opt(seq([\\\\char-class([range(48,57)]),opt(\\\\char-class([range(48,57)]))]))]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(opt(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))]))))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_seq___char_class___range__65_90_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__char_class___range__0_0_lit___115_101_113_40_91_99_111_110_100_105_116_105_111_110_97_108_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_93_41_44_123_92_110_111_116_45_112_114_101_99_101_100_101_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_54_53_44_57_48_41_93_41_41_125_41_44_99_111_110_100_105_116_105_111_110_97_108_40_92_105_116_101_114_45_115_116_97_114_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_44_123_92_110_111_116_45_102_111_108_108_111_119_40_92_99_104_97_114_45_99_108_97_115_115_40_91_114_97_110_103_101_40_52_56_44_53_55_41_44_114_97_110_103_101_40_54_53_44_57_48_41_44_114_97_110_103_101_40_57_53_44_57_53_41_44_114_97_110_103_101_40_57_55_44_49_50_50_41_93_41_41_125_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__seq___char_class___range__65_90_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("prod(label(\"$MetaHole\",seq([conditional(\\char-class([range(65,90)]),{\\not-precede(\\char-class([range(65,90)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])),[\\char-class([range(0,0)]),lit(\"seq([conditional(\\\\char-class([range(65,90)]),{\\\\not-precede(\\\\char-class([range(65,90)]))}),conditional(\\\\iter-star(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\\\not-follow(\\\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(seq([conditional(\\char-class([range(65,90)]),{\\not-precede(\\char-class([range(65,90)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Assignable__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_65_115_115_105_103_110_97_98_108_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Assignable\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Assignable\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Assignable\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Assignable__char_class___range__0_0_lit___115_111_114_116_40_34_65_115_115_105_103_110_97_98_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Assignable = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Assignable\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Assignable\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Assignable\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Assignment__char_class___range__0_0_lit___115_111_114_116_40_34_65_115_115_105_103_110_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Assignment = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Assignment\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Assignment\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Assignment\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Assoc__char_class___range__0_0_lit___115_111_114_116_40_34_65_115_115_111_99_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Assoc = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Assoc\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Assoc\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Assoc\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_BasicType__char_class___range__0_0_lit___115_111_114_116_40_34_66_97_115_105_99_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__BasicType = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"BasicType\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"BasicType\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"BasicType\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Body__char_class___range__0_0_lit___115_111_114_116_40_34_66_111_100_121_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Body = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Body\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Body\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Body\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Bound__char_class___range__0_0_lit___115_111_114_116_40_34_66_111_117_110_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Bound = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Bound\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Bound\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Bound\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Case__char_class___range__0_0_lit___115_111_114_116_40_34_67_97_115_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Case = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Case\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Case\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Case\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Case__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_67_97_115_101_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Case__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Case\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"Case\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Case\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Case__char_class___range__0_0_lit___115_111_114_116_40_34_67_97_115_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Case = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Case\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Case\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Case\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Catch__char_class___range__0_0_lit___115_111_114_116_40_34_67_97_116_99_104_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Catch = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Catch\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Catch\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Catch\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Catch__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_67_97_116_99_104_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Catch__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Catch\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"Catch\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Catch\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Class__char_class___range__0_0_lit___115_111_114_116_40_34_67_108_97_115_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Class = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Class\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Class\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Class\")))})", Factory.Production);
@@ -3901,23 +3901,23 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_DateTimeLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_68_97_116_101_84_105_109_101_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__DateTimeLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"DateTimeLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"DateTimeLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"DateTimeLiteral\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Declaration__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declaration = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Declaration\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Declaration\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Declaration\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Declarator__char_class___range__0_0_lit___115_111_114_116_40_34_68_101_99_108_97_114_97_116_111_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Declarator = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Declarator\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Declarator\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Declarator\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_EvalCommand__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_69_118_97_108_67_111_109_109_97_110_100_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__EvalCommand__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"EvalCommand\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"EvalCommand\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"EvalCommand\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_EvalCommand__char_class___range__0_0_lit___115_111_114_116_40_34_69_118_97_108_67_111_109_109_97_110_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__EvalCommand = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"EvalCommand\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"EvalCommand\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"EvalCommand\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_EvalCommand__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_69_118_97_108_67_111_109_109_97_110_100_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__EvalCommand__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"EvalCommand\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"EvalCommand\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"EvalCommand\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Expression__char_class___range__0_0_lit___115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Expression = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Expression\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Expression\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Expression\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Expression\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Expression\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Expression\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"Expression\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Field__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_70_105_101_108_100_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Field\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Field\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Field\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Expression\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Expression\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Field__char_class___range__0_0_lit___115_111_114_116_40_34_70_105_101_108_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Field = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Field\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Field\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Field\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Field__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_70_105_101_108_100_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Field\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Field\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Field\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Formals__char_class___range__0_0_lit___115_111_114_116_40_34_70_111_114_109_97_108_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Formals = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Formals\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Formals\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Formals\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_FunctionBody__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_66_111_100_121_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionBody = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionBody\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"FunctionBody\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"FunctionBody\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_FunctionDeclaration__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionDeclaration = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionDeclaration\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"FunctionDeclaration\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"FunctionDeclaration\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_FunctionModifier__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionModifier\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"FunctionModifier\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"FunctionModifier\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_FunctionModifier__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionModifier = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionModifier\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"FunctionModifier\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"FunctionModifier\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_FunctionModifier__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionModifier\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"FunctionModifier\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"FunctionModifier\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_FunctionModifiers__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionModifiers = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionModifiers\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"FunctionModifiers\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"FunctionModifiers\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_FunctionType__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionType = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"FunctionType\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"FunctionType\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"FunctionType\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Header__char_class___range__0_0_lit___115_111_114_116_40_34_72_101_97_100_101_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Header = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Header\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Header\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Header\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Import__char_class___range__0_0_lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Import = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Import\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Import\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Import\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Import__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_73_109_112_111_114_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Import__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Import\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Import\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Import\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Import__char_class___range__0_0_lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Import = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Import\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Import\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Import\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_ImportedModule__char_class___range__0_0_lit___115_111_114_116_40_34_73_109_112_111_114_116_101_100_77_111_100_117_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__ImportedModule = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"ImportedModule\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"ImportedModule\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"ImportedModule\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_IntegerLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__IntegerLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"IntegerLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"IntegerLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"IntegerLiteral\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_KeywordFormal__char_class___range__0_0_lit___115_111_114_116_40_34_75_101_121_119_111_114_100_70_111_114_109_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordFormal = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"KeywordFormal\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"KeywordFormal\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"KeywordFormal\")))})", Factory.Production);
@@ -3936,8 +3936,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_PathPart__char_class___range__0_0_lit___115_111_114_116_40_34_80_97_116_104_80_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__PathPart = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"PathPart\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"PathPart\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"PathPart\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_PathTail__char_class___range__0_0_lit___115_111_114_116_40_34_80_97_116_104_84_97_105_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__PathTail = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"PathTail\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"PathTail\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"PathTail\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Pattern\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"Pattern\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Pattern\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Pattern\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Pattern__char_class___range__0_0_lit___115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Pattern = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Pattern\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Pattern\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Pattern\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Pattern__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_80_97_116_116_101_114_110_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Pattern\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Pattern\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_PatternWithAction__char_class___range__0_0_lit___115_111_114_116_40_34_80_97_116_116_101_114_110_87_105_116_104_65_99_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__PatternWithAction = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"PatternWithAction\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"PatternWithAction\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"PatternWithAction\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Prod__char_class___range__0_0_lit___115_111_114_116_40_34_80_114_111_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Prod = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Prod\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Prod\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Prod\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_ProdModifier__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_80_114_111_100_77_111_100_105_102_105_101_114_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__ProdModifier__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"ProdModifier\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"ProdModifier\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"ProdModifier\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
@@ -3948,15 +3948,15 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_QualifiedName__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"QualifiedName\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"QualifiedName\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"QualifiedName\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Range__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_82_97_110_103_101_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Range__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Range\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Range\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Range\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Range__char_class___range__0_0_lit___115_111_114_116_40_34_82_97_110_103_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Range = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Range\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Range\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Range\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Renaming__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_110_97_109_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Renaming = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Renaming\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Renaming\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Renaming\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Renaming__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_82_101_110_97_109_105_110_103_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Renaming\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Renaming\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Renaming\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Renaming__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_110_97_109_105_110_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Renaming = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Renaming\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Renaming\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Renaming\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Renamings__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_110_97_109_105_110_103_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Renamings = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Renamings\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Renamings\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Renamings\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Replacement__char_class___range__0_0_lit___115_111_114_116_40_34_82_101_112_108_97_99_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Replacement = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Replacement\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Replacement\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Replacement\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_ShellCommand__char_class___range__0_0_lit___115_111_114_116_40_34_83_104_101_108_108_67_111_109_109_97_110_100_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__ShellCommand = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"ShellCommand\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"ShellCommand\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"ShellCommand\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Signature__char_class___range__0_0_lit___115_111_114_116_40_34_83_105_103_110_97_116_117_114_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Signature = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Signature\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Signature\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Signature\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Start__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Start = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Start\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Start\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Start\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Statement\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Statement\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Statement__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Statement\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Statement = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Statement\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Statement\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Statement__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_83_116_97_116_101_109_101_110_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Statement__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Statement\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"Statement\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Strategy__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_97_116_101_103_121_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Strategy = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Strategy\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Strategy\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Strategy\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_StringLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringLiteral = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"StringLiteral\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringLiteral\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"StringLiteral\")))})", Factory.Production);
@@ -3964,25 +3964,25 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$MetaHole_StringTail__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_84_97_105_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringTail = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"StringTail\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringTail\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"StringTail\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_StringTemplate__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_84_101_109_112_108_97_116_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringTemplate = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"StringTemplate\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StringTemplate\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"StringTemplate\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_StructuredType__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_117_99_116_117_114_101_100_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StructuredType = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"StructuredType\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"StructuredType\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"StructuredType\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"Sym\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Sym\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Sym\\\"),[lit(\\\"|\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\"),lit(\"|\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Sym__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Sym\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___115_111_114_116_40_34_83_121_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Sym = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Sym\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Sym\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Sym\\\"),[lit(\\\"|\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\"),lit(\"|\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Sym__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Sym\")),[\\char-class([range(0,0)]),lit(\"iter(sort(\\\"Sym\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_SyntaxDefinition__char_class___range__0_0_lit___115_111_114_116_40_34_83_121_110_116_97_120_68_101_102_105_110_105_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__SyntaxDefinition = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"SyntaxDefinition\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"SyntaxDefinition\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"SyntaxDefinition\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Tag__char_class___range__0_0_lit___115_111_114_116_40_34_84_97_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Tag = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Tag\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Tag\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Tag\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Tag__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_84_97_103_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Tag__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Tag\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Tag\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Tag\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Tag__char_class___range__0_0_lit___115_111_114_116_40_34_84_97_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Tag = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Tag\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Tag\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Tag\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Tags__char_class___range__0_0_lit___115_111_114_116_40_34_84_97_103_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Tags = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Tags\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Tags\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Tags\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Target__char_class___range__0_0_lit___115_111_114_116_40_34_84_97_114_103_101_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Target = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Target\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Target\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Target\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Toplevel__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_84_111_112_108_101_118_101_108_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Toplevel__layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Toplevel\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(sort(\\\"Toplevel\\\"))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"Toplevel\"),[layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Toplevel__char_class___range__0_0_lit___115_111_114_116_40_34_84_111_112_108_101_118_101_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Toplevel = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Toplevel\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Toplevel\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Toplevel\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_Type__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Type\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Type\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Type\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Type__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Type = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Type\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Type\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Type\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_TypeArg__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_65_114_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TypeArg = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeArg\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"TypeArg\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"TypeArg\")))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_TypeArg__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_65_114_103_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeArg\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"TypeArg\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_Type__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Type\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Type\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Type\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_TypeArg__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_65_114_103_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeArg\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"TypeArg\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
-  private static final IConstructor prod__$MetaHole_TypeVar__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_86_97_114_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__TypeVar__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeVar\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"TypeVar\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"TypeVar\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_TypeArg__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_65_114_103_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeArg\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-star-seps(sort(\\\"TypeArg\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_TypeArg__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_65_114_103_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TypeArg = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeArg\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"TypeArg\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"TypeArg\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_TypeVar__char_class___range__0_0_lit___115_111_114_116_40_34_84_121_112_101_86_97_114_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TypeVar = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeVar\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"TypeVar\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"TypeVar\")))})", Factory.Production);
+  private static final IConstructor prod__$MetaHole_TypeVar__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_84_121_112_101_86_97_114_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__TypeVar__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"TypeVar\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"TypeVar\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"TypeVar\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_UserType__char_class___range__0_0_lit___115_111_114_116_40_34_85_115_101_114_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__UserType = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"UserType\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"UserType\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"UserType\")))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Variable__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_86_97_114_105_97_98_108_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Variable\")),[\\char-class([range(0,0)]),lit(\"\\\\iter-seps(sort(\\\"Variable\\\"),[lit(\\\",\\\")])\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-seps(sort(\"Variable\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])))})", Factory.Production);
   private static final IConstructor prod__$MetaHole_Variable__char_class___range__0_0_lit___115_111_114_116_40_34_86_97_114_105_97_98_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Variable = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Variable\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Variable\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Variable\")))})", Factory.Production);
@@ -4410,8 +4410,8 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__layouts_$default$__ = (IConstructor) _read("prod(layouts(\"$default$\"),[],{})", Factory.Production);
   private static final IConstructor prod__layouts_LAYOUTLIST__iter_star__LAYOUT_ = (IConstructor) _read("prod(layouts(\"LAYOUTLIST\"),[conditional(\\iter-star(lex(\"LAYOUT\")),{\\not-follow(\\char-class([range(9,13),range(32,32),range(133,133),range(160,160),range(5760,5760),range(6158,6158),range(8192,8202),range(8232,8233),range(8239,8239),range(8287,8287),range(12288,12288)])),\\not-follow(lit(\"//\")),\\not-follow(lit(\"/*\"))})],{})", Factory.Production);
   private static final IConstructor prod__Backslash__char_class___range__92_92_ = (IConstructor) _read("prod(lex(\"Backslash\"),[conditional(\\char-class([range(92,92)]),{\\not-follow(\\char-class([range(47,47),range(60,60),range(62,62),range(92,92)]))})],{})", Factory.Production);
-  private static final IConstructor prod__BooleanLiteral__lit_false_ = (IConstructor) _read("prod(lex(\"BooleanLiteral\"),[lit(\"false\")],{})", Factory.Production);
   private static final IConstructor prod__BooleanLiteral__lit_true_ = (IConstructor) _read("prod(lex(\"BooleanLiteral\"),[lit(\"true\")],{})", Factory.Production);
+  private static final IConstructor prod__BooleanLiteral__lit_false_ = (IConstructor) _read("prod(lex(\"BooleanLiteral\"),[lit(\"false\")],{})", Factory.Production);
   private static final IConstructor prod__CaseInsensitiveStringConstant__lit___39_chars_iter_star__StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"CaseInsensitiveStringConstant\"),[lit(\"\\'\"),label(\"chars\",\\iter-star(lex(\"StringCharacter\"))),lit(\"\\'\")],{tag(\"category\"(\"Constant\"))})", Factory.Production);
   private static final IConstructor prod__Char__UnicodeEscape__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"Char\"),[lex(\"UnicodeEscape\")],{tag(\"category\"(\"Constant\"))})", Factory.Production);
   private static final IConstructor prod__Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"Char\"),[lit(\"\\\\\"),\\char-class([range(32,32),range(34,34),range(39,39),range(45,45),range(60,60),range(62,62),range(91,93),range(98,98),range(102,102),range(110,110),range(114,114),range(116,116)])],{tag(\"category\"(\"Constant\"))})", Factory.Production);
@@ -4426,22 +4426,22 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__DecimalIntegerLiteral__lit_0_ = (IConstructor) _read("prod(lex(\"DecimalIntegerLiteral\"),[conditional(lit(\"0\"),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_iter__char_class___range__48_57_range__65_70_range__97_102_ = (IConstructor) _read("prod(lex(\"HexIntegerLiteral\"),[\\char-class([range(48,48)]),\\char-class([range(88,88),range(120,120)]),conditional(iter(\\char-class([range(48,57),range(65,70),range(97,102)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__JustDate__lit___36_DatePart_lit___36_ = (IConstructor) _read("prod(lex(\"JustDate\"),[lit(\"$\"),lex(\"DatePart\"),lit(\"$\")],{})", Factory.Production);
-  private static final IConstructor prod__JustTime__lit___36_84_TimePartNoTZ_lit___36_ = (IConstructor) _read("prod(lex(\"JustTime\"),[lit(\"$T\"),conditional(lex(\"TimePartNoTZ\"),{\\not-follow(\\char-class([range(43,43),range(45,45)]))}),lit(\"$\")],{})", Factory.Production);
   private static final IConstructor prod__JustTime__lit___36_84_TimePartNoTZ_TimeZonePart_lit___36_ = (IConstructor) _read("prod(lex(\"JustTime\"),[lit(\"$T\"),lex(\"TimePartNoTZ\"),lex(\"TimeZonePart\"),lit(\"$\")],{})", Factory.Production);
+  private static final IConstructor prod__JustTime__lit___36_84_TimePartNoTZ_lit___36_ = (IConstructor) _read("prod(lex(\"JustTime\"),[lit(\"$T\"),conditional(lex(\"TimePartNoTZ\"),{\\not-follow(\\char-class([range(43,43),range(45,45)]))}),lit(\"$\")],{})", Factory.Production);
   private static final IConstructor prod__LAYOUT__Comment_ = (IConstructor) _read("prod(lex(\"LAYOUT\"),[lex(\"Comment\")],{})", Factory.Production);
   private static final IConstructor prod__LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_ = (IConstructor) _read("prod(lex(\"LAYOUT\"),[\\char-class([range(9,13),range(32,32),range(133,133),range(160,160),range(5760,5760),range(6158,6158),range(8192,8202),range(8232,8233),range(8239,8239),range(8287,8287),range(12288,12288)])],{})", Factory.Production);
   private static final IConstructor prod__MidPathChars__lit___62_URLChars_lit___60_ = (IConstructor) _read("prod(lex(\"MidPathChars\"),[lit(\"\\>\"),lex(\"URLChars\"),lit(\"\\<\")],{})", Factory.Production);
   private static final IConstructor prod__MidProtocolChars__lit___62_URLChars_lit___60_ = (IConstructor) _read("prod(lex(\"MidProtocolChars\"),[lit(\"\\>\"),lex(\"URLChars\"),lit(\"\\<\")],{})", Factory.Production);
   private static final IConstructor prod__MidStringChars__char_class___range__62_62_iter_star__StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"MidStringChars\"),[\\char-class([range(62,62)]),\\iter-star(lex(\"StringCharacter\")),\\char-class([range(60,60)])],{tag(\"category\"(\"Constant\"))})", Factory.Production);
-  private static final IConstructor prod__Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"Name\"),[conditional(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})]),{delete(keywords(\"RascalKeywords\"))})],{})", Factory.Production);
   private static final IConstructor prod__Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"Name\"),[\\char-class([range(92,92)]),\\char-class([range(65,90),range(95,95),range(97,122)]),conditional(\\iter-star(\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
+  private static final IConstructor prod__Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"Name\"),[conditional(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})]),{delete(keywords(\"RascalKeywords\"))})],{})", Factory.Production);
   private static final IConstructor prod__NamedBackslash__char_class___range__92_92_ = (IConstructor) _read("prod(lex(\"NamedBackslash\"),[conditional(\\char-class([range(92,92)]),{\\not-follow(\\char-class([range(60,60),range(62,62),range(92,92)]))})],{})", Factory.Production);
-  private static final IConstructor prod__NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[\\char-class([range(92,92)]),\\char-class([range(47,47),range(60,60),range(62,62),range(92,92)])],{})", Factory.Production);
-  private static final IConstructor prod__NamedRegExp__NamedBackslash_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[lex(\"NamedBackslash\")],{})", Factory.Production);
   private static final IConstructor prod__NamedRegExp__char_class___range__1_46_range__48_59_range__61_61_range__63_91_range__93_1114111_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[\\char-class([range(1,46),range(48,59),range(61,61),range(63,91),range(93,1114111)])],{})", Factory.Production);
   private static final IConstructor prod__NamedRegExp__lit___60_Name_lit___62_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[lit(\"\\<\"),lex(\"Name\"),lit(\"\\>\")],{})", Factory.Production);
+  private static final IConstructor prod__NamedRegExp__NamedBackslash_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[lex(\"NamedBackslash\")],{})", Factory.Production);
+  private static final IConstructor prod__NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[\\char-class([range(92,92)]),\\char-class([range(47,47),range(60,60),range(62,62),range(92,92)])],{})", Factory.Production);
   private static final IConstructor prod__Nonterminal__seq___char_class___range__65_90_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"Nonterminal\"),[conditional(seq([conditional(\\char-class([range(65,90)]),{\\not-precede(\\char-class([range(65,90)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})]),{delete(keywords(\"RascalKeywords\"))})],{})", Factory.Production);
-  private static final IConstructor prod__NonterminalLabel__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"NonterminalLabel\"),[conditional(seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))]),{delete(lit(\"when\")),delete(lit(\"else\")),delete(lit(\"if\")),delete(lit(\"while\")),delete(lit(\"do\")),\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),delete(lit(\"offside\")),delete(lit(\"align\"))})],{})", Factory.Production);
+  private static final IConstructor prod__NonterminalLabel__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"NonterminalLabel\"),[conditional(seq([\\char-class([range(97,122)]),\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))]),{delete(lit(\"when\")),delete(lit(\"else\")),delete(lit(\"if\")),delete(lit(\"ignore\")),delete(lit(\"while\")),delete(lit(\"do\")),\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),delete(lit(\"offside\")),delete(lit(\"align\"))})],{})", Factory.Production);
   private static final IConstructor prod__OctalIntegerLiteral__char_class___range__48_48_iter__char_class___range__48_55_ = (IConstructor) _read("prod(lex(\"OctalIntegerLiteral\"),[\\char-class([range(48,48)]),conditional(iter(\\char-class([range(48,55)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__PathChars__URLChars_char_class___range__124_124_ = (IConstructor) _read("prod(lex(\"PathChars\"),[lex(\"URLChars\"),\\char-class([range(124,124)])],{})", Factory.Production);
   private static final IConstructor prod__PostPathChars__lit___62_URLChars_lit___124_ = (IConstructor) _read("prod(lex(\"PostPathChars\"),[lit(\"\\>\"),lex(\"URLChars\"),lit(\"|\")],{})", Factory.Production);
@@ -4451,32 +4451,32 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__PreProtocolChars__lit___124_URLChars_lit___60_ = (IConstructor) _read("prod(lex(\"PreProtocolChars\"),[lit(\"|\"),lex(\"URLChars\"),lit(\"\\<\")],{})", Factory.Production);
   private static final IConstructor prod__PreStringChars__char_class___range__34_34_iter_star__StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"PreStringChars\"),[\\char-class([range(34,34)]),\\iter-star(lex(\"StringCharacter\")),\\char-class([range(60,60)])],{tag(\"category\"(\"Constant\"))})", Factory.Production);
   private static final IConstructor prod__ProtocolChars__char_class___range__124_124_URLChars_lit___58_47_47_ = (IConstructor) _read("prod(lex(\"ProtocolChars\"),[\\char-class([range(124,124)]),lex(\"URLChars\"),conditional(lit(\"://\"),{\\not-follow(\\char-class([range(9,10),range(13,13),range(32,32),range(160,160),range(5760,5760),range(8192,8202),range(8239,8239),range(8287,8287),range(12288,12288)]))})],{})", Factory.Production);
-  private static final IConstructor prod__RationalLiteral__char_class___range__49_57_iter_star__char_class___range__48_57_char_class___range__114_114_char_class___range__48_57_iter_star__char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"RationalLiteral\"),[\\char-class([range(49,57)]),\\iter-star(\\char-class([range(48,57)])),\\char-class([range(114,114)]),\\char-class([range(48,57)]),conditional(\\iter-star(\\char-class([range(48,57)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__RationalLiteral__char_class___range__48_57_iter_star__char_class___range__48_57_char_class___range__114_114_ = (IConstructor) _read("prod(lex(\"RationalLiteral\"),[\\char-class([range(48,57)]),\\iter-star(\\char-class([range(48,57)])),\\char-class([range(114,114)])],{})", Factory.Production);
+  private static final IConstructor prod__RationalLiteral__char_class___range__49_57_iter_star__char_class___range__48_57_char_class___range__114_114_char_class___range__48_57_iter_star__char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"RationalLiteral\"),[\\char-class([range(49,57)]),\\iter-star(\\char-class([range(48,57)])),\\char-class([range(114,114)]),\\char-class([range(48,57)]),conditional(\\iter-star(\\char-class([range(48,57)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),\\char-class([range(69,69),range(101,101)]),opt(\\char-class([range(43,43),range(45,45)])),iter(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
   private static final IConstructor prod__RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)])],{})", Factory.Production);
   private static final IConstructor prod__RealLiteral__lit___46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[conditional(lit(\".\"),{\\not-precede(\\char-class([range(46,46)]))}),iter(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
-  private static final IConstructor prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),conditional(lit(\".\"),{\\not-follow(lit(\".\"))}),\\iter-star(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
   private static final IConstructor prod__RealLiteral__lit___46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[conditional(lit(\".\"),{\\not-precede(\\char-class([range(46,46)]))}),iter(\\char-class([range(48,57)])),\\char-class([range(69,69),range(101,101)]),opt(\\char-class([range(43,43),range(45,45)])),iter(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
   private static final IConstructor prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),lit(\".\"),\\iter-star(\\char-class([range(48,57)])),\\char-class([range(69,69),range(101,101)]),opt(\\char-class([range(43,43),range(45,45)])),iter(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
-  private static final IConstructor prod__RegExp__lit___60_Name_lit___62_ = (IConstructor) _read("prod(lex(\"RegExp\"),[lit(\"\\<\"),lex(\"Name\"),lit(\"\\>\")],{})", Factory.Production);
+  private static final IConstructor prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),conditional(lit(\".\"),{\\not-follow(lit(\".\"))}),\\iter-star(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
   private static final IConstructor prod__RegExp__lit___60_Name_lit___58_iter_star__NamedRegExp_lit___62_ = (IConstructor) _read("prod(lex(\"RegExp\"),[lit(\"\\<\"),lex(\"Name\"),lit(\":\"),\\iter-star(lex(\"NamedRegExp\")),lit(\"\\>\")],{})", Factory.Production);
   private static final IConstructor prod__RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = (IConstructor) _read("prod(lex(\"RegExp\"),[\\char-class([range(92,92)]),\\char-class([range(47,47),range(60,60),range(62,62),range(92,92)])],{})", Factory.Production);
-  private static final IConstructor prod__RegExp__char_class___range__1_46_range__48_59_range__61_61_range__63_91_range__93_1114111_ = (IConstructor) _read("prod(lex(\"RegExp\"),[\\char-class([range(1,46),range(48,59),range(61,61),range(63,91),range(93,1114111)])],{})", Factory.Production);
   private static final IConstructor prod__RegExp__Backslash_ = (IConstructor) _read("prod(lex(\"RegExp\"),[lex(\"Backslash\")],{})", Factory.Production);
+  private static final IConstructor prod__RegExp__char_class___range__1_46_range__48_59_range__61_61_range__63_91_range__93_1114111_ = (IConstructor) _read("prod(lex(\"RegExp\"),[\\char-class([range(1,46),range(48,59),range(61,61),range(63,91),range(93,1114111)])],{})", Factory.Production);
+  private static final IConstructor prod__RegExp__lit___60_Name_lit___62_ = (IConstructor) _read("prod(lex(\"RegExp\"),[lit(\"\\<\"),lex(\"Name\"),lit(\"\\>\")],{})", Factory.Production);
   private static final IConstructor prod__RegExpLiteral__lit___47_iter_star__RegExp_lit___47_RegExpModifier_ = (IConstructor) _read("prod(lex(\"RegExpLiteral\"),[lit(\"/\"),\\iter-star(lex(\"RegExp\")),lit(\"/\"),lex(\"RegExpModifier\")],{})", Factory.Production);
   private static final IConstructor prod__RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_ = (IConstructor) _read("prod(lex(\"RegExpModifier\"),[\\iter-star(\\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))],{})", Factory.Production);
   private static final IConstructor prod__StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_range__160_160_range__5760_5760_range__8192_8202_range__8239_8239_range__8287_8287_range__12288_12288_char_class___range__39_39_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[\\char-class([range(10,10)]),\\iter-star(\\char-class([range(9,9),range(32,32),range(160,160),range(5760,5760),range(8192,8202),range(8239,8239),range(8287,8287),range(12288,12288)])),\\char-class([range(39,39)])],{})", Factory.Production);
-  private static final IConstructor prod__StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[lit(\"\\\\\"),\\char-class([range(34,34),range(39,39),range(60,60),range(62,62),range(92,92),range(98,98),range(102,102),range(110,110),range(114,114),range(116,116)])],{})", Factory.Production);
   private static final IConstructor prod__StringCharacter__char_class___range__1_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_1114111_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[\\char-class([range(1,33),range(35,38),range(40,59),range(61,61),range(63,91),range(93,1114111)])],{})", Factory.Production);
+  private static final IConstructor prod__StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[lit(\"\\\\\"),\\char-class([range(34,34),range(39,39),range(60,60),range(62,62),range(92,92),range(98,98),range(102,102),range(110,110),range(114,114),range(116,116)])],{})", Factory.Production);
   private static final IConstructor prod__StringCharacter__UnicodeEscape_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[lex(\"UnicodeEscape\")],{})", Factory.Production);
   private static final IConstructor prod__StringConstant__lit___34_chars_iter_star__StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"StringConstant\"),[lit(\"\\\"\"),label(\"chars\",\\iter-star(lex(\"StringCharacter\"))),lit(\"\\\"\")],{tag(\"category\"(\"Constant\"))})", Factory.Production);
   private static final IConstructor prod__TagString__lit___123_contents_iter_star__alt___char_class___range__1_122_range__124_124_range__126_1114111_TagString_seq___lit___92_char_class___range__123_123_range__125_125_lit___125_ = (IConstructor) _read("prod(lex(\"TagString\"),[conditional(lit(\"{\"),{\\not-precede(lit(\"\\\\\"))}),label(\"contents\",\\iter-star(alt({seq([lit(\"\\\\\"),\\char-class([range(123,123),range(125,125)])]),lex(\"TagString\"),\\char-class([range(1,122),range(124,124),range(126,1114111)])}))),conditional(lit(\"}\"),{\\not-precede(lit(\"\\\\\"))})],{})", Factory.Production);
   private static final IConstructor prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"TimePartNoTZ\"),[\\char-class([range(48,50)]),\\char-class([range(48,57)]),\\char-class([range(48,53)]),\\char-class([range(48,57)]),\\char-class([range(48,53)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))]))],{})", Factory.Production);
   private static final IConstructor prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"TimePartNoTZ\"),[\\char-class([range(48,50)]),\\char-class([range(48,57)]),lit(\":\"),\\char-class([range(48,53)]),\\char-class([range(48,57)]),lit(\":\"),\\char-class([range(48,53)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))]))],{})", Factory.Production);
+  private static final IConstructor prod__TimeZonePart__lit_Z_ = (IConstructor) _read("prod(lex(\"TimeZonePart\"),[lit(\"Z\")],{})", Factory.Production);
   private static final IConstructor prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"TimeZonePart\"),[\\char-class([range(43,43),range(45,45)]),\\char-class([range(48,49)]),\\char-class([range(48,57)])],{})", Factory.Production);
   private static final IConstructor prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"TimeZonePart\"),[\\char-class([range(43,43),range(45,45)]),\\char-class([range(48,49)]),\\char-class([range(48,57)]),\\char-class([range(48,53)]),\\char-class([range(48,57)])],{})", Factory.Production);
-  private static final IConstructor prod__TimeZonePart__lit_Z_ = (IConstructor) _read("prod(lex(\"TimeZonePart\"),[lit(\"Z\")],{})", Factory.Production);
   private static final IConstructor prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_ = (IConstructor) _read("prod(lex(\"TimeZonePart\"),[\\char-class([range(43,43),range(45,45)]),\\char-class([range(48,49)]),\\char-class([range(48,57)]),lit(\":\"),\\char-class([range(48,53)]),\\char-class([range(48,57)])],{})", Factory.Production);
   private static final IConstructor prod__URLChars__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111_ = (IConstructor) _read("prod(lex(\"URLChars\"),[\\iter-star(\\char-class([range(1,8),range(11,12),range(14,31),range(33,59),range(61,123),range(125,1114111)]))],{})", Factory.Production);
   private static final IConstructor prod__lit___10__char_class___range__10_10_ = (IConstructor) _read("prod(lit(\"\\n\"),[\\char-class([range(10,10)])],{})", Factory.Production);
@@ -6107,19 +6107,19 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_HexIntegerLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_72_101_120_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__HexIntegerLiteral(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15325, 1, prod__lit___115_111_114_116_40_34_72_101_120_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__72_72_char_class___range__101_101_char_class___range__120_120_char_class___range__73_73_char_class___range__110_110_char_class___range__116_116_char_class___range__101_101_char_class___range__103_103_char_class___range__101_101_char_class___range__114_114_char_class___range__76_76_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,72,101,120,73,110,116,101,103,101,114,76,105,116,101,114,97,108,34,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15324, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15329, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15326, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15328, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15327, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15326, 1, prod__lit___115_111_114_116_40_34_72_101_120_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__72_72_char_class___range__101_101_char_class___range__120_120_char_class___range__73_73_char_class___range__110_110_char_class___range__116_116_char_class___range__101_101_char_class___range__103_103_char_class___range__101_101_char_class___range__114_114_char_class___range__76_76_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,72,101,120,73,110,116,101,103,101,114,76,105,116,101,114,97,108,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15325, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15330, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15327, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15329, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15328, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_HexIntegerLiteral__char_class___range__0_0_lit___115_111_114_116_40_34_72_101_120_73_110_116_101_103_101_114_76_105_116_101_114_97_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__HexIntegerLiteral, tmp);
 	}
     protected static final void _init_prod__HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_iter__char_class___range__48_57_range__65_70_range__97_102_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new CharStackNode<IConstructor>(15332, 0, new int[][]{{48,48}}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(15333, 1, new int[][]{{88,88},{120,120}}, null, null);
-      tmp[2] = new ListStackNode<IConstructor>(15337, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode<IConstructor>(15334, 0, new int[][]{{48,57},{65,70},{97,102}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new CharStackNode<IConstructor>(15333, 0, new int[][]{{48,48}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(15334, 1, new int[][]{{88,88},{120,120}}, null, null);
+      tmp[2] = new ListStackNode<IConstructor>(15338, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode<IConstructor>(15335, 0, new int[][]{{48,57},{65,70},{97,102}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
       builder.addAlternative(RascalParser.prod__HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_iter__char_class___range__48_57_range__65_70_range__97_102_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6223,33 +6223,33 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_LAYOUT__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_76_65_89_79_85_84_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__LAYOUT(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(14488, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14485, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14487, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14486, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14484, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_76_65_89_79_85_84_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__76_76_char_class___range__65_65_char_class___range__89_89_char_class___range__79_79_char_class___range__85_85_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,76,65,89,79,85,84,34,41,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14483, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14489, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14486, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14488, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14487, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14485, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_76_65_89_79_85_84_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__76_76_char_class___range__65_65_char_class___range__89_89_char_class___range__79_79_char_class___range__85_85_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,76,65,89,79,85,84,34,41,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14484, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_LAYOUT__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_76_65_89_79_85_84_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star__LAYOUT, tmp);
 	}
     protected static final void _init_prod__$MetaHole_LAYOUT__char_class___range__0_0_lit___115_111_114_116_40_34_76_65_89_79_85_84_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__LAYOUT(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(14471, 1, prod__lit___115_111_114_116_40_34_76_65_89_79_85_84_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__76_76_char_class___range__65_65_char_class___range__89_89_char_class___range__79_79_char_class___range__85_85_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,76,65,89,79,85,84,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14474, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14473, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14472, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14475, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14470, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14472, 1, prod__lit___115_111_114_116_40_34_76_65_89_79_85_84_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__76_76_char_class___range__65_65_char_class___range__89_89_char_class___range__79_79_char_class___range__85_85_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,76,65,89,79,85,84,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14475, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14474, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14473, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14476, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14471, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_LAYOUT__char_class___range__0_0_lit___115_111_114_116_40_34_76_65_89_79_85_84_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__LAYOUT, tmp);
 	}
     protected static final void _init_prod__LAYOUT__Comment_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14478, 0, "Comment", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14479, 0, "Comment", null, null);
       builder.addAlternative(RascalParser.prod__LAYOUT__Comment_, tmp);
 	}
     protected static final void _init_prod__LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode<IConstructor>(14480, 0, new int[][]{{9,13},{32,32},{133,133},{160,160},{5760,5760},{6158,6158},{8192,8202},{8232,8233},{8239,8239},{8287,8287},{12288,12288}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14481, 0, new int[][]{{9,13},{32,32},{133,133},{160,160},{5760,5760},{6158,6158},{8192,8202},{8232,8233},{8239,8239},{8287,8287},{12288,12288}}, null, null);
       builder.addAlternative(RascalParser.prod__LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6381,35 +6381,35 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Name__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_78_97_109_101_34_41_44_91_108_105_116_40_34_58_58_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(13878, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(13880, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(13883, 4, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(13879, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_78_97_109_101_34_41_44_91_108_105_116_40_34_58_58_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__58_58_char_class___range__58_58_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,78,97,109,101,34,41,44,91,108,105,116,40,34,58,58,34,41,93,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(13882, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13881, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(13879, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(13881, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(13884, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(13880, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_78_97_109_101_34_41_44_91_108_105_116_40_34_58_58_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__58_58_char_class___range__58_58_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,78,97,109,101,34,41,44,91,108,105,116,40,34,58,58,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(13883, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13882, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Name__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_78_97_109_101_34_41_44_91_108_105_116_40_34_58_58_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Name__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Name(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(13891, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(13896, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(13893, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(13895, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13894, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(13892, 1, prod__lit___115_111_114_116_40_34_78_97_109_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,78,97,109,101,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(13892, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(13897, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(13894, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(13896, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13895, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(13893, 1, prod__lit___115_111_114_116_40_34_78_97_109_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,78,97,109,101,34,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Name__char_class___range__0_0_lit___115_111_114_116_40_34_78_97_109_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Name, tmp);
 	}
     protected static final void _init_prod__Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SequenceStackNode<IConstructor>(13868, 0, regular__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(13861, 0, new int[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new int[][]{{65,90},{95,95},{97,122}})}, null), new ListStackNode<IConstructor>(13865, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13862, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})})}, null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {109,97,112}), new StringMatchRestriction(new int[] {108,111,99}), new StringMatchRestriction(new int[] {99,111,110,116,105,110,117,101}), new StringMatchRestriction(new int[] {108,101,120,105,99,97,108}), new StringMatchRestriction(new int[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new int[] {99,97,116,99,104}), new StringMatchRestriction(new int[] {116,114,121}), new StringMatchRestriction(new int[] {116,97,103}), new StringMatchRestriction(new int[] {97,112,112,101,110,100}), new StringMatchRestriction(new int[] {101,120,116,101,110,100}), new StringMatchRestriction(new int[] {119,104,101,110}), new StringMatchRestriction(new int[] {116,121,112,101}), new StringMatchRestriction(new int[] {105,110,115,101,114,116}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {116,111,107,101,110}), new StringMatchRestriction(new int[] {114,101,108}), new StringMatchRestriction(new int[] {102,105,108,116,101,114}), new StringMatchRestriction(new int[] {110,111,116,105,110}), new StringMatchRestriction(new int[] {98,114,101,97,107}), new StringMatchRestriction(new int[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new int[] {115,111,108,118,101}), new StringMatchRestriction(new int[] {102,97,105,108}), new StringMatchRestriction(new int[] {114,101,97,108}), new StringMatchRestriction(new int[] {108,105,115,116}), new StringMatchRestriction(new int[] {105,103,110,111,114,101}), new StringMatchRestriction(new int[] {116,101,115,116}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {115,116,114}), new StringMatchRestriction(new int[] {118,97,108,117,101}), new StringMatchRestriction(new int[] {99,97,115,101}), new StringMatchRestriction(new int[] {97,108,105,97,115}), new StringMatchRestriction(new int[] {114,101,116,117,114,110}), new StringMatchRestriction(new int[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new int[] {97,115,115,111,99}), new StringMatchRestriction(new int[] {115,119,105,116,99,104}), new StringMatchRestriction(new int[] {118,111,105,100}), new StringMatchRestriction(new int[] {118,105,115,105,116}), new StringMatchRestriction(new int[] {105,116}), new StringMatchRestriction(new int[] {108,97,121,111,117,116}), new StringMatchRestriction(new int[] {100,97,116,97}), new StringMatchRestriction(new int[] {98,111,111,108}), new StringMatchRestriction(new int[] {106,111,105,110}), new StringMatchRestriction(new int[] {112,117,98,108,105,99}), new StringMatchRestriction(new int[] {107,101,121,119,111,114,100}), new StringMatchRestriction(new int[] {102,111,114}), new StringMatchRestriction(new int[] {116,117,112,108,101}), new StringMatchRestriction(new int[] {98,97,103}), new StringMatchRestriction(new int[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new int[] {105,110,116}), new StringMatchRestriction(new int[] {111}), new StringMatchRestriction(new int[] {97,110,110,111}), new StringMatchRestriction(new int[] {116,114,117,101}), new StringMatchRestriction(new int[] {116,104,114,111,119,115}), new StringMatchRestriction(new int[] {108,114,101,108}), new StringMatchRestriction(new int[] {109,111,100,117,108,101}), new StringMatchRestriction(new int[] {97,110,121}), new StringMatchRestriction(new int[] {115,121,110,116,97,120}), new StringMatchRestriction(new int[] {102,97,108,115,101}), new StringMatchRestriction(new int[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new int[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new int[] {109,111,100}), new StringMatchRestriction(new int[] {110,111,100,101}), new StringMatchRestriction(new int[] {115,116,97,114,116}), new StringMatchRestriction(new int[] {115,101,116}), new StringMatchRestriction(new int[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new int[] {97,108,108}), new StringMatchRestriction(new int[] {110,117,109}), new StringMatchRestriction(new int[] {111,110,101}), new StringMatchRestriction(new int[] {116,104,114,111,119}), new StringMatchRestriction(new int[] {97,115,115,101,114,116}), new StringMatchRestriction(new int[] {111,102,102,115,105,100,101}), new StringMatchRestriction(new int[] {97,108,105,103,110}), new StringMatchRestriction(new int[] {105,109,112,111,114,116}), new StringMatchRestriction(new int[] {105,110}), new StringMatchRestriction(new int[] {114,97,116})});
+      tmp[0] = new SequenceStackNode<IConstructor>(13869, 0, regular__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(13862, 0, new int[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new int[][]{{65,90},{95,95},{97,122}})}, null), new ListStackNode<IConstructor>(13866, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13863, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})})}, null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {109,97,112}), new StringMatchRestriction(new int[] {108,111,99}), new StringMatchRestriction(new int[] {99,111,110,116,105,110,117,101}), new StringMatchRestriction(new int[] {108,101,120,105,99,97,108}), new StringMatchRestriction(new int[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new int[] {99,97,116,99,104}), new StringMatchRestriction(new int[] {116,114,121}), new StringMatchRestriction(new int[] {116,97,103}), new StringMatchRestriction(new int[] {97,112,112,101,110,100}), new StringMatchRestriction(new int[] {101,120,116,101,110,100}), new StringMatchRestriction(new int[] {119,104,101,110}), new StringMatchRestriction(new int[] {116,121,112,101}), new StringMatchRestriction(new int[] {105,110,115,101,114,116}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {116,111,107,101,110}), new StringMatchRestriction(new int[] {114,101,108}), new StringMatchRestriction(new int[] {102,105,108,116,101,114}), new StringMatchRestriction(new int[] {110,111,116,105,110}), new StringMatchRestriction(new int[] {98,114,101,97,107}), new StringMatchRestriction(new int[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new int[] {115,111,108,118,101}), new StringMatchRestriction(new int[] {102,97,105,108}), new StringMatchRestriction(new int[] {114,101,97,108}), new StringMatchRestriction(new int[] {108,105,115,116}), new StringMatchRestriction(new int[] {105,103,110,111,114,101}), new StringMatchRestriction(new int[] {116,101,115,116}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {115,116,114}), new StringMatchRestriction(new int[] {118,97,108,117,101}), new StringMatchRestriction(new int[] {99,97,115,101}), new StringMatchRestriction(new int[] {97,108,105,97,115}), new StringMatchRestriction(new int[] {114,101,116,117,114,110}), new StringMatchRestriction(new int[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new int[] {97,115,115,111,99}), new StringMatchRestriction(new int[] {115,119,105,116,99,104}), new StringMatchRestriction(new int[] {118,111,105,100}), new StringMatchRestriction(new int[] {118,105,115,105,116}), new StringMatchRestriction(new int[] {105,116}), new StringMatchRestriction(new int[] {108,97,121,111,117,116}), new StringMatchRestriction(new int[] {100,97,116,97}), new StringMatchRestriction(new int[] {98,111,111,108}), new StringMatchRestriction(new int[] {106,111,105,110}), new StringMatchRestriction(new int[] {112,117,98,108,105,99}), new StringMatchRestriction(new int[] {107,101,121,119,111,114,100}), new StringMatchRestriction(new int[] {102,111,114}), new StringMatchRestriction(new int[] {116,117,112,108,101}), new StringMatchRestriction(new int[] {98,97,103}), new StringMatchRestriction(new int[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new int[] {105,110,116}), new StringMatchRestriction(new int[] {111}), new StringMatchRestriction(new int[] {97,110,110,111}), new StringMatchRestriction(new int[] {116,114,117,101}), new StringMatchRestriction(new int[] {116,104,114,111,119,115}), new StringMatchRestriction(new int[] {108,114,101,108}), new StringMatchRestriction(new int[] {109,111,100,117,108,101}), new StringMatchRestriction(new int[] {97,110,121}), new StringMatchRestriction(new int[] {115,121,110,116,97,120}), new StringMatchRestriction(new int[] {102,97,108,115,101}), new StringMatchRestriction(new int[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new int[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new int[] {109,111,100}), new StringMatchRestriction(new int[] {110,111,100,101}), new StringMatchRestriction(new int[] {115,116,97,114,116}), new StringMatchRestriction(new int[] {115,101,116}), new StringMatchRestriction(new int[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new int[] {97,108,108}), new StringMatchRestriction(new int[] {110,117,109}), new StringMatchRestriction(new int[] {111,110,101}), new StringMatchRestriction(new int[] {116,104,114,111,119}), new StringMatchRestriction(new int[] {97,115,115,101,114,116}), new StringMatchRestriction(new int[] {111,102,102,115,105,100,101}), new StringMatchRestriction(new int[] {97,108,105,103,110}), new StringMatchRestriction(new int[] {105,109,112,111,114,116}), new StringMatchRestriction(new int[] {105,110}), new StringMatchRestriction(new int[] {114,97,116})});
       builder.addAlternative(RascalParser.prod__Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_, tmp);
 	}
     protected static final void _init_prod__Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new CharStackNode<IConstructor>(13871, 1, new int[][]{{65,90},{95,95},{97,122}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(13870, 0, new int[][]{{92,92}}, null, null);
-      tmp[2] = new ListStackNode<IConstructor>(13875, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13872, 0, new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
+      tmp[1] = new CharStackNode<IConstructor>(13872, 1, new int[][]{{65,90},{95,95},{97,122}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(13871, 0, new int[][]{{92,92}}, null, null);
+      tmp[2] = new ListStackNode<IConstructor>(13876, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13873, 0, new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
       builder.addAlternative(RascalParser.prod__Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6574,17 +6574,17 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_NonterminalLabel__char_class___range__0_0_lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_76_97_98_101_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NonterminalLabel(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(13782, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13781, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(13779, 1, prod__lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_76_97_98_101_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__76_76_char_class___range__97_97_char_class___range__98_98_char_class___range__101_101_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,78,111,110,116,101,114,109,105,110,97,108,76,97,98,101,108,34,41}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(13783, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(13780, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(13778, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(13783, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(13782, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(13780, 1, prod__lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_76_97_98_101_108_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__78_78_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__76_76_char_class___range__97_97_char_class___range__98_98_char_class___range__101_101_char_class___range__108_108_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,78,111,110,116,101,114,109,105,110,97,108,76,97,98,101,108,34,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(13784, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(13781, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(13779, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_NonterminalLabel__char_class___range__0_0_lit___115_111_114_116_40_34_78_111_110_116_101_114_109_105_110_97_108_76_97_98_101_108_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__NonterminalLabel, tmp);
 	}
     protected static final void _init_prod__NonterminalLabel__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SequenceStackNode<IConstructor>(13775, 0, regular__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(13763, 0, new int[][]{{97,122}}, null, null), new ListStackNode<IConstructor>(13765, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13764, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, null)}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}}), new StringMatchRestriction(new int[] {119,104,101,110}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {100,111}), new StringMatchRestriction(new int[] {111,102,102,115,105,100,101}), new StringMatchRestriction(new int[] {97,108,105,103,110})});
+      tmp[0] = new SequenceStackNode<IConstructor>(13776, 0, regular__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(13763, 0, new int[][]{{97,122}}, null, null), new ListStackNode<IConstructor>(13765, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(13764, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, null)}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}}), new StringMatchRestriction(new int[] {119,104,101,110}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {105,103,110,111,114,101}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {100,111}), new StringMatchRestriction(new int[] {111,102,102,115,105,100,101}), new StringMatchRestriction(new int[] {97,108,105,103,110})});
       builder.addAlternative(RascalParser.prod__NonterminalLabel__seq___char_class___range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6778,19 +6778,19 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_PostStringChars__char_class___range__0_0_lit___115_111_114_116_40_34_80_111_115_116_83_116_114_105_110_103_67_104_97_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__PostStringChars(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(15317, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15316, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15314, 1, prod__lit___115_111_114_116_40_34_80_111_115_116_83_116_114_105_110_103_67_104_97_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__80_80_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__67_67_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,80,111,115,116,83,116,114,105,110,103,67,104,97,114,115,34,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15313, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15318, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15315, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15318, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15317, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15315, 1, prod__lit___115_111_114_116_40_34_80_111_115_116_83_116_114_105_110_103_67_104_97_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__80_80_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__67_67_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,80,111,115,116,83,116,114,105,110,103,67,104,97,114,115,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15314, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15319, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15316, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_PostStringChars__char_class___range__0_0_lit___115_111_114_116_40_34_80_111_115_116_83_116_114_105_110_103_67_104_97_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__PostStringChars, tmp);
 	}
     protected static final void _init_prod__PostStringChars__char_class___range__62_62_iter_star__StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new ListStackNode<IConstructor>(15309, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode<IConstructor>(15308, 0, "StringCharacter", null, null), false, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15307, 0, new int[][]{{62,62}}, null, null);
-      tmp[2] = new CharStackNode<IConstructor>(15310, 2, new int[][]{{34,34}}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(15310, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode<IConstructor>(15309, 0, "StringCharacter", null, null), false, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15308, 0, new int[][]{{62,62}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(15311, 2, new int[][]{{34,34}}, null, null);
       builder.addAlternative(RascalParser.prod__PostStringChars__char_class___range__62_62_iter_star__StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7443,46 +7443,46 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_TimeZonePart__char_class___range__0_0_lit___115_111_114_116_40_34_84_105_109_101_90_111_110_101_80_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TimeZonePart(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(15179, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15181, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15180, 1, prod__lit___115_111_114_116_40_34_84_105_109_101_90_111_110_101_80_97_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_char_class___range__90_90_char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_char_class___range__80_80_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,105,109,101,90,111,110,101,80,97,114,116,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15183, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15182, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15184, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15180, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15182, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15181, 1, prod__lit___115_111_114_116_40_34_84_105_109_101_90_111_110_101_80_97_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_char_class___range__90_90_char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_char_class___range__80_80_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,105,109,101,90,111,110,101,80,97,114,116,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15184, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15183, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15185, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_TimeZonePart__char_class___range__0_0_lit___115_111_114_116_40_34_84_105_109_101_90_111_110_101_80_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__TimeZonePart, tmp);
 	}
     protected static final void _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode<IConstructor>(15168, 2, new int[][]{{48,57}}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(15167, 1, new int[][]{{48,49}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15166, 0, new int[][]{{43,43},{45,45}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(15169, 2, new int[][]{{48,57}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(15168, 1, new int[][]{{48,49}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15167, 0, new int[][]{{43,43},{45,45}}, null, null);
       builder.addAlternative(RascalParser.prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_, tmp);
 	}
     protected static final void _init_prod__TimeZonePart__lit_Z_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(15170, 0, prod__lit_Z__char_class___range__90_90_, new int[] {90}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15171, 0, prod__lit_Z__char_class___range__90_90_, new int[] {90}, null, null);
       builder.addAlternative(RascalParser.prod__TimeZonePart__lit_Z_, tmp);
 	}
     protected static final void _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(15176, 4, new int[][]{{48,57}}, null, null);
-      tmp[2] = new CharStackNode<IConstructor>(15174, 2, new int[][]{{48,57}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15172, 0, new int[][]{{43,43},{45,45}}, null, null);
-      tmp[3] = new CharStackNode<IConstructor>(15175, 3, new int[][]{{48,53}}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(15173, 1, new int[][]{{48,49}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15177, 4, new int[][]{{48,57}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(15175, 2, new int[][]{{48,57}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15173, 0, new int[][]{{43,43},{45,45}}, null, null);
+      tmp[3] = new CharStackNode<IConstructor>(15176, 3, new int[][]{{48,53}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(15174, 1, new int[][]{{48,49}}, null, null);
       builder.addAlternative(RascalParser.prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_, tmp);
 	}
     protected static final void _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[6];
       
-      tmp[4] = new CharStackNode<IConstructor>(15191, 4, new int[][]{{48,53}}, null, null);
-      tmp[2] = new CharStackNode<IConstructor>(15189, 2, new int[][]{{48,57}}, null, null);
-      tmp[3] = new LiteralStackNode<IConstructor>(15190, 3, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15187, 0, new int[][]{{43,43},{45,45}}, null, null);
-      tmp[5] = new CharStackNode<IConstructor>(15192, 5, new int[][]{{48,57}}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(15188, 1, new int[][]{{48,49}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15192, 4, new int[][]{{48,53}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(15190, 2, new int[][]{{48,57}}, null, null);
+      tmp[3] = new LiteralStackNode<IConstructor>(15191, 3, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15188, 0, new int[][]{{43,43},{45,45}}, null, null);
+      tmp[5] = new CharStackNode<IConstructor>(15193, 5, new int[][]{{48,57}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(15189, 1, new int[][]{{48,49}}, null, null);
       builder.addAlternative(RascalParser.prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7511,17 +7511,17 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_URLChars__char_class___range__0_0_lit___115_111_114_116_40_34_85_82_76_67_104_97_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__URLChars(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(16525, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(16528, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(16523, 0, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16524, 1, prod__lit___115_111_114_116_40_34_85_82_76_67_104_97_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__85_85_char_class___range__82_82_char_class___range__76_76_char_class___range__67_67_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,85,82,76,67,104,97,114,115,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(16527, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16526, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16526, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16529, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(16524, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16525, 1, prod__lit___115_111_114_116_40_34_85_82_76_67_104_97_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__85_85_char_class___range__82_82_char_class___range__76_76_char_class___range__67_67_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,85,82,76,67,104,97,114,115,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(16528, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16527, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_URLChars__char_class___range__0_0_lit___115_111_114_116_40_34_85_82_76_67_104_97_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__URLChars, tmp);
 	}
     protected static final void _init_prod__URLChars__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode<IConstructor>(16520, 0, regular__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111, new CharStackNode<IConstructor>(16519, 0, new int[][]{{1,8},{11,12},{14,31},{33,59},{61,123},{125,1114111}}, null, null), false, null, null);
+      tmp[0] = new ListStackNode<IConstructor>(16521, 0, regular__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111, new CharStackNode<IConstructor>(16520, 0, new int[][]{{1,8},{11,12},{14,31},{33,59},{61,123},{125,1114111}}, null, null), false, null, null);
       builder.addAlternative(RascalParser.prod__URLChars__iter_star__char_class___range__1_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_1114111_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7748,25 +7748,25 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_KeywordArguments__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArguments__Expression(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(15349, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15348, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15345, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15350, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15347, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15346, 1, prod__lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41__char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__75_75_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_char_class___range__65_65_char_class___range__114_114_char_class___range__103_103_char_class___range__117_117_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__115_115_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,75,101,121,119,111,114,100,65,114,103,117,109,101,110,116,115,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15350, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15349, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15346, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15351, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15348, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15347, 1, prod__lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41__char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__75_75_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_char_class___range__65_65_char_class___range__114_114_char_class___range__103_103_char_class___range__117_117_char_class___range__109_109_char_class___range__101_101_char_class___range__110_110_char_class___range__116_116_char_class___range__115_115_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,75,101,121,119,111,114,100,65,114,103,117,109,101,110,116,115,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_KeywordArguments__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_75_101_121_119_111_114_100_65_114_103_117_109_101_110_116_115_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__KeywordArguments__Expression, tmp);
 	}
     protected static final void _init_prod__default_KeywordArguments__Expression__optionalComma_OptionalComma_layouts_LAYOUTLIST_keywordArgumentList_iter_seps__KeywordArgument__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15361, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(15370, 2, regular__iter_seps__KeywordArgument__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15363, 0, "KeywordArgument__Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15364, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15365, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15366, 3, "layouts_LAYOUTLIST", null, null)}, true, new IEnterFilter[] {new CharPrecedeRequirement(new int[][]{{9,10},{32,32},{40,40},{44,44}})}, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15359, 0, "OptionalComma", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15362, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(15371, 2, regular__iter_seps__KeywordArgument__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15364, 0, "KeywordArgument__Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15365, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15366, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15367, 3, "layouts_LAYOUTLIST", null, null)}, true, new IEnterFilter[] {new CharPrecedeRequirement(new int[][]{{9,10},{32,32},{40,40},{44,44}})}, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15360, 0, "OptionalComma", null, null);
       builder.addAlternative(RascalParser.prod__default_KeywordArguments__Expression__optionalComma_OptionalComma_layouts_LAYOUTLIST_keywordArgumentList_iter_seps__KeywordArgument__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_, tmp);
 	}
     protected static final void _init_prod__none_KeywordArguments__Expression__(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(15355, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(15356, 0);
       builder.addAlternative(RascalParser.prod__none_KeywordArguments__Expression__, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7840,31 +7840,31 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Mapping__Expression(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15571, 1, prod__lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41__char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__77_77_char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,77,97,112,112,105,110,103,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15574, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15573, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15572, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15575, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15570, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15572, 1, prod__lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41__char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__77_77_char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,77,97,112,112,105,110,103,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15575, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15574, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15573, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15576, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15571, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Mapping__Expression, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15582, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__77_77_char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,45,115,101,112,115,40,92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,77,97,112,112,105,110,103,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15585, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15584, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15583, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15586, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15581, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15583, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__92_92_char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__105_105_char_class___range__122_122_char_class___range__101_101_char_class___range__100_100_char_class___range__45_45_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__77_77_char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__34_34_char_class___range__44_44_char_class___range__91_91_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__120_120_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__115_115_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,45,115,101,112,115,40,92,112,97,114,97,109,101,116,101,114,105,122,101,100,45,115,111,114,116,40,34,77,97,112,112,105,110,103,34,44,91,115,111,114,116,40,34,69,120,112,114,101,115,115,105,111,110,34,41,93,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15586, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15585, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15584, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15587, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15582, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Mapping__Expression__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_45_115_101_112_115_40_92_112_97_114_97_109_101_116_101_114_105_122_101_100_45_115_111_114_116_40_34_77_97_112_112_105_110_103_34_44_91_115_111_114_116_40_34_69_120_112_114_101_115_115_105_111_110_34_41_93_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__default_Mapping__Expression__from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15564, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15562, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15560, 0, "Expression", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15565, 4, "Expression", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15563, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15565, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15563, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15561, 0, "Expression", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15566, 4, "Expression", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15564, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(RascalParser.prod__default_Mapping__Expression__from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8385,17 +8385,17 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Body__char_class___range__0_0_lit___115_111_114_116_40_34_66_111_100_121_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Body(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(14499, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14498, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14496, 1, prod__lit___115_111_114_116_40_34_66_111_100_121_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__66_66_char_class___range__111_111_char_class___range__100_100_char_class___range__121_121_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,66,111,100,121,34,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14495, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14500, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14497, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14500, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14499, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14497, 1, prod__lit___115_111_114_116_40_34_66_111_100_121_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__66_66_char_class___range__111_111_char_class___range__100_100_char_class___range__121_121_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,66,111,100,121,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14496, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14501, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14498, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Body__char_class___range__0_0_lit___115_111_114_116_40_34_66_111_100_121_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Body, tmp);
 	}
     protected static final void _init_prod__toplevels_Body__toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode<IConstructor>(14506, 0, regular__iter_star_seps__Toplevel__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14504, 0, "Toplevel", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14505, 1, "layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[0] = new SeparatedListStackNode<IConstructor>(14507, 0, regular__iter_star_seps__Toplevel__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14505, 0, "Toplevel", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14506, 1, "layouts_LAYOUTLIST", null, null)}, false, null, null);
       builder.addAlternative(RascalParser.prod__toplevels_Body__toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8823,57 +8823,57 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Comprehension__char_class___range__0_0_lit___115_111_114_116_40_34_67_111_109_112_114_101_104_101_110_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Comprehension(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(15410, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15408, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15412, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15411, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15409, 1, prod__lit___115_111_114_116_40_34_67_111_109_112_114_101_104_101_110_115_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,67,111,109,112,114,101,104,101,110,115,105,111,110,34,41}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15413, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15411, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15409, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15413, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15412, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15410, 1, prod__lit___115_111_114_116_40_34_67_111_109_112_114_101_104_101_110_115_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__67_67_char_class___range__111_111_char_class___range__109_109_char_class___range__112_112_char_class___range__114_114_char_class___range__101_101_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_char_class___range__115_115_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,67,111,109,112,114,101,104,101,110,115,105,111,110,34,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15414, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Comprehension__char_class___range__0_0_lit___115_111_114_116_40_34_67_111_109_112_114_101_104_101_110_115_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Comprehension, tmp);
 	}
     protected static final void _init_prod__list_Comprehension__lit___91_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93__tag__breakable___123_114_101_115_117_108_116_115_44_103_101_110_101_114_97_116_111_114_115_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[2] = new SeparatedListStackNode<IConstructor>(15444, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15440, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15441, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15442, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15443, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15447, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15438, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15446, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[6] = new SeparatedListStackNode<IConstructor>(15453, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15449, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15450, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15451, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15452, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15455, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15448, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15439, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15456, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(15445, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15441, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15442, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15443, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15444, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15448, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15439, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15447, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[6] = new SeparatedListStackNode<IConstructor>(15454, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15450, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15451, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15452, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15453, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15456, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15449, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15440, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15457, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
       builder.addAlternative(RascalParser.prod__list_Comprehension__lit___91_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93__tag__breakable___123_114_101_115_117_108_116_115_44_103_101_110_101_114_97_116_111_114_115_125, tmp);
 	}
     protected static final void _init_prod__map_Comprehension__lit___40_layouts_LAYOUTLIST_from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41__tag__breakable___123_102_114_111_109_44_116_111_44_103_101_110_101_114_97_116_111_114_115_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[13];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15461, 2, "Expression", null, null);
-      tmp[12] = new LiteralStackNode<IConstructor>(15478, 12, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(15470, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15469, 8, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(15466, 6, "Expression", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15464, 4, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[10] = new SeparatedListStackNode<IConstructor>(15475, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15471, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15472, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15473, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15474, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15459, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15465, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15460, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15468, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(15477, 11, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15463, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15462, 2, "Expression", null, null);
+      tmp[12] = new LiteralStackNode<IConstructor>(15479, 12, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(15471, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15470, 8, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(15467, 6, "Expression", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15465, 4, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(15476, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15472, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15473, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15474, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15475, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15460, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15466, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15461, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15469, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(15478, 11, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15464, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__map_Comprehension__lit___40_layouts_LAYOUTLIST_from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41__tag__breakable___123_102_114_111_109_44_116_111_44_103_101_110_101_114_97_116_111_114_115_125, tmp);
 	}
     protected static final void _init_prod__set_Comprehension__lit___123_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125__tag__breakable___123_114_101_115_117_108_116_115_44_103_101_110_101_114_97_116_111_114_115_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15425, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15434, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15417, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15426, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(15423, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15419, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15420, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15421, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15422, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15435, 8, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15418, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15427, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[6] = new SeparatedListStackNode<IConstructor>(15432, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15428, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15429, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15430, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15431, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15426, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15435, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15418, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15427, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(15424, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15420, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15421, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15422, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15423, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15436, 8, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15419, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15428, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[6] = new SeparatedListStackNode<IConstructor>(15433, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15429, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15430, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15431, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15432, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
       builder.addAlternative(RascalParser.prod__set_Comprehension__lit___123_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125__tag__breakable___123_114_101_115_117_108_116_115_44_103_101_110_101_114_97_116_111_114_115_125, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8900,23 +8900,23 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_ConcreteHole__char_class___range__0_0_lit___115_111_114_116_40_34_67_111_110_99_114_101_116_101_72_111_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__ConcreteHole(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(14675, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14673, 0, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14674, 1, prod__lit___115_111_114_116_40_34_67_111_110_99_114_101_116_101_72_111_108_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__67_67_char_class___range__111_111_char_class___range__110_110_char_class___range__99_99_char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__72_72_char_class___range__111_111_char_class___range__108_108_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,67,111,110,99,114,101,116,101,72,111,108,101,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14677, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14676, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14678, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14676, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14674, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14675, 1, prod__lit___115_111_114_116_40_34_67_111_110_99_114_101_116_101_72_111_108_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__67_67_char_class___range__111_111_char_class___range__110_110_char_class___range__99_99_char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__72_72_char_class___range__111_111_char_class___range__108_108_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,67,111,110,99,114,101,116,101,72,111,108,101,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14678, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14677, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14679, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_ConcreteHole__char_class___range__0_0_lit___115_111_114_116_40_34_67_111_110_99_114_101_116_101_72_111_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__ConcreteHole, tmp);
 	}
     protected static final void _init_prod__one_ConcreteHole__lit___60_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___62_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(14687, 4, "Name", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14684, 2, "Sym", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(14682, 0, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14686, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14689, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14683, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(14690, 6, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(14688, 4, "Name", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14685, 2, "Sym", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(14683, 0, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14687, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14690, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14684, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(14691, 6, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
       builder.addAlternative(RascalParser.prod__one_ConcreteHole__lit___60_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___62_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -10269,17 +10269,17 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Formals__char_class___range__0_0_lit___115_111_114_116_40_34_70_111_114_109_97_108_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Formals(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15376, 1, prod__lit___115_111_114_116_40_34_70_111_114_109_97_108_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__111_111_char_class___range__114_114_char_class___range__109_109_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,111,114,109,97,108,115,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15379, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15378, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15375, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15377, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15380, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15377, 1, prod__lit___115_111_114_116_40_34_70_111_114_109_97_108_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__111_111_char_class___range__114_114_char_class___range__109_109_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,111,114,109,97,108,115,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15380, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15379, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15376, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15378, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15381, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Formals__char_class___range__0_0_lit___115_111_114_116_40_34_70_111_114_109_97_108_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Formals, tmp);
 	}
     protected static final void _init_prod__default_Formals__formals_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode<IConstructor>(15388, 0, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15384, 0, "Pattern", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15385, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15386, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15387, 3, "layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[0] = new SeparatedListStackNode<IConstructor>(15389, 0, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15385, 0, "Pattern", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15386, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15387, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15388, 3, "layouts_LAYOUTLIST", null, null)}, false, null, null);
       builder.addAlternative(RascalParser.prod__default_Formals__formals_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -10339,71 +10339,71 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_FunctionDeclaration__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionDeclaration(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(14160, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14159, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14158, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14161, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14156, 0, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14157, 1, prod__lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_68_101_99_108_97_114_97_116_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,117,110,99,116,105,111,110,68,101,99,108,97,114,97,116,105,111,110,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14161, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14160, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14159, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14162, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14157, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14158, 1, prod__lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_68_101_99_108_97_114_97_116_105_111_110_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__68_68_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,117,110,99,116,105,111,110,68,101,99,108,97,114,97,116,105,111,110,34,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_FunctionDeclaration__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_68_101_99_108_97_114_97_116_105_111_110_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionDeclaration, tmp);
 	}
     protected static final void _init_prod__abstract_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14165, 0, "Tags", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(14171, 4, "Signature", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(14174, 6, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14168, 2, "Visibility", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14173, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14167, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14170, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14166, 0, "Tags", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(14172, 4, "Signature", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(14175, 6, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14169, 2, "Visibility", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14174, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14168, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14171, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__abstract_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__conditional_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_44_99_111_110_100_105_116_105_111_110_115_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[15];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(14196, 4, "Signature", null, null);
-      tmp[12] = new SeparatedListStackNode<IConstructor>(14210, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14206, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14207, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14208, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14209, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(14199, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(14212, 13, "layouts_LAYOUTLIST", null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(14204, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14190, 0, "Tags", null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(14203, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[14] = new LiteralStackNode<IConstructor>(14213, 14, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14193, 2, "Visibility", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(14201, 8, "Expression", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(14205, 11, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14195, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(14200, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14198, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14192, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(14197, 4, "Signature", null, null);
+      tmp[12] = new SeparatedListStackNode<IConstructor>(14211, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14207, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14208, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14209, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14210, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(14200, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(14213, 13, "layouts_LAYOUTLIST", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(14205, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14191, 0, "Tags", null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(14204, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[14] = new LiteralStackNode<IConstructor>(14214, 14, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14194, 2, "Visibility", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(14202, 8, "Expression", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(14206, 11, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14196, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(14201, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14199, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14193, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__conditional_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_44_99_111_110_100_105_116_105_111_110_115_125, tmp);
 	}
     protected static final void _init_prod__default_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_body_FunctionBody__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14177, 0, "Tags", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14180, 2, "Visibility", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(14186, 6, "FunctionBody", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(14183, 4, "Signature", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14179, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14185, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14182, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14178, 0, "Tags", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14181, 2, "Visibility", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(14187, 6, "FunctionBody", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(14184, 4, "Signature", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14180, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14186, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14183, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__default_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_body_FunctionBody__tag__Foldable, tmp);
 	}
     protected static final void _init_prod__expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[8] = new NonTerminalStackNode<IConstructor>(14150, 8, "Expression", null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(14152, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14144, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(14149, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14147, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14141, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14139, 0, "Tags", null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(14153, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(14145, 4, "Signature", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(14148, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14142, 2, "Visibility", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(14151, 8, "Expression", null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(14153, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14145, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(14150, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14148, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14142, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14140, 0, "Tags", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(14154, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(14146, 4, "Signature", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(14149, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14143, 2, "Visibility", null, null);
       builder.addAlternative(RascalParser.prod__expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_125, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -10493,17 +10493,17 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_FunctionModifiers__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionModifiers(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(15007, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15009, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15012, 4, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15008, 1, prod__lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__77_77_char_class___range__111_111_char_class___range__100_100_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,117,110,99,116,105,111,110,77,111,100,105,102,105,101,114,115,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15011, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15010, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15008, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15010, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15013, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15009, 1, prod__lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_115_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__77_77_char_class___range__111_111_char_class___range__100_100_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__114_114_char_class___range__115_115_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,117,110,99,116,105,111,110,77,111,100,105,102,105,101,114,115,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15012, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15011, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_FunctionModifiers__char_class___range__0_0_lit___115_111_114_116_40_34_70_117_110_99_116_105_111_110_77_111_100_105_102_105_101_114_115_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__FunctionModifiers, tmp);
 	}
     protected static final void _init_prod__modifierlist_FunctionModifiers__modifiers_iter_star_seps__FunctionModifier__layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode<IConstructor>(15003, 0, regular__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15001, 0, "FunctionModifier", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15002, 1, "layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[0] = new SeparatedListStackNode<IConstructor>(15004, 0, regular__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15002, 0, "FunctionModifier", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15003, 1, "layouts_LAYOUTLIST", null, null)}, false, null, null);
       builder.addAlternative(RascalParser.prod__modifierlist_FunctionModifiers__modifiers_iter_star_seps__FunctionModifier__layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -10620,61 +10620,61 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Import__char_class___range__0_0_lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Import(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(14568, 4, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14564, 1, prod__lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,73,109,112,111,114,116,34,41}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14565, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14563, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14567, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14566, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14569, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14565, 1, prod__lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,73,109,112,111,114,116,34,41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14566, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14564, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14568, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14567, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Import__char_class___range__0_0_lit___115_111_114_116_40_34_73_109_112_111_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Import, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Import__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_73_109_112_111_114_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Import__layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(14580, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14579, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14577, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_73_109_112_111_114_116_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,73,109,112,111,114,116,34,41,41}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14578, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14581, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14576, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14581, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14580, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14578, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_73_109_112_111_114_116_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__73_73_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,73,109,112,111,114,116,34,41,41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14579, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14582, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14577, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Import__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_73_109_112_111_114_116_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Import__layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14535, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14536, 2, "ImportedModule", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14538, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(14534, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(14539, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14536, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14537, 2, "ImportedModule", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14539, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(14535, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(14540, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
       builder.addAlternative(RascalParser.prod__default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__extend_Import__lit_extend_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14546, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14543, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14544, 2, "ImportedModule", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(14542, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(14547, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14547, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14544, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14545, 2, "ImportedModule", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(14543, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(14548, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
       builder.addAlternative(RascalParser.prod__extend_Import__lit_extend_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__external_Import__lit_import_layouts_LAYOUTLIST_name_QualifiedName_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_at_LocationLiteral_layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(14552, 2, "QualifiedName", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(14555, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(14550, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14554, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(14557, 6, "LocationLiteral", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14556, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14551, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(14559, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(14560, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(14553, 2, "QualifiedName", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(14556, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(14551, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14555, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(14558, 6, "LocationLiteral", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14557, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14552, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(14560, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(14561, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
       builder.addAlternative(RascalParser.prod__external_Import__lit_import_layouts_LAYOUTLIST_name_QualifiedName_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_at_LocationLiteral_layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__syntax_Import__syntax_SyntaxDefinition_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14572, 0, "SyntaxDefinition", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14573, 0, "SyntaxDefinition", null, null);
       builder.addAlternative(RascalParser.prod__syntax_Import__syntax_SyntaxDefinition_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -12085,27 +12085,27 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_QualifiedName__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(16255, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16252, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(16250, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(16254, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16253, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16251, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__81_81_char_class___range__117_117_char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,81,117,97,108,105,102,105,101,100,78,97,109,101,34,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16256, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16253, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(16251, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(16255, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16254, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16252, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__81_81_char_class___range__117_117_char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,81,117,97,108,105,102,105,101,100,78,97,109,101,34,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_QualifiedName__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_QualifiedName__char_class___range__0_0_lit___115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__QualifiedName(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(16268, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16265, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(16263, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(16267, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16266, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16264, 1, prod__lit___115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__81_81_char_class___range__117_117_char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,81,117,97,108,105,102,105,101,100,78,97,109,101,34,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16269, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16266, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(16264, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(16268, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16267, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16265, 1, prod__lit___115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__81_81_char_class___range__117_117_char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_char_class___range__78_78_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,81,117,97,108,105,102,105,101,100,78,97,109,101,34,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_QualifiedName__char_class___range__0_0_lit___115_111_114_116_40_34_81_117_97_108_105_102_105_101_100_78_97_109_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__QualifiedName, tmp);
 	}
     protected static final void _init_prod__default_QualifiedName__names_iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode<IConstructor>(16247, 0, regular__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16240, 0, "Name", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16241, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(16242, 2, prod__lit___58_58__char_class___range__58_58_char_class___range__58_58_, new int[] {58,58}, null, null), new NonTerminalStackNode<IConstructor>(16243, 3, "layouts_LAYOUTLIST", null, null)}, true, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {58,58})});
+      tmp[0] = new SeparatedListStackNode<IConstructor>(16248, 0, regular__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16241, 0, "Name", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16242, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(16243, 2, prod__lit___58_58__char_class___range__58_58_char_class___range__58_58_, new int[] {58,58}, null, null), new NonTerminalStackNode<IConstructor>(16244, 3, "layouts_LAYOUTLIST", null, null)}, true, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {58,58})});
       builder.addAlternative(RascalParser.prod__default_QualifiedName__names_iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -12496,23 +12496,23 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Start__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Start(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(14370, 1, prod__lit___115_111_114_116_40_34_83_116_97_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,97,114,116,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14373, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14372, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14369, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14371, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14374, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14371, 1, prod__lit___115_111_114_116_40_34_83_116_97_114_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,97,114,116,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14374, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14373, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14370, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14372, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14375, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Start__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_97_114_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Start, tmp);
 	}
     protected static final void _init_prod__absent_Start__(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(14380, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(14381, 0);
       builder.addAlternative(RascalParser.prod__absent_Start__, tmp);
 	}
     protected static final void _init_prod__present_Start__lit_start_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(14378, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(14379, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
       builder.addAlternative(RascalParser.prod__present_Start__lit_start_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -13088,37 +13088,37 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_StringMiddle__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_77_105_100_100_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringMiddle(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(16501, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(16504, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(16499, 0, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16500, 1, prod__lit___115_111_114_116_40_34_83_116_114_105_110_103_77_105_100_100_108_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__77_77_char_class___range__105_105_char_class___range__100_100_char_class___range__100_100_char_class___range__108_108_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,114,105,110,103,77,105,100,100,108,101,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(16503, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16502, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16502, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16505, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(16500, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16501, 1, prod__lit___115_111_114_116_40_34_83_116_114_105_110_103_77_105_100_100_108_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__116_116_char_class___range__114_114_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_char_class___range__77_77_char_class___range__105_105_char_class___range__100_100_char_class___range__100_100_char_class___range__108_108_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,116,114,105,110,103,77,105,100,100,108,101,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(16504, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(16503, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_StringMiddle__char_class___range__0_0_lit___115_111_114_116_40_34_83_116_114_105_110_103_77_105_100_100_108_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__StringMiddle, tmp);
 	}
     protected static final void _init_prod__interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16508, 0, "MidStringChars", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16514, 4, "StringMiddle", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16511, 2, "Expression", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16513, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16510, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16509, 0, "MidStringChars", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16515, 4, "StringMiddle", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16512, 2, "Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16514, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16511, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_, tmp);
 	}
     protected static final void _init_prod__mid_StringMiddle__mid_MidStringChars_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16495, 0, "MidStringChars", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16496, 0, "MidStringChars", null, null);
       builder.addAlternative(RascalParser.prod__mid_StringMiddle__mid_MidStringChars_, tmp);
 	}
     protected static final void _init_prod__template_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringMiddle_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16490, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16487, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16485, 0, "MidStringChars", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16491, 4, "StringMiddle", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16488, 2, "StringTemplate", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16491, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16488, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16486, 0, "MidStringChars", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16492, 4, "StringMiddle", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16489, 2, "StringTemplate", null, null);
       builder.addAlternative(RascalParser.prod__template_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringMiddle_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -13400,539 +13400,539 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(15713, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15718, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15715, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15717, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15716, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15714, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__124_124_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,83,121,109,34,41,44,91,108,105,116,40,34,124,34,41,93,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15714, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15719, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15716, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15718, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15717, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15715, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__124_124_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,83,121,109,34,41,44,91,108,105,116,40,34,124,34,41,93,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15679, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,83,121,109,34,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15682, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15681, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15680, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15683, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15678, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15680, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_44_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__44_44_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,83,121,109,34,41,44,91,108,105,116,40,34,44,34,41,93,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15683, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15682, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15681, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15684, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15679, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_83_121_109_34_41_44_91_108_105_116_40_34_44_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Sym__layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode<IConstructor>(15707, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15704, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15702, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15706, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15705, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15703, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_121_109_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,83,121,109,34,41,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15708, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15705, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15703, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15707, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15706, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15704, 1, prod__lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_121_109_34_41_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,116,97,114,40,115,111,114,116,40,34,83,121,109,34,41,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Sym__char_class___range__0_0_lit___92_105_116_101_114_45_115_116_97_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_star_seps__Sym__layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Sym__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(15695, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15694, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(15692, 1, prod__lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41__char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {105,116,101,114,40,115,111,114,116,40,34,83,121,109,34,41,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15691, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15696, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15693, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15696, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15695, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15693, 1, prod__lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41__char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_char_class___range__41_41_, new int[] {105,116,101,114,40,115,111,114,116,40,34,83,121,109,34,41,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15692, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15697, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15694, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Sym__char_class___range__0_0_lit___105_116_101_114_40_115_111_114_116_40_34_83_121_109_34_41_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Sym__layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Sym__char_class___range__0_0_lit___115_111_114_116_40_34_83_121_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Sym(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(15670, 1, prod__lit___115_111_114_116_40_34_83_121_109_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,121,109,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(15673, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15672, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15671, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(15674, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15669, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(15671, 1, prod__lit___115_111_114_116_40_34_83_121_109_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__121_121_char_class___range__109_109_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,121,109,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15674, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(15673, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15672, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(15675, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15670, 0, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Sym__char_class___range__0_0_lit___115_111_114_116_40_34_83_121_109_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Sym, tmp);
 	}
     protected static final void _init_prod__alternative_Sym__lit___40_layouts_LAYOUTLIST_first_Sym_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_alternatives_iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(16027, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16024, 2, "Sym", null, null);
-      tmp[6] = new SeparatedListStackNode<IConstructor>(16033, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16029, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16030, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(16031, 2, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null), new NonTerminalStackNode<IConstructor>(16032, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(16022, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16026, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(16028, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16023, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(16035, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(16036, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(16028, 4, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16025, 2, "Sym", null, null);
+      tmp[6] = new SeparatedListStackNode<IConstructor>(16034, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16030, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16031, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(16032, 2, prod__lit___124__char_class___range__124_124_, new int[] {124}, null, null), new NonTerminalStackNode<IConstructor>(16033, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16023, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16027, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(16029, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16024, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(16036, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(16037, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
       builder.addAlternative(RascalParser.prod__alternative_Sym__lit___40_layouts_LAYOUTLIST_first_Sym_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_alternatives_iter_seps__Sym__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__bracket_Sym__lit___40_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_lit___41__bracket(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15976, 2, "Sym", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15979, 4, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15974, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15975, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15978, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15977, 2, "Sym", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15980, 4, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15975, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15976, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15979, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__bracket_Sym__lit___40_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_lit___41__bracket, tmp);
 	}
     protected static final void _init_prod__caseInsensitiveLiteral_Sym__cistring_CaseInsensitiveStringConstant_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15954, 0, "CaseInsensitiveStringConstant", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15955, 0, "CaseInsensitiveStringConstant", null, null);
       builder.addAlternative(RascalParser.prod__caseInsensitiveLiteral_Sym__cistring_CaseInsensitiveStringConstant_, tmp);
 	}
     protected static final void _init_prod__characterClass_Sym__charClass_Class_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15864, 0, "Class", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15865, 0, "Class", null, null);
       builder.addAlternative(RascalParser.prod__characterClass_Sym__charClass_Class_, tmp);
 	}
     protected static final void _init_prod__column_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_column_IntegerLiteral_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16011, 4, "IntegerLiteral", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16009, 2, prod__lit___64__char_class___range__64_64_, new int[] {64}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16006, 0, "Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16010, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16008, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16012, 4, "IntegerLiteral", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16010, 2, prod__lit___64__char_class___range__64_64_, new int[] {64}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16007, 0, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16011, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16009, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__column_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_column_IntegerLiteral_, tmp);
 	}
     protected static final void _init_prod__dependAlign_Sym__lit_align_layouts_LAYOUTLIST_symbol_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16068, 2, "Sym", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(16066, 0, prod__lit_align__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__103_103_char_class___range__110_110_, new int[] {97,108,105,103,110}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16067, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16069, 2, "Sym", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16067, 0, prod__lit_align__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__103_103_char_class___range__110_110_, new int[] {97,108,105,103,110}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16068, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__dependAlign_Sym__lit_align_layouts_LAYOUTLIST_symbol_Sym_, tmp);
 	}
     protected static final void _init_prod__dependAlternative_Sym__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenPart_Sym_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_elsePart_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[13];
       
-      tmp[8] = new NonTerminalStackNode<IConstructor>(16112, 8, "Sym", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(16111, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16104, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(16109, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16106, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(16116, 11, "layouts_LAYOUTLIST", null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(16114, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(16103, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(16115, 10, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16105, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(16110, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16107, 4, "Expression", null, null);
-      tmp[12] = new NonTerminalStackNode<IConstructor>(16117, 12, "Sym", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(16113, 8, "Sym", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(16112, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16105, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(16110, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16107, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(16117, 11, "layouts_LAYOUTLIST", null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(16115, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16104, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(16116, 10, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16106, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(16111, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16108, 4, "Expression", null, null);
+      tmp[12] = new NonTerminalStackNode<IConstructor>(16118, 12, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__dependAlternative_Sym__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenPart_Sym_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_elsePart_Sym_, tmp);
 	}
     protected static final void _init_prod__dependCode_Sym__symbol_Sym_layouts_LAYOUTLIST_lit_do_layouts_LAYOUTLIST_block_iter_seps__Statement__layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16082, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16080, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16078, 0, "Sym", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(16085, 4, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16083, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16084, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16081, 2, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new int[] {100,111}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16083, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16081, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16079, 0, "Sym", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(16086, 4, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(16084, 0, "Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(16085, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16082, 2, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new int[] {100,111}, null, null);
       builder.addAlternative(RascalParser.prod__dependCode_Sym__symbol_Sym_layouts_LAYOUTLIST_lit_do_layouts_LAYOUTLIST_block_iter_seps__Statement__layouts_LAYOUTLIST_, tmp);
 	}
     protected static final void _init_prod__dependConditionAfter_Sym__symbol_Sym_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode<IConstructor>(16099, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16093, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(16098, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(16095, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16091, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16089, 0, "Sym", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(16094, 4, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(16096, 6, "Expression", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16092, 2, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(16100, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16094, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(16099, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(16096, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16092, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16090, 0, "Sym", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(16095, 4, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(16097, 6, "Expression", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16093, 2, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
       builder.addAlternative(RascalParser.prod__dependConditionAfter_Sym__symbol_Sym_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__dependConditionBefore_Sym__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenPart_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(16134, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16136, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(16141, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16138, 4, "Expression", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(16143, 8, "Sym", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(16140, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16135, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(16142, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16137, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16135, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16137, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(16142, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16139, 4, "Expression", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(16144, 8, "Sym", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(16141, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16136, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(16143, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16138, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__dependConditionBefore_Sym__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenPart_Sym_, tmp);
 	}
     protected static final void _init_prod__dependFormals_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_typ_Type_layouts_LAYOUTLIST_formals_Parameters_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15942, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15947, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15940, 0, "Nonterminal", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15946, 2, "Type", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15951, 4, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15943, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15948, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15941, 0, "Nonterminal", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15947, 2, "Type", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15952, 4, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
       builder.addAlternative(RascalParser.prod__dependFormals_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_typ_Type_layouts_LAYOUTLIST_formals_Parameters_, tmp);
 	}
     protected static final void _init_prod__dependFormalsParametrized_Sym__empty_layouts_LAYOUTLIST_empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_typ_Type_layouts_LAYOUTLIST_formals_Parameters_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[15];
       
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15878, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15876, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15869, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(15892, 13, "layouts_LAYOUTLIST", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(15887, 11, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15871, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new SeparatedListStackNode<IConstructor>(15883, 8, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15879, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15880, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15881, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15882, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15877, 6, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[2] = new EmptyStackNode<IConstructor>(15870, 2, regular__empty, null, null);
-      tmp[14] = new NonTerminalStackNode<IConstructor>(15896, 14, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
-      tmp[12] = new NonTerminalStackNode<IConstructor>(15891, 12, "Type", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15875, 4, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
-      tmp[9] = new NonTerminalStackNode<IConstructor>(15885, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new EmptyStackNode<IConstructor>(15868, 0, regular__empty, null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(15886, 10, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15879, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15877, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15870, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(15893, 13, "layouts_LAYOUTLIST", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(15888, 11, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15872, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new SeparatedListStackNode<IConstructor>(15884, 8, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15880, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15881, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15882, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15883, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15878, 6, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[2] = new EmptyStackNode<IConstructor>(15871, 2, regular__empty, null, null);
+      tmp[14] = new NonTerminalStackNode<IConstructor>(15897, 14, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
+      tmp[12] = new NonTerminalStackNode<IConstructor>(15892, 12, "Type", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15876, 4, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[9] = new NonTerminalStackNode<IConstructor>(15886, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new EmptyStackNode<IConstructor>(15869, 0, regular__empty, null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(15887, 10, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
       builder.addAlternative(RascalParser.prod__dependFormalsParametrized_Sym__empty_layouts_LAYOUTLIST_empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_typ_Type_layouts_LAYOUTLIST_formals_Parameters_, tmp);
 	}
     protected static final void _init_prod__dependIgnore_Sym__lit_ignore_layouts_LAYOUTLIST_symbol_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16061, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(16060, 0, prod__lit_ignore__char_class___range__105_105_char_class___range__103_103_char_class___range__110_110_char_class___range__111_111_char_class___range__114_114_char_class___range__101_101_, new int[] {105,103,110,111,114,101}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16062, 2, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16062, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16061, 0, prod__lit_ignore__char_class___range__105_105_char_class___range__103_103_char_class___range__110_110_char_class___range__111_111_char_class___range__114_114_char_class___range__101_101_, new int[] {105,103,110,111,114,101}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16063, 2, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__dependIgnore_Sym__lit_ignore_layouts_LAYOUTLIST_symbol_Sym_, tmp);
 	}
     protected static final void _init_prod__dependLoop_Sym__lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16125, 4, "Expression", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(16128, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16123, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(16121, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16124, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(16127, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16122, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(16129, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(16130, 8, "Sym", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16126, 4, "Expression", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(16129, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16124, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16122, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16125, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(16128, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16123, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(16130, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(16131, 8, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__dependLoop_Sym__lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Sym_, tmp);
 	}
     protected static final void _init_prod__dependNonterminal_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordArguments__Expression_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(15816, 4, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15814, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
-      tmp[6] = new SeparatedListStackNode<IConstructor>(15822, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15818, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15819, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15820, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15821, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(15829, 10, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[0] = new EmptyStackNode<IConstructor>(15809, 0, regular__empty, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(15828, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15815, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15824, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15810, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15817, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(15826, 8, "KeywordArguments__Expression", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15817, 4, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15815, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
+      tmp[6] = new SeparatedListStackNode<IConstructor>(15823, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15819, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15820, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15821, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15822, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(15830, 10, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[0] = new EmptyStackNode<IConstructor>(15810, 0, regular__empty, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(15829, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15816, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15825, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15811, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15818, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(15827, 8, "KeywordArguments__Expression", null, null);
       builder.addAlternative(RascalParser.prod__dependNonterminal_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordArguments__Expression_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__dependOffside_Sym__lit_offside_layouts_LAYOUTLIST_symbol_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(16072, 0, prod__lit_offside__char_class___range__111_111_char_class___range__102_102_char_class___range__102_102_char_class___range__115_115_char_class___range__105_105_char_class___range__100_100_char_class___range__101_101_, new int[] {111,102,102,115,105,100,101}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16074, 2, "Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16073, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16073, 0, prod__lit_offside__char_class___range__111_111_char_class___range__102_102_char_class___range__102_102_char_class___range__115_115_char_class___range__105_105_char_class___range__100_100_char_class___range__101_101_, new int[] {111,102,102,115,105,100,101}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16075, 2, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16074, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__dependOffside_Sym__lit_offside_layouts_LAYOUTLIST_symbol_Sym_, tmp);
 	}
     protected static final void _init_prod__dependParametrized_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordArguments__Expression_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[17];
       
-      tmp[6] = new SeparatedListStackNode<IConstructor>(15777, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15773, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15774, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15775, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15776, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15769, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
-      tmp[12] = new SeparatedListStackNode<IConstructor>(15788, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15784, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15785, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15786, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15787, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[14] = new NonTerminalStackNode<IConstructor>(15792, 14, "KeywordArguments__Expression", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15771, 4, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(15781, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[16] = new LiteralStackNode<IConstructor>(15795, 16, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[0] = new EmptyStackNode<IConstructor>(15764, 0, regular__empty, null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(15782, 10, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15765, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15772, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15779, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(15790, 13, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15770, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(15783, 11, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15780, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(15794, 15, "layouts_LAYOUTLIST", null, null);
+      tmp[6] = new SeparatedListStackNode<IConstructor>(15778, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15774, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15775, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15776, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15777, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15770, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[12] = new SeparatedListStackNode<IConstructor>(15789, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15785, 0, "Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15786, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15787, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15788, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[14] = new NonTerminalStackNode<IConstructor>(15793, 14, "KeywordArguments__Expression", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15772, 4, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(15782, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[16] = new LiteralStackNode<IConstructor>(15796, 16, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[0] = new EmptyStackNode<IConstructor>(15765, 0, regular__empty, null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(15783, 10, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15766, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15773, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15780, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(15791, 13, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15771, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(15784, 11, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15781, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(15795, 15, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__dependParametrized_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordArguments__Expression_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__dependScope_Sym__lit___123_layouts_LAYOUTLIST_symbols_iter_seps__Sym__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15750, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15745, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(15751, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(15748, 2, regular__iter_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15746, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15747, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15744, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15751, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15746, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(15752, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(15749, 2, regular__iter_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15747, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15748, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15745, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
       builder.addAlternative(RascalParser.prod__dependScope_Sym__lit___123_layouts_LAYOUTLIST_symbols_iter_seps__Sym__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     protected static final void _init_prod__dependVoidFormals_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_formals_Parameters_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15806, 2, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15801, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15802, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15807, 2, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15802, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {40})});
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15803, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__dependVoidFormals_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_formals_Parameters_, tmp);
 	}
     protected static final void _init_prod__dependVoidFormalsParametrized_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_formals_Parameters_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[6] = new SeparatedListStackNode<IConstructor>(15995, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15991, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15992, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15993, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15994, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15987, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
-      tmp[4] = new LiteralStackNode<IConstructor>(15989, 4, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(15999, 9, "layouts_LAYOUTLIST", null, null);
-      tmp[10] = new NonTerminalStackNode<IConstructor>(16003, 10, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
-      tmp[0] = new EmptyStackNode<IConstructor>(15982, 0, regular__empty, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15997, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15990, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15983, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15988, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15998, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[6] = new SeparatedListStackNode<IConstructor>(15996, 6, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15992, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15993, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15994, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15995, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15988, 2, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[4] = new LiteralStackNode<IConstructor>(15990, 4, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(16000, 9, "layouts_LAYOUTLIST", null, null);
+      tmp[10] = new NonTerminalStackNode<IConstructor>(16004, 10, "Parameters", null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {40,41})});
+      tmp[0] = new EmptyStackNode<IConstructor>(15983, 0, regular__empty, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15998, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15991, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15984, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15989, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15999, 8, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
       builder.addAlternative(RascalParser.prod__dependVoidFormalsParametrized_Sym__empty_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_formals_Parameters_, tmp);
 	}
     protected static final void _init_prod__empty_Sym__lit___40_41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(15899, 0, prod__lit___40_41__char_class___range__40_40_char_class___range__41_41_, new int[] {40,41}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15900, 0, prod__lit___40_41__char_class___range__40_40_char_class___range__41_41_, new int[] {40,41}, null, null);
       builder.addAlternative(RascalParser.prod__empty_Sym__lit___40_41_, tmp);
 	}
     protected static final void _init_prod__endOfFile_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___36_36_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15845, 0, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15848, 2, prod__lit___36_36__char_class___range__36_36_char_class___range__36_36_, new int[] {36,36}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15847, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15846, 0, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15849, 2, prod__lit___36_36__char_class___range__36_36_char_class___range__36_36_, new int[] {36,36}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15848, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__endOfFile_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___36_36_, tmp);
 	}
     protected static final void _init_prod__endOfLine_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___36_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15904, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15902, 0, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15907, 2, prod__lit___36__char_class___range__36_36_, new int[] {36}, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {36})});
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15905, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15903, 0, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15908, 2, prod__lit___36__char_class___range__36_36_, new int[] {36}, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {36})});
       builder.addAlternative(RascalParser.prod__endOfLine_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___36_, tmp);
 	}
     protected static final void _init_prod__except_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_layouts_LAYOUTLIST_label_NonterminalLabel_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15730, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15732, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15731, 2, prod__lit___33__char_class___range__33_33_, new int[] {33}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15733, 4, "NonterminalLabel", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15728, 0, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15731, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15733, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15732, 2, prod__lit___33__char_class___range__33_33_, new int[] {33}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15734, 4, "NonterminalLabel", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15729, 0, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__except_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_layouts_LAYOUTLIST_label_NonterminalLabel_, tmp);
 	}
     protected static final void _init_prod__farFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___62_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16193, 0, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16196, 2, prod__lit___62_62_62__char_class___range__62_62_char_class___range__62_62_char_class___range__62_62_, new int[] {62,62,62}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16198, 4, "Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16195, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16197, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16194, 0, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16197, 2, prod__lit___62_62_62__char_class___range__62_62_char_class___range__62_62_char_class___range__62_62_, new int[] {62,62,62}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16199, 4, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16196, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16198, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__farFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___62_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left, tmp);
 	}
     protected static final void _init_prod__farNotFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_62_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16152, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16150, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16153, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16151, 2, prod__lit___33_62_62_62__char_class___range__33_33_char_class___range__62_62_char_class___range__62_62_char_class___range__62_62_, new int[] {33,62,62,62}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16148, 0, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16153, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16151, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16154, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16152, 2, prod__lit___33_62_62_62__char_class___range__33_33_char_class___range__62_62_char_class___range__62_62_char_class___range__62_62_, new int[] {33,62,62,62}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16149, 0, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__farNotFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_62_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left, tmp);
 	}
     protected static final void _init_prod__farNotPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___33_60_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16180, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16178, 2, prod__lit___33_60_60_60__char_class___range__33_33_char_class___range__60_60_char_class___range__60_60_char_class___range__60_60_, new int[] {33,60,60,60}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16175, 0, "Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16179, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16177, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16181, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16179, 2, prod__lit___33_60_60_60__char_class___range__33_33_char_class___range__60_60_char_class___range__60_60_char_class___range__60_60_, new int[] {33,60,60,60}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16176, 0, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16180, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16178, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__farNotPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___33_60_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right, tmp);
 	}
     protected static final void _init_prod__farPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___60_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16202, 0, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16205, 2, prod__lit___60_60_60__char_class___range__60_60_char_class___range__60_60_char_class___range__60_60_, new int[] {60,60,60}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16207, 4, "Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16204, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16206, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16203, 0, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16206, 2, prod__lit___60_60_60__char_class___range__60_60_char_class___range__60_60_char_class___range__60_60_, new int[] {60,60,60}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16208, 4, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16205, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16207, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__farPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___60_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right, tmp);
 	}
     protected static final void _init_prod__follow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___62_62_layouts_LAYOUTLIST_match_Sym__assoc__left(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16189, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16187, 2, prod__lit___62_62__char_class___range__62_62_char_class___range__62_62_, new int[] {62,62}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16184, 0, "Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16188, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16186, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16190, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16188, 2, prod__lit___62_62__char_class___range__62_62_char_class___range__62_62_, new int[] {62,62}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16185, 0, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16189, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16187, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__follow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___62_62_layouts_LAYOUTLIST_match_Sym__assoc__left, tmp);
 	}
     protected static final void _init_prod__iter_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___43_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15740, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15741, 2, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15738, 0, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15741, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15742, 2, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15739, 0, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__iter_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___43_, tmp);
 	}
     protected static final void _init_prod__iterSep_Sym__lit___123_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_sep_Sym_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit___43_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode<IConstructor>(15920, 8, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15919, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15917, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15911, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15914, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15910, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15912, 2, "Sym", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15918, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15915, 4, "Sym", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15921, 8, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15920, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15918, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15912, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15915, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15911, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15913, 2, "Sym", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15919, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15916, 4, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__iterSep_Sym__lit___123_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_sep_Sym_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit___43_, tmp);
 	}
     protected static final void _init_prod__iterStar_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___42_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(16043, 2, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16040, 0, "Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16042, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16044, 2, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16041, 0, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16043, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__iterStar_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___42_, tmp);
 	}
     protected static final void _init_prod__iterStarSep_Sym__lit___123_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_sep_Sym_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit___42_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(15832, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15840, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15834, 2, "Sym", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15837, 4, "Sym", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(15842, 8, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(15841, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15839, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15833, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15836, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15833, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15841, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15835, 2, "Sym", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15838, 4, "Sym", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(15843, 8, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(15842, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15840, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15834, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15837, 3, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__iterStarSep_Sym__lit___123_layouts_LAYOUTLIST_symbol_Sym_layouts_LAYOUTLIST_sep_Sym_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit___42_, tmp);
 	}
     protected static final void _init_prod__labeled_Sym__symbol_Sym_layouts_LAYOUTLIST_label_NonterminalLabel_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16052, 0, "Sym", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16055, 2, "NonterminalLabel", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16054, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16053, 0, "Sym", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16056, 2, "NonterminalLabel", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16055, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__labeled_Sym__symbol_Sym_layouts_LAYOUTLIST_label_NonterminalLabel_, tmp);
 	}
     protected static final void _init_prod__literal_Sym__string_StringConstant_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15760, 0, "StringConstant", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15761, 0, "StringConstant", null, null);
       builder.addAlternative(RascalParser.prod__literal_Sym__string_StringConstant_, tmp);
 	}
     protected static final void _init_prod__nonterminal_Sym__nonterminal_Nonterminal_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16019, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {40}), new StringFollowRestriction(new int[] {91})});
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16020, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {40}), new StringFollowRestriction(new int[] {91})});
       builder.addAlternative(RascalParser.prod__nonterminal_Sym__nonterminal_Nonterminal_, tmp);
 	}
     protected static final void _init_prod__notFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16161, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16159, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16157, 0, "Sym", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16162, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16160, 2, prod__lit___33_62_62__char_class___range__33_33_char_class___range__62_62_char_class___range__62_62_, new int[] {33,62,62}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16162, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16160, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16158, 0, "Sym", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16163, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16161, 2, prod__lit___33_62_62__char_class___range__33_33_char_class___range__62_62_char_class___range__62_62_, new int[] {33,62,62}, null, null);
       builder.addAlternative(RascalParser.prod__notFollow_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___33_62_62_layouts_LAYOUTLIST_match_Sym__assoc__left, tmp);
 	}
     protected static final void _init_prod__notPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___33_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16211, 0, "Sym", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16216, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16214, 2, prod__lit___33_60_60__char_class___range__33_33_char_class___range__60_60_char_class___range__60_60_, new int[] {33,60,60}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16215, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16213, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16212, 0, "Sym", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16217, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16215, 2, prod__lit___33_60_60__char_class___range__33_33_char_class___range__60_60_char_class___range__60_60_, new int[] {33,60,60}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16216, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16214, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__notPrecede_Sym__match_Sym_layouts_LAYOUTLIST_lit___33_60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right, tmp);
 	}
     protected static final void _init_prod__optional_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___63_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(15971, 2, prod__lit___63__char_class___range__63_63_, new int[] {63}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15968, 0, "Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15970, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15972, 2, prod__lit___63__char_class___range__63_63_, new int[] {63}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15969, 0, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15971, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__optional_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___63_, tmp);
 	}
     protected static final void _init_prod__parameter_Sym__lit___38_layouts_LAYOUTLIST_nonterminal_Nonterminal_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(16046, 0, prod__lit___38__char_class___range__38_38_, new int[] {38}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(16048, 2, "Nonterminal", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16047, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(16047, 0, prod__lit___38__char_class___range__38_38_, new int[] {38}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(16049, 2, "Nonterminal", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16048, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__parameter_Sym__lit___38_layouts_LAYOUTLIST_nonterminal_Nonterminal_, tmp);
 	}
     protected static final void _init_prod__parametrized_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15927, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15936, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15929, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(15926, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
-      tmp[2] = new LiteralStackNode<IConstructor>(15928, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15937, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(15934, 4, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15930, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15931, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15932, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15933, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15928, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15937, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15930, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(15927, 0, "Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[2] = new LiteralStackNode<IConstructor>(15929, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15938, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(15935, 4, regular__iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15931, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15932, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(15933, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(15934, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
       builder.addAlternative(RascalParser.prod__parametrized_Sym__nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Sym__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__precede_Sym__match_Sym_layouts_LAYOUTLIST_lit___60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16171, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16169, 2, prod__lit___60_60__char_class___range__60_60_char_class___range__60_60_, new int[] {60,60}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16166, 0, "Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16170, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16168, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16172, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16170, 2, prod__lit___60_60__char_class___range__60_60_char_class___range__60_60_, new int[] {60,60}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16167, 0, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16171, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16169, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__precede_Sym__match_Sym_layouts_LAYOUTLIST_lit___60_60_layouts_LAYOUTLIST_symbol_Sym__assoc__right, tmp);
 	}
     protected static final void _init_prod__sequence_Sym__lit___40_layouts_LAYOUTLIST_first_Sym_layouts_LAYOUTLIST_sequence_iter_seps__Sym__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(15851, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(15858, 4, regular__iter_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15856, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15857, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15861, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15853, 2, "Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15855, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15852, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15860, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15852, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(15859, 4, regular__iter_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(15857, 0, "Sym", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(15858, 1, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15862, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15854, 2, "Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15856, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15853, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15861, 5, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__sequence_Sym__lit___40_layouts_LAYOUTLIST_first_Sym_layouts_LAYOUTLIST_sequence_iter_seps__Sym__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__start_Sym__lit_start_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(15961, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(15964, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15959, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15958, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(15962, 4, "Nonterminal", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(15960, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(15965, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(15962, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(15965, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15960, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15959, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(15963, 4, "Nonterminal", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(15961, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(15966, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
       builder.addAlternative(RascalParser.prod__start_Sym__lit_start_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_nonterminal_Nonterminal_layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__startOfLine_Sym__lit___94_layouts_LAYOUTLIST_symbol_Sym_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(15755, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(15754, 0, prod__lit___94__char_class___range__94_94_, new int[] {94}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(15756, 2, "Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(15756, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(15755, 0, prod__lit___94__char_class___range__94_94_, new int[] {94}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(15757, 2, "Sym", null, null);
       builder.addAlternative(RascalParser.prod__startOfLine_Sym__lit___94_layouts_LAYOUTLIST_symbol_Sym_, tmp);
 	}
     protected static final void _init_prod__unequal_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___92_layouts_LAYOUTLIST_match_Sym__assoc__left(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(16224, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(16222, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(16220, 0, "Sym", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(16225, 4, "Sym", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(16223, 2, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(16225, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(16223, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(16221, 0, "Sym", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(16226, 4, "Sym", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(16224, 2, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
       builder.addAlternative(RascalParser.prod__unequal_Sym__symbol_Sym_layouts_LAYOUTLIST_lit___92_layouts_LAYOUTLIST_match_Sym__assoc__left, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -14587,29 +14587,29 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_UserType__char_class___range__0_0_lit___115_111_114_116_40_34_85_115_101_114_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__UserType(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(14875, 1, prod__lit___115_111_114_116_40_34_85_115_101_114_84_121_112_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__85_85_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__84_84_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,85,115,101,114,84,121,112,101,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14878, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14877, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14874, 0, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14876, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14879, 4, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14876, 1, prod__lit___115_111_114_116_40_34_85_115_101_114_84_121_112_101_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__85_85_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__84_84_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,85,115,101,114,84,121,112,101,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14879, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14878, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14875, 0, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14877, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14880, 4, new int[][]{{0,0}}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_UserType__char_class___range__0_0_lit___115_111_114_116_40_34_85_115_101_114_84_121_112_101_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__UserType, tmp);
 	}
     protected static final void _init_prod__name_UserType__name_QualifiedName_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14900, 0, "QualifiedName", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14901, 0, "QualifiedName", null, null);
       builder.addAlternative(RascalParser.prod__name_UserType__name_QualifiedName_, tmp);
 	}
     protected static final void _init_prod__parametric_UserType__name_QualifiedName_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14886, 0, "QualifiedName", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
-      tmp[6] = new LiteralStackNode<IConstructor>(14897, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14888, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(14894, 4, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14890, 0, "Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14891, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14892, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14893, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14889, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14887, 1, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14896, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14887, 0, "QualifiedName", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[6] = new LiteralStackNode<IConstructor>(14898, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14889, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(14895, 4, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14891, 0, "Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14892, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14893, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14894, 3, "layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14890, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14888, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14897, 5, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__parametric_UserType__name_QualifiedName_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -14691,35 +14691,35 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MetaHole_Variant__char_class___range__0_0_lit___115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Variant(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(14937, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14942, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14939, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14941, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14940, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(14938, 1, prod__lit___115_111_114_116_40_34_86_97_114_105_97_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__86_86_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,86,97,114,105,97,110,116,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14938, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14943, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14940, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14942, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14941, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14939, 1, prod__lit___115_111_114_116_40_34_86_97_114_105_97_110_116_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__86_86_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,86,97,114,105,97,110,116,34,41}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Variant__char_class___range__0_0_lit___115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__Variant, tmp);
 	}
     protected static final void _init_prod__$MetaHole_Variant__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(14907, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_44_91_108_105_116_40_34_124_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__86_86_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__124_124_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,86,97,114,105,97,110,116,34,41,44,91,108,105,116,40,34,124,34,41,93,41}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(14911, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(14906, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(14910, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14909, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14908, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(14908, 1, prod__lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_44_91_108_105_116_40_34_124_34_41_93_41__char_class___range__92_92_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__45_45_char_class___range__115_115_char_class___range__101_101_char_class___range__112_112_char_class___range__115_115_char_class___range__40_40_char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__86_86_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__110_110_char_class___range__116_116_char_class___range__34_34_char_class___range__41_41_char_class___range__44_44_char_class___range__91_91_char_class___range__108_108_char_class___range__105_105_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__124_124_char_class___range__34_34_char_class___range__41_41_char_class___range__93_93_char_class___range__41_41_, new int[] {92,105,116,101,114,45,115,101,112,115,40,115,111,114,116,40,34,86,97,114,105,97,110,116,34,41,44,91,108,105,116,40,34,124,34,41,93,41}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(14912, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(14907, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(14911, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14910, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14909, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(RascalParser.prod__$MetaHole_Variant__char_class___range__0_0_lit___92_105_116_101_114_45_115_101_112_115_40_115_111_114_116_40_34_86_97_114_105_97_110_116_34_41_44_91_108_105_116_40_34_124_34_41_93_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, tmp);
 	}
     protected static final void _init_prod__nAryConstructor_Variant__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordFormals_layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[4] = new SeparatedListStackNode<IConstructor>(14928, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14924, 0, "TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14925, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14926, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14927, 3, "layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(14931, 6, "KeywordFormals", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(14919, 0, "Name", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(14933, 7, "layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(14934, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(14922, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(14923, 3, "layouts_LAYOUTLIST", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(14930, 5, "layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(14921, 1, "layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(14929, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(14925, 0, "TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(14926, 1, "layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(14927, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(14928, 3, "layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(14932, 6, "KeywordFormals", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(14920, 0, "Name", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(14934, 7, "layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(14935, 8, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(14923, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(14924, 3, "layouts_LAYOUTLIST", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(14931, 5, "layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(14922, 1, "layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalParser.prod__nAryConstructor_Variant__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_keywordArguments_KeywordFormals_layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){

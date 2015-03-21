@@ -642,7 +642,7 @@ syntax StructuredType
 	= \default: BasicType basicType "[" {TypeArg ","}+ arguments "]" ;
 
 lexical NonterminalLabel 
-	= ([a-z] [0-9 A-Z _ a-z]*) !>> [0-9 A-Z _ a-z] \ "if" \ "else" \ "while" \ "do" \ "when" \ "offside" \ "align";
+	= ([a-z] [0-9 A-Z _ a-z]*) !>> [0-9 A-Z _ a-z] \ "if" \ "else" \ "while" \ "do" \ "when" \ "offside" \ "align" \ "ignore";
 
 syntax FunctionType
 	= typeArguments: Type type "(" {TypeArg ","}* arguments ")" ;
