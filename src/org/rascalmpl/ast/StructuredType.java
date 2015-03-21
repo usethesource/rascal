@@ -81,7 +81,7 @@ public abstract class StructuredType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 317 * basicType.hashCode() + 313 * arguments.hashCode() ; 
+      return 311 + 439 * basicType.hashCode() + 701 * arguments.hashCode() ; 
     } 
   
     

@@ -81,7 +81,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 751 * pattern.hashCode() + 23 * body.hashCode() ; 
+      return 577 + 211 * pattern.hashCode() + 401 * body.hashCode() ; 
     } 
   
     
@@ -141,7 +141,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 491 * body.hashCode() ; 
+      return 599 + 643 * body.hashCode() ; 
     } 
   
     

@@ -47,6 +47,8 @@ public Symbol sym2symbol(Sym sym) {
       return \align(sym2symbol(s));
     case dependOffside(Sym s):
       return \offside(sym2symbol(s));
+    case dependIgnore(Sym s):
+      return \ignore(sym2symbol(s));
     case dependVoidFormals(Nonterminal n, Parameters f) :
       return addParameters(sort("<n>"), f);
     case dependVoidFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Parameters f) :

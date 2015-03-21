@@ -134,6 +134,7 @@ syntax Sym
 	| except:   Sym symbol "!" NonterminalLabel label
 	> \dependAlign: "align" Sym symbol
 	| \dependOffside: "offside" Sym symbol
+	| \dependIgnore: "ignore" Sym symbol
 	> dependCode: Sym symbol "do" Statement+ block
 	> dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
 	> dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
@@ -733,6 +734,7 @@ keyword RascalKeywords
 	| "value"
 	| "offside"
 	| "align" 
+	| "ignore"
 	| "when"
 	;
 

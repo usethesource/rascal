@@ -659,6 +659,8 @@ public interface IASTVisitor<T> {
 
   public T visitSymDependFormalsParametrized(Sym.DependFormalsParametrized x);
 
+  public T visitSymDependIgnore(Sym.DependIgnore x);
+
   public T visitSymDependLoop(Sym.DependLoop x);
 
   public T visitSymDependNonterminal(Sym.DependNonterminal x);
