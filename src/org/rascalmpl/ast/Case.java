@@ -79,7 +79,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 983 * statement.hashCode() ; 
+      return 701 + 557 * statement.hashCode() ; 
     } 
   
     
@@ -130,7 +130,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 619 * patternWithAction.hashCode() ; 
+      return 811 + 353 * patternWithAction.hashCode() ; 
     } 
   
     
