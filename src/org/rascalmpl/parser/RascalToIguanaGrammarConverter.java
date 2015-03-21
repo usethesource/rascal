@@ -56,6 +56,7 @@ import org.jgll.grammar.symbol.EOF;
 import org.jgll.grammar.symbol.Epsilon;
 import org.jgll.grammar.symbol.IfThen;
 import org.jgll.grammar.symbol.IfThenElse;
+import org.jgll.grammar.symbol.Ignore;
 import org.jgll.grammar.symbol.LayoutStrategy;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Offside;
@@ -570,8 +571,7 @@ public class RascalToIguanaGrammarConverter {
 				return Offside.offside(getSymbol(getSymbolCons(symbol)));
 				
 			case "ignore":
-				// TODO:
-				return null;
+				return Ignore.ignore(getSymbol(getSymbolCons(symbol)));
 								
 			default:
 				throw new UnsupportedOperationException(symbol.toString());
@@ -1077,6 +1077,11 @@ public class RascalToIguanaGrammarConverter {
 		public Boolean visit(IfThenElse symbol) {
 			return symbol.getThenPart().accept(this)
 					|| symbol.getElsePart().accept(this);
+		}
+		
+		@Override
+		public Boolean visit(Ignore symbol) {
+			return symbol.getSymbol().accept(this);
 		}
 
 		@Override
