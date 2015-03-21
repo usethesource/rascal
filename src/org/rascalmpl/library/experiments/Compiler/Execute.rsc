@@ -6,6 +6,7 @@ import String;
 import Type;
 import Message;
 import List;
+import ParseTree;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
@@ -105,7 +106,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            //importedLoc = imp.parent + (basename(imp) + ".rvm");
            importedLoc = RVMProgramLocation(imp, bindir);
            try {
-  	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
+  	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;
   	           
   	           // Temporary work around related to issue #343
@@ -161,7 +162,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
 
 value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   res = execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
 tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){

@@ -187,17 +187,17 @@ public class RVM implements java.io.Serializable {
 	
 	public void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		System.out.println("size functionStore: " + nfs);
+		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
 			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int ncs = constructorStore.size();
-		System.out.println("size constructorStore: " + ncs);
+		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
 			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int nov = overloadedStore.size();
-		System.out.println("size overloadedStore: " + nov);
+		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
 			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
@@ -401,7 +401,10 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Map.Entry){
 			return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
 		}
-		throw new CompilerError("asString cannot convert: " + o);
+		
+		return o.getClass().getName();
+	
+		//throw new CompilerError("asString cannot convert: " + o);
 	}
 	
 	private String asString(Object o, int w){

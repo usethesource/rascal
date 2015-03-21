@@ -7,6 +7,7 @@ import ListRelation;
 import Node;
 import Message;
 import String;
+import ToString;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -332,16 +333,9 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) {
-	tp = typeOf(c);
-	
-	if(isADTType(tp) && tp != adt("Symbol",[]) && \type(_,_) !:= c && node nd := c){
-		res =  [LOADCONSTRCON(symbolToValue(tp), toString(nd))];
-		//println("muCon(<c>): <tp>, <res>");
-		return res;
-	}
-	return [LOADCON(c)];	
-}		
+
+default INS tr(muCon(value c)) =
+	[LOADCON(c)];	
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
