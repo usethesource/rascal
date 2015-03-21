@@ -195,6 +195,7 @@ data Symbol
      | \while(str condition, Symbol symbol)
      | \align(Symbol symbol)
      | \offside(Symbol symbol)
+     | \ignore(Symbol symbol)
      ;  
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 

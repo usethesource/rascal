@@ -568,6 +568,10 @@ public class RascalToIguanaGrammarConverter {
 				
 			case "offside":
 				return Offside.offside(getSymbol(getSymbolCons(symbol)));
+				
+			case "ignore":
+				// TODO:
+				return null;
 								
 			default:
 				throw new UnsupportedOperationException(symbol.toString());

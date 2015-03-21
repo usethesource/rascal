@@ -1301,6 +1301,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymDependIgnore(Sym.DependIgnore x) { 
+    return null; 
+  }
+
   public T visitSymDependLoop(Sym.DependLoop x) { 
     return null; 
   }

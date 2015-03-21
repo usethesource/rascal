@@ -81,7 +81,7 @@ public abstract class Module extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 503 * header.hashCode() + 31 * body.hashCode() ; 
+      return 823 + 461 * header.hashCode() + 859 * body.hashCode() ; 
     } 
   
     
