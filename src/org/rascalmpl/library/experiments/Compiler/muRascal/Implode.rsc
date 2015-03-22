@@ -298,6 +298,10 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
       	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse(nextLabel("L_AND"), lhs, [rhs], [muCon(false)])      	       
       	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse(nextLabel("L_OR"), lhs, [muCon(true)], [rhs])
       	       
+      	       case org_exp: preIs(MuExp lhs, "appl")											=> muCallPrim3("is_appl", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "lexical")										=> muCallPrim3("is_lexical", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "layout")											=> muCallPrim3("is_layout", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "concretelist")									=> muCallPrim3("is_concretelist", [lhs], org_exp@\location)
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
