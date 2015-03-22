@@ -4632,13 +4632,12 @@ public enum RascalPrimitive {
 	appl_create {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			Type applConstrType = (Type) stack[sp - 3];
+			assert arity == 2;
 			IValue prod = (IValue) stack[sp - 2];
 			IValue args = (IValue) stack[sp -1];
 
-			stack[sp - 3] = vf.constructor(applConstrType, prod, args);
-			return sp - 2;
+			stack[sp - 2] = vf.constructor(Factory.Tree_Appl, prod, args);
+			return sp - 1;
 		}
 
 	},
