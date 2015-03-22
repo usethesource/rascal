@@ -380,14 +380,14 @@ MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production appl
            //println("lookahead = <lookahead>");
            //println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-                												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
+                												  muCon(sep), /*getConstructor("appl"),*/ muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
            //println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-           														 getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
+           														 /*getConstructor("appl"),*/ muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
@@ -790,31 +790,9 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 }
 
 // is  a pattern a concretePattern?
-    
-//bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
-//	isConcreteType(getType(p@\loc));
-//	
-//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
-//	isConcreteType(getType(p@\loc));	
-//	
-//bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-//	isConcretePattern(pattern);	
-//
-//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-//	isConcretePattern(pattern);
-//		
-//default bool isConcretePattern(Pattern p) {
-//	println("isConcretePattern: <getType(p@\loc)>");
-//	return false;
-//
-//}
 
-bool isConcretePattern(Pattern p) {
-	patType = getType(p@\loc);
-	res = isNonTerminalType(patType);
-	println("isConcretePattern: <res>, <patType>, <p>");
-	return res;
-}
+bool isConcretePattern(Pattern p) =
+	isNonTerminalType(getType(p@\loc));
 
 // get the types and constructor names from a pattern
 
