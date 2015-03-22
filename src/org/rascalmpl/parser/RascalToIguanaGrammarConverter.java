@@ -87,6 +87,7 @@ import org.rascalmpl.ast.Expression.FieldAccess;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
 import org.rascalmpl.ast.Expression.LessThan;
+import org.rascalmpl.ast.Expression.Negation;
 import org.rascalmpl.ast.Expression.Or;
 import org.rascalmpl.ast.Expression.QualifiedName;
 import org.rascalmpl.ast.Literal.Integer;
@@ -872,7 +873,8 @@ public class RascalToIguanaGrammarConverter {
 			}
 			String id = ((org.jgll.datadependent.ast.Expression.Name) fun).getName();
 			
-			if (!(id.equals("indent") || 
+			if (!(id.equals("indent") ||
+				  id.equals("len") ||
 				  id.equals("println") ||
 				  id.equals("ppDeclare") ||
 				  id.equals("ppLookup") ||
@@ -893,6 +895,8 @@ public class RascalToIguanaGrammarConverter {
 			
 			if (id.equals("indent")) 
 				return indent(args[0]);
+			else if (id.equals("len"))
+				return len(args[0]);
 			else if (id.equals("ppDeclare"))
 				return ppDeclare(args[0], args[1]);
 			else if (id.equals("ppLookup"))
@@ -900,11 +904,16 @@ public class RascalToIguanaGrammarConverter {
 			else if (id.equals("endOfFile"))
 				return endOfFile(args[0]);
 			else if (id.equals("startsWith"))
-				return startsWith(args[0], args[1]);
+				return startsWith(args);
 			else if (id.equals("endsWith")) 
 				return endsWith(args[0], args[1]);
 			else 
 				return println(args);
+		}
+		
+		@Override
+		public AbstractAST visitExpressionNegation(Negation x) {
+			return not((org.jgll.datadependent.ast.Expression) x.getArgument().accept(this));
 		}
 		
 		@Override
