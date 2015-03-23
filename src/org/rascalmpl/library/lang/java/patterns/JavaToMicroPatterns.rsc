@@ -219,8 +219,8 @@ private bool isStateless(M3 m, loc e)
 private bool isCommonState(M3 m, loc e)
 	= isClass(e)
 	&& methods(m,e) != {}
-	&& all(f <- fields(m, e), <f,static()> in m@modifiers)
-	&& any(f <- fields(m, e), !(<f,final()> in m@modifiers))
+	&& all(loc f <- fields(m, e), <f,static()> in m@modifiers)
+	&& any(loc f <- fields(m, e), !(<f,final()> in m@modifiers))
 	;
 	
 
@@ -229,8 +229,8 @@ private bool isImmutable(M3 m, loc e)
 	= isClass(e)
 	&& set[loc] fs := instanceFields(m,e)
 	&& size(fs) > 1
-	&& any(met <- constructors(m, e), (fs & assignments(m, met)<lhs>) != {})
-	&& !any(met <- methods(m, e), met.scheme == "java+method" && (fs & assignments(m, met)<lhs>) != {})
+	&& any(loc met <- constructors(m, e), (fs & assignments(m, met)<lhs>) != {})
+	&& !any(loc met <- methods(m, e), met.scheme == "java+method" && (fs & assignments(m, met)<lhs>) != {})
 	;
 	
 	
@@ -238,22 +238,22 @@ private bool isImmutable(M3 m, loc e)
 private bool isCanopy(M3 m, loc e)
 	= isClass(e)
 	&& {f} := instanceFields(m,e)
-	&& all(c <- constructors(m, e), {_} := assignments(m, c)[f])
-	&& !any(met <- methods(m, e), met.scheme == "java+method" && !(f in assignments(m, met)<lhs>))
+	&& all(loc c <- constructors(m, e), {_} := assignments(m, c)[f])
+	&& !any(loc met <- methods(m, e), met.scheme == "java+method" && !(f in assignments(m, met)<lhs>))
 	;
 
 @doc{A class with no public constructors and at least on static field of the same type of the class}
 private bool isRestrictedCreation(M3 m, loc e)
 	= isClass(e)
-	&& !any(c <- constructors(m, e), !(<c, \public()> in m@modifiers))
-	&& any(f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
+	&& !any(loc c <- constructors(m, e), !(<c, \public()> in m@modifiers))
+	&& any(loc f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
 	;
 
 @doc{A class with at least one public constructor and at least one static field of the same type of the class}
 private bool isSampler(M3 m, loc e)
 	= isClass(e)
-	&& any(c <- constructors(m, e), <c, \public()> in m@modifiers)
-	&& any(f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
+	&& any(loc c <- constructors(m, e), <c, \public()> in m@modifiers)
+	&& any(loc f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
 	;
 
 // TODO: unclear about Object methods
@@ -336,9 +336,9 @@ private bool isAugmentedType(M3 m, loc e)
 	= (isClass(e) || isInterface(e))
 	&& methods(m,e) != {}
 	&& (
-		(isInterface(e) && any(t <- usedTypes(m, fields(m,e)), size(usedTypes(m, fields(m,e))) >= 3))
+		(isInterface(e) && any(loc t <- usedTypes(m, fields(m,e)), size(usedTypes(m, fields(m,e))) >= 3))
 		||
-		(isClass(e) && any(t <- usedTypes(m, staticFinalFields(m,e)), size(usedTypes(m, staticFinalFields(m,e))) >= 3))
+		(isClass(e) && any(loc t <- usedTypes(m, staticFinalFields(m,e)), size(usedTypes(m, staticFinalFields(m,e))) >= 3))
 	)
 	;
 
