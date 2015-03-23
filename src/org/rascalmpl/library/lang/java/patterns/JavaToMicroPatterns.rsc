@@ -355,6 +355,7 @@ private bool isImplementor(M3 m, loc e)
 	= isClass(e)
 	&& !isAbstract(m, e)
 	&& {base} := m@extends[e]
+	&& size(publicMethods(m,e) - constructors(m,e)) > 0
 	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == abstractMethods(m, base)
 	&& size(publicMethods(m,e) - constructors(m,e)) == size(abstractMethods(m, base))
 	;
@@ -363,6 +364,7 @@ private bool isImplementor(M3 m, loc e)
 private bool isOverrider(M3 m, loc e) 
 	= isClass(e)
 	&& {base} := m@extends[e]
+	&& size(publicMethods(m,e) - constructors(m,e)) > 0
 	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == ((methods(m, base) - abstractMethods(m, base)) - constructors(m,e))
 	&& size(publicMethods(m,e) - constructors(m,e)) == size(((methods(m, base)) - abstractMethods(m, base))- constructors(m,e))
 	;
