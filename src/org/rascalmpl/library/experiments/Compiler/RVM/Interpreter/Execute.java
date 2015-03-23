@@ -598,6 +598,10 @@ public class Execute {
 				codeblock.RESETLOCS(getListField(instruction, "positions"));
 				break;	
 				
+			case "LOADCONSTRCON":
+				codeblock.LOADCONSTRCON((IConstructor) instruction.get("reified"),  getStrField(instruction, "repr"));
+				break;
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}

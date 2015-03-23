@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -169,6 +170,7 @@ public class Frame {
 				}
 				this.stack[this.sp++] = writer.done();
 			}
+			assert stack[start + arity - 1] instanceof HashMap<?, ?>;
 			this.stack[this.sp++] = stack[start + arity - 1]; // The keyword arguments
 		}		
 		this.sp = function.nlocals;
@@ -246,7 +248,7 @@ public class Frame {
 	}
 	
 	public void printBack(PrintWriter stdout, Object rval){
-		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : rval.toString())); stdout.flush();
+		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	
 }

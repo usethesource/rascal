@@ -557,6 +557,63 @@ test bool order2()= order(g1([f1(1),f1(2)])) == [1,2];
 test bool order3()= order(h1(f1(1),h1(f1(2),f1(3)))) == [1,2,3];
 test bool order4()= order(h1(f1(1),g1([h1(f1(2),f1(3)),f1(4),f1(5)]))) == [1,2,3,4,5];
 
+
+// VisitWithAnno
+
+data NODE = nd(NODE left, NODE right) | leaf(int n);
+
+anno int NODE @ pos;
+
+NODE N1 = nd(leaf(0)[@pos=0], leaf(1)[@pos=1])[@pos=2];
+
+test bool visitWithAnno1() {
+	return visit(leaf(1)[@pos=1]){
+		case leaf(1) => leaf(10)
+		default:;
+	}
+	==
+	leaf(10);
+}
+
+test bool visitWithAnno1() {
+	return visit(N1){
+		default:;
+	}
+	==
+	N1;
+}
+
+test bool visitWithAnno2() {
+	return visit(N1){
+		case leaf(1) => leaf(10)
+		default:;
+	}
+	==
+	nd(leaf(0)[@pos=0], leaf(10))[@pos=2];
+}
+
+test bool visitWithAnno3() {
+	return visit(N1){
+		case leaf(0) => leaf(0)
+		case leaf(1) => leaf(10)
+		default:;
+	}
+	==
+	nd(leaf(0), leaf(10))[@pos=2];
+}
+
+test bool visitWithAnno4() {
+	return visit(N1){
+		case leaf(0) => leaf(0)
+		case leaf(1) => leaf(10)
+		case nd(left, right) => nd(right, left)
+		default:;
+	}
+	==
+	nd(leaf(10), leaf(0));
+}
+
+
 // StringVisit1a
 
 test bool StringVisit1a1()=visit(""){ case /b/: insert "B";} == "";

@@ -29,7 +29,7 @@ test bool publicVarDeclarationVisible(){
 
 test bool publicVarDeclarationVisibleViaQualifiedName(){ 
 	makeModule("MMM", "public int x = 3;"); 
-	return checkOK("M::x;", importedModules=["MMM"]);
+	return checkOK("MMM::x;", importedModules=["MMM"]);
 }
 
 test bool DefaultVarDeclarationNotVisible(){ 
@@ -54,7 +54,7 @@ test bool RedeclaredVarDeclaration(){
 
 test bool qualifiedScopeTest(){ 
 	makeModule("MMM", "public int n = 1;"); 
-	return checkOK("M::n == 1;", importedModules=["MMM"]);
+	return checkOK("MMM::n == 1;", importedModules=["MMM"]);
 }
 
 // Function declaration in imported module
@@ -71,7 +71,7 @@ test bool publicFunDeclarationVisible(){
 
 test bool publicFunDeclarationVisibleViaQualifiedName(){ 
 	makeModule("MMM", "public int f() = 3;"); 
-	return checkOK("M::f();", importedModules=["MMM"]);
+	return checkOK("MMM::f();", importedModules=["MMM"]);
 }
 
 test bool DefaultFunDeclarationVisible(){ 
@@ -88,7 +88,7 @@ test bool NonTerminalVisible(){
 
 test bool QualifiedNonTerminalVisible(){ 
 	makeModule("MMM", "syntax A = \"a\";"); 
-	return checkOK("M::A a;", importedModules=["MMM"]);
+	return checkOK("MMM::A a;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal1(){ 
@@ -130,7 +130,7 @@ test bool ADTVisible(){
 
 test bool QualifiedADTVisible(){ 
 	makeModule("MMM", "data DATA = d();"); 
-	return checkOK("M::DATA x;", importedModules=["MMM"]);
+	return checkOK("MMM::DATA x;", importedModules=["MMM"]);
 }
 
 test bool ExtendADT(){ 

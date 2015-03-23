@@ -108,8 +108,8 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `while ( <Expression con
                      [ translateStats(preStats),
                        *translateMiddle(indent, body),  
                        translateStats(postStats)
-                     ], [ muBreak(whilename) ]) 
-                 ])
+                     ], [ muBreak(whilename) ])
+                 ]) //,  muCon(666)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -154,7 +154,7 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `do { < Statement* preSt
                                translateStats(postStats),
                                muIfelse(ifname, makeBoolExp("ALL", [ translate(condition) ], condition@\loc), 
                                                 [ muContinue(doname) ], 
-                                                [ muBreak(doname) ])])
+                                                [ muBreak(doname) ])]) //,  muCon(666)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
