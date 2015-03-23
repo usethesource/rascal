@@ -3,7 +3,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -34,6 +36,7 @@ public class BytecodeGenerator implements Opcodes {
 	public static final int LVAL = 5;
 	public static final int LCOROUTINE = 6;
 	public static final int LPREVFRAME = 7;
+	public static final int EXCEPTION = 8;
 
 	byte[] endCode = null;
 	private ClassWriter cw = null;
@@ -46,6 +49,7 @@ public class BytecodeGenerator implements Opcodes {
 	private boolean isCoroutine = false;
 
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
+	private Set catchTargetLabels = new HashSet();
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
 
@@ -135,15 +139,20 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitEnd();
 	}
 
-	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, boolean debug) {
+	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, IList exceptions, boolean debug) {
 		if (!emit)
 			return;
 
 		this.isCoroutine = isCoroutine;
 		labelMap.clear(); // New set of labels.
+		catchTargetLabels.clear(); 
+		
 
 		mv = cw.visitMethod(ACC_PUBLIC, name, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
+		
+		emitExceptionTable(exceptions);
+		
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
@@ -229,6 +238,13 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitLabel(lb);
+		if ( catchTargetLabels.contains(targetLabel)) {
+			System.err.println(targetLabel + " = exceptionTarget");
+			emitCatchLabelEpilogue();
+		}
+		else {
+			System.err.println(targetLabel);
+		}
 	}
 
 	// A call to a RVM instruction not CALL or OCALL
@@ -351,7 +367,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (int i = 0; i < nrFuncs; i++) {
 			mv.visitLabel(caseLabels[i]);
 			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitVarInsn(ALOAD, 2); // CF in second argument
+			mv.visitVarInsn(ALOAD, 2); // BEWARE: CF in second argument differs from generated functions.
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;");
 			mv.visitInsn(ARETURN);
 		}
@@ -1399,22 +1415,40 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitExceptionTable(IList exceptions) {
-		// TODO emit exception bytecode.
+
+// TODO emit exception bytecode.
+
 		for(IValue entry : exceptions) {
 			ITuple tuple = (ITuple) entry;
 			String from = ((IString) tuple.get(0)).getValue();
 			String to = ((IString) tuple.get(1)).getValue();
 			String handler = ((IString) tuple.get(3)).getValue();
 			
-			
+			catchTargetLabels.add(handler) ;
 			
 // This might be a real challenge I don't have a RVM.
 //	 Type type = rvm.symbolToType((IConstructor) tuple.get(2));
 
 //   then emit.... 
-		
-		
+			Label fromLabel = getNamedLabel(from) ;
+			Label toLabel =   getNamedLabel(to) ;
+			Label handlerLabel = getNamedLabel(handler) ;
+			
+			System.out.println(fromLabel + " : " + toLabel + " -->> " + handlerLabel );
+			System.out.println(from + " : " + to + " -->> " + handler );
+// Create list with exception target types.
+// Mayby create a exception holding a Type.			
+			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
 		}
-
+	}
+	
+	public void emitCatchLabelEpilogue() {
+		mv.visitVarInsn(ASTORE, EXCEPTION);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitVarInsn(ALOAD, EXCEPTION);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "rascalException", "Ljava/lang/Object;");
+		mv.visitInsn(AASTORE);
 	}
 }

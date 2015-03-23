@@ -60,8 +60,8 @@ public class Function {
 
 	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints,false);
-		codeEmittor.emitExceptionTable(exceptions) ;
+		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints,exceptions,false);
+		//codeEmittor.emitExceptionTable(exceptions) ;
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);

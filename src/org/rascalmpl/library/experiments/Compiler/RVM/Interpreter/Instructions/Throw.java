@@ -22,7 +22,6 @@ public class Throw extends Instruction {
 		if (!dcode)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCall("insnTHROW");
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}
 }
