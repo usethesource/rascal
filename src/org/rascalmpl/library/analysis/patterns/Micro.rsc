@@ -30,43 +30,43 @@ data MicroPattern
 	| extender()
 	;
 	
-public set[MicroPattern] DegenerateClasses
-	= DegenerateStateAndBehavior 
-	+ DegenerateBehavior
-	+ DegenerateState
-	+ ControlledCreation
+public set[MicroPattern] DegenerateClasses()
+	= DegenerateStateAndBehavior()
+	+ DegenerateBehavior()
+	+ DegenerateState()
+	+ ControlledCreation()
 	;
 	
-public set[MicroPattern] Containment
-	= Wrappers 
-	+ DataManagers
+public set[MicroPattern] Containment()
+	= Wrappers()
+	+ DataManagers()
 	;
 
-public set[MicroPattern] Inheritance
-	= BaseClasses
-	+ Inheritors
+public set[MicroPattern] Inheritance()
+	= BaseClasses()
+	+ Inheritors()
 	;
 
-public set[MicroPattern] DegenerateStateAndBehavior
+public set[MicroPattern] DegenerateStateAndBehavior()
 	= { designator(), taxonomy(), joiner(), pool() };
 	
-public set[MicroPattern] DegenerateState
+public set[MicroPattern] DegenerateState()
 	= { functionPointer(), functionObject(), cobolLike() };
 	
-public set[MicroPattern] DegenerateBehavior
+public set[MicroPattern] DegenerateBehavior()
 	= { stateless(), commonState(), immutable(), record(), dataManager() };
 
-public set[MicroPattern] ControlledCreation
+public set[MicroPattern] ControlledCreation()
 	= { restrictedCreation(), sampler() };
 	
-public set[MicroPattern] Wrappers
+public set[MicroPattern] Wrappers()
 	= { box(), compoundBox(), canopy() };
 
-public set[MicroPattern] DataManagers
+public set[MicroPattern] DataManagers()
 	= { record(), dataManager(), sink() };
 
-public set[MicroPattern] BaseClasses 
+public set[MicroPattern] BaseClasses()
 	= { outline(), trait(), stateMachine(), pureType(), augmentedType(), pseudoClass() };
 	
-public set[MicroPattern] Inheritors
+public set[MicroPattern] Inheritors()
 	= { implementor(), overrider(), extender() };
