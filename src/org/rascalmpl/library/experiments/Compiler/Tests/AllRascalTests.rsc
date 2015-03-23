@@ -115,16 +115,16 @@ list[str] typeTests = [
 "StaticTestingUtilsTests",	// OK
 "AccumulatingTCTests",		// OK
 //"AliasTCTests",			// C & I: Overflow/LOOP?
-//"AllStaticIssues"			// C & I: DOES NOT TERMINATE
+"AllStaticIssues",			// C & I: DOES NOT TERMINATE
 "AnnotationTCTests",		// OK
 "AssignmentTCTests",		// OK
 "CallTCTests",				// C: 1 fail == I : 1 fail
 "ComprehensionTCTests",		// C: 2 fail, == I: 2 fail
 "DataDeclarationTCTests",	// OK
 "DataTypeTCTests",			// OK
-"DeclarationTCTests",		// C: 12 fail, I : OK
+"DeclarationTCTests",		// OK
 "ImportTCTests",			// OK
-"PatternTCTests",			// C: TC error; I : OK
+"PatternTCTests",			// C:3 crash I : OK
 "ProjectionTCTests",		// OK
 "RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
@@ -178,10 +178,12 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
 //"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+"lang/rascal/meta/ModuleInfoTests",  
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
 "lang/rascal/types/tests/AbstractKindTests",
 "lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/TypeInstantiationTests",
 "lang/rascal/types/tests/UtilTests",
 "lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK

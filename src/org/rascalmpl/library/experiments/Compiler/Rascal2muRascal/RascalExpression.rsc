@@ -1083,7 +1083,7 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
 	  default_table = addPatternWithActionCode(fuid, subjectType, c.patternWithAction, default_table, fingerprintDefault);
    }
    
-   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   //println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    case_code = [ muCase(key, table[key]) | key <- table];
    default_code =  default_table[fingerprintDefault];
    return muSwitch(muVar("iSubject", fuid, iSubjectPos), useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
@@ -1666,7 +1666,7 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
 	
     outer = getOuterType(expression);
-    println("<e>: <outer>, <getType(expression@\loc)>");
+    //println("<e>: <outer>, <getType(expression@\loc)>");
     str op = "";
     switch(getOuterType(expression)){
     	case "adt": 	op = "adt";
@@ -1892,6 +1892,11 @@ MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
 
 MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
+    elemType = translateType(tp);
+    generatorType = getType(exp@\loc);
+    if(generatorType == \list(elemType) || generatorType == \set(elemType)){
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+    }
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 

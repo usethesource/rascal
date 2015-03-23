@@ -1,6 +1,18 @@
 module experiments::Compiler::Examples::Tst1
 
-value main(list[value] args){
-	int n = 0; switch(2){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} 
-	return n == 2;
-}
+import lang::rascal::tests::types::StaticTestingUtils;	
+
+value main(list[value] args) {
+	return
+	checkOK("13;",
+		//initialDecls = 
+		//["data Tree = char(int character);",
+		// "public data TreeSearchResult[&T\<:Tree] = treeFound(&T tree) | treeNotFound();",
+		// "public default TreeSearchResult[&T\<:Tree] treeAt(type[&T\<:Tree] t, loc l, Tree root) = treeNotFound();",
+		//  "public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);"				 
+		//				 
+		//				 
+		//				 ]
+		importedModules=["ParseTree"]
+			);
+}		

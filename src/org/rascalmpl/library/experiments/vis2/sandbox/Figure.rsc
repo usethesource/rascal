@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module experiments::vis2::Figure
+module experiments::vis2::sandbox::Figure
 
 import util::Math;
 import Prelude;
@@ -25,15 +25,15 @@ alias Position = tuple[num x, num y];
 public alias Alignment = tuple[num hpos, num vpos];
 
 public Alignment topLeft      	= <0.0, 0.0>;
-public Alignment top          	= <0.5, 0.0>;
+public Alignment topMid          	= <0.5, 0.0>;
 public Alignment topRight     	= <1.0, 0.0>;
 
-public Alignment left   		= <0.0, 0.5>;
-public Alignment center       	= <0.5, 0.5>;
-public Alignment right   	 	= <1.0, 0.5>;
+public Alignment leftMid   		= <0.0, 0.5>;
+public Alignment centerMid     = <0.5, 0.5>;
+public Alignment rightMid  	 	= <1.0, 0.5>;
 
 public Alignment bottomLeft   	= <0.0, 1.0>;
-public Alignment bottom 		= <0.5, 1.0>;
+public Alignment bottomMid 		= <0.5, 1.0>;
 public Alignment bottomRight	= <1.0, 1.0>;
 
 // Events and bindings for input elements
@@ -107,13 +107,15 @@ public num nullFunction(list[num] x) { return 0;}
 
 public data Figure(
         // Naming
-        str id = "default",
+        str id = "",
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
 		int width = 0,
 		int height = 0,
+		int h = 50,
+		int w = 50,
 		Position at = <0,0>,
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
