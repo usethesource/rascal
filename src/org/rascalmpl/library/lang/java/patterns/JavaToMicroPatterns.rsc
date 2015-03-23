@@ -1,5 +1,6 @@
 module lang::java::patterns::JavaToMicroPatterns
 
+import IO;
 import Set;
 import Map;
 import String;
@@ -11,11 +12,11 @@ import lang::java::m3::Core;
 
 rel[loc entity, MicroPattern pattern] findMicroPatterns(M3 model, set[Declaration] asts) {
 	model = model[@ASTs = asts];
-	return { <e, p> |e <- classes(model) + interfaces(model), <p,f> <- detectors, f(model, e)};
+	return { <e, p> |e <- classes(model) + interfaces(model), <p,bool(M3,loc) f> <- detectors(), f(model, e)};
 }
 
 
-private rel[MicroPattern, bool(M3, loc)] detectors = {
+private rel[MicroPattern, bool(M3, loc)] detectors() = {
 	<designator(), isDesignator>,
 	<taxonomy(), isTaxonomy>,
 	<joiner(), isJoiner>,
@@ -49,11 +50,12 @@ private rel[MicroPattern, bool(M3, loc)] detectors = {
 anno set[Declaration] M3@ASTs;
 
 @memo
+private map[loc, Declaration] methodASTs(M3 m)
+	= toMapUnique({<d@decl, d> | /Declaration d := m@ASTs, d is method || d is constructor });
+
+@memo
 private Declaration methodAST(M3 m, loc method) {
-	if (/Declaration d := m@ASTs, d is method || d is constructor, d@decl == method) {
-		return d;
-	}
-	throw "Cannot find the method in the AST";
+	return methodASTs(m)[method];
 }
 
 private loc Object = |java+class:///java/lang/Object|;
@@ -80,9 +82,19 @@ rel[loc from, loc to] flattenedExtends(M3 m) = m@extends+;
 private set[loc] instanceFields(M3 m, loc e)
 	= { f | f <- fields(m,e), !(<f,final()> in m@modifiers) };
 
+
+private Expression dropArrayAccess(arrayAccess(a,_)) = dropArrayAccess(a);
+default Expression dropArrayAccess(Expression e) = e;
+
 @memo
-private rel[loc lhs, loc src] assignments(M3 m, loc method)
-	= { <t@decl, a@src> | /a:assignment(t, _, _) := methodAST(m, method)};
+rel[loc lhs, loc src] assignments(M3 m, loc method) {
+	rel[loc lhs, loc src] result = {};
+	visit(methodAST(m, method)) {
+		case a:assignment(arrayAccess(t,_),_,_) :  result += <dropArrayAccess(t)@decl, a@src>; 
+		case a:assignment(t,_,_) :  result += <t@decl, a@src>; 
+	}
+	return result;
+}
 
 @memo
 private set[loc] constructors(M3 m, loc c)
@@ -104,7 +116,7 @@ private set[loc] publicMethods(M3 m, loc c)
 	
 private str name(loc l) {
 	if (isMethod(l)) {
-		if (/^<n:.*(>/ := l.file) {
+		if (/^<n:.*\(>/ := l.file) {
 			return n;
 		}
 		throw "Could not find name";
