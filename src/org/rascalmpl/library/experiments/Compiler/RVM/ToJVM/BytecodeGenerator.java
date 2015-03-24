@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,10 +21,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 
 public class BytecodeGenerator implements Opcodes {
 
@@ -1388,24 +1391,36 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitGetSpfromFrame() {
+		if (!emit)
+			return;
+
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	public void emitPutSpInFrame() {
+		if (!emit)
+			return;
+
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 	}
 
 	public void emitDebugCall(String ins) {
+		if (!emit)
+			return;
+
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitMethodInsn(INVOKESTATIC, fullClassName, "debug" + ins, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V");
 	}
 
 	public void emitInlineLoadInt(int nval, boolean debug) {
+		if (!emit)
+			return;
+
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
@@ -1415,6 +1430,9 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitExceptionTable(IList exceptions) {
+		if (!emit)
+			return;
+
 
 // TODO emit exception bytecode.
 
@@ -1443,6 +1461,9 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCatchLabelEpilogue() {
+		if (!emit)
+			return;
+
 		mv.visitVarInsn(ASTORE, EXCEPTION);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1450,5 +1471,33 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, EXCEPTION);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "rascalException", "Ljava/lang/Object;");
 		mv.visitInsn(AASTORE);
+	}
+
+	public void emitInlineThrow(boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitIincInsn(2, -1);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "<init>", "(Ljava/lang/Object;)V");
+		mv.visitInsn(ATHROW);
+
+		
+		
+//		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
+//		mv.visitInsn(DUP);
+//		mv.visitVarInsn(ALOAD, STACK);
+//		mv.visitVarInsn(ILOAD, SP);
+//		mv.visitInsn(ICONST_1);
+//		mv.visitInsn(ISUB);
+//		mv.visitInsn(AALOAD);
+//		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "<init>", "(Ljava/lang/Object;)V");
+//		mv.visitInsn(ATHROW);
 	}
 }

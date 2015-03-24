@@ -41,13 +41,13 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
-public class RVMRun implements IRVM {
 
+public class RVMRun implements IRVM {
 
 	// ----------------------------
 	// Exit stack, cf, sp, realized :)
 	// public Object[] stack;
-    // public Frame cf; // current frame
+	// public Frame cf; // current frame
 	// public int sp;
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 
@@ -55,8 +55,8 @@ public class RVMRun implements IRVM {
 
 	public static IBool Rascal_TRUE;
 	public static IBool Rascal_FALSE;
-	public static IInteger Rascal_ZERO ;
-	public static IInteger Rascal_ONE ;
+	public static IInteger Rascal_ZERO;
+	public static IInteger Rascal_ONE;
 
 	private final TypeFactory tf;
 
@@ -164,8 +164,8 @@ public class RVMRun implements IRVM {
 
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
-		Rascal_ZERO = vf.integer(0) ;
-		Rascal_ONE = vf.integer(1) ;
+		Rascal_ZERO = vf.integer(0);
+		Rascal_ONE = vf.integer(1);
 
 		// Return types used in code generator
 		NONE = vf.string("$nothing$");
@@ -339,8 +339,8 @@ public class RVMRun implements IRVM {
 	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
-//		Frame oldCF = cf;
-//		cf.sp = sp;
+		// Frame oldCF = cf;
+		// cf.sp = sp;
 
 		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
@@ -349,7 +349,7 @@ public class RVMRun implements IRVM {
 
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-//		cf = root;
+		// cf = root;
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
@@ -357,9 +357,9 @@ public class RVMRun implements IRVM {
 		}
 		Object o = dynRun(func.funId, root);
 
-//		cf = oldCF;
+		// cf = oldCF;
 		// stack = cf.stack;
-//		sp = cf.sp;
+		// sp = cf.sp;
 
 		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
@@ -373,8 +373,8 @@ public class RVMRun implements IRVM {
 	}
 
 	public IValue executeFunction(FunctionInstance func, IValue[] args) {
-//		Frame oldCF = cf;
-//		cf.sp = sp;
+		// Frame oldCF = cf;
+		// cf.sp = sp;
 
 		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
@@ -382,10 +382,10 @@ public class RVMRun implements IRVM {
 		int oldarity = arity;
 
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-//		cf = root;
+		// cf = root;
 
 		// stack = cf.stack;
-//		sp = func.function.nlocals;
+		// sp = func.function.nlocals;
 		root.sp = func.function.nlocals;
 
 		// Pass the program arguments to main
@@ -395,9 +395,9 @@ public class RVMRun implements IRVM {
 
 		Object o = dynRun(func.function.funId, root);
 
-//		cf = oldCF;
+		// cf = oldCF;
 		// stack = cf.stack;
-//		sp = cf.sp;
+		// sp = cf.sp;
 
 		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
@@ -1274,14 +1274,14 @@ public class RVMRun implements IRVM {
 		Function func = functionStore.get(n);
 
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-//		cf = root;
+		// cf = root;
 
 		// stack = cf.stack;
 
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
 
-//		sp = func.nlocals;
+		// sp = func.nlocals;
 		root.sp = func.nlocals;
 
 		Object result = dynRun(n, root);
@@ -1294,23 +1294,23 @@ public class RVMRun implements IRVM {
 	}
 
 	public Object return0Helper(Object[] st0ck, int spp, Frame cof) {
-	
+
 		Object rval = null;
-	
+
 		boolean returns = cof.isCoroutine;
 		if (returns) {
 			rval = Rascal_TRUE;
 		}
-	
+
 		if (cof == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
-	
+
 		if (returns) {
 			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
 		}
-	
+
 		return rval;
 	}
 
@@ -1396,8 +1396,8 @@ public class RVMRun implements IRVM {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
 
-//		/**/if (lsp != sp)
-//			throw new RuntimeException();
+		// /**/if (lsp != sp)
+		// throw new RuntimeException();
 
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1417,16 +1417,16 @@ public class RVMRun implements IRVM {
 		coroutine.frame = lcf;
 		coroutine.suspended = true;
 
-//		/**/cf = lcf.previousCallFrame;
-//		/**/sp = lcf.previousCallFrame.sp;
+		// /**/cf = lcf.previousCallFrame;
+		// /**/sp = lcf.previousCallFrame.sp;
 		// /**/ stack = cf.stack;
 	}
 
 	public void yield0Helper(Frame lcf, Object[] lstack, int lsp, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
-//		/**/if (lsp != sp)
-//			throw new RuntimeException();
+		// /**/if (lsp != sp)
+		// throw new RuntimeException();
 
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1440,7 +1440,7 @@ public class RVMRun implements IRVM {
 		coroutine.suspended = true;
 
 		// cf = lcf.previousCallFrame;
-//		sp = lcf.previousCallFrame.sp;
+		// sp = lcf.previousCallFrame.sp;
 		// stack = cf.stack;
 	}
 
@@ -1456,7 +1456,7 @@ public class RVMRun implements IRVM {
 				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, lstack, lsp);
 				lsp = lsp - arity;
 				lstack[lsp++] = fun_instance;
-				lcf.sp = lsp ;
+				lcf.sp = lsp;
 				return NONE;
 			}
 			tmp = lcf.getFrame(fun, root, arity, lsp);
@@ -1467,8 +1467,8 @@ public class RVMRun implements IRVM {
 		}
 		tmp.previousCallFrame = lcf;
 
-//		cf = tmp;
-//		sp = tmp.sp;
+		// cf = tmp;
+		// sp = tmp.sp;
 
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
@@ -1478,7 +1478,7 @@ public class RVMRun implements IRVM {
 			lcf.hotEntryPoint = ep;
 			// lcf.sp = sp;
 
-//			sp = cf.previousCallFrame.sp;
+			// sp = cf.previousCallFrame.sp;
 			// cf = cf.previousCallFrame;
 			// stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
@@ -1490,11 +1490,11 @@ public class RVMRun implements IRVM {
 	}
 
 	public int jvmNEXT0(Object[] lstack, int spp, Frame lcf) {
-		
-//		if (spp != sp) {
-//			System.err.println("FIXIT SP adjusted (entry next) " + spp + " should be " + sp);
-//			spp = sp;
-//		}
+
+		// if (spp != sp) {
+		// System.err.println("FIXIT SP adjusted (entry next) " + spp + " should be " + sp);
+		// spp = sp;
+		// }
 
 		Coroutine coroutine = (Coroutine) lstack[--spp];
 		// Merged the hasNext and next semantics
@@ -1514,16 +1514,16 @@ public class RVMRun implements IRVM {
 
 		coroutine.frame.previousCallFrame = lcf;
 
-//		sp = coroutine.entryFrame.sp;
+		// sp = coroutine.entryFrame.sp;
 		// cf = coroutine.entryFrame;
 		// stack = cf.stack;
 
 		dynRun(coroutine.entryFrame.function.funId, coroutine.entryFrame);
-		
-//		if ( lcf.sp != sp ) {
-//			System.err.println("FIXIT SP adjusted (return next) " + spp + " != " + sp);
-//			spp = sp;
-//	    }
+
+		// if ( lcf.sp != sp ) {
+		// System.err.println("FIXIT SP adjusted (return next) " + spp + " != " + sp);
+		// spp = sp;
+		// }
 		return lcf.sp;
 	}
 
@@ -1533,14 +1533,14 @@ public class RVMRun implements IRVM {
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-//		/**/cf = cof.previousCallFrame;
+		// /**/cf = cof.previousCallFrame;
 		if (cof.previousCallFrame == null) {
 			return Rascal_FALSE;
 		}
 		cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
 
 		// /**/ stack = cof.previousCallFrame.stack;
-//		/**/sp = cof.previousCallFrame.sp;
+		// /**/sp = cof.previousCallFrame.sp;
 
 		return NONE;// i.e., signal a failure;
 	}
@@ -1554,8 +1554,8 @@ public class RVMRun implements IRVM {
 	public int jvmOCALL(Object[] lstack, int sop, Frame lcf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 
-//		if (sp != sop)
-//			throw new RuntimeException();
+		// if (sp != sop)
+		// throw new RuntimeException();
 
 		lcf.sp = sop;
 
@@ -1570,9 +1570,9 @@ public class RVMRun implements IRVM {
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text
 
-//			cf = frame;
+			// cf = frame;
 			// stack = cf.stack;
-//			sp = frame.sp;
+			// sp = frame.sp;
 
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
@@ -1585,7 +1585,7 @@ public class RVMRun implements IRVM {
 			sop = sop - arity;
 		}
 		lstack[sop++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-		lcf.sp = sop ;
+		lcf.sp = sop;
 		return sop;
 	}
 
@@ -1602,7 +1602,7 @@ public class RVMRun implements IRVM {
 		if (funcObject instanceof FunctionInstance) {
 			FunctionInstance fun_instance = (FunctionInstance) funcObject;
 			Frame frame = lcf.getFrame(fun_instance.function, fun_instance.env, arity, sop);
-			frame.previousCallFrame = lcf ;
+			frame.previousCallFrame = lcf;
 			// stack = cf.stack;
 			// sp = cf.sp;
 			dynRun(frame.function.funId, frame);
@@ -1617,9 +1617,9 @@ public class RVMRun implements IRVM {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text at OCALL
-//			cf = frame;
+			// cf = frame;
 			// stack = cf.stack;
-//			sp = frame.sp;
+			// sp = frame.sp;
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
 				return lcf.sp; // Alternative matched.
@@ -1631,7 +1631,7 @@ public class RVMRun implements IRVM {
 			sop = sop - arity;
 		}
 		lstack[sop++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
-		lcf.sp = sop ;
+		lcf.sp = sop;
 		return sop;
 	}
 
@@ -1639,8 +1639,8 @@ public class RVMRun implements IRVM {
 		// In case of CALLDYN, the stack top value of type 'Type'
 		// leads to a constructor call
 		// This instruction is a monstrosity it should be split in three.
-//		if (lsp != sp)
-//			throw new RuntimeException();
+		// if (lsp != sp)
+		// throw new RuntimeException();
 
 		Frame tmp;
 		Object rval;
@@ -1655,7 +1655,7 @@ public class RVMRun implements IRVM {
 				}
 				lsp = lsp - arity;
 				lstack[lsp++] = vf.constructor(constr, args);
-				lcf.sp = lsp ;
+				lcf.sp = lsp;
 				return NONE; // DO not return continue execution
 			}
 
@@ -1666,7 +1666,7 @@ public class RVMRun implements IRVM {
 					fun_instance = fun_instance.applyPartial(arity, lstack, lsp);
 					lsp = lsp - arity;
 					lstack[lsp++] = fun_instance;
-					lcf.sp = lsp ;
+					lcf.sp = lsp;
 					return NONE;
 				}
 				tmp = lcf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, lsp);
@@ -1689,7 +1689,7 @@ public class RVMRun implements IRVM {
 		if (rval.equals(YIELD)) {
 			// Save reentry point
 			lcf.hotEntryPoint = ep;
-			//lcf.sp = lsp;
+			// lcf.sp = lsp;
 
 			// drop my stack, and return
 			// cf = cf.previousCallFrame;
@@ -1701,6 +1701,17 @@ public class RVMRun implements IRVM {
 			lcf.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call will continue execution
 		}
+	}
+
+	public Thrown thrownHelper(Frame cf, Object[] stack, int sp) {
+		Object obj = stack[sp];
+		Thrown thrown = null;
+		if (obj instanceof IValue) {
+			thrown = Thrown.getInstance((IValue) obj, null, cf);
+		} else {
+			thrown = (Thrown) obj;
+		}
+		return thrown ;
 	}
 
 	// public void failReturnHelper() {
