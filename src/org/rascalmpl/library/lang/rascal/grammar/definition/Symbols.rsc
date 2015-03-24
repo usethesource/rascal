@@ -180,7 +180,7 @@ default Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals _) {
 }
   
 Symbol addActuals(Symbol s,  {Expression ","}* args)
-  = s[actuals=[ arg | Expression arg <- args]];
+  = s[actuals=[ "<arg>" | Expression arg <- args]];
 
 public list[Symbol] args2symbols(Sym* args) {
   return [sym2symbol(s) | Sym s <- args];
