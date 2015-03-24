@@ -35,6 +35,16 @@ public bool match(Symbol checked, Symbol referenced) {
 @deprecated{use striprec}
 public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
+Symbol sym2symbol(LeftSym _ :\default(Sym s)) = sym2symbol(s);
+Symbol sym2symbol(LeftSym _ :dependVoidFormals(Nonterminal n, Parameters f)) 
+  = addParameters(sort("<n>"), f);
+Symbol sym2symbol(LeftSym _ :dependVoidFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Parameters f)) 
+ = addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), f);
+Symbol sym2symbol(LeftSym _ :dependFormals(Nonterminal n, Type t, Parameters f)) 
+ = addParameters(sort("<n>"), type2symbol(t), f);
+Symbol sym2symbol(LeftSym _ :dependFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Type t, Parameters f))
+ = addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), type2symbol(t), f);
+
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
     case \token(Nonterminal n) :
@@ -49,14 +59,6 @@ public Symbol sym2symbol(Sym sym) {
       return \offside(sym2symbol(s));
     case dependIgnore(Sym s):
       return \ignore(sym2symbol(s));
-    case dependVoidFormals(Nonterminal n, Parameters f) :
-      return addParameters(sort("<n>"), f);
-    case dependVoidFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Parameters f) :
-      return addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), f);
-    case dependFormals(Nonterminal n, Type t, Parameters f) :
-      return addParameters(sort("<n>"), type2symbol(t), f);
-    case dependFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Type t, Parameters f) :
-      return addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), type2symbol(t), f);
     case dependNonterminal(_, Nonterminal n, {Expression ","}* a, kwArgs) :
       return addActuals(sort("<n>"), a); // TODO don't forget about the kwArgs
     case dependParametrized(_, Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, kwArgs) :
