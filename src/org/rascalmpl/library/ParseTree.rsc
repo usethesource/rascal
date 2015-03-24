@@ -183,7 +183,7 @@ data Symbol
 data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, Tree] keywordDefaults = ());
 
 // Actual parameters for symbols with data-dependency
-data Symbol(list[Tree] actuals = [], map[str,Tree] keywordActuals = ());
+data Symbol(list[str] actuals = [], map[str,str] keywordActuals = ());
 
 // data dependent
 data Symbol
