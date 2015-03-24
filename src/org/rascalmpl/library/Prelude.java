@@ -1059,22 +1059,21 @@ public class Prelude {
 
 	private IString consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
-		char[] chunk = new char[512];
-		int read = 0;
+		char[] chunk = new char[FILE_BUFFER_SIZE / 2];
+		int read;
 		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
 		    res.append(chunk, 0, read);
 		}
-		
 		return values.string(res.toString());
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)){
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] buf = new byte[4096];
+			byte[] buf = new byte[FILE_BUFFER_SIZE];
 			int count;
 
-			while((count = in.read(buf)) != -1){
+			while((count = in.read(buf, 0, buf.length)) != -1){
 				md.update(buf, 0, count);
 			}
 			
@@ -1098,7 +1097,7 @@ public class Prelude {
 			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
 				byte[] buf = new byte[FILE_BUFFER_SIZE];
 				int read;
-				while ((read = in.read(buf, 0, FILE_BUFFER_SIZE)) != -1) {
+				while ((read = in.read(buf, 0, buf.length)) != -1) {
 					out.write(buf, 0, read);
 				}
 				return values.bool(true);
@@ -1281,16 +1280,14 @@ public class Prelude {
 		IListWriter w = values.listWriter();
 		
 		try (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc))) {
+			byte bytes[] = new byte[FILE_BUFFER_SIZE];
 			int read;
-			final int size = 256;
-			byte bytes[] = new byte[size];
-			
-			do {
-				read = in.read(bytes);
+
+			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
 				for (int i = 0; i < read; i++) {
 					w.append(values.integer(bytes[i] & 0xff));
 				}
-			} while(read != -1);
+			} 
 		}
 		catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
