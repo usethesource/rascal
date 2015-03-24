@@ -59,6 +59,12 @@ public void getDeclarationInfo(Configuration config){
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
             + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
             + { <"Tree", adt("Tree",[])> }
+            + { <"Symbol", adt("Symbol",[])> }
+            + { <"Production", adt("Production",[])> }
+            + { <"Attr", adt("Attr",[])> }
+            + { <"Associativity", adt("Associativity",[])> }
+            + { <"CharRange", adt("CharRange",[])> }
+            + { <"Condition", adt("Condition",[])> }
             ;
     
 
@@ -118,6 +124,16 @@ public map[Symbol,Production] getDefinitions() {
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
  	return definitions;
+}
+
+public Production getLabeledProduction(str name, Symbol symbol){
+	println(getGrammar()[symbol]);
+	name = unescape(name);
+	visit(getGrammar()[symbol]){
+		case p:prod(\label(name, symbol), _, _): return p;
+		case p:regular(\label(name, symbol)): return p;
+	};
+	throw "No LabeledProduction for <name>, <symbol>";
 }
 
 // Type reachability functions
@@ -427,6 +443,7 @@ public type[value] symbolToValue(Symbol symbol) {
 	// Recursively collect all the type definitions associated with a given symbol
 	
 	//symbol = regulars(symbol,activeLayout);	//TODO still needed?
+	
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){

@@ -65,6 +65,8 @@ alias XYData 			= lrel[num x, num y];
 		 		 
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
 
+alias GoogleData     = list[list[value]];	
+
 /* Dataype belonging to candlesticks */
 
 alias BoxData     = lrel[str date,  num low , num open, num close, num high];
@@ -105,7 +107,7 @@ public num nullFunction(list[num] x) { return 0;}
 
 public data Figure(
         // Naming
-        str id = "",
+        str id = "default",
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
@@ -236,24 +238,30 @@ public data Figure(
 // Charts
 	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| combochart(GoogleData googleData, ChartOptions options = chartOptions())
 	| piechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| piechart(GoogleData googleData, ChartOptions options = chartOptions())
 	| linechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| linechart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
+	| linechart(GoogleData googleData, ChartOptions options = chartOptions())
 	| scatterchart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
 	| scatterchart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
+	| scatterchart(GoogleData googleData, ChartOptions options = chartOptions())
 	| barchart(XYLabeledData xyLabeledData , ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| barchart(GoogleData googleData, ChartOptions options = chartOptions())
 	| candlestickchart(BoxData boxData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| candlestickchart(BoxLabeledData boxLabeledData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-
-
+	| candlestickchart(GoogleData googleData, ChartOptions options = chartOptions())
+    | areachart(GoogleData googleData ,  ChartOptions options = chartOptions())
+    | sankey(GoogleData googleData ,  ChartOptions options = chartOptions())
 // Graphs
 
    | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
@@ -318,6 +326,7 @@ data Axis(str title="",
           bool slantedText = true,
           bool logScale = false,
           int slantedTextAngle = -1, 
+          int direction = -1,
           str textPosition = "",
           str format = "", 
            Gridlines gridlines =  Gridlines::gridlines() ,
@@ -340,7 +349,39 @@ data CandlestickColor(
      int strokeWidth = -1
      ) = candlestickColor(); 
      
-                      
+data SankeyColor( 
+     str fill = "",
+     str stroke = "",
+     real fillOpacity = -1.0,
+     int strokeWidth = -1
+     ) = sankeyColor(); 
+
+data SankeyLabel( 
+     str fontName = "",
+     int fontSize = -1,
+     str color = "",
+     int strokeWidth = -1,
+     bool bold = false, 
+     bool italic = false
+     ) = sankeyLabel(); 
+     
+data SankeyNode(
+     SankeyLabel label = sadkeyLabel(),
+     int labelPadding = -1,
+     int nodePadding = -6,
+     int width = -1
+     ) = sankeyNode();
+         
+data SankeyLink (
+     SankeyColor color = sankeyColor()
+     ) = sankeyLink();
+  
+data Sankey(
+      int iterations = -1,
+      SankeyLink link = sankeyLink(),
+      SankeyNode \node = sankeyNode()
+     ) = sankey();   
+                  
 data ChartOptions (str title = "",
              Animation animation = Animation::animation(),
              Axis hAxis = axis(),
@@ -360,6 +401,7 @@ data ChartOptions (str title = "",
              str pointShape = "",
              bool isStacked = false,
              Candlestick candlestick = Candlestick::candlestick(),
+             Sankey sankey = Sankey::sankey(),
              list[Series] series = []
              ) = chartOptions()
             ;

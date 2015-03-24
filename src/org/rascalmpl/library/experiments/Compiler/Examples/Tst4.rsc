@@ -1,6 +1,11 @@
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
-import ParseTree;
+value main(list[value] args)  { 
+	x = 10; 
+	return "<while (x > 0) {> <{x -= 1; x; }> <}>" 
+	//== 
+	//" 9  8  7  6  5  4  3  2  1  0 "
+	; 
+	return true;
+}
 
-value main(list[value] args) = unexpectedType("String vs = visit ([1,2,3]) {case 1: insert \"abc\";} == [\"abc\", 2, 3];;");

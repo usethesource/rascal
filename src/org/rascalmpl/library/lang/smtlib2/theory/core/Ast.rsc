@@ -25,7 +25,4 @@ data Expr
 	| ite(Expr condition, Expr whenTrue, Expr whenFalse)   
 	;
 	
-data Literal
-	= \true()
-	| \false()
-	;
+data Literal = boolVal(bool b);

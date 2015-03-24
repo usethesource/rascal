@@ -269,11 +269,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
-		
-		// default event trigger to swallow events
-		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+		FileURIResolver testModuleResolver = new TempURIResolver() {
+		    @Override
+		    public String scheme() {
+		      return "test-modules";
+		    }
+		    
+		    @Override
+		    protected String getPath(ISourceLocation uri) {
+		      String path = uri.getPath();
+		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		      return System.getProperty("java.io.tmpdir") + path;
+		    }
+		  };
+		  
+		  resolverRegistry.registerInputOutput(testModuleResolver);
+		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+		  
+		  ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
+		  resolverRegistry.registerInput(tutor);
+
+		  // default event trigger to swallow events
+		  setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
 	private Evaluator(Evaluator source, ModuleEnvironment scope) {

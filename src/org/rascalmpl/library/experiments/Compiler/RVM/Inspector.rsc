@@ -22,20 +22,40 @@ import experiments::Compiler::Compile;
  
 void inspect(loc srcLoc,                // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
-          list[str] select = [],     	// select unction names to be shown
+          list[str] select = [],     	// select function names to be shown
+          int line = -1,				// select line of function to be shown
           bool listing = false          // show instruction listing
           ){
-
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
+    RVMProgram p;
     try {
-        p = readTextValueFile(#RVMProgram, rvmLoc);
+    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm"){
+    		decls = readTextValueFile(#list[Declaration], rvmLoc);
+    		p = rvm("LibraryGamma",
+		      {},
+			  [],
+              (), 
+              (),
+              (d.qname : d | d <- decls),
+              [], 
+              (), 
+              [],
+              rvmLoc);
+    	} else {
+        	p = readTextValueFile(#RVMProgram, rvmLoc);
+        }	
         
         println("RVM PROGRAM: <p.name>");
          
+        if(line >= 0){
+         	listDecls(p, select, line, listing);
+         	return;
+         }	
+         
         if(size(select) > 0){
-            listDecls(p, select, listing);
-            printOverloaded(p.overloaded_functions, select);
-            printResolver(p.resolver, select);
+            listDecls(p, select, line, listing);
+            printOverloaded(p.overloaded_functions, select, line);
+            printResolver(p.resolver, select, line);
             return;
         }
        
@@ -56,9 +76,9 @@ void inspect(loc srcLoc,                // location of Rascal source file
             iprintln(init);
         }
         
-        printResolver(p.resolver, select);
+        printResolver(p.resolver, select, line);
         
-        printOverloaded(p.overloaded_functions, select);
+        printOverloaded(p.overloaded_functions, select, line);
         
         return;
     } catch e: {
@@ -100,7 +120,7 @@ void printImports(list[loc] imports){
     }
 }
 
-void printResolver(map[str, int] resolver, list[str] select){
+void printResolver(map[str, int] resolver, list[str] select, int line){
 	if(size(resolver) > 0){
 		println("RESOLVER:");
 		for(f <- resolver){
@@ -111,7 +131,7 @@ void printResolver(map[str, int] resolver, list[str] select){
     }
 }
 
-void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select){
+void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select, int line){
 	if(size(overloaded) > 0){
     	println("OVERLOADED FUNCTIONS:");
         for(int i <- index(overloaded)){
@@ -126,12 +146,15 @@ void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select)
 void printDecl(Declaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+    }
+    println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
+    println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+    if(size(d.exceptions) > 0){
+    	for(<str from, str to, Symbol \type, str target> <- d.exceptions){
+    		println("\t\texception: from=<from>, to=<to>, type=<\type>, target=<target>");
+    	}
     }
 }
 
@@ -140,11 +163,14 @@ bool matchesSelection(str info, list[str] select, bool atStart = false){
 	return any(sel <- select, int i := findFirst(toLowerCase(info), sel), atStart ? i == 0 : i >= 0);
 }
 
-void listDecls(RVMProgram p, list[str] select, bool listing){
+bool containsLine(loc src, int line) =
+	line >= 0 && line >= src.begin.line && line <= src.end.line;
+
+void listDecls(RVMProgram p, list[str] select, int line, bool listing){
     select = [toLowerCase(sel) | sel <- select];
     for(dname <- p.declarations){
         uqname = p.declarations[dname].uqname;
-        if(matchesSelection(uqname, select, atStart = true)){
+        if(matchesSelection(uqname, select, atStart = true) || containsLine(p.declarations[dname].src, line)){
         	printDecl(p.declarations[dname]);
             if(listing){
  				for(ins <- p.declarations[dname].instructions){

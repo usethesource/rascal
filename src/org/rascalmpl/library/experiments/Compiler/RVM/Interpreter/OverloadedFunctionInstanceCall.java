@@ -25,6 +25,8 @@ public class OverloadedFunctionInstanceCall {
 	
 	public OverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final Frame previousScope, final Type types, final int arity) {
 		this.cf = cf;
+		assert functions.length + constructors.length > 0;
+		assert functions.length == 0 && types == null ? constructors.length > 0 : true;
 		this.functions = functions;
 		this.constructors = constructors;
 		this.previousScope = previousScope;
@@ -32,6 +34,29 @@ public class OverloadedFunctionInstanceCall {
 		this.arity = arity;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
+	}
+	
+	public String toString(List<Function> functionStore, List<Type> constructorStore){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstanceCall[");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				int fi = functions[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(constructors.length > 0){
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				int ci = constructors[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 	
 	/**
@@ -77,6 +102,9 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
+			if(constructors.length == 0){
+				System.err.println("empty constructor list!");
+			}
 			assert constructors.length >= 1;
 			return constructorStore.get(constructors[0]);
 		} else {

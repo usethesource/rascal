@@ -37,6 +37,29 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		this.rvm = rvm;
 	}
 	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstance[");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				int fi = functions[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(constructors.length > 0){
+			if(functions.length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				int ci = constructors[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
