@@ -4,6 +4,7 @@ import IO;
 import Type;
 import List;
 import ListRelation;
+import Node;
 import Message;
 import String;
 import experiments::Compiler::RVM::AST;
@@ -15,6 +16,7 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
@@ -75,7 +77,7 @@ int newLocal(str fuid) {
 // Manage temporaries
 
 map[tuple[str,str],int] temporaries = ();
-str asUnwrapedThrown(str name) = name + "_unwraped";
+str asUnwrappedThrown(str name) = name + "_unwrapped";
 
 int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
@@ -87,8 +89,20 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
+//bool producesValue(muLab(_)) = false;
+
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+
+bool producesValue(muBreak(_)) = false;
+bool producesValue(muContinue(_)) = false;
+bool producesValue(muFail(_)) = false;
+bool producesValue(muFailReturn(_)) = false;
+
 bool producesValue(muReturn0()) = false;
+
+//bool producesValue(muYield0()) = false;
+//bool producesValue(muExhaust()) = false;
+
 bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
@@ -227,7 +241,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
     
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
@@ -289,7 +303,11 @@ INS trblock(list[MuExp] exps) {
      return [LOADCON(666)]; // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  return ins + tr(exps[-1]);
+  ins += tr(exps[-1]);
+  if(!producesValue(exps[-1])){
+  	ins += LOADCON(666);
+  }
+  return ins;
 }
 
 //default INS trblock(MuExp exp) = tr(exp);
@@ -314,7 +332,16 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) = [LOADCON(c)];
+default INS tr(muCon(value c)) {
+	tp = typeOf(c);
+	
+	if(isADTType(tp) && tp != adt("Symbol",[]) && \type(_,_) !:= c && node nd := c){
+		res =  [LOADCONSTRCON(symbolToValue(tp), toString(nd))];
+		//println("muCon(<c>): <tp>, <res>");
+		return res;
+	}
+	return [LOADCON(c)];	
+}		
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
@@ -422,7 +449,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
@@ -484,6 +511,9 @@ INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
 INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
 
+// Temporary fix for Issue #781
+Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
+
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
@@ -517,7 +547,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
-	exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+	exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 	
 	leaveTry();
 	
@@ -542,7 +572,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Fill in the 'catch' block entry into the current exception table
 	if(!isEmpty(tryBlocks)) {
 		EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlocks();
-		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		leaveCatchAsPartOfTryBlocks();
 	}
 	
@@ -574,14 +604,14 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 					   // load a thrown value,
 					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
 					   // unwrap it and store the unwrapped one in a separate local variable 
-					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrapedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrapedThrown(id),fuid)),
+					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
 		catchBlocks[currentCatchBlock] = [ LABEL(catchAsPartOfTryNew_from), *catchBlocks[currentCatchBlock], LABEL(catchAsPartOfTryNew_to) ];
 		for(currentCatchAsPartOfTryBlock <- catchAsPartOfTryBlocks) {
-			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		}
 	} else {
 		catchBlocks = oldCatchBlocks;
@@ -642,7 +672,7 @@ void inlineMuFinally() {
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table
-			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+			exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 			leaveTry();
 			leaveFinally();
 		}
@@ -712,7 +742,7 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 	
-INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
    labels = ();
@@ -724,7 +754,7 @@ INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    }
 	 
    caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
-   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+   return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
 }
 
 // Multi/One/All/Or outside conditional context

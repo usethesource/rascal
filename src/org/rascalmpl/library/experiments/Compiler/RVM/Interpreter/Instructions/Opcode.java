@@ -94,7 +94,7 @@ public enum Opcode {
 	LOADCONT            (76,    1),
 	RESET               (77,    1),
 	SHIFT               (78,    1),
-	SWITCH   			(79,	1),
+	SWITCH   			(79,	2),
 	RESETLOCS			(80,	1)
 	;
 	
@@ -505,7 +505,9 @@ public enum Opcode {
 			return "SHIFT";
 			
 		case SWITCH:
-			return "SWITCH " + cb.getConstantValue(arg1) + ", " + arg2;
+			return "SWITCH " + cb.getConstantValue(arg1) + ", " 
+							 + arg2 + ", "
+							 + cb.finalCode[pc + 1];
 		
 		case RESETLOCS:
 			return "RESETLOCS " + cb.getConstantValue(arg1);

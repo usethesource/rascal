@@ -45,8 +45,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
-public class RVM {
+public class RVM implements java.io.Serializable {
 
+	private static final long serialVersionUID = 2178453095307370332L;
+	
 	public final IValueFactory vf;
 	private final TypeFactory tf;
 	private final IBool Rascal_TRUE;
@@ -181,6 +183,24 @@ public class RVM {
 	
 	public void resetLocationCollector(){
 		this.locationCollector = NullLocationCollector.getInstance();
+	}
+	
+	public void validateInstructionAdressingLimits(){
+		int nfs = functionStore.size();
+		System.out.println("size functionStore: " + nfs);
+		if(nfs >= CodeBlock.maxArg){
+			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+		}
+		int ncs = constructorStore.size();
+		System.out.println("size constructorStore: " + ncs);
+		if(ncs >= CodeBlock.maxArg){
+			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+		}
+		int nov = overloadedStore.size();
+		System.out.println("size overloadedStore: " + nov);
+		if(nov >= CodeBlock.maxArg){
+			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+		}
 	}
 
 	public void declare(Function f){
@@ -326,7 +346,11 @@ public class RVM {
 			return w.toString() + " [Object[]]";
 		}
 		if(o instanceof Coroutine){
-			return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
+			if(((Coroutine)o).frame  != null && ((Coroutine)o).frame.function != null){
+				return "Coroutine[" + ((Coroutine)o).frame.function.getName() + "]";
+			} else {
+				return "Coroutine[**no name**]";
+			}
 		}
 		if(o instanceof Function){
 			return "Function[" + ((Function)o).getName() + "]";
@@ -378,6 +402,11 @@ public class RVM {
 			return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
 		}
 		throw new CompilerError("asString cannot convert: " + o);
+	}
+	
+	private String asString(Object o, int w){
+		String repr = asString(o);
+		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
 	private void finalizeInstructions(){
@@ -546,8 +575,20 @@ public class RVM {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				assert pc >=0 && pc < instructions.length : "Illegal pc value: " + pc;
-				assert sp >= cf.function.nlocals :          "Illegal sp value: " + sp;
+				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
+				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
+				assert cf.function.isCoroutine || 
+				       cf.function.name.contains("Library/") ||
+				       cf.function.name.contains("/RASCAL_ALL") ||
+				       cf.function.name.contains("/PHI") ||
+				       cf.function.name.contains("/GEN_") ||
+				       cf.function.name.contains("/ALL_") ||
+				       cf.function.name.contains("/OR_") ||
+				       cf.function.name.contains("/IMPLICATION_") ||
+				       cf.function.name.contains("/EQUIVALENCE_") ||
+				       cf.function.name.contains("/closure") ||
+				       cf.stack[cf.function.nformals - 1] instanceof HashMap<?,?>:
+															 "HashMap with keyword parameters expected, got " + cf.stack[cf.function.nformals - 1];
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
@@ -558,7 +599,7 @@ public class RVM {
 						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i], 40));
 					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 					stdout.flush();
@@ -574,47 +615,58 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC0:
+					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
 					assert stack[0] != null: "Local variable 0 is null";
 					stack[sp++] = stack[0]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
+					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
 					assert stack[1] != null: "Local variable 1 is null";
 					stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
+					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
 					assert stack[2] != null: "Local variable 2 is null";
 					stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
+					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
 					assert stack[3] != null: "Local variable 3 is null";
 					stack[sp++] = stack[3]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
+					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
 					assert stack[4] != null: "Local variable 4 is null";
 					stack[sp++] = stack[4]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
+					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
 					assert stack[5] != null: "Local variable 5 is null";
 					stack[sp++] = stack[5]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
+					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
 					assert stack[6] != null: "Local variable 6 is null";
 					stack[sp++] = stack[6]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
+					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
 					assert stack[7] != null: "Local variable 7 is null";
 					stack[sp++] = stack[7]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
+					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
 					assert stack[8] != null: "Local variable 8 is null";
 					stack[sp++] = stack[8]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
+					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
 					assert stack[9] != null: "Local variable 9 is null";
 					stack[sp++] = stack[9]; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
 					assert stack[pos] != null: "Local variable " + pos + " is null";
 					stack[sp++] = stack[pos];
 					continue NEXT_INSTRUCTION;
@@ -689,10 +741,11 @@ public class RVM {
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
-					IInteger fp = vf.integer(ToplevelType.getFingerprint(val));
+					boolean useConcreteFingerprint = instructions[pc++] == 1;
+					IInteger fp = vf.integer(ToplevelType.getFingerprint(val, useConcreteFingerprint));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
-					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", sp = " + sp);
+					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
 							stack[sp++] = vf.bool(false);
 							pc = caseDefault;
@@ -712,8 +765,15 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STORELOC:
+					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "STORELOC: pos larger that nlocals at " + cf.src;
+					stack[pos] = stack[sp - 1];
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_UNWRAPTHROWNLOC: {
-					stack[CodeBlock.fetchArg1(instruction)] = (op == Opcode.OP_STORELOC) ? stack[sp - 1] : ((Thrown) stack[--sp]).value;
+					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
+					stack[pos] = ((Thrown) stack[--sp]).value;
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -924,7 +984,6 @@ public class RVM {
 						// 	1. FunctionInstance due to closures
 						if(funcObject instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) funcObject;
-							//stdout.println("OCALLDYN: " + fun_instance.function.name);
 							cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 							instructions = cf.function.codeblock.getInstructions();
 							stack = cf.stack;
@@ -990,7 +1049,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FAILRETURN:
-					assert cf.previousCallFrame == c_ofun_call.cf;
+					assert cf.previousCallFrame == c_ofun_call.cf : "FAILRETURN, incorrect frame at" + cf.src;
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
 					if(frame != null) {
@@ -1053,6 +1112,7 @@ public class RVM {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
+					if(trackCalls) { cf.printBack(stdout, rval); }
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
@@ -1062,7 +1122,7 @@ public class RVM {
 							return NONE;
 						}
 					}
-					if(trackCalls) { cf.printBack(stdout); }
+					
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1179,15 +1239,15 @@ public class RVM {
 					if(op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
-						assert arity <= fun.nformals;
-						assert fun.scopeIn == -1;
+						assert arity <= fun.nformals : "APPLY/APPLYDYN, too many arguments at " + cf.src;
+						assert fun.scopeIn == -1 : "APPLY/APPLYDYN, illegal scope at " + cf.src;
 						fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 					} else {
 						Object src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							fun_instance = (FunctionInstance) src;
 							arity = CodeBlock.fetchArg1(instruction);
-							assert arity + fun_instance.next <= fun_instance.function.nformals;
+							assert arity + fun_instance.next <= fun_instance.function.nformals : "APPLY/APPLYDYN, too many arguments at " + cf.src;
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
 							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);

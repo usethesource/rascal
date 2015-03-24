@@ -1,11 +1,12 @@
 module experiments::Compiler::Examples::Tst5
 
-bool f(bool c = false){
-	bool g(){
-		return c;
-	}
-	return g();
+import IO;
+
+tuple[int, str] f() = <13, "abc">;
+
+value main(list[value] args) {
+	<i, s> = f();
+	println("i = <i>");
+	println("s = <s>");
+	return true;
 }
-
-
-value main(list[value] args) = f();

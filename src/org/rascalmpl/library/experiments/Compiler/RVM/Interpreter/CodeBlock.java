@@ -1,17 +1,26 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -95,6 +104,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.values.uptr.Factory;
 
 public class CodeBlock {
 
@@ -310,6 +320,8 @@ public class CodeBlock {
 	public final static int maskArg2 = (1 << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
+	
+	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
 	public static int encode0(int op){
 		return op;
@@ -660,13 +672,33 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 	
-	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
-		return add(new Switch(this, caseLabels, caseDefault));
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean useConcreteFingerprint) {
+		return add(new Switch(this, caseLabels, caseDefault, useConcreteFingerprint));
 	}
 	
 	public CodeBlock RESETLOCS(IList positions) {
 		return add(new ResetLocs(this, getConstantIndex(positions)));
+	}
+	
+	public CodeBlock LOADCONSTRCON(IConstructor type_cons, String repr){
+		TypeReifier tr = new TypeReifier(vf);
+		Type argType = tr.valueToType(type_cons);
+		IMap definitions = (IMap) type_cons.get("definitions");
+		TypeStore store = new TypeStore();
+		tr.declareAbstractDataTypes(definitions, store);
 		
+		store.declareAbstractDataType(argType);
+		IValue val;
+		try (StringReader in = new StringReader(repr)) {
+			val = new StandardTextReader().read(new RascalValuesValueFactory(vf), store, argType, in);
+		} 
+		catch (FactTypeUseException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+		} 
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+		}
+		return add(new LoadCon(this, getConstantIndex(val)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
@@ -687,6 +719,14 @@ public class CodeBlock {
 		for(int i = 0; i < typeConstantStore.size(); i++) {
 			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
+		
+		if(constantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+		}
+		if(typeConstantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+		}
+		
 		if(listing){
 			listing(fname);
 		}
@@ -760,3 +800,55 @@ class LabelInfo {
 		return PC >= 0;
 	}
 }
+
+// Taken from Prelude.java
+
+class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
+	IValueFactory vf;
+	TypeReifier tr; 
+	
+	public RascalValuesValueFactory(IValueFactory vf) {
+		super(vf);
+		this.vf = vf;
+		this.tr = new TypeReifier(vf);
+	}
+	
+	@Override
+	public INode node(String name, IValue... children) {
+		IConstructor res = specializeType(name, children);
+		
+		return res != null ? res: vf.node(name, children);
+	}
+
+	private IConstructor specializeType(String name, IValue... children) {
+		if ("type".equals(name) 
+				&& children.length == 2
+				&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
+				&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
+			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
+			
+			return vf.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public INode node(String name, Map<String, IValue> annotations,
+			IValue... children) throws FactTypeUseException {
+		IConstructor res = specializeType(name, children);
+		
+		return res != null ? res: vf.node(name, annotations, children);
+	}
+	
+	@Override
+	public INode node(String name, IValue[] children,
+			Map<String, IValue> keyArgValues) throws FactTypeUseException {
+		IConstructor res = specializeType(name, children);
+		
+		return res != null ? res: vf.node(name, children, keyArgValues);
+	}
+	
+}
+

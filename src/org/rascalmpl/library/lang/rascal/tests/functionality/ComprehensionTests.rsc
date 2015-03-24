@@ -109,6 +109,10 @@ test bool any14()  = !(any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > 100*Y))
 test bool any15()  = !(any(_ <- []));
 test bool any16()  = !(any(_ <- {}));
 test bool any17()  = !(any(_ <- ()));
+
+test bool any18()  = any(int X <- [10,10,10], 10 := X);
+test bool any19()  = any(int X <- [10,20,30], 20 := X);
+test bool any20()  = !any(int X <- [10,20,30], 25 := X);
   	
 // all
   		
@@ -144,6 +148,9 @@ test bool all19()  = !(all(_ <- {}));
 test bool all20()  = !(all(_ <- ()));
   		
 test bool all21()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1)?true:false);
+
+test bool all22()  = all(k <- [10,10,10], 10 := k);
+test bool all23()  = !all(k <- [10,20,30], 20 := k);
   
 // setComprehension
   		

@@ -155,7 +155,7 @@ public rel[loc, loc] declaredSubTypes(M3 m)
 @memo public set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
 @memo public set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
 
-public set[loc] elements(M3 m, loc parent) = { e | <parent, e> <- m@containment };
+public set[loc] elements(M3 m, loc parent) = m@containment[parent];
 
 @memo public set[loc] fields(M3 m, loc class) = { e | e <- elements(m, class), isField(e) };
 @memo public set[loc] methods(M3 m, loc class) = { e | e <- elements(m, class), isMethod(e) };

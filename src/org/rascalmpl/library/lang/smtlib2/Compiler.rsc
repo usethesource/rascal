@@ -56,8 +56,7 @@ str toString(\int()) = "Int";
 str toString(\bool())= "Bool";
 
 // Literals
-str toString(\true()) = "true";
-str toString(\false()) = "false";
+str toString(boolVal(b)) = b ? "true" : "false";
 str toString(intVal(i)) = "<i>";	
 
 // Expr

@@ -56,10 +56,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 	
 	/**
-	 * Assumption: arity < function.nformals 
+	 * Assumption: arity <= function.nformals 
 	 */
 	public static FunctionInstance applyPartial(final Function function, final Frame env, final RVM rvm, final int arity, final Object[] stack, final int sp) {
-		assert arity < function.nformals;
+		assert arity <= function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
 			return fun_instance;
@@ -73,10 +73,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 	
 	/**
-	 * Assumption: next + arity < function.nformals 
+	 * Assumption: next + arity <= function.nformals 
 	 */
 	public FunctionInstance applyPartial(final int arity, final Object[] stack, final int sp) {
-		assert next + arity < function.nformals;
+		assert next + arity <= function.nformals;
 		if(arity == 0) {
 			return this;
 		}
