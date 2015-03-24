@@ -817,6 +817,26 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitLeftSymDefault(LeftSym.Default x) { 
+    return null; 
+  }
+
+  public T visitLeftSymDependFormals(LeftSym.DependFormals x) { 
+    return null; 
+  }
+
+  public T visitLeftSymDependFormalsParametrized(LeftSym.DependFormalsParametrized x) { 
+    return null; 
+  }
+
+  public T visitLeftSymDependVoidFormals(LeftSym.DependVoidFormals x) { 
+    return null; 
+  }
+
+  public T visitLeftSymDependVoidFormalsParametrized(LeftSym.DependVoidFormalsParametrized x) { 
+    return null; 
+  }
+
   public T visitLiteralBoolean(Literal.Boolean x) { 
     return null; 
   }
@@ -1293,14 +1313,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitSymDependFormals(Sym.DependFormals x) { 
-    return null; 
-  }
-
-  public T visitSymDependFormalsParametrized(Sym.DependFormalsParametrized x) { 
-    return null; 
-  }
-
   public T visitSymDependIgnore(Sym.DependIgnore x) { 
     return null; 
   }
@@ -1322,14 +1334,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitSymDependScope(Sym.DependScope x) { 
-    return null; 
-  }
-
-  public T visitSymDependVoidFormals(Sym.DependVoidFormals x) { 
-    return null; 
-  }
-
-  public T visitSymDependVoidFormalsParametrized(Sym.DependVoidFormalsParametrized x) { 
     return null; 
   }
 

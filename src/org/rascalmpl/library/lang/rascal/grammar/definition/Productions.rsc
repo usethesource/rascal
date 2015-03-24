@@ -48,18 +48,18 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
     switch (sd) {
       case \layout(_, nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(\layouts("<n>"), p)},nothing()>;
-      case \language(present() /*start*/, Sym s, Prod p) : 
+      case \language(present() /*start*/, LeftSym s, Prod p) : 
         return < {prod(\start(sym2symbol(s)),[label("top", sym2symbol(s))],{})
                 ,prod2prod(sym2symbol(s), p)}
                ,just(\start(sym2symbol(s)))>;
-      case \language(absent(), Sym s, Prod p) : 
+      case \language(absent(), LeftSym s, Prod p) : 
         return <{prod2prod(sym2symbol(s), p)},nothing()>;
-      case \lexical(Sym s, Prod p) : 
+      case \lexical(LeftSym s, Prod p) : 
         return <{prod2prod(toLex(sym2symbol(s)), p)}, nothing()>;
-      case \keyword(nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(keywords("<n>"), p)}, nothing()>;
-      case \token(nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\token("<n>"), p)}, nothing()>;
+      case \keyword(LeftSym s, Prod p) : 
+        return <{prod2prod(toKeyword(sym2symbol(s)), p)}, nothing()>;
+      case \token(LeftSym s, Prod p) : 
+        return <{prod2prod(toToken(sym2symbol(s)), p)}, nothing()>;
       default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
     }
 } 
@@ -69,6 +69,19 @@ private Symbol toLex(Symbol s)
        case \sort(n) => \lex(n) 
        case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
   };
+
+private Symbol toToken(Symbol s) 
+  = visit (s) { 
+       case \sort(n) => \token(n) 
+       //case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
+  };
+
+private Symbol toKeyword(Symbol s) 
+  = visit (s) { 
+       case \sort(n) => \keywords(n) 
+       //case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
+  };
+
      
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {

@@ -72,7 +72,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 727 * name.hashCode() ; 
+      return 149 + 19 * name.hashCode() ; 
     } 
   
     
@@ -121,7 +121,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 ; 
+      return 839 ; 
     } 
   
     	

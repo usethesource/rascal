@@ -90,7 +90,7 @@ public abstract class KeywordFormal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 227 * type.hashCode() + 211 * name.hashCode() + 229 * expression.hashCode() ; 
+      return 811 + 11 * type.hashCode() + 919 * name.hashCode() + 179 * expression.hashCode() ; 
     } 
   
     

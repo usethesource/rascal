@@ -86,7 +86,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 293 * decimal.hashCode() ; 
+      return 461 + 577 * decimal.hashCode() ; 
     } 
   
     
@@ -137,7 +137,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 991 * hex.hashCode() ; 
+      return 821 + 193 * hex.hashCode() ; 
     } 
   
     
@@ -188,7 +188,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 227 * octal.hashCode() ; 
+      return 37 + 383 * octal.hashCode() ; 
     } 
   
     
