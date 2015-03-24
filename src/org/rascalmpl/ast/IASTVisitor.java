@@ -417,6 +417,16 @@ public interface IASTVisitor<T> {
 
   public T visitLabelEmpty(Label.Empty x);
 
+  public T visitLeftSymDefault(LeftSym.Default x);
+
+  public T visitLeftSymDependFormals(LeftSym.DependFormals x);
+
+  public T visitLeftSymDependFormalsParametrized(LeftSym.DependFormalsParametrized x);
+
+  public T visitLeftSymDependVoidFormals(LeftSym.DependVoidFormals x);
+
+  public T visitLeftSymDependVoidFormalsParametrized(LeftSym.DependVoidFormalsParametrized x);
+
   public T visitLiteralBoolean(Literal.Boolean x);
 
   public T visitLiteralDateTime(Literal.DateTime x);
@@ -655,10 +665,6 @@ public interface IASTVisitor<T> {
 
   public T visitSymDependConditionBefore(Sym.DependConditionBefore x);
 
-  public T visitSymDependFormals(Sym.DependFormals x);
-
-  public T visitSymDependFormalsParametrized(Sym.DependFormalsParametrized x);
-
   public T visitSymDependIgnore(Sym.DependIgnore x);
 
   public T visitSymDependLoop(Sym.DependLoop x);
@@ -670,10 +676,6 @@ public interface IASTVisitor<T> {
   public T visitSymDependParametrized(Sym.DependParametrized x);
 
   public T visitSymDependScope(Sym.DependScope x);
-
-  public T visitSymDependVoidFormals(Sym.DependVoidFormals x);
-
-  public T visitSymDependVoidFormalsParametrized(Sym.DependVoidFormalsParametrized x);
 
   public T visitSymEmpty(Sym.Empty x);
 

@@ -115,13 +115,6 @@ public abstract class Sym extends AbstractAST {
   public org.rascalmpl.ast.NonterminalLabel getLabel() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasFormals() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Parameters getFormals() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasString() {
     return false;
   }
@@ -178,13 +171,6 @@ public abstract class Sym extends AbstractAST {
   public org.rascalmpl.ast.Sym getThenPart() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasTyp() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Type getTyp() {
-    throw new UnsupportedOperationException();
-  }
 
   
 
@@ -228,7 +214,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 29 * first.hashCode() + 67 * alternatives.hashCode() ; 
+      return 563 + 193 * first.hashCode() + 19 * alternatives.hashCode() ; 
     } 
   
     
@@ -288,7 +274,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 487 * symbol.hashCode() ; 
+      return 433 + 59 * symbol.hashCode() ; 
     } 
   
     
@@ -339,7 +325,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 557 * cistring.hashCode() ; 
+      return 139 + 743 * cistring.hashCode() ; 
     } 
   
     
@@ -390,7 +376,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 883 * charClass.hashCode() ; 
+      return 331 + 317 * charClass.hashCode() ; 
     } 
   
     
@@ -443,7 +429,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 401 * symbol.hashCode() + 673 * column.hashCode() ; 
+      return 131 + 937 * symbol.hashCode() + 193 * column.hashCode() ; 
     } 
   
     
@@ -503,7 +489,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 31 + 257 * symbol.hashCode() ; 
+      return 997 + 191 * symbol.hashCode() ; 
     } 
   
     
@@ -558,7 +544,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 229 * condition.hashCode() + 997 * thenPart.hashCode() + 107 * elsePart.hashCode() ; 
+      return 139 + 827 * condition.hashCode() + 773 * thenPart.hashCode() + 359 * elsePart.hashCode() ; 
     } 
   
     
@@ -629,7 +615,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 79 * symbol.hashCode() + 821 * block.hashCode() ; 
+      return 193 + 907 * symbol.hashCode() + 277 * block.hashCode() ; 
     } 
   
     
@@ -691,7 +677,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 727 * symbol.hashCode() + 373 * condition.hashCode() ; 
+      return 761 + 673 * symbol.hashCode() + 229 * condition.hashCode() ; 
     } 
   
     
@@ -753,7 +739,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 757 * condition.hashCode() + 397 * thenPart.hashCode() ; 
+      return 733 + 421 * condition.hashCode() + 443 * thenPart.hashCode() ; 
     } 
   
     
@@ -773,163 +759,6 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public boolean hasThenPart() {
-      return true;
-    }	
-  }
-  public boolean isDependFormals() {
-    return false;
-  }
-
-  static public class DependFormals extends Sym {
-    // Production: sig("DependFormals",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("org.rascalmpl.ast.Type","typ"),arg("org.rascalmpl.ast.Parameters","formals")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-    private final org.rascalmpl.ast.Type typ;
-    private final org.rascalmpl.ast.Parameters formals;
-  
-    public DependFormals(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  org.rascalmpl.ast.Type typ,  org.rascalmpl.ast.Parameters formals) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-      this.typ = typ;
-      this.formals = formals;
-    }
-  
-    @Override
-    public boolean isDependFormals() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymDependFormals(this);
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof DependFormals)) {
-        return false;
-      }        
-      DependFormals tmp = (DependFormals) o;
-      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.typ.equals(this.typ) && tmp.formals.equals(this.formals) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 719 + 389 * nonterminal.hashCode() + 337 * typ.hashCode() + 613 * formals.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Type getTyp() {
-      return this.typ;
-    }
-  
-    @Override
-    public boolean hasTyp() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Parameters getFormals() {
-      return this.formals;
-    }
-  
-    @Override
-    public boolean hasFormals() {
-      return true;
-    }	
-  }
-  public boolean isDependFormalsParametrized() {
-    return false;
-  }
-
-  static public class DependFormalsParametrized extends Sym {
-    // Production: sig("DependFormalsParametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters"),arg("org.rascalmpl.ast.Type","typ"),arg("org.rascalmpl.ast.Parameters","formals")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-    private final java.util.List<org.rascalmpl.ast.Sym> parameters;
-    private final org.rascalmpl.ast.Type typ;
-    private final org.rascalmpl.ast.Parameters formals;
-  
-    public DependFormalsParametrized(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters,  org.rascalmpl.ast.Type typ,  org.rascalmpl.ast.Parameters formals) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-      this.parameters = parameters;
-      this.typ = typ;
-      this.formals = formals;
-    }
-  
-    @Override
-    public boolean isDependFormalsParametrized() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymDependFormalsParametrized(this);
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof DependFormalsParametrized)) {
-        return false;
-      }        
-      DependFormalsParametrized tmp = (DependFormalsParametrized) o;
-      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.parameters.equals(this.parameters) && tmp.typ.equals(this.typ) && tmp.formals.equals(this.formals) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 331 + 211 * nonterminal.hashCode() + 521 * parameters.hashCode() + 503 * typ.hashCode() + 61 * formals.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
-      return this.parameters;
-    }
-  
-    @Override
-    public boolean hasParameters() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Type getTyp() {
-      return this.typ;
-    }
-  
-    @Override
-    public boolean hasTyp() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Parameters getFormals() {
-      return this.formals;
-    }
-  
-    @Override
-    public boolean hasFormals() {
       return true;
     }	
   }
@@ -970,7 +799,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 97 * symbol.hashCode() ; 
+      return 373 + 373 * symbol.hashCode() ; 
     } 
   
     
@@ -1023,7 +852,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 223 * condition.hashCode() + 619 * body.hashCode() ; 
+      return 859 + 131 * condition.hashCode() + 499 * body.hashCode() ; 
     } 
   
     
@@ -1087,7 +916,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 239 * nonterminal.hashCode() + 401 * arguments.hashCode() + 971 * keywordArguments.hashCode() ; 
+      return 347 + 857 * nonterminal.hashCode() + 619 * arguments.hashCode() + 751 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -1156,7 +985,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 397 * symbol.hashCode() ; 
+      return 293 + 149 * symbol.hashCode() ; 
     } 
   
     
@@ -1213,7 +1042,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 599 * nonterminal.hashCode() + 853 * parameters.hashCode() + 647 * arguments.hashCode() + 83 * keywordArguments.hashCode() ; 
+      return 433 + 937 * nonterminal.hashCode() + 7 * parameters.hashCode() + 113 * arguments.hashCode() + 89 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -1291,7 +1120,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 67 * symbols.hashCode() ; 
+      return 521 + 29 * symbols.hashCode() ; 
     } 
   
     
@@ -1302,141 +1131,6 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public boolean hasSymbols() {
-      return true;
-    }	
-  }
-  public boolean isDependVoidFormals() {
-    return false;
-  }
-
-  static public class DependVoidFormals extends Sym {
-    // Production: sig("DependVoidFormals",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("org.rascalmpl.ast.Parameters","formals")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-    private final org.rascalmpl.ast.Parameters formals;
-  
-    public DependVoidFormals(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  org.rascalmpl.ast.Parameters formals) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-      this.formals = formals;
-    }
-  
-    @Override
-    public boolean isDependVoidFormals() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymDependVoidFormals(this);
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof DependVoidFormals)) {
-        return false;
-      }        
-      DependVoidFormals tmp = (DependVoidFormals) o;
-      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.formals.equals(this.formals) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 283 + 797 * nonterminal.hashCode() + 523 * formals.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Parameters getFormals() {
-      return this.formals;
-    }
-  
-    @Override
-    public boolean hasFormals() {
-      return true;
-    }	
-  }
-  public boolean isDependVoidFormalsParametrized() {
-    return false;
-  }
-
-  static public class DependVoidFormalsParametrized extends Sym {
-    // Production: sig("DependVoidFormalsParametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters"),arg("org.rascalmpl.ast.Parameters","formals")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-    private final java.util.List<org.rascalmpl.ast.Sym> parameters;
-    private final org.rascalmpl.ast.Parameters formals;
-  
-    public DependVoidFormalsParametrized(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters,  org.rascalmpl.ast.Parameters formals) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-      this.parameters = parameters;
-      this.formals = formals;
-    }
-  
-    @Override
-    public boolean isDependVoidFormalsParametrized() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymDependVoidFormalsParametrized(this);
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof DependVoidFormalsParametrized)) {
-        return false;
-      }        
-      DependVoidFormalsParametrized tmp = (DependVoidFormalsParametrized) o;
-      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.parameters.equals(this.parameters) && tmp.formals.equals(this.formals) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 307 + 857 * nonterminal.hashCode() + 3 * parameters.hashCode() + 769 * formals.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
-      return this.parameters;
-    }
-  
-    @Override
-    public boolean hasParameters() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Parameters getFormals() {
-      return this.formals;
-    }
-  
-    @Override
-    public boolean hasFormals() {
       return true;
     }	
   }
@@ -1475,7 +1169,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 ; 
+      return 601 ; 
     } 
   
     	
@@ -1517,7 +1211,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 491 + 571 * symbol.hashCode() ; 
+      return 59 + 641 * symbol.hashCode() ; 
     } 
   
     
@@ -1568,7 +1262,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 227 * symbol.hashCode() ; 
+      return 739 + 283 * symbol.hashCode() ; 
     } 
   
     
@@ -1621,7 +1315,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 + 719 * symbol.hashCode() + 719 * label.hashCode() ; 
+      return 109 + 293 * symbol.hashCode() + 467 * label.hashCode() ; 
     } 
   
     
@@ -1683,7 +1377,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 479 * symbol.hashCode() + 233 * match.hashCode() ; 
+      return 929 + 509 * symbol.hashCode() + 593 * match.hashCode() ; 
     } 
   
     
@@ -1745,7 +1439,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 503 * symbol.hashCode() + 769 * match.hashCode() ; 
+      return 613 + 383 * symbol.hashCode() + 967 * match.hashCode() ; 
     } 
   
     
@@ -1807,7 +1501,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 499 * match.hashCode() + 757 * symbol.hashCode() ; 
+      return 347 + 823 * match.hashCode() + 283 * symbol.hashCode() ; 
     } 
   
     
@@ -1869,7 +1563,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 823 * match.hashCode() + 811 * symbol.hashCode() ; 
+      return 953 + 523 * match.hashCode() + 641 * symbol.hashCode() ; 
     } 
   
     
@@ -1931,7 +1625,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 691 * symbol.hashCode() + 383 * match.hashCode() ; 
+      return 271 + 419 * symbol.hashCode() + 227 * match.hashCode() ; 
     } 
   
     
@@ -1991,7 +1685,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 709 * symbol.hashCode() ; 
+      return 23 + 601 * symbol.hashCode() ; 
     } 
   
     
@@ -2044,7 +1738,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 853 * symbol.hashCode() + 941 * sep.hashCode() ; 
+      return 967 + 239 * symbol.hashCode() + 211 * sep.hashCode() ; 
     } 
   
     
@@ -2104,7 +1798,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 31 * symbol.hashCode() ; 
+      return 827 + 313 * symbol.hashCode() ; 
     } 
   
     
@@ -2157,7 +1851,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 + 653 * symbol.hashCode() + 433 * sep.hashCode() ; 
+      return 991 + 277 * symbol.hashCode() + 211 * sep.hashCode() ; 
     } 
   
     
@@ -2219,7 +1913,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 659 * symbol.hashCode() + 751 * label.hashCode() ; 
+      return 211 + 877 * symbol.hashCode() + 353 * label.hashCode() ; 
     } 
   
     
@@ -2279,7 +1973,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 + 31 * string.hashCode() ; 
+      return 3 + 383 * string.hashCode() ; 
     } 
   
     
@@ -2330,7 +2024,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 823 * nonterminal.hashCode() ; 
+      return 761 + 661 * nonterminal.hashCode() ; 
     } 
   
     
@@ -2383,7 +2077,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 17 * symbol.hashCode() + 773 * match.hashCode() ; 
+      return 947 + 131 * symbol.hashCode() + 367 * match.hashCode() ; 
     } 
   
     
@@ -2445,7 +2139,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 227 + 659 * match.hashCode() + 653 * symbol.hashCode() ; 
+      return 947 + 739 * match.hashCode() + 659 * symbol.hashCode() ; 
     } 
   
     
@@ -2505,7 +2199,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 491 * symbol.hashCode() ; 
+      return 787 + 193 * symbol.hashCode() ; 
     } 
   
     
@@ -2556,7 +2250,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 227 + 71 * nonterminal.hashCode() ; 
+      return 439 + 479 * nonterminal.hashCode() ; 
     } 
   
     
@@ -2609,7 +2303,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 599 * nonterminal.hashCode() + 541 * parameters.hashCode() ; 
+      return 137 + 443 * nonterminal.hashCode() + 431 * parameters.hashCode() ; 
     } 
   
     
@@ -2671,7 +2365,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 827 * match.hashCode() + 409 * symbol.hashCode() ; 
+      return 733 + 743 * match.hashCode() + 239 * symbol.hashCode() ; 
     } 
   
     
@@ -2733,7 +2427,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 613 * first.hashCode() + 653 * sequence.hashCode() ; 
+      return 397 + 743 * first.hashCode() + 397 * sequence.hashCode() ; 
     } 
   
     
@@ -2793,7 +2487,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 571 * nonterminal.hashCode() ; 
+      return 83 + 61 * nonterminal.hashCode() ; 
     } 
   
     
@@ -2844,7 +2538,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 557 + 701 * symbol.hashCode() ; 
+      return 857 + 661 * symbol.hashCode() ; 
     } 
   
     
@@ -2897,7 +2591,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 953 * symbol.hashCode() + 571 * match.hashCode() ; 
+      return 919 + 103 * symbol.hashCode() + 307 * match.hashCode() ; 
     } 
   
     
