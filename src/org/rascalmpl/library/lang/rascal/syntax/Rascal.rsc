@@ -97,6 +97,14 @@ syntax Signature
 	= withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions 
 	| noThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters ;
 
+syntax LeftSym
+    = \default: Sym!dependNonterminal!dependParametrized sym
+    | dependVoidFormals: Nonterminal nonterminal >> "(" Parameters formals \ "()" // only used in the head
+    | dependVoidFormalsParametrized: () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()"
+    | dependFormals: Nonterminal nonterminal Type typ >> "(" Parameters formals  \ "()" // only used in the head
+    | dependFormalsParametrized: () () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()"  
+    ;
+    
 syntax Sym
 // named non-terminals
 	= nonterminal: Nonterminal nonterminal !>> "[" !>> "("
@@ -104,11 +112,7 @@ syntax Sym
 	| parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
-	// data-dependent non-terminals
-	| dependVoidFormals: Nonterminal nonterminal >> "(" Parameters formals \ "()" // only used in the head
-	| dependVoidFormalsParametrized: () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()" // only used in the head
-	| dependFormals: Nonterminal nonterminal Type typ >> "(" Parameters formals  \ "()" // only used in the head
-	| dependFormalsParametrized: () () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()" // only used in the head  
+	// data-dependent non-terminals; needs to be cleaned up
 	| dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
 	| dependScope: "{" Sym+ symbols "}"
@@ -174,11 +178,11 @@ lexical Name
 	;
 
 syntax SyntaxDefinition
-	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
-	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
-	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
-	|  @Foldable \token   : "token" Sym defined "=" Prod production ";"
-	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" 
+	=  @Foldable \layout  : Visibility vis "layout"  LeftSym defined "=" Prod production ";" 
+	|  @Foldable \lexical : "lexical" LeftSym defined "=" Prod production ";" 
+	|  @Foldable \keyword : "keyword" LeftSym defined "=" Prod production ";"
+	|  @Foldable \token   : "token" LeftSym defined "=" Prod production ";"
+	|  @Foldable language: Start start "syntax" LeftSym defined "=" Prod production ";" 
 	;
 
 syntax Kind 
