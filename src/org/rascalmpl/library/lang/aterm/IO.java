@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,8 @@ public class IO{
 		try{
 			in = URIResolverRegistry.getInstance().getInputStream(loc);
 			return new ATermReader().read(values, store, start, in);
-		}catch(IOException e){
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
 			if(in != null){
@@ -89,7 +90,8 @@ public class IO{
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(loc, false);
 			new ATermWriter().write(value, new OutputStreamWriter(out, "UTF8"));
-		}catch(IOException e){
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
 			if(out != null){
