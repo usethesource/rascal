@@ -207,12 +207,9 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   return <ordering, as>;
 }
 
-<<<<<<< HEAD
 public Grammar prioAssocToChoice(Grammar g) = visit(g) {
   case \priority(def, list[Production] levels) => choice(def, {*levels})
   case \associativity(def, _, alts)            => choice(def, alts)
 };
 
-=======
 private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
->>>>>>> 3d65c21a35433816f43d714c16d14eff4b411e91
