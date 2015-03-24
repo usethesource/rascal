@@ -119,6 +119,7 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 public class Prelude {
+	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
 	private final Random random;
 	
@@ -1089,6 +1090,21 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+		}
+	}
+	
+	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
+			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+				byte[] buf = new byte[FILE_BUFFER_SIZE];
+				int read;
+				while ((read = in.read(buf, 0, FILE_BUFFER_SIZE)) != -1) {
+					out.write(buf, 0, read);
+				}
+				return values.bool(true);
+			}
+		} catch (IOException e) {
+			return values.bool(false);
 		}
 	}
 
