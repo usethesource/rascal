@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -195,7 +196,7 @@ public class ResultFactory {
 		@Override
 		@SuppressWarnings("unchecked")
 		public Result<? extends IValue> visitExternal(Type externalType) {
-			if (externalType instanceof FunctionType) {
+			if (externalType instanceof FunctionType || externalType instanceof OverloadedFunctionType) {
 				// the weird thing is, that value is also a result in that case.
 				return (Result<? extends IValue>) value;
 			}
