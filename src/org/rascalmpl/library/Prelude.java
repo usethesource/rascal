@@ -1954,24 +1954,6 @@ public class Prelude {
 		return values.node(N.getValue(), args, map);
 	}
 	
-	public IValue readATermFromFile(IString fileName){
-	//@doc{readATermFromFile -- read an ATerm from a named file}
-		ATermReader atr = new ATermReader();
-		try {
-			FileInputStream stream = new FileInputStream(fileName.getValue());
-			IValue result = atr.read(values, stream);
-			stream.close();
-			return result;
-		} catch (FactTypeUseException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-
-		}
-	}
-	
 	public IValue toString(INode T)
 	//@doc{toString -- convert a node to a string}
 	{
