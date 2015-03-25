@@ -141,7 +141,7 @@ private bool isTaxonomy(M3 m, loc e)
 	= 
 	( isInterface(e) 
 		&&  m@containment[e] == {}
-		&& {_} := m@extends[e]
+		&& size(m@extends[e]) == 1
 		&& m@containment[flattenedExtends(m)[e]] != {}
 	)
 	||
@@ -157,12 +157,12 @@ private bool isJoiner(M3 m, loc e)
 	= 
 	( isInterface(e) 
 		&& m@containment[e] == {}
-		&& {_,_,*_} := m@extends[e]
+		&& size(m@extends[e]) > 1
 	)
 	||
 	( isClass(e)
 		&& removeConstuctors(m@containment[e]) == {}
-		&& {_,_,*_} := m@implements[e]
+		&& size(m@implements[e]) > 1
 	)
 	;
 	
@@ -238,8 +238,8 @@ private bool isImmutable(M3 m, loc e)
 private bool isCanopy(M3 m, loc e)
 	= isClass(e)
 	&& {f} := instanceFields(m,e)
-	&& all(loc c <- constructors(m, e), {_} := assignments(m, c)[f])
-	&& !any(loc met <- methods(m, e), met.scheme == "java+method" && !(f in assignments(m, met)<lhs>))
+	&& all(loc c <- constructors(m, e), size(assignments(m, c)[f]) == 1)
+	&& !(f in {*(assignments(m, met)<lhs>) | loc met <- methods(m, e), met.scheme == "java+method"})
 	;
 
 @doc{A class with no public constructors and at least on static field of the same type of the class}
@@ -301,7 +301,7 @@ private  bool isSink(M3 m, loc e)
 private bool isOutline(M3 m, loc e)
 	= isClass(e)
 	&& isAbstract(m,e)
-	&& {_,_,*_} := domain(m@methodInvocation & (methods(m,e) * abstractMethods(m,e)))
+	&& size(domain(m@methodInvocation & (methods(m,e) * abstractMethods(m,e)))) > 2
 	;
 	
 @doc{Abtract classes with no instance fields, at least one abstract method}
