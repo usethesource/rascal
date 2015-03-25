@@ -14,10 +14,10 @@ data Exception = ball();
 data Exception = noball();
 
 value playBall() {
-        int i = 0;
+        int i = 1;
         int j = 0;
         int k = 0;
-        while (i < 100000) {
+        while (i < 50) {
             try {
                 if (i % 5 == 0) {
                      throw ball();
@@ -25,7 +25,7 @@ value playBall() {
                 if (i % 11 == 0) {
                      throw noball();
                 }
-                i = i + 1 ;
+                throw i ;
             }
             catch ball() : {
                 i = i + 1 ;
@@ -34,6 +34,23 @@ value playBall() {
             catch noball() : {
             	i = i + 1 ;
                 k = k + 1 ;
+            }
+            catch int x : {
+            	i = x + 1 ;
+            }
+      }
+      return <i, j, k> ;
+}
+value playBallBug() {
+        int i = 1;
+        int j = 0;
+        int k = 0;
+        while (i < 50) {
+            try {
+                throw i ;
+            }
+            catch int x : {
+            	i = x + 1 ;
             }
       }
       return <i, j, k> ;
@@ -55,7 +72,7 @@ int safeDivide(int x, int y){
  		return 101010101; 
 }
 
-int main(list[value] args){
+value main(list[value] args){
 //    return safeDivide(25,5);
-    return playBall();
+    return playBallBug();
 }

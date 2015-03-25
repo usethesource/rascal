@@ -1456,7 +1456,7 @@ public class BytecodeGenerator implements Opcodes {
 			System.out.println(from + " : " + to + " -->> " + handler );
 // Create list with exception target types.
 // Mayby create a exception holding a Type.			
-			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
+			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel,  "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
 		}
 	}
 	
@@ -1469,35 +1469,19 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, EXCEPTION);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "rascalException", "Ljava/lang/Object;");
 		mv.visitInsn(AASTORE);
 	}
 
 	public void emitInlineThrow(boolean debug) {
 		if (!emit)
 			return;
-		
-		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
-		mv.visitInsn(DUP);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitVarInsn(ALOAD, 3);
-		mv.visitIincInsn(2, -1);
-		mv.visitVarInsn(ILOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "<init>", "(Ljava/lang/Object;)V");
-		mv.visitInsn(ATHROW);
 
-		
-		
-//		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier");
-//		mv.visitInsn(DUP);
-//		mv.visitVarInsn(ALOAD, STACK);
-//		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitInsn(ISUB);
-//		mv.visitInsn(AALOAD);
-//		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/ToJVM/RascalExceptionCarrier", "<init>", "(Ljava/lang/Object;)V");
-//		mv.visitInsn(ATHROW);
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
+		mv.visitInsn(ATHROW);				
 	}
 }
