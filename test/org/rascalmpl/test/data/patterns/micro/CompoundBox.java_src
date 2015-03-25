@@ -14,4 +14,9 @@ public class CompoundBox {
 		return c;
 	}
 	
+	public int next() {
+		i = i+ 1;
+		return i;
+	}
+	
 }
