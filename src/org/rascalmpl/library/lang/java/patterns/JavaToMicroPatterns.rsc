@@ -133,7 +133,7 @@ private bool isDesignator(M3 m, loc e)
 	;
 
 private set[loc] removeConstuctors(set[loc] ll)
-	= { l | l <- ll, l.scheme != "java+constuctor" };
+	= { l | l <- ll, l.scheme != "java+constructor" };
 
 // TODO: correctly handle external interfaces
 @doc{An empty interface/class extending a non empty class or a single non empty interface}
@@ -185,10 +185,10 @@ private bool isFunctionPointer(M3 m, loc e)
 	;
 	
 @doc{Like function pointers, but with instance fields and possible constructors }
-private bool isFunctionObject(M3 m, loc e)
+bool isFunctionObject(M3 m, loc e)
 	= isClass(e)
 	&& {meth} := removeConstuctors(methods(m, e))
-	&& meth.scheme == "java+method"
+	&& fields(m,e) != {}
 	&& !(static() in m@modifiers[fields(m, e)])
 	&& \public() in m@modifiers[meth]
 	&& !(static() in m@modifiers[meth])
