@@ -51,11 +51,11 @@ private loc prepareTestProject() {
 
 void runTest() {
 	testProject = prepareTestProject();
-    sourcePaths = getPaths(testProject, "java");
-    setEnvironmentOptions({}, findRoots(sourcePaths));
-    m3s = { *createM3FromFile(f) | path <- sourcePaths , f <- find(path, bool (loc l) { return l.extension == "java"; }) };
-    M3 m3 = composeJavaM3(testProject, m3s);
-    asts = { createAstFromFile(f, true) | path <- sourcePaths , f <- find(path, bool (loc l) { return l.extension == "java"; }) };
+	sourcePaths = getPaths(testProject, "java");
+	setEnvironmentOptions({}, findRoots(sourcePaths));
+	m3s = { *createM3FromFile(f) | path <- sourcePaths , f <- find(path, bool (loc l) { return l.extension == "java"; }) };
+	M3 m3 = composeJavaM3(testProject, m3s);
+	asts = { createAstFromFile(f, true) | path <- sourcePaths , f <- find(path, bool (loc l) { return l.extension == "java"; }) };
 	keep = { e | e <- classes(m3) + interfaces(m3), startsWith(e.path,"/org/rascalmpl/test/data/patterns/micro"), e != |java+interface:///org/rascalmpl/test/data/patterns/micro/InterfaceWithMethods|};
 	if (testClassesMatch(m3, keep, asts)) {
 		println("Test succeeded");
