@@ -1,11 +1,10 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst4
 
-value main(list[value] args)  { 
-	x = 10; 
-	return "<while (x > 0) {> <{x -= 1; x; }> <}>" 
-	//== 
-	//" 9  8  7  6  5  4  3  2  1  0 "
-	; 
-	return true;
-}
+import lang::rascal::tests::types::StaticTestingUtils;
 
+value main(list[value] args) =
+checkOK("Program program := t1;",
+			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
+			
