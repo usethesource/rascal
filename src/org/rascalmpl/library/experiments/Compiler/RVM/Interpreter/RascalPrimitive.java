@@ -3009,7 +3009,17 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	is_concrete_list {
+	is_layout {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((IConstructor)treeSubject));
+			return sp;
+		}	
+	},
+	is_concretelist {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
