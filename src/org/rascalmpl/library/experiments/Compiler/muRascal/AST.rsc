@@ -25,7 +25,7 @@ public data MuModule =
                        list[MuExp] initialization,
                        int nlocals_in_initializations,
                        map[str,int] resolver,
-                       lrel[str,list[str],list[str]] overloaded_functions,
+                       lrel[str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
                        map[Symbol, Production] grammar,
                        loc src)
             ;
