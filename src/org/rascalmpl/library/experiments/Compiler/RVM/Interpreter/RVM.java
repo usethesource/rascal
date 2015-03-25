@@ -56,6 +56,7 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = true;
+	private boolean ocall_debug = false;
 	private boolean listing = false;
 	private boolean trackCalls = false;
 	private boolean finalized = false;
@@ -698,8 +699,10 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_CALLMUPRIM:				
+				case Opcode.OP_CALLMUPRIM:	
+					int sp1 = sp;
 					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+					assert sp == sp1 - CodeBlock.fetchArg2(instruction) + 1;
 					assert stack[sp - 1] != null: "MuPrimitive returns null";
 					continue NEXT_INSTRUCTION;
 				
@@ -1004,26 +1007,41 @@ public class RVM implements java.io.Serializable {
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
 					
-					if(debug) {
+					if(ocall_debug) {
 						if(op == Opcode.OP_OCALL) {
-							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+							stdout.println("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
 						} else {
-							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+							stdout.println("OVERLOADED FUNCTION CALLDYN: ");
 						}
-						this.appendToTrace("	with alternatives:");
+						stdout.println("	with alternatives:");
 						for(int index : c_ofun_call_next.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
+							stdout.println("		" + getFunctionName(index));
 						}
+						stdout.flush();
 					}
+					
+//					if(debug) {
+//						if(op == Opcode.OP_OCALL) {
+//							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+//						} else {
+//							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+//						}
+//						this.appendToTrace("	with alternatives:");
+//						for(int index : c_ofun_call_next.functions) {
+//							this.appendToTrace("		" + getFunctionName(index));
+//						}
+//					}
 					
 					Frame frame = c_ofun_call_next.nextFrame(functionStore);
 					
 					if(frame != null) {
 						c_ofun_call = c_ofun_call_next;
 						ocalls.push(c_ofun_call);
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-						}
+					
+						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
+//						if(debug) {
+//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
+//						}
 						cf = frame;
 						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 						instructions = cf.function.codeblock.getInstructions();
@@ -1056,9 +1074,12 @@ public class RVM implements java.io.Serializable {
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
 					if(frame != null) {
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-						}
+						
+						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush(); }
+						
+//						if(debug) {
+//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
+//						}
 						cf = frame;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
@@ -1107,7 +1128,12 @@ public class RVM implements java.io.Serializable {
 							rval = stack[sp - 1];
 						}
 					}
+					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1)
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
 					
+					if(sp - ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1) > 2){
+						stderr.println("WARNING: On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements");
+					}
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
 					if(cf == ccf) {
@@ -1143,7 +1169,9 @@ public class RVM implements java.io.Serializable {
 					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
+						sp1 = sp;
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
+					    assert sp == sp1 - arity + 1;
 					} catch(Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
@@ -1346,7 +1374,9 @@ public class RVM implements java.io.Serializable {
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					try {
+						sp1 = sp;
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
+						assert sp == sp1 - arity + 1;
 					} catch(Exception exception) {
 						if(!(exception instanceof Thrown)){
 							throw exception;
