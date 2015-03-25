@@ -147,7 +147,7 @@ bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
-	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
 	return overloadedFunctions[resolver];
 }
 
@@ -228,10 +228,10 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      
+      //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-         	 //println("<uid>: <item>");
+         	 println("<uid>: <item>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -255,10 +255,10 @@ void extractScopes(Configuration c){
              }
         }
         case overload(_,_): {
-             //println("<uid>: <item>");
+             println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	//println("add loc2uid[<l>] = <uid>");
+		     	println("add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -564,7 +564,10 @@ int declareGeneratedFunction(str name, Symbol rtype){
 /********************************************************************/
 
 // Get the type of an expression as Symbol
-Symbol getType(loc l) = config.locationTypes[l];
+Symbol getType(loc l) {
+	assert config.locationTypes[l]? : "getType for <l>";
+	return config.locationTypes[l];
+}	
 
 // Get the type of an expression as string
 str getType(Tree e) = "<getType(e@\loc)>";
