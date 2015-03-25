@@ -13,7 +13,7 @@ public int estimate_stack_size(list[MuExp] exps) = addSlack(estimate_list(exps))
 
 int addSlack(int e) = 10 + e + (e+40)/10;
 
-private int estimate(muLab(str name)) = 1;
+private int estimate(muLab(str name)) = 0;
 
 private int estimate(muBlock(list[MuExp] exps)) = ( 1 | max(it, estimate(e)) | e <- exps );
 
@@ -55,11 +55,12 @@ private int estimate(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Par
 private int estimate(muApply(MuExp fun, list[MuExp] args)) = estimate(fun) + estimate_arg_list(args);
 
 private int estimate(muOCall3(muOFun(str fuid), list[MuExp] args, loc src)) = estimate_arg_list(args);
-private int estimate(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) = estimate(fun) + estimate_arg_list(args);
+private int estimate(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) = estimate(fun) + 1 + estimate_arg_list(args);
 
 private int estimate(muCallPrim3(str name, list[MuExp] args, loc src)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
-private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) =
+		2 + estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
@@ -97,7 +98,7 @@ private int estimate(muYield0()) = 1;
 private int estimate(muYield1(MuExp exp)) = estimate(exp);
 private int estimate(muYield2(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
-private int estimate(muExhaust()) = 1;
+private int estimate(muExhaust()) = 0;
 
 private int estimate(muGuard(MuExp exp)) = estimate(exp);
 
