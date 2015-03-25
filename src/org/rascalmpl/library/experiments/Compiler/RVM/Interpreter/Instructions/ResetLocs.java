@@ -14,9 +14,10 @@ public class ResetLocs extends Instruction {
 	
 	public String toString() { return "RESETLOCS " + codeblock.getConstantValue(positions); }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitInlineResetLocs(positions,codeblock.getConstantValue(positions), debug) ;
 		codeblock.addCode1(opcode.getOpcode(), positions);
 	}
 	

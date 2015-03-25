@@ -242,12 +242,12 @@ public class BytecodeGenerator implements Opcodes {
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitLabel(lb);
 		if ( catchTargetLabels.contains(targetLabel)) {
-			System.err.println(targetLabel + " = exceptionTarget");
+			//System.err.println(targetLabel + " = exceptionTarget");
 			emitCatchLabelEpilogue();
 		}
-		else {
-			System.err.println(targetLabel);
-		}
+//		else {
+//			System.err.println(targetLabel);
+//		}
 	}
 
 	// A call to a RVM instruction not CALL or OCALL
@@ -1006,16 +1006,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
-
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-
 		emitIntValue(i);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;II)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitCallWithArgsSSII(String fname, int i, int j, boolean dbg) {
@@ -1452,8 +1445,8 @@ public class BytecodeGenerator implements Opcodes {
 			Label toLabel =   getNamedLabel(to) ;
 			Label handlerLabel = getNamedLabel(handler) ;
 			
-			System.out.println(fromLabel + " : " + toLabel + " -->> " + handlerLabel );
-			System.out.println(from + " : " + to + " -->> " + handler );
+//			System.out.println(fromLabel + " : " + toLabel + " -->> " + handlerLabel );
+//			System.out.println(from + " : " + to + " -->> " + handler );
 // Create list with exception target types.
 // Mayby create a exception holding a Type.			
 			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel,  "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
@@ -1483,5 +1476,30 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
 		mv.visitInsn(ATHROW);				
+	}
+
+	public void emitInlineResetLocs(int positions, IValue constantValues, boolean debug) {
+		if (!emit)
+			return;
+
+		IList il = (IList) constantValues ;
+		for (IValue v : il) {
+			int stackPos = ((IInteger) v).intValue();
+			System.err.print(stackPos + " , ");
+			mv.visitVarInsn(ALOAD, STACK);
+			emitIntValue(stackPos);
+		}
+		mv.visitInsn(ACONST_NULL);
+
+		for ( int i = 1 ; i < il.length(); i++ ) {
+			mv.visitInsn(DUP_X2);
+			mv.visitInsn(AASTORE);
+		}
+		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(AASTORE);
 	}
 }
