@@ -13,7 +13,11 @@ function NEXT(gen) {
     return false
 }
 
+coroutine ONE(task) {
+    return next(create(task))
+}
 
+/*
 // Semantics of the all operator
 
 coroutine ALL(tasks) 
@@ -40,6 +44,7 @@ guard {
     }
 }
 
+// A specific coroutine is now generated for each OR
 coroutine OR(tasks)
 guard { 
 	var len = size_array(tasks); len > 0 
@@ -50,11 +55,12 @@ guard {
         j = j + 1
     }
 }
+*/
 
-coroutine ONE(task) {
-    return next(create(task))
-}
+
+
 /*
+// A specific coroutine is now generated for each RASCAL_ALL
 function RASCAL_ALL(genArray, generators) { 
     var len = size_array(genArray), 
         genInits = make_array(len),
@@ -103,6 +109,7 @@ function RASCAL_ALL(genArray, generators) {
     }
 }
 */
+
 // Initialize a pattern with a given value and exhaust all its possibilities
 
 /******************************************************************************************/
@@ -156,7 +163,6 @@ coroutine ENUM_NODE(iNd, rVal)
          while(hasNext(iter)) {
                yield getNext(iter)
          }
-         666
       } else {                                    
         return iNd;                                // Concrete node, but not a concrete list
       }
