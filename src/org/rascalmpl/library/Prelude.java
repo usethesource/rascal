@@ -24,23 +24,20 @@
  */
 package org.rascalmpl.library;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -83,7 +80,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -1059,7 +1055,7 @@ public class Prelude {
 
 	private IString consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
-		char[] chunk = new char[FILE_BUFFER_SIZE / 2];
+		char[] chunk = new char[FILE_BUFFER_SIZE];
 		int read;
 		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
 		    res.append(chunk, 0, read);
@@ -1211,7 +1207,7 @@ public class Prelude {
 	}
 
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
-		try (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false))) {
+		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
 				IValue ival = iter.next();
@@ -1266,20 +1262,20 @@ public class Prelude {
 	}
 
 	private IList consumeInputStreamLines(Reader in) throws IOException {
-		BufferedReader buf = new BufferedReader(in);
-		String line = null;
-		IListWriter res = values.listWriter();
-		while ((line = buf.readLine()) != null) {
-		    res.append(values.string(line));
+		try (BufferedReader buf = new BufferedReader(in)) {
+			String line = null;
+			IListWriter res = values.listWriter();
+			while ((line = buf.readLine()) != null) {
+			    res.append(values.string(line));
+			}
+			return res.done();
 		}
-		
-		return res.done();
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
 		IListWriter w = values.listWriter();
 		
-		try (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc))) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
 			byte bytes[] = new byte[FILE_BUFFER_SIZE];
 			int read;
 
@@ -3218,7 +3214,7 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (InputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc))) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 			return new BinaryValueReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
@@ -3277,8 +3273,8 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (InputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc))) {
-			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, "UTF8")) {
+			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, in);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3310,8 +3306,8 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
+		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), "UTF8")) {
+			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
