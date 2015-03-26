@@ -301,7 +301,7 @@ private  bool isSink(M3 m, loc e)
 private bool isOutline(M3 m, loc e)
 	= isClass(e)
 	&& isAbstract(m,e)
-	&& size(domain(m@methodInvocation & (methods(m,e) * abstractMethods(m,e)))) > 2
+	&& size(domain(m@methodInvocation & (methods(m,e) * abstractMethods(m,e)))) >= 2
 	;
 	
 @doc{Abtract classes with no instance fields, at least one abstract method}
