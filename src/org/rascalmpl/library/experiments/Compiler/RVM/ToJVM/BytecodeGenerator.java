@@ -1458,6 +1458,11 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 
 		mv.visitVarInsn(ASTORE, EXCEPTION);
+
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+		mv.visitVarInsn(ISTORE, SP);		
+		
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
@@ -1469,13 +1474,24 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
-		mv.visitInsn(ATHROW);				
+		mv.visitInsn(ATHROW);
+				
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitVarInsn(ALOAD, CF);
+//		mv.visitVarInsn(ALOAD, STACK);
+//		mv.visitIincInsn(SP, -1);
+//		mv.visitVarInsn(ILOAD, SP);
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
+//		mv.visitInsn(ATHROW);				
 	}
 
 	public void emitInlineResetLocs(int positions, IValue constantValues, boolean debug) {
@@ -1485,7 +1501,7 @@ public class BytecodeGenerator implements Opcodes {
 		IList il = (IList) constantValues ;
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
-			System.err.print(stackPos + " , ");
+//			System.err.print(stackPos + " , ");
 			mv.visitVarInsn(ALOAD, STACK);
 			emitIntValue(stackPos);
 		}
