@@ -116,7 +116,7 @@ private set[loc] publicMethods(M3 m, loc c)
 	
 private str name(loc l) {
 	if (isMethod(l)) {
-		if (/^<n:.*\(>/ := l.file) {
+		if (/^<n:[^\(]*>\(/ := l.file) {
 			return n;
 		}
 		throw "Could not find name";
@@ -171,7 +171,7 @@ private bool isJoiner(M3 m, loc e)
 private bool isPool(M3 m, loc e)
 	= isClass(e)
 	&& methods(m, e) == {}
-	&& all(f <- fields(m, e), {static(), final(), *_} := m@modifiers[f])
+	&& all(f <- fields(m, e), <f, static()> in m@modifiers && <f,final()> in m@modifiers)
 	;
 
 // TODO: unclear if constructors are allowed
@@ -211,7 +211,7 @@ private bool isCobolLike(M3 m, loc e)
 private bool isStateless(M3 m, loc e)
 	= isClass(e)
 	&& methods(m,e) != {}
-	&& all(f <- fields(m, e), {static(), final(), *_} := m@modifiers[f])
+	&& all(f <- fields(m, e), <f, static()> in m@modifiers && <f, final()> in m@modifiers)
 	;
 	
 
@@ -287,7 +287,8 @@ private  bool isDataManager(M3 m, loc e)
 	&& set[loc] fs := instanceFields(m,e)
 	&& fs != {}
 	&& !(\public() in m@modifiers[fs])
-	&& all(meth <- methods(m,e) - constructors(m,e), startsWith(name(meth), "set") || startsWith(name(meth), "get") || isObjectMethod(meth))
+	&& meths := methods(m,e) - constructors(m,e)
+	&& (size(meths) > 0 | it &&  (startsWith(name(meth), "set") || startsWith(name(meth), "get") || isObjectMethod(meth)) | meth <- meths)
 	;
 	
 @doc{Methods do not call any other methods, based on the example given in the paper, the Object methods do not count.}
@@ -336,9 +337,15 @@ private bool isAugmentedType(M3 m, loc e)
 	= (isClass(e) || isInterface(e))
 	&& methods(m,e) != {}
 	&& (
-		(isInterface(e) && any(loc t <- usedTypes(m, fields(m,e)), size(usedTypes(m, fields(m,e))) >= 3))
+		( isInterface(e) 
+			&& uf := usedTypes(m, fields(m,e))
+			&& any(loc t <- uf, size(uf[t]) >= 3)
+		)
 		||
-		(isClass(e) && any(loc t <- usedTypes(m, staticFinalFields(m,e)), size(usedTypes(m, staticFinalFields(m,e))) >= 3))
+		( isClass(e) 
+			&& uf := usedTypes(m, staticFinalFields(m,e))
+			&&  any(loc t <- uf, size(uf[t]) >= 3)
+		)
 	)
 	;
 
@@ -356,8 +363,9 @@ private bool isImplementor(M3 m, loc e)
 	&& !isAbstract(m, e)
 	&& {base} := m@extends[e]
 	&& size(publicMethods(m,e) - constructors(m,e)) > 0
-	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == abstractMethods(m, base)
-	&& size(publicMethods(m,e) - constructors(m,e)) == size(abstractMethods(m, base))
+	&& baseMethods := abstractMethods(m, base)
+	&& baseMethods & m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == baseMethods
+	&& size(publicMethods(m,e) - constructors(m,e)) == size(baseMethods)
 	;
 		
 @doc{A class where all the public methods are overriding non abstract methods of the super class}
@@ -365,8 +373,9 @@ private bool isOverrider(M3 m, loc e)
 	= isClass(e)
 	&& {base} := m@extends[e]
 	&& size(publicMethods(m,e) - constructors(m,e)) > 0
-	&& m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == ((methods(m, base) - abstractMethods(m, base)) - constructors(m,e))
-	&& size(publicMethods(m,e) - constructors(m,e)) == size(((methods(m, base)) - abstractMethods(m, base))- constructors(m,e))
+	&& baseMethods := ((methods(m, base) - abstractMethods(m, base)) - constructors(m,e))
+	&& baseMethods & m@methodOverrides[publicMethods(m,e) - constructors(m,e)] == baseMethods
+	&& size(publicMethods(m,e) - constructors(m,e)) == size(baseMethods)
 	;
 	
 @doc{A class which extends another class but does not override any of it's methods}
