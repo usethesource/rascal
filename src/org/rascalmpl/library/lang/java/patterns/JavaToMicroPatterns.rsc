@@ -331,7 +331,6 @@ private bool isPureType(M3 m, loc e)
 private map[loc, set[loc]] usedTypes(M3 m, set[loc] where) 
 	= toMap(invert((where * where) o m@typeDependency));	
 
-// TODO, the definition says it should be an abstract class but with static final fields of the type
 @doc{Like pure type, except that there are 3 or more static final fields/methods of the same type}
 private bool isAugmentedType(M3 m, loc e)
 	= (isClass(e) || isInterface(e))
@@ -343,6 +342,7 @@ private bool isAugmentedType(M3 m, loc e)
 		)
 		||
 		( isClass(e) 
+			&& isAbstract(e)
 			&& uf := usedTypes(m, staticFinalFields(m,e))
 			&&  any(loc t <- uf, size(uf[t]) >= 3)
 		)
