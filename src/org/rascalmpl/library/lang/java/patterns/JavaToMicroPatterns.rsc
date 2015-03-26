@@ -342,7 +342,7 @@ private bool isAugmentedType(M3 m, loc e)
 		)
 		||
 		( isClass(e) 
-			&& isAbstract(e)
+			&& isAbstract(m, e)
 			&& uf := usedTypes(m, staticFinalFields(m,e))
 			&&  any(loc t <- uf, size(uf[t]) >= 3)
 		)
