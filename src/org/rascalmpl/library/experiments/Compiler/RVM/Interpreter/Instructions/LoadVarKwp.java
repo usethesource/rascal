@@ -14,9 +14,7 @@ public class LoadVarKwp extends Instruction {
 		this.name = name;
 	}
 
-	public String toString() {
-		return "LOADVARKWP " + fuid + ", " + name + " [" + codeblock.getFunctionIndex(fuid) + ", " + codeblock.getConstantIndex(codeblock.vf.string(name)) + "]";
-	}
+    public String toString() { return "LOADVARKWP " + fuid + ", " + name + " [" + codeblock.getFunctionIndex(fuid) + ", " + codeblock.getConstantIndex(codeblock.vf.string(name)) + "]"; }
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
 		if (!dcode)
@@ -24,7 +22,12 @@ public class LoadVarKwp extends Instruction {
 
 		codeEmittor.emitCall("insnLOADVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
 
-		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
+        codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
+    }
+    
+	
+	public void generate(){
+        codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
 	}
 
 }

@@ -2,6 +2,7 @@ module experiments::Compiler::RVM::AST
 
 import Type;
 import Message;
+import ParseTree;
 
 public data Declaration = 
 		  FUNCTION(str qname,
@@ -49,7 +50,9 @@ public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
-	   	| LOADCONSTRCON(value reified, str repr)	// Push a constructor value, given its type and a string representation of its value
+	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMProgram
+	   												// This is necessary to guarantee correct (de)serialization and can be removed
+	   												// when (de)serialization has been improved.
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
 	   	| LOADFUN(str fuid)                         // Push a named *muRascal function

@@ -107,20 +107,9 @@ public value readCSV(loc location, map[str,str] options) {
 @reflect{Uses URI Resolver Registry}
 public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@deprecated{use the readCSV with keyword parameters}
-public &T readCSV(type[&T] result, loc location, map[str,str] options) {
-	return readCSV(result, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
-
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
-
-@deprecated{use the getCSVType with keyword parameters}
-public type[value] getCSVType(loc location, map[str,str] options) {
-	return getCSVType(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
-
 
 @doc{
 Synopsis: Write a relation to a CSV (Comma Separated Values) file.
@@ -156,12 +145,6 @@ will produce the following files:
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses type parameter.}
 public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
-
-@deprecated{use writeCSV with optional parameters}
-//@reflect{Uses type parameter.}
-public void writeCSV(&T relation, loc location, map[str,str] options) {
-	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
 
 public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 

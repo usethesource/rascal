@@ -125,7 +125,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	    throw e;
    	}
    	// Uncomment to dump the type checker configuration:
-   	//text(config);
+   	text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
@@ -198,7 +198,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  generate_tests(modName, M@\loc);
    	  
-   	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
+   	  println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
    	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
@@ -311,7 +311,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
   println("r2mu: Compiling \uE007[](<fd@\loc><fd.signature.name>");
   //setFunctionUID(fd@\loc);
-  
+
   try {
   ttags =  translateTags(fd.tags);
   if(ignoreTest(ttags)){
@@ -323,7 +323,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
   fuid = convert2fuid(uid);
-  
+ 
   enterFunctionScope(fuid);
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -350,9 +350,9 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
   }
-  
+ 
   tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
-  
+ 
   //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   
   addFunctionToModule(muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
