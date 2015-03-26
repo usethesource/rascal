@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.rascalmpl.uri;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +46,19 @@ public class URIResolverRegistry {
 
 	public static URIResolverRegistry getInstance() {
 		return InstanceHolder.sInstance;
+	}
+
+	private static InputStream makeBuffered(InputStream original) {
+		if (original.getClass() != BufferedInputStream.class) {
+			return new BufferedInputStream(original);
+		}
+		return original;
+	}
+	private static OutputStream makeBuffered(OutputStream original) {
+		if (original.getClass() != BufferedOutputStream.class) {
+			return new BufferedOutputStream(original);
+		}
+		return original;
 	}
 	
 	/**
@@ -364,8 +379,9 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
-		return resolver.getInputStream(uri);
+		return makeBuffered(resolver.getInputStream(uri));
 	}
+
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
@@ -392,7 +408,7 @@ public class URIResolverRegistry {
 
 		mkParentDir(uri);
 
-		return resolver.getOutputStream(uri, append);
+		return makeBuffered(resolver.getOutputStream(uri, append));
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {

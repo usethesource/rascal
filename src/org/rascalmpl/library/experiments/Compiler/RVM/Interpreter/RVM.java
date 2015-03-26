@@ -56,6 +56,7 @@ public class RVM implements IRVM, java.io.Serializable  {
 	private final IString NONE; 
 	
 	private boolean debug = true;
+	private boolean ocall_debug = false;
 	private boolean listing = false;
 	private boolean trackCalls = false;
 	private boolean finalized = false;
@@ -185,17 +186,17 @@ public class RVM implements IRVM, java.io.Serializable  {
 	
 	public void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		System.out.println("size functionStore: " + nfs);
+		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
 			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int ncs = constructorStore.size();
-		System.out.println("size constructorStore: " + ncs);
+		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
 			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int nov = overloadedStore.size();
-		System.out.println("size overloadedStore: " + nov);
+		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
 			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
@@ -399,7 +400,10 @@ public class RVM implements IRVM, java.io.Serializable  {
 		if(o instanceof Map.Entry){
 			return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
 		}
-		throw new CompilerError("asString cannot convert: " + o);
+		
+		return o.getClass().getName();
+	
+		//throw new CompilerError("asString cannot convert: " + o);
 	}
 	
 	private String asString(Object o, int w){
@@ -693,8 +697,10 @@ public class RVM implements IRVM, java.io.Serializable  {
 					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_CALLMUPRIM:				
+				case Opcode.OP_CALLMUPRIM:	
+					int sp1 = sp;
 					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+					assert sp == sp1 - CodeBlock.fetchArg2(instruction) + 1;
 					assert stack[sp - 1] != null: "MuPrimitive returns null";
 					continue NEXT_INSTRUCTION;
 				
@@ -999,26 +1005,41 @@ public class RVM implements IRVM, java.io.Serializable  {
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
 					
-					if(debug) {
+					if(ocall_debug) {
 						if(op == Opcode.OP_OCALL) {
-							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+							stdout.println("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
 						} else {
-							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+							stdout.println("OVERLOADED FUNCTION CALLDYN: ");
 						}
-						this.appendToTrace("	with alternatives:");
+						stdout.println("	with alternatives:");
 						for(int index : c_ofun_call_next.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
+							stdout.println("		" + getFunctionName(index));
 						}
+						stdout.flush();
 					}
+					
+//					if(debug) {
+//						if(op == Opcode.OP_OCALL) {
+//							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+//						} else {
+//							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+//						}
+//						this.appendToTrace("	with alternatives:");
+//						for(int index : c_ofun_call_next.functions) {
+//							this.appendToTrace("		" + getFunctionName(index));
+//						}
+//					}
 					
 					Frame frame = c_ofun_call_next.nextFrame(functionStore);
 					
 					if(frame != null) {
 						c_ofun_call = c_ofun_call_next;
 						ocalls.push(c_ofun_call);
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-						}
+					
+						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
+//						if(debug) {
+//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
+//						}
 						cf = frame;
 						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 						instructions = cf.function.codeblock.getInstructions();
@@ -1051,9 +1072,12 @@ public class RVM implements IRVM, java.io.Serializable  {
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
 					if(frame != null) {
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-						}
+						
+						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush(); }
+						
+//						if(debug) {
+//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
+//						}
 						cf = frame;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
@@ -1102,7 +1126,12 @@ public class RVM implements IRVM, java.io.Serializable  {
 							rval = stack[sp - 1];
 						}
 					}
+					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1)
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
 					
+					if(sp - ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1) > 2){
+						stderr.println("WARNING: On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements");
+					}
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
 					if(cf == ccf) {
@@ -1138,7 +1167,9 @@ public class RVM implements IRVM, java.io.Serializable  {
 					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
+						sp1 = sp;
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
+					    assert sp == sp1 - arity + 1;
 					} catch(Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
@@ -1341,7 +1372,9 @@ public class RVM implements IRVM, java.io.Serializable  {
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					try {
+						sp1 = sp;
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
+						assert sp == sp1 - arity + 1;
 					} catch(Exception exception) {
 						if(!(exception instanceof Thrown)){
 							throw exception;
@@ -1453,12 +1486,15 @@ public class RVM implements IRVM, java.io.Serializable  {
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
-						if(kargs.containsKey(name)) {
-							val = kargs.get(name);
-							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-								stack[sp++] = val;
-								continue NEXT_INSTRUCTION;
+						Object okargs = f.stack[f.function.nformals - 1];
+						if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+							HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+							if(kargs.containsKey(name)) {
+								val = kargs.get(name);
+								if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+									stack[sp++] = val;
+									continue NEXT_INSTRUCTION;
+								}
 							}
 						}
 					}				
@@ -1469,25 +1505,30 @@ public class RVM implements IRVM, java.io.Serializable  {
 				{
 					varScope = CodeBlock.fetchArg1(instruction);
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
-					
+
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						if (f.scopeId == varScope) {	
-							HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
-							if(kargs.containsKey(name)) {
-								val = kargs.get(name);
-								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-									stack[sp++] = val;
-									continue NEXT_INSTRUCTION;
-								//}
-							}
-							defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
-							
-							if(defaults.containsKey(name)) {
-								defaultValue = defaults.get(name);
-								//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-									stack[sp++] = defaultValue.getValue();
-									continue NEXT_INSTRUCTION;
-								//}
+							if(f.function.nformals > 0){
+								Object okargs = f.stack[f.function.nformals - 1];
+								if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+									HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+									if(kargs.containsKey(name)) {
+										val = kargs.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = val;
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+									defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+
+									if(defaults.containsKey(name)) {
+										defaultValue = defaults.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = defaultValue.getValue();
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+								}
 							}
 						}
 					}				
@@ -1499,11 +1540,43 @@ public class RVM implements IRVM, java.io.Serializable  {
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
 					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
-					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
+					kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
-					throw new CompilerError("OP_LOADVARKWP not yet implemented", cf);
+				{
+					varScope = CodeBlock.fetchArg1(instruction);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg2(instruction))).getValue();
+					val = (IValue) stack[sp - 1];
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						if (f.scopeId == varScope) {
+							if(f.function.nformals > 0){
+								Object okargs = f.stack[f.function.nformals - 1];
+								if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+									kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+									if(kargs.containsKey(name)) {
+										val = kargs.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										kargs.put(name,  val);
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+									defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+
+									if(defaults.containsKey(name)) {
+										defaultValue = defaults.get(name);
+										//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+										stack[sp++] = defaultValue.getValue();
+										continue NEXT_INSTRUCTION;
+										//}
+									}
+								}
+							}
+						}
+					}				
+						
+					throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope, cf);
+				}
 					
 				case Opcode.OP_LOADCONT:
 					s = CodeBlock.fetchArg1(instruction);

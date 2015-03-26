@@ -7,6 +7,7 @@ import ListRelation;
 import Node;
 import Message;
 import String;
+import ToString;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -89,7 +90,7 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
-//bool producesValue(muLab(_)) = false;
+bool producesValue(muLab(_)) = false;
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
 
@@ -99,7 +100,7 @@ bool producesValue(muFail(_)) = false;
 bool producesValue(muFailReturn(_)) = false;
 
 bool producesValue(muReturn0()) = false;
-
+bool producesValue(muGuard(_)) = false;
 //bool producesValue(muYield0()) = false;
 //bool producesValue(muExhaust()) = false;
 
@@ -226,7 +227,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     code = tr(fun.body);
     if(!contains(fun.qname, "_testsuite")){
-    	code = peephole(code);
+    	code = peephole(fun.src, code);
     }
     
     code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
@@ -332,16 +333,9 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) {
-	tp = typeOf(c);
-	
-	if(isADTType(tp) && tp != adt("Symbol",[]) && \type(_,_) !:= c && node nd := c){
-		res =  [LOADCONSTRCON(symbolToValue(tp), toString(nd))];
-		//println("muCon(<c>): <tp>, <res>");
-		return res;
-	}
-	return [LOADCON(c)];	
-}		
+
+default INS tr(muCon(value c)) =
+	[LOADCON(c)];	
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
@@ -752,9 +746,16 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
 		labels[cs.fingerprint] = caseLab;
 		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
    }
-	 
-   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
-   return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
+   defaultCode = tr(defaultExp);
+   if(defaultCode == []){
+   		defaultCode = [muCon(666)];
+   }
+   if(size(cases) > 0){ 
+   		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];
+   		return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
+   	} else {
+   		return [ *tr(exp), POP(), *defaultCode, POP(), *tr(result) ];
+   	}	
 }
 
 // Multi/One/All/Or outside conditional context

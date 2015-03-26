@@ -474,14 +474,16 @@ public enum Opcode {
 			return "JMPINDEXED " + cb.getConstantValue(arg1);
 			
 		case LOADLOCKWP:
-			return "LOADLOCKWP " + cb.getConstantValue(arg1);		
+			return "LOADLOCKWP " + cb.getConstantValue(arg1);
+			
 		case LOADVARKWP:
 			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " 
 								 + cb.getConstantValue(arg2);
 		case STORELOCKWP:
 			return "STORELOCKWP " + cb.getConstantValue(arg1);
+			
 		case STOREVARKWP:
-			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " 
+			return "STOREVARKWP " + cb.getFunctionName(arg1) + ", " 
 								  + cb.getConstantValue(arg2);
 			
 		case UNWRAPTHROWNVAR:

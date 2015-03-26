@@ -127,7 +127,7 @@ public map[Symbol,Production] getDefinitions() {
 }
 
 public Production getLabeledProduction(str name, Symbol symbol){
-	println(getGrammar()[symbol]);
+	//println("getLabeledProduction: <getGrammar()[symbol]>");
 	name = unescape(name);
 	visit(getGrammar()[symbol]){
 		case p:prod(\label(name, symbol), _, _): return p;
