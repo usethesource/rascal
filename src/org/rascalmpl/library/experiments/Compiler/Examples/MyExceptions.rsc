@@ -8,7 +8,7 @@ value playBall() {
         int i = 0;
         int j = 0;
         int k = 0;
-        while (i < 50) {
+        while (i < 5000) {
             try {
                 if (i % 5 == 0) {
                      throw ball();
@@ -32,22 +32,23 @@ value playBall() {
       }
       return <i, j, k> ;
 }
+
+int f(int i) {
+	throw i ;
+}
 value playBallBug() {
         int i = 1;
-        int j = 0;
-        int k = 0;
         while (i < 50) {
             try {
-                throw i ;
+				f(i) ;
             }
             catch int x : {
             	i = x + 1 ;
             }
       }
-      return <i, j, k> ;
+      return <i> ;
 }
 
-  		
 int divide(int x, int y) throws divide_by_zero { 
 	if(y == 0){ 
 		throw divide_by_zero(); 
@@ -64,7 +65,7 @@ int safeDivide(int x, int y){
 }
 
 value main(list[value] args){
-//    return safeDivide(25,5);
 //    return playBallBug();
-      return playBall();
+//	return playBall();
+    return safeDivide(25,5);
 }
