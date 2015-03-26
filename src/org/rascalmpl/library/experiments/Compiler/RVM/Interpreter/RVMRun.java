@@ -1533,14 +1533,10 @@ public class RVMRun implements IRVM {
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		// /**/cf = cof.previousCallFrame;
 		if (cof.previousCallFrame == null) {
 			return Rascal_FALSE;
 		}
 		cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
-
-		// /**/ stack = cof.previousCallFrame.stack;
-		// /**/sp = cof.previousCallFrame.sp;
 
 		return NONE;// i.e., signal a failure;
 	}
@@ -1636,12 +1632,6 @@ public class RVMRun implements IRVM {
 	}
 
 	public Object calldynHelper(Object[] lstack, int lsp, final Frame lcf, int arity, int ep) {
-		// In case of CALLDYN, the stack top value of type 'Type'
-		// leads to a constructor call
-		// This instruction is a monstrosity it should be split in three.
-		// if (lsp != sp)
-		// throw new RuntimeException();
-
 		Frame tmp;
 		Object rval;
 
@@ -1680,21 +1670,11 @@ public class RVMRun implements IRVM {
 
 		tmp.previousCallFrame = lcf;
 
-		// this.cf = tmp;
-		// this.stack = cf.stack;
-		// this.sp = cf.sp;
-
 		rval = dynRun(tmp.function.funId, tmp); // In a inline version we can call the
 												// function directly.
 		if (rval.equals(YIELD)) {
 			// Save reentry point
 			lcf.hotEntryPoint = ep;
-			// lcf.sp = lsp;
-
-			// drop my stack, and return
-			// cf = cf.previousCallFrame;
-			// sp = cf.sp;
-			// stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
 		} else {
 			lcf.hotEntryPoint = 0;
@@ -1713,18 +1693,6 @@ public class RVMRun implements IRVM {
 		}
 		return thrown ;
 	}
-
-	// public void failReturnHelper() {
-	// // repair stack after failreturn;
-	// // Small helper can be inlined ?
-	// // The inline part returns the failure.
-	// cf = cf.previousCallFrame;
-	// stack = cf.stack;
-	// sp = cf.sp;
-	// }
-
-	// Next methods are forced by the interface implementation
-	// temporarily needed to facilitate 3 RVM implementations.
 
 	@Override
 	public void declare(Function f) {
