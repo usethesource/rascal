@@ -1,20 +1,11 @@
 module experiments::Compiler::Examples::MyExceptions
 
-//import Exception;
-//import List;
-//import Set;
-//import Map;
-//import IO;
-//import util::Math;
-
-
 data Exception = divide_by_zero();
-
 data Exception = ball();
 data Exception = noball();
 
 value playBall() {
-        int i = 1;
+        int i = 0;
         int j = 0;
         int k = 0;
         while (i < 50) {
@@ -74,5 +65,6 @@ int safeDivide(int x, int y){
 
 value main(list[value] args){
 //    return safeDivide(25,5);
-    return playBallBug();
+//    return playBallBug();
+      return playBall();
 }
