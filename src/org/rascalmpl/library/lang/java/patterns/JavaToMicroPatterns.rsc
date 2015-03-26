@@ -268,9 +268,8 @@ private bool isBox(M3 m, loc e)
 private bool isCompoundBox(M3 m, loc e)
 	= isClass(e)
 	&& {f} := { f | f <- instanceFields(m,e), t <- m@typeDependency[f], t.scheme != "java+primitiveType" }
-	&& set[loc] otherFields := instanceFields(m,e) - {f}
-	&& { *(assignments(m, met)[f]) | met <- removeConstuctors(methods(m, e)) } != {}
-	&& all(fp <- otherFields, { *(assignments(m, met)[fp]) | met <- removeConstuctors(methods(m, e)) } != {})
+	&& size(instanceFields(m,e)) > 1
+	&& { *(assignments(m, met)[instanceFields(m,e)]) | met <- removeConstuctors(methods(m, e)) } != {}
 	;
 
 @doc{All instance fields are public, no declared methods}
