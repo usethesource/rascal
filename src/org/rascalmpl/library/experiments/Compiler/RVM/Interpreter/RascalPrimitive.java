@@ -3009,7 +3009,17 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	is_concrete_list {
+	is_layout {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((IConstructor)treeSubject));
+			return sp;
+		}	
+	},
+	is_concretelist {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
@@ -4632,13 +4642,12 @@ public enum RascalPrimitive {
 	appl_create {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			Type applConstrType = (Type) stack[sp - 3];
+			assert arity == 2;
 			IValue prod = (IValue) stack[sp - 2];
 			IValue args = (IValue) stack[sp -1];
 
-			stack[sp - 3] = vf.constructor(applConstrType, prod, args);
-			return sp - 2;
+			stack[sp - 2] = vf.constructor(Factory.Tree_Appl, prod, args);
+			return sp - 1;
 		}
 
 	},

@@ -6,6 +6,7 @@ import String;
 import Type;
 import Message;
 import List;
+import ParseTree;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
@@ -42,7 +43,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   	for(fun <- libModule.functions) {
   		functionScope = fun.qname;
   		set_nlocals(fun.nlocals);
-  	    body = peephole(tr(fun.body));
+  	    body = peephole(fun.src, tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
     	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
     									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body, []);
@@ -105,7 +106,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            //importedLoc = imp.parent + (basename(imp) + ".rvm");
            importedLoc = RVMProgramLocation(imp, bindir);
            try {
-  	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
+  	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;
   	           
   	           // Temporary work around related to issue #343
@@ -161,7 +162,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
 
 value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   res = execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
 tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){

@@ -249,7 +249,8 @@ public class CodeBlock {
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
+			return getFunctionIndex(name);
+			//throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -679,27 +680,6 @@ public class CodeBlock {
 	public CodeBlock RESETLOCS(IList positions) {
 		return add(new ResetLocs(this, getConstantIndex(positions)));
 	}
-	
-	public CodeBlock LOADCONSTRCON(IConstructor type_cons, String repr){
-		TypeReifier tr = new TypeReifier(vf);
-		Type argType = tr.valueToType(type_cons);
-		IMap definitions = (IMap) type_cons.get("definitions");
-		TypeStore store = new TypeStore();
-		tr.declareAbstractDataTypes(definitions, store);
-		
-		store.declareAbstractDataType(argType);
-		IValue val;
-		try (StringReader in = new StringReader(repr)) {
-			val = new StandardTextReader().read(new RascalValuesValueFactory(vf), store, argType, in);
-		} 
-		catch (FactTypeUseException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
-		} 
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
-		}
-		return add(new LoadCon(this, getConstantIndex(val)));
-	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
@@ -800,55 +780,3 @@ class LabelInfo {
 		return PC >= 0;
 	}
 }
-
-// Taken from Prelude.java
-
-class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
-	IValueFactory vf;
-	TypeReifier tr; 
-	
-	public RascalValuesValueFactory(IValueFactory vf) {
-		super(vf);
-		this.vf = vf;
-		this.tr = new TypeReifier(vf);
-	}
-	
-	@Override
-	public INode node(String name, IValue... children) {
-		IConstructor res = specializeType(name, children);
-		
-		return res != null ? res: vf.node(name, children);
-	}
-
-	private IConstructor specializeType(String name, IValue... children) {
-		if ("type".equals(name) 
-				&& children.length == 2
-				&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
-				&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
-			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
-			
-			return vf.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public INode node(String name, Map<String, IValue> annotations,
-			IValue... children) throws FactTypeUseException {
-		IConstructor res = specializeType(name, children);
-		
-		return res != null ? res: vf.node(name, annotations, children);
-	}
-	
-	@Override
-	public INode node(String name, IValue[] children,
-			Map<String, IValue> keyArgValues) throws FactTypeUseException {
-		IConstructor res = specializeType(name, children);
-		
-		return res != null ? res: vf.node(name, children, keyArgValues);
-	}
-	
-}
-

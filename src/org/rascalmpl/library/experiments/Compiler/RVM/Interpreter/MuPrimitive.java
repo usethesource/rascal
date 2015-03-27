@@ -2175,7 +2175,42 @@ public enum MuPrimitive {
 			stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
 			return sp - 1;
 		};
+	},
+	/**
+	 * Make a new subject: [iValue, mint]
+	 * 
+	 * [ ..., iValue, mint ] => [ ..., [iValue, mint] ]
+	 *
+	 */
+	make_subject {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			Object[] subject = new Object[2];
+			subject[0] = stack[sp - 2];
+			subject[1] = stack[sp - 1];
+			stack[sp - 2] = subject;
+			return sp - 1;
+		};
+	},
+	/**
+	 * Accept a list match when end of subject has been reached
+	 * 
+	 * [ ..., [iList, mint] ] => [ ..., ilist.length() == mint ]
+	 *
+	 */
+	accept_list_match {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Object[] subject = (Object[]) stack[sp - 1];
+			IList listSubject = (IList) subject[0];
+			Integer cursor = (Integer) subject[1];
+			stack[sp - 1] = listSubject.length() == cursor ? Rascal_TRUE : Rascal_FALSE;
+			return sp;
+		};
 	}
+	
 	;
 
 	private static IValueFactory vf;

@@ -1,18 +1,9 @@
 module experiments::Compiler::Examples::Tst1
 
-import lang::rascal::tests::types::StaticTestingUtils;	
+data SYM = A() | B();
 
-value main(list[value] args) {
-	return
-	checkOK("13;",
-		//initialDecls = 
-		//["data Tree = char(int character);",
-		// "public data TreeSearchResult[&T\<:Tree] = treeFound(&T tree) | treeNotFound();",
-		// "public default TreeSearchResult[&T\<:Tree] treeAt(type[&T\<:Tree] t, loc l, Tree root) = treeNotFound();",
-		//  "public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);"				 
-		//				 
-		//				 
-		//				 ]
-		importedModules=["ParseTree"]
-			);
-}		
+public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s);
+
+bool subtype(A(), B()) = true;
+
+bool subtype(SYM s, SYM t) = false;

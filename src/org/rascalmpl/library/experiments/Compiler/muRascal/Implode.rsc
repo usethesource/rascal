@@ -276,6 +276,11 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
                case muCall(preVar(mvar("hasNext")), [exp1])										=> muCallMuPrim("iterator_hasNext", [exp1])
                case muCall(preVar(mvar("getNext")), [exp1])										=> muCallMuPrim("iterator_next", [exp1])
                
+               // Macro-like function calls that are direcetly translated to a muExpression
+               case muCall(preVar(mvar("GET_SUBJECT_LIST")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(0)])
+               case muCall(preVar(mvar("GET_SUBJECT_CURSOR")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(1)])
+               case muCall(preVar(mvar("MAKE_SUBJECT")), [exp1, exp2])							=> muCallMuPrim("make_subject", [exp1, exp2])
+               
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
       	       case preLessEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
@@ -293,6 +298,10 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
       	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse(nextLabel("L_AND"), lhs, [rhs], [muCon(false)])      	       
       	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse(nextLabel("L_OR"), lhs, [muCon(true)], [rhs])
       	       
+      	       case org_exp: preIs(MuExp lhs, "appl")											=> muCallPrim3("is_appl", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "lexical")										=> muCallPrim3("is_lexical", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "layout")											=> muCallPrim3("is_layout", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "concretelist")									=> muCallPrim3("is_concretelist", [lhs], org_exp@\location)
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading

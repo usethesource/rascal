@@ -317,20 +317,9 @@ public class ParsingTools {
 	}
 	
 	private char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		try {
-			textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+			return InputConverter.toChar(in);
 		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
-		}
-		
-		return data;
 	}
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
