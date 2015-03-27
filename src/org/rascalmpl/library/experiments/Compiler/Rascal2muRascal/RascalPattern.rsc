@@ -241,7 +241,7 @@ MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), S
   }
   //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
   prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
-  argsCode = translateConcreteListPattern(prod, args, lex(_) := symbol);
+  argsCode = translateConcreteListPattern(args, lex(_) := symbol);
   //kwParams = muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
   return muApply(mkCallToLibFun("Library", "MATCH_CONCRETE_TREE"), [muCon(prod), argsCode]);
 }
@@ -312,18 +312,18 @@ list[Tree] removeSeparators(list[Tree] pats){
   return pats;
 }
 
-MuExp translateConcreteListPattern(Production listProd, list[Tree] pats, bool isLex){
+MuExp translateConcreteListPattern(list[Tree] pats, bool isLex){
  //println("Before: <for(p <- pats){><p><}>");
  pats = removeSeparators(pats);
  //println("After: <for(p <- pats){><p><}>");
  lookahead = computeConcreteLookahead(pats);  
  if(isLex){
  	return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-                   [ translatePatAsConcreteListElem(listProd, pats[i], lookahead[i], isLex) | i <- index(pats) ])]);
+                   [ translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) | i <- index(pats) ])]);
  }
  optionalLayoutPat = muApply(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST"), []);
  return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-         [ (i % 2 == 0) ? translatePatAsConcreteListElem(listProd, pats[i], lookahead[i], isLex) : optionalLayoutPat | i <- index(pats) ])]);
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) : optionalLayoutPat | i <- index(pats) ])]);
 }
 
 // Is a symbol an iterator type?
@@ -364,51 +364,55 @@ int nIter(Tree pat){
   return 1;
 }
 
-MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
-  //println("translatePatAsConcreteListElem: <listProd>, <applProd>");
+MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
+  //println("translatePatAsConcreteListElem: <applProd>");
     if(isConcreteHole(t)){
      varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      //println("holeType = <holeType>");
-     //println("appl = <getConstructor("appl")>");
      if(isIter(holeType)){
         if(isIterWithSeparator(holeType)){
            sep = getSeparator(holeType);
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
-           //println("listProd= <listProd>");
-           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-                												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
+           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
+           													  muCon(nIter(holeType)), 
+           													  muCon(1000000), 
+           													  muCon(lookahead.nElem), 
+                											  muCon(sep), 
+                											  muCon(regular(holeType))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
-           //println("listProd= <listProd>");
-           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-           														 getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
+           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
+           													  muCon(nIter(holeType)), 
+           													  muCon(1000000), 
+           													  muCon(lookahead.nElem),  
+           													  muCon(regular(holeType))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
   }
-  return translateApplAsListElem(listProd, applProd, args, isLex);
+  return translateApplAsListElem(applProd, args, isLex);
 }
 
-MuExp translatePatAsConcreteListElem(Production listProd, cc: char(int c), Lookahead lookahead, bool isLex){
+MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead, bool isLex){
   return muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(cc)]);
 }
 
-default MuExp translatePatAsConcreteListElem(Production listProd, Tree c, Lookahead lookahead, bool isLex){
+default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead, bool isLex){
   return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c, getType(c@\loc))]);
 }
 
 // Translate an appl as element of a concrete list pattern
 
-MuExp translateApplAsListElem(Production listProd, p: prod(lit(str S), _, _), list[Tree] args, bool isLex) = 
+MuExp translateApplAsListElem(p: prod(lit(str S), _, _), list[Tree] args, bool isLex) = 
  	muApply(mkCallToLibFun("Library","MATCH_LIT_IN_LIST"), [muCon(p)]);
  
-default MuExp translateApplAsListElem(Production listProd, Production prod, list[Tree] args, bool isLex) = muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(listProd, args, isLex)]);
+default MuExp translateApplAsListElem(Production prod, list[Tree] args, bool isLex) = muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(args, isLex)]);
 
 // Is an appl node a concrete multivar?
 
@@ -790,31 +794,9 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 }
 
 // is  a pattern a concretePattern?
-    
-//bool isConcretePattern(p:(Pattern) `<QualifiedName qualifiedName>`) =
-//	isConcreteType(getType(p@\loc));
-//	
-//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name>`) =
-//	isConcreteType(getType(p@\loc));	
-//	
-//bool isConcretePattern(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-//	isConcretePattern(pattern);	
-//
-//bool isConcretePattern(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-//	isConcretePattern(pattern);
-//		
-//default bool isConcretePattern(Pattern p) {
-//	println("isConcretePattern: <getType(p@\loc)>");
-//	return false;
-//
-//}
 
-bool isConcretePattern(Pattern p) {
-	patType = getType(p@\loc);
-	res = isNonTerminalType(patType);
-	println("isConcretePattern: <res>, <patType>, <p>");
-	return res;
-}
+bool isConcretePattern(Pattern p) =
+	isNonTerminalType(getType(p@\loc));
 
 // get the types and constructor names from a pattern
 

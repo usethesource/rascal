@@ -14,7 +14,6 @@ module lang::aterm::IO
 
 @doc{read an ATerm from a text file}
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
-@reflect{Uses URI Resolver Registry}
 public java &T readTextATermFile(type[&T] begin, loc location);
 
 public value readTextATermFile(loc location) {
@@ -31,5 +30,4 @@ public java value readATermFromFile(str fileName);
 
 @doc{write an ATerm to a text file}
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
-@reflect{Uses URI Resolver Registry}
 public java void writeTextATermFile(loc location, value v);

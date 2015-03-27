@@ -4,6 +4,7 @@ import Message;
 import List;
 import Node;
 import Type;   
+import ParseTree;
 
 /*
  * Abstract syntax for muRascal.
@@ -24,7 +25,7 @@ public data MuModule =
                        list[MuExp] initialization,
                        int nlocals_in_initializations,
                        map[str,int] resolver,
-                       lrel[str,list[str],list[str]] overloaded_functions,
+                       lrel[str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
                        map[Symbol, Production] grammar,
                        loc src)
             ;
@@ -60,16 +61,19 @@ public data MuExp =
 			muBool(bool b)										// muRascal Boolean constant
 		  | muInt(int n)										// muRascal integer constant
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
+          | muTreeCon(Tree tree)								// Unused, but forces Tree to be part of the type MuModule.
+	   															// This is necessary to guarantee correct (de)serialization and can be removed
+	   															// when (de)serialization has been improved.
             													// Some special cases are handled by preprocessor, see below.
           | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
           | muLab(str name)										// Label
           
-          | muFun1(str fuid)							            // *muRascal function constant: functions at the root
-          | muFun2(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
+          | muFun1(str fuid)							        // *muRascal* function constant: functions at the root
+          | muFun2(str fuid, str scopeIn)                       // *muRascal* function constant: nested functions and closures
           
-          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
+          | muOFun(str fuid)                                    // *Rascal* function, i.e., overloaded function at the root
           
-          | muConstr(str fuid) 									// Constructors
+          | muConstr(str fuid) 									// Constructor
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope

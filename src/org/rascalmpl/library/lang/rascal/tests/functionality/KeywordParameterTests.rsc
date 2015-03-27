@@ -77,13 +77,26 @@ test bool keywordParam10() {
 }
 
 test bool keywordParam11(){
-	bool f(bool c = false){
-		bool g(){
+	bool f11(bool c = false){
+		bool g11(){
 			return c;
 		}
-		return g();
+		return g11();
 	}
-	return f() == false;
+	return f11() == false;
 }
+
+test bool keywordParam12(){
+	bool f12(bool c = false){
+		void g12(){
+			c = true;
+		}
+		g12();
+		return c;
+	}
+	return f12() == true;
+}
+
+
 
 

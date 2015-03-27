@@ -11,13 +11,14 @@ import experiments::Compiler::muRascal2RVM::CodeValidator;
 
 alias INS = list[Instruction];
 
-INS peephole(INS instructions) {
+INS peephole(loc src, INS instructions) {
 	
 	//return instructions;
 	res = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
 	//incorrect = validate(res);
-	//if(incorrect != ()){
-	//	throw "Validation: <incorrect>";
+	//if(incorrect != {}){
+	//	iprintln(res);
+	//	throw "Code validation failed for <src> :<incorrect>";
 	//}
 	return res;
 }
@@ -67,9 +68,8 @@ INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
 INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) =
 	[STOREVAR(v,p), *redundant_stores(rest)];   
 
-
 INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) =
-    [STORELOC(p), *redundant_stores(rest)];    
+    [STORELOC(p), *redundant_stores(rest)]; 
 
 INS redundant_stores([]) = [];
 
@@ -131,7 +131,11 @@ INS dead_code([ *Instruction ins ] ) {
     i = 0;
     while(i < size(ins)){
        result += ins[i];
-       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i] || FAILRETURN() := ins[i]){
+       if(   JMP(lab) := ins[i] 
+          || RETURN0() := ins[i] 
+          || RETURN1(a) := ins[i] 
+          || FAILRETURN() := ins[i] 
+          || EXHAUST() := ins[i]){
           i += 1;
           while(i < size(ins) && LABEL(lab1) !:= ins[i]){
             //println("remove: <ins[i]>");
