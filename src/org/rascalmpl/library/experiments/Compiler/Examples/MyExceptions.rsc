@@ -38,9 +38,10 @@ int f(int i) {
 }
 value playBallBug() {
         int i = 1;
+        int y = 0 ;
         while (i < 50) {
             try {
-				f(i) ;
+				y = 1 + f(i) ;
             }
             catch int x : {
             	i = x + 1 ;
@@ -65,7 +66,7 @@ int safeDivide(int x, int y){
 }
 
 value main(list[value] args){
-//    return playBallBug();
+    return playBallBug();
 //	return playBall();
     return safeDivide(25,5);
 }

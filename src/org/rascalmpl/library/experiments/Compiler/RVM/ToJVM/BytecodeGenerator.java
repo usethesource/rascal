@@ -25,8 +25,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Types;
 
 public class BytecodeGenerator implements Opcodes {
 
@@ -61,6 +63,9 @@ public class BytecodeGenerator implements Opcodes {
 	//
 	ArrayList<Function> functionStore;
 	ArrayList<OverloadedFunction> overloadedStore;
+	
+	// Needed to find Types for the exception catch label code.
+	RascalExecutionContext rex ;
 
 	private Label getNamedLabel(String targetLabel) {
 		Label lb = labelMap.get(targetLabel);
@@ -71,13 +76,14 @@ public class BytecodeGenerator implements Opcodes {
 		return lb;
 	}
 
-	public BytecodeGenerator(String packageName2, String className2, ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore) {
+	public BytecodeGenerator(String packageName2, String className2, ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore, RascalExecutionContext rex) {
 		emit = true;
 
 		fullClassName = packageName2 + "." + className2;
 		fullClassName = fullClassName.replace('.', '/');
 		this.functionStore = functionStore;
 		this.overloadedStore = overloadedStore;
+		this.rex = rex ;
 	}
 
 	public BytecodeGenerator() {
@@ -1426,6 +1432,7 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 
+		Types types = new Types(rex.getValueFactory()) ;
 
 // TODO emit exception bytecode.
 
@@ -1438,7 +1445,9 @@ public class BytecodeGenerator implements Opcodes {
 			catchTargetLabels.add(handler) ;
 			
 // This might be a real challenge I don't have a RVM.
-//	 Type type = rvm.symbolToType((IConstructor) tuple.get(2));
+			Type type = types.symbolToType((IConstructor) tuple.get(2), rex.getTypeStore());
+			
+			
 
 //   then emit.... 
 			Label fromLabel = getNamedLabel(from) ;

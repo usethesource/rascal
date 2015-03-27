@@ -230,12 +230,12 @@ public class RVMonJVM implements IRVM {
 				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
 				String className = "RVMRunner";
 
-				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className, functionStore, overloadedStore);
+				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className, functionStore, overloadedStore, rex);
 
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 				
-				codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				codeEmittor.dump("/Users/ferryrietveld/tmp/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClass = new ClassLoader(RVMonJVM.class.getClassLoader()) {
@@ -255,49 +255,13 @@ public class RVMonJVM implements IRVM {
 
 				Constructor<?>[] cons = generatedClass.getConstructors();
 
-				// runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
 				runner = (RVMRun) cons[0].newInstance(rex);
-
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	}
-	public IValue $executeProgram(String moduleName, String uid_main, IValue[] args) {
-
-		rex.setCurrentModuleName(moduleName);
-
-//		finalizeInstructions();
-
-		Function main_function = functionStore.get(functionMap.get(uid_main));
-
-		if (main_function == null) {
-			throw RascalRuntimeException.noMainFunction(null);
-		}
-
-		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
-			throw new CompilerError("Function " + uid_main + " should have two arguments");
-		}
-
-		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
-		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = new HashMap<String, IValue>();
-		cf.src = main_function.src;
-
-		IValue res = null;
-		//		Object o = executeProgram(root, cf);
-//		if (o != null && o instanceof Thrown) {
-//			throw (Thrown) o;
-//		}
-//		IValue res = narrow(o);
-//		if (debug) {
-//			stdout.println("TRACE:");
-//			stdout.println(getTrace());
-//		}
-		return res;
 	}
 
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
