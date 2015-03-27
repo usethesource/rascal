@@ -89,7 +89,7 @@ public class RascalExecutionContext {
 		this.ctx = ctx;
 	}
 
-	IValueFactory getValueFactory(){ return vf; }
+	public IValueFactory getValueFactory(){ return vf; }
 	
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
