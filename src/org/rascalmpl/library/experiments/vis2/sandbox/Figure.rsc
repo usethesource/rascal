@@ -28,9 +28,9 @@ public Alignment topLeft      	= <0.0, 0.0>;
 public Alignment topMid          	= <0.5, 0.0>;
 public Alignment topRight     	= <1.0, 0.0>;
 
-public Alignment leftMid   		= <0.0, 0.5>;
+public Alignment centerLeft   		= <0.0, 0.5>;
 public Alignment centerMid     = <0.5, 0.5>;
-public Alignment rightMid  	 	= <1.0, 0.5>;
+public Alignment centerRight 	 	= <1.0, 0.5>;
 
 public Alignment bottomLeft   	= <0.0, 1.0>;
 public Alignment bottomMid 		= <0.5, 1.0>;
@@ -40,10 +40,9 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 data Event 
 	= on()
-	| on(str eventName, Bind binder)
-	| on(str eventName, Figure fig)
+	| on(str eventName, void(str, str) callback)
 	;
-	
+		
 //alias Cursor[&T] = &T;
 
 data Bind
@@ -112,10 +111,10 @@ public data Figure(
 		
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
-		int width = 0,
-		int height = 0,
-		int h = 50,
-		int w = 50,
+		int width = -1,
+		int height = -1,
+		int h = -1,
+		int w = -1,
 		Position at = <0,0>,
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
@@ -128,11 +127,11 @@ public data Figure(
 		int lineWidth = 1,			
 		str lineColor = "black", 		
 		list[int] lineDashing = [],	
-		real lineOpacity = 1.0,
+		real lineOpacity = -1.0,
 	
 		// Area properties
 
-		str fillColor    = "white", 			
+		str fillColor    = "", 			
 		real fillOpacity = 1.0,	
 		str fillRule     = "evenodd",
 		
@@ -550,3 +549,4 @@ public map[str, value] adt2map(node t) {
 public str adt2json(node t) {
    return toJSON(adt2map(t), true);
    }
+   

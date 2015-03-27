@@ -19,7 +19,7 @@ void funFill1(str event, str id) {
         
 void funFill2(str event, str id) {
         if (getStr(id)=="red") 
-           setStr(id, "green"); else setStr(id,"red");
+           setStr(id, "blue"); else setStr(id,"red");
         }
        
 /*
@@ -41,13 +41,32 @@ public void main() {
     }
  */
  
+public Figure box0 = box();
+void tbox0(){render(box0); }
+
+public Figure box1 = box(fillColor="red", size=<200,200>);
+void tbox1(){render(box1);}  
+
+public Figure box2 = box(fillColor="red", size=<200,200>, lineColor = "black", lineWidth=10);
+void tbox2(){render(box2);} 
+
+//public Figure box3 = box(fillColor="red", lineColor="blue", lineWidth=10, lineDashing= [10,20,10,10], size=<200,200>);
+// void tbox3(){ ex("box3", box3); }
+
+// Nested box
+
+
+ 
  public void main() {
-     Figure WB = box(id="wb", fillColor="white", width = 50, height = 50);
-     Figure RB = box(id = "rb", fillColor="red", size=<20,20>, align=topLeft );
-     Figure box4 =  box(id="box4", fig = WB, fillColor="blue", width = 90, height = 90);
-     Figure box5 = box(id="box5", fig=RB, fillColor="blue",  width = 50, height = 50, align=topLeft);
+     Figure WB = box(fillColor="yellow", width = 200, height = 200, align=topLeft);
+     Figure RB = box(fillColor="red", size=<20,20>, align=topLeft);
+     // Figure box4 =  box( event = on("click", funFill2), fig = WB, fillColor="blue", width = 60, height = 60);
+     // Figure box5 = box( fig=RB, fillColor="green",  width = 50, height = 50, align=topLeft);
+     //Figure box2 =  box(fillColor="antiqueWhite", width = 50, height = 50, w = 70);
      // render(box4, width = 200, height = 200, fillColor = "white");
-     render(box5, width = 500, height = 500);
-     render(hcat(figs =[box4, box5], id="hcat"), width = 500, height = 500);
+     // render(box5, width = 500, height = 500);
+     // render(vcat( figs =[box4, box2],  w = 104, h = 104),  width = 500, height = 500);
+     // render(grid(figArray = [ [box4, box5], [box2]], id="grid"), fillColor=  "red", width = 500, height = 500);
+     render(WB, lineColor = "blue");
      }
  
