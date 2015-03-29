@@ -1,9 +1,13 @@
 module experiments::Compiler::Examples::Tst1
 
-data SYM = A() | B();
+data F = f() | f(int n) | g(int n) | deep(F f);
+anno int F @ pos;
+  
+// testAnnotations
 
-public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s);
+map[str, int] M = ("a" : 1);
 
-bool subtype(A(), B()) = true;
+int x = 10;
+int y = 11;
 
-bool subtype(SYM s, SYM t) = false;
+value main(list[value] args)  { M["b"] ? (x + y * x + y) += 1; }

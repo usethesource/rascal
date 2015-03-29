@@ -298,7 +298,8 @@ RVMProgram mu2rvm(muModule(str module_name,
   
   functionScope = module_init_fun;
   code = trvoidblock(initializations); // compute code first since it may generate new locals!
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
