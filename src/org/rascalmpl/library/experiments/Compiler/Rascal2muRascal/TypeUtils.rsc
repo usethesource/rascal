@@ -112,14 +112,14 @@ private rel[UID,UID] containment = {};
 private map[UID,UID] declaredIn = ();				// inverse of declares
 private map[UID,UID] containedIn = ();				// inverse of containment
 
-alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
+alias OFUN = tuple[str name, Symbol funType, str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
 public map[UID,str] uid2str = ();					// map uids to str
 
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private list[OFUN] overloadedFunctions = [];	// list of overloaded functions
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -147,7 +147,7 @@ bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
-	println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
 	return overloadedFunctions[resolver];
 }
 
@@ -231,7 +231,7 @@ void extractScopes(Configuration c){
       //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-         	 println("<uid>: <item>");
+         	 //println("<uid>: <item>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -255,10 +255,10 @@ void extractScopes(Configuration c){
              }
         }
         case overload(_,_): {
-             println("<uid>: <item>");
+             //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	println("add loc2uid[<l>] = <uid>");
+		     	//println("add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -805,7 +805,7 @@ MuExp mkVar(str name, loc l) {
     str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
  
-    addOverloadedFunctionAndResolver(ofuid, <addr.fuid,ofuids>);
+    addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
   	return muOFun(ofuid);
   }
   
