@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -97,9 +96,6 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
-//			if(((IString) declaration.get("qname")).getValue().indexOf("complement") > 0){
-//				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
-//			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				
