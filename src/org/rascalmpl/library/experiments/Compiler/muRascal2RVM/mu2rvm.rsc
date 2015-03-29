@@ -19,9 +19,8 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
-import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
-
+import experiments::Compiler::muRascal2RVM::StackValidator;
 
 
 alias INS = list[Instruction];
@@ -175,9 +174,18 @@ void resetShiftCounter() {
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imports, map[str,Symbol] types,  map[Symbol, Production] symbol_definitions,
-                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, int nlocals_in_initializations,
-                           map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar, loc src), 
+RVMProgram mu2rvm(muModule(str module_name, 
+						   set[Message] messages, 
+						   list[loc] imports,
+						   list[loc] extends, 
+						   map[str,Symbol] types,  
+						   map[Symbol, Production] symbol_definitions,
+                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, 
+                           int nlocals_in_initializations,
+                           map[str,int] resolver,
+                           lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions, 
+                           map[Symbol, Production] grammar, 
+                           loc src), 
                   bool listing=false){
   
   if(any(m <- messages, error(_,_) := m)){
@@ -226,28 +234,59 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     code = tr(fun.body);
-    if(!contains(fun.qname, "_testsuite")){
-    	code = peephole(fun.src, code);
-    }
+    //if(!contains(fun.qname, "_testsuite")){
+    	code = peephole(code);
+    //}
     
-    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    catchBlockCode = [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + catchBlockCode;
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
     // for(ins <- code) {
     //	 println("	<ins>");
     // }
-    // println("EXCEPTION TABLE:");
-    // for(entry <- exceptionTable) {
-    //	 println("	<entry>");
-    // }
+     //println("EXCEPTION TABLE:");
+     //for(entry <- exceptionTable) {
+    	// println("	<entry>");
+     //}
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
+     lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions = 
+    	[ <range.from, range.to, entry.\type, entry.\catch, 0>
+    	| tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 									 
+    	  tuple[str from, str to] range <- entry.ranges
+    	];
+    	
+    <maxStack, exceptions> = validate(fun.src, code, exceptions);
     
-    lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
-    																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, fun.src, required_frame_size, code, exceptions))
-    							   : (fun.qname : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
+    required_frame_size = nlocal[functionScope] + maxStack; // estimate_stack_size(fun.body);
+    
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, 
+                                                            fun.uqname, 
+                                                            fun.scopeIn, 
+                                                            fun.nformals, 
+                                                            nlocal[functionScope], 
+                                                            localNames, 
+                                                            fun.refs, 
+                                                            fun.src, 
+                                                            required_frame_size, 
+                                                            code, 
+                                                            exceptions))
+    							   : (fun.qname : FUNCTION(fun.qname, 
+    							   						   fun.uqname, 
+    							   						   fun.ftype, 
+    							   						   fun.scopeIn, 
+    							   						   fun.nformals, 
+    							   						   nlocal[functionScope], 
+    							   						   localNames, 
+    							   						   fun.isVarArgs, 
+    							   						   fun.isPublic,
+    							   						   "default" in fun.modifiers,
+    							   						   fun.src, 
+    							   						   required_frame_size, 
+    							   						   code, 
+    							   						   exceptions));
   
   	if(listing){
   		println("===================== <fun.qname>");
@@ -259,7 +298,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   
   functionScope = module_init_fun;
   code = trvoidblock(initializations); // compute code first since it may generate new locals!
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -284,7 +323,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, messages, imports, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvm(module_name, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
   return res;
 }
 
@@ -744,7 +783,7 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
    for(cs <- cases){
 		caseLab = defaultLab + "_<cs.fingerprint>";
 		labels[cs.fingerprint] = caseLab;
-		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
+		caseCode += [ LABEL(caseLab), POP(), *tr(cs.exp), JMP(defaultLab) ];
    }
    defaultCode = tr(defaultExp);
    if(defaultCode == []){
@@ -752,7 +791,7 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
    }
    if(size(cases) > 0){ 
    		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];
-   		return [ *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
+   		return [ LOADCON(false), *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
    	} else {
    		return [ *tr(exp), POP(), *defaultCode, POP(), *tr(result) ];
    	}	
