@@ -34,6 +34,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
     		p = rvm("LibraryGamma",
 		      {},
 			  [],
+			  [],
               (), 
               (),
               (d.qname : d | d <- decls),
@@ -62,6 +63,8 @@ void inspect(loc srcLoc,                // location of Rascal source file
         printMessages(p.messages);
        
         printImports(p.imports);
+        
+        printExtends(p.extends);
        
         printSymbolDefinitions(p.symbol_definitions);
        
@@ -119,6 +122,14 @@ void printImports(list[loc] imports){
         }
     }
 }
+void printExtends(list[loc] extends){
+	if(size(extends)> 0){
+    	println("EXTENDS:");
+       	for(ext <- extends){
+        	println("\t<ext>");
+        }
+    }
+}
 
 void printResolver(map[str, int] resolver, list[str] select, int line){
 	if(size(resolver) > 0){
@@ -131,7 +142,7 @@ void printResolver(map[str, int] resolver, list[str] select, int line){
     }
 }
 
-void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select, int line){
+void printOverloaded(lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded, list[str] select, int line){
 	if(size(overloaded) > 0){
     	println("OVERLOADED FUNCTIONS:");
         for(int i <- index(overloaded)){
@@ -146,14 +157,16 @@ void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select,
 void printDecl(Declaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
+        print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
+        print("\t\t");
     }
-    println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
-    println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+    println("nformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
+    println("\t\tsrc=<d.src>");
     if(size(d.exceptions) > 0){
-    	for(<str from, str to, Symbol \type, str target> <- d.exceptions){
-    		println("\t\texception: from=<from>, to=<to>, type=<\type>, target=<target>");
+    	for(<str from, str to, Symbol \type, str target, int fromSP> <- d.exceptions){
+    		println("\t\ttry: from=<from>, to=<to>, type=<\type>, target=<target>, fromSP=<fromSP>");
     	}
     }
 }
