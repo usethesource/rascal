@@ -112,7 +112,7 @@ private tuple[map[int,int], map[int,int]] computeStackEffects(map[int, list[Inst
 private bool isBlockStartInstruction(Instruction ins) = LABEL(_) := ins;
 
 private bool isBlockEndInstruction(Instruction ins) = 
-	getName(ins) in {"JMP", "JMPFALSE", "JMPTRUE", "RETURN0", "RETURN1", "SWITCH", "TYPESWITCH", "THROW", "FAILRETURN"};
+	getName(ins) in {"JMP", "JMPFALSE", "JMPTRUE", "RETURN0", "RETURN1", "SWITCH", "TYPESWITCH", "THROW", "FAILRETURN", "HALT", "EXHAUST"};
 
 // Validate a list of instructions.
 // Given:
@@ -124,6 +124,9 @@ private bool isBlockEndInstruction(Instruction ins) =
 
 tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validate(loc src, list[Instruction] instructions,  lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions) {
 
+	if(isEmpty(instructions)){
+		return <1, exceptions>;	// Allow a single constant to be pushed in _init and _testsuite functions
+	}
 	blocks = makeBlocks(instructions);
 	label2block = (label : blk | blk <- blocks, LABEL(label) := blocks[blk][0]);
 	//println("exceptions: <exceptions>");
@@ -189,7 +192,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 3, exceptions>;  // + 3: 1 to turn an index into a length, 2 spare
+	return <maxStack + 2, exceptions>;  // + 1: to turn an index into a length; + 1: spare (needed for ParserGeneratorTests, but why?)
 }
 
 // Simulate the effect of each RVM instruction on the stack pointer
@@ -269,7 +272,7 @@ int simulate(RETURN1(int arity), int sp) 				= sp - arity;
 
 int simulate(FAILRETURN(), int sp) 						= sp;
 int simulate(FILTERRETURN(), int sp) 					= sp;
-int simulate(THROW(loc src), int sp) 					= sp + 1;
+int simulate(THROW(loc src), int sp) 					= sp;		// TODO Check This.
 
 int simulate(CREATE(str fuid, int arity) , int sp)		= sp - arity + 1;
 int simulate(CREATEDYN(int arity), int sp) 				= sp - 1 - arity + 1;
