@@ -17,6 +17,8 @@ value playBall() {
                      throw noball();
                 }
                 throw i ;
+                if ( i == 4999 )
+                	throw "Leave" ;
             }
             catch ball() : {
                 i = i + 1 ;
@@ -33,40 +35,46 @@ value playBall() {
       return <i, j, k> ;
 }
 
-int f(int i) {
-	throw i ;
-}
-value playBallBug() {
-        int i = 1;
-        int y = 0 ;
-        while (i < 50) {
-            try {
-				y = 1 + f(i) ;
-            }
-            catch int x : {
-            	i = x + 1 ;
-            }
-      }
-      return <i> ;
-}
-
-int divide(int x, int y) throws divide_by_zero { 
-	if(y == 0){ 
-		throw divide_by_zero(); 
-	} else { 
-		return x / y; 
-	} 
-} 
+//int f(int i) {
+//	throw i ;
+//}
+//value playBallBug() {
+//        int i = 1;
+//        int y = 0 ;
+//        while (i < 50) {
+//            try {
+//				y = 1 + f(i) ;
+//            }
+//            catch int x : {
+//            	i = x + 1 ;
+//            }
+//      }
+//      return <i> ;
+//}
+//
+//int divide(int x, int y) throws divide_by_zero { 
+//	if(y == 0){ 
+//		throw divide_by_zero(); 
+//	} else { 
+//		return x / y; 
+//	} 
+//} 
   	
-int safeDivide(int x, int y){ 
-	try 
-		return divide(x,y); 
-	catch:  
- 		return 101010101; 
-}
+//int safeDivide(int x, int y){ 
+//	try 
+//		return divide(x,y); 
+//	catch:  
+// 		return 101010101; 
+//}
 
 value main(list[value] args){
-    return playBallBug();
-//	return playBall();
-    return safeDivide(25,5);
+//    return playBallBug();
+//    return safeDivide(25,5);
+
+	try {
+		return playBall();
+	}
+	catch str x: {
+		return x ; 
+	}
 }

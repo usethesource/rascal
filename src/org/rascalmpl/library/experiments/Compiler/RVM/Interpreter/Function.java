@@ -31,6 +31,10 @@ public class Function {
 	 int[] tos;
 	 int[] types;
 	 int[] handlers;
+
+	 String[] fromLabels;
+	 String[] toLabels;
+	 String[] handlerLabels;
 	 
 	 public IList exceptions = null ;
 	 public int continuationPoints = 0;
@@ -58,9 +62,9 @@ public class Function {
 	}
 	
 
-	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	public void finalize(BytecodeGenerator codeEmittor, final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing) {
 
-		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints, exceptions, false);
+		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints, fromLabels, toLabels, types, handlerLabels, false);
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -85,9 +89,15 @@ public class Function {
 	
 	public void attachExceptionTable(final IList exceptions, final IRVM rvm) {
 		froms = new int[exceptions.length()];
+		fromLabels = new String[exceptions.length()];
+
 		tos = new int[exceptions.length()];
+		toLabels = new String[exceptions.length()];
+	
 		types = new int[exceptions.length()];
+
 		handlers = new int[exceptions.length()];
+		handlerLabels = new String[exceptions.length()];
 		
 		int i = 0;
 		for(IValue entry : exceptions) {
@@ -98,9 +108,14 @@ public class Function {
 			String handler = ((IString) tuple.get(3)).getValue();
 			
 			froms[i] = codeblock.getLabelPC(from);
+			fromLabels[i] = from;
 			tos[i] = codeblock.getLabelPC(to);
+			toLabels[i] = to;
+
 			types[i] = codeblock.getTypeConstantIndex(type);
+
 			handlers[i] = codeblock.getLabelPC(handler);			
+			handlerLabels[i] = handler;			
 			i++;
 		}
 		this.exceptions = exceptions ;
