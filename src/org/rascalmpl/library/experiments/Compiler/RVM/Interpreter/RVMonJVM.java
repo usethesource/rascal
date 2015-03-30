@@ -38,6 +38,7 @@ public class RVMonJVM implements IRVM {
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
+	private OverloadedFunction res;
 
 	private final TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -106,8 +107,72 @@ public class RVMonJVM implements IRVM {
 			this.resolver.put(of, index);
 		}
 	}
-
+	
+	public Integer useFunctionName(String fname){
+		Integer index = functionMap.get(fname);
+		
+		if(index == null){
+			index = functionStore.size();
+			functionMap.put(fname, index);
+			functionStore.add(null);
+		}
+		//stdout.println("useFunctionName: " + index + "  => " + fname);
+		return index;
+	}
+	
+	public Integer useConstructorName(String cname) {
+		Integer index = constructorMap.get(cname) ;
+		if(index == null) {
+			index = constructorStore.size();
+			constructorMap.put(cname, index);
+			constructorStore.add(null);
+		}
+		//stdout.println("useConstructorName: " + index + "  => " + cname);
+		return index;
+	}
+	
 	public void fillOverloadedStore(IList overloadedStore) {
+		for(IValue of : overloadedStore) {
+			
+			ITuple ofTuple = (ITuple) of;
+			
+			String funName = ((IString) ofTuple.get(0)).getValue();
+			
+			IConstructor funType = (IConstructor) ofTuple.get(1);
+			
+			String scopeIn = ((IString) ofTuple.get(2)).getValue();
+			if(scopeIn.equals("")) {
+				scopeIn = null;
+			}
+			IList fuids = (IList) ofTuple.get(3);
+			int[] funs = new int[fuids.length()];
+			int i = 0;
+			for(IValue fuid : fuids) {
+				String name = ((IString) fuid).getValue();
+				//stdout.println("fillOverloadedStore: add function " + name);
+				
+				Integer index = useFunctionName(name);
+//				if(index == null){
+//					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
+//				}
+				funs[i++] = index;
+			}
+			fuids = (IList) ofTuple.get(4);
+			int[] constrs = new int[fuids.length()];
+			i = 0;
+			for(IValue fuid : fuids) {
+				Integer index = useConstructorName(((IString) fuid).getValue());
+//				if(index == null){
+//					throw new CompilerError("No definition for " + fuid + " in constructorMap");
+//				}
+				constrs[i++] = index;
+			}
+			res = new OverloadedFunction(funs, constrs, scopeIn);
+			this.overloadedStore.add(res);
+		}
+	}
+
+	public void $fillOverloadedStore(IList overloadedStore) {
 		for (IValue of : overloadedStore) {
 			ITuple ofTuple = (ITuple) of;
 			String scopeIn = ((IString) ofTuple.get(0)).getValue();
