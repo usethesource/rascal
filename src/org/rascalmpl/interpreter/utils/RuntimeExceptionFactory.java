@@ -187,7 +187,7 @@ public class RuntimeExceptionFactory {
 		}
     	URI uri = null;
 		try {
-			uri = new URI("file", "", path, null);
+			uri = new URI("unknown", "", path, null);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 		}

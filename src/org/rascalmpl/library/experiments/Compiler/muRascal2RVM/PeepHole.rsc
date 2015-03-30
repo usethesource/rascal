@@ -7,20 +7,11 @@ import List;
 import Map;
 
 import experiments::Compiler::RVM::AST;
-import experiments::Compiler::muRascal2RVM::CodeValidator;
 
 alias INS = list[Instruction];
 
-INS peephole(loc src, INS instructions) {
-	
-	//return instructions;
-	res = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
-	//incorrect = validate(res);
-	//if(incorrect != {}){
-	//	iprintln(res);
-	//	throw "Code validation failed for <src> :<incorrect>";
-	//}
-	return res;
+INS peephole(INS instructions) {
+	return peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
 }
 
 INS peephole1(INS instructions, bool isSplit){
