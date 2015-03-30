@@ -54,7 +54,7 @@ public class BytecodeGenerator implements Opcodes {
 	private boolean isCoroutine = false;
 
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
-	private Set catchTargetLabels = new HashSet();
+	private Set<String> catchTargetLabels = new HashSet<String>();
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
 
@@ -147,8 +147,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
+	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, String[] fromLabels, String[] toLabels, int[] types, String[] handlerLabels, boolean debug) {
 
-	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, IList exceptions, boolean debug) {
 		if (!emit)
 			return;
 
@@ -160,7 +160,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv = cw.visitMethod(ACC_PUBLIC, name, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 		
-		emitExceptionTable(exceptions);
+		emitExceptionTable(fromLabels, toLabels, types, handlerLabels);
 		
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
@@ -186,6 +186,7 @@ public class BytecodeGenerator implements Opcodes {
 			exitLabel = null;
 		}
 	}
+
 
 	public void closeMethod() {
 		if (!emit)
@@ -439,7 +440,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ACONST_NULL);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 1);
-// is this a bug ???		mv.visitIincInsn(2, -1);
+		mv.visitIincInsn(2, -1);
 		mv.visitVarInsn(ILOAD, 2);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ALOAD, 7);
@@ -461,14 +462,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "exhausted", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine;");
 		mv.visitLabel(l3);
 		mv.visitInsn(AASTORE);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 7);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 7);
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
@@ -491,152 +484,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitVarInsn(ILOAD, 2);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 7);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 7);
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l4);
-		
-		
-		
-//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "hotEntryPoint", "I");
-//		mv.visitInsn(ACONST_NULL);
-//		mv.visitVarInsn(ASTORE, 6);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 3);
-//		mv.visitVarInsn(ILOAD, 2);
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "guardHelper", "([Ljava/lang/Object;I)Z");
-//		mv.visitVarInsn(ISTORE, 4);
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		Label l0 = new Label();
-//		mv.visitJumpInsn(IF_ACMPNE, l0);
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-//				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ASTORE, 7);
-//		mv.visitVarInsn(ILOAD, 4);
-//		Label l1 = new Label();
-//		mv.visitJumpInsn(IFEQ, l1);
-//		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine");
-//		mv.visitInsn(DUP);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "<init>",
-//				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V");
-//		mv.visitVarInsn(ASTORE, 6);
-//		mv.visitVarInsn(ALOAD, 6);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "isInitialized", "Z");
-//		mv.visitVarInsn(ALOAD, 6);
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "entryFrame",
-//				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ALOAD, 6);
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "suspend",
-//				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V");
-//		mv.visitLabel(l1);
-//		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitInsn(ACONST_NULL);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitIincInsn(2, -1);
-//		mv.visitVarInsn(ILOAD, 2);
-//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 7);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitInsn(DUP);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitInsn(DUP_X1);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitInsn(IADD);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//		mv.visitVarInsn(ILOAD, 4);
-//		Label l2 = new Label();
-//		mv.visitJumpInsn(IFEQ, l2);
-//		mv.visitVarInsn(ALOAD, 6);
-//		Label l3 = new Label();
-//		mv.visitJumpInsn(GOTO, l3);
-//		mv.visitLabel(l2);
-//		mv.visitFrame(Opcodes.F_FULL, 8, new Object[] { fullClassName, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", Opcodes.INTEGER, "[Ljava/lang/Object;",
-//				Opcodes.INTEGER, "java/lang/Object", "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine",
-//				"org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame" }, 2, new Object[] { "[Ljava/lang/Object;", Opcodes.INTEGER });
-//		mv.visitFieldInsn(GETSTATIC, fullClassName, "exhausted", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine;");
-//		mv.visitLabel(l3);
-//		mv.visitFrame(Opcodes.F_FULL, 8, new Object[] { fullClassName, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", Opcodes.INTEGER, "[Ljava/lang/Object;",
-//				Opcodes.INTEGER, "java/lang/Object", "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine",
-//				"org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame" }, 3, new Object[] { "[Ljava/lang/Object;", Opcodes.INTEGER,
-//				"org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine" });
-//		mv.visitInsn(AASTORE);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
-//		mv.visitInsn(ARETURN);
-//		mv.visitLabel(l0);
-//		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-//		mv.visitVarInsn(ILOAD, 4);
-//		Label l4 = new Label();
-//		mv.visitJumpInsn(IFNE, l4);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-//				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitInsn(DUP);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitInsn(DUP_X1);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitInsn(IADD);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-//		mv.visitInsn(AASTORE);
-//		mv.visitVarInsn(ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
-//		mv.visitInsn(ARETURN);
-//		mv.visitLabel(l4);
+		mv.visitIincInsn(2, -1);
 
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
@@ -656,27 +509,6 @@ public class BytecodeGenerator implements Opcodes {
 		 mv.visitInsn(AALOAD);
 		 mv.visitInsn(AASTORE);
 		 
-//			/**/mv.visitVarInsn(ALOAD, 0);
-//			/**/mv.visitVarInsn(ILOAD, SP);
-//			/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		 
-//		 OLD VERSION
-//		/**/mv.visitVarInsn(ALOAD, STACK);
-//		/**/mv.visitVarInsn(ALOAD, THIS);
-//		/**/mv.visitInsn(DUP);
-//		/**/mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		/**/mv.visitInsn(DUP_X1);
-//		/**/mv.visitInsn(ICONST_1);
-//		/**/mv.visitInsn(IADD);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//		/**/mv.visitVarInsn(ALOAD, STACK);
-//		/**/emitIntValue(n);
-//		/**/mv.visitInsn(AALOAD);
-//		/**/mv.visitInsn(AASTORE);
-//		/**/mv.visitVarInsn(ALOAD, THIS);
-//		/**/mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		/**/mv.visitVarInsn(ISTORE, SP);
-
 	}
 
 	public void emitInlinePop(boolean debug) {
@@ -1428,36 +1260,17 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AASTORE);
 	}
 
-	public void emitExceptionTable(IList exceptions) {
+	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] types, String[] handlerLabels) {
 		if (!emit)
 			return;
 
-		Types types = new Types(rex.getValueFactory()) ;
+		int len = handlerLabels.length ;		
+		for ( int i = 0 ; i < len ; i++ ) {
+			Label fromLabel = getNamedLabel(fromLabels[i]) ;
+			Label toLabel =   getNamedLabel(toLabels[i]) ;
+			Label handlerLabel = getNamedLabel(handlerLabels[i]) ;
 
-// TODO emit exception bytecode.
-
-		for(IValue entry : exceptions) {
-			ITuple tuple = (ITuple) entry;
-			String from = ((IString) tuple.get(0)).getValue();
-			String to = ((IString) tuple.get(1)).getValue();
-			String handler = ((IString) tuple.get(3)).getValue();
-			
-			catchTargetLabels.add(handler) ;
-			
-// This might be a real challenge I don't have a RVM.
-			Type type = types.symbolToType((IConstructor) tuple.get(2), rex.getTypeStore());
-			
-			
-
-//   then emit.... 
-			Label fromLabel = getNamedLabel(from) ;
-			Label toLabel =   getNamedLabel(to) ;
-			Label handlerLabel = getNamedLabel(handler) ;
-			
-//			System.out.println(fromLabel + " : " + toLabel + " -->> " + handlerLabel );
-//			System.out.println(from + " : " + to + " -->> " + handler );
-// Create list with exception target types.
-// Mayby create a exception holding a Type.			
+			catchTargetLabels.add(handlerLabels[i]) ;
 			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel,  "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
 		}
 	}
@@ -1493,14 +1306,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
 		mv.visitInsn(ATHROW);
-				
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitVarInsn(ALOAD, CF);
-//		mv.visitVarInsn(ALOAD, STACK);
-//		mv.visitIincInsn(SP, -1);
-//		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;");
-//		mv.visitInsn(ATHROW);				
+			
 	}
 
 	public void emitInlineResetLocs(int positions, IValue constantValues, boolean debug) {
@@ -1510,7 +1316,6 @@ public class BytecodeGenerator implements Opcodes {
 		IList il = (IList) constantValues ;
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
-//			System.err.print(stackPos + " , ");
 			mv.visitVarInsn(ALOAD, STACK);
 			emitIntValue(stackPos);
 		}
