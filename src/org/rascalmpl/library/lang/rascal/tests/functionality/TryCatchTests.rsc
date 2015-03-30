@@ -100,6 +100,7 @@ int safeDivide(int x, int y){
  		return 0; 
 }
 
+
 int catchStackThrow(int i) {
 	throw i ;
 }
@@ -121,6 +122,7 @@ value catchStack() {
 // testCatchStack
 
 test bool testCatchStack() = catchStack() == <50> ;
+
 
 // testClassify
   

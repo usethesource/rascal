@@ -159,11 +159,11 @@ private MuExp translateComposeFunction(Expression e){
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, scopeId, nargs, 2, false, \e@\loc, [], (), muBlock(body_exps));
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, scopeId, nargs, 2, false, false, \e@\loc, [], (), muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
   addFunctionToModule(fun);  
-  addOverloadedFunctionAndResolver(ofqname, <getModuleName(), [uid]>);
+  addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [uid]>);
  
   return muOFun(ofqname);
 }
@@ -189,7 +189,7 @@ private MuExp translateAddFunction(Expression e){
     lhsOf = getOverloadedFunction(lhsReceiver.fuid);
   } else {
     uid = str2uid[lhsReceiver.fuid];
-    lhsOf = <topFunctionScope(), [uid]>;
+    lhsOf = <lhsReceiver.fuid, lhsType, topFunctionScope(), [uid]>;
     addOverloadedFunctionAndResolver(lhsReceiver.fuid, lhsOf);
   }
  
@@ -200,13 +200,15 @@ private MuExp translateAddFunction(Expression e){
     rhsOf = getOverloadedFunction(rhsReceiver.fuid);
   } else {
     uid = str2uid[rhsReceiver.fuid];
-    rhsOf = <topFunctionScope(), [uid]>;
+    rhsOf = <rhsReceiver.fuid, rhsType, topFunctionScope(), [uid]>;
     addOverloadedFunctionAndResolver(rhsReceiver.fuid, rhsOf);
   }
- 
-  OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
+   str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
+ 
+  OFUN compOf = <ofqname, lhsType, lhsOf[2], lhsOf[3] + rhsOf[3]>; // add all alternatives
+  
+ 
  
   addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
@@ -683,7 +685,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     
     addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
-  									  isVarArgs, e@\loc, [], (), 
+  									  isVarArgs, false, e@\loc, [], (), 
   									  body));
   	
   	leaveFunctionScope();								  
@@ -703,7 +705,7 @@ private MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, e@\loc, [], (), body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, false, false, e@\loc, [], (), body));
   	
   	leaveFunctionScope();								  
   	
@@ -917,7 +919,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
-	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, NumberOfPhiFormals, pos_in_phi, false, \visit@\loc, [], (), body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -955,7 +957,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 		
 		leaveFunctionScope();
 		
-		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, \visit@\loc, [], (), muBlock(body_exps)));
+		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, false, \visit@\loc, [], (), muBlock(body_exps)));
 	
 		return traversalCall(traverse_fun, scopeId, phi_fixpoint_fuid, descriptor, translate(\visit.subject), rebuild);
 	}
@@ -1178,7 +1180,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-   println("translate: <e>");
+   //println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1321,7 +1323,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
      
-       println("ftype = <ftype>, of.alts = <of.alts>");
+       //println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
@@ -1330,7 +1332,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
-       println("resolved = <resolved>");
+       //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];
@@ -1349,7 +1351,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		} 
        		catch "NotConstant":  /* pass */;
        }
-       	addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);      
+       	addOverloadedFunctionAndResolver(ofqname, <of.name, ftype, of.fuid,resolved>);      
        	return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
    if(isOverloadedFunction(receiver) && !hasOverloadingResolver(receiver.fuid)) {

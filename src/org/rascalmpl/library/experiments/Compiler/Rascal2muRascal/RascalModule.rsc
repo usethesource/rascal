@@ -39,7 +39,8 @@ import experiments::Compiler::muRascal::Implode;
 
 private str module_name;							//  name of current module
 private str function_uid;							// uid of current function
-private list[loc] imported_modules = [];			// imported modules of current module
+private list[loc] imported_modules = [];			// modules imported by current module
+private list[loc] extended_modules = [];				// modules extended by current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module
 private list[MuVariable] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
@@ -87,6 +88,7 @@ public void setFunctionsInModule(list[MuFunction] funs) {
 private void resetR2mu() {
  	module_name = "** undefined **";
     imported_modules = [];
+    extended_modules = [];
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
@@ -125,7 +127,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	    throw e;
    	}
    	// Uncomment to dump the type checker configuration:
-   	text(config);
+   	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
@@ -136,6 +138,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  extractScopes(config); 
    	 
    	  imported_modules = [];
+   	  extended_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
@@ -189,7 +192,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         addFunctionToModule(muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|std:///|,[],(),body));   	                                       
+         addFunctionToModule(muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,true,|std:///|,[],(),body));   	                                       
    	 }
    	 				  
    	  translateModule(M);
@@ -198,22 +201,23 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  generate_tests(modName, M@\loc);
    	  
-   	  println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
+   	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
-   	  lrel[str,list[str],list[str]] overloaded_functions = 
-   	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
+   	  lrel[str name, Symbol funType, str scopeIn, list[str] ofunctions, list[str] oconstructors] overloaded_functions = 
+   	  	[ < of.name, of.funType, (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
    	  		[ uid2str[fuid] | int fuid <- of.fuids, isFunction(fuid) && !isDefaultFunction(fuid) ] 
    	  		+ [ uid2str[fuid] | int fuid <- of.fuids, isDefaultFunction(fuid) ]
    	  		  // Replace call to a constructor with call to the constructor companion function if the constructor has keyword parameters
    	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, isConstructor(fuid), !isEmpty(config.dataKeywordDefaults[fuid]) ],
    	  		[ uid2str[fuid] | int fuid <- of.fuids, isConstructor(fuid), isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
-   	  	| tuple[str scopeIn,list[int] fuids] of <- getOverloadedFunctions() 
+   	  	| tuple[str name, Symbol funType, str scopeIn, list[int] fuids] of <- getOverloadedFunctions() 
    	  	];  
    	  
    	  return muModule(modName,
    	                  config.messages, 
-   	  				  imported_modules, 
+   	  				  imported_modules,
+   	  				  extended_modules, 
    	  				  types, 
    	  				  getDefinitions(), 
    	  				  functions_in_module, 
@@ -251,8 +255,9 @@ private void importModule((Import) `import <QualifiedName qname> ;`){
     imported_modules += getModuleLocation(qualifiedNameToPath(qname));
 }
 
-private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
+private void importModule((Import) `extend <QualifiedName qname> ;`){
     imported_modules += getModuleLocation(qualifiedNameToPath(qname));
+    extended_modules += getModuleLocation(qualifiedNameToPath(qname));
 }
 
 private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
@@ -351,14 +356,28 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      }
   }
  
+  isPub = !fd.visibility is \private;
   tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
  
+  formals = [formal | formal <- fd.signature.parameters.formals.formals];
+  //println("formals = <formals>");
+  fp = nformals > 0 ? fingerprint(formals[0], isConcretePattern(formals[0])) : 0;
+  //println("translateFunctionDeclaration, fp = <fp>");
+  
   //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   
-  addFunctionToModule(muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									getFormals(uid), getScopeSize(fuid), 
-  									isVarArgs, fd@\loc, tmods, ttags, 
-  									tbody));
+  addFunctionToModule(muFunction(fuid, 
+  								 "<fd.signature.name>", 
+  								 ftype, 
+  								 (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  								 getFormals(uid), 
+  								 getScopeSize(fuid), 
+  								 isVarArgs, 
+  								 isPub, 
+  								 fd@\loc, 
+  								 tmods, 
+  								 ttags, 
+  								 tbody));
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -467,5 +486,5 @@ private void generate_tests(str module_name, loc src){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, src, [], (), code));
+   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), code));
 }

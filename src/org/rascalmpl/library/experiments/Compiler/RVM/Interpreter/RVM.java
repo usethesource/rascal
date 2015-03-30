@@ -201,29 +201,53 @@ public class RVM implements IRVM, java.io.Serializable  {
 			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
-
-	public void declare(Function f){
-//		if(f.getName().lastIndexOf("complement") >= 0){
-//			System.out.println(functionStore.size() + ", declare: " + f.getName() + ", " + f.src);
-//		}
-		if(functionMap.get(f.getName()) != null){
-			throw new CompilerError("Double declaration of function: " + f.getName());
-		}
-		functionMap.put(f.getName(), functionStore.size());
-		functionStore.add(f);
+	
+	public Integer useFunctionName(String fname){
+		Integer index = functionMap.get(fname);
 		
+		if(index == null){
+			index = functionStore.size();
+			functionMap.put(fname, index);
+			functionStore.add(null);
+		}
+		//stdout.println("useFunctionName: " + index + "  => " + fname);
+		return index;
 	}
 	
-	public void declareConstructor(String name, IConstructor symbol) {
-//		if(name.indexOf("ParseTree") >= 0 && name.indexOf("Production") >= 0){
-//			System.err.println("declareConstructor: " + name + ", " + symbol);
-//		}
-		Type constr = types.symbolToType(symbol, typeStore);
-		if(constructorMap.get(name) != null) {
-			throw new CompilerError("Double declaration of constructor: " + name);
+	public void declare(Function f){
+		Integer index = functionMap.get(f.getName());
+		if(index == null){
+			index = functionStore.size();
+			functionMap.put(f.getName(), index);
+			functionStore.add(f);
+		} else {
+			functionStore.set(index, f);
 		}
-		constructorMap.put(name, constructorStore.size());
-		constructorStore.add(constr);
+		//stdout.println("declare: " + index + "  => " + f.getName());
+	}
+	
+	public Integer useConstructorName(String cname) {
+		Integer index = constructorMap.get(cname) ;
+		if(index == null) {
+			index = constructorStore.size();
+			constructorMap.put(cname, index);
+			constructorStore.add(null);
+		}
+		//stdout.println("useConstructorName: " + index + "  => " + cname);
+		return index;
+	}
+	
+	public void declareConstructor(String cname, IConstructor symbol) {
+		Type constr = types.symbolToType(symbol, typeStore);
+		Integer index = constructorMap.get(cname);
+		if(index == null) {
+			index = constructorStore.size();
+			constructorMap.put(cname, index);
+			constructorStore.add(constr);
+		} else {
+			constructorStore.set(index, constr);
+		}
+		//stdout.println("declareConstructor: " + index + "  => " + cname);
 	}
 	
 	public Type symbolToType(IConstructor symbol) {
@@ -240,45 +264,41 @@ public class RVM implements IRVM, java.io.Serializable  {
 	
 	public void fillOverloadedStore(IList overloadedStore) {
 		for(IValue of : overloadedStore) {
-//			boolean isComplement = false;
 			
 			ITuple ofTuple = (ITuple) of;
-			String scopeIn = ((IString) ofTuple.get(0)).getValue();
+			
+			String funName = ((IString) ofTuple.get(0)).getValue();
+			
+			IConstructor funType = (IConstructor) ofTuple.get(1);
+			
+			String scopeIn = ((IString) ofTuple.get(2)).getValue();
 			if(scopeIn.equals("")) {
 				scopeIn = null;
 			}
-			IList fuids = (IList) ofTuple.get(1);
+			IList fuids = (IList) ofTuple.get(3);
 			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
+				//stdout.println("fillOverloadedStore: add function " + name);
 				
-//				if(name.indexOf("complement") >= 0){
-//					isComplement = true;
+				Integer index = useFunctionName(name);
+//				if(index == null){
+//					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
 //				}
-				Integer index = functionMap.get(name);
-				if(index == null){
-					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
-				}
 				funs[i++] = index;
-//				if(isComplement)
-//					stdout.println("fuid = " + fuid + ", name = " + name + ", index = " + index + ", " + functionStore.get(index).src);
 			}
-			fuids = (IList) ofTuple.get(2);
+			fuids = (IList) ofTuple.get(4);
 			int[] constrs = new int[fuids.length()];
 			i = 0;
 			for(IValue fuid : fuids) {
-				Integer index = constructorMap.get(((IString) fuid).getValue());
-				if(index == null){
-					throw new CompilerError("No definition for " + fuid + " in constructorMap");
-				}
+				Integer index = useConstructorName(((IString) fuid).getValue());
+//				if(index == null){
+//					throw new CompilerError("No definition for " + fuid + " in constructorMap");
+//				}
 				constrs[i++] = index;
 			}
 			res = new OverloadedFunction(funs, constrs, scopeIn);
-//			if(isComplement){
-//				stdout.println("Overloaded function: " + of);
-//				stdout.println("Adding: " + res);
-//			}
 			this.overloadedStore.add(res);
 		}
 	}
@@ -1259,7 +1279,7 @@ public class RVM implements IRVM, java.io.Serializable  {
 						stack[sp++] = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
-					
+					--sp;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_APPLY:
@@ -1644,6 +1664,7 @@ public class RVM implements IRVM, java.io.Serializable  {
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
+							int fromSP = f.function.getFromSP();
 							if(f != cf) {
 								cf = f;
 								instructions = cf.function.codeblock.getInstructions();
@@ -1652,6 +1673,7 @@ public class RVM implements IRVM, java.io.Serializable  {
 								pc = cf.pc;
 							}
 							pc = handler;
+							sp = fromSP;
 							stack[sp++] = thrown;
 							thrown = null;
 							continue NEXT_INSTRUCTION;

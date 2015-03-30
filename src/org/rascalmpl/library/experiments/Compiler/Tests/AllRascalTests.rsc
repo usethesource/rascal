@@ -115,8 +115,8 @@ list[str] typeTests = [
 "StaticTestingUtilsTests",	// OK
 "AccumulatingTCTests",		// OK
 //"AliasTCTests",			// C & I: Overflow/LOOP?
-"AllStaticIssues",			// C: 2 fail :           Issue483,                    Issue504
-							 //I: 4 fail : Issue482,          Issue494, Issue495, Issue504
+"AllStaticIssues",			// C: 1 fail :           		   Issue504
+							 //I: 3 fail : Issue482, Issue495, Issue504
 "AnnotationTCTests",		// OK
 "AssignmentTCTests",		// OK
 "CallTCTests",				// C == I : 1 fails callError6
@@ -243,7 +243,7 @@ value main(list[value] args){
   //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
   //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
   //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
-  
+  //
   //all_results += runTests(files_with_tests, |std:///|);
   
   all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);

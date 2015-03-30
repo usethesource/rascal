@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -34,7 +35,9 @@ public class Function {
 
 	 String[] fromLabels;
 	 String[] toLabels;
-	 String[] handlerLabels;
+     String[] handlerLabels;
+     int[] fromSPs;
+     int lastHandler = -1;
 	 
 	 public IList exceptions = null ;
 	 public int continuationPoints = 0;
@@ -98,6 +101,7 @@ public class Function {
 
 		handlers = new int[exceptions.length()];
 		handlerLabels = new String[exceptions.length()];
+		fromSPs = new int[exceptions.length()];
 		
 		int i = 0;
 		for(IValue entry : exceptions) {
@@ -106,6 +110,7 @@ public class Function {
 			String to = ((IString) tuple.get(1)).getValue();
 			Type type = rvm.symbolToType((IConstructor) tuple.get(2));
 			String handler = ((IString) tuple.get(3)).getValue();
+			int fromSP =  ((IInteger) tuple.get(4)).intValue();
 			
 			froms[i] = codeblock.getLabelPC(from);
 			fromLabels[i] = from;
@@ -116,6 +121,8 @@ public class Function {
 
 			handlers[i] = codeblock.getLabelPC(handler);			
 			handlerLabels[i] = handler;			
+			handlers[i] = codeblock.getLabelPC(handler);
+			fromSPs[i] = fromSP;
 			i++;
 		}
 		this.exceptions = exceptions ;
@@ -123,11 +130,13 @@ public class Function {
 	
 	public int getHandler(final int pc, final Type type) {
 		int i = 0;
+		lastHandler = -1;
 		for(int from : froms) {
 			if(pc >= from) {
 				if(pc < tos[i]) {
 					// In the range...
 					if(type.isSubtypeOf(codeblock.getConstantType(types[i]))) {
+						lastHandler = i;
 						return handlers[i];
 					}
 				}
@@ -135,6 +144,10 @@ public class Function {
 			i++;
 		}
 		return -1;
+	}
+	
+	public int getFromSP(){
+		return nlocals + fromSPs[lastHandler];
 	}
 	
 	public String getName() {
