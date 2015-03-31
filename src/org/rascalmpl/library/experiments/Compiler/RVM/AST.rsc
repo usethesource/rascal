@@ -17,6 +17,9 @@ public data Declaration =
 		  		   bool isDefault,
 		  		   loc src,
 		  		   int maxStack,
+		  		   bool isConcreteArg, 
+		  		   int abstractFingerprint, 
+		  		   int concreteFingerprint,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		  		   
