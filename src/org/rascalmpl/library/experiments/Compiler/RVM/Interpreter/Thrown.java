@@ -13,7 +13,7 @@ public class Thrown extends RuntimeException {
 	
 	private static Thrown instance = new Thrown();
 	
-	IValue value;
+	public IValue value;
 	ISourceLocation loc;
 	
 	Frame currentFrame;

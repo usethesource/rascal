@@ -18,7 +18,7 @@ public class Frame {
 	public int sp;
 	int pc;
 	ISourceLocation src;
-	final Function function;
+	public final Function function;
 	
 	final boolean isCoroutine;
 	public int hotEntryPoint;
