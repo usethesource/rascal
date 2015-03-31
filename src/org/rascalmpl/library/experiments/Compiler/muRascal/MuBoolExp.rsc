@@ -44,7 +44,7 @@ default tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, list[M
             	                    [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
                 	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMultiValuedBoolExp(exp,fuid, loc src);
                     	                                            functions = functions + res.functions;
-                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, false, false, src, [], (), muReturn(res.e.exp));
+                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, false, false, src, [], (), false, 0, 0, muReturn(res.e.exp));
                             	                                    muFun2(gen_uid,fuid);
                                 	                              } | MuExp exp <- exps ]) ])),
                 	functions>;
@@ -203,7 +203,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("RASCAL_ALL", str fuid, lis
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muReturn1(muCon(true)) ];
-    functions += muFunction(all_uid, "RASCAL_ALL", Symbol::func(\int(), []), fuid, 0, size(localvars), false, false, src, [], (), muBlock(body));
+    functions += muFunction(all_uid, "RASCAL_ALL", Symbol::func(\int(), []), fuid, 0, size(localvars), false, false, src, [], (), false, 0, 0, muBlock(body));
     return <muCall(muFun2(all_uid, fuid),[]),functions>;
 }
 

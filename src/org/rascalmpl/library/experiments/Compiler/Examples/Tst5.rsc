@@ -1,6 +1,8 @@
 module experiments::Compiler::Examples::Tst5
 
 import lang::rascal::tests::types::StaticTestingUtils;
+import util::Benchmark;
+import IO;
 
 value main(list[value] args) {											
 	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
@@ -15,7 +17,12 @@ value main(list[value] args) {
 						str getLabel(Label label) =
 						  (label is \\default) ? \"\<label.name\>\" : nextTmp();");		 
 	makeModule("M2", "import M1;");
-	return checkOK("true;", importedModules=["M1", "M2"]);
+	t1 = cpuTime();
+	res = checkOK("true;", importedModules=["M1", "M2"]);
+	t2 = cpuTime();
+	
+	println("Time for checking: <(t2 - t1)/1000000>");
+	return res;
 }
 
 //value main(list[value] args) {

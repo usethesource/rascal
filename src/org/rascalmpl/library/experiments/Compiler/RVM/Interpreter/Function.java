@@ -21,10 +21,14 @@ public class Function {
 	 int scopeIn = -1;
 	 final int nformals;
 	 final int nlocals;
+	 boolean isDefault;
 	 final int maxstack;
 	 final CodeBlock codeblock;
 	 IValue[] constantStore;
 	 Type[] typeConstantStore;
+	 boolean concreteArg = false;
+	 int abstractFingerprint = 0;
+	 int concreteFingerprint = 0;
 	 
 	 int[] froms;
 	 int[] tos;
@@ -41,14 +45,20 @@ public class Function {
 	 final ISourceLocation src;		
 	 final IMap localNames;
 	
-	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, final IMap localNames, final int maxstack, final CodeBlock codeblock, final ISourceLocation src){
+	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+			 final int maxstack, boolean concreteArg, int abstractFingerprint,
+			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.nlocals = nlocals;
+		this.isDefault = isDefault;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
+		this.concreteArg = concreteArg;
+		this.abstractFingerprint = abstractFingerprint;
+		this.concreteFingerprint = concreteFingerprint;
 		this.codeblock = codeblock;
 		this.src = src;
 	}

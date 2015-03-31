@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 public class OverloadedFunctionInstanceCall {
 	
-	final int[] functions;
-	final int[] constructors;
+	private final int[] functions;
+	private final int[] constructors;
 	final Frame cf;
 	
 	final Frame previousScope;
@@ -36,22 +36,30 @@ public class OverloadedFunctionInstanceCall {
 		this.sp = cf.sp;
 	}
 	
+	int[] getFunctions() {
+		return functions;
+	}
+
+	int[] getConstructors() {
+		return constructors;
+	}
+
 	public String toString(List<Function> functionStore, List<Type> constructorStore){
 		StringBuilder sb = new StringBuilder("OverloadedFunctionInstanceCall[");
-		if(functions.length > 0){
+		if(getFunctions().length > 0){
 			sb.append("functions:");
-			for(int i = 0; i < functions.length; i++){
-				int fi = functions[i];
+			for(int i = 0; i < getFunctions().length; i++){
+				int fi = getFunctions()[i];
 				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
 			}
 		}
-		if(constructors.length > 0){
-			if(functions.length > 0){
+		if(getConstructors().length > 0){
+			if(getFunctions().length > 0){
 				sb.append("; ");
 			}
 			sb.append("constructors:");
-			for(int i = 0; i < constructors.length; i++){
-				int ci = constructors[i];
+			for(int i = 0; i < getConstructors().length; i++){
+				int ci = getConstructors()[i];
 				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
 			}
 		}
@@ -82,10 +90,10 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Function nextFunction(final List<Function> functionStore) {
 		if(types == null) {
-			return alternative < functions.length ? functionStore.get(functions[alternative++]) : null;
+			return alternative < getFunctions().length ? functionStore.get(getFunctions()[alternative++]) : null;
 		} else {
-			while(alternative < functions.length) {
-				Function fun = functionStore.get(functions[alternative++]);
+			while(alternative < getFunctions().length) {
+				Function fun = functionStore.get(getFunctions()[alternative++]);
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -102,13 +110,13 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
-			if(constructors.length == 0){
+			if(getConstructors().length == 0){
 				System.err.println("empty constructor list!");
 			}
-			assert constructors.length >= 1;
-			return constructorStore.get(constructors[0]);
+			assert getConstructors().length >= 1;
+			return constructorStore.get(getConstructors()[0]);
 		} else {
-			for(int index : constructors) {
+			for(int index : getConstructors()) {
 				Type constructor = constructorStore.get(index);
 				for(Type type : types) {
 					try {
