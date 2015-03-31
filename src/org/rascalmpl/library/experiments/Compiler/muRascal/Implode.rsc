@@ -138,7 +138,7 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
    //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
    return (f is preCoroutine) ? muCoroutine(uid, f.name, scopeIn, size(f.formals), size(vardefs[uid]), f@location, refs,  muBlock(body))
-                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, true, f@location, [], (), muBlock(body));
+                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, true, f@location, [], (), false, 0, 0, muBlock(body));
 }
 
 str fuid = "";
