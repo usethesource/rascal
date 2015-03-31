@@ -4,6 +4,7 @@ import experiments::Compiler::RVM::AST;
 import Type;
 import List;
 import Set;
+import String;
 import Relation;
 import Map;
 import IO;
@@ -53,7 +54,7 @@ private map[int, list[Instruction]] makeBlocks(list[Instruction] instructions){
 }
 
 // Turn basic blocks into a control flow graph
-// By convention, the root node is has index 0.
+// By convention, the root node has index 0.
 
 private Graph[int] makeGraph(map[int, list[Instruction]]  blocks){
 
@@ -77,7 +78,16 @@ private Graph[int] makeGraph(map[int, list[Instruction]]  blocks){
 			 graph += {<i, labels[caseLabels[cl]]> | cl <- caseLabels} + {<i, labels[caseDefault]>};
 		} else if(TYPESWITCH(list[str] caseLabels) := current[-1]){
 			 graph += {<i, labels[cl]> | cl <- caseLabels};
-		} else if(RETURN0() !:= current[-1] && RETURN1(_)  !:= current[-1] && EXHAUST() !:= current[-1] && FAILRETURN() !:= current[-1] && THROW(_) !:= current[-1]){
+		} else if(LABEL(name) := current[-1]){
+			if(!startsWith(name, "CATCH_FROM")){		// TODO: better to pass makeGraph a set of catch_from labels
+				graph += {<i, i + 1>};
+			}
+		} else if(   RETURN0() !:= current[-1] 
+				  && RETURN1(_) !:= current[-1] 
+				  && EXHAUST() !:= current[-1] 
+				  && FAILRETURN() !:= current[-1] 
+				  && THROW(_) !:= current[-1]
+				  ){
 			graph += {<i, i + 1>};
 		}
 	}
@@ -137,29 +147,18 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	stackAtEntry = (0: 0);
 	stackAtExit  = (0: deltaSPBlock[0]);
 	maxSPPath    = (0: maxSPBlock[0]);
-	label2StackPos = ();
 	
 	void update(int blk, int successor, int sp){
+	    if(debug)println("update <blk>, <successor>, <sp>");
 		if(stackAtEntry[successor]?){
 			if(stackAtEntry[successor] != sp){
-				println("Inconsistent stackAtEntry for <src>, block <blk>: <stackAtEntry[successor]> versus <sp>");
+				throw("Inconsistent stackAtEntry for <src>, from block <blk> to <successor>: <stackAtEntry[successor]> versus <sp>");
 			}
+			maxSPPath[successor] = max(max(maxSPPath[blk], sp + maxSPBlock[successor]), maxSPPath[successor]);
 		} else {
 			stackAtEntry[successor] = sp;
 			stackAtExit[successor] = sp + deltaSPBlock[successor];
-			maxSPPath[successor] = max(maxSPPath[blk], maxSPBlock[successor]);
-			if(LABEL(str label) := blocks[successor][0]){
-				label2StackPos[label] = sp;
-				if(exceptions[label] != []){	// One or more attached catch clauses
-					for(exc <- exceptions){
-						if(exc.from == label){
-							if(debug)println("Updating catch block <exc.target>");
-							catchBlk = label2block[exc.target];
-							update(successor, catchBlk, sp);
-						}
-					}
-				}
-			}
+			maxSPPath[successor] = max(maxSPPath[blk], sp + maxSPBlock[successor]);
 		}	
 	}
 	
@@ -172,13 +171,20 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 			   }
 			}
 		}
+		for(exc <- exceptions){
+			fromBlk = label2block[exc.from];
+			targetBlk = label2block[exc.target];
+			if(stackAtEntry[fromBlk]? && !stackAtEntry[targetBlk]?){
+				update(fromBlk, targetBlk,  stackAtEntry[fromBlk]);
+			}
+		}
 	}
 	
-	maxStack = max(max(range(maxSPPath)), max(range(stackAtExit)));
+	maxStack = max(range(maxSPPath));
 	
 	// Update the fromSP fields
 	exceptions = for(exc <- exceptions){
-					exc.fromSP = stackAtEntry[label2block[exc.from]] ? 0; //TODO: why is ? 0 necessary?
+					exc.fromSP = stackAtEntry[label2block[exc.from]];
 					append exc;
 				 };
 	
@@ -186,13 +192,14 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("graph:          <graph>");
 		println("stackAtEntry:   <stackAtEntry>");
 		println("stackAtExit:    <stackAtExit>");
+		println("maxSPBlock:     <maxSPBlock>");
 		println("maxSPPath:      <maxSPPath>");
 		println("maxStack:       <maxStack>");
-		println("label2StackPos: <label2StackPos>");
+		println("label2block:    <label2block>");
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 2, exceptions>;  // + 1: to turn an index into a length; + 1: spare (needed for ParserGeneratorTests, but why?)
+	return <maxStack + 1, exceptions>;  // + 1: to turn an index into a length;
 }
 
 // Simulate the effect of each RVM instruction on the stack pointer
@@ -272,7 +279,7 @@ int simulate(RETURN1(int arity), int sp) 				= sp - arity;
 
 int simulate(FAILRETURN(), int sp) 						= sp;
 int simulate(FILTERRETURN(), int sp) 					= sp;
-int simulate(THROW(loc src), int sp) 					= sp;		// TODO Check This.
+int simulate(THROW(loc src), int sp) 					= sp + 2;		// TODO Check This.
 
 int simulate(CREATE(str fuid, int arity) , int sp)		= sp - arity + 1;
 int simulate(CREATEDYN(int arity), int sp) 				= sp - 1 - arity + 1;
@@ -281,7 +288,7 @@ int simulate(NEXT1(), int sp) 							= sp - 1;
 int simulate(YIELD0(), int sp) 							= sp + 1;
 int simulate(YIELD1(int arity), int sp) 				= sp - arity + 1;
 int simulate(EXHAUST(), int sp) 						= sp;
-int simulate(GUARD(), int sp)							= sp - 1;	// TODO: check this
+int simulate(GUARD(), int sp)							= sp - 1;
 int simulate(PRINTLN(int arity), int sp) 				= sp - arity;
 int simulate(POP(), int sp) 							= sp - 1;
 int simulate(HALT(), int sp) 							= sp;
@@ -298,5 +305,3 @@ int simulate(CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2), int sp)	= sp + 1;
 int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
 int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
-
-	
