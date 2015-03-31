@@ -26,7 +26,7 @@ public class Function {
 	 final int maxstack;
 	 final CodeBlock codeblock;
 	 IValue[] constantStore;
-	 Type[] typeConstantStore;
+	 public Type[] typeConstantStore;
 	 
 	 int[] froms;
 	 int[] tos;
@@ -67,7 +67,7 @@ public class Function {
 
 	public void finalize(BytecodeGenerator codeEmittor, final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing) {
 
-		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints, fromLabels, toLabels, types, handlerLabels, false);
+		codeEmittor.emitMethod(NameMangler.mangle(name), isCoroutine, continuationPoints, fromLabels, toLabels, fromSPs, types, handlerLabels, false);
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -122,7 +122,7 @@ public class Function {
 			handlers[i] = codeblock.getLabelPC(handler);			
 			handlerLabels[i] = handler;			
 			handlers[i] = codeblock.getLabelPC(handler);
-			fromSPs[i] = fromSP;
+			fromSPs[i] = fromSP + nlocals;
 			i++;
 		}
 		this.exceptions = exceptions ;
@@ -147,7 +147,8 @@ public class Function {
 	}
 	
 	public int getFromSP(){
-		return nlocals + fromSPs[lastHandler];
+//		return nlocals + fromSPs[lastHandler];
+		return fromSPs[lastHandler];
 	}
 	
 	public String getName() {

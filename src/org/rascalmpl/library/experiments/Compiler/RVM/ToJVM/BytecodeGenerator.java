@@ -55,6 +55,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 	private Set<String> catchTargetLabels = new HashSet<String>();
+	private Map<String, ExceptionLine> catchTargets = new HashMap<String, ExceptionLine>() ;
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
 
@@ -147,7 +148,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
-	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, String[] fromLabels, String[] toLabels, int[] types, String[] handlerLabels, boolean debug) {
+	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels, boolean debug) {
 
 		if (!emit)
 			return;
@@ -155,12 +156,13 @@ public class BytecodeGenerator implements Opcodes {
 		this.isCoroutine = isCoroutine;
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear(); 
+		catchTargets.clear();
 		
 
 		mv = cw.visitMethod(ACC_PUBLIC, name, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 		
-		emitExceptionTable(fromLabels, toLabels, types, handlerLabels);
+		emitExceptionTable(fromLabels, toLabels, fromSp, types, handlerLabels);
 		
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
@@ -248,13 +250,16 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitLabel(lb);
-		if ( catchTargetLabels.contains(targetLabel)) {
-			//System.err.println(targetLabel + " = exceptionTarget");
-			emitCatchLabelEpilogue();
-		}
-//		else {
-//			System.err.println(targetLabel);
+//		if ( catchTargetLabels.contains(targetLabel)) {
+//			int type = 0 , newsp = 0 ;
+//			//System.err.println(targetLabel + " = exceptionTarget");
+//			emitCatchLabelEpilogue(type, newsp);
 //		}
+		
+		ExceptionLine el = catchTargets.get(targetLabel) ;
+		if ( el != null ) {
+			emitCatchLabelEpilogue(el.type, el.newsp);
+		}
 	}
 
 	// A call to a RVM instruction not CALL or OCALL
@@ -1260,7 +1265,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AASTORE);
 	}
 
-	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] types, String[] handlerLabels) {
+	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels) {
 		if (!emit)
 			return;
 
@@ -1271,25 +1276,54 @@ public class BytecodeGenerator implements Opcodes {
 			Label handlerLabel = getNamedLabel(handlerLabels[i]) ;
 
 			catchTargetLabels.add(handlerLabels[i]) ;
+			catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i])) ;
+			
+			System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
+			
 			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel,  "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
 		}
 	}
 	
-	public void emitCatchLabelEpilogue() {
+	public void emitCatchLabelEpilogue(int type, int newsp) {
+
+// --- Code implements.		
+//		catch(Thrown e) {
+//			sp = newsp ;
+//			stack[sp++] = e ;
+//			if ( ! e.value.getType().isSubtypeOf(cf.function.typeConstantStore[type]) ) 
+//				throw e ; 
+//		}
+//      .....		
 		if (!emit)
 			return;
-
+		Label noReThrow = new Label(); 
+		
 		mv.visitVarInsn(ASTORE, EXCEPTION);
 
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-		mv.visitVarInsn(ISTORE, SP);		
+		emitIntValue(newsp);
 		
+		mv.visitVarInsn(ISTORE, SP);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, EXCEPTION);
 		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ALOAD, EXCEPTION);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown", "value", "Lorg/eclipse/imp/pdb/facts/IValue;");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValue", "getType", "()Lorg/eclipse/imp/pdb/facts/type/Type;");
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/eclipse/imp/pdb/facts/type/Type;");
+
+		emitIntValue(type);
+
+		mv.visitInsn(AALOAD);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/imp/pdb/facts/type/Type", "isSubtypeOf", "(Lorg/eclipse/imp/pdb/facts/type/Type;)Z");
+		mv.visitJumpInsn(IFNE, noReThrow);
+		mv.visitVarInsn(ALOAD, EXCEPTION);
+		mv.visitInsn(ATHROW);
+		mv.visitLabel(noReThrow);	
+		
 	}
 
 	public void emitInlineThrow(boolean debug) {
@@ -1332,4 +1366,16 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 		mv.visitInsn(AASTORE);
 	}
+	
+	private class ExceptionLine {
+		String catchLabel;
+		int    newsp ;
+		int    type ;
+		public ExceptionLine(String lbl, int sp, int type) {
+			this.catchLabel = lbl;
+			this.newsp = sp ;
+			this.type = type ;
+		}
+	}
+
 }
