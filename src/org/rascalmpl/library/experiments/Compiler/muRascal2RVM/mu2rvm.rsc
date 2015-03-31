@@ -285,6 +285,9 @@ RVMProgram mu2rvm(muModule(str module_name,
     							   						   "default" in fun.modifiers,
     							   						   fun.src, 
     							   						   required_frame_size, 
+    							   						   fun.isConcreteArg,
+    							   						   fun.abstractFingerprint,
+    							   						   fun.concreteFingerprint,
     							   						   code, 
     							   						   exceptions));
   
@@ -300,6 +303,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   code = trvoidblock(initializations); // compute code first since it may generate new locals!
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
   funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
+  										 false, 0, 0,
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -525,6 +529,7 @@ INS tr(muCreate2(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREAT
 //    prevFunctionScope = functionScope;
 //    functionScope = fuid;
 //    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
+//										 false, 0, 0,
 //                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
 //    functionScope = prevFunctionScope; 
 //    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];

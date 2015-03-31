@@ -353,7 +353,7 @@ map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, bool useConcre
 	 return table;
 }
 
-private int fingerprintDefault = getFingerprint("default", false);
+private int fingerprintDefault = 0; //getFingerprint("default", false);
 
 tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool useConcreteFingerprint, list[Case] cases) {
   map[int,MuExp] table = ();		// label + generated code per case

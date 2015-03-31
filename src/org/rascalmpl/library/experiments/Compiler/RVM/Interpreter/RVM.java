@@ -61,7 +61,7 @@ public class RVM implements java.io.Serializable {
 	private boolean trackCalls = false;
 	private boolean finalized = false;
 	
-	private final ArrayList<Function> functionStore;
+	final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
 	
 	// Function overloading
@@ -300,7 +300,7 @@ public class RVM implements java.io.Serializable {
 //				}
 				constrs[i++] = index;
 			}
-			res = new OverloadedFunction(funs, constrs, scopeIn);
+			res = new OverloadedFunction(this, funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
 		}
 	}
@@ -382,7 +382,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof OverloadedFunctionInstance) {
 			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
 			String alts = "";
-			for(Integer fun : of.functions) {
+			for(Integer fun : of.getFunctions()) {
 				alts = alts + functionStore.get(fun).getName() + "; ";
 			}
 			return "OverloadedFunction[ alts: " + alts + "]";
@@ -1020,11 +1020,12 @@ public class RVM implements java.io.Serializable {
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
 						OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity);
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, cf, null, arity)  // changed root to cf
-								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+						Object arg0 = stack[sp - arity];
+						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
+								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
 					}
 					
 					if(ocall_debug) {
@@ -1034,23 +1035,11 @@ public class RVM implements java.io.Serializable {
 							stdout.println("OVERLOADED FUNCTION CALLDYN: ");
 						}
 						stdout.println("	with alternatives:");
-						for(int index : c_ofun_call_next.functions) {
+						for(int index : c_ofun_call_next.getFunctions()) {
 							stdout.println("		" + getFunctionName(index));
 						}
 						stdout.flush();
 					}
-					
-//					if(debug) {
-//						if(op == Opcode.OP_OCALL) {
-//							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
-//						} else {
-//							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
-//						}
-//						this.appendToTrace("	with alternatives:");
-//						for(int index : c_ofun_call_next.functions) {
-//							this.appendToTrace("		" + getFunctionName(index));
-//						}
-//					}
 					
 					Frame frame = c_ofun_call_next.nextFrame(functionStore);
 					
@@ -1059,9 +1048,7 @@ public class RVM implements java.io.Serializable {
 						ocalls.push(c_ofun_call);
 					
 						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
-//						if(debug) {
-//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-//						}
+
 						cf = frame;
 						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 						instructions = cf.function.codeblock.getInstructions();
@@ -1097,9 +1084,6 @@ public class RVM implements java.io.Serializable {
 						
 						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush(); }
 						
-//						if(debug) {
-//							this.appendToTrace("		" + "try alternative: " + frame.function.name);
-//						}
 						cf = frame;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;

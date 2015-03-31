@@ -17,8 +17,8 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternalValue {
 	
-	final int[] functions;
-	final int[] constructors;
+	private final int[] functions;
+	private final int[] constructors;
 	final Frame env;
 	
 	private Type type;
@@ -37,22 +37,30 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		this.rvm = rvm;
 	}
 	
+	int[] getFunctions() {
+		return functions;
+	}
+
+	int[] getConstructors() {
+		return constructors;
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder("OverloadedFunctionInstance[");
-		if(functions.length > 0){
+		if(getFunctions().length > 0){
 			sb.append("functions:");
-			for(int i = 0; i < functions.length; i++){
-				int fi = functions[i];
+			for(int i = 0; i < getFunctions().length; i++){
+				int fi = getFunctions()[i];
 				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
 			}
 		}
-		if(constructors.length > 0){
-			if(functions.length > 0){
+		if(getConstructors().length > 0){
+			if(getFunctions().length > 0){
 				sb.append("; ");
 			}
 			sb.append("constructors:");
-			for(int i = 0; i < constructors.length; i++){
-				int ci = constructors[i];
+			for(int i = 0; i < getConstructors().length; i++){
+				int ci = getConstructors()[i];
 				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
 			}
 		}
@@ -80,10 +88,10 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 			return this.type;
 		}
 		Set<FunctionType> types = new HashSet<FunctionType>();
-		for(int fun : this.functions) {
+		for(int fun : this.getFunctions()) {
 			types.add((FunctionType) functionStore.get(fun).ftype);
 		}
-		for(int constr : this.constructors) {
+		for(int constr : this.getConstructors()) {
 			Type type = constructorStore.get(constr);
 			// TODO: void type for the keyword parameters is not right. They should be retrievable from a type store dynamically.
 			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), TypeFactory.getInstance().voidType()));

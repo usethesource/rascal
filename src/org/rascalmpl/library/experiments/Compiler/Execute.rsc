@@ -48,7 +48,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   	    <maxSP, exceptions> = validate(fun.src, body, []);
   	    required_frame_size = get_nlocals() + maxSP;
     	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
-    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, body, []);
+    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
+    									  			 false, 0, 0, body, []);
   	}
   	// Specific to delimited continuations (experimental)
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
