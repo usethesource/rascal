@@ -28,7 +28,7 @@ public class CallJava extends Instruction {
 		if ( !dcode ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFIIII("insnCALLJAVA", methodName, className, parameterTypes, reflect, dcode);
+		codeEmittor.emitCallWithArgsSSFIIIII("insnCALLJAVA", methodName, className, parameterTypes, keywordTypes, reflect, dcode);
 
 		codeblock.addCode(opcode.getOpcode());
 		codeblock.addCode(methodName);

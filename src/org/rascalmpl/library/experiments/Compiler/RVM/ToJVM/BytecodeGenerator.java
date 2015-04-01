@@ -1030,10 +1030,9 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3); // Stack
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); 
 
-		mv.visitVarInsn(ALOAD, THIS); // SP
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 1); // CF
 
 		emitIntValue(methodName); // I
@@ -1043,18 +1042,36 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIII)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+	}
+
+	public void emitCallWithArgsSSFIIIII(String fname, int methodName, int className, int parameterTypes, int keywordTypes, int reflect, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); 
+		mv.visitVarInsn(ALOAD, CF); // CF
+
+		emitIntValue(methodName); // I
+		emitIntValue(className); // I
+		emitIntValue(parameterTypes); // I
+		emitIntValue(keywordTypes); // I
+		emitIntValue(reflect); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIIII)I");
+		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	public void emitVoidCallWithArgsSS(String fname, boolean dcode) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3); // Stack
-		mv.visitVarInsn(ALOAD, THIS); // SP
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); 
+		
+//		mv.visitVarInsn(ALOAD, THIS); // SP
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)V");
 	}
 
@@ -1278,7 +1295,7 @@ public class BytecodeGenerator implements Opcodes {
 			catchTargetLabels.add(handlerLabels[i]) ;
 			catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i])) ;
 			
-			System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
+			//System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
 			
 			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel,  "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
 		}
