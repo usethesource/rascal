@@ -907,27 +907,15 @@ public class RVMRun implements IRVM {
 	}
 
 	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxArg2) {
-		postOp = 0;
-		Object rval;
-
+	
 		if (maxArg2) {
-			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
-			if (rval == null) {
-				postOp = Opcode.POSTOP_CHECKUNDEF;
-				return sp; // TODO break INSTRUCTION;
-			}
-			stack[sp++] = rval;
+			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
 		}
 
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
-				rval = fr.stack[pos];
-				if (rval == null) {
-					postOp = Opcode.POSTOP_CHECKUNDEF;
-					return sp; // TODO break INSTRUCTION;
-				}
-				stack[sp++] = rval;
+				stack[sp++] = fr.stack[pos];
 				return sp;
 			}
 		}
@@ -935,21 +923,19 @@ public class RVMRun implements IRVM {
 	}
 
 	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-		Object rval;
+
 		if (maxarg2) {
-			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
-			stack[sp++] = rval;
+			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
 		}
 
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
-				rval = new Reference(fr.stack, pos);
-				stack[sp++] = rval;
+				stack[sp++] = new Reference(fr.stack, pos);
 				return sp;
 			}
 		}
-		throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
+		throw new RuntimeException("LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
 	public int insnLOADVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
