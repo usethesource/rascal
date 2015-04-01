@@ -1035,46 +1035,29 @@ public class RVMRun implements IRVM {
 	}
 
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
-
-		// int arity;
-		// postOp = 0;
-		// String methodName = ((IString) cf.function.constantStore[m]).getValue();
-		// String className = ((IString) cf.function.constantStore[c]).getValue();
-		// Type parameterTypes = cf.function.typeConstantStore[p];
-		// int reflect = r;
-		// arity = parameterTypes.getArity();
-		// try {
-		// sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
-		// } catch (Throw e) {
-		// thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
-		// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-		// return sp; // TODO break INSTRUCTION;
-		// }
-		// return sp;
-
-		String methodName = ((IString) cf.function.constantStore[m]).getValue();
-		String className = ((IString) cf.function.constantStore[c]).getValue();
+		int newsp = sp ;
+		String methodName =  ((IString) cf.function.constantStore[m]).getValue();
+		String className =  ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
 		Type keywordTypes = cf.function.typeConstantStore[k];
 		int reflect = r;
 		arity = parameterTypes.getArity();
 		try {
-			sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
-		} catch (Throw e) {
+		    newsp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
+		} catch(Throw e) {
 			stacktrace.add(cf);
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
-			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-		} catch (Thrown e) {
+			//postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Thrown e){
 			stacktrace.add(cf);
 			thrown = e;
-			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-		} catch (Exception e) {
+			//postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Exception e){
 			e.printStackTrace(stderr);
-			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
-		}
-
-		return sp;
-
+			stderr.flush();
+			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
+		} 
+		return newsp;
 	}
 
 	public int insnAPPLY(Object[] lstack, int lsp, int function, int arity) {
@@ -1746,17 +1729,17 @@ public class RVMRun implements IRVM {
 
 	public void validateInstructionAdressingLimits() {
 		int nfs = functionStore.size();
-		System.out.println("size functionStore: " + nfs);
+		//System.out.println("size functionStore: " + nfs);
 		if (nfs >= CodeBlock.maxArg) {
 			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int ncs = constructorStore.size();
-		System.out.println("size constructorStore: " + ncs);
+		//System.out.println("size constructorStore: " + ncs);
 		if (ncs >= CodeBlock.maxArg) {
 			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int nov = overloadedStore.size();
-		System.out.println("size overloadedStore: " + nov);
+		//System.out.println("size overloadedStore: " + nov);
 		if (nov >= CodeBlock.maxArg) {
 			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
