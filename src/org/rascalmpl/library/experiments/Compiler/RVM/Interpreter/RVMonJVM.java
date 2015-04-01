@@ -247,7 +247,9 @@ public class RVMonJVM implements IRVM {
 				// TODO: new finalize
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
-
+			for(OverloadedFunction of : overloadedStore) {
+				of.finalize(functionMap);
+			}
 			// All functions are created create int based dispatcher
 			codeEmittor.emitDynDispatch(functionMap.size());
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
@@ -409,17 +411,17 @@ public class RVMonJVM implements IRVM {
 	}
 	public void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		System.out.println("size functionStore: " + nfs);
+		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
 			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int ncs = constructorStore.size();
-		System.out.println("size constructorStore: " + ncs);
+		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
 			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int nov = overloadedStore.size();
-		System.out.println("size overloadedStore: " + nov);
+		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
 			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
