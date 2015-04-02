@@ -56,18 +56,18 @@ private map[int, list[Instruction]] makeBlocks(list[Instruction] instructions){
 // Turn basic blocks into a control flow graph
 // By convention, the root node has index 0.
 
-private Graph[int] makeGraph(map[int, list[Instruction]]  blocks){
-
+private Graph[int] makeGraph(map[int, list[Instruction]]  blocks, set[str] exceptionTargets){
 	labels = ();
 	graph = {};
-	for(int i <- domain(blocks)){
+	blockNumbers = domain(blocks);
+	for(int i <- blockNumbers){
 		current = blocks[i];
 		if(LABEL(str name) := current[0]){
 			labels[name] = i;
 		}
 	}
 	
-	for(int i <- domain(blocks)){
+	for(int i <- blockNumbers){
 		current = blocks[i];
 		if(JMP(str name) := current[-1]){
 			graph += <i, labels[name]>;
@@ -78,17 +78,16 @@ private Graph[int] makeGraph(map[int, list[Instruction]]  blocks){
 			 graph += {<i, labels[caseLabels[cl]]> | cl <- caseLabels} + {<i, labels[caseDefault]>};
 		} else if(TYPESWITCH(list[str] caseLabels) := current[-1]){
 			 graph += {<i, labels[cl]> | cl <- caseLabels};
-		} else if(LABEL(name) := current[-1]){
-			if(!startsWith(name, "CATCH_FROM")){		// TODO: better to pass makeGraph a set of catch_from labels
-				graph += {<i, i + 1>};
+		} else if(getName(current[-1]) notin {"RETURN0", "RETURN1", "EXHAUST", "FAILRETURN", "THROW"}){
+			  if(i + 1 in blockNumbers){
+			  	if(LABEL(name) := blocks[i + 1][0]){
+			  		if(name notin exceptionTargets){
+			  			graph += {<i, i + 1>};
+			  		}
+			  	} else {
+			  		graph += {<i, i + 1>};
+			  	}
 			}
-		} else if(   RETURN0() !:= current[-1] 
-				  && RETURN1(_) !:= current[-1] 
-				  && EXHAUST() !:= current[-1] 
-				  && FAILRETURN() !:= current[-1] 
-				  && THROW(_) !:= current[-1]
-				  ){
-			graph += {<i, i + 1>};
 		}
 	}
 	return carrierR(graph, domain(blocks));
@@ -137,11 +136,13 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	if(isEmpty(instructions)){
 		return <1, exceptions>;	// Allow a single constant to be pushed in _init and _testsuite functions
 	}
+
 	blocks = makeBlocks(instructions);
 	label2block = (label : blk | blk <- blocks, LABEL(label) := blocks[blk][0]);
-	//println("exceptions: <exceptions>");
+
+	targets = toSet(exceptions.target);
 	
-	graph = makeGraph(blocks);
+	graph = makeGraph(blocks, targets);
 	<deltaSPBlock, maxSPBlock> = computeStackEffects(blocks);
 
 	stackAtEntry = (0: 0);
@@ -184,7 +185,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	
 	// Update the fromSP fields
 	exceptions = for(exc <- exceptions){
-					exc.fromSP = stackAtEntry[label2block[exc.from]];
+					exc.fromSP = stackAtEntry[label2block[exc.from]] ? 0;
 					append exc;
 				 };
 	
@@ -201,6 +202,186 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	
 	return <maxStack + 1, exceptions>;  // + 1: to turn an index into a length;
 }
+
+value main(list[value] args) =
+validate(
+|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst1.rsc|,
+[
+  LOADCON(false),
+  LOADLOC(0),
+  SWITCH(
+    (101776608:"L52_101776608"),
+    "L52",
+    false),
+  LABEL("L52_101776608"),
+  POP(),
+  LOAD_NESTED_FUN("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269/PHI_0/ALL_8(0)","experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269/PHI_0"),
+  CREATEDYN(0),
+  STORELOC(14),
+  NEXT0(),
+  JMPFALSE("ELSE_LAB65"),
+  LOADBOOL(true),
+  STORELOCDEREF(1),
+  POP(),
+  CALLPRIM(
+    "listwriter_open",
+    0,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12509,60,<278,6>,<279,21>)),
+  STORELOC(10),
+  POP(),
+  LABEL("L54"),
+  LOADLOC(8),
+  LOADCON("conditional"),
+  CALLPRIM(
+    "is",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12516,16,<278,13>,<278,29>)),
+  JMPFALSE("ELSE_LAB67"),
+  LOADCON(true),
+  JMP("CONTINUE_LAB67"),
+  LABEL("ELSE_LAB67"),
+  LOADLOC(8),
+  LOADCON("label"),
+  CALLPRIM(
+    "is",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12536,10,<278,33>,<278,43>)),
+  LABEL("CONTINUE_LAB67"),
+  JMPFALSE("BREAK_TMP8"),
+  LOADLOC(8),
+  LOADCON("symbol"),
+  CALLPRIM(
+    "adt_field_access",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12560,8,<279,12>,<279,20>)),
+  STORELOC(8),
+  POP(),
+  JMP("L54"),
+  LABEL("BREAK_TMP8"),
+  LOADLOC(10),
+  CALLPRIM(
+    "listwriter_close",
+    1,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12509,60,<278,6>,<279,21>)),
+  POP(),
+  LOADCON(false),
+  LOADLOC(8),
+  STORELOC(11),
+  SWITCH(
+    (25942208:"L56_25942208"),
+    "L56",
+    false),
+  LABEL("L56_25942208"),
+  POP(),
+  LOADLOC(11),
+  LOADCON("iter"),
+  LOADTYPE(adt(
+      "Symbol",
+      [])),
+  LOADLOCREF(9),
+  APPLY("Library/MATCH_TYPED_VAR",2),
+  CALLMUPRIM("make_array",0),
+  CALLMUPRIM("make_array",0),
+  APPLY("Library/MATCH_KEYWORD_PARAMS",2),
+  CALLMUPRIM("make_array",2),
+  APPLY("Library/MATCH_SIMPLE_CALL_OR_TREE",2),
+  APPLYDYN(1),
+  CREATEDYN(0),
+  STORELOC(15),
+  NEXT0(),
+  JMPFALSE("ELSE_LAB68"),
+  LOADVAR("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269",4),
+  LOADLOC(8),
+  LABEL("TRY_FROM_L58"),
+  LOADVAR("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269",4),
+  LOADLOC(8),
+  CALLPRIM(
+    "map_subscript",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12643,8,<283,10>,<283,18>)),
+  LABEL("TRY_TO_L58"),
+  LOADLOC(7),
+  LOADCON(0),
+  CALLMUPRIM("make_mmap",0),
+  OCALL(
+    "experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269/blk#0/bool_scope#0/blk#0/blk#1/bool_scope#0/blk#0/bool_scope#0/use:item#283(adt(\"Production\",[]);int();)#12662_9",
+    3,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12662,9,<283,29>,<283,38>)),
+  LOADVAR("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269",3),
+  LOADLOC(9),
+  LOADCON(0),
+  CALLMUPRIM("make_mmap",0),
+  OCALL(
+    "experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269/blk#0/bool_scope#0/blk#0/blk#1/bool_scope#0/blk#0/bool_scope#0/use:sym2newitem#283(adt(\"Grammar\",[]);adt(\"Symbol\",[]);int();)#12672_23",
+    4,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12672,23,<283,39>,<283,62>)),
+  CALLPRIM(
+    "map_create",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12661,35,<283,28>,<283,63>)),
+  CALLPRIM(
+    "map_add_map",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12643,14,<283,10>,<283,24>)),
+  CALLPRIM(
+    "map_update",
+    3,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12643,8,<283,10>,<283,18>)),
+  STOREVAR("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269",4),
+  STORELOC(11),
+  POP(),
+  LOADCON(true),
+  JMP("CONTINUE_LAB68"),
+  LABEL("ELSE_LAB68"),
+  LOADCON(false),
+  LABEL("CONTINUE_LAB68"),
+  LABEL("L56"),
+  JMPTRUE("CONTINUE_L56"),
+  LOADCON(777),
+  STORELOC(11),
+  POP(),
+  LABEL("CONTINUE_L56"),
+  LOADLOC(11),
+  POP(),
+  LOADLOC(0),
+  RETURN1(1),
+  LABEL("ELSE_LAB65"),
+  LOADLOC(0),
+  RETURN1(1),
+  LABEL("L52"),
+  JMPTRUE("CONTINUE_L52"),
+  LOADLOC(0),
+  RETURN1(1),
+  LABEL("CONTINUE_L52"),
+  LOADLOC(0),
+  LABEL("CATCH_FROM_L61"),
+  LABEL("CATCH_FROM_L59"),
+  STORELOC(13),
+  POP(),
+  LOADLOC(13),
+  UNWRAPTHROWNLOC(12),
+  JMP("L63"),
+  LABEL("FAIL_LAB70"),
+  JMP("ELSE_LAB70"),
+  LABEL("L63"),
+  LOADLOC(12),
+  CALLMUPRIM("get_name",1),
+  LOADCON({"IndexOutOfBounds","NoSuchField","NoSuchAnnotation","NoSuchKey","UninitializedVariable"}),
+  CALLPRIM(
+    "elm_in_set",
+    2,
+    |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12643,14,<283,10>,<283,24>)),
+  JMPFALSE("ELSE_LAB70"),
+  LOADVAR("experiments::Compiler::Examples::Tst2/generateNewItems(adt(\"Grammar\",[]);)#269",5),
+  JMP("CONTINUE_LAB70"),
+  LABEL("ELSE_LAB70"),
+  LOADLOC(13),
+  THROW(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(12643,14,<283,10>,<283,24>)),
+  LABEL("CONTINUE_LAB70"),
+  LABEL("CATCH_TO_L59"),
+  JMP("TRY_TO_L58")
+],
+[<"TRY_FROM_L58","TRY_TO_L58",\value(),"CATCH_FROM_L59",0>]);
 
 // Simulate the effect of each RVM instruction on the stack pointer
 
