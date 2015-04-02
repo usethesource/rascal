@@ -1398,6 +1398,32 @@ public class Prelude {
 		}
 	}
 	
+	public IList shuffle(IList l, IInteger seed) {
+		return shuffle(l, new Random(2305843009213693951L * seed.hashCode()));
+
+	}
+
+	public IList shuffle(IList l) {
+		return shuffle(l, new Random());
+	}
+
+	private IList shuffle(IList l, Random rand) {
+		IValue[] tmpArr = new IValue[l.length()];
+		int i = 0;
+		for (IValue v : l) {
+			tmpArr[i++] = v;
+		}
+		// we use Fisher–Yates shuffle (or Knuth shuffle)
+		// it is unbiased and runs in linear time
+		for (i = tmpArr.length-1; i > 0; i--) {
+			int j = rand.nextInt(i + 1);
+			IValue tmp = tmpArr[i];
+			tmpArr[i] = tmpArr[j];
+			tmpArr[j] = tmp;
+		}
+		return values.list(tmpArr);
+	}
+	
 	public IList sort(IList l, IValue cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
