@@ -8,6 +8,7 @@
 package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
@@ -70,6 +71,12 @@ public class LazyList implements IList {
 
 	@Override
 	public IList reverse() {
+		throw new IllegalOperationException("isEqual over buffered list",
+				getType());
+	}
+	
+	@Override
+	public IList shuffle(Random rand) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
