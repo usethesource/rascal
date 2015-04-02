@@ -785,72 +785,20 @@ public class RVMRun implements IRVM {
 		this.functionMap = functionMap2;
 	}
 
-	// final public void insnPOP() {
-	// sp--;
-	// }
-
-	// public int insnPOP(int sp) {
-	// return --sp;
-	// }
-	//
-	// public void insnLOADLOC0() {
-	// stack[sp++] = stack[0];
-	// }
-	//
-	// public void insnLOADLOC1() {
-	// stack[sp++] = stack[1];
-	// }
-	//
-	// public void insnLOADLOC2() {
-	// stack[sp++] = stack[2];
-	// }
-	//
-	// public void insnLOADLOC3() {
-	// stack[sp++] = stack[3];
-	// }
-	//
-	// public void insnLOADLOC4() {
-	// stack[sp++] = stack[4];
-	// }
-	//
-	// public void insnLOADLOC5() {
-	// stack[sp++] = stack[5];
-	// }
-	//
-	// public void insnLOADLOC6() {
-	// stack[sp++] = stack[6];
-	// }
-	//
-	// public void insnLOADLOC7() {
-	// stack[sp++] = stack[7];
-	// }
-	//
-	// public void insnLOADLOC8() {
-	// stack[sp++] = stack[8];
-	// }
-	//
-	// public void insnLOADLOC9() {
-	// stack[sp++] = stack[9];
-	// }
-	//
-	// public void insnLOADLOC(int i) {
-	// stack[sp++] = stack[i];
-	// }
-
-	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
-		stack[sp++] = Rascal_TRUE;
-		return sp;
-	}
-
-	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
-		stack[sp++] = Rascal_FALSE;
-		return sp;
-	}
-
-	public int insnLOADINT(Object[] stack, int sp, int i) {
-		stack[sp++] = i;
-		return sp;
-	}
+//	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
+//		stack[sp++] = Rascal_TRUE;
+//		return sp;
+//	}
+//
+//	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
+//		stack[sp++] = Rascal_FALSE;
+//		return sp;
+//	}
+//
+//	public int insnLOADINT(Object[] stack, int sp, int i) {
+//		stack[sp++] = i;
+//		return sp;
+//	}
 
 	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
@@ -1130,10 +1078,10 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public int insnSUBTYPE(Object[] stock, int sop) {
-		sop--;
-		stock[sop - 1] = vf.bool(((Type) stock[sop - 1]).isSubtypeOf((Type) stock[sop]));
-		return sop;
+	public int insnSUBTYPE(Object[] stack, int sp) {
+		sp--;
+		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
+		return sp;
 	}
 
 	public int insnCHECKARGTYPEANDCOPY(Object[] lstack, int lsp, Frame cof, int loc, int type, int toLoc) {
@@ -1174,20 +1122,20 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public void insnTHROW(Object[] stack, int sp, Frame cf) {
-		Object obj = stack[--sp];
-		thrown = null;
-		if (obj instanceof IValue) {
-			stacktrace = new ArrayList<Frame>();
-			stacktrace.add(cf);
-			// thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
-		} else {
-			// Then, an object of type 'Thrown' is on top of the stack
-			thrown = (Thrown) obj;
-		}
-		postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-		// TODO break INSTRUCTION;
-	}
+//	public void insnTHROW(Object[] stack, int sp, Frame cf) {
+//		Object obj = stack[--sp];
+//		thrown = null;
+//		if (obj instanceof IValue) {
+//			stacktrace = new ArrayList<Frame>();
+//			stacktrace.add(cf);
+//			// thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+//		} else {
+//			// Then, an object of type 'Thrown' is on top of the stack
+//			thrown = (Thrown) obj;
+//		}
+//		postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+//		// TODO break INSTRUCTION;
+//	}
 
 	public int insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
