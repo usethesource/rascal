@@ -801,29 +801,6 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 		}
 		mv.visitInsn(AASTORE);		
-		
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		
-//		mv.visitVarInsn(ALOAD, STACK);
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitInsn(DUP_X1);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitInsn(IADD);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-//
-//		if (b) {
-//			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-//		} else {
-//			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-//		}
-//		mv.visitInsn(AASTORE);
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	public void emitCallWithArgsSS(String fname) {
