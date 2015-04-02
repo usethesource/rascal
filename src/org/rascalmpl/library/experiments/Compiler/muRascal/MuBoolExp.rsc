@@ -95,8 +95,8 @@ tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, [ e:muOne1(MuE
 tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, [ MuExp e ], loc src) = <e,[]> when !(muMulti(_) := e || muOne1(MuExp _) := e);
 
 default tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, list[MuExp] exps, loc src) {
-	//println("makeMu, default: <operator>, <fuid>, <exps>, <src>");
-    assert(size(exps) >= 1) : "makeMu: number of expressions should be \>= 1";
+	//println("makeBoolExp, default: <operator>, <fuid>, <exps>, <src>");
+    assert(size(exps) >= 1) : "makeBoolExp: number of expressions should be \>= 1";
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
         list[MuExp] expressions = [];
         list[bool] backtrackfree = [];
@@ -179,6 +179,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("ALL", str fuid, list[MuExp
 }
 
 private tuple[MuExp,list[MuFunction]] generateMuCode("RASCAL_ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
+	//println("generateMuCode: RASCAL_ALL, <exps>");
     list[MuFunction] functions = [];
     str all_uid = "<fuid>/RASCAL_ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i) | int i <- index(exps) ];

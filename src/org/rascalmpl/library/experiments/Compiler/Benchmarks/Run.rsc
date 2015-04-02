@@ -116,14 +116,14 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted2.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
 map[str, list[num]] prevMeasurementsInterpreted = ();
 
-int nsamples = 5;  									// Number of samples per data point.
+int nsamples = 10;  									// Number of samples per data point.
 
 // Analysis of the data of one job
 alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num imean, num idev];
@@ -281,22 +281,23 @@ void main_paper(){
 }
 
 void main_paper1(){
-   run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension",/*"BExceptions",*/"BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension",/*"BExceptions",*/"BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
              		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
              	]);
 }
 
 void main_paper2(){
-   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
    						//"BRSFCalls",
    						"BSendMoreMoney",
    						//"BSendMoreMoneyNotTyped",
-   						"BSudoku","BTemplate"
+   						//"BSudoku",
+   						"BTemplate"
    					 ]);
 }
 
 void main_setmatch(){
-   run_benchmarks(5, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
+   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
 }
 
