@@ -363,13 +363,13 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   //if(nformals > 0) println("formals[0] = <formals[0]>");
   
   absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
- // println("absfpArg = <absfpArg>");
+  //println("absfpArg = <absfpArg>");
   isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
   concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
   //println("concfpArg = <concfpArg>");
  
  
-  //println("translateFunctionDeclaration, fp = <fp>");
+  //println("translateFunctionDeclaration, fd = <fd>");
   
   //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   

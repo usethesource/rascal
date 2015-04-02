@@ -187,7 +187,7 @@ RVMProgram mu2rvm(muModule(str module_name,
                            map[Symbol, Production] grammar, 
                            loc src), 
                   bool listing=false){
-  
+ 
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMProgram(module_name, messages, src);
   }
@@ -200,7 +200,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   	 main_fun = getFUID(module_name,"main",ftype,0);
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
-  
+ 
   funMap = ();
   nlabel = -1;
   nlocal =   ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
@@ -257,9 +257,8 @@ RVMProgram mu2rvm(muModule(str module_name,
     	| tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 									 
     	  tuple[str from, str to] range <- entry.ranges
     	];
-    	
+  
     <maxStack, exceptions> = validate(fun.src, code, exceptions);
-    
     required_frame_size = nlocal[functionScope] + maxStack; // estimate_stack_size(fun.body);
     
     funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, 

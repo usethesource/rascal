@@ -8,6 +8,7 @@ import Message;
 import List;
 import Set;
 import ParseTree;
+import util::Benchmark;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
@@ -63,6 +64,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
 
 tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, 
 									bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage = false, loc bindir = |home:///bin|){
+									
+   start_loading = cpuTime();
    map[str,Symbol] imported_types = ();
    list[experiments::Compiler::RVM::AST::Declaration] imported_declarations = [];
    lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions = [];
@@ -204,6 +207,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    //println("overloaded_functions:");  for(fn <- mainProgram.overloaded_functions) if(contains(fn[0], "subtype"))  println("<fn>");
    //println("overloading_resolvers:"); for(res <- mainProgram.resolver) println("<res>: <mainProgram.resolver[res]>");
    
+   load_time = cpuTime() - start_loading;
    <v, t> = executeProgram(mainProgram, 
    						   imported_types,
    						   imported_declarations, 
@@ -216,7 +220,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   trackCalls, 
    						   coverage);
    if(!testsuite){
-   	println("Result = <v>, [<t> msec]");
+   	println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }
