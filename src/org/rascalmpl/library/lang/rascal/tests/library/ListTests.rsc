@@ -254,6 +254,11 @@ test bool sort1b() = sort([3,2,1], bool(int a, int b){return a > b;}) == [3,2,1]
 @expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
 @expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
 
+
+test bool shuffleFirstIndex(list[value] v) = v == [] || ({ shuffle(v)[0] | i <- [0..50 * size(v)]} == {*v});
+test bool shuffleLastIndex(list[value] v) = v == [] || ({ shuffle(v)[size(v) - 1] | i <- [0..50 * size(v)]} == {*v});
+test bool shuffleStable(list[value] v, int x) = v == [] || shuffle(v, x) == shuffle(v, x);
+
 // split
 test bool split1() = split([]) == <[],[]>;
 test bool split2() = split([1]) == <[],[1]>;
