@@ -8,11 +8,17 @@ public class Reset extends Instruction {
 	public Reset(CodeBlock ins) {
 		super(ins, Opcode.RESET);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCall("insnRESET");
 		codeblock.addCode0(opcode.getOpcode());
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitDebugCall(opcode.name());
 	}
 }

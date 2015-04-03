@@ -12,14 +12,20 @@ public class StoreLocKwp extends Instruction {
 		this.name = name;
 	}
 	
-	public String toString() { return "STORELOC " + name + " [" + codeblock.getConstantIndex(codeblock.vf.string(name)) + "]"; }
+	public String toString() { return "STORELOCKWP " + name + " [" + codeblock.getConstantIndex(codeblock.vf.string(name)) + "]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),dcode);
+		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(codeblock.vf.string(name)));
 	}
 
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
+	}
 }

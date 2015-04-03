@@ -8,11 +8,18 @@ public class SubtractInt extends Instruction {
 	public SubtractInt(CodeBlock ins) {
 		super(ins, Opcode.SUBTRACTINT);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSS("insnSUBTRACTINT");
 		codeblock.addCode0(opcode.getOpcode());
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSS("insnSUBTRACTINT");
 	}
 }

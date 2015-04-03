@@ -14,11 +14,18 @@ public class LoadType extends Instruction {
 	
 	public String toString() { return "LOADTYPE " + type + "[" + codeblock.getConstantType(type) + "]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineLoadConOrType(type, false,  dcode); 
+		codeEmittor.emitInlineLoadConOrType(type, false,  debug); 
 		codeblock.addCode1(opcode.getOpcode(), type);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadConOrType(type, false,  debug); 
 	}
 }

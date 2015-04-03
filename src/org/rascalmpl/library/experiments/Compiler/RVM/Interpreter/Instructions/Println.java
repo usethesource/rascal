@@ -14,11 +14,17 @@ public class Println extends Instruction {
 	
 	public String toString() { return "PRINTLN " + arity; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCall("insnPRINTLN", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitDebugCall(opcode.name());
 	}
 }

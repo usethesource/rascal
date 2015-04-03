@@ -18,11 +18,18 @@ public class UnwrapThrownVar extends Instruction {
 		return "UNWRAPTHROWNVAR " + fuid + ", " + pos + " [" + codeblock.getFunctionIndex(fuid) + ", " + pos + "]";
 	}
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,dcode); 
+		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,debug); 
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,debug); 
 	}
 }
