@@ -18,7 +18,7 @@ public class LoadType extends Instruction {
 		if (!dcode)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFI("insnLOADTYPE", type, dcode); 
+		codeEmittor.emitInlineLoadConOrType(type, false,  dcode); 
 		codeblock.addCode1(opcode.getOpcode(), type);
 	}
 }
