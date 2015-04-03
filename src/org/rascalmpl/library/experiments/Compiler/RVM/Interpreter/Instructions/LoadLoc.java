@@ -21,4 +21,10 @@ public class LoadLoc extends Instruction {
 		codeEmittor.emitInlineLoadLocN(pos,debug);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadLocN(pos,debug);
+	}
 }

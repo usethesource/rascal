@@ -20,4 +20,9 @@ public class Label extends Instruction {
 //			codeEmittor.emitDebugCall(opcode.name());
 		codeEmittor.emitLabel(label);
 	}
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitLabel(label);
+	}
 }

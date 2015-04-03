@@ -23,7 +23,7 @@ public class LoadLocDeref extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSI("insnLOADLOCDEREF", pos,debug);

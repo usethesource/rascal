@@ -17,7 +17,7 @@ public class Next0 extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
+		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSF("jvmNEXT0", debug);

@@ -26,7 +26,7 @@ public class StoreVarDeref extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 
 		codeEmittor.emitCallWithArgsSSFII("insnSTOREVARDEREF", codeblock.getFunctionIndex(fuid), pos,debug);

@@ -15,7 +15,7 @@ public class FilterReturn extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode) {
-		if ( !dcode ) 
+		if ( dcode ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		// TODO implement.
 		codeEmittor.emitDebugCall(opcode.name());

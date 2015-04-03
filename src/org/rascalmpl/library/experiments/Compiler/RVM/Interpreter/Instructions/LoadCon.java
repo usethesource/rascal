@@ -21,4 +21,10 @@ public class LoadCon extends Instruction {
 		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
+	}
 }

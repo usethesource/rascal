@@ -15,4 +15,10 @@ public class LoadLoc3 extends Instruction {
 		codeEmittor.emitInlineLoadLocN(3, debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadLocN(3,debug);
+	}
 }

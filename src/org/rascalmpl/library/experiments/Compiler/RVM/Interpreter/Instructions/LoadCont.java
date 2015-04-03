@@ -22,7 +22,7 @@ public class LoadCont extends Instruction {
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
+		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		codeEmittor.emitDebugCall(opcode.name());
 	}
