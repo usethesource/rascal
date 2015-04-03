@@ -27,13 +27,12 @@ public XYLabeledData initialize(loc project) {
 
 public void sizeNproc() {
     loc f = |project://dotplugin|;
-    XYLabeledData r = initialize(f);
-    //hAxis: {title:figure.columns[1].label, minValue: 0, maxValue: 15},
-    // vAxis: {title:figure.columns[2].label, minValue: 0, maxValue: 15},   
+    XYLabeledData r = initialize(f); 
     ChartOptions options = chartOptions(
     title= f.authority, 
     hAxis= axis(title="Length", viewWindow= viewWindow(min=0)),
     vAxis= axis(title="#Proc"),
-    lineWidth = 0, pointSize = 3, width = 400, height = 400);
-    ex("sizeNproc", combochart(charts = [line(r, name=f.authority)], options = options, tickLabels = false));      
+    width = 400, height = 400 ,animation= animation(startup = true, ease = "out", duration = 1000));
+    // ex("sizeNproc", combochart(charts = [line(r, name=f.authority)], options = options, tickLabels = false)); 
+    ex("sizeNproc", scatterchart(r, options = options, tickLabels = true));           
     }

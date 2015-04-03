@@ -14,7 +14,7 @@ import ParseTree;
 public java tuple[value,int] executeProgram(RVMProgram program,
 											map[str,Symbol] imported_types,
                                             list[experiments::Compiler::RVM::AST::Declaration] imported_functions,
-                                            lrel[str,list[str],list[str]] imported_overloaded_functions,
+                                            lrel[str name, Symbol funType, str scope, list[str] ofunctions,list[str] oconstructors] imported_overloaded_functions,
                                             map[str,int] imported_overloading_resolvers, 
 										    list[value] arguments, 
 										    bool debug, 

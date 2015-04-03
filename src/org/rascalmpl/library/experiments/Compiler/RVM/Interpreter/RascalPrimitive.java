@@ -108,6 +108,36 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+	// Rebuild a constructor or nodem reusing its annotations
+	rebuild {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IValue subject = (IValue) stack[sp - 3];
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+			if(subject.getType().isAbstractData()){
+				IConstructor cons1 = (IConstructor) subject;
+				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
+				if(annotations.size() > 0){
+					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = cons2;
+				return sp - 2;
+			} else {
+				INode node1 = (INode) subject;
+				INode node2 = vf.node(node1.getName(), args, kwargs);
+				if(annotations.size() > 0){
+					node2 = node2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = node2;
+				return sp - 2;
+			}
+		}
+	},
 	list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1868,10 +1898,16 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			IConstructor appl = (IConstructor) stack[sp - 2];
-			IList appl_args = (IList) appl.get("args");
-			IConstructor prod = (IConstructor) appl.get("prod");
-			IList prod_symbols = (IList) prod.get("symbols");
 			IString field = ((IString) stack[sp - 1]);
+			IList appl_args = (IList) appl.get("args");
+			if(field.getValue().equals("args")){		// TODO: Not sure does this belong here? Add more fields?
+				stack[sp - 2] = appl_args;
+				return sp - 1;
+			}
+			IConstructor prod = (IConstructor) appl.get("prod");
+			//System.err.println("nonterminal_field_access, prod = " + prod);
+			IList prod_symbols = (IList) prod.get("symbols");
+			
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
@@ -1883,6 +1919,29 @@ public enum RascalPrimitive {
 				}
 			}
 			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
+		}
+	},
+	
+	nonterminal_has_field {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor appl = (IConstructor) stack[sp - 2];
+			IConstructor prod = (IConstructor) appl.get("prod");
+			IList prod_symbols = (IList) prod.get("symbols");
+			IString field = ((IString) stack[sp - 1]);
+
+			for(int i = 0; i < prod_symbols.length(); i++){
+				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("label")){
+					if(((IString) arg.get(0)).equals(field)){
+						stack[sp - 2] = Rascal_TRUE;
+						return sp - 1;
+					}
+				}
+			}
+			stack[sp - 2] = Rascal_FALSE;
+			return sp - 1;
 		}
 	},
 	
@@ -1898,7 +1957,12 @@ public enum RascalPrimitive {
 			IValue val = (IValue) stack[sp - 2];
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
+				
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+				
+//				stdout.println("annotation_get: label  = " + label + ", on=" + val);
+//				stdout.println("annotation_get: result = " + stack[sp - 2]);
+			
 				if(stack[sp - 2] == null) {
 					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 				}
@@ -1906,6 +1970,24 @@ public enum RascalPrimitive {
 			} catch (FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 			}
+		}
+	},
+	is_defined_annotation_get {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val = (IValue) stack[sp - 2];
+			String label = ((IString) stack[sp - 1]).getValue();
+			try {
+				IValue v = val.asAnnotatable().getAnnotation(label);
+				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+				temp_array_of_2[1] = v;
+			} catch (FactTypeUseException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
 		}
 	},
 	annotation_set {
@@ -1917,6 +1999,10 @@ public enum RascalPrimitive {
 			String label = ((IString) stack[sp - 2]).getValue();
 			IValue repl = (IValue) stack[sp - 1];
 			stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
+			
+// 				stdout.println("annotation_SET: label  = " + label + ", repl=" + repl + ", on=" + val);
+// 				stdout.println("annotation_SET: result = " + stack[sp - 3]);
+		
 			return sp - 2;
 		}
 	},
@@ -2923,7 +3009,17 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	is_concrete_list {
+	is_layout {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((IConstructor)treeSubject));
+			return sp;
+		}	
+	},
+	is_concretelist {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
@@ -3016,6 +3112,20 @@ public enum RascalPrimitive {
 				i += delta;
 			}
 			stack[sp - 1] = writer.done();
+			return sp;
+		}	
+	},
+	
+	strip_lexical {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IConstructor lexSubject = (IConstructor) stack[sp - 1];
+			if(lexSubject.getName().equals("conditional")){
+				lexSubject = (IConstructor) lexSubject.get("symbol");
+			}
+			
+			stack[sp - 1] = lexSubject;
 			return sp;
 		}	
 	},
@@ -4532,13 +4642,12 @@ public enum RascalPrimitive {
 	appl_create {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			Type applConstrType = (Type) stack[sp - 3];
+			assert arity == 2;
 			IValue prod = (IValue) stack[sp - 2];
 			IValue args = (IValue) stack[sp -1];
 
-			stack[sp - 3] = vf.constructor(applConstrType, prod, args);
-			return sp - 2;
+			stack[sp - 2] = vf.constructor(Factory.Tree_Appl, prod, args);
+			return sp - 1;
 		}
 
 	},
@@ -5371,7 +5480,24 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	
+	is_defined_adt_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons =  (IConstructor) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+				temp_array_of_2[0] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+				
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	node_subscript_int {
 		@Override
@@ -5389,7 +5515,25 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_node_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode node =  (INode) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				if(idx < 0){
+					idx =  node.arity() + idx;
+				}
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = node.get(idx);  
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	list_subscript_int {
 		@Override
@@ -5405,6 +5549,22 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_list_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList lst = ((IList) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
 	map_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5413,6 +5573,17 @@ public enum RascalPrimitive {
 			if(stack[sp - 2] == null) {
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
+			return sp - 1;
+		}
+	},
+	is_defined_map_subscript {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			Object v = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+			temp_array_of_2[1] = v;
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5430,7 +5601,23 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_str_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IString str = ((IString) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
+						              : str.substring(str.length() + idx, str.length() + idx + 1);
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	tuple_subscript_int {
 		@Override
@@ -5446,6 +5633,23 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_tuple_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ITuple tup = (ITuple) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
 	rel_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6299,6 +6503,7 @@ public enum RascalPrimitive {
 		return values[prim];
 	}
 
+	private static RascalExecutionContext rex;
 	private static IValueFactory vf;
 	private static TypeFactory tf;
 	private static TypeStore typeStore;
@@ -6306,6 +6511,7 @@ public enum RascalPrimitive {
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
+	private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
@@ -6315,6 +6521,7 @@ public enum RascalPrimitive {
 	private static IBool Rascal_FALSE;
 	private static Type valueType;
 	private static Type nodeType;
+	private static final Object[] temp_array_of_2 = new Object[2];
 	
 	private static ITestResultListener testResultListener;
 
@@ -6326,8 +6533,9 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(RVM usedRvm, RascalExecutionContext rex){
+	public static void init(RVM usedRvm, RascalExecutionContext usedRex){
 		rvm = usedRvm;
+		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
 		parsingTools = new ParsingTools(vf);
@@ -6348,8 +6556,12 @@ public enum RascalPrimitive {
 	}
 	
 	public static void reset(){
-		parsingTools.reset();
+		parsingTools = new ParsingTools(vf);
+		parsingTools.setContext(rex);
+		//parsingTools.reset();
+		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
+		type2symbolCache = new HashMap<Type,IConstructor>();
 	}
 
 	public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6832,14 +7044,10 @@ public enum RascalPrimitive {
 			}
 		}
 
-		if (len == 0) {
-			throw RascalRuntimeException.emptyList(currentFrame);
-		}
-		if (firstIndex >= len) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(firstIndex), currentFrame);
-		}
-		if (endIndex > len ) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(endIndex), currentFrame);
+		if(len == 0 || firstIndex >= len){
+			firstIndex = secondIndex = endIndex = 0;
+		} else if(endIndex > len){
+			endIndex = len;
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);

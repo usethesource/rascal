@@ -101,6 +101,8 @@ test bool testAnnotations5() { 		X = f(); 		X.pos = 6; X.pos /= 3;  return X.pos
 
 test bool testAnnotations6() { 		X = f(); X.pos = 6; X.pos ?= 3;  return X.pos == 6; }
 
+test bool testAnnotations7() { X = f(); X.pos ?= 3; return X.pos == 3; }
+  	
 // assigningClosureToVariableBug877
   
 test bool assigningClosureToVariableBug8771() {	

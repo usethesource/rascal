@@ -34,7 +34,7 @@ test bool Issue432() =
 // https://github.com/cwi-swat/rascal/issues/435
 
 test bool Issue435() {
-	makeModule("M", "bool sideEffect1() {
+	makeModule("MMM", "bool sideEffect1() {
              			void One() { called = called + 1; return; }
              			int called = 0;  
              			One(); 
@@ -42,7 +42,7 @@ test bool Issue435() {
             			One(); 
              			return called == 3;
              		}");	
-	return checkOK("true;", importedModules=["M"]);
+	return checkOK("true;", importedModules=["MMM"]);
 }
 	
 // https://github.com/cwi-swat/rascal/issues/436	
@@ -147,27 +147,27 @@ test bool Issue458c() =                                              // TODO
 // https://github.com/cwi-swat/rascal/issues/465
 
 test bool Issue465a(){			                                     // TODO: not sure									
-	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
-	return checkOK("true;", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+	return checkOK("true;", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465b(){			                                     								
-	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
-	return checkOK("c = con(5);", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+	return checkOK("c = con(5);", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465c(){			                                     								
-	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
-	return checkOK("Exp c = con(5);", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+	return checkOK("Exp c = con(5);", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465d(){			                                     								
-	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
-	return checkOK("M::Exp c = [M::Exp] \"3\";", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+	return checkOK("MMM::Exp c = [MMM::Exp] \"3\";", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 // https://github.com/cwi-swat/rascal/issues/471
@@ -266,12 +266,12 @@ test bool Issue481() =
 // https://github.com/cwi-swat/rascal/issues/480
 
 test bool Issue480(){
-	makeModule("M", "data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() 
+	makeModule("MMM", "data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() 
   					| ellipse(Figure inner = emptyFigure()) 
   					| box(Figure inner = emptyFigure());
 
  				value main(list[value] args) = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
-	return checkOK("true;", importedModules=["M"]);
+	return checkOK("true;", importedModules=["MMM"]);
 } 
  
 // https://github.com/cwi-swat/rascal/issues/482
@@ -319,24 +319,24 @@ test bool Issue496a() =
 
 
 test bool Issue496b(){
-	makeModule("M", "import lang::java::m3::AST;
+	makeModule("MMM", "import lang::java::m3::AST;
 					 import analysis::m3::TypeSymbol;");
-	return checkOK("true;", importedModules=["M"]);
+	return checkOK("true;", importedModules=["MMM"]);
 }
 
 test bool Issue496c(){
-	makeModule("M", "import lang::java::m3::AST;
+	makeModule("MMM", "import lang::java::m3::AST;
 					 import analysis::m3::TypeSymbol;
 					 import Message;");
-	return checkOK("true;", importedModules=["M"]);
+	return checkOK("true;", importedModules=["MMM"]);
 }
 
 // https://github.com/cwi-swat/rascal/issues/502
 
 test bool Issue502(){
-	makeModule("M", "import Type;
+	makeModule("MMM", "import Type;
 					 lexical Num = \\int: [0-9]+;");
-	return checkOK("true;", importedModules=["M"]);
+	return checkOK("true;", importedModules=["MMM"]);
 }
 	
 // https://github.com/cwi-swat/rascal/issues/503

@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -20,15 +21,21 @@ public class Function {
 	 int scopeIn = -1;
 	 final int nformals;
 	 final int nlocals;
+	 boolean isDefault;
 	 final int maxstack;
 	 final CodeBlock codeblock;
 	 IValue[] constantStore;
 	 Type[] typeConstantStore;
+	 boolean concreteArg = false;
+	 int abstractFingerprint = 0;
+	 int concreteFingerprint = 0;
 	 
 	 int[] froms;
 	 int[] tos;
 	 int[] types;
 	 int[] handlers;
+	 int[] fromSPs;
+	 int lastHandler = -1;
 	 
 	 boolean isCoroutine = false;
 	 int[] refs;
@@ -38,19 +45,25 @@ public class Function {
 	 final ISourceLocation src;		
 	 final IMap localNames;
 	
-	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, IMap localNames, int maxstack, CodeBlock codeblock, ISourceLocation src){
+	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+			 final int maxstack, boolean concreteArg, int abstractFingerprint,
+			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.nlocals = nlocals;
+		this.isDefault = isDefault;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
+		this.concreteArg = concreteArg;
+		this.abstractFingerprint = abstractFingerprint;
+		this.concreteFingerprint = concreteFingerprint;
 		this.codeblock = codeblock;
 		this.src = src;
 	}
 	
-	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
 		codeblock.done(name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn != null) {
@@ -60,11 +73,12 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void attachExceptionTable(IList exceptions, RVM rvm) {
+	public void attachExceptionTable(final IList exceptions, final RVM rvm) {
 		froms = new int[exceptions.length()];
 		tos = new int[exceptions.length()];
 		types = new int[exceptions.length()];
 		handlers = new int[exceptions.length()];
+		fromSPs = new int[exceptions.length()];
 		
 		int i = 0;
 		for(IValue entry : exceptions) {
@@ -73,22 +87,26 @@ public class Function {
 			String to = ((IString) tuple.get(1)).getValue();
 			Type type = rvm.symbolToType((IConstructor) tuple.get(2));
 			String handler = ((IString) tuple.get(3)).getValue();
+			int fromSP =  ((IInteger) tuple.get(4)).intValue();
 			
 			froms[i] = codeblock.getLabelPC(from);
 			tos[i] = codeblock.getLabelPC(to);
 			types[i] = codeblock.getTypeConstantIndex(type);
-			handlers[i] = codeblock.getLabelPC(handler);			
+			handlers[i] = codeblock.getLabelPC(handler);	
+			fromSPs[i] = fromSP;
 			i++;
 		}
 	}
 	
-	public int getHandler(int pc, Type type) {
+	public int getHandler(final int pc, final Type type) {
 		int i = 0;
+		lastHandler = -1;
 		for(int from : froms) {
 			if(pc >= from) {
 				if(pc < tos[i]) {
 					// In the range...
 					if(type.isSubtypeOf(codeblock.getConstantType(types[i]))) {
+						lastHandler = i;
 						return handlers[i];
 					}
 				}
@@ -98,13 +116,17 @@ public class Function {
 		return -1;
 	}
 	
+	public int getFromSP(){
+		return nlocals + fromSPs[lastHandler];
+	}
+	
 	public String getName() {
 		return name;
 	}
 	
 	public String getPrintableName(){
-		int from = name.indexOf("/")+1;
-		int to = name.indexOf("(");
+		int from = name.lastIndexOf("/")+1;
+		int to = name.indexOf("(", from);
 		if(to < 0){
 			to = name.length();
 		}

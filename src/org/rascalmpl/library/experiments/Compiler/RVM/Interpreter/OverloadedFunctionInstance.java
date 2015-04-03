@@ -17,8 +17,8 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternalValue {
 	
-	final int[] functions;
-	final int[] constructors;
+	private final int[] functions;
+	private final int[] constructors;
 	final Frame env;
 	
 	private Type type;
@@ -27,8 +27,8 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 	
 	final RVM rvm;
 	
-	public OverloadedFunctionInstance(int[] functions, int[] constructors, Frame env, 
-										List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
+									  final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -37,11 +37,42 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		this.rvm = rvm;
 	}
 	
+	int[] getFunctions() {
+		return functions;
+	}
+
+	int[] getConstructors() {
+		return constructors;
+	}
+
+	public String toString(){
+		StringBuilder sb = new StringBuilder("OverloadedFunctionInstance[");
+		if(getFunctions().length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < getFunctions().length; i++){
+				int fi = getFunctions()[i];
+				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+			}
+		}
+		if(getConstructors().length > 0){
+			if(getFunctions().length > 0){
+				sb.append("; ");
+			}
+			sb.append("constructors:");
+			for(int i = 0; i < getConstructors().length; i++){
+				int ci = getConstructors()[i];
+				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
-	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
-			                                                                     List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
+			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
@@ -57,10 +88,10 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 			return this.type;
 		}
 		Set<FunctionType> types = new HashSet<FunctionType>();
-		for(int fun : this.functions) {
+		for(int fun : this.getFunctions()) {
 			types.add((FunctionType) functionStore.get(fun).ftype);
 		}
-		for(int constr : this.constructors) {
+		for(int constr : this.getConstructors()) {
 			Type type = constructorStore.get(constr);
 			// TODO: void type for the keyword parameters is not right. They should be retrievable from a type store dynamically.
 			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), TypeFactory.getInstance().voidType()));

@@ -14,6 +14,7 @@ import Type;
 import DateTime;
 import Message;
 import util::Reflective;
+import IO;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -33,7 +34,8 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		'<for (id <- initialDecls) {>
 		'<id><}>
 		";
-
+println("moduleToCheck:");
+println(moduleToCheck);
 	c = newConfiguration();
 	try {
 		pt = parseModuleWithSpaces(moduleToCheck);

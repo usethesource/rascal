@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -97,9 +96,6 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
-//			if(((IString) declaration.get("qname")).getValue().indexOf("complement") > 0){
-//				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
-//			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				
@@ -155,6 +151,8 @@ public class Execute {
 		// Overloading resolution
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
+		
+		rvm.validateInstructionAdressingLimits();
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
@@ -248,6 +246,9 @@ public class Execute {
 	private ISourceLocation getLocField(IConstructor instruction, String field) {
 		return ((ISourceLocation) instruction.get(field));
 	}
+	private IList getListField(IConstructor instruction, String field) {
+		return ((IList) instruction.get(field));
+	}
 
 	/**
 	 * Load the instructions of a function in a RVM.
@@ -270,9 +271,20 @@ public class Execute {
 		Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
 		IMap localNames = ((IMap) declaration.get("localNames"));
 		Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
+		
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
+		boolean isDefault = false;
+		boolean isConcreteArg = false;
+		int abstractFingerprint = 0;
+		int concreteFingerprint = 0;
+		if(!isCoroutine){
+			isDefault = ((IBool) declaration.get("isDefault")).getValue();
+			isConcreteArg = ((IBool) declaration.get("isConcreteArg")).getValue();
+			abstractFingerprint = ((IInteger) declaration.get("abstractFingerprint")).intValue();
+			concreteFingerprint = ((IInteger) declaration.get("concreteFingerprint")).intValue();
+		}
 		CodeBlock codeblock = new CodeBlock(name, vf);
 		// Loading instructions
 		try {
@@ -583,8 +595,13 @@ public class Execute {
 			
 			case "SWITCH":
 				codeblock.SWITCH((IMap)instruction.get("caseLabels"),
-								 getStrField(instruction, "caseDefault"));
+								 getStrField(instruction, "caseDefault"),
+								 getBooleanField(instruction, "useConcreteFingerprint"));
 				break;
+				
+			case "RESETLOCS":
+				codeblock.RESETLOCS(getListField(instruction, "positions"));
+				break;	
 				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
@@ -595,7 +612,18 @@ public class Execute {
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		Function function = new Function(name, 
+										 ftype, 
+										 scopeIn, 
+										 nformals, 
+										 nlocals, 
+										 isDefault, 
+										 localNames, 
+										 maxstack,
+										 isConcreteArg,
+										 abstractFingerprint,
+										 concreteFingerprint, 
+										 codeblock, src);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, rvm);

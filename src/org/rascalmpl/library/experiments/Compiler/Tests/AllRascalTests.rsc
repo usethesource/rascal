@@ -16,7 +16,7 @@ list[str] basicTests = [
 "Functions",				// OK
 "Integers",                 // OK
 "IO",						// OK
-
+"IsDefined",				// OK
 "ListRelations",			// OK
 "Lists",                    // OK
 "Locations",			    // OK
@@ -24,6 +24,7 @@ list[str] basicTests = [
 "Matching",					// OK
 "Memoization",
 "Nodes",					// OK
+"Overloading",
 "Relations"	,				// OK
 "Sets",						// OK
 "SolvedIssues",				// OK
@@ -46,13 +47,14 @@ list[str] functionalityTests = [
 "ConcretePatternTests2",	// OK
 "ConcreteSyntaxTests1",     // OK
 "ConcreteSyntaxTests2",     // OK
-
+"ConcreteTerms",			// OK
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
 "DeclarationTests",			// OK
 "FunctionCompositionTests",	// OK
 "InterpolationTests",
 "KeywordParameterImportTests",
+"KeywordParameterTests",
 "ParsingTests",
 "PatternTests",				// OK
 "PatternDescendantTests",
@@ -97,35 +99,41 @@ list[str] libraryTests = [
 ];
 
 list[str] importTests = [
-
+"Extending",				// OK
 "ImportTests1",             // OK
 "ImportTests2",             // OK
 "ImportTests3",             // OK
 "ImportTests4",             // OK
 "ImportTests5",             // OK
 "ImportTests6",             // OK
-"ImportTests7"              // OK
+"ImportTests7",              // OK
+"ImportTests8",              // OK
+"ModuleInitRange"
 ];
 
 list[str] typeTests = [
-//"AccumulatingTCTests",
-//"AliasTCTests",
-//"AllStaticIssues",
-//"AnnotationTCTests",
-//"AssignmentTCTests",
-//"CallTCTests",
-//"ComprehensionTCTests",
-//"DataDeclarationTCTests",
-//"DataTypeTCTests",
-//"DeclarationTCTests",
-//"ImportTCTests",
-//"PatternTCTests",
-//"ProjectionTCTests",
-//"RegExpTCTests",
-//"ScopeTCTests",
-//"StatementTCTests",
-//"SubscriptTCTests",
-//"VisitTCTests"
+"StaticTestingUtilsTests",	// OK
+"AccumulatingTCTests",		// OK
+//"AliasTCTests",			// C & I: Overflow/LOOP?
+"AllStaticIssues",			// C: 1 fail :           		   Issue504
+							 //I: 3 fail : Issue482, Issue495, Issue504
+"AnnotationTCTests",		// OK
+"AssignmentTCTests",		// OK
+"CallTCTests",				// C == I : 1 fails callError6
+"ComprehensionTCTests",		// C == I:  2 fail: emptyTupleGeneratorError[34]
+			
+"DataDeclarationTCTests",	// OK
+"DataTypeTCTests",			// OK
+"DeclarationTCTests",		// OK
+"ImportTCTests",			// OK
+"PatternTCTests",			// C: 3 fail: PicoQuoted[123]
+							// I : OK
+"ProjectionTCTests",		// OK
+"RegExpTCTests",			// OK
+"ScopeTCTests",				// OK
+"StatementTCTests",			// OK
+"SubscriptTCTests",			// OK
+"VisitTCTests"				// OK
 ];
 
 
@@ -161,22 +169,24 @@ list[str] files_with_tests =
 "demo/Uninit",                                      // OK
 "lang/rascal/format/Escape",                        // OK
 "lang/rascal/format/Grammar",                       // OK
-"lang/rascal/grammar/definition/Characters",        // OK
-"lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
-"lang/rascal/grammar/ParserGenerator",              // ok
+"lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
 "lang/rascal/grammar/tests/PicoGrammar",            // ok
 "lang/rascal/grammar/tests/CGrammar",            	// ok
+"lang/rascal/grammar/tests/CharactersTests", 
+"lang/rascal/grammar/tests/LiteralsTests", 
 "lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
-"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+//"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
+"lang/rascal/meta/ModuleInfoTests",  
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
 "lang/rascal/types/tests/AbstractKindTests",
 "lang/rascal/types/tests/AbstractNameTests",
+//"lang/rascal/types/tests/TypeInstantiationTests",
 "lang/rascal/types/tests/UtilTests",
 "lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
@@ -235,7 +245,8 @@ value main(list[value] args){
   all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
   
   all_results += runTests(files_with_tests, |std:///|);
-  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  
+  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

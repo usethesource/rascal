@@ -35,7 +35,7 @@ loc muExample4 = |std:///experiments/Compiler/muRascal2RVM/Capture.mu|;
 //  // println("main_testsuite = <main_testsuite>");
 //  // Generate a very generic function type
 //  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-//  muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |std:///|, [], (), code);
+//  muP.functions = muP.functions + muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, |std:///|, [], (), false, 0, 0, code);
 //  rvmP = mu2rvm(muP);
 //  <v, t> = executeProgram(rvmP, [], true, false);
 //  println("Result = <v>, [<t> msec]");

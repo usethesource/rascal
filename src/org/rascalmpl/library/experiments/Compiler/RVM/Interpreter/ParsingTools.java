@@ -94,7 +94,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		stderr.println("Storing parser for " + moduleName + "/" + start);
+		//stderr.println("Storing parser for " + moduleName + "/" + start);
 		parsers.put(start, parser);
 	}
 
@@ -106,7 +106,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(start);
-		stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
+		//stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -317,20 +317,9 @@ public class ParsingTools {
 	}
 	
 	private char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		try {
-			textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+			return InputConverter.toChar(in);
 		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
-		}
-		
-		return data;
 	}
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {

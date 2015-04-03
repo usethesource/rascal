@@ -24,8 +24,6 @@
  */
 package org.rascalmpl.library;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -33,13 +31,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -117,6 +115,7 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 public class Prelude {
+	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
 	private final Random random;
 	
@@ -291,13 +290,13 @@ public class Prelude {
 		Calendar cal;
 		if (dt.isDate()) {
 			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-			cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth());
+			cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 		} else {
 			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
 			if (dt.isTime()) {
 				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
 			} else {
-				cal.set(dt.getYear(), dt.getMonthOfYear()-1, dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
+				cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
 			}
 			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
 		}
@@ -567,7 +566,7 @@ public class Prelude {
 		if (inputDate.isDate() || inputDate.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDate.getYear(), inputDate.getMonthOfYear()-1, inputDate.getDayOfMonth());
+			cal.set(inputDate.getYear(), inputDate.getMonthOfYear(), inputDate.getDayOfMonth());
 			return cal;
 		} else {
 			throw new IllegalArgumentException("Cannot get date for a datetime that only represents the time");
@@ -592,7 +591,7 @@ public class Prelude {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear()-1, inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
+			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear(), inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
 			cal.set(Calendar.MILLISECOND, inputDateTime.getMillisecondsOfSecond());
 			return cal;
 		} else {
@@ -609,7 +608,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue(), null, null);
 		}
 	}
 
@@ -631,7 +630,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -644,7 +643,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputDate + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -657,7 +656,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time with format: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " with format: " + formatString.getValue(), null, null);
 		}			
 	}
 	
@@ -679,7 +678,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -692,7 +691,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -705,7 +704,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue(), null, null);
 		}		
 	}
 
@@ -727,7 +726,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime using format string: " + formatString.getValue() +
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue() +
 					" in locale: " + locale.getValue(), null, null);
 		}
 	}
@@ -741,7 +740,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 	
@@ -1056,27 +1055,26 @@ public class Prelude {
 
 	private IString consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
-		char[] chunk = new char[512];
-		int read = 0;
+		char[] chunk = new char[FILE_BUFFER_SIZE];
+		int read;
 		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
 		    res.append(chunk, 0, read);
 		}
-		
 		return values.string(res.toString());
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)){
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] buf = new byte[4096];
+			byte[] buf = new byte[FILE_BUFFER_SIZE];
 			int count;
 
-			while((count = in.read(buf)) != -1){
+			while((count = in.read(buf, 0, buf.length)) != -1){
 				md.update(buf, 0, count);
 			}
 			
 			byte[] hash = md.digest();
-			StringBuffer result = new StringBuffer();
+			StringBuffer result = new StringBuffer(hash.length * 2);
 			for (int i = 0; i < hash.length; i++) {
 				result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
 			}
@@ -1087,6 +1085,21 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+		}
+	}
+	
+	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
+			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+				byte[] buf = new byte[FILE_BUFFER_SIZE];
+				int read;
+				while ((read = in.read(buf, 0, buf.length)) != -1) {
+					out.write(buf, 0, read);
+				}
+				return values.bool(true);
+			}
+		} catch (IOException e) {
+			return values.bool(false);
 		}
 	}
 
@@ -1194,7 +1207,7 @@ public class Prelude {
 	}
 
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
-		try (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false))) {
+		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
 				IValue ival = iter.next();
@@ -1249,30 +1262,28 @@ public class Prelude {
 	}
 
 	private IList consumeInputStreamLines(Reader in) throws IOException {
-		BufferedReader buf = new BufferedReader(in);
-		String line = null;
-		IListWriter res = values.listWriter();
-		while ((line = buf.readLine()) != null) {
-		    res.append(values.string(line));
+		try (BufferedReader buf = new BufferedReader(in)) {
+			String line = null;
+			IListWriter res = values.listWriter();
+			while ((line = buf.readLine()) != null) {
+			    res.append(values.string(line));
+			}
+			return res.done();
 		}
-		
-		return res.done();
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
 		IListWriter w = values.listWriter();
 		
-		try (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc))) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
+			byte bytes[] = new byte[FILE_BUFFER_SIZE];
 			int read;
-			final int size = 256;
-			byte bytes[] = new byte[size];
-			
-			do {
-				read = in.read(bytes);
+
+			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
 				for (int i = 0; i < read; i++) {
 					w.append(values.integer(bytes[i] & 0xff));
 				}
-			} while(read != -1);
+			} 
 		}
 		catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
@@ -1386,6 +1397,15 @@ public class Prelude {
 		} catch (IndexOutOfBoundsException e){
 			 throw RuntimeExceptionFactory.indexOutOfBounds(index, null, null);
 		}
+	}
+	
+	public IList shuffle(IList l, IInteger seed) {
+		return l.shuffle(new Random(2305843009213693951L * seed.hashCode()));
+
+	}
+
+	public IList shuffle(IList l) {
+		return l.shuffle(new Random());
 	}
 	
 	public IList sort(IList l, IValue cmpv){
@@ -3236,7 +3256,7 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (InputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc))) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 			return new BinaryValueReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
@@ -3295,8 +3315,8 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (InputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(loc))) {
-			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, "UTF8")) {
+			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, in);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3328,8 +3348,8 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
+		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), "UTF8")) {
+			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

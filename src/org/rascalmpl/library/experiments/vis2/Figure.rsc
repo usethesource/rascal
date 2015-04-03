@@ -11,6 +11,7 @@ module experiments::vis2::Figure
 
 import util::Math;
 import Prelude;
+import lang::json::IO;
 
 
 /* Properties */
@@ -64,6 +65,8 @@ alias XYData 			= lrel[num x, num y];
 		 		 
 alias XYLabeledData     = lrel[num xx, num yy, str label];	
 
+alias GoogleData     = list[list[value]];	
+
 /* Dataype belonging to candlesticks */
 
 alias BoxData     = lrel[str date,  num low , num open, num close, num high];
@@ -104,7 +107,7 @@ public num nullFunction(list[num] x) { return 0;}
 
 public data Figure(
         // Naming
-        str id = "",
+        str id = "default",
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
@@ -235,24 +238,30 @@ public data Figure(
 // Charts
 	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| combochart(GoogleData googleData, ChartOptions options = chartOptions())
 	| piechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| piechart(GoogleData googleData, ChartOptions options = chartOptions())
 	| linechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| linechart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
+	| linechart(GoogleData googleData, ChartOptions options = chartOptions())
 	| scatterchart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
 	| scatterchart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
+	| scatterchart(GoogleData googleData, ChartOptions options = chartOptions())
 	| barchart(XYLabeledData xyLabeledData , ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
+	| barchart(GoogleData googleData, ChartOptions options = chartOptions())
 	| candlestickchart(BoxData boxData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| candlestickchart(BoxLabeledData boxLabeledData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-
-
+	| candlestickchart(GoogleData googleData, ChartOptions options = chartOptions())
+    | areachart(GoogleData googleData ,  ChartOptions options = chartOptions())
+    | sankey(GoogleData googleData ,  ChartOptions options = chartOptions())
 // Graphs
 
    | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
@@ -273,42 +282,6 @@ data ChartArea (
      value backgroundColor = ""
      ) = chartArea();
  
-   
-str trChartArea(ChartArea chartArea) {
-    str r = "{";
-        if (str v := chartArea.left)
-             {if (!isEmpty(v)) r +="\"left\" : \"<v>\",";}
-        else
-             r += "\"left\" : <chartArea.left>";
-        if (str v := chartArea.top)
-             {if (!isEmpty(v)) r +="\"top\" : \"<v>\",";}
-        else
-             r += "\"top\" : <chartArea.top>,";
-        if (str v := chartArea.width)
-             {if (!isEmpty(v)) r +="\"width\" : \"<v>\",";}
-        else
-             r += "\"width\" : <chartArea.width>,";
-        if (str v := chartArea.height)
-             {if (!isEmpty(v)) r +="\"height\" : \"<v>\",";}
-        else
-             r += "\"height\" : <chartArea.height>,";
-        if (str v := chartArea.backgroundColor)
-             {if (!isEmpty(v)) r +="\"backgroundColor\" : \"<v>\",";}
-        else
-             r += "\"backgroundColor\" : <chartArea.backgroundColor>,";
-        
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
-    
-bool isEmpty (ChartArea chartArea) = 
-      str left := chartArea.left && isEmpty(left)
-   && str top := chartArea.top && isEmpty(top)
-   && str width := chartArea.width && isEmpty(width)
-   && str height := chartArea.height && isEmpty(height)
-   && str backgroundColor := chartArea.backgroundColor && isEmpty(backgroundColor)
-   ;
                 
 data Legend (bool none = false,
              str alignment = "",
@@ -316,45 +289,12 @@ data Legend (bool none = false,
              str position ="") = legend()
             ;
             
-bool isEmpty (Legend legend) = !legend.none && isEmpty(legend.alignment)
-                && legend.maxLines == -1 && isEmpty(legend.position);
-
-str trLegend(Legend legend) {
-    if (legend.none) return "\'none\'";
-    str r = "{";
-    if  (!isEmpty(legend.alignment)) r +="\"alignment\" : \"<legend.alignment>\",";
-    if  (!isEmpty(legend.position)) r +="\"position\" : \"<legend.position>\",";
-    if  (legend.maxLines>=0) r+= "\"maxLines\" : \"<legend.maxLines>\",";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
            
 data ViewWindow(int max = -1, int min = -1) = viewWindow();
 
-bool isEmpty(ViewWindow w ) = w.max == -1 && w.min == -1;
-
-str trViewWindow(ViewWindow w) {
-    str r = "{";
-    if  (w.min>=0) r+="\"min\" : <w.min>,";
-    if  (w.max>=0) r+= "\"max\" : <w.max>,";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
 
 data Gridlines(str color = "", int count =-1) = gridlines();
 
-bool isEmpty(Gridlines g) = isEmpty(g.color) && g.count == -1 ;
-
-str trGridlines(Gridlines g) {
-    str r = "{";
-    if  (!isEmpty(g.color)) r+="\"color\" : \"<g.color>\",";
-    if  (g.count>=0) r+= "\"count\" : <g.count>,";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
 
 data Series (
     str color ="",
@@ -365,70 +305,36 @@ data Series (
     str \type=""
     ) = series();
     
-bool isEmpty(Series s) = isEmpty(s.color) &&
-       isEmpty(s.curveType) &&  isEmpty(s.pointShape) && isEmpty(s.\type) 
-            && s.lineWidth == -1 && s.pointSize == -1;
-            
-str trSeries(Series s) {
-    str r = "{";
-    if  (!isEmpty(s.color)) r+="\"color\" : \"<s.color>\",";
-    if  (!isEmpty(s.curveType)) r+="\"curveType\" : \"<s.curveType>\",";
-    if  (s.lineWidth>=0) r+= "\"lineWidth\" : <s.lineWidth>,";
-    if  (!isEmpty(s.pointShape)) r+="\"pointShape\" : \"<s.pointShape>\",";
-    if  (s.pointSize>=0) r+= "\"pointSize\" : <s.pointSize>,";
-    if  (!isEmpty(s.\type)) r+="\"type\" : \"<s.\type>\",";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
 
 data Bar (value groupWidth = "") = bar();
 
-str trBar(Bar bar) {
-    str r = "{";
-    if (str v := bar.groupWidth)
-            if (!isEmpty(v)) r +="\"groupWidth\" : \"<v>\",";
-        else
-             r += "\"groupWidth\" : <bar.groupWidth>";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }          
- 
- bool isEmpty(Bar bar) {
-    return (str v := bar.groupWidth && isEmpty(v));
-    }
+data Animation(
+      int duration = -1,
+      str easing = "",
+      bool startup = false
+      ) = animation();
+
+data Tick(num v = -1, str f  ="") = tick();
+
+data TextStyle(str color="", str fontName="", int fontSize=-1, 
+       bool bold = false, bool italic = false) = textStyle();
     
 data Axis(str title="",
-          int minValue = -1,
-          int maxValue = -1,
+          num minValue = -1,
+          num maxValue = -1,
           ViewWindow viewWindow = ViewWindow::viewWindow(),
           bool slantedText = true,
+          bool logScale = false,
           int slantedTextAngle = -1, 
+          int direction = -1,
           str textPosition = "",
           str format = "", 
-           Gridlines gridlines =  Gridlines::gridlines()) 
+           Gridlines gridlines =  Gridlines::gridlines() ,
+          list[Tick] tick = [],
+          TextStyle titleTextSyle = textStyle(),
+          TextStyle textStyle = textStyle())
           = axis();
           
-bool isEmpty (Axis axis) = axis.title=="" && axis.minValue==-1 && axis.maxValue == -1
-     && isEmpty(axis.viewWindow) && axis.slantedText && axis.slantedTextAngle == -1
-     && isEmpty(axis.textPosition) && isEmpty(axis.format);
-
-str trAxis(Axis axis) {
-    str r = "{";
-    if  (!isEmpty(axis.title)) r +="\"title\" : \"<axis.title>\",";
-    if  (axis.minValue>=0) r+="\"minValue\" : <axis.minValue>,";
-    if  (axis.maxValue>=0) r+= "\"maxValue\" : <axis.maxValue>,";
-    if (!isEmpty(axis.viewWindow)) r+="\"viewWindow\":<trViewWindow(axis.viewWindow)>,";
-    if (!isEmpty(axis.gridlines)) r+="\"gridlines\":<trGridlines(axis.gridlines)>,";
-    if (!axis.slantedText) r+="\"slantedText\":<axis.slantedText>,";
-    if  (axis.slantedTextAngle>=0) r+="\"slantedTextAngle\" : <axis.slantedTextAngle>,";
-    if  (!isEmpty(axis.textPosition)) r +="\"textPosition\" : \"<axis.textPosition>\",";
-    if  (!isEmpty(axis.format)) r +="\"format\" : \"<axis.format>\",";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
                
 data Candlestick( 
      bool hollowIsRising = false,
@@ -436,18 +342,6 @@ data Candlestick(
      CandlestickColor risingColor = candlestickColor()
      ) = candlestick(); 
      
-str trCandlestick(Candlestick c) {
-    str r = "{";
-    if  (c.hollowIsRising) r +="\"hollowIsRising\" : \"<c.hollowIsRising>\",";
-    if (!isEmpty(c.fallingColor)) r+="\"fallingColor\":<trCandlestickColor(c.fallingColor)>,";
-    if (!isEmpty(c.risingColor)) r+="\"risingColor\":<trCandlestickColor(c.risingColor)>,";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
-     
-bool isEmpty (Candlestick c) = !c.hollowIsRising 
-     && isEmpty(c.fallingColor) && isEmpty(c.risingColor);
 
 data CandlestickColor( 
      str fill = "",
@@ -455,20 +349,41 @@ data CandlestickColor(
      int strokeWidth = -1
      ) = candlestickColor(); 
      
-str trCandlestickColor(CandlestickColor c) {
-    str r = "{";
-    if  (c.strokeWidth>=0) r +="\"strokeWidth\" : <c.strokeWidth>,";
-    if (!isEmpty(c.fill)) r+="\"fill\":\"<c.fill>\",";
-    if (!isEmpty(c.stroke)) r+="\"stroke\":\"<c.stroke>\",";
-    r = replaceLast(r,",", "");
-    r+="}";
-    return r;
-    }
+data SankeyColor( 
+     str fill = "",
+     str stroke = "",
+     real fillOpacity = -1.0,
+     int strokeWidth = -1
+     ) = sankeyColor(); 
+
+data SankeyLabel( 
+     str fontName = "",
+     int fontSize = -1,
+     str color = "",
+     int strokeWidth = -1,
+     bool bold = false, 
+     bool italic = false
+     ) = sankeyLabel(); 
      
-bool isEmpty (CandlestickColor c) = c.strokeWidth == -1 
-     && isEmpty(c.fill) && isEmpty(c.stroke);
-                      
+data SankeyNode(
+     SankeyLabel label = sadkeyLabel(),
+     int labelPadding = -1,
+     int nodePadding = -6,
+     int width = -1
+     ) = sankeyNode();
+         
+data SankeyLink (
+     SankeyColor color = sankeyColor()
+     ) = sankeyLink();
+  
+data Sankey(
+      int iterations = -1,
+      SankeyLink link = sankeyLink(),
+      SankeyNode \node = sankeyNode()
+     ) = sankey();   
+                  
 data ChartOptions (str title = "",
+             Animation animation = Animation::animation(),
              Axis hAxis = axis(),
              Axis vAxis = axis(),
              ChartArea chartArea = ChartArea::chartArea(),
@@ -476,6 +391,7 @@ data ChartOptions (str title = "",
              int width=-1,
              int height = -1,
              bool forceIFrame = true,
+             bool is3D = false, 
              Legend legend = Legend::legend(),
              int lineWidth = -1,
              int pointSize = -1,
@@ -485,37 +401,11 @@ data ChartOptions (str title = "",
              str pointShape = "",
              bool isStacked = false,
              Candlestick candlestick = Candlestick::candlestick(),
+             Sankey sankey = Sankey::sankey(),
              list[Series] series = []
              ) = chartOptions()
             ;
             
-str trOptions(ChartOptions options) {
-            str r = "{";
-            if  (!isEmpty(options.title)) r +="\"title\" : \"<options.title>\",";
-            if  (!isEmpty(options.hAxis)) r +="\"hAxis\" : <trAxis(options.hAxis)>,";
-            if  (!isEmpty(options.vAxis)) r +="\"vAxis\" : <trAxis(options.vAxis)>,";
-            if  (!isEmpty(options.chartArea)) r +="\"chartArea\" : <trChartArea(options.chartArea)>,";
-            if  (!isEmpty(options.bar)) r +="\"bar\" : <trBar(options.bar)>,";
-            if  (options.width>=0) r+="\"width\" : <options.width>,";
-            if  (options.height>=0) r+= "\"height\" : <options.height>,";
-            r+= "\"forceIFrame\":<options.forceIFrame>,";
-            if  (!isEmpty(options.legend)) 
-            if (!options.legend.none) r +="\"legend\" : <trLegend(options.legend)>,";
-            if  (options.lineWidth>=0) r+="\"lineWidth\" : <options.lineWidth>,";
-            if  (options.pointSize>=0) r+="\"pointSize\" : <options.pointSize>,";
-            if  (options.interpolateNulls)  r+= "\"interpolateNulls\":\"<options.interpolateNulls>\",";
-            if  (!isEmpty(options.curveType)) r +="\"curveType\" : \"<options.curveType>\",";
-            if  (!isEmpty(options.seriesType)) r +="\"seriesType\" : \"<options.seriesType>\",";
-            if  (!isEmpty(options.pointShape)) r +="\"pointShape\" : \"<options.pointShape>\",";
-            if  (options.isStacked) r +="\"isStacked\" : \"<options.isStacked>\",";
-            if  (!isEmpty(options.series)) r+=  "\"series\" : [<intercalate(",", ["<trSeries(q)>" |q<-options.series])>],";
-            if  (!isEmpty(options.candlestick)) r +="\"candlestick\" : <trCandlestick(options.candlestick)>,";
-            r = replaceLast(r,",", "");
-            r+="}";
-            // println(chart);
-            return r;
- 
-      }
 
 ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
     options.series = [];
@@ -528,26 +418,15 @@ ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
             case Chart::area(XYLabeledData d4): s.\type=  "area";
             case Chart::bar(_) : s.\type = "bars";
             }
-        s.color = c.color;
-        s.curveType = c.curveType;
-        s.lineWidth = c.lineWidth;
-        s.pointShape = c.pointShape;
-        s.pointSize = c.pointSize;
+        if (!isEmpty(c.color)) s.color = c.color;
+        if (!isEmpty(c.curveType)) s.curveType = c.curveType;
+        if (c.lineWidth>=0)  s.lineWidth = c.lineWidth;
+        if (!isEmpty(c.pointShape)) s.pointShape = c.pointShape;
+        if (c.pointSize>=0) s.pointSize = c.pointSize;
         options.series += [s];
         }
     return options;
-    }
-            
-data Column  = column(str \type="", str label="", str role = "");      
-
-str trColumn(Column c) {
-    return
-    "{\"label\":\"<c.label>\",
-    ' \"type\": \"<c.\type>\",
-    ' \"role\": \"<c.role>\"
-    '}";
-    }
-
+    }   
 
 data Chart(str name = "", str color = "", str curveType = "",
      int lineWidth = -1, str pointShape = "", int pointSize = -1)
@@ -558,17 +437,31 @@ data Chart(str name = "", str color = "", str curveType = "",
 	| area(XYLabeledData xylabeleddata)
 	| bar(XYLabeledData xylabeledData)
 	;	
+	
+map[str, str] getTooltipMap(int tooltipColumn) {
+    str typ = tooltipColumn < 0 || tooltipColumn == 2 ? "string":"number";
+    return ("type": typ, "role":"tooltip");
+    }
 
-map[tuple[value, int], list[value]] 
-   tData(Chart c, bool inChart, int tooltipColumn) {
+tuple[list[map[str, str]] header, map[tuple[value, int], list[value]] \data] 
+   tData(Chart c, int tooltipColumn) {
      list[list[value]] r = [];
+     list[map[str, str]] h = [];
      switch(c) {
-        case line(XYData x): r = [[d[0], d[1]]|d<-x];
-        case area(XYData x): r = [[d[0], d[1]]|d<-x];
-        case line(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
-        case area(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
-        case bar(XYLabeledData x): r = [[d[0], d[1], inChart?"<d[tooltipColumn]>":d[2]]|d<-x];
-            
+        case line(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number")];}
+        case area(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number")];}
+        case line(XYLabeledData x): {
+                                     r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x];
+                                     h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                    }
+        case area(XYLabeledData x): {
+                                      r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x];
+                                      h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                    }
+        case bar(XYLabeledData x): {
+                                    r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x]; 
+                                    h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                   }           
         }
      map[tuple[value, int], list[value]] q  = ();
      for (d<-r) {
@@ -576,50 +469,38 @@ map[tuple[value, int], list[value]]
          while(q[<d[0], i>]?) i = i + 1;
          q[<d[0], i>] = tail(d);
          }
-     return q;
+     return <h, q>;
      }
-
-list[Column] cData(Chart c) {
+     
+bool hasXYLabeledData(Chart c) {
      switch(c) {
-        case line(XYData x): return [column(\type="number", label = c.name, role="data")];
-        case area(XYData x): return [column(\type="number", label = c.name, role="data")];
-        case line(XYLabeledData x): return [column(\type="number", label = c.name, role="data")
-                                           ,column(\type="string", label = c.name, role="tooltip")
-                                           ];
-        case area(XYLabeledData y): return [column(\type="number", label = c.name, role="data")
-                                           ,column(\type="string", label = c.name, role="tooltip")
-                                           ];
-        case bar(XYLabeledData x): return [column(\type="number", label = c.name, role="data")
-                                           ,column(\type="string", label = c.name, role="tooltip")
-                                          ];
-        }
-     return column();
-     }
-     
-     
-list[Column] joinColumn(list[Chart] charts, bool tickLabels) {
-   int i = 0;
-   for (c<-charts) {
-       /*if (bar(_):=c)*/  if (size(cData(c))==2) break;
-       i = i +1;
-       }
-     list[Column] r = [*cData(c)|c<-charts];
-     if (!tickLabels || i == size(charts)) 
-       return [column(\type="number", role="domain")]+r;
-     else return [column(\type="string", role="domain", label = charts[i].name)]+ r;
-     }
-     
-list[list[value]] strip(XYLabeledData d) {
-     map[num, list[value]] m = (e[0]:[e[2], e[1]]|e<-d);
-     list[num] x = sort(domain(m));
-     return [m[i]|num i<-x];
-     }
-
-list[list[value]] strip(XYData d) {
-     map[num, list[value]] m = (e[0]:[e[0], e[1]]|e<-d);
-     list[num] x = sort(domain(m));
-     return [m[i]|num i<-x];
+         case line(XYLabeledData _): return true;
+         case area(XYLabeledData _): return true;
+         case bar(XYLabeledData _): return true;
+         }
+     return false;
      } 
+
+list[list[value]] strip(XYLabeledData b, bool tickLabels) {
+     if (tickLabels) { 
+         map[num, list[value]] m = (e[0]:[e[2], e[1], e[2]]|e<-b);
+         list[num] x = sort(domain(m));
+         return [[("type":"string"), ("type":"number"), ("type":"string", "role":"tooltip")]]
+               +[m[i]|i<-x];
+          }
+     else {
+         map[num, list[value]] m = (e[0]:[e[0], e[1], e[2]]|e<-b);
+         list[num] x = sort(domain(m));
+         return [[("type":"number"), ("type":"number"), ("type":"string", "role":"tooltip")]]
+               +[m[i]|i<-x];
+         }
+     }
+     
+list[list[value]] strip(XYData b) {
+        return [[("type":"number"), ("type":"number")]]
+               +[[d[0],d[1]]|d<-b];
+     } 
+
 
 list[list[value]] strip(BoxData b, BoxHeader h) {
      return [[h[0], h[1], h[2], h[3], h[4]]]+[[d[0],d[1],d[2],d[3],d[4]]|d<-b];
@@ -628,25 +509,42 @@ list[list[value]] strip(BoxData b, BoxHeader h) {
 list[list[value]] strip(BoxLabeledData b, BoxHeader h) {
      return [[h[0], h[1], h[2], h[3], h[4], ("type":"string","role":"tooltip")]]+[[d[0],d[1],d[2],d[3],d[4], d[5]]|d<-b];
      } 
+     
                 
 list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
-   list[map[tuple[value, int], list[value]]] m = [tData(c, false, tooltipColumn)|c<-charts];   
-   set[tuple[value, int]] d = union({domain(c)|c <-m });   
+   list[tuple[list[map[str, str]] header, map[tuple[value, int], list[value]]\data]] m = [tData(c, tooltipColumn)|c<-charts];   
+   set[tuple[value, int]] d = union({domain(c.\data)|c <-m});   
    list[tuple[value, int]] x = sort(toList(d));
-   // println(x);
    int i = 0;
    for (c<-charts) {
-       /*if (bar(_):=c)*/ if (size(cData(c))==2)  break;
+       if (hasXYLabeledData(c)) break;
        i = i +1;
        }
-  
-   // println("bar:<i>  <[[m[i][z][1]]|z<-x]>");
    if (!tickLabels || i == size(charts)) 
-      return [[z[0]] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
+      return [[("type":"number")]+[*c.\header|c<-m]]+[[z[0]] +[*((c.\data[z]?)?c.\data[z]:"null")|c<-m]|z<-x];
    else {
-      map[value, value] lab =  (z:m[i][z][1]|z<-x);
-      m = [tData(c, true, tooltipColumn)|c<-charts];  
-      return [[lab[z]] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
+      map[value, value] lab =  (z:m[i].\data[z][1]|z<-x);
+      m = [tData(c, tooltipColumn)|c<-charts];  
+      return 
+           [[("type":"string")]+[*c.\header|c<-m]]+
+           [[lab[z]] +[*((c.\data[z]?)?c.\data[z]:"null")|c<-m]|z<-x];
       }
    }
-	
+  
+   
+public map[str, value] adt2map(node t) {
+   map[str, value] r = getKeywordParameters(t);
+   for (d<-r) {
+        if (node n := r[d]) {
+           r[d] = adt2map(n);
+        }
+        if (list[node] l:=r[d]) {
+           r[d] = [adt2map(e)|e<-l];
+           }
+      }
+   return r;
+   }
+   
+public str adt2json(node t) {
+   return toJSON(adt2map(t), true);
+   }

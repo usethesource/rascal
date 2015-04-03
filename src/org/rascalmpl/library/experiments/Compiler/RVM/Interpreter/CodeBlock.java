@@ -1,17 +1,26 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -73,6 +82,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
@@ -94,6 +104,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.values.uptr.Factory;
 
 public class CodeBlock {
 
@@ -238,7 +249,8 @@ public class CodeBlock {
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
+			return getFunctionIndex(name);
+			//throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -309,6 +321,8 @@ public class CodeBlock {
 	public final static int maskArg2 = (1 << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
+	
+	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
 	public static int encode0(int op){
 		return op;
@@ -659,8 +673,12 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 	
-	public CodeBlock SWITCH(IMap caseLabels, String caseDefault) {
-		return add(new Switch(this, caseLabels, caseDefault));
+	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean useConcreteFingerprint) {
+		return add(new Switch(this, caseLabels, caseDefault, useConcreteFingerprint));
+	}
+	
+	public CodeBlock RESETLOCS(IList positions) {
+		return add(new ResetLocs(this, getConstantIndex(positions)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
@@ -681,6 +699,14 @@ public class CodeBlock {
 		for(int i = 0; i < typeConstantStore.size(); i++) {
 			finalTypeConstantStore[i] = typeConstantStore.get(i);
 		}
+		
+		if(constantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+		}
+		if(typeConstantStore.size() >= maxArg){
+			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+		}
+		
 		if(listing){
 			listing(fname);
 		}

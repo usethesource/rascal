@@ -1,24 +1,37 @@
-@bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::types::AbstractName;
-import lang::rascal::types::AbstractType;
-import lang::rascal::\syntax::Rascal;
-import lang::rascal::types::Util;
-import Relation;
+import lang::rascal::tests::types::StaticTestingUtils;
+import util::Benchmark;
+import IO;
 
-public rel[RName,loc] regExpPatternNames(RegExpLiteral rl) {
-    rel[RName,loc] names = { };
-        
-    top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
-        	if (Name regExpVarName := prds[1]) { 
-        		names += < convertName(regExpVarName), prds[1]@\loc >;
-        	}
-        }
-    }
-    
-    return names;
+value main(list[value] args) {											
+	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
+
+						public int tmpVar = -1;  
+						
+						public str nextTmp(){
+						    tmpVar += 1;
+						    return \"TMP\<tmpVar\>\";
+						}
+						
+						str getLabel(Label label) =
+						  (label is \\default) ? \"\<label.name\>\" : nextTmp();");		 
+	makeModule("M2", "import M1;");
+	t1 = cpuTime();
+	res = checkOK("true;", importedModules=["M1", "M2"]);
+	t2 = cpuTime();
+	
+	println("Time for checking: <(t2 - t1)/1000000>");
+	return res;
 }
 
-value main(list[value] args) = domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) ;
+//value main(list[value] args) {
+//	bool f(bool c = false){
+//		void g(){
+//			c = true;
+//		}
+//		g();
+//		return c;
+//	}
+//	return f() == true;
+//}

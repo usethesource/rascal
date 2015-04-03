@@ -210,10 +210,6 @@ test bool prioTest() {
    	         sorted = sorted + [minimum];
    }
    
-   println("Q=<toString(Q)>");
-   
-   println("sorted=<sorted>");  
-   
    return true;
 }
 		

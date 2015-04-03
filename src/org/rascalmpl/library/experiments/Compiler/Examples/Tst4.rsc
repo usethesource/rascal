@@ -1,42 +1,19 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst4
 
-import IO;
-import String;
-import Message;
-import Set;
-import util::Reflective;
-import ParseTree;
-import lang::rascal::checker::ParserHelper;
-import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
-import lang::rascal::types::CheckerConfig;
-import lang::rascal::\syntax::Rascal;
 import lang::rascal::tests::types::StaticTestingUtils;
+import util::Benchmark;
+import IO;
 
-// Sanity check on the testing utilities themselves
-
-value main(list[value] args) = checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
-
-//test bool testUtils0() = checkOK("13;");
-//
-//test bool testUtils1() = checkOK("x;", initialDecls=["int x = 5;"]);
-//
-//test bool testUtils2() = checkOK("d();", initialDecls=["data D = d();"]);
-//
-//test bool testUtils3() = checkOK("d();", initialDecls=["data D = d() | d(int n);"]);
-//
-//test bool testUtils4() = checkOK("d(3);", initialDecls=["data D = d() | d(int n);"]);
-//
-//test bool testUtils5() = checkOK("t();", initialDecls=["data Bool = and(Bool, Bool) | t();"]);
-//	
-//test bool testUtils6() = checkOK("and(t(),t());", initialDecls=["data Bool = and(Bool, Bool) | t();"]);
-//
-//test bool testUtils7() =  checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
-//
-//test bool testUtils8() = checkOK("NODE N = f(0, \"a\", 3.5);", initialDecls = ["data NODE = f(int a, str b, real c);"]);
-//	
-//test bool testUtils8() = checkOK("max(3, 4);", importedModules = ["util::Math"]);
-//
-//test bool testUtils9() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
-
-
+value main(list[value] args) {
+	t1 = cpuTime();
+	res = checkOK("size([1,2,3]);",
+			importedModules = ["List"]);
+	//res = checkOK("Program program := t1;",
+	//		initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+	//		importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
+	t2 = cpuTime();		
+	println("Time for checking: <(t2 - t1)/1000000>");
+	return res;
+}			
+			

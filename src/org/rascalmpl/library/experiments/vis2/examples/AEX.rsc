@@ -2,14 +2,15 @@ module experiments::vis2::examples::AEX
 
 
 import Prelude;
+import Node;
 
 import experiments::vis2::Figure;
 import experiments::vis2::FigureServer; 
 import lang::csv::IO;
+import lang::json::IO;
 
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/AEX.csv|;
 
-list[str] days = ["tue", "mon", "fri", "thu", "wed"];
 void ex(str title, Figure f){
 	render(title, f);
 }
@@ -27,12 +28,31 @@ BoxHeader t(Header r) {
     
 public void aex() {
    Header w = readCSV(#Header, location, header=false);
-   Trade v = readCSV(#Trade, location, header=true);  
-   BoxLabeledData d = [<days[i%5], v[i].low, v[i].open, v[i].close, v[i].high
-    ,"open: <v[i].open>\nclose: <v[i].close>\nlow:\t<v[i].low>\nhigh:\t<v[i].high>"
-    >|i<-[0..size(v)]];
+   Trade v = readCSV(#Trade, location, header=true); 
+    BoxLabeledData d = [<printDate(h,"E:\tMM-dd"), e.low, e.open, e.close, e.high,
+    "open: <e.open>\nclose: <e.close>\nlow:\t<e.low>\nhigh:\t<e.high>"
+    >|e<-v  
+          , datetime h := parseDate(e.date,  "yyyy-MM-dd")
+          ];
    ex("aex", candlestickchart(d, t(w)
-   , options = chartOptions(candlestick=candlestick(risingColor=candlestickColor(fill="green")
-   , fallingColor=candlestickColor(fill="red")))
+   , options = chartOptions(candlestick=candlestick(
+      risingColor=candlestickColor(fill="green")
+   , fallingColor=candlestickColor(fill="red")), hAxis = axis(direction=-1))
    , width = 400, height = 400));
    }
+   
+map[str, value] adt2map(node t) {
+   map[str, value] r = getKeywordParameters(t);
+   for (d<-r) {
+        if (node n := r[d]) {
+           r[d] = getKeywordParameters(n);
+        }
+      }
+   return r;
+   }
+   
+public void main() {
+   println(adt2json((candlestick(
+     risingColor=candlestickColor(fill="green")
+   , fallingColor=candlestickColor()))));
+    }
