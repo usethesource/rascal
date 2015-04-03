@@ -18,6 +18,7 @@ public data MuModule =
               muModule(str name, 
                        set[Message] messages,
                        list[loc] imports,
+                       list[loc] extends,
               		   map[str,Symbol] types, 
               		   map[Symbol, Production] symbol_definitions,
                        list[MuFunction] functions, 
@@ -25,19 +26,19 @@ public data MuModule =
                        list[MuExp] initialization,
                        int nlocals_in_initializations,
                        map[str,int] resolver,
-                       lrel[str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
+                       lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
                        map[Symbol, Production] grammar,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
-                           loc src, list[str] modifiers, map[str,str] tags,
+                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, bool isPublic,
+                           loc src, list[str] modifiers, map[str,str] tags, bool isConcreteArg, int abstractFingerprint, int concreteFingerprint,
                            MuExp body)
               | muCoroutine(str qname, str uqname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)
           ;

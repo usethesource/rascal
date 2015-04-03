@@ -1398,6 +1398,15 @@ public class Prelude {
 		}
 	}
 	
+	public IList shuffle(IList l, IInteger seed) {
+		return l.shuffle(new Random(2305843009213693951L * seed.hashCode()));
+
+	}
+
+	public IList shuffle(IList l) {
+		return l.shuffle(new Random());
+	}
+	
 	public IList sort(IList l, IValue cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){

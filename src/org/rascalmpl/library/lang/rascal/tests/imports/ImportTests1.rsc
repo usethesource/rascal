@@ -4,7 +4,6 @@ import lang::rascal::tests::imports::M1;
 
 test bool Test11() = lang::rascal::tests::imports::M1::f(3) == 6;
 
-@ignore{}
 test bool Test12() = f(3) == 6;
 
  
