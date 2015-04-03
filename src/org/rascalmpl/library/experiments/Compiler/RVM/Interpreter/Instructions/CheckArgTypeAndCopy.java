@@ -19,12 +19,18 @@ public class CheckArgTypeAndCopy extends Instruction {
 	public String toString() { return "CHECKARGTYPEANDCOPY " + pos1 + ", " + type + "[" + codeblock.getConstantType(type) + "], " + pos2; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		// TODO:  generate jvm bytecode.
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
 		codeblock.addCode2(opcode.getOpcode(), pos1, type);
 		codeblock.addCode(pos2);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
 	}
 }

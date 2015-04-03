@@ -23,4 +23,11 @@ public class CallDyn extends Instruction {
 		codeEmittor.emitInlineCalldyn(arity, continuationPoint,dcode) ;
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineCalldyn(arity, continuationPoint,debug) ;
+	}
 }

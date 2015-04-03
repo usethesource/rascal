@@ -15,4 +15,11 @@ public class GreaterEqualInt extends Instruction {
 		codeEmittor.emitCallWithArgsSS("insnGREATEREQUALINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSS("insnGREATEREQUALINT");
+	}
 }

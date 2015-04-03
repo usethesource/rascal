@@ -17,11 +17,17 @@ public class Jmp extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 
 		codeEmittor.emitJMP(label);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+
+		codeEmittor.emitJMP(label);
 	}
 }
