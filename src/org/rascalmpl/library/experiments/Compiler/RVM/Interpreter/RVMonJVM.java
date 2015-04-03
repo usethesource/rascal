@@ -1,11 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,9 +131,9 @@ public class RVMonJVM implements IRVM {
 			
 			ITuple ofTuple = (ITuple) of;
 			
-			String funName = ((IString) ofTuple.get(0)).getValue();
+			//String funName = ((IString) ofTuple.get(0)).getValue();
 			
-			IConstructor funType = (IConstructor) ofTuple.get(1);
+			//IConstructor funType = (IConstructor) ofTuple.get(1);
 			
 			String scopeIn = ((IString) ofTuple.get(2)).getValue();
 			if(scopeIn.equals("")) {
@@ -244,7 +239,6 @@ public class RVMonJVM implements IRVM {
 			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 
 			for (Function f : functionStore) {
-				// TODO: new finalize
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 			for(OverloadedFunction of : overloadedStore) {
