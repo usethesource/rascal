@@ -13,4 +13,11 @@ public class FilterReturn extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 		 codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode) {
+		if ( !dcode ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		// TODO implement.
+		codeEmittor.emitDebugCall(opcode.name());
+	}
 }

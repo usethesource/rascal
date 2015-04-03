@@ -24,4 +24,11 @@ public class JmpFalse extends Instruction {
 		codeEmittor.emitJMPFALSE(label, debug);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitJMPFALSE(label, debug);
+	}
 }

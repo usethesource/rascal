@@ -9,13 +9,17 @@ public class FailReturn extends Instruction {
 		super(ins, Opcode.FAILRETURN);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		// TODO version 1 done
-		// Implement return system.
-		// System.out.println("FAILRETURN");
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitInlineFailreturn();
 		codeblock.addCode0(opcode.getOpcode());
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineFailreturn();
 	}
 }

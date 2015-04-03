@@ -15,4 +15,11 @@ public class Halt extends Instruction {
 		
 		codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){
+		if ( !dcode ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		// TODO : implement ?
+		codeEmittor.emitDebugCall(opcode.name());	
+	}
 }

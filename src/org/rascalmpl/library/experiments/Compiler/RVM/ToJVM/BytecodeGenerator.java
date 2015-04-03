@@ -804,19 +804,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 
-		// mv.visitVarInsn(ALOAD, THIS);
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-
 		emitIntValue(arity);
 
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute",
 				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I");
 		mv.visitVarInsn(ISTORE, SP);
-
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitInlineLoadBool(boolean b, boolean debug) {
@@ -841,14 +834,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitCallWithArgsSSI(String fname, int i, boolean dbg) {
@@ -866,17 +853,12 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		emitIntValue(i);
 		emitIntValue(j);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;III)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitCallWithArgsSSIII(String fname, int pos1, int type, int pos2) {
@@ -891,9 +873,6 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(pos2);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;IIII)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitCallWithArgsSSFI(String fname, int i, boolean dbg) {
@@ -902,19 +881,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
 		mv.visitVarInsn(ILOAD, SP); // Stack
-
-		// mv.visitVarInsn(ALOAD, THIS); // SP
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, CF); // CF
 
 		emitIntValue(i); // I
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-
 	}
 
 	public void emitCallWithArgsSSFIII(String fname, int i, int j, int k, boolean dbg) {
@@ -923,19 +895,14 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
 		mv.visitVarInsn(ILOAD, SP); // Stack
-
-		// mv.visitVarInsn(ALOAD, THIS); // SP
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, CF); // CF
 
 		emitIntValue(i); // I
 		emitIntValue(j); // I
 		emitIntValue(k); // I
+
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitVoidCallWithArgsSSI(String fname, int i, boolean dbg) {
@@ -944,8 +911,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, 3);
 		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitVarInsn(ALOAD, THIS);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		emitIntValue(i);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;II)V");
 	}
@@ -955,10 +920,7 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
-
 		mv.visitVarInsn(ILOAD, SP); // SP
-		// mv.visitVarInsn(ALOAD, THIS); // SP
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 1); // CF
 
 		emitIntValue(i); // I
@@ -966,9 +928,6 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitCallWithArgsSSFIIZ(String fname, int what, int pos, boolean b, boolean dcode) {
@@ -977,10 +936,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
 		mv.visitVarInsn(ILOAD, SP); // Stack
-
-//		mv.visitVarInsn(ALOAD, THIS); // SP
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ALOAD, 1); // CF
+		mv.visitVarInsn(ALOAD, CF); // CF
 
 		emitIntValue(what); // I
 		emitIntValue(pos); // I
@@ -992,9 +948,6 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIZ)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	public void emitVoidCallWithArgsSSFIIZ(String fname, int what, int pos, boolean b, boolean dcode) {
@@ -1003,9 +956,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 
 		mv.visitVarInsn(ILOAD, SP); 
-
-//		mv.visitVarInsn(ALOAD, THIS); // SP
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 
 		mv.visitVarInsn(ALOAD, CF); 
 
@@ -1079,9 +1029,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK); // Stack
 		mv.visitVarInsn(ILOAD, SP); 
 		
-//		mv.visitVarInsn(ALOAD, THIS); // SP
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)V");
 	}
 
@@ -1089,10 +1036,9 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3); // Stack
-		mv.visitVarInsn(ALOAD, THIS); // SP
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ALOAD, 1); // CF
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); // SP
+		mv.visitVarInsn(ALOAD, CF); // CF
 		emitIntValue(pos); // I
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V");
 	}
@@ -1104,16 +1050,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK); // Stack
 		mv.visitVarInsn(ILOAD, SP); // Stack
 
-
-//		mv.visitVarInsn(ALOAD, THIS); // SP
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, CF); // CF
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
 	/*
@@ -1241,12 +1181,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
-//		mv.visitInsn(DUP);
-//		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-//		mv.visitInsn(DUP_X1);
-//		mv.visitInsn(ICONST_1);
-//		mv.visitInsn(IADD);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 		mv.visitInsn(AASTORE);
 

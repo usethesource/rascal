@@ -17,4 +17,11 @@ public class Exhaust extends Instruction {
 		codeEmittor.emitInlineExhaust(debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineExhaust(debug);
+	}
 }

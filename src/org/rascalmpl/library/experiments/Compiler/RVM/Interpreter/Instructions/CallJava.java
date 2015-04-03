@@ -38,4 +38,11 @@ public class CallJava extends Instruction {
 		codeblock.addCode(reflect);
 	}
 
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFIIIII("insnCALLJAVA", methodName, className, parameterTypes, keywordTypes, reflect, debug);
+	}
+
 }

@@ -21,11 +21,19 @@ public class Call extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-	
+		
 		if ( !debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
 	}
 }
