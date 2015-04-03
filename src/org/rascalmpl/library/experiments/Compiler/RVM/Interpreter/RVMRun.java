@@ -802,7 +802,7 @@ public class RVMRun implements IRVM {
 
 	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
-		return sp++;
+		return sp;
 	}
 
 	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
