@@ -21,4 +21,10 @@ public class LoadBool extends Instruction {
 		codeEmittor.emitInlineLoadBool(bool,debug) ;
 		codeblock.addCode1(opcode.getOpcode(), bool ? 1 : 0);
 	}
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadBool(bool,debug) ;
+	}
 }

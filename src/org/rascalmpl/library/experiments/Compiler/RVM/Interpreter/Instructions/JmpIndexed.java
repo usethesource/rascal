@@ -38,4 +38,17 @@ public class JmpIndexed extends Instruction {
 		
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+
+		IListWriter w = codeblock.vf.listWriter();
+		for(IValue vlabel : labels){
+			String label = ((IString) vlabel).getValue();
+			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
+		}
+		
+		codeEmittor.emitInlineJmpIndexed(labels , debug);
+	}
 }

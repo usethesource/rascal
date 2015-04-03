@@ -23,7 +23,7 @@ public class StoreLocKwp extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),debug);

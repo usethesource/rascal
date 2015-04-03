@@ -29,7 +29,7 @@ public class OCallDyn extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
+		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);

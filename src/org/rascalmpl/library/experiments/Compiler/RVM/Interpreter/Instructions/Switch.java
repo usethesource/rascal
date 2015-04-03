@@ -49,7 +49,7 @@ public class Switch extends Instruction {
 	}
 
 	public void generateBytCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		IMapWriter w = codeblock.vf.mapWriter();

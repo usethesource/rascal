@@ -24,7 +24,7 @@ public class LoadNestedFun extends Instruction {
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn));
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSFII("insnLOAD_NESTED_FUN", codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn),debug);

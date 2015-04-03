@@ -27,7 +27,7 @@ public class CallConstr extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
+		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSSII("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity,debug);

@@ -20,7 +20,7 @@ public class Yield0 extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
+		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitInlineYield(0,hotEntryPoint,debug) ;

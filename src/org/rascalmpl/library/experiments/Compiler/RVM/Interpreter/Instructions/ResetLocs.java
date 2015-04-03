@@ -22,7 +22,7 @@ public class ResetLocs extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
+		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		codeEmittor.emitInlineResetLocs(positions,codeblock.getConstantValue(positions), debug) ;
 	}
