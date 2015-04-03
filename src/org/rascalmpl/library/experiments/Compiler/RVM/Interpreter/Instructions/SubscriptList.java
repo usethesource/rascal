@@ -8,11 +8,18 @@ public class SubscriptList extends Instruction {
 	public SubscriptList(CodeBlock ins) {
 		super(ins, Opcode.SUBSCRIPTLIST);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitCallWithArgsSS("insnSUBSCRIPTLIST");
 		codeblock.addCode0(opcode.getOpcode());
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSS("insnSUBSCRIPTLIST");
 	}
 }

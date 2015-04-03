@@ -27,8 +27,8 @@ public class TypeSwitch extends Instruction {
 		return res;
 	}
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		IListWriter w = codeblock.vf.listWriter();
@@ -36,7 +36,19 @@ public class TypeSwitch extends Instruction {
 			String label = ((IString) vlabel).getValue();
 			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
-		codeEmittor.emitInlineTypeSwitch(labels,dcode) ;
+		codeEmittor.emitInlineTypeSwitch(labels,debug) ;
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		IListWriter w = codeblock.vf.listWriter();
+		for(IValue vlabel : labels){
+			String label = ((IString) vlabel).getValue();
+			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
+		}
+		codeEmittor.emitInlineTypeSwitch(labels,debug) ;
 	}
 }

@@ -279,29 +279,29 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	// A call to a RVM instruction not CALL or OCALL
-	public void emitCall(String fname) {
-		if (!emit)
-			return;
-		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V");
-	}
-
-	public void emitCall(String fname, int arg1) {
-		if (!emit)
-			return;
-		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-		emitIntValue(arg1);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(I)V");
-	}
-
-	public void emitCall(String fname, int arg1, int arg2) {
-		if (!emit)
-			return;
-		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-		emitIntValue(arg1);
-		emitIntValue(arg2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
-	}
+//	public void emitCall(String fname) {
+//		if (!emit)
+//			return;
+//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V");
+//	}
+//
+//	public void emitCall(String fname, int arg1) {
+//		if (!emit)
+//			return;
+//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
+//		emitIntValue(arg1);
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(I)V");
+//	}
+//
+//	public void emitCall(String fname, int arg1, int arg2) {
+//		if (!emit)
+//			return;
+//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
+//		emitIntValue(arg1);
+//		emitIntValue(arg2);
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
+//	}
 
 	public byte[] finalizeCode() {
 		if (!emit)
@@ -525,11 +525,10 @@ public class BytecodeGenerator implements Opcodes {
 		 mv.visitVarInsn(ALOAD, STACK);
 		 emitIntValue(n);
 		 mv.visitInsn(AALOAD);
-		 mv.visitInsn(AASTORE);
-		 
+		 mv.visitInsn(AASTORE); 
 	}
 	
-	// Experimemtal local copy of constantStore
+	// Experimemtal local copy of constantStore and typeConstantStore probably need in final version.
 	public void emitInlineLoadConOrType(int n, boolean conortype,  boolean debug) {
 		if (!emit)	
 			return;
@@ -584,17 +583,13 @@ public class BytecodeGenerator implements Opcodes {
 		if (exitLabel == null)
 			exitLabel = new Label();
 
-//		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitIincInsn(SP, -1);
-//		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "typeSwitchHelper", "([Ljava/lang/Object;I)I");
 
 		mv.visitTableSwitchInsn(0, nrLabels - 1, exitLabel, switchTable);
-
 	}
 
 	public void emitHotEntryJumpTable(int continuationPoints, boolean debug) {
@@ -605,19 +600,19 @@ public class BytecodeGenerator implements Opcodes {
 															// entry point.
 	}
 
-	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect, boolean debug) {
-		if (!emit)
-			return;
-
-		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-
-		emitIntValue(className2);
-		emitIntValue(methodName);
-		emitIntValue(parameterTypes);
-		emitIntValue(reflect);
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnCALLJAVA", "(IIII)V");
-	}
+//	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect, boolean debug) {
+//		if (!emit)
+//			return;
+//
+//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
+//
+//		emitIntValue(className2);
+//		emitIntValue(methodName);
+//		emitIntValue(parameterTypes);
+//		emitIntValue(reflect);
+//
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnCALLJAVA", "(IIII)V");
+//	}
 
 	public void emitInlineJmpIndexed(IList labels, boolean dcode) {
 		if (!emit)
@@ -656,7 +651,6 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineYield(int arity, int hotEntryPoint, boolean debug) {
 		if (!emit)
 			return;
-
 
 		Label continueAt = new Label();
 
@@ -781,17 +775,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 
-		// mv.visitVarInsn(ALOAD, THIS);
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-
 		emitIntValue(arity);
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute", "([Ljava/lang/Object;II)I");
 		mv.visitVarInsn(ISTORE, SP);
-//		/**/mv.visitVarInsn(ALOAD, 0);
-//		/**/mv.visitVarInsn(ILOAD, SP);
-//		/**/mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-
 	}
 
 	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean debug) {

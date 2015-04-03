@@ -15,4 +15,11 @@ public class Return0 extends Instruction {
 		codeEmittor.emitInlineReturn(0,debug);
 		codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineReturn(0,debug);
+	}
 }

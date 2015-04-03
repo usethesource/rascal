@@ -21,4 +21,11 @@ public class UnwrapThrownLoc extends Instruction {
 		codeEmittor.emitCallWithArgsSSI("insnUNWRAPTHROWNLOC", pos, debug);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSI("insnUNWRAPTHROWNLOC", pos, debug);
+	}
 }

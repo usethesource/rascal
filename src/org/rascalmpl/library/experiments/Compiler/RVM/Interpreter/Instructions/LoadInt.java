@@ -21,4 +21,11 @@ public class LoadInt extends Instruction {
 		codeEmittor.emitInlineLoadInt(nval, debug);
 		codeblock.addCode1(opcode.getOpcode(), nval);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineLoadInt(nval, debug);
+	}
 }

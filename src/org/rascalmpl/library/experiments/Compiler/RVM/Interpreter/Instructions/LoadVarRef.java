@@ -28,4 +28,13 @@ public class LoadVarRef extends Instruction {
 		
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+
+		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid) ;
+		
+		codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVARREF", what, pos, CodeBlock.isMaxArg2(pos),debug);
+	}
 }

@@ -18,4 +18,11 @@ public class Yield0 extends Instruction {
 		codeEmittor.emitInlineYield(0,hotEntryPoint,debug) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineYield(0,hotEntryPoint,debug) ;
+	}
 }

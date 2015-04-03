@@ -14,11 +14,18 @@ public class StoreLocDeref extends Instruction {
 	
 	public String toString() { return "STORELOCDEREF " + pos; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
+	public void generate(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, dcode);
+		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, debug);
 		codeblock.addCode1(opcode.getOpcode(), pos);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, debug);
 	}
 }

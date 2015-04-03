@@ -22,4 +22,11 @@ public class StoreLoc extends  Instruction {
 		codeEmittor.emitInlineStoreLoc(pos, debug);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( !debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitInlineStoreLoc(pos, debug);
+	}
 }

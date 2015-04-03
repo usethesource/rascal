@@ -20,6 +20,12 @@ public class ResetLocs extends Instruction {
 		codeEmittor.emitInlineResetLocs(positions,codeblock.getConstantValue(positions), debug) ;
 		codeblock.addCode1(opcode.getOpcode(), positions);
 	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (!debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		codeEmittor.emitInlineResetLocs(positions,codeblock.getConstantValue(positions), debug) ;
+	}
 	
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), positions);
