@@ -11,7 +11,7 @@ public int estimate_stack_size(MuExp exp) = addSlack(estimate(exp));
 	
 public int estimate_stack_size(list[MuExp] exps) = addSlack(estimate_list(exps));
 
-int addSlack(int e) = 10 + e + (e+40)/10;
+int addSlack(int e) = e + 1;  //10 + e + (e+40)/10;
 
 private int estimate(muLab(str name)) = 0;
 

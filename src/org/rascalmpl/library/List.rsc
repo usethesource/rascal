@@ -1125,6 +1125,40 @@ public list[&T] sort(list[&T] lst) =
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
+Synopsis: Shuffle a list.
+
+Description:
+Returns a random (unbiased) shuffled list.
+
+Examples:
+<screen>
+import List;
+shuffle([1,4,2,3]);
+shuffle(["zebra", "elephant", "snake", "owl"]);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] shuffle(list[&T] l);
+
+@doc{
+Synopsis: Shuffle a list with a seed.
+
+Description:
+Returns a random (unbiased) shuffled list, every call with the same seed shuffles in the same order.
+
+Examples:
+<screen>
+import List;
+shuffle([1,2,3,4]);
+shuffle([1,2,3,4]);
+shuffle([1,2,3,4], 1);
+shuffle([1,2,3,4], 1);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] shuffle(list[&T] l, int seed);
+
+@doc{
 Synopsis: Split a list into two halves.
 
 Examples:

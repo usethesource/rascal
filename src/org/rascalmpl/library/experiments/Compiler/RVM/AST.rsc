@@ -13,10 +13,15 @@ public data Declaration =
 		  		   int nlocals,
 		  		   map[int, str] localNames,
 		  		   bool isVarArgs,
+		  		   bool isPublic,
+		  		   bool isDefault,
 		  		   loc src,
 		  		   int maxStack,
+		  		   bool isConcreteArg, 
+		  		   int abstractFingerprint, 
+		  		   int concreteFingerprint,
 		  		   list[Instruction] instructions,
-		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+		  		   lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		  		   
 	    | COROUTINE(str qname, 
 	                str uqname,
@@ -28,23 +33,24 @@ public data Declaration =
 		  		    loc src,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions,
-		  		    lrel[str from, str to, Symbol \type, str target] exceptions)
+		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		;
 
 public data RVMProgram = 
 		  rvm(str name,
 		      set[Message] messages,
 			  list[loc] imports,
+			  list[loc] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
-              lrel[str,list[str],list[str]] overloaded_functions,
+              lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
               loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], (), (), (), [], (), [], src);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

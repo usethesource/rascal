@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.values.uptr.Factory;
 
 public enum ToplevelType {
 	VOID			(0, "void"),
@@ -154,7 +153,7 @@ public enum ToplevelType {
 			@Override
 			public ToplevelType visitExternal(Type type)
 					throws RuntimeException {
-				throw new CompilerError("External cannot occur as toplevel type");
+				throw new CompilerError("External cannot occur as toplevel type: " + type);
 			}
 
 			@Override
@@ -283,7 +282,8 @@ public enum ToplevelType {
 
 			@Override
 			public Integer visitExternal(final Type type) throws RuntimeException {
-				throw new CompilerError("External cannot occur in fingerprint");
+					return v.hashCode();
+				//throw new CompilerError("External cannot occur in fingerprint: " + type);
 			}
 
 			@Override
