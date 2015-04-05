@@ -9,13 +9,6 @@ public class LoadLoc6 extends Instruction {
 	public LoadLoc6(CodeBlock ins){
 		super(ins, Opcode.LOADLOC6);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if (!dcode)
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlineLoadLocN(6,dcode);
-		codeblock.addCode0(opcode.getOpcode());
-	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());

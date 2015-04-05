@@ -8,10 +8,6 @@ public class LessInt extends Instruction {
 	public LessInt(CodeBlock ins) {
 		super(ins, Opcode.LESSINT);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		 codeEmittor.emitCallWithArgsSS("insnLESSINT");
-		 codeblock.addCode0(opcode.getOpcode());
-	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());

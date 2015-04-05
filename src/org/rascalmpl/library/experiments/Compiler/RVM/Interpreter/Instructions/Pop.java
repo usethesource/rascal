@@ -8,14 +8,6 @@ public class Pop extends Instruction {
 	public Pop(CodeBlock ins){
 		super(ins, Opcode.POP);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlinePop(debug);
-		codeblock.addCode0(opcode.getOpcode());
-	}
-
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());

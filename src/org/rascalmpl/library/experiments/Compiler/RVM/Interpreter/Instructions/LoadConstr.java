@@ -14,11 +14,7 @@ public class LoadConstr extends Instruction {
 	
 	public String toString() { return "LOADCONSTR " + fuid + "[" + codeblock.getConstructorIndex(fuid) + "]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSI("insnLOADCONSTR", codeblock.getConstructorIndex(fuid),debug);
+	public void generate() {
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstructorIndex(fuid));
 	}
 

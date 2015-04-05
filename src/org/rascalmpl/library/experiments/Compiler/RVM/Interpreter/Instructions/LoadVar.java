@@ -18,13 +18,8 @@ public class LoadVar extends Instruction {
 		return "LOADVAR " + fuid + ", " + pos;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		
+	public void generate() {
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-
-		codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,debug);
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}
 

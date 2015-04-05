@@ -175,16 +175,20 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, STACK);
 
 // Experimental local copies of the functions constantStore and typeConstantStore
-// Serialisation would be nice.		
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/eclipse/imp/pdb/facts/IValue;");
-		mv.visitVarInsn(ASTORE, CS);	
-
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/eclipse/imp/pdb/facts/type/Type;");
-		mv.visitVarInsn(ASTORE, TS);		
+// Serialisation would be nice.	
+// TODO : Fix the order problem needed for small optimizations.
+//		if ( f.constantStore.length != 0 ) {
+			mv.visitVarInsn(ALOAD, CF);
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/eclipse/imp/pdb/facts/IValue;");
+			mv.visitVarInsn(ASTORE, CS);	
+//		}
+//		if ( f.typeConstantStore.length != 0 ) {
+			mv.visitVarInsn(ALOAD, CF);
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/eclipse/imp/pdb/facts/type/Type;");
+			mv.visitVarInsn(ASTORE, TS);		
+//		}
 // end experiment
 		
 		if (continuationPoints != 0) {

@@ -688,11 +688,10 @@ public class CodeBlock {
 		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
-		BytecodeGenerator bGen = new BytecodeGenerator(); // Default setting no output.
 		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(bGen, false);
+			ins.generate();
 		}
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){
@@ -771,7 +770,8 @@ public class CodeBlock {
 
 		finalCode = new int[codeSize];
 		for (Instruction ins : insList) {
-			ins.generate(codeEmittor, true);
+			ins.generate();
+			ins.generateByteCode(codeEmittor, debug);
 		}
 		// TODO: BUG
 		if (insList.get(insList.size() - 1) instanceof Label) {

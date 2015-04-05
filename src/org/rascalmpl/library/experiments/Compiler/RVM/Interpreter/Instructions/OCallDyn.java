@@ -19,11 +19,7 @@ public class OCallDyn extends Instruction {
 	
 	public String toString() { return "OCALLDYN " + types + ", " + arity + " " + src; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);
+	public void generate(){
 		codeblock.addCode2(opcode.getOpcode(), types, arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
@@ -31,7 +27,7 @@ public class OCallDyn extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
-		
+		// TODO add source line.
 		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);
 	}
 }

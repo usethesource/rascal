@@ -18,11 +18,7 @@ public class CallConstr extends Instruction {
 	
 	public String toString() { return "CALLCONSTRUCTOR " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if ( !dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSII("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity,dcode);
+	public void generate(){
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getConstructorIndex(fuid), arity);
 	}
 

@@ -18,14 +18,8 @@ public class LoadVarDeref extends Instruction {
 		return "LOADVARDEREF " + fuid + " [ " + codeblock.getFunctionIndex(fuid) + " ] " + ", " + pos;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-
+	public void generate() {
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-
-		codeEmittor.emitCallWithArgsSSFII("insnLOADVARDEREF", what, pos,debug);
-		
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}
 

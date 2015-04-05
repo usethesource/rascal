@@ -14,12 +14,8 @@ public class ApplyDyn extends Instruction {
 	
 	public String toString() { return "APPLYDYN " + arity; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if ( !dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSI("insnAPPLYDYN", arity, dcode);
-		codeblock.addCode1(opcode.getOpcode(), arity);
+	public void generate(){
+			codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){

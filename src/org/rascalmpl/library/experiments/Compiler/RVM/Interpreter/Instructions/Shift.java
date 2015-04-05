@@ -8,13 +8,6 @@ public class Shift extends Instruction {
 	public Shift(CodeBlock ins) {
 		super(ins, Opcode.SHIFT);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		codeEmittor.emitDebugCall(opcode.name());
-		
-		codeblock.addCode0(opcode.getOpcode());
-	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());

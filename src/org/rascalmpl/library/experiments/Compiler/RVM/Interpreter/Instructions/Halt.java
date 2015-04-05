@@ -9,13 +9,6 @@ public class Halt extends Instruction {
 	public Halt(CodeBlock ins){
 		super(ins, Opcode.HALT);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if ( !dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeblock.addCode0(opcode.getOpcode());
-	}
-
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());

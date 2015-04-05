@@ -9,15 +9,6 @@ public class Exhaust extends Instruction {
 		super(ins, Opcode.EXHAUST);
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-
-		codeEmittor.emitInlineExhaust(debug);
-		codeblock.addCode0(opcode.getOpcode());
-	}
-
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
