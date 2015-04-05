@@ -14,11 +14,7 @@ public class LoadInt extends Instruction {
 	
 	public String toString() { return "LOADINT " + nval; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlineLoadInt(nval, debug);
+	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), nval);
 	}
 

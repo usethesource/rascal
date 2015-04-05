@@ -24,12 +24,7 @@ public class CallJava extends Instruction {
 		return "CALLJAVA " + codeblock.getConstantValue(methodName) + ", " + codeblock.getConstantValue(className) + ", " + codeblock.getConstantType(parameterTypes) + ", " + reflect;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		if ( !dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSFIIIII("insnCALLJAVA", methodName, className, parameterTypes, keywordTypes, reflect, dcode);
-
+	public void generate() {
 		codeblock.addCode(opcode.getOpcode());
 		codeblock.addCode(methodName);
 		codeblock.addCode(className);

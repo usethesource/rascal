@@ -14,11 +14,7 @@ public class Println extends Instruction {
 	
 	public String toString() { return "PRINTLN " + arity; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		codeEmittor.emitDebugCall(opcode.name());
-		
+	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 

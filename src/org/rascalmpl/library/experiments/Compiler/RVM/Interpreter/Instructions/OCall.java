@@ -21,12 +21,7 @@ public class OCall extends Instruction {
 		return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]" + ", " + src;
 	}
 
-	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, debug) ;
-		
+	public void generate() {
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
@@ -34,7 +29,7 @@ public class OCall extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
-		
+		// TODO add source line.
 		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, debug) ;
 	}
 }

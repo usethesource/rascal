@@ -27,15 +27,12 @@ public class JmpIndexed extends Instruction {
 		return res;
 	}
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+	public void generate(){
 		IListWriter w = codeblock.vf.listWriter();
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();
 			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
-		
-		codeEmittor.emitInlineJmpIndexed(labels , dcode);
-		
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
 	}
 

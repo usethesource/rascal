@@ -14,11 +14,7 @@ public class LoadCon extends Instruction {
 	
 	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
+	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){

@@ -8,14 +8,6 @@ public class AndBool extends Instruction {
 	public AndBool(CodeBlock ins) {
 		super(ins, Opcode.ANDBOOL);
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		if ( !dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSS("insnANDBOOL");
-		codeblock.addCode0(opcode.getOpcode());
-	}
-	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());

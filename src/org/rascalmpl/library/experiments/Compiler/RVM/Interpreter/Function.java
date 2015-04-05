@@ -68,7 +68,7 @@ public class Function {
 	public void finalize(BytecodeGenerator codeEmittor, final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing) {
 
 		codeEmittor.emitMethod(this, isCoroutine, continuationPoints, fromLabels, toLabels, fromSPs, types, handlerLabels, false);
-		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,true);
+		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing, false);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if (funIn != null) {

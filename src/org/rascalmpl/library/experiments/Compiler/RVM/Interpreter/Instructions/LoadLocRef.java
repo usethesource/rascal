@@ -14,11 +14,7 @@ public class LoadLocRef extends Instruction {
 
 	public String toString() { return "LOADLOCREF " + pos; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitCallWithArgsSSI("insnLOADLOCREF", pos,debug) ;
+	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 

@@ -18,18 +18,10 @@ public class Throw extends Instruction {
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlineThrow(debug);
-		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
-	}
-
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
-		
+		// TODO add source lines.
 		codeEmittor.emitInlineThrow(debug);
 	}
 }

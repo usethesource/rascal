@@ -32,16 +32,12 @@ public class Switch extends Instruction {
 		return res;
 	}
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if (!debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		
+	public void generate(){
 		IMapWriter w = codeblock.vf.mapWriter();
 		for(IValue key : caseLabels){
 			String label = ((IString)caseLabels.get(key)).getValue();
 			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
-		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint, debug) ;
 		codeblock.addCode2(opcode.getOpcode(), 
 							codeblock.getConstantIndex(w.done()), 
 							codeblock.getLabelPC(caseDefault));
@@ -52,11 +48,11 @@ public class Switch extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		IMapWriter w = codeblock.vf.mapWriter();
-		for(IValue key : caseLabels){
-			String label = ((IString)caseLabels.get(key)).getValue();
-			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
-		}
+//		IMapWriter w = codeblock.vf.mapWriter();
+//		for(IValue key : caseLabels){
+//			String label = ((IString)caseLabels.get(key)).getValue();
+//			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
+//		}
 		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint, debug) ;
 	}
 }

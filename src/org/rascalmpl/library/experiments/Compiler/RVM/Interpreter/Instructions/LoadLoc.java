@@ -14,11 +14,7 @@ public class LoadLoc extends Instruction {
 	
 	public String toString() { return "LOADLOC " + pos; }
 	
-	public void generate(BytecodeGenerator codeEmittor, boolean debug){
-		if ( !debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
-		codeEmittor.emitInlineLoadLocN(pos,debug);
+	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
