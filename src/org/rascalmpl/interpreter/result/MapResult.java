@@ -75,6 +75,7 @@ public class MapResult extends ElementResult<IMap> {
 		}
 		IValue v = getValue().get(key.getValue());
 		
+		fieldSelect(new int[] { 0 }).hasAnyAnnotations();
 		key.hasAnyAnnotations();
 		
 		if (v == null){
@@ -173,11 +174,13 @@ public class MapResult extends ElementResult<IMap> {
 	
 	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 		elementResult.hasAnyAnnotations();
+		fieldSelect(new int[] { 0 }).hasAnyAnnotations();
 		return bool(getValue().containsKey(elementResult.getValue()), ctx);
 	}
 
 	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
 		elementResult.hasAnyAnnotations();
+		fieldSelect(new int[] { 0 }).hasAnyAnnotations();
 		return bool(!getValue().containsKey(elementResult.getValue()), ctx);
 	}
 	

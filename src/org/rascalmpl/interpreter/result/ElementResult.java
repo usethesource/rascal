@@ -51,12 +51,14 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@Override
 	protected Result<IBool> inSet(SetResult s) {
 		hasAnyAnnotations();
+		s.hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> notInSet(SetResult s) {
 		hasAnyAnnotations();
+		s.hasAnyAnnotations();
 		return s.notElementOf(this);
 	}
 	
@@ -83,18 +85,21 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@Override
 	protected Result<IBool> inList(ListResult s) {
 		hasAnyAnnotations();
+		s.hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> notInList(ListResult s) {
 		hasAnyAnnotations();
+		s.hasAnyAnnotations();
 		return s.notElementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> inMap(MapResult s) {
 		hasAnyAnnotations();
+		s.fieldSelect(new int[] { 0 }).hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
