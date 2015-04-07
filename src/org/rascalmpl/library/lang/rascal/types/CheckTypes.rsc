@@ -1597,10 +1597,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         aname = convertName(n);
-        if (aname in c.annotationEnv) {
-	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
+        aaname = delAnnotations(aname);
+        if (aaname in c.annotationEnv) {
+	        annIds = (c.store[c.annotationEnv[aaname]] is overload) ? c.store[c.annotationEnv[aaname]].items : { c.annotationEnv[aaname] };
 	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
-	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        	c = resolveDeferredTypes(c, c.annotationEnv[aaname]);
 		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
 		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
 		        }

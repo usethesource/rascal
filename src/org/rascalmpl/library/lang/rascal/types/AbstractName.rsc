@@ -21,6 +21,8 @@ data RName =
 	;
 
 @doc{Annotate abstract names with locations.}
+// TODO: it would be great if we could do without this annotation, since it
+// is used as a part of Symbol which identifies types
 anno loc RName@at;
 
 @doc{Convert RName to a simple name}
