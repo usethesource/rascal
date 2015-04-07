@@ -864,7 +864,12 @@ public Symbol getProductionSortType(Symbol pr) {
 
 public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 
+
+// TODO : I hope this will be superfluous in the future, it's needed now because the type checker adds loc information on symbols
+public Symbol lub(Symbol s, Symbol t) = lub(delAnnotations(s), delAnnotations(t))  when getAnnotations(s) != () || getAnnotations(t) != ();
+
 // TODO: rewrite next two rules with keyword parameters and without when condition later:
+public bool subtype(Symbol s, Symbol t) = subtype(delAnnotations(s), delAnnotations(t)) when getAnnotations(s) != () || getAnnotations(t) != ();
 public bool subtype(Symbol::user(RName r,  list[Symbol] ps), Symbol s) = subtype(user(delAnnotations(r), ps), s) when getAnnotations(r) != ();
 public bool subtype(Symbol t, user(RName r, list[Symbol] ps)) = subtype(t, user(delAnnotations(r), ps)) when getAnnotations(r) != ();
 public bool subtype(Symbol::deferred(Symbol t), Symbol s) = subtype(t,s);

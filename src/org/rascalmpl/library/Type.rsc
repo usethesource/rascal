@@ -287,8 +287,8 @@ Synopsis: The least-upperbound (lub) between two types.
 Description:
   This function documents and implements the lub operation in Rascal's type system. 
 }
-public Symbol lub(Symbol s, s) = s;
-public default Symbol lub(Symbol s, Symbol t) = \value();
+public default Symbol lub(Symbol s, s) = s;
+public default Symbol lub(Symbol s, Symbol t) = \value() when s != t;
 
 public Symbol lub(Symbol::\value(), Symbol t) = Symbol::\value();
 public Symbol lub(Symbol s, Symbol::\value()) = Symbol::\value();

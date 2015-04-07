@@ -877,7 +877,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 	} else if (registerName) {
 		existingNameIds = idsForName(c,an) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
 		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
-			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotation(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotations(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
 				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 
