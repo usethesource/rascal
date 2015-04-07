@@ -239,6 +239,7 @@ public class RascalFunction extends NamedFunction {
     Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
     try {
+    	  ctx.setCurrentAST(ast);
       String label = isAnonymous() ? "Anonymous Function" : name;
       Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
       ctx.setCurrentEnvt(environment);

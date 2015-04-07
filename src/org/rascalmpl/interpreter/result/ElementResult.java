@@ -50,11 +50,13 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected Result<IBool> inSet(SetResult s) {
+		hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> notInSet(SetResult s) {
+		hasAnyAnnotations();
 		return s.notElementOf(this);
 	}
 	
@@ -80,21 +82,25 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 	@Override
 	protected Result<IBool> inList(ListResult s) {
+		hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> notInList(ListResult s) {
+		hasAnyAnnotations();
 		return s.notElementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> inMap(MapResult s) {
+		hasAnyAnnotations();
 		return s.elementOf(this);
 	}
 	
 	@Override
 	protected Result<IBool> notInMap(MapResult s) {
+		hasAnyAnnotations();
 		return s.notElementOf(this);
 	}
 	
@@ -194,6 +200,9 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
+		hasAnyAnnotations();
+		that.hasAnyAnnotations();
+		
 		V a = that.getValue();
 		T b = this.getValue();
 		if (a instanceof ICursor) {
@@ -207,6 +216,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
+		hasAnyAnnotations();
+		that.hasAnyAnnotations();
 		V a = that.getValue();
 		T b = this.getValue();
 		if (a instanceof ICursor) {

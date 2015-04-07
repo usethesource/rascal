@@ -1054,7 +1054,7 @@ public CheckResult checkExp(Expression exp:(Expression)`it`, Configuration c) {
 
 @doc{Check the types of Rascal expressions: QualifiedName}
 public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Configuration c) {
-    n = convertName(qn);
+    n = delAnnotations(convertName(qn));
     if (fcvExists(c, n)) {
         c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
         c.usedIn[exp@\loc] = head(c.stack);
@@ -3252,6 +3252,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        }
 	
 	        case ptn:nameNode(n,nid) : { 
+	            n = delAnnotations(n);
 	            if (RSimpleName("_") == n) {
 	                rt = \inferred(c.uniqueify);
 	                c.uniqueify = c.uniqueify + 1;
@@ -5045,7 +5046,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, bool top, Configuration c) {
     n = convertName(qn);
-    if (RSimpleName("_") == n) {
+    if (RSimpleName("_") == delAnnotations(n)) {
         rt = \inferred(c.uniqueify);
         c.uniqueify = c.uniqueify + 1;  
         c = addUnnamedVariable(c, qn@\loc, rt);
@@ -5557,6 +5558,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
     // more sense to do this when building the assignable tree, not here. This will
     // also prevent odd errors that could occur if a name changes types, such as from
     // an ADT type (with fields) to a node type (without fields).
+    name = delAnnotations(name);
     
     if (RSimpleName("_") == name) {
         varId = getOneFrom(atree@defs);
@@ -5796,7 +5798,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         < c, aliasedType > = convertAndExpandType(t,c);
         c.store[aliasId].rtype = \alias(aliasType.name, aliasType.parameters, aliasedType);
     }
-    
+     
     return c;
 }
 
@@ -6643,6 +6645,7 @@ public Configuration loadConfigurationAndReset(Configuration c, Configuration d,
 @doc{Copy top-level information on module mName from d to c}
 public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	// Add module mName into the configuration
+	mName = delAnnotations(mName);
 	mRec = d.store[d.modEnv[mName]];
 	if (mName notin c.modEnv) {
 		c = addModule(c, mName, mRec.at);
@@ -6656,9 +6659,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	
 	// For each ID we have loaded, figure out which module provides it, and filter the IDs
 	// so we don't import ones that we cannot actually reach
-	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	mpaths = (d.store[d.modEnv[delAnnotations(dmn)]].at.top : delAnnotations(dmn) | dmn <- d.modEnv ); 
 	//declaringModule = { < mpaths[dl.top], di > | < dl, di > <- d.definitions }; 
-	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
+    filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, delAnnotations(mpaths[dl.top]) in toImport };
 	
 	// TODO: We may need to add extra definitions into the definitions relation so that linking back
 	// to all declarations will work properly (or we just make the location l a set in the add functions)
@@ -7341,12 +7344,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	
 	// A relation from imported module names to bool, with true meaning this is an extending import
 	rel[RName mname, bool isext] modulesToImport = 
-		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
+		{ < delAnnotations(getNameOfImportedModule(im)) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
 	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
 	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
-	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
+	list[RName] extendedModules = [ delAnnotations(getNameOfImportedModule(im)) | importItem <- importList, (Import) `extend <ImportedModule im>;` := importItem ];
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	
 	// Get the transitive modules that will be imported
@@ -7564,7 +7567,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 				int aliasId = getOneFrom(definitions[t@\loc]);
 				Symbol aliasedType = c.store[aliasId].rtype;
 				c = checkDeclaration(t,true,c);
-				if(aliasedType != c.store[aliasId].rtype) {
+				if(delAnnotationsRec(aliasedType) != delAnnotationsRec(c.store[aliasId].rtype)) {
 					modified = true;
 				}
 			}
@@ -7713,6 +7716,7 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
 	rt = bottom-up visit(rt) {
 		case utc:\user(rn,pl) : {
+		    rn = delAnnotations(rn);
 			if (rn in c.typeEnv) {
 				ut = c.store[c.typeEnv[rn]].rtype;
 				if ((utc@at)?) {

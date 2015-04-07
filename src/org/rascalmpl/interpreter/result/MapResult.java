@@ -75,10 +75,7 @@ public class MapResult extends ElementResult<IMap> {
 		}
 		IValue v = getValue().get(key.getValue());
 		
-		// TODO remove this debug code
-		if (hasAnyAnnotations(key.getValue())) {
-			ctx.getStdOut().println("WARNING annotations on key value at " + ctx.getCurrentAST().getLocation());
-		}
+		key.hasAnyAnnotations();
 		
 		if (v == null){
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -175,10 +172,12 @@ public class MapResult extends ElementResult<IMap> {
 	////
 	
 	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
+		elementResult.hasAnyAnnotations();
 		return bool(getValue().containsKey(elementResult.getValue()), ctx);
 	}
 
 	protected <V extends IValue> Result<IBool> notElementOf(ElementResult<V> elementResult) {
+		elementResult.hasAnyAnnotations();
 		return bool(!getValue().containsKey(elementResult.getValue()), ctx);
 	}
 	

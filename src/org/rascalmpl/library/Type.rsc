@@ -164,8 +164,8 @@ public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 @doc{
   This function documents and implements the subtype relation of Rascal's type system. 
 }
-public bool subtype(Symbol s, s) = true;
-public default bool subtype(Symbol s, Symbol t) = false;
+public default bool subtype(Symbol s, s) = true; // TODO made default to avoid case with annotations (can be removed later)
+public default bool subtype(Symbol s, Symbol t) = false when s != t; // TODO condition can be removed later (see previous line)
 
 public bool subtype(Symbol _, Symbol::\value()) = true;
 public bool subtype(Symbol::\void(), Symbol _) = true;

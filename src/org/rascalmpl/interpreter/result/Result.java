@@ -108,19 +108,38 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	// UTILITY FOR DEBUGGING ANNOTATION REMOVAL
-	public boolean hasAnyAnnotations() {
-		return getValue().accept(new BottomUpVisitor<>(new NullVisitor<Boolean, RuntimeException>() {
-			@Override
-			public Boolean visitNode(INode o) throws RuntimeException {
-				return o.isAnnotatable() && o.asAnnotatable().hasAnnotations();
-			}
-			
-			@Override
-			public Boolean visitConstructor(IConstructor o)
-					throws RuntimeException {
-				return o.isAnnotatable() && o.asAnnotatable().hasAnnotations();
-			}
-		}, getValueFactory()));
+	public void hasAnyAnnotations() {
+		if (getValue() == null) {
+			return;
+		}
+		
+		try {
+			getValue().accept(new BottomUpVisitor<>(new NullVisitor<Boolean, RuntimeException>() {
+				@Override
+				public Boolean visitNode(INode o) throws RuntimeException {
+					if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().hasAnnotations()) {
+						ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context: " + getValue());
+						ctx.getStdOut().println(ctx.getStackTrace());
+						throw new UnsupportedOperationException();
+					}
+					return false;
+				}
+
+				@Override
+				public Boolean visitConstructor(IConstructor o)
+						throws RuntimeException {
+					if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().hasAnnotations()) {
+						ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context: " + getValue());
+						ctx.getStdOut().println(ctx.getStackTrace());
+					}
+					
+					return false;
+				}
+			}, getValueFactory()));
+		}
+		catch (UnsupportedOperationException e) {
+		}
+		
 	}
 	
 	protected Result(Type type, T value, IEvaluatorContext ctx) {

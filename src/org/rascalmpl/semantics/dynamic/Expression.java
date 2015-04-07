@@ -1587,10 +1587,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
 				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
 
-				// TODO remove this debug code
-				if (keyResult.hasAnyAnnotations()) {
-					__eval.getStdOut().println("WARNING: storing annotated value " + __eval.getCurrentAST().getLocation());
-				}
+				keyResult.hasAnyAnnotations();
 				
 				if (keyResult.getType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getFrom());

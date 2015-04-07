@@ -31,11 +31,13 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	protected <V extends IValue> Result<IBool> elementOf(
 			ElementResult<V> elementResult) {
+		elementResult.hasAnyAnnotations();
 				return bool(getValue().contains(elementResult.getValue()), ctx);
 			}
 
 	protected <V extends IValue> Result<IBool> notElementOf(
 			ElementResult<V> elementResult) {
+		elementResult.hasAnyAnnotations();
 		return bool(!getValue().contains(elementResult.getValue()), ctx);
 	}
 

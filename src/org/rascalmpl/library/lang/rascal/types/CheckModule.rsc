@@ -18,12 +18,13 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import String;
 import Set;
+import Node;
 
 alias ImportGraph = Graph[RName];
 
 public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
 	// Set up the imports for the "top" module
-	mname = convertName(m.header.name);
+	mname = delAnnotations(convertName(m.header.name));
 	minfoMap = ( mname : getImports(m) );
 	
 	// Add in any defaults that are not currently present
@@ -45,7 +46,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		try {
 			pt = getModuleParseTree(prettyPrintName(wlName));
 			if (Module mImp := pt.top) {
-				minfoMap[wlName] = getImports(mImp);
+				minfoMap[delAnnotations(wlName)] = getImports(mImp);
 			} else {
 				throw "Unexpected parse, pt is not a module";
 			}

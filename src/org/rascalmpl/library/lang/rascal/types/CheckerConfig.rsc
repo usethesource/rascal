@@ -188,7 +188,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
     return c;
 }
 
-public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
+public bool fcvExists(Configuration c, RName n) = delAnnotations(n) in c.fcvEnv;
 
 @doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
@@ -342,8 +342,8 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 
 	varId = insertVariable();
 	
-	if (n notin c.fcvEnv) {
-		c.fcvEnv[n] = varId;
+	if (delAnnotations(n) notin c.fcvEnv) {
+		c.fcvEnv[delAnnotations(n)] = varId;
 	} else {
 		// The name is already defined: what items are defined by this name?
 		conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
@@ -358,7 +358,7 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 		if (size(toSet(containingScopes) & containingIds) > 0) {
 			c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
 		} else {
-			c.fcvEnv[n] = varId;
+			c.fcvEnv[delAnnotations(n)] = varId;
 		}
 	}
 
@@ -1166,7 +1166,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 
 @doc{Add a module into the configuration.}
 public Configuration addModule(Configuration c, RName n, loc l) {
-    c.modEnv[n] = c.nextLoc;
+    c.modEnv[delAnnotations(n)] = c.nextLoc;
     c.store[c.nextLoc] = \module(n,l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
