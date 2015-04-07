@@ -26,6 +26,11 @@ public class MapComprehensionWriter extends ComprehensionWriter {
 		Result<IValue> r2 = this.resultExprs.get(1).interpret(this.ev);
 		elementType1 = elementType1.lub(r1.getType());
 		elementType2 = elementType2.lub(r2.getType());
+		
+		// TODO remove this debug code
+		if (r1.hasAnyAnnotations()) {
+			ev.getStdOut().println("WARNING STORING ANNOTATED VALUE AT " + ev.getCurrentAST().getLocation());
+		}
 		((IMapWriter) this.writer).put(r1.getValue(), r2.getValue());
 	}
 

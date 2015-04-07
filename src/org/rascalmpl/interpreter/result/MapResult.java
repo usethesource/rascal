@@ -74,6 +74,12 @@ public class MapResult extends ElementResult<IMap> {
 			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
+		
+		// TODO remove this debug code
+		if (hasAnyAnnotations(key.getValue())) {
+			ctx.getStdOut().println("WARNING annotations on key value at " + ctx.getCurrentAST().getLocation());
+		}
+		
 		if (v == null){
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}

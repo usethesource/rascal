@@ -489,6 +489,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					    __eval.__setValue(__eval.newResult(oldResult, __eval.__getValue()));
 					}
 					
+					// TODO remove this debug code later
+					if (subscript.hasAnyAnnotations()) {
+						__eval.getEvaluator().getStdOut().println("WARNING, STORING ANNOTATIONS IN " + __eval.getEvaluator().getCurrentEnvt().getLocation());
+					}
+					
 					IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
 					result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
 									__eval.__getEval());

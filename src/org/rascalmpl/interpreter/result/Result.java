@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -32,6 +34,9 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.visitors.BottomUpVisitor;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -100,6 +105,22 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		this.iterator = iter;
 		this.value = value;
 		this.ctx = ctx;
+	}
+	
+	// UTILITY FOR DEBUGGING ANNOTATION REMOVAL
+	public boolean hasAnyAnnotations() {
+		return getValue().accept(new BottomUpVisitor<>(new NullVisitor<Boolean, RuntimeException>() {
+			@Override
+			public Boolean visitNode(INode o) throws RuntimeException {
+				return o.isAnnotatable() && o.asAnnotatable().hasAnnotations();
+			}
+			
+			@Override
+			public Boolean visitConstructor(IConstructor o)
+					throws RuntimeException {
+				return o.isAnnotatable() && o.asAnnotatable().hasAnnotations();
+			}
+		}, getValueFactory()));
 	}
 	
 	protected Result(Type type, T value, IEvaluatorContext ctx) {
