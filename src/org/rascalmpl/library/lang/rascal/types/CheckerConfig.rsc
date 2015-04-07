@@ -707,6 +707,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
+	an = delAnnotations(n);
 	fullName = appendName(moduleName, n);
 
 	adtName = RSimpleName(rt.\adt.name);
@@ -802,29 +803,31 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 	// the same ADT (we can add the ADT name to distinguish constructors from different
 	// ADTs).
 	void addConstructorItem(RName n, int constructorItemId) {
-		if (n notin c.fcvEnv) {
+	    an = delAnnotations(n);
+	    
+		if (an notin c.fcvEnv) {
 			// Case 1: This is the first occurrence of this name.
-			c.fcvEnv[n] = constructorItemId;
-		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+			c.fcvEnv[an] = constructorItemId;
+		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[an]]) {
 			// Case 2: The name is already overloaded. Add this as one more overload.
 			// TODO: If we are annotating overload items, we need to copy annotations here
-			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
+			c.store[c.fcvEnv[an]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
+		} else if (c.store[c.fcvEnv[an]] is constructor || c.store[c.fcvEnv[an]] is function || c.store[c.fcvEnv[an]] is production) {
 			nonDefaults = {};
 			defaults = { rt };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
-				defaults += c.store[c.fcvEnv[n]].rtype; 
+			if(isConstructorType(c.store[c.fcvEnv[an]].rtype) || isProductionType(c.store[c.fcvEnv[an]].rtype)) {
+				defaults += c.store[c.fcvEnv[an]].rtype; 
 			} else {
-	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
-		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-		        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	if (!c.store[c.fcvEnv[an]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[an]])) {
+		        		defaults += c.store[c.fcvEnv[an]].rtype;
 		        	} else {
-		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        		nonDefaults += c.store[c.fcvEnv[an]].rtype;
 		        	}
 		        }
 			}
-			c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
-			c.fcvEnv[n] = c.nextLoc;
+			c.store[c.nextLoc] = overload({ c.fcvEnv[an], constructorItemId }, overloaded(nonDefaults,defaults));
+			c.fcvEnv[an] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
 			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable name in the same scope.", l);
@@ -840,7 +843,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		c.nextLoc = c.nextLoc + 1;
 
 		if (registerName) {
-			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotations(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
 				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 		}
@@ -1227,10 +1230,12 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
 	// it should not refer to other names with different qualifiers).
 	void addFunctionItem(RName n, int functionId) {	
-	    if (n notin c.fcvEnv) {
+	    an = delAnnotations(n);
+	    
+	    if (an notin c.fcvEnv) {
 	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
-	        c.fcvEnv[n] = functionId;
-		} else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	        c.fcvEnv[an] = functionId;
+		} else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[an]]) {
 			// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
 			if (!isDeferred) {
 				if(hasDefaultModifier(modifiers)) {
@@ -1239,23 +1244,23 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 					itemTypes += rt;
 				}
 			}
-			c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
-	    } else if (c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is production) {
+			c.store[c.fcvEnv[an]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (c.store[c.fcvEnv[an]] is function || c.store[c.fcvEnv[an]] is constructor || c.store[c.fcvEnv[an]] is production) {
 	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
 	    	// overloading entry. We also then point the current name to this overload item, which will
 	    	// then point (using the overload set) to the item currently referenced by the name.
 	        itemTypes = {};
 	        defaults = {};
-	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-	        	defaults += c.store[c.fcvEnv[n]].rtype;
-	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
-	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        if(isConstructorType(c.store[c.fcvEnv[an]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[an]].rtype;
+	        } else if (isProductionType(c.store[c.fcvEnv[an]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[an]].rtype;
 	        } else {
-	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
-		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-		        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	if (!c.store[c.fcvEnv[an]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[an]])) {
+		        		defaults += c.store[c.fcvEnv[an]].rtype;
 		        	} else {
-		        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+		        		itemTypes += c.store[c.fcvEnv[an]].rtype;
 		        	}
 		        }
 	        }
@@ -1266,8 +1271,8 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 		        	itemTypes += rt;
 		        }
 			}
-	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
-			c.fcvEnv[n] = c.nextLoc;
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[an], functionId }, overloaded(itemTypes,defaults));
+			c.fcvEnv[an] = c.nextLoc;
 	        c.nextLoc = c.nextLoc + 1;
 	    } else {
 	    	// Case 4: This function has the same name as a variable defined in the same module. We don't allow

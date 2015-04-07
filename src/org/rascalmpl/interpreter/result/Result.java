@@ -113,33 +113,29 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			return;
 		}
 		
-		try {
-			getValue().accept(new BottomUpVisitor<>(new NullVisitor<Boolean, RuntimeException>() {
-				@Override
-				public Boolean visitNode(INode o) throws RuntimeException {
-					if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().hasAnnotations()) {
-						ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context: " + getValue());
-						ctx.getStdOut().println(ctx.getStackTrace());
-						throw new UnsupportedOperationException();
-					}
-					return false;
+		getValue().accept(new BottomUpVisitor<>(new NullVisitor<Boolean, RuntimeException>() {
+			@Override
+			public Boolean visitNode(INode o) throws RuntimeException {
+				if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().removeAnnotation("boundGiven").asAnnotatable().hasAnnotations()) {
+					ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context [" + getClass().getName() + "]: " + getValue());
+					ctx.getStdOut().println(ctx.getStackTrace());
+					throw new UnsupportedOperationException("WARNING: use of annotations in identity sensitive context [" + getClass().getTypeName() + "]: " + getValue() + "\n" + ctx.getStackTrace());
+				}
+				return false;
+			}
+
+			@Override
+			public Boolean visitConstructor(IConstructor o)
+					throws RuntimeException {
+				if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().removeAnnotation("boundGiven").asAnnotatable().hasAnnotations()) {
+					ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context [" + getClass().getTypeName() + "]: " + getValue());
+					ctx.getStdOut().println(ctx.getStackTrace());
+					throw new UnsupportedOperationException("WARNING: use of annotations in identity sensitive context [" + getClass().getTypeName() + "]: " + getValue() + "\n" + ctx.getStackTrace());
 				}
 
-				@Override
-				public Boolean visitConstructor(IConstructor o)
-						throws RuntimeException {
-					if (o.isAnnotatable() && o.asAnnotatable().removeAnnotation("isVarArgs").asAnnotatable().hasAnnotations()) {
-						ctx.getStdOut().println("WARNING: use of annotations in identity sensitive context: " + getValue());
-						ctx.getStdOut().println(ctx.getStackTrace());
-					}
-					
-					return false;
-				}
-			}, getValueFactory()));
-		}
-		catch (UnsupportedOperationException e) {
-		}
-		
+				return false;
+			}
+		}, getValueFactory()));
 	}
 	
 	protected Result(Type type, T value, IEvaluatorContext ctx) {

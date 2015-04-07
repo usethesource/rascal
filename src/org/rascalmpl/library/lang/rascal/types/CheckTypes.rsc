@@ -3217,7 +3217,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
-		                if (RSimpleName("_") == n) {
+	        		    an = delAnnotations(n);
+		                if (RSimpleName("_") == an) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
 		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
@@ -3230,10 +3231,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } else {
-		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.uses = c.uses + < c.fcvEnv[an], ptns[idx]@at >;
 		                    c.usedIn[ptn@at] = head(c.stack);
-	                        ptns[idx].nameId = c.fcvEnv[n];
-		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                        ptns[idx].nameId = c.fcvEnv[an];
+		                    Symbol rt = c.store[c.fcvEnv[an]].rtype;
 		                    // TODO: Keep this now that we have splicing?
 		                    if (isListType(rt))
 		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
@@ -4759,8 +4760,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
     // we make sure they all exist.
     for (qn <- vars) {
         n = convertName(qn);
+        an = delAnnotations(n);
         if (fcvExists(c, n)) {
-            c.uses = c.uses + < c.fcvEnv[n], qn@\loc >;
+            c.uses = c.uses + < c.fcvEnv[an], qn@\loc >;
             c.usedIn[qn@\loc] = head(c.stack);
         } else {
             failures = failures + makeFailType("Name <prettyPrintName(n)> is not in scope", qn@\loc);
@@ -4875,7 +4877,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
 
 private Configuration addMissingAssignableNames(Configuration c, Assignable a, loc errorLoc) {
 	introducedNames = getIntroducedNames(a);
-	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+	for (n <- introducedNames<0>, delAnnotations(n) notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <errorLoc> prevented computation of type",l));
 	}
@@ -5051,25 +5053,25 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         c.uniqueify = c.uniqueify + 1;  
         c = addUnnamedVariable(c, qn@\loc, rt);
         return < c, variableNode(n)[@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
-    } else if (fcvExists(c, n)) {
-        if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-            c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+    } else if (fcvExists(c, n), an := delAnnotations(n)) {
+        if (variable(_,_,_,_,_) := c.store[c.fcvEnv[an]]) {
+            c.uses = c.uses + < c.fcvEnv[an], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
 
-	        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
-	        	startingType = c.store[c.fcvEnv[n]].rtype;
-	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
-		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+	        if (hasDeferredTypes(c.store[c.fcvEnv[an]].rtype)) {
+	        	startingType = c.store[c.fcvEnv[an]].rtype;
+	        	c = resolveDeferredTypes(c, c.fcvEnv[an]);
+		        if (isFailType(c.store[c.fcvEnv[an]].rtype)) {
 		        	failType = makeFailType("Cannot resolve imported types in type of variable <prettyPrintName(n)>", assn@\loc);
 		        	return < c, variableNode(n)[@atype=failType][@at=assn@\loc] >;
 		        }
 	        }
 
-            rt = c.store[c.fcvEnv[n]].rtype;
+            rt = c.store[c.fcvEnv[an]].rtype;
             c = addNameWarning(c,n,assn@\loc);
             return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
         } else {
-            c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+            c.uses = c.uses + < c.fcvEnv[an], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
             return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][@at=assn@\loc] >;
         }
@@ -5105,11 +5107,12 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 
     if (isMapType(atree@atype)) {
         if (avar:variableNode(vname) := atree) {
+            avname = delAnnotations(vname);
             if (!equivalent(getMapDomainType(atree@atype), tsub)) {
                 if (top) {
-                    if (c.store[c.fcvEnv[vname]].inferred) {
-                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
-                        c.store[c.fcvEnv[vname]].rtype = newMapType;
+                    if (c.store[c.fcvEnv[avname]].inferred) {
+                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[avname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
+                        c.store[c.fcvEnv[avname]].rtype = newMapType;
                         atree@atype=newMapType;
                     }
                 }
@@ -7615,14 +7618,14 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
-  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, t notin getParameters(syn.defined)) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, delAnnotationsRec(t) notin getParameters(syn.defined)) {
     <c,rt> = resolveSorts(sort("<t>"), t@\loc, c);
   }
   
   return c;
 }
 
-list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ t | (Sym) `&<Nonterminal t>` <- params];
+list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ delAnnotationsRec(t) | (Sym) `&<Nonterminal t>` <- params];
 default list[Nonterminal] getParameters(Sym _) = []; 
 
 @doc{Get the module name from the header.}
@@ -7651,19 +7654,19 @@ public CheckResult convertAndExpandType(Type t, Configuration c) {
 //  We allow constructor names (constructor types) to be used in the 'throws' clauses of Rascal functions
 public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
-    if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    if( utc:\user(rn,pl) := rt, arn := delAnnotations(rn), isEmpty(pl), c.fcvEnv[arn]?, !(c.typeEnv[arn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[arn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[arn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.uses = c.uses + <c.fcvEnv[arn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
-    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    } else if (\func(utc:\user(rn,pl), ps) := rt, arn := delAnnotations(rn), isEmpty(pl) && c.fcvEnv[arn]? && !(c.typeEnv[arn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[arn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[arn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.uses = c.uses + <c.fcvEnv[arn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
@@ -7920,7 +7923,7 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 
 private Configuration addMissingPatternNames(Configuration c, Pattern p, loc sourceLoc) {
 	introducedNames = getPatternNames(p);
-	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+	for (n <- introducedNames<0>, delAnnotations(n) notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <sourceLoc> prevented computation of type",l));
 	}
@@ -8442,6 +8445,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
 }
 
 public Configuration addNameWarning(Configuration c, RName n, loc l) {
+    n = delAnnotations(n);
     currentModuleLoc = head([c.store[i].at | i <- c.stack, \module(_,_) := c.store[i]]);
     if (c.store[c.fcvEnv[n]] has at && currentModuleLoc.path != c.store[c.fcvEnv[n]].at.path)
         c = addScopeWarning(c, "Name defined outside of current module", l);
