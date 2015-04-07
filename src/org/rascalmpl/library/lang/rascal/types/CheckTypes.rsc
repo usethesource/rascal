@@ -5112,7 +5112,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
             if (!equivalent(getMapDomainType(atree@atype), tsub)) {
                 if (top) {
                     if (c.store[c.fcvEnv[avname]].inferred) {
-                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[avname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
+                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[avname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[avname]].rtype));
                         c.store[c.fcvEnv[avname]].rtype = newMapType;
                         atree@atype=newMapType;
                     }

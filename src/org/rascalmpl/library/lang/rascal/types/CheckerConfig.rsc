@@ -402,7 +402,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 			oid = c.nextLoc;
 			c.store[oid] = oitem;
 			c.nextLoc = oid + 1;
-			c.annotationEnv[n] = oid;
+			c.annotationEnv[an] = oid;
 		}
 	}
 
