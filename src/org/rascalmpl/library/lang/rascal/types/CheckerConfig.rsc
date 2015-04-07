@@ -181,7 +181,8 @@ public Configuration setExpectedReturn(Configuration c, Symbol t) {
 public bool labelExists(Configuration c, RName n) = n in c.labelEnv;
 
 public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
-    c.labelEnv[n] = c.nextLoc;
+    an = delAnnotations(n);
+    c.labelEnv[an] = c.nextLoc;
     c.store[c.nextLoc] = label(n,ls,head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.nextLoc = c.nextLoc + 1;
@@ -379,6 +380,7 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
+	an = delAnnotations(n);
 
 	int insertAnnotation() {
 		existingDefs = invert(c.definitions)[l];
@@ -404,19 +406,19 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 		}
 	}
 
-	if (n notin c.annotationEnv) {
+	if (an notin c.annotationEnv) {
 		annId = insertAnnotation();
-		c.annotationEnv[n] = annId;
+		c.annotationEnv[an] = annId;
 	} else {
 		// If an annotation of this name has already been declared, we need to make sure that either it has not been
 		// declared on this (or a comparable type) or, if it has, that the types are equivalent
-		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		annIds = (c.store[c.annotationEnv[an]] is overload) ? c.store[c.annotationEnv[an]].items : { c.annotationEnv[an] };
 		onComparableTypes = { aId | aId <- annIds, comparable(rtOn, c.store[aId].onType) };
 		
 		if (size(onComparableTypes) == 0) {
 			// This annotation has not been declared before on any comparable types.
 			annId = insertAnnotation();
-			updateAnnotation(c.annotationEnv[n], annId);			
+			updateAnnotation(c.annotationEnv[an], annId);			
 		} else {
 			// This annotation has been declared before on at least one comparable type.
 			bool firstTimeThrough = true;
@@ -440,7 +442,8 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 
 @doc{Add an imported annotation into the configuration}
 public Configuration addImportedAnnotation(Configuration c, RName n, int annId) {
-	if (n in c.annotationEnv && c.annotationEnv[n] == annId) return c;
+    an = delAnnotations(n);
+	if (an in c.annotationEnv && c.annotationEnv[an] == annId) return c;
 
 	void updateAnnotation(int id) {
 		if (c.store[id] is overload) {
@@ -455,18 +458,18 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 		}
 	}
 
-	if (n notin c.annotationEnv) {
-		c.annotationEnv[n] = annId;
+	if (an notin c.annotationEnv) {
+		c.annotationEnv[an] = annId;
 	} else {
 		// If an annotation of this name has already been declared, we need to make sure that either it has not been
 		// declared on this (or a comparable type) or, if it has, that the types are equivalent
-		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		annIds = (c.store[c.annotationEnv[an]] is overload) ? c.store[c.annotationEnv[an]].items : { c.annotationEnv[an] };
 		mergeIds = (c.store[annId] is overload) ? c.store[annId].items : { annId };
 		onComparableTypes = { < aId, mId > | aId <- annIds, mId <- mergeIds, comparable(c.store[mId].onType, c.store[aId].onType) };
 		
 		if (size(onComparableTypes) == 0) {
 			// This annotation has not been declared before on any comparable types.
-			updateAnnotation(c.annotationEnv[n]);			
+			updateAnnotation(c.annotationEnv[an]);			
 		} else {
 			// This annotation has been declared before on at least one comparable type.
 			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
@@ -483,10 +486,11 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
+	an = delAnnotations(n);
 
 	int addDataType() {
-		if (n in c.globalAdtMap) {
-			return c.globalAdtMap[n];
+		if (an in c.globalAdtMap) {
+			return c.globalAdtMap[an];
 		}
 		
 		existingDefs = invert(c.definitions)[l];
@@ -496,7 +500,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		c.nextLoc = c.nextLoc + 1;
 		c.store[itemId] = datatype(n,rt,moduleId,{ l });
 		c.definitions = c.definitions + < itemId, l >;
-		c.globalAdtMap[n] = itemId;
+		c.globalAdtMap[an] = itemId;
 		return itemId;
 	}
 
@@ -506,28 +510,28 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		return c; 	
 	}
 
-	if (n notin c.typeEnv && n notin c.globalAdtMap) {
+	if (an notin c.typeEnv && an notin c.globalAdtMap) {
 		// No type of this name already exists. Add a new data type item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addDataType();
 		if (registerName) {
-			c.typeEnv[n] = itemId;
+			c.typeEnv[an] = itemId;
 			c.typeEnv[fullName] = itemId;
 		}
-	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
-		existingId = c.globalAdtMap[n];
+	} else if (an notin c.typeEnv && an in c.globalAdtMap) {
+		existingId = c.globalAdtMap[an];
 		c = extendDataType(c, existingId);
 		if (registerName) {
-			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			if (an notin c.typeEnv) c.typeEnv[an] = existingId;
 			c.typeEnv[fullName] = existingId;
 		}
-	} else if (c.store[c.typeEnv[n]] is datatype) {
+	} else if (c.store[c.typeEnv[an]] is datatype) {
 		// A datatype of this name already exists. Use this existing data type item, adding
 		// a link to it using the qualified name. NOTE: This means that the same type may be available
 		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
+		existingId = c.typeEnv[an];
 		c = extendDataType(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) {
+	} else if (c.store[c.typeEnv[an]] is sorttype || c.store[c.typeEnv[an]] is \alias) {
 		// A sort or alias with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
@@ -546,13 +550,14 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 	
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-
-	if (n notin c.typeEnv) {
-		c.typeEnv[n] = itemId;
-		if (n is RSimpleName && addFullName) {
-			c.typeEnv[appendName(moduleName,n)] = itemId;
+    an = delAnnotations(n);
+    
+	if (an notin c.typeEnv) {
+		c.typeEnv[an] = itemId;
+		if (an is RSimpleName && addFullName) {
+			c.typeEnv[appendName(moduleName,an)] = itemId;
 		}
-	} else if (c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) {
+	} else if (c.store[c.typeEnv[an]] is sorttype || c.store[c.typeEnv[an]] is \alias) {
 		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
@@ -563,11 +568,13 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	fullName = appendName(moduleName, n);
+	an = delAnnotations(n);
+	fullName = appendName(moduleName, an);
 
+    
 	int addNonTerminal() {
-		if (n in c.globalSortMap) {
-			return c.globalSortMap[n];
+		if (an in c.globalSortMap) {
+			return c.globalSortMap[an];
 		}
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
@@ -589,31 +596,31 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 	Configuration extendNonTerminal(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
 		if (registerName) {
-			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			if (an notin c.typeEnv) c.typeEnv[an] = existingId;
 			c.typeEnv[fullName] = existingId;
 		}
 		c.definitions = c.definitions + < existingId, l >;
 		return c; 	
 	}
 		    
-	if (n notin c.typeEnv && n notin c.globalSortMap) {
+	if (an notin c.typeEnv && an notin c.globalSortMap) {
 		// No type of this name already exists. Add a new nonterminal item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addNonTerminal();
 		if (registerName) {
-			c.typeEnv[n] = itemId;
+			c.typeEnv[an] = itemId;
 			c.typeEnv[fullName] = itemId;
 		}
-	} else if (n notin c.typeEnv && n in c.globalSortMap) {
-		existingId = c.globalSortMap[n];
+	} else if (an notin c.typeEnv && an in c.globalSortMap) {
+		existingId = c.globalSortMap[an];
 		c = extendNonTerminal(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is sorttype) {
+	} else if (c.store[c.typeEnv[an]] is sorttype) {
 		// A nonterminal of this name already exists. Use this existing nonterminal item, adding
 		// a link to it using the qualified name. NOTE: This means that the same type may be available
 		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
+		existingId = c.typeEnv[an];
 		c = extendNonTerminal(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
+	} else if (c.store[c.typeEnv[an]] is datatype || c.store[c.typeEnv[an]] is \alias) {
 		// An adt or alias with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
@@ -632,13 +639,14 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-		    
-	if (n notin c.typeEnv) {
+    an = delAnnotations(n);
+        
+	if (an notin c.typeEnv) {
 		c.typeEnv[n] = itemId;
 		if (n is RSimpleName && addFullName) {
-			c.typeEnv[appendName(moduleName, n)] = itemId;
+			c.typeEnv[appendName(moduleName, an)] = itemId;
 		}
-	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
+	} else if (c.store[c.typeEnv[an]] is datatype || c.store[c.typeEnv[an]] is \alias) {
 		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
@@ -649,7 +657,8 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	fullName = appendName(moduleName, n);
+	an = delAnnotations(n);
+	fullName = appendName(moduleName, an);
 	
 	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
@@ -662,18 +671,18 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		return itemId;
 	}
 
-	if (n notin c.typeEnv) {
+	if (an notin c.typeEnv) {
 		itemId = addAliasAux();
-		c.typeEnv[n] = itemId;
+		c.typeEnv[an] = itemId;
 		c.typeEnv[fullName] = itemId;
-	} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
-		if (c.store[c.typeEnv[n]].rtype == rt) {
-			c.definitions = c.definitions + < c.typeEnv[n], l >;
+	} else if (an in c.typeEnv && c.store[c.typeEnv[an]] is \alias) {
+		if (c.store[c.typeEnv[an]].rtype == rt) {
+			c.definitions = c.definitions + < c.typeEnv[an], l >;
 		} else {
 			itemId = addAliasAux();
 			c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
 		}
-	} else if (n in c.typeEnv) {
+	} else if (an in c.typeEnv) {
 		// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
@@ -690,13 +699,14 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-
-	if (n notin c.typeEnv) {
-		c.typeEnv[n] = itemId;
-		if (n is RSimpleName && addFullName) {
-			c.typeEnv[appendName(moduleName, n)] = itemId;
+    an = delAnnotations(n);
+    
+	if (an notin c.typeEnv) {
+		c.typeEnv[an] = itemId;
+		if (an is RSimpleName && addFullName) {
+			c.typeEnv[appendName(moduleName, an)] = itemId;
 		}
-	} else if (n in c.typeEnv) {
+	} else if (an in c.typeEnv) {
 		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
@@ -865,9 +875,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			addConstructorItem(nameWithModule, constructorItemId);
 		}
 	} else if (registerName) {
-		existingNameIds = idsForName(c,n) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
+		existingNameIds = idsForName(c,an) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
 		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
-			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotation(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
 				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 
@@ -886,37 +896,40 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
+	an = delAnnotations(n);
 
 	void addConstructorItem(RName n, int constructorItemId) {
-		if (n notin c.fcvEnv) {
-			c.fcvEnv[n] = constructorItemId;
-		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + c.store[constructorItemId].rtype));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
+	    an = delAnnotations(n);
+	    
+		if (an notin c.fcvEnv) {
+			c.fcvEnv[an] = constructorItemId;
+		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[an]]) {
+			c.store[c.fcvEnv[an]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + c.store[constructorItemId].rtype));
+		} else if (c.store[c.fcvEnv[an]] is constructor || c.store[c.fcvEnv[an]] is function || c.store[c.fcvEnv[an]] is production) {
 			nonDefaults = {};
 			defaults = { c.store[constructorItemId].rtype };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
-				defaults += c.store[c.fcvEnv[n]].rtype; 
+			if(isConstructorType(c.store[c.fcvEnv[an]].rtype) || isProductionType(c.store[c.fcvEnv[an]].rtype)) {
+				defaults += c.store[c.fcvEnv[an]].rtype; 
 			} else {
-	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
-		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-		        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	if (!c.store[c.fcvEnv[an]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[an]])) {
+		        		defaults += c.store[c.fcvEnv[an]].rtype;
 		        	} else {
-		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        		nonDefaults += c.store[c.fcvEnv[an]].rtype;
 		        	}
 		        }
 			}
-			c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
-			c.fcvEnv[n] = c.nextLoc;
+			c.store[c.nextLoc] = overload({ c.fcvEnv[an], constructorItemId }, overloaded(nonDefaults,defaults));
+			c.fcvEnv[an] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
 			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
 		}
 	}
 
-	addConstructorItem(n, itemId);
+	addConstructorItem(an, itemId);
 	if (n is RSimpleName && addFullName) {
-		addConstructorItem(appendName(moduleName, n), itemId);
+		addConstructorItem(appendName(moduleName, an), itemId);
 	}
 
 	return c;
