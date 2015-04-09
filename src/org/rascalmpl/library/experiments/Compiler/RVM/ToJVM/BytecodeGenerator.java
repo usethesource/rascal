@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
@@ -49,6 +50,7 @@ public class BytecodeGenerator implements Opcodes {
 	byte[] endCode = null;
 	private ClassWriter cw = null;
 	private MethodVisitor mv = null;
+	private FieldVisitor fv = null;
 	private String className = null;
 	private String packageName = null;
 	private String fullClassName = null;
@@ -161,7 +163,19 @@ public class BytecodeGenerator implements Opcodes {
 		catchTargetLabels.clear(); 
 		catchTargets.clear();
 		
-
+// Create statics to contain a functions constantStore and typeConstantStore (Why static?)		
+		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+		fv.visitEnd();
+		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+		fv.visitEnd();
+// TODO: create initialiser function to fill them. ( TODO: call them through constructor )
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "init_" + NameMangler.mangle(f.getName()), "()V", null, null);
+		mv.visitCode();
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+		
+// Create method		
 		mv = cw.visitMethod(ACC_PUBLIC, NameMangler.mangle(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 		
@@ -174,7 +188,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ASTORE, STACK);
 
-// Experimental local copies of the functions constantStore and typeConstantStore
+// Experimental local copies of the functions constantStore and typeConstantStore (Copy from static wise or not ?)
 // Serialisation would be nice.	
 // TODO : Fix the order problem needed for small optimizations.
 //		if ( f.constantStore.length != 0 ) {
@@ -270,42 +284,12 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitLabel(lb);
-//		if ( catchTargetLabels.contains(targetLabel)) {
-//			int type = 0 , newsp = 0 ;
-//			//System.err.println(targetLabel + " = exceptionTarget");
-//			emitCatchLabelEpilogue(type, newsp);
-//		}
 		
 		ExceptionLine el = catchTargets.get(targetLabel) ;
 		if ( el != null ) {
 			emitCatchLabelEpilogue(el.type, el.newsp);
 		}
 	}
-
-	// A call to a RVM instruction not CALL or OCALL
-//	public void emitCall(String fname) {
-//		if (!emit)
-//			return;
-//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V");
-//	}
-//
-//	public void emitCall(String fname, int arg1) {
-//		if (!emit)
-//			return;
-//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-//		emitIntValue(arg1);
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(I)V");
-//	}
-//
-//	public void emitCall(String fname, int arg1, int arg2) {
-//		if (!emit)
-//			return;
-//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-//		emitIntValue(arg1);
-//		emitIntValue(arg2);
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
-//	}
 
 	public byte[] finalizeCode() {
 		if (!emit)
@@ -510,11 +494,11 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, 2);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 
-		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l4);
-		mv.visitIincInsn(2, -1);
+		mv.visitIincInsn(SP, -1);
 
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
@@ -603,20 +587,6 @@ public class BytecodeGenerator implements Opcodes {
 		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0
 															// entry point.
 	}
-
-//	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect, boolean debug) {
-//		if (!emit)
-//			return;
-//
-//		mv.visitVarInsn(ALOAD, THIS); // Load this on stack.
-//
-//		emitIntValue(className2);
-//		emitIntValue(methodName);
-//		emitIntValue(parameterTypes);
-//		emitIntValue(reflect);
-//
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnCALLJAVA", "(IIII)V");
-//	}
 
 	public void emitInlineJmpIndexed(IList labels, boolean dcode) {
 		if (!emit)
