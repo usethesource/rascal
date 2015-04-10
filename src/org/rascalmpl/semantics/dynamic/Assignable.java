@@ -51,7 +51,6 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
@@ -447,7 +446,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
+			__eval.__getEval().setCurrentAST(this);
 			Result<IValue> rec = this.getReceiver().interpret(
 					(Evaluator) __eval.__getEval());
 			Result<IValue> subscript = this.getSubscript().interpret(

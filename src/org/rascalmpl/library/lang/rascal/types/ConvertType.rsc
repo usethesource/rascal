@@ -224,8 +224,9 @@ public Symbol convertUserType(UserType ut) {
     }
 }
 
-public Symbol convertSymbol(Sym sym) = sym2symbol(sym)[at=sym.origin];  
-
+// TODO: Adding this at is harmful for efficiency, since symbols are used as identities for types:
+public Symbol convertSymbol(Sym sym) = sym2symbol(sym)[@at=sym.origin];  
+ 
 @doc{Get the raw Name component from a user type.}
 public Name getUserTypeRawName(UserType ut) {
     switch(ut) {

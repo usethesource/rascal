@@ -164,8 +164,8 @@ public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 @doc{
   This function documents and implements the subtype relation of Rascal's type system. 
 }
-public bool subtype(Symbol s, s) = true;
-public default bool subtype(Symbol s, Symbol t) = false;
+public default bool subtype(Symbol s, s) = true; // TODO made default to avoid case with annotations (can be removed later)
+public default bool subtype(Symbol s, Symbol t) = false when s != t; // TODO condition can be removed later (see previous line)
 
 public bool subtype(Symbol _, Symbol::\value()) = true;
 public bool subtype(Symbol::\void(), Symbol _) = true;
@@ -287,8 +287,8 @@ Synopsis: The least-upperbound (lub) between two types.
 Description:
   This function documents and implements the lub operation in Rascal's type system. 
 }
-public Symbol lub(Symbol s, s) = s;
-public default Symbol lub(Symbol s, Symbol t) = \value();
+public default Symbol lub(Symbol s, s) = s;
+public default Symbol lub(Symbol s, Symbol t) = \value() when s != t;
 
 public Symbol lub(Symbol::\value(), Symbol t) = Symbol::\value();
 public Symbol lub(Symbol s, Symbol::\value()) = Symbol::\value();

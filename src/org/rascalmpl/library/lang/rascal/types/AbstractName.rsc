@@ -21,6 +21,8 @@ data RName =
 	;
 
 @doc{Annotate abstract names with locations.} 
+// TODO: it would be great if we could do without the `at` keyword parameter, since it
+// is used as a part of Symbol which identifies types
 data RName(loc at = |unknown:///|);
 
 @doc{Convert RName to a simple name}
