@@ -44,7 +44,7 @@ public class Switch extends Instruction {
 		codeblock.addCode(useConcreteFingerprint ? 1 : 0);
 	}
 
-	public void generateBytCode(BytecodeGenerator codeEmittor, boolean debug){
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
