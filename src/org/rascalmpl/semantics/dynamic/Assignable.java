@@ -446,7 +446,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
+			__eval.__getEval().setCurrentAST(this);
 			Result<IValue> rec = this.getReceiver().interpret(
 					(Evaluator) __eval.__getEval());
 			Result<IValue> subscript = this.getSubscript().interpret(

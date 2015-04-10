@@ -18,12 +18,13 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import String;
 import Set;
+import Node;
 
 alias ImportGraph = Graph[RName];
 
 public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
 	// Set up the imports for the "top" module
-	mname = convertName(m.header.name);
+	mname = delAnnotations(convertName(m.header.name));
 	minfoMap = ( mname : getImports(m) );
 	
 	// Add in any defaults that are not currently present
@@ -36,7 +37,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	}
 	
 	// Build an initial worklist based on the imports of m
-	worklist = { convertNameString(wli) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
+	worklist = { delAnnotations(convertNameString(wli)) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
 	set[RName] worked = { mname };
 	
 	// Get the imports of everything transitively reachable through m
@@ -54,7 +55,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		}		
 		if (wlName in minfoMap) {
 			worked = worked + wlName;
-			worklist = worklist + ( { convertNameString(wli) | wli <- (minfoMap[wlName].importedModules + minfoMap[wlName].extendedModules) } - worked );		
+			worklist = worklist + ( { delAnnotations(convertNameString(wli)) | wli <- (minfoMap[wlName].importedModules + minfoMap[wlName].extendedModules) } - worked );		
 		}
 	}
 	
@@ -65,7 +66,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 				emods = minfoMap[mi].extendedModules;
 				minfoMap[mi].extendedModules = { };
 				for (em <- emods) {
-					emname = convertNameString(em);
+					emname = delAnnotations(convertNameString(em));
 					minfoMap[mi].importedModules = minfoMap[mi].importedModules + minfoMap[emname].importedModules;
 					minfoMap[mi].extendedModules = minfoMap[mi].extendedModules + minfoMap[emname].extendedModules; 
 				}
@@ -75,9 +76,9 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		
 	// Build a graph based on imports information
 	if (removeExtends) {
-		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- minfoMap[mi].importedModules }, minfoMap >;
+		return < { < mi, delAnnotations(convertNameString(n)) > | mi <- minfoMap, n <- minfoMap[mi].importedModules }, minfoMap >;
 	} else {
-		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) }, minfoMap >;
+		return < { < mi, delAnnotations(convertNameString(n)) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) }, minfoMap >;
 	}
 }
 

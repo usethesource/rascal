@@ -1054,7 +1054,7 @@ public CheckResult checkExp(Expression exp:(Expression)`it`, Configuration c) {
 
 @doc{Check the types of Rascal expressions: QualifiedName}
 public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Configuration c) {
-    n = convertName(qn);
+    n = delAnnotations(convertName(qn));
     if (fcvExists(c, n)) {
         c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
         c.usedIn[exp@\loc] = head(c.stack);
@@ -1597,10 +1597,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         aname = convertName(n);
-        if (aname in c.annotationEnv) {
-	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
+        aaname = delAnnotations(aname);
+        if (aaname in c.annotationEnv) {
+	        annIds = (c.store[c.annotationEnv[aaname]] is overload) ? c.store[c.annotationEnv[aaname]].items : { c.annotationEnv[aaname] };
 	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
-	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        	c = resolveDeferredTypes(c, c.annotationEnv[aaname]);
 		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
 		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
 		        }
@@ -2743,7 +2744,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
     // Process the names in the regexp, making sure they are defined or adding them into scope as needed.
     if (size(consolidated) > 0) {
         for (Name n <- consolidated) {
-            RName rn = convertName(n);
+            RName rn = delAnnotations(convertName(n));
             if (n in nameUses) {
                 // If this is just a use, it should be defined already. It can be of any type -- it will just be
                 // converted to a string before being used.
@@ -3157,6 +3158,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        case ptn:setNode(ptns) : {
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
+	        		    n = delAnnotations(n);
 		                if (RSimpleName("_") == n) {
 	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
@@ -3170,6 +3172,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
+	        		    n = delAnnotations(n);
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
@@ -3217,7 +3220,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
-		                if (RSimpleName("_") == n) {
+	        		    an = delAnnotations(n);
+		                if (RSimpleName("_") == an) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
 		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
@@ -3230,10 +3234,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } else {
-		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.uses = c.uses + < c.fcvEnv[an], ptns[idx]@at >;
 		                    c.usedIn[ptn@at] = head(c.stack);
-	                        ptns[idx].nameId = c.fcvEnv[n];
-		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                        ptns[idx].nameId = c.fcvEnv[an];
+		                    Symbol rt = c.store[c.fcvEnv[an]].rtype;
 		                    // TODO: Keep this now that we have splicing?
 		                    if (isListType(rt))
 		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
@@ -3252,6 +3256,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        }
 	
 	        case ptn:nameNode(n,nid) : { 
+	            n = delAnnotations(n);
 	            if (RSimpleName("_") == n) {
 	                rt = \inferred(c.uniqueify);
 	                c.uniqueify = c.uniqueify + 1;
@@ -4758,8 +4763,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
     // we make sure they all exist.
     for (qn <- vars) {
         n = convertName(qn);
+        an = delAnnotations(n);
         if (fcvExists(c, n)) {
-            c.uses = c.uses + < c.fcvEnv[n], qn@\loc >;
+            c.uses = c.uses + < c.fcvEnv[an], qn@\loc >;
             c.usedIn[qn@\loc] = head(c.stack);
         } else {
             failures = failures + makeFailType("Name <prettyPrintName(n)> is not in scope", qn@\loc);
@@ -4874,7 +4880,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
 
 private Configuration addMissingAssignableNames(Configuration c, Assignable a, loc errorLoc) {
 	introducedNames = getIntroducedNames(a);
-	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+	for (n <- introducedNames<0>, delAnnotations(n) notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <errorLoc> prevented computation of type",l));
 	}
@@ -5045,30 +5051,30 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, bool top, Configuration c) {
     n = convertName(qn);
-    if (RSimpleName("_") == n) {
+    if (RSimpleName("_") == delAnnotations(n)) {
         rt = \inferred(c.uniqueify);
         c.uniqueify = c.uniqueify + 1;  
         c = addUnnamedVariable(c, qn@\loc, rt);
         return < c, variableNode(n)[@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
-    } else if (fcvExists(c, n)) {
-        if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-            c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+    } else if (fcvExists(c, n), an := delAnnotations(n)) {
+        if (variable(_,_,_,_,_) := c.store[c.fcvEnv[an]]) {
+            c.uses = c.uses + < c.fcvEnv[an], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
 
-	        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
-	        	startingType = c.store[c.fcvEnv[n]].rtype;
-	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
-		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+	        if (hasDeferredTypes(c.store[c.fcvEnv[an]].rtype)) {
+	        	startingType = c.store[c.fcvEnv[an]].rtype;
+	        	c = resolveDeferredTypes(c, c.fcvEnv[an]);
+		        if (isFailType(c.store[c.fcvEnv[an]].rtype)) {
 		        	failType = makeFailType("Cannot resolve imported types in type of variable <prettyPrintName(n)>", assn@\loc);
 		        	return < c, variableNode(n)[@atype=failType][@at=assn@\loc] >;
 		        }
 	        }
 
-            rt = c.store[c.fcvEnv[n]].rtype;
+            rt = c.store[c.fcvEnv[an]].rtype;
             c = addNameWarning(c,n,assn@\loc);
             return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
         } else {
-            c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+            c.uses = c.uses + < c.fcvEnv[an], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
             return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][@at=assn@\loc] >;
         }
@@ -5104,11 +5110,12 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 
     if (isMapType(atree@atype)) {
         if (avar:variableNode(vname) := atree) {
+            avname = delAnnotations(vname);
             if (!equivalent(getMapDomainType(atree@atype), tsub)) {
                 if (top) {
-                    if (c.store[c.fcvEnv[vname]].inferred) {
-                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
-                        c.store[c.fcvEnv[vname]].rtype = newMapType;
+                    if (c.store[c.fcvEnv[avname]].inferred) {
+                        Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[avname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[avname]].rtype));
+                        c.store[c.fcvEnv[avname]].rtype = newMapType;
                         atree@atype=newMapType;
                     }
                 }
@@ -5557,6 +5564,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
     // more sense to do this when building the assignable tree, not here. This will
     // also prevent odd errors that could occur if a name changes types, such as from
     // an ADT type (with fields) to a node type (without fields).
+    name = delAnnotations(name);
     
     if (RSimpleName("_") == name) {
         varId = getOneFrom(atree@defs);
@@ -5796,7 +5804,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         < c, aliasedType > = convertAndExpandType(t,c);
         c.store[aliasId].rtype = \alias(aliasType.name, aliasType.parameters, aliasedType);
     }
-    
+     
     return c;
 }
 
@@ -6643,6 +6651,7 @@ public Configuration loadConfigurationAndReset(Configuration c, Configuration d,
 @doc{Copy top-level information on module mName from d to c}
 public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	// Add module mName into the configuration
+	mName = delAnnotations(mName);
 	mRec = d.store[d.modEnv[mName]];
 	if (mName notin c.modEnv) {
 		c = addModule(c, mName, mRec.at);
@@ -6656,9 +6665,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	
 	// For each ID we have loaded, figure out which module provides it, and filter the IDs
 	// so we don't import ones that we cannot actually reach
-	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	mpaths = (d.store[d.modEnv[delAnnotations(dmn)]].at.top : delAnnotations(dmn) | dmn <- d.modEnv ); 
 	//declaringModule = { < mpaths[dl.top], di > | < dl, di > <- d.definitions }; 
-	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
+    filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, delAnnotations(mpaths[dl.top]) in toImport };
 	
 	// TODO: We may need to add extra definitions into the definitions relation so that linking back
 	// to all declarations will work properly (or we just make the location l a set in the add functions)
@@ -7341,12 +7350,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	
 	// A relation from imported module names to bool, with true meaning this is an extending import
 	rel[RName mname, bool isext] modulesToImport = 
-		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
+		{ < delAnnotations(getNameOfImportedModule(im)) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
 	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
-	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
-	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
+	defaultModules = domainX(defaultModules, { delAnnotations(moduleName) }); // we don't want to accidentally set the current module as a default to import
+	list[RName] extendedModules = [ delAnnotations(getNameOfImportedModule(im)) | importItem <- importList, (Import) `extend <ImportedModule im>;` := importItem ];
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	
 	// Get the transitive modules that will be imported
@@ -7564,7 +7573,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 				int aliasId = getOneFrom(definitions[t@\loc]);
 				Symbol aliasedType = c.store[aliasId].rtype;
 				c = checkDeclaration(t,true,c);
-				if(aliasedType != c.store[aliasId].rtype) {
+				if(delAnnotationsRec(aliasedType) != delAnnotationsRec(c.store[aliasId].rtype)) {
 					modified = true;
 				}
 			}
@@ -7612,14 +7621,14 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
-  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, t notin getParameters(syn.defined)) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, delAnnotationsRec(t) notin getParameters(syn.defined)) {
     <c,rt> = resolveSorts(sort("<t>"), t@\loc, c);
   }
   
   return c;
 }
 
-list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ t | (Sym) `&<Nonterminal t>` <- params];
+list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ delAnnotationsRec(t) | (Sym) `&<Nonterminal t>` <- params];
 default list[Nonterminal] getParameters(Sym _) = []; 
 
 @doc{Get the module name from the header.}
@@ -7648,19 +7657,19 @@ public CheckResult convertAndExpandType(Type t, Configuration c) {
 //  We allow constructor names (constructor types) to be used in the 'throws' clauses of Rascal functions
 public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
-    if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    if( utc:\user(rn,pl) := rt, arn := delAnnotations(rn), isEmpty(pl), c.fcvEnv[arn]?, !(c.typeEnv[arn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[arn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[arn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.uses = c.uses + <c.fcvEnv[arn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
-    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    } else if (\func(utc:\user(rn,pl), ps) := rt, arn := delAnnotations(rn), isEmpty(pl) && c.fcvEnv[arn]? && !(c.typeEnv[arn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[arn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[arn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
+            c.uses = c.uses + <c.fcvEnv[arn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
@@ -7713,6 +7722,7 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
 	rt = bottom-up visit(rt) {
 		case utc:\user(rn,pl) : {
+		    rn = delAnnotations(rn);
 			if (rn in c.typeEnv) {
 				ut = c.store[c.typeEnv[rn]].rtype;
 				if ((utc@at)?) {
@@ -7916,7 +7926,7 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 
 private Configuration addMissingPatternNames(Configuration c, Pattern p, loc sourceLoc) {
 	introducedNames = getPatternNames(p);
-	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+	for (n <- introducedNames<0>, delAnnotations(n) notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <sourceLoc> prevented computation of type",l));
 	}
@@ -8438,6 +8448,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
 }
 
 public Configuration addNameWarning(Configuration c, RName n, loc l) {
+    n = delAnnotations(n);
     currentModuleLoc = head([c.store[i].at | i <- c.stack, \module(_,_) := c.store[i]]);
     if (c.store[c.fcvEnv[n]] has at && currentModuleLoc.path != c.store[c.fcvEnv[n]].at.path)
         c = addScopeWarning(c, "Name defined outside of current module", l);
