@@ -251,6 +251,7 @@ public class RVMonJVM implements IRVM {
 				codeEmittor.emitDynCaLL(fname, e.getValue());
 			}
 			codeEmittor.emitDynFinalize();
+			codeEmittor.emitConstructor(); 
 		}
 	}
 
