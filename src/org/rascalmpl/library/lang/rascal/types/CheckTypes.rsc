@@ -2744,7 +2744,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
     // Process the names in the regexp, making sure they are defined or adding them into scope as needed.
     if (size(consolidated) > 0) {
         for (Name n <- consolidated) {
-            RName rn = convertName(n);
+            RName rn = delAnnotations(convertName(n));
             if (n in nameUses) {
                 // If this is just a use, it should be defined already. It can be of any type -- it will just be
                 // converted to a string before being used.
@@ -3158,6 +3158,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        case ptn:setNode(ptns) : {
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
+	        		    n = delAnnotations(n);
 		                if (RSimpleName("_") == n) {
 	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
@@ -3171,6 +3172,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
+	        		    n = delAnnotations(n);
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
@@ -7352,7 +7354,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
 	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
-	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
+	defaultModules = domainX(defaultModules, { delAnnotations(moduleName) }); // we don't want to accidentally set the current module as a default to import
 	list[RName] extendedModules = [ delAnnotations(getNameOfImportedModule(im)) | importItem <- importList, (Import) `extend <ImportedModule im>;` := importItem ];
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	

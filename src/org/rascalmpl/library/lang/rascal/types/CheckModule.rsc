@@ -37,7 +37,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	}
 	
 	// Build an initial worklist based on the imports of m
-	worklist = { convertNameString(wli) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
+	worklist = { delAnnotations(convertNameString(wli)) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
 	set[RName] worked = { mname };
 	
 	// Get the imports of everything transitively reachable through m
@@ -46,7 +46,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		try {
 			pt = getModuleParseTree(prettyPrintName(wlName));
 			if (Module mImp := pt.top) {
-				minfoMap[delAnnotations(wlName)] = getImports(mImp);
+				minfoMap[wlName] = getImports(mImp);
 			} else {
 				throw "Unexpected parse, pt is not a module";
 			}
@@ -55,7 +55,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		}		
 		if (wlName in minfoMap) {
 			worked = worked + wlName;
-			worklist = worklist + ( { convertNameString(wli) | wli <- (minfoMap[wlName].importedModules + minfoMap[wlName].extendedModules) } - worked );		
+			worklist = worklist + ( { delAnnotations(convertNameString(wli)) | wli <- (minfoMap[wlName].importedModules + minfoMap[wlName].extendedModules) } - worked );		
 		}
 	}
 	
@@ -66,7 +66,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 				emods = minfoMap[mi].extendedModules;
 				minfoMap[mi].extendedModules = { };
 				for (em <- emods) {
-					emname = convertNameString(em);
+					emname = delAnnotations(convertNameString(em));
 					minfoMap[mi].importedModules = minfoMap[mi].importedModules + minfoMap[emname].importedModules;
 					minfoMap[mi].extendedModules = minfoMap[mi].extendedModules + minfoMap[emname].extendedModules; 
 				}
@@ -76,9 +76,9 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		
 	// Build a graph based on imports information
 	if (removeExtends) {
-		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- minfoMap[mi].importedModules }, minfoMap >;
+		return < { < mi, delAnnotations(convertNameString(n)) > | mi <- minfoMap, n <- minfoMap[mi].importedModules }, minfoMap >;
 	} else {
-		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) }, minfoMap >;
+		return < { < mi, delAnnotations(convertNameString(n)) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) }, minfoMap >;
 	}
 }
 

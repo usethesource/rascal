@@ -485,8 +485,8 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	fullName = appendName(moduleName, n);
 	an = delAnnotations(n);
+    fullName = appendName(moduleName, an);
 
 	int addDataType() {
 		if (an in c.globalAdtMap) {
@@ -546,11 +546,12 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 @doc{Add an imported user-defined ADT into the configuration}
 public Configuration addImportedADT(Configuration c, RName n, int itemId, bool addFullName=false) {
-	if (n in c.typeEnv && c.typeEnv[n] == itemId) return c;
+    an = delAnnotations(n);
+	if (an in c.typeEnv && c.typeEnv[an] == itemId) 
+	  return c;
 	
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-    an = delAnnotations(n);
     
 	if (an notin c.typeEnv) {
 		c.typeEnv[an] = itemId;
