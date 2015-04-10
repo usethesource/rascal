@@ -80,6 +80,7 @@ public class Function {
 		System.err.println(" - nr of typeconstants :" +  typeConstantStore.length);
 
 		codeEmittor.closeMethod();
+		codeEmittor.emitStoreInitializer(this, constantStore, typeConstantStore);
 	}
 	
 	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
