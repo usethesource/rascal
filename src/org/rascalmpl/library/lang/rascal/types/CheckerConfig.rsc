@@ -181,7 +181,7 @@ public Configuration setExpectedReturn(Configuration c, Symbol t) {
 public bool labelExists(Configuration c, RName n) = n in c.labelEnv;
 
 public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
-    an = delAnnotations(n);
+    an = unset(n);
     c.labelEnv[an] = c.nextLoc;
     c.store[c.nextLoc] = label(n,ls,head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
@@ -189,7 +189,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
     return c;
 }
 
-public bool fcvExists(Configuration c, RName n) = delAnnotations(n) in c.fcvEnv;
+public bool fcvExists(Configuration c, RName n) = unset(n) in c.fcvEnv;
 
 @doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
@@ -343,8 +343,8 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 
 	varId = insertVariable();
 	
-	if (delAnnotations(n) notin c.fcvEnv) {
-		c.fcvEnv[delAnnotations(n)] = varId;
+	if (unset(n) notin c.fcvEnv) {
+		c.fcvEnv[unset(n)] = varId;
 	} else {
 		// The name is already defined: what items are defined by this name?
 		conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
@@ -359,7 +359,7 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 		if (size(toSet(containingScopes) & containingIds) > 0) {
 			c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
 		} else {
-			c.fcvEnv[delAnnotations(n)] = varId;
+			c.fcvEnv[unset(n)] = varId;
 		}
 	}
 
@@ -380,7 +380,7 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
 
 	int insertAnnotation() {
 		existingDefs = invert(c.definitions)[l];
@@ -442,7 +442,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 
 @doc{Add an imported annotation into the configuration}
 public Configuration addImportedAnnotation(Configuration c, RName n, int annId) {
-    an = delAnnotations(n);
+    an = unset(n);
 	if (an in c.annotationEnv && c.annotationEnv[an] == annId) return c;
 
 	void updateAnnotation(int id) {
@@ -485,7 +485,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
     fullName = appendName(moduleName, an);
 
 	int addDataType() {
@@ -546,7 +546,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 @doc{Add an imported user-defined ADT into the configuration}
 public Configuration addImportedADT(Configuration c, RName n, int itemId, bool addFullName=false) {
-    an = delAnnotations(n);
+    an = unset(n);
 	if (an in c.typeEnv && c.typeEnv[an] == itemId) 
 	  return c;
 	
@@ -569,7 +569,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
 	fullName = appendName(moduleName, an);
 
     
@@ -640,7 +640,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-    an = delAnnotations(n);
+    an = unset(n);
         
 	if (an notin c.typeEnv) {
 		c.typeEnv[n] = itemId;
@@ -658,7 +658,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
 	fullName = appendName(moduleName, an);
 	
 	int addAliasAux() {
@@ -700,7 +700,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-    an = delAnnotations(n);
+    an = unset(n);
     
 	if (an notin c.typeEnv) {
 		c.typeEnv[an] = itemId;
@@ -718,7 +718,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
 	fullName = appendName(moduleName, n);
 
 	adtName = RSimpleName(rt.\adt.name);
@@ -814,7 +814,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 	// the same ADT (we can add the ADT name to distinguish constructors from different
 	// ADTs).
 	void addConstructorItem(RName n, int constructorItemId) {
-	    an = delAnnotations(n);
+	    an = unset(n);
 	    
 		if (an notin c.fcvEnv) {
 			// Case 1: This is the first occurrence of this name.
@@ -854,7 +854,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		c.nextLoc = c.nextLoc + 1;
 
 		if (registerName) {
-			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotations(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			overlaps = { i | i <- c.adtConstructors[adtId], unset(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
 				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 		}
@@ -878,7 +878,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 	} else if (registerName) {
 		existingNameIds = idsForName(c,an) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
 		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
-			overlaps = { i | i <- c.adtConstructors[adtId], delAnnotations(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			overlaps = { i | i <- c.adtConstructors[adtId], unset(c.store[i].name) == an, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
 				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 
@@ -897,10 +897,10 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
-	an = delAnnotations(n);
+	an = unset(n);
 
 	void addConstructorItem(RName n, int constructorItemId) {
-	    an = delAnnotations(n);
+	    an = unset(n);
 	    
 		if (an notin c.fcvEnv) {
 			c.fcvEnv[an] = constructorItemId;
@@ -1183,7 +1183,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 
 @doc{Add a module into the configuration.}
 public Configuration addModule(Configuration c, RName n, loc l) {
-    c.modEnv[delAnnotations(n)] = c.nextLoc;
+    c.modEnv[unset(n)] = c.nextLoc;
     c.store[c.nextLoc] = \module(n,l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
@@ -1244,7 +1244,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
 	// it should not refer to other names with different qualifiers).
 	void addFunctionItem(RName n, int functionId) {	
-	    an = delAnnotations(n);
+	    an = unset(n);
 	    
 	    if (an notin c.fcvEnv) {
 	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.

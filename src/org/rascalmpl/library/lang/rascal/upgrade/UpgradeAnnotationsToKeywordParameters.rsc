@@ -28,6 +28,8 @@ Tree update(Tree m) =
     case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name2>=<Expression def>]`
       when Name name2 := getName(name)
       
+    case (Expression) `delAnnotations(<Expression e>)` => (Expression) `unset(<Expression e>)`
+      
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
       when Name name2 := getName(field)
   };
