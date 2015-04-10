@@ -8,28 +8,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Types;
 
 public class BytecodeGenerator implements Opcodes {
 
@@ -153,6 +147,69 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
+	
+	public void emitStoreInitializer(Function f,IValue[] constantStore, Type[] typeConstantStore) {
+		
+		if ( constantStore.length == 0 && typeConstantStore.length == 0 ) return ;
+
+// Create the statics to contain a functions constantStore and typeConstantStore (Why static?)		
+		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+		fv.visitEnd();
+		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+		fv.visitEnd();
+		
+// TODO: create initialiser function to fill them. ( TODO: call them through constructor )
+		mv = cw.visitMethod(ACC_PUBLIC , "init_" + NameMangler.mangle(f.getName()), "()V", null, null);
+		mv.visitCode();
+		
+		mv.visitTypeInsn(NEW, "org/eclipse/imp/pdb/facts/io/StandardTextReader");
+		mv.visitInsn(DUP);
+		mv.visitMethodInsn(INVOKESPECIAL, "org/eclipse/imp/pdb/facts/io/StandardTextReader", "<init>", "()V");
+		mv.visitVarInsn(ASTORE, 1);
+		
+		mv.visitInsn(ICONST_2);
+		mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+		mv.visitFieldInsn(PUTSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
+		
+		Label l0 = new Label();
+		Label l1 = new Label();
+		Label l2 = new Label();
+		Label l3 = new Label();
+		
+		mv.visitTryCatchBlock(l0, l1, l2, "java/lang/Exception");
+		
+		mv.visitLabel(l0);
+		
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "vf", "Lorg/eclipse/imp/pdb/facts/IValueFactory;");
+		mv.visitTypeInsn(NEW, "java/io/StringReader");
+		mv.visitInsn(DUP);
+		mv.visitLdcInsn("true");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/imp/pdb/facts/io/StandardTextReader", "read", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Ljava/io/Reader;)Lorg/eclipse/imp/pdb/facts/IValue;");
+		mv.visitInsn(AASTORE);
+		
+		mv.visitLabel(l1);
+		
+		mv.visitJumpInsn(GOTO, l3);
+		
+		mv.visitLabel(l2);
+		mv.visitVarInsn(ASTORE, 2);
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Exception", "getMessage", "()Ljava/lang/String;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+		
+		mv.visitLabel(l3);
+		
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+// TODO: Force function to be called in the constructor.		
+	}
 	public void emitMethod(Function f, boolean isCoroutine, int continuationPoints, String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels, boolean debug) {
 
 		if (!emit)
@@ -162,18 +219,6 @@ public class BytecodeGenerator implements Opcodes {
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear(); 
 		catchTargets.clear();
-		
-// Create statics to contain a functions constantStore and typeConstantStore (Why static?)		
-		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
-		fv.visitEnd();
-		fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
-		fv.visitEnd();
-// TODO: create initialiser function to fill them. ( TODO: call them through constructor )
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "init_" + NameMangler.mangle(f.getName()), "()V", null, null);
-		mv.visitCode();
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(0, 0);
-		mv.visitEnd();
 		
 // Create method		
 		mv = cw.visitMethod(ACC_PUBLIC, NameMangler.mangle(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
