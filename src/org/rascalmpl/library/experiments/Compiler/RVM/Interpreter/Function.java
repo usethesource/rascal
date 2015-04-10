@@ -76,8 +76,8 @@ public class Function {
 		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
-		System.err.print(getName() + " nr of constants :" +  constantStore.length);
-		System.err.println(" - nr of typeconstants :" +  typeConstantStore.length);
+//		System.err.print(getName() + " nr of constants :" +  constantStore.length);
+//		System.err.println(" - nr of typeconstants :" +  typeConstantStore.length);
 
 		codeEmittor.closeMethod();
 		codeEmittor.emitStoreInitializer(this, constantStore, typeConstantStore);
