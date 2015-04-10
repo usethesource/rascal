@@ -139,7 +139,7 @@ public class BytecodeGenerator implements Opcodes {
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V");
 		
 		for (String fname : storeCreators ) {
-			System.err.println(fname);
+			//System.err.println(fname);
 			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V");
 		}
@@ -214,10 +214,12 @@ public class BytecodeGenerator implements Opcodes {
 
 			w = new StringWriter();
 			try {
-				new StandardTextWriter().write(constantStore[i], w);			
+				new StandardTextWriter().write(constantStore[i], w);
+				System.err.println(w.toString().length() + " = " + w.toString());
 				mv.visitLdcInsn(w.toString());
 			}
 			catch (Exception e) { }
+
 			
 			mv.visitMethodInsn(INVOKESPECIAL, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V");
 			mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/imp/pdb/facts/io/StandardTextReader", "read",
