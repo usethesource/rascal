@@ -1090,9 +1090,9 @@ public class RVMRun implements IRVM {
 
 		if (argType.isSubtypeOf(paramType)) {
 			lstack[toLoc] = lstack[loc];
-			lstack[lsp++] = vf.bool(true);
+			lstack[lsp++] = Rascal_TRUE;
 		} else {
-			lstack[lsp++] = vf.bool(false);
+			lstack[lsp++] = Rascal_FALSE;
 		}
 		return lsp;
 	}

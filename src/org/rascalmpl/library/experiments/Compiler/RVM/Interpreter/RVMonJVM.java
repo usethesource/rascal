@@ -167,37 +167,6 @@ public class RVMonJVM implements IRVM {
 		}
 	}
 
-	public void $fillOverloadedStore(IList overloadedStore) {
-		for (IValue of : overloadedStore) {
-			ITuple ofTuple = (ITuple) of;
-			String scopeIn = ((IString) ofTuple.get(0)).getValue();
-			if (scopeIn.equals("")) {
-				scopeIn = null;
-			}
-			IList fuids = (IList) ofTuple.get(1);
-			int[] funs = new int[fuids.length()];
-			int i = 0;
-			for (IValue fuid : fuids) {
-				Integer index = functionMap.get(((IString) fuid).getValue());
-				if (index == null) {
-					throw new RuntimeException("No definition for " + fuid + " in functionMap");
-				}
-				funs[i++] = index;
-			}
-			fuids = (IList) ofTuple.get(2);
-			int[] constrs = new int[fuids.length()];
-			i = 0;
-			for (IValue fuid : fuids) {
-				Integer index = constructorMap.get(((IString) fuid).getValue());
-				if (index == null) {
-					throw new RuntimeException("No definition for " + fuid + " in constructorMap");
-				}
-				constrs[i++] = index;
-			}
-			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
-		}
-	}
-
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned. Note that various non-IValues can occur: - Coroutine - Reference - FunctionInstance -
 	 * Object[] (is converted to an IList)
