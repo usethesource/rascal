@@ -170,10 +170,16 @@ public class BytecodeGenerator implements Opcodes {
 			fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
 			fv.visitEnd();
 //		}
-//		if (typeConstantStore.length > 0) {
-			fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
-			fv.visitEnd();
-//		}
+			
+			if (typeConstantStore.length > 2 ) {
+				fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+				fv.visitEnd();
+			}
+			else {
+//				if (typeConstantStore.length > 0) {
+				fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
+				fv.visitEnd();
+			}
 
 //			if (constantStore.length == 0 && typeConstantStore.length == 0)
 			if (constantStore.length == 0)
@@ -1384,4 +1390,51 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
+	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2, boolean debug) {
+		if (!emit)
+			return;
+		Label l1 = new Label();
+		Label l5 = new Label();
+
+		mv.visitVarInsn(ALOAD, STACK);
+
+		/* sourceLoc */ 
+		emitIntValue(pos1);
+
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IValue");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValue", "getType", "()Lorg/eclipse/imp/pdb/facts/type/Type;");
+		mv.visitVarInsn(ALOAD, TS);
+
+		/* type */ 
+		emitIntValue(type);
+
+		mv.visitInsn(AALOAD);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/imp/pdb/facts/type/Type", "isSubtypeOf", "(Lorg/eclipse/imp/pdb/facts/type/Type;)Z");
+		mv.visitJumpInsn(IFEQ, l1);
+		mv.visitVarInsn(ALOAD, STACK);
+
+		/* toloc */ 
+		emitIntValue(pos2);
+
+		mv.visitVarInsn(ALOAD, STACK);
+		
+		/* sourceLoc */ 
+		emitIntValue(pos1);
+		
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(AASTORE);
+		mv.visitJumpInsn(GOTO, l5);
+		mv.visitLabel(l1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(AASTORE);
+		mv.visitLabel(l5);	}
 }
