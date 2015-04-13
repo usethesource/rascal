@@ -28,11 +28,14 @@ public class RVMonJVM implements IRVM {
 	private boolean finalized = false;
 
 	protected final ArrayList<Function> functionStore;
+	protected Function[] functionStoreV2;
 	protected final Map<String, Integer> functionMap;
 
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
+	private OverloadedFunction[] overloadedStoreV2;
+	
 	private OverloadedFunction res;
 
 	private final TypeStore typeStore = new TypeStore();
@@ -210,17 +213,22 @@ public class RVMonJVM implements IRVM {
 			for (Function f : functionStore) {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
+			
 			for(OverloadedFunction of : overloadedStore) {
 				of.finalize(functionMap);
 			}
+						
 			// All functions are created create int based dispatcher
 			codeEmittor.emitDynDispatch(functionMap.size());
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 				String fname = e.getKey();
 				codeEmittor.emitDynCaLL(fname, e.getValue());
 			}
+						
 			codeEmittor.emitDynFinalize();
-			codeEmittor.emitConstructor(); 
+
+			overloadedStoreV2 = overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]) ;
+			codeEmittor.emitConstructor(overloadedStoreV2); 
 		}
 	}
 
