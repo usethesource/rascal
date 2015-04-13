@@ -113,8 +113,8 @@ public data Figure(
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
 		int width = -1,
 		int height = -1,
-		int h = -1,
-		int w = -1,
+		int cellHeight = -1,
+		int cellWidth = -1,
 		Position at = <0,0>,
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
@@ -124,8 +124,8 @@ public data Figure(
    
     	// Line properties
     
-		int lineWidth = 1,			
-		str lineColor = "black", 		
+		int lineWidth = -1,			
+		str lineColor = "", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
@@ -139,13 +139,13 @@ public data Figure(
 
 		// Font and text properties
 		
-		str fontFamily = "Helvetica, Arial, Verdana, sans-serif",
-		str fontName = "Helvetica",
-		int fontSize = 12,
-		str fontStyle = "normal",		// normal|italic|oblique|initial|inherit
-		str fontWeight = "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
-		str fontColor = "black",
-		str textDecoration	= "none",	// none|underline|overline|line-through|initial|inherit
+		str fontFamily = "",// "Helvetica, Arial, Verdana, sans-serif",
+		str fontName = "", // "Helvetica",
+		int fontSize = -1, // 12,
+		str fontStyle = "", // "normal",		// normal|italic|oblique|initial|inherit
+		str fontWeight = "",// "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
+		str fontColor = "", // "black",
+		str textDecoration	= "", //"none",	// none|underline|overline|line-through|initial|inherit
 		
 		// Interaction
 	
