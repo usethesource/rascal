@@ -20,7 +20,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::\syntax::Rascal;
 
 @doc{Annotation for parameterized types indicating whether the bound was explicitly given.} 
-data Symbol(bool boundGiven = bool () { throw "no default value"; }());
+data Symbol(bool boundGiven = false);
 
 @doc{Extension to add new types used internally during name resolution and checking.}
 public data Symbol =
@@ -35,7 +35,7 @@ public data Symbol =
 public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
 
 @doc{Annotations to hold the type assigned to a tree.} 
-data Tree(Symbol rtype = Symbol () { throw "no default value"; }());
+data Tree(Symbol rtype = \void());
 
 @doc{Annotations to hold the location at which a type is declared.} 
 data Symbol(loc at = |unknown:///|); 
@@ -235,7 +235,7 @@ public Symbol makeAliasType(str n, Symbol t) = Symbol::\alias(n,[],t);
 public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = Symbol::\alias(n,params,t);
 
 @doc{Marks if a function is a var-args function.} 
-data Symbol(bool isVarArgs = bool () { throw "no default value"; }());
+data Symbol(bool isVarArgs = false);
 
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {

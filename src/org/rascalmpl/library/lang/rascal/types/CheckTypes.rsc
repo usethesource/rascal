@@ -3051,13 +3051,13 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <
 }
 
 @doc{Allows PatternTree nodes to be annotated with types.} 
-data PatternTree(Symbol rtype = Symbol () { throw "no default value"; }());
+data PatternTree(Symbol rtype = \void());
 
 @doc{Allows PatternTree nodes to keep track of which ids they define.} 
 data PatternTree(set[int] defs = {});
 
 @doc{Is this node in head position in a call or tree node?} 
-data PatternTree(bool headPosition = bool () { throw "no default value"; }());
+data PatternTree(bool headPosition = false);
 
 @doc{Do we have possible constructors here that do not match arity?} 
 data PatternTree(set[Symbol] arityMismatches = {});
@@ -3066,16 +3066,16 @@ data PatternTree(set[Symbol] arityMismatches = {});
 data PatternTree(set[Symbol] tooManyMatches = {});
 
 @doc{A hint of the possible type passed down from above.} 
-data PatternTree(Symbol typeHint = Symbol () { throw "no default value"; }());
+data PatternTree(Symbol typeHint = \void());
 
 @doc{A hint of the possible type passed down from above.} 
-data Tree(Symbol typeHint = Symbol () { throw "no default value"; }());
+data Tree(Symbol typeHint = \void());
 
 @doc{A hint of the possible type passed down from above.} 
-data Expression(Symbol typeHint = Symbol () { throw "no default value"; }());
+data Expression(Symbol typeHint = \void());
 
 @doc{A hint of the possible type passed down from above.} 
-data Statement(Symbol typeHint = Symbol () { throw "no default value"; }());
+data Statement(Symbol typeHint = \void());
 
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
@@ -5036,9 +5036,9 @@ data AssignableTree(loc at = |unknown:///|);
 data AssignableTree(set[int] defs = {});
 
 @doc{Allows AssignableTree nodes to be annotated with types.} 
-data AssignableTree(Symbol otype = Symbol () { throw "no default value"; }());
+data AssignableTree(Symbol otype = \void());
  
-data AssignableTree(Symbol atype = Symbol () { throw "no default value"; }());
+data AssignableTree(Symbol atype = \void());
 
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
