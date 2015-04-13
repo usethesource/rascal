@@ -2,11 +2,10 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.NameMangler;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+public class OverloadedFunction  implements java.io.Serializable {
 
-public class OverloadedFunction {
-
+	private static final long serialVersionUID = -1612929281777761868L;
+	
 	final int[] functions;
 	final int[] constructors;
 	final String funIn;

@@ -1,5 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -73,6 +78,7 @@ public class RVMRun implements IRVM {
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	protected ArrayList<OverloadedFunction> overloadedStore;
+	protected OverloadedFunction[]  overloadedStoreV2;
 
 	private TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -842,7 +848,7 @@ public class RVMRun implements IRVM {
 	}
 
 	public int insnLOADOFUN(Object[] stack, int sp, Frame cf, int ofun) {
-		OverloadedFunction of = overloadedStore.get(ofun);
+		OverloadedFunction of = overloadedStoreV2[ofun];
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
 				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
 		return sp;
@@ -1473,7 +1479,8 @@ public class RVMRun implements IRVM {
 		lcf.sp = sop;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
-		OverloadedFunction of = overloadedStore.get(ofun);
+//		OverloadedFunction of = overloadedStore.get(ofun);
+		OverloadedFunction of = overloadedStoreV2[ofun];
 
 		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
 				.computeOverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, of.scopeIn, null, arity);
@@ -2082,5 +2089,13 @@ public class RVMRun implements IRVM {
 	public static void debugSHIFT(Frame lcf, int lsp) {
 		if (lcf == null)
 			throw new RuntimeException();
+	}
+	
+	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));
+		ObjectInputStream ois = new ObjectInputStream(bais);
+		Object o = ois.readObject();
+		ois.close();
+		return o;
 	}
 }
