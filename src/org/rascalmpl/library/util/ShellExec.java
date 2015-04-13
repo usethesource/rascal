@@ -43,35 +43,7 @@ public class ShellExec {
 		this.vf = vf;
 	}
 
-	public IInteger createProcess(IString processCommand) {
-		return createProcessInternal(processCommand,null,null,null);
-	}
-
-	public IInteger createProcess(IString processCommand, ISourceLocation workingDir) {
-		return createProcessInternal(processCommand,null,null,workingDir);
-	}
-
-	public IInteger createProcess(IString processCommand, IList arguments) {
-		return createProcessInternal(processCommand,arguments,null,null);
-	}
-
-	public IInteger createProcess(IString processCommand, IList arguments, ISourceLocation workingDir) {
-		return createProcessInternal(processCommand,arguments,null,workingDir);
-	}
-
-	public IInteger createProcess(IString processCommand, IMap envVars) {
-		return createProcessInternal(processCommand,null,envVars,null);
-	}
-
-	public IInteger createProcess(IString processCommand, IMap envVars, ISourceLocation workingDir) {
-		return createProcessInternal(processCommand,null,envVars,workingDir);
-	}
-
-	public IInteger createProcess(IString processCommand, IList arguments, IMap envVars) {
-		return createProcessInternal(processCommand,arguments,envVars,null);
-	}
-
-	public IInteger createProcess(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
+	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
 		return createProcessInternal(processCommand,arguments,envVars,workingDir);
 	}
 
@@ -120,13 +92,15 @@ public class ShellExec {
 			}
 			
 			File cwd = null;
-			if (workingDir != null) {
+			if (workingDir != null && workingDir.getScheme().equals("file")) {
 				cwd = new File(workingDir.getURI().getPath());
 				pb.directory(cwd);
 			}
 			
 			Process newProcess = pb.start();
-			if (processCounter == null) processCounter = vf.integer(0);
+			if (processCounter == null) {
+				processCounter = vf.integer(0);
+			}
 			processCounter = processCounter.add(vf.integer(1));
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
@@ -220,17 +194,21 @@ public class ShellExec {
 	}
 
 	public synchronized IString readEntireStream(IInteger processId) {
-		if (!runningProcesses.containsKey(processId))
+		if (!runningProcesses.containsKey(processId)) {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
-		try {
-			Process runningProcess = runningProcesses.get(processId);
-			BufferedReader br = new BufferedReader(new InputStreamReader(runningProcess.getInputStream()));
+		}
+		
+		try (BufferedReader br 
+				= new BufferedReader(
+						new InputStreamReader(
+								runningProcesses.get(processId).getInputStream()))) {
 			StringBuffer lines = new StringBuffer();
 			String line = "";
 			while (null != (line = br.readLine())) {
 				lines.append(line);
+				lines.append('\n');
 			}
-			if (br != null) br.close();
+			
 			return vf.string(lines.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e, null, null);
@@ -238,17 +216,21 @@ public class ShellExec {
 	}
 
 	public synchronized IString readEntireErrStream(IInteger processId) {
-		if (!runningProcesses.containsKey(processId))
+		if (!runningProcesses.containsKey(processId)) {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
-		try {
-			Process runningProcess = runningProcesses.get(processId);
-			BufferedReader br = new BufferedReader(new InputStreamReader(runningProcess.getErrorStream()));
+		}
+		
+		try (BufferedReader br 
+				= new BufferedReader(
+						new InputStreamReader(
+								runningProcesses.get(processId).getErrorStream()))) {
 			StringBuffer lines = new StringBuffer();
 			String line = "";
 			while (null != (line = br.readLine())) {
 				lines.append(line);
+				lines.append('\n');
 			}
-			if (br != null) br.close();
+			
 			return vf.string(lines.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e, null, null);
