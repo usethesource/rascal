@@ -26,28 +26,17 @@ Description:
 
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand);
+public java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, loc workingDir);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, list[str] args);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, list[str] args, loc workingDir);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, map[str,str] envVars);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, map[str,str] envVars, loc workingDir);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, list[str] args, map[str,str] envVars);
-
-@javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcess(str processCommand, list[str] args, map[str,str] envVars, loc workingDir);
+@doc{
+Synopsis: start, run and kill an external process returning its output as a string.
+}
+public str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+   pid = createProcess(processCommand, workingDir=workingDir, args=args, env=env);
+   result = readEntireStream(pid);
+   killProcess(pid);
+   return result;
+}
 
 @doc{
 Synopsis: Kill a running process.
@@ -92,3 +81,4 @@ Description: Process IDentifiers (PIDs) are used to identify external processes.
 A PID is returned by [createProcess] and is required for any further interaction with the created process.
 }
 public alias PID = int;
+

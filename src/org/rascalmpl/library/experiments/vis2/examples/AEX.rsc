@@ -9,6 +9,8 @@ import experiments::vis2::FigureServer;
 import lang::csv::IO;
 import lang::json::IO;
 
+// loc location = |std://experiments/vis2/data/AEX.csv|;
+
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/AEX.csv|;
 
 void ex(str title, Figure f){

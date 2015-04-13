@@ -1,11 +1,3 @@
-/************************************************************************/
-/*																		*/
-/* Server communication:												*/
-/*  - askServer		get new figure and model							*/
-/*  - redraw		redarw the figure									*/
-/*																		*/
-/************************************************************************/
-
 var ajax = {};
 ajax.x = function() {
     if (typeof XMLHttpRequest !== 'undefined') {
@@ -73,3 +65,20 @@ function askServer(path, parameters, callback) {
    }
    
 
+function adjust1(id0, id1) { 
+    if (document.getElementById(id0).style.width!="") return;
+    var left1 = document.getElementById(id1).getBoundingClientRect().left;
+    var right1 = document.getElementById(id1).getBoundingClientRect().right;
+    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
+    var top1 = document.getElementById(id1).getBoundingClientRect().top;
+    d3.select("#"+id0).style("width",right1-left1).style("height",bottom1-top1);
+   }
+   
+ function adjustSvg(id0, id1, lw) { 
+    if (document.getElementById(id0).style.width!="") return;
+    var d = d3.select("#"+id1);
+    var b = d.node().getBBox();
+    d3.select("#"+id0).attr("width",b.x+b.width+lw).attr("height",b.y+b.height+lw);
+   }
+   
+ 

@@ -5,30 +5,9 @@ import lang::json::IO;
 import util::HtmlDisplay;
 import util::Math;
 import experiments::vis2::sandbox::Figure;
-import util::Reflective;
-
+// '<style("border","<f.lineWidth<0?1:f.lineWidth>px solid <f.lineColor>")>
 private loc base = |std:///experiments/vis2/sandbox|;
 
-
-
-// public alias Alignment = tuple[num hpos, num vpos];
-
-//public Alignment topLeft      	= <0.0, 0.0>;
-//public Alignment topMid         = <0.5, 0.0>;
-//public Alignment topRight     	= <1.0, 0.0>;
-//
-//public Alignment leftMid   		= <0.0, 0.5>;
-//public Alignment centerMid      = <0.5, 0.5>;
-//public Alignment rightMid   	= <1.0, 0.5>;
-//
-//public Alignment bottomLeft   	= <0.0, 1.0>;
-//public Alignment bottomMid		= <0.5, 1.0>;
-//public Alignment bottomRight	= <1.0, 1.0>;
-
-//data IEvent 
-//	= on()
-//	| on(str eventName, void(str, str) callback)
-//	;
 
 public data IFigure = ifigure(str id, list[IFigure] child);
 
@@ -36,18 +15,26 @@ public data IFigure = ifigure(str content);
 
 public data IFigure = iemptyFigure();
 
+bool debug = true;
+int screenWidth = 400;
+int screenHeight = 400;
+
 int seq = 0;
 int occur = 0;
 
 
 alias Elm = tuple[void(str, str) f, int seq, str id, str begintag, str endtag, str script, int width, int height,
-      int w, int h, 
+      int cellWidth, int cellHeight, 
       Alignment align, int hgap, int vgap];
 
 
 alias State = tuple[str name, str v];
 public list[State] state = [];
 public list[str] old = [];
+
+public void setDebug(bool b) {
+   debug = b;
+   }
 
 public void null(str event, str id ){return;}
       
@@ -61,7 +48,11 @@ void setStr(str id, str v) {state[widget[id].seq].v =  v;}
 
 public map[str, Elm] widget = ();
 
-public void clearWidget() { widget = ();}
+public list[str] widgetOrder = [];
+
+public list[str] adjust = [];
+
+public void clearWidget() { widget = (); widgetOrder = [];}
               
 str visitFig(IFigure fig) {
     if (ifigure(str id, list[IFigure] f):= fig) {
@@ -73,10 +64,16 @@ str visitFig(IFigure fig) {
     }
     
 IFigure fig;
-                  
+//   'table { border-collapse: collapse;} 
+// 'table td, table th {padding: 0;}              
 str getIntro() {
+   // println(widgetOrder);
    res = "\<html\>
-        '\<head\>
+        '\<head\>      
+        '\<style\>
+        
+        
+        '\</style\>    
         '\<script src=\"IFigure.js\"\>\</script\>
         '\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>  
         '\<script\>
@@ -93,7 +90,8 @@ str getIntro() {
         '   };
         ' }
        ' function initFunction() {
-           <for (d<-widget) {> <widget[d].script> <}>
+           <for (d<-reverse(widgetOrder)) {> <widget[d].script> <}>
+           <for (d<-adjust) {> <d> <}>
        ' }
        ' onload=initFunction;
        '\</script\>
@@ -148,59 +146,32 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
-str innerFigureBegin(IFigure fig1, int width, int height, Alignment align, int xgap, int ygap) {
-     println("inner id:<getId(fig1)> width(fig1): <getWidth(fig1)> width:<width>");
-     if (getWidth(fig1)>=0) {
-       int hgap = align.hpos<0.25?cX(xgap, width):cX(-xgap, width);
-       int vgap = align.vpos<0.25?cY(ygap, height):cY(-ygap, height);
-       num x =  hgap + align.hpos * (100 - cX(getWidth(fig1), width));
-       num y =  vgap + align.vpos * (100 - cY(getHeight(fig1), height));
-       println("x = <x>  y = <y>  <align>");
-       return
-       "
-       '\<svg x=\"<x>%\" y =\"<y>%\" width=\"<cX(getWidth(fig1), width)>%\" height=\"<cY(getHeight(fig1), height)>%\"\>"
-       ;  
-       } 
-     return "";
-     }
-          
-str innerFigureEnd(IFigure fig1) {    
-     if (getWidth(fig1)>=0) return"\</svg\>";
-     return "";
-     }
-     
 
-     
-int cX(int x, int parentW) = 100*x/parentW;
-
-int cY(int y, int parentH) = 100*y/parentH;
-     
-public void _render(IFigure fig1, int width = 1000, int height = 1000, 
+      
+public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int hgap = 0, int vgap = 0,
      str fillColor = "none", str lineColor = "black")
      {
+     screenWidth = width;
+     screenHeight = height;
      str id = "figureArea";
-     str begintag=
-     "
-     ' \<svg width=\"<width>px\" height=\"<height>px\"\>
-     '\<rect id=\"<id>\" width=\"<100>%\" height=\"<100>%\" stroke-width =\"2\"/\>
-     "; 
-    println(getWidth(fig1));
-    begintag += innerFigureBegin(fig1, width, height, align, hgap, vgap);
-    str endtag=innerFigureEnd(fig1); 
-    endtag += 
-    "
-    ' \</svg\>
-    ";
+     
+    str begintag= beginTag(id, align);
+    // println(getWidth(fig1));
+    str endtag = endTag();   
     widget[id] = <null, seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")
-        .attr(\"fill\",\"<fillColor>\").attr(\"stroke\",\"<lineColor>\");       
+        'd3.select(\"#<id>\")<style("border","1px solid black")> 
+        '<stylePx("width", width)><stylePx("height", height)>
+        '<hGap(align, hgap)>  
+        '<vGap(align, vgap)>  
+        ;       
         "
        , width, height, width, height, align, 0, 0 >;
        seq=seq+1;
        state += <id, fillColor>;
        old+=fillColor;
+       widgetOrder += id;
     fig = ifigure(id, [fig1]);
     println("site=<site>");
 	htmlDisplay(site);
@@ -211,11 +182,9 @@ str getId(IFigure f) {
     return "";
     }
     
-void setId(Figure f) {
-   
+void setId(Figure f) {  
     if (isEmpty(f.id)) f.id = "i<id>";
-    id = id +1; 
-    
+    id = id +1;    
     }
 
 int getWidth(IFigure f) {
@@ -228,13 +197,13 @@ int getHeight(IFigure f) {
     return -1;
     }
 
-int getW(IFigure f) {
-    if (ifigure(id, _) := f) return widget[id].w;
+int getCellWeight(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].cellWeight;
     return -1;
     }
     
-int getH(IFigure f) {
-    if (ifigure(id, _) := f) return widget[id].h;
+int getCellHeight(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].cellHeight;
     return -1;
     }
     
@@ -263,6 +232,26 @@ str getEvent(Event e) {
     return ""; 
     }
     
+str debugStyle() {
+    if (debug) return style("border","1px solid black");
+    return "";
+    }
+    
+str style(str key, str v) {
+    if (isEmpty(v)) return "";
+    return ".style(\"<key>\",\"<v>\")";
+    }
+    
+str style(str key, int v) {
+    if (v<0) return "";
+    return ".style(\"<key>\",\"<v>\")";
+    }
+
+str stylePx(str key, int v) {
+    if (v<0) return "";
+    return ".style(\"<key>\",\"<v>px\")";
+    } 
+       
 str attr(str key, str v) {
     if (isEmpty(v)) return "";
     return ".attr(\"<key>\",\"<v>\")";
@@ -283,94 +272,184 @@ str on(str ev, str proc) {
     return ".on(\"<ev>\", <proc>)";
     }         
 // -----------------------------------------------------------------------
+// '.text(\"<s>\") 
+IFigure _text(str id, Figure f, str s) {
+    str begintag="\<div  id=\"<id>\"\>";
+    int width = f.width;
+    int height = f.height;
+    Alignment align =  width<0?topLeft:f.align;
+    str endtag = "\</div\>"; 
+    widget[id] = <null, seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\")
+        '<debugStyle()>
+        '<style("background-color", "<f.fillColor>")>
+        '<stylePx("width", width)><stylePx("height", height)>
+        '<stylePx("font-size", f.fontSize)>
+        '<style("font-style", f.fontStyle)>
+        '<style("font-family", f.fontFamily)>
+        '<style("font-weight", f.fontWeight)>
+        '<style("color", f.fontColor)>
+        '.text(\"<s>\") 
+        ';"
+        , width, height, f.cellWidth, f.cellHeight, align, f.hgap, f.vgap >;
+         seq=seq+1;
+       state += <id, f.fillColor>;
+       old+=f.fillColor;
+       widgetOrder+= id;
+       return ifigure(id, []);
+    }
+    
+str beginTag(str id, Alignment align) {
+    return "
+           '\<table  cellspacing=\"0\" cellpadding=\"0\" id=\"<id>\"\>\<tr\>
+           ' \<td <vAlign(align)> <hAlign(align)>\>";
+    }
+    
+str endTag() {
+   return "\</td\>\</tr\>\</table\>"; 
+   }
+
 IFigure _rect(str id, Figure f,  IFigure fig = iemptyFigure()) {
-       str begintag="
-                    ' \<rect id=\"<id>\" width=\"100%\" height=\"100%\"/\>"
-                    ;
-       // str begintag = "";  
-       int width = f.width<0?getWidth(fig):f.width;
-       int height = f.height<0?getHeight(fig) :f.height;
-       //int w = f.w <0 ? 50 : f.w;
-       //int h = f.h <0 ? 50 : f.h;
-       begintag += innerFigureBegin(fig, width, height, f.align, f.hgap, f.vgap);
-       str endtag=innerFigureEnd(fig);               
+      int width = f.width;
+       int height = f.height;
+       Alignment align =  width<0?topLeft:f.align;
+       str begintag= beginTag(id, align);
+       
+       str endtag = endTag();              
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
-        '<on(getEvent(f.event), "doFunction(\"<id>\")")>       
-        '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)><attr("stroke-width",f.lineWidth)>
-        '<attr("stroke-opacity",f.lineOpacity)>
+        '<on(getEvent(f.event), "doFunction(\"<id>\")")>
+        '<stylePx("width", f.width)><stylePx("height", height)> 
+        '<style("border","<f.lineWidth<0?1:f.lineWidth>px solid <isEmpty(f.lineColor)?"black":f.lineColor>")>
+        '<style("background-color", "<f.fillColor>")>  
+        '<hGap(f.align, f.hgap)>  
+        '<vGap(f.align, f.vgap)>    
         ';
-        ", width, height, f.w, f.h, f.align, f.hgap, f.vgap >;
+        ", width, height, f.cellWidth, f.cellHeight, align, f.hgap, f.vgap >;
+        //  '<style("opacity","<f.lineOpacity>)>
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
+       widgetOrder+= id;
+       if (width<0) adjust+= "adjust1(\"<id>\", \"<getId(fig)>\");\n";
        return ifigure(id, [fig]);
        }
        
-str valign(Alignment align) {
-       if (align == bottomLeft || align == bottomMid || align == bottomRight) return "vertical-align:bottom";
-       if (align == centerLeft || align ==centerMid || align ==centerRight) return "vertical-align:middle";
-       if (align == topLeft || align == topMid || align == topRight) return "vertical-align:top";
+ IFigure _ellipse(str id, Figure f,  IFigure fig = iemptyFigure()) {
+      str tg = "";
+      switch (f) {
+          case ellipse(): tg = "ellipse";
+          case circle(): tg = "circle";
+          }
+      int width = f.width;
+       int height = f.height;
+       Alignment align =  f.align;
+       str begintag= beginTag("<id>_", bottomLeft); 
+       begintag+=
+         "\<svg id=\"<id>_2\"/ width =\"<screenWidth>px\" height=\"<screenHeight>px\"\>\<<tg> id=\"<id>\"/\> 
+         '\<foreignObject x=\"0\" y=\"0\" width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>
+         '<beginTag("<id>_1", f.align)>
+         ";
+       str endtag = endTag();
+       endtag += "\</foreignObject\>\</svg\>"; 
+       endtag += endTag(); 
+       widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\")
+        '<on(getEvent(f.event), "doFunction(\"<id>__\")")>
+        '<attr("cx", f.cx)><attr("cy", f.cy)> 
+        '<ellipse():=f?"<attr("rx", f.rx)><attr("ry", f.ry)>":"<attr("r", f.r)>">
+        '<style("stroke-width","<f.lineWidth>")>
+        '<style("stroke","<f.lineColor>")>
+        '<style("fill", "<f.fillColor>")>     
+        ';
+        'd3.select(\"#<id>_1\")
+        '<hGap(align, f.hgap)>  
+        '<vGap(align, f.vgap)> 
+        '<debugStyle()>
+        ; 
+        ", width, height, f.cellWidth, f.cellHeight, align, f.hgap, f.vgap >;
+         seq=seq+1;
+       state += <id, f.fillColor>;
+       old+=f.fillColor;
+       widgetOrder+= id;
+       if (width<0) {
+           adjust+= "adjustSvg(\"<id>_2\", \"<id>\", <f.lineWidth<0?1:f.lineWidth>);\n";
+           adjust+="adjust1(\"<id>_1\",\"<id>_\");\n";
+           }
+       return ifigure(id, [fig]);
+       } 
+       
+str vAlign(Alignment align) {
+       if (align == bottomLeft || align == bottomMid || align == bottomRight) return "valign=\"bottom\"";
+       if (align == centerLeft || align ==centerMid || align ==centerRight)  return "valign=\"middle\"";
+       if (align == topLeft || align == topMid || align == topRight) return "valign=\"top\"";
        }
-           
+str hAlign(Alignment align) {
+       if (align == bottomLeft || align == centerLeft || align == topLeft) return "align=\"left\"";
+       if (align == bottomMid || align == centerMid || align == topMid) return "align=\"center\"";
+       if (align == bottomRight || align == centerRight || align == topRight) return "align=\"right\"";    
+       }
+       
+str vGap(Alignment align, int vgap) {
+       if (align == bottomLeft || align == bottomMid || align == bottomRight) return style("padding-bottom", vgap);
+       if (align == centerLeft || align ==centerMid || align ==centerRight)  return style("padding-top", vgap)+style("padding-bottom", vgap);
+       if (align == topLeft || align == topMid || align == topRight) return style("padding-top", vgap);
+       }
+       
+str hGap(Alignment align, int hgap) {
+       if (align == bottomLeft || align == centerLeft || align == topLeft) return style("padding-left", hgap);
+       if (align == bottomMid || align == centerMid || align == topMid) return style("padding-left", hgap)+style("padding-right", hgap);
+       if (align == bottomRight || align == centerRight || align == topRight) return style("padding-right", hgap);  
+       }
+                
 IFigure _hcat(str id, Figure f, IFigure fig1...) {
-       println("width:<getWidth(fig1[0])>");
-       int w = f.w<0?sum([getW(g)|g<-fig1])+size(fig1)*5+4:f.w*size(fig1);
-       int h = f.h<0?max([getH(g)|g<-fig1])+8:f.h;
-       int width = f.width < 0 ? w : f.width;
-       int height = f.height < 0 ? h : f.height;
-       str begintag="
-            '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
-            '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
-            '\<table style=\"border:1px solid black\"\>
+       int width = f.cellWidth;
+       int height = f.cellHeight;
+       str begintag="                    
+            '\<table id=\"<id>\"\>
             '\<tr\>"
             ;
        str endtag="
             '\</tr\>
             '\</table\>
-            '\<p\>\</p/\>
-            ' \<!--\</body \>--\>
-            '\</foreignObject\>"
+            "
             ;
+         //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")       
-        '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)>;
-        ", width, height, w, h, f.align, f.hgap, f.vgap >;
+        'd3.select(\"#<id>\") 
+        '<stylePx("width", width)><stylePx("height", height)>   
+        '<debugStyle()>
+        '<style("background-color", "<f.fillColor>")>        
+        ;"
+        , width, height, width, height, f.align, f.hgap, f.vgap >;
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
-       // return ifigure(id, []);
-       return ifigure(id ,[td("<id>_<getId(g)>", f, g, max([f.width, getW(g)]), max([f.height, getH(g)]))| g<-fig1]);
+       widgetOrder+= id;
+       return ifigure(id ,[td("<id>_<getId(g)>", f, g, width, height)| g<-fig1]);
        }
        
 IFigure _vcat(str id, Figure f, IFigure fig1...) {
-       int w = f.w<0?max([getW(g)|g<-fig1])+10:f.w;
-       int h = (f.h<0?sum([getH(g)|g<-fig1]):f.h*size(fig1))+size(fig1)*20;
-       int width = f.width < 0 ? w : f.width;
-       int height = f.height < 0 ? h : f.height;
-       str begintag="
-            '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
-            '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
-            '\<table style=\"border:1px solid black\"\>"
+       int width = f.cellWidth;
+       int height = f.cellHeight;
+       str begintag="                 
+            '\<table\>"
            ;
-       str endtag="
-            '\</table\>
-            '\<p\>\</p/\>
-            ' \<!--\</body \>--\>
-            '\</foreignObject\>"
-            ;
+       str endtag="\</table\>";
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")       
         '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)>;
-        ", width, height, w, h, f.align, f.hgap, f.vgap >;
+        ", width, height, width, height, f.align, f.hgap, f.vgap >;
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
-       // return ifigure(id, []);
-       return ifigure(id, [td("<id>_<getId(g)>", f, g, max([f.width, getW(g)]), max([f.height, getH(g)]),tr = true)| g<-fig1]);
+       widgetOrder+= id;
+       return ifigure(id, [td("<id>_<getId(g)>", f, g,  width, height, tr = true)| g<-fig1]);
        }
       
 list[list[IFigure]] transpose(list[list[IFigure]] f) {
@@ -385,73 +464,62 @@ list[list[IFigure]] transpose(list[list[IFigure]] f) {
 
 IFigure _grid(str id, Figure f, list[list[IFigure]] figArray=[[]]) {
        list[list[IFigure]] figArray1 = transpose(figArray);
-       f.w = -1; f.h = -1;
-       int w = max([max([getW(g)|g<-fig1])|fig1<-figArray])*size(figArray1)+max([size(fig1)*20|fig1<-figArray]);
-       int h = max ([max([getH(g)|g<-fig1])|fig1<-figArray1])*size(figArray)+max([size(fig1)*20|fig1<-figArray1]);
-       println("h=<h>"); println("w=<w>"); 
-       int width = f.width < 0 ? w : f.width;
-       int height = f.height < 0 ? h : f.height;
-       str begintag="
-            '\<foreignObject  width=\"100%\" height = \"100%\" x=\"0\" y=\"0\" \>
-            '\<!-- \<body xmlns=\"http://www.w3.org/1999/xhtml\"\>--\>                     
-            '\<table style=\"border:1px solid black\"\>
+       int cellWidth = f.cellWidth;
+       int cellHeight = f.cellHeight;
+       str begintag="                    
+            '\<table id=\"<id>\"\>
             ";
        str endtag="
             '\</table\>
-            '\<p\>\</p/\>
-            ' \<!--\</body \>--\>
-            '\</foreignObject\>
             ";
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")       
-        '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)>;
-        ", w, h, w, h, f.align, f.hgap, f.vgap >;
+         '<debugStyle()>
+         '<style("background-color", "<f.fillColor>")>
+         '<debugStyle()>; 
+        ", f.width, f.height, cellWidth, cellHeight, f.align, f.hgap, f.vgap >;
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
-       // return ifigure(id, []);
+       widgetOrder+= id;
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
-       return ifigure(id, [tr("<id>_<g.idx>", f, 
-                 sum([getW(d)|d<-g.f])+10*size(g.f), 
-                 max([getH(d)|d<-g.f])+20, g.f)| g<-fig1]);
+       return ifigure(id, [tr("<id>_<g.idx>", f, cellWidth, cellHeight, g.f ) | g<-fig1]);
        }      
        
- IFigure td(str id, Figure f, IFigure fig1, int width, int height, bool tr = false) {
-       str begintag = tr?"\<tr\>":"";
-       begintag +=
-     " \<td style=\"<valign(f.align)>\"\>
-     ' \<svg width=\"<width>px\" height=\"<height>px\"\>
-     ' \<rect id=\"<id>\" width=\"<100>%\" x=\"0\" y=\"0\" height=\"<100>%\" stroke=\"black\" fill=\"none\"/\>"
-     ; 
-    begintag += innerFigureBegin(fig1, width, height, f.align, f.hgap, f.vgap);
-    str endtag=innerFigureEnd(fig1);
-    endtag += 
-    "
-    '\</svg\>\</td\>"
-    ;
+ IFigure td(str id, Figure f, IFigure fig1, int cellWidth, int cellHeight, bool tr = false) {
+    str begintag = tr?"\<tr\>":"";
+    begintag +="\<td  id=\"<id>\" <vAlign(f.align)> <hAlign(f.align)>\>";   
+    str endtag = "\</td\>";
     if (tr) endtag+="\</tr\>";
     widget[id] = <null, seq, id, begintag, endtag,
         "
         'd3.select(\"#<id>\")
-        '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)>
-        ", width, height, width, height, f.align, f.hgap, f.vgap >;
+        '<debugStyle()>       
+        '<style("background-color", "<f.fillColor>")>  
+        '<hGap(f.align, f.hgap)>  
+        '<vGap(f.align, f.vgap)>  
+        ", f.width, f.height, cellWidth, cellHeight, f.align, f.hgap, f.vgap >;
        seq=seq+1;
        state += <id, f.fillColor>;
        old+= f.fillColor;
+       widgetOrder+= id;
+       // if (cellWidth<0) adjust+= "adjust1(\"<id>\", \"<getId(fig1)>\");\n";
     return ifigure(id, [fig1]);
     }
     
- IFigure tr(str id, Figure f, int width, int height, list[IFigure] figs) {
+ IFigure tr(str id, Figure f, int cellWidth, int cellHeight, list[IFigure] figs) {
     str begintag = "\<tr\>";
     str endtag="\</tr\>";
     widget[id] = <null, seq, id, begintag, endtag,
         "
-        ", width, height, width, height, f.align, f.hgap, f.vgap >;
+        ", cellWidth, cellHeight, cellWidth, cellHeight, f.align, f.hgap, f.vgap >;
        seq=seq+1;
        state += <id, f.fillColor>;
        old+= f.fillColor;
-    return ifigure(id, [td("<id>_<getId(g)>", f, g, getW(g),  getH(g)
+       widgetOrder+= id;
+       // if (width<0) adjust+= "adjust1(\"<id>\", \"<getId(fig)>\");\n";
+    return ifigure(id, [td("<id>_<getId(g)>", f, g, cellWidth,  cellHeight
     )| g<-figs]);
     }
  
@@ -464,8 +532,8 @@ IFigure _translate(Figure f) {
        f.hgap = f.gap[0];
        f.vgap = f.gap[1];
        }
-    if (f.w<0) f.w = f.width;
-    if (f.h<0) f.h = f.height;
+    if (f.cellWidth<0) f.cellWidth = f.width;
+    if (f.cellWidth<0) f.cellWidth = f.height;
     if (isEmpty(f.id)) {
          f.id = "i<occur>";
          occur = occur + 1;
@@ -473,6 +541,11 @@ IFigure _translate(Figure f) {
     switch(f) {
         case emptyFigure(): return iemptyFigure();
         case box():  return _rect(f.id, f, fig = _translate(f.fig));
+        case ellipse():  return _ellipse(f.id, f, fig = _translate(f.fig));
+        case circle():  return _ellipse(f.id, f, fig = _translate(f.fig));
+        case text(value s): {if (str t:=s) return _text(f.id, f, t);
+                            return iemptyFigure();
+                            }                 
         case hcat(): return _hcat(f.id, f, [_translate(q)|q<-f.figs]);
         case vcat(): return _vcat(f.id, f, [_translate(q)|q<-f.figs]);
         case grid(): return _grid(f.id, f, figArray= [[_translate(q)|q<-e]|e<-f.figArray]);
@@ -483,11 +556,19 @@ public void _render(Figure fig1, int width = 400, int height = 400,
      Alignment align = centerMid,
      str fillColor = "white", str lineColor = "black")
      {
-        clearWidget();
+        
         id = 0;
         screenHeight = height;
         screenWidth = width;
+        clearWidget();
         IFigure f = _translate(fig1);
         // println(f);
         _render(f , width = width, height = height, align = align, fillColor = fillColor, lineColor = lineColor);
      }
+  
+ //public void main() {
+ //   clearWidget();
+ //   IFigure fig0 = _rect("asbak",  emptyFigure(), fillColor = "antiquewhite", width = 50, height = 50, align = centerMid);
+ //   _render(fig0);
+ //   }
+    
