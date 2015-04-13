@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,9 @@ import org.eclipse.imp.pdb.facts.IValue;
  * to create an OverloadedFunctionInstance for each speciic call.
  *
  */
-public class OverloadedFunction {
+public class OverloadedFunction implements Serializable {
+	
+	private static final long serialVersionUID = -5235184427484318482L;
 	
 	final int[] functions;
 	final int[] constructors;
@@ -27,17 +30,110 @@ public class OverloadedFunction {
 	HashMap<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
 	HashMap<Integer, int[]> filteredConstructors;
 	
-	public OverloadedFunction(RVM rvm, final int[] functions, final int[] constructors, final String funIn) {
+	public OverloadedFunction(ArrayList<Function> functionStore, final int[] functions, final int[] constructors, final String funIn) {
+		if(funIn == null){
+			System.out.println("OverloadedFunction: funIn is null");
+		}
 		this.functions = functions;
 		this.constructors = constructors;
 		this.funIn = funIn;
-		filter(rvm);
 	}
 	
-	public void  finalize(final Map<String, Integer> functionMap){
-		if(funIn != null) {
+	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore){
+		if(funIn.length() > 0){ // != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
+		// TODO: temp consistency tests
+		for(int fid : functions){
+			if(fid < 0 || fid >= functionStore.size()){
+				System.err.println("OverloadedFunction: function outside functionStore: " + fid);
+			}
+		}
+		for(int cid : constructors){
+			if(cid < 0 || cid >= functionStore.size()){
+				System.err.println("OverloadedFunction: constructor outside functionStore: " + cid);
+			}
+		}
+		filter(functionStore);
+	}
+	
+	void printArray(int[] a){
+		System.out.print("[ ");for(int i : functions) System.out.print(i + " "); System.out.println("]");
+	}
+	
+	boolean compareIntArrays(int[] a, int[] b){
+		if(a == null && b != null){
+			System.out.println("Array a null, b is not null");
+			return false;
+		}
+		if(a != null && b == null){
+			System.out.println("Array a not null, b is null");
+			return false;
+		}
+		if(a == null && b == null){
+			System.out.println("Array a  null, b is null");
+			return false;
+		}
+		if(a.length != b.length){
+			System.out.println("Different length: " + a.length + " vs " + b.length);
+		}
+		for(int i = 0; i < a.length; i++){
+			if(a[i] != b[i]){
+				System.out.println("Differ at index " + i);
+				return false;
+			}
+		}
+		return true;
+	}
+	boolean compareIntMaps(HashMap<Integer, int[]> a, HashMap<Integer, int[]> b){
+		if(a.size() != b.size()){
+			System.out.println("Different length: " + a.size() + " vs " + b.size());
+		}
+		for(int i : a.keySet()){
+			if(!compareIntArrays(a.get(i), b.get(i))){
+				System.out.println("Maps differ at index " + i);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean comparable(OverloadedFunction other){
+		if(!compareIntArrays(functions, other.functions)){
+			System.out.println("functions differ: " + functions + " vs " + other.functions);
+			printArray(functions);	System.out.print(" vs "); printArray(other.functions);
+			return false;
+		}
+		if(!compareIntArrays(constructors, other.constructors)){
+			System.out.println("constructors differ: " + constructors + " vs " + other.constructors);
+			printArray(constructors);	System.out.print(" vs "); printArray(other.constructors);
+			return false;
+		}
+		if(!funIn.equals(other.funIn)){
+			System.out.println("funIn differ");
+			return false;
+		}
+		if(scopeIn != other.scopeIn){
+			System.out.println("scopeIn differ");
+			return false;
+		}
+		if(allConcreteFunctionArgs != other.allConcreteFunctionArgs){
+			System.out.println("allConcreteFunctionArgs differ");
+			return false;
+		}
+		if(allConcreteConstructorArgs != other.allConcreteConstructorArgs){
+			System.out.println("allConcreteConstructorArgs differ");
+			return false;
+		}
+		if(filteredFunctions != null && other.filteredFunctions != null && !compareIntMaps(filteredFunctions, other.filteredFunctions)){
+			System.out.println("filteredFunctions differ");
+			return false;
+		}
+		if(filteredConstructors != null && other.filteredConstructors != null && !compareIntMaps(filteredConstructors, other.filteredConstructors)){
+			System.out.println("filteredConstructors differ");
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -66,8 +162,8 @@ public class OverloadedFunction {
 			return constructors;
 	}
 	
-	private void filter(RVM rvm){
-		filterFunctions(rvm);
+	private void filter(ArrayList<Function> functionStore){
+		filterFunctions(functionStore);
 		//filterConstructors(rvm);
 	}
 	
@@ -79,7 +175,7 @@ public class OverloadedFunction {
 	 *   
 	 * @param rvm	needed for access to the function declarations via rvm.functionStore
 	 */
-	private void filterFunctions(RVM rvm){
+	private void filterFunctions(ArrayList<Function> functionStore){
 		if(functions.length > 1){
 			filteredFunctions = new HashMap<Integer,int[]>();
 		} else {
@@ -89,14 +185,14 @@ public class OverloadedFunction {
 		allConcreteFunctionArgs = true;
 		HashMap<Integer, ArrayList<Integer>> filtered = new HashMap<Integer, ArrayList<Integer>>();
 		for(int fid : functions){
-			Function fdef = rvm.functionStore.get(fid);
+			Function fdef = functionStore.get(fid);
 			if(!fdef.concreteArg){
 				allConcreteFunctionArgs = false;
 			}
 		}
 		// Collect applicable functions per fingerprint
 		for(int fid : functions){
-			Function fdef = rvm.functionStore.get(fid);
+			Function fdef = functionStore.get(fid);
 			int fp = fdef.isDefault ? 0 : (allConcreteFunctionArgs ? fdef.concreteFingerprint : fdef.abstractFingerprint);
 			ArrayList<Integer> alts = filtered.get(fp);
 			if(alts == null){

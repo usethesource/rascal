@@ -208,7 +208,9 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    //println("overloading_resolvers:"); for(res <- mainProgram.resolver) println("<res>: <mainProgram.resolver[res]>");
    
    load_time = cpuTime() - start_loading;
-   <v, t> = executeProgram(mainProgram, 
+   <v, t> = executeProgram(
+  						   RVMExecutableLocation(mainProgram.src, bindir),
+   						   mainProgram, 
    						   imported_types,
    						   imported_declarations, 
    						   imported_overloaded_functions, 
@@ -234,6 +236,13 @@ value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, b
 }
 
 value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
+   if(!recompile){
+      executable = RVMExecutableLocation(rascalSource, bindir);
+      if(exists(executable)){
+      	 return executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      }
+   }
+   
    mainProgram = compile(rascalSource, listing=listing, recompile=recompile);
    return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }

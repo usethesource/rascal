@@ -258,7 +258,7 @@ void extractScopes(Configuration c){
              //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	//println("add loc2uid[<l>] = <uid>");
+		     	//println("loc2uid already defined=<loc2uid[l]?>,  add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -566,6 +566,7 @@ int declareGeneratedFunction(str name, Symbol rtype){
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
 	assert config.locationTypes[l]? : "getType for <l>";
+	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
 

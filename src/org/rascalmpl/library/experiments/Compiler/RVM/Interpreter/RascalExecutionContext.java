@@ -49,11 +49,11 @@ public class RascalExecutionContext {
 	private RVM rvm;
 	private boolean coverage;
 	
-	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.symbol_definitions = symbol_definitions;
-		this.typeStore = new TypeStore();
+		this.typeStore = typeStore;
 		this.debug = debug;
 		this.profile = profile;
 		this.coverage = coverage;
@@ -93,7 +93,9 @@ public class RascalExecutionContext {
 	
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
-	public TypeStore getTypeStore() { return typeStore; }
+	public TypeStore getTypeStore() { 
+		return typeStore; 
+	}
 	
 	boolean getDebug() { return debug; }
 	

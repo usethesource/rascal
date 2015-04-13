@@ -33,7 +33,6 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -245,7 +244,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());  // TODO: remove CTX
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex);  // TODO: remove CTX
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -352,7 +351,7 @@ public class ParsingTools {
 	  // Rascal library function (interpreter version)
 	  public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, false, false, false, false, ctx, null);
+			  rex = new RascalExecutionContext(vf, null, null, false, false, false, false, ctx, null);
 		  }
 		  return parseFragment(name, start, tree, loc, grammar);
 	  }
