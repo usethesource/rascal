@@ -1,26 +1,22 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.eclipse.imp.pdb.facts.io.SerializableValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -104,25 +100,28 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
-import org.rascalmpl.values.uptr.Factory;
 
-public class CodeBlock {
+public class CodeBlock implements Serializable {
 
-	private final String name;
-	public final IValueFactory vf;
-	int pc;
-	int labelIndex = 0;
+	private static final long serialVersionUID = 6955775282462381062L;
 	
-	private final ArrayList<Instruction> insList;
+	// Transient fields
+	transient public static IValueFactory vf;
+	transient private static TypeSerializer typeserializer;
+	transient int pc;
+	transient int labelIndex = 0;
+	transient private ArrayList<Instruction> insList;
+	transient private HashMap<String, LabelInfo> labelInfo;
 	
-	private final HashMap<String, LabelInfo> labelInfo;
+	// Serializable fields
+	private String name;
 	
-	private final Map<IValue, Integer> constantMap;
-	private final ArrayList<IValue> constantStore;
+	private Map<IValue, Integer> constantMap;
+	private ArrayList<IValue> constantStore;
 	private IValue[] finalConstantStore;
 	
-	private final Map<Type, Integer> typeConstantMap;
-	private final ArrayList<Type> typeConstantStore;
+	private Map<Type, Integer> typeConstantMap;
+	private ArrayList<Type> typeConstantStore;
 	private Type[] finalTypeConstantStore;
 	
 	private Map<String, Integer> functionMap;
@@ -130,6 +129,101 @@ public class CodeBlock {
 	private Map<String, Integer> constructorMap;
 	
 	public int[] finalCode;
+	
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		typeserializer = new TypeSerializer(ts);
+		vf = vfactory;
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream stream)
+			throws IOException {
+		int n;
+		
+//		private String name;
+		stream.writeObject(name);
+		//System.out.println("*** writing: " + name);
+	
+//		private Map<IValue, Integer> constantMap;	
+//		private ArrayList<IValue> constantStore;	
+//		private IValue[] finalConstantStore;
+		n = finalConstantStore.length;
+		stream.writeObject(n);
+		for(int i = 0; i < n; i++){
+			stream.writeObject(new SerializableRascalValue<IValue>(finalConstantStore[i]));
+		}
+	
+//		private Map<Type, Integer> typeConstantMap;
+//		private ArrayList<Type> typeConstantStore;
+//		private Type[] finalTypeConstantStore;
+		n = finalTypeConstantStore.length;
+		stream.writeObject(n);
+		for(int i = 0; i < n; i++){
+			typeserializer.writeType(stream, finalTypeConstantStore[i]);
+		}	
+		
+//		private Map<String, Integer> functionMap;
+		stream.writeObject(functionMap);
+		
+//		private Map<String, Integer> resolver;
+		stream.writeObject(resolver);
+		
+//		private Map<String, Integer> constructorMap;
+		stream.writeObject(constructorMap);
+		
+//		public int[] finalCode;
+		stream.writeObject(finalCode);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void readObject(java.io.ObjectInputStream stream) throws ClassNotFoundException, IOException{
+		int n;
+		
+//		private String name;
+		name = (String) stream.readObject();
+		//System.out.println("*** reading: " + name);
+	
+//		private Map<IValue, Integer> constantMap;	
+//		private ArrayList<IValue> constantStore;	
+//		private IValue[] finalConstantStore;
+		n = (Integer) stream.readObject();
+		constantMap = new HashMap<IValue, Integer> ();
+		constantStore = new ArrayList<IValue>();
+		finalConstantStore = new IValue[n];
+		
+		for(int i = 0; i < n; i++){
+			IValue val = ((SerializableRascalValue<IValue>) stream.readObject()).getValue();
+			constantMap.put(val, i);
+			constantStore.add(i, val);
+			finalConstantStore[i] = val;
+		}
+	
+//		private Map<Type, Integer> typeConstantMap;
+//		private ArrayList<Type> typeConstantStore;	
+//		private Type[] finalTypeConstantStore;
+		n = (Integer) stream.readObject();
+		typeConstantMap = new HashMap<Type, Integer>();
+		typeConstantStore = new ArrayList<Type>();
+		finalTypeConstantStore = new Type[n];
+		
+		for(int i = 0; i < n; i++){
+			Type type = typeserializer.readType(stream);
+			typeConstantMap.put(type, i);
+			typeConstantStore.add(i, type);
+			finalTypeConstantStore[i] = type;
+		}	
+		
+//		private Map<String, Integer> functionMap;
+		functionMap = (HashMap<String, Integer>) stream.readObject();
+		
+//		private Map<String, Integer> resolver;
+		resolver = (HashMap<String, Integer>) stream.readObject();
+		
+//		private Map<String, Integer> constructorMap;
+		constructorMap = (HashMap<String, Integer>) stream.readObject();
+		
+//		public int[] finalCode;
+		finalCode = (int[]) stream.readObject();
+	}
 	
 	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
@@ -306,7 +400,7 @@ public class CodeBlock {
 	}
 	
 	/*
-	 * Proposed instruction encoding:
+	 * Instruction encoding:
 	 * 
 	 * 	   argument2    argument1       op
 	 *  |-----------| |-----------| |---------|
