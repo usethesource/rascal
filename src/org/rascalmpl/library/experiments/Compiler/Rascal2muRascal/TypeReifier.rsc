@@ -66,7 +66,6 @@ public void getDeclarationInfo(Configuration config){
             + { <"CharRange", adt("CharRange",[])> }
             + { <"Condition", adt("Condition",[])> }
             ;
-    
 
 	// Collect all the constructors of the adt types in the type environment
 	
@@ -81,7 +80,7 @@ public void getDeclarationInfo(Configuration config){
     
     types = range(typeRel);
     
-	// Collect all the productions of the non-terminal types in the type environment
+	// Collect all the  uctions of the non-terminal types in the type environment
     
     grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, config.store[uid].rtype in types );
    
@@ -89,6 +88,7 @@ public void getDeclarationInfo(Configuration config){
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 						      // TODO ""??
 	              | /Production p:prod(_,_,_) := grammar 
 	              };
+	   
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
@@ -113,6 +113,15 @@ public map[Symbol,Production] getGrammar() {
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
  	return definitions;
+}
+
+map[int,Production] fixProds(map[int,Production] defs){
+	return 
+		visit(defs){ 
+ 		case Production::prod(Symbol sym, str name, list[Symbol] syms, attributes) => 
+ 				name == "" ? Production::prod(symbol, symbols, attributes) 
+ 						   : Production::prod(label(name, symbol), symbols, attributes)
+ 		};
 }
 
 // Extract all declared symbols from a type checker configuration
@@ -426,6 +435,8 @@ default bool isConcreteType(Symbol symbol) {
 	return false;
 }
 
+
+
 // ---------------- symbolToValue ------------------
 // TODO: rewrite the following code using
 // - exisiting code in lang::rascal::grammar (e.d. striprec, delabel etc.
@@ -441,8 +452,6 @@ default bool isConcreteType(Symbol symbol) {
 public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
-	
-	//symbol = regulars(symbol,activeLayout);	//TODO still needed?
 	
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
@@ -465,8 +474,8 @@ public type[value] symbolToValue(Symbol symbol) {
  			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
+ 	
  	return type(symbol, definitions); 
- 	//return type(regulars(symbol, activeLayout), definitions); // TODO: still needed?
 }
 
 // primitive
@@ -654,7 +663,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
+	= Production::\cons(Symbol::label(name, \type), parameters, [], /*(),*/ {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
 		
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
