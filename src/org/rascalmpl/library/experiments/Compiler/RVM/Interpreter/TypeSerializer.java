@@ -27,7 +27,7 @@ public class TypeSerializer {
 	}
 
 	public void writeType(final java.io.ObjectOutputStream stream, final Type t) throws IOException{
-		System.out.println("writeType: " + t);System.out.flush();
+		//System.out.println("writeType: " + t);System.out.flush();
 		t.accept(new ITypeVisitor<Void,IOException>() {
 
 			@Override
@@ -217,23 +217,13 @@ public class TypeSerializer {
 		});
 	}
 	
-	private Type reuseType(Type t){
-		if(t.isAbstractData()){
-			Type declaredAdt = store.lookupAbstractDataType(t.getName());
-			if(declaredAdt != null){
-				return declaredAdt;
-			}
-		}
-		return t;
-	}
-	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public Type readType(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException{
 		
 		String start = (String) stream.readObject();
 		String [] fieldNames = null;
 		
-		System.out.println("readType: " + start); System.out.flush();
+		//System.out.println("readType: " + start); System.out.flush();
 		
 		switch(start){
 		case "real":	return tf.realType();
@@ -308,13 +298,11 @@ public class TypeSerializer {
 						
 		case "adt":		name = (String) stream.readObject();
 						typeParameters = readType(stream);
-						if(typeParameters.getArity() > 0){
-							return reuseType(tf.abstractDataType(store, name, typeParameters));
-						}
-						return reuseType(tf.abstractDataType(store, name));
+						return tf.abstractDataType(store, name, typeParameters);
 						
 		case "tuple_named_fields":
 						fieldNames = (String[]) stream.readObject();
+						// fall through to "tuple" case
 						
 		case "tuple":	arity = (Integer) stream.readObject();
 						Type[] elemTypes = new Type[arity];
@@ -337,7 +325,7 @@ public class TypeSerializer {
 						Type returnType = readType(stream);
 						Type argumentTypes =  readType(stream);
 						Type keywordParameterTypes = readType(stream);
-						return new FunctionType(returnType, argumentTypes, keywordParameterTypes);
+						return rtf.functionType(returnType, argumentTypes, keywordParameterTypes);
 						
 		case "reified":
 						elemType = readType(stream);
