@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.values.uptr.Factory;
 
 public class RVMExecutable implements Serializable{
@@ -32,6 +33,7 @@ public class RVMExecutable implements Serializable{
 	// Serializable fields
 	
 	public String module_name;
+	public IMap tags;
 	public IMap symbol_definitions;
 	
 	public ArrayList<Function> functionStore;
@@ -53,6 +55,7 @@ public class RVMExecutable implements Serializable{
 	
 	public RVMExecutable(
 			final String module_name,
+			final IMap tags,
 			
 			final IMap symbol_definitions,
 			final Map<String, Integer> functionMap,
@@ -74,6 +77,7 @@ public class RVMExecutable implements Serializable{
 			){
 		
 		this.module_name = module_name;
+		this.tags = tags;
 		this.symbol_definitions = symbol_definitions;
 		
 		this.functionMap = functionMap;
@@ -105,6 +109,10 @@ public class RVMExecutable implements Serializable{
 		// public String module_name;
 		
 		stream.writeObject(module_name);
+		
+		// public IMap tags;
+		
+		stream.writeObject(new SerializableRascalValue<IMap>(tags));
 		
 		// public IMap symbol_definitions;
 		
@@ -165,6 +173,10 @@ public class RVMExecutable implements Serializable{
 		
 		module_name = (String) stream.readObject();
 		
+		// public IMap tags;
+		
+		tags = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
+		
 		// public IMap symbol_definitions;
 		
 		symbol_definitions = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
@@ -222,10 +234,7 @@ public class RVMExecutable implements Serializable{
 		uid_module_main_testsuite = (String) stream.readObject();
 	}
 	
-	public void write(String path){
-		
-		System.out.println("Writing: " + path);
-		
+	public void write(String path){		
 		FileOutputStream fileOut;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
@@ -236,8 +245,10 @@ public class RVMExecutable implements Serializable{
 		try {
 			fileOut = new FileOutputStream(path);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			long before = Timing.getCpuTime();
 			out.writeObject(this);
 			fileOut.close();
+			System.out.println("Writing: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -248,8 +259,6 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	public static RVMExecutable read(String path) {
-		
-		System.out.println("Reading: " + path);
 		RVMExecutable executable = null;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
@@ -260,9 +269,11 @@ public class RVMExecutable implements Serializable{
 		try {
 			FileInputStream fileIn = new FileInputStream(path);
 			ObjectInputStream in = new ObjectInputStream(fileIn);
+			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject();
 			in.close();
 			fileIn.close();
+			System.out.println("Reading: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 

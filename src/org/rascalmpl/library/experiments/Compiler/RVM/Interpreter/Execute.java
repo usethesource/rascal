@@ -95,16 +95,10 @@ public class Execute {
 		
 		RVMExecutable executable2 = null;
 		
-		long before = Timing.getCpuTime();
 		try {
 			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
 			executable.write(x.getPath());
-			long afterWrite = Timing.getCpuTime();
 			executable2 = RVMExecutable.read(x.getPath());
-			long afterRead = Timing.getCpuTime();
-			
-			System.out.println("write " + ((IString) program.get("name")).getValue() + ": " + (afterWrite - before)/1000000 + " msec; read " + (afterRead - afterWrite)/1000000 + " msec");
-
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -146,12 +140,17 @@ public class Execute {
 			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
 		}
 		
-		IMap symbol_definitions = executable.symbol_definitions; //(IMap) program.get("symbol_definitions");
-		
 		RascalExecutionContext rex = 
-				new RascalExecutionContext(vf, symbol_definitions, new TypeStore(), 
-										   debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), 
-										   ctx, testResultListener);
+				new RascalExecutionContext(vf, 
+										   executable.tags, 
+										   executable.symbol_definitions, 
+										   new TypeStore(), 
+										   debug.getValue(),
+										   profile.getValue(), 
+										   trackCalls.getValue(), 
+										   coverage.getValue(), 
+										   ctx, 
+										   testResultListener);
 		
 		RVM rvm = new RVM(executable, rex);
 		
