@@ -175,6 +175,7 @@ void resetShiftCounter() {
 // Translate a muRascal module
 
 RVMProgram mu2rvm(muModule(str module_name, 
+						   map[str,str] tags,
 						   set[Message] messages, 
 						   list[loc] imports,
 						   list[loc] extends, 
@@ -327,7 +328,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
   return res;
 }
 

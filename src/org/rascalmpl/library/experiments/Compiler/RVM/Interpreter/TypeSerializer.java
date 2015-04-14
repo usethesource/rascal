@@ -298,7 +298,10 @@ public class TypeSerializer {
 						
 		case "adt":		name = (String) stream.readObject();
 						typeParameters = readType(stream);
-						return tf.abstractDataType(store, name, typeParameters);
+						if(typeParameters.getArity() > 0){
+							return tf.abstractDataType(store, name, typeParameters);
+						}
+						return tf.abstractDataType(store, name);
 						
 		case "tuple_named_fields":
 						fieldNames = (String[]) stream.readObject();

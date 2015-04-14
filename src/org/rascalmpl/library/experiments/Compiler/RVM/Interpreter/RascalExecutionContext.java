@@ -48,10 +48,12 @@ public class RascalExecutionContext {
 	//private ILocationCollector locationReporter;
 	private RVM rvm;
 	private boolean coverage;
+	private final IMap tags;
 	
-	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap tags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
+		this.tags = tags;
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = typeStore;
 		this.debug = debug;
@@ -128,6 +130,13 @@ public class RascalExecutionContext {
 	public String getCurrentModuleName(){ return currentModuleName; }
 	
 	void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	
+	boolean bootstrapParser(){
+		if(tags != null){
+			return tags.get(vf.string("bootstrapParser")) != null;
+		}
+		return false;
+	}
 	
 	public int endJob(boolean succeeded) {
 		if (monitor != null)

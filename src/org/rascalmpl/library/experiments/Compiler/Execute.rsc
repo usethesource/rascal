@@ -222,7 +222,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   trackCalls, 
    						   coverage);
    if(!testsuite){
-   	println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
+   		println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }

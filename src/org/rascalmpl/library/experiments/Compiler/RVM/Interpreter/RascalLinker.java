@@ -340,6 +340,7 @@ public class RascalLinker {
 		validateOverloading();
 
 		return new RVMExecutable(((IString) program.get("name")).getValue(),
+							     (IMap) program.get("tags"),
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 
