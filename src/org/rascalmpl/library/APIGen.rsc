@@ -41,7 +41,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   }
   
   
-  public str declareConstructor(Production::cons(label(str cname, Symbol _), list[Symbol] args, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] _), str typeName) 
+  public str declareConstructor(Production::cons(label(str cname, Symbol _), list[Symbol] args, list[Symbol] kwTypes, /*map[str, value(map[str,value])] kwDefaults,*/ set[Attr] _), str typeName) 
     = "public static final Type <typeName>_<cname> 
       '  = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
   
@@ -125,7 +125,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   
   
   
-  str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] _), str typeName){
+  str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, list[Symbol] kwTypes, /*map[str, value(map[str,value])] kwDefaults,*/ set[Attr] _), str typeName){
      if(size(args) == 0) 
        return "";
      return   "<for(i <- [0..size(args)]) {>public static <typeToSimpleJavaType(args[i])> <typeName>_<cname>_<args[i].name>(IConstructor c){
