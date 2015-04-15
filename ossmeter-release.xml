@@ -7,6 +7,9 @@
             <manifest>
                 <attribute name="Class-Path" value="."/>
             </manifest>
+            <service type="javax.annotation.processing.Processor">
+              <provider classname="org.rascalmpl.library.lang.java.annotations.Processor"/>
+            </service>
             <fileset excludes="org/rascalmpl/courses/**" dir="./bin"/>
             <fileset dir="../pdb.values/bin"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
