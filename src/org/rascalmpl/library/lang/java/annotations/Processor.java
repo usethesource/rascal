@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -19,6 +20,7 @@ import javax.tools.Diagnostic.Kind;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.junit.experimental.theories.ParametersSuppliedBy;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -44,13 +46,15 @@ public class Processor extends AbstractProcessor {
 	}
 	
 	@Override
-	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment roundEnv) {
+	public synchronized void init(ProcessingEnvironment processingEnv) {
+		super.init(processingEnv);
 		IMap options = convertOptions(processingEnv.getOptions());
-		
+		processingEnv.getMessager().printMessage(Kind.ERROR, "Initializing Rascal using " + options);
+	}
+	
+	@Override
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		for (TypeElement t : annotations) {
-			processingEnv.getMessager().printMessage(Kind.ERROR, "Hallo! " + options, t);
-			
 			if (t.getKind() != ElementKind.CLASS) {
 				processingEnv.getMessager().printMessage(Kind.ERROR, "Ignoring annotation", t);
 				continue;
