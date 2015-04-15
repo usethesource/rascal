@@ -61,7 +61,7 @@ test bool qualifiedScopeTest(){
 
 test bool privateFunDeclarationNotVisible(){ 
 	makeModule("MMM", "private int f() = 3;"); 
-	return undeclaredVariable("x();", importedModules=["MMM"]);
+	return undeclaredVariable("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisible(){ 
