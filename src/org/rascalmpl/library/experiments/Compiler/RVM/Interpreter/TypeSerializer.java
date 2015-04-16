@@ -23,6 +23,7 @@ public class TypeSerializer {
 	
 	public TypeSerializer(TypeStore ts){
 		store = ts;
+		//store = new TypeStore();
 		rtf = RascalTypeFactory.getInstance();
 	}
 
@@ -57,7 +58,16 @@ public class TypeSerializer {
 
 			@Override
 			public Void visitMap(Type type) throws IOException {
-				stream.writeObject("map");
+				String keyLabel = type.getKeyLabel();
+				String valLabel = type.getValueLabel();
+				
+				if(keyLabel == null && valLabel == null){
+					stream.writeObject("map");
+				} else {
+					stream.writeObject("map_named_fields");
+					stream.writeObject(keyLabel);
+					stream.writeObject(valLabel);
+				}
 				writeType(stream, type.getKeyType());
 				writeType(stream, type.getValueType());
 				return null;
@@ -71,6 +81,8 @@ public class TypeSerializer {
 
 			@Override
 			public Void visitAlias(Type type) throws IOException {
+				
+				//System.out.println("writeType, alias: " + type.getName() + ", " + type.getAliased());
 				stream.writeObject("alias");
 				stream.writeObject(type.getName());
 				writeType(stream, type.getAliased());
@@ -115,11 +127,15 @@ public class TypeSerializer {
 				stream.writeObject(type.getName());
 				int arity = type.getArity();
 				stream.writeObject(arity);
+				
+				//System.out.println("writeType, constructor " + type.getName() + ", " + type.getAbstractDataType());System.out.flush();
 				writeType(stream, type.getAbstractDataType());
 				Type elemType = type.getFieldTypes();
 				for(int i = 0; i < arity; i++){
 					writeType(stream, elemType.getFieldType(i));
+					//System.out.println("writeType, constructor elemType[" + i + "] = " + elemType.getFieldType(i));System.out.flush();
 				}
+				
 				return null;
 			}
 
@@ -222,6 +238,8 @@ public class TypeSerializer {
 		
 		String start = (String) stream.readObject();
 		String [] fieldNames = null;
+		String keyLabel = null;
+		String valLabel = null;
 		
 		//System.out.println("readType: " + start); System.out.flush();
 		
@@ -234,16 +252,25 @@ public class TypeSerializer {
 		
 		case "list":	Type elemType = readType(stream);
 						return tf.listType(elemType);
+		
+		case "map_named_fields":
+						keyLabel  = (String) stream.readObject();
+						valLabel  = (String) stream.readObject();
+						// fall through to "map" case
 						
 		case "map":		Type keyType = readType(stream);
 						Type valType = readType(stream);
-						return tf.mapType(keyType, valType);
+						if(keyLabel == null){
+							return tf.mapType(keyType, valType);
+						}
+						return tf.mapType(keyType, keyLabel, valType, valLabel);
 						
 		case "number":	return tf.numberType();
 		
 		case "alias":	String name = (String) stream.readObject();
 						Type aliasedType = readType(stream);
 						Type typeParameters = readType(stream);
+						//System.out.println("readType,alias, " + name + ", " + aliasedType);
 						return tf.aliasType(store, name, aliasedType, typeParameters);
 		
 		case "set":		elemType = readType(stream);
@@ -257,6 +284,7 @@ public class TypeSerializer {
 		
 		case "constructor_named_fields":
 						fieldNames = (String[]) stream.readObject();
+						// fall through to "constructor" case
 			
 		case "constructor": 	
 						name = (String) stream.readObject();
@@ -268,11 +296,13 @@ public class TypeSerializer {
 						if(declaredAdt != null){
 							adtType = declaredAdt;
 						}
+						//System.out.println("readType, constructor " + name + ", " + adtType);System.out.flush();
 						
 						Type fieldTypes[] = new Type[arity];
 
 						for(int i = 0; i < arity; i++){
 							fieldTypes[i] = readType(stream);
+							//System.out.println("readType, constructor, fieldType[" + i + "] = " + fieldTypes[i]);System.out.flush();
 						}
 						
 						if(fieldNames == null){
@@ -289,7 +319,7 @@ public class TypeSerializer {
 							typeAndNames[2 * i + 1] = fieldNames[i];
 						}
 						
-						Type res = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypes));
+						Type res = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
 						if(res == null){
 							return tf.constructor(store, adtType, name, typeAndNames);
 						} else {
@@ -299,7 +329,12 @@ public class TypeSerializer {
 		case "adt":		name = (String) stream.readObject();
 						typeParameters = readType(stream);
 						if(typeParameters.getArity() > 0){
-							return tf.abstractDataType(store, name, typeParameters);
+							arity = typeParameters.getArity();
+							Type targs[] = new Type[arity];
+							for(int i = 0; i < arity; i++){
+								targs[i] = typeParameters.getFieldType(i);
+							}
+							return tf.abstractDataType(store, name, targs);
 						}
 						return tf.abstractDataType(store, name);
 						
