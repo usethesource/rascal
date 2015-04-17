@@ -80,10 +80,8 @@ public class ReflectiveCompiled extends Reflective {
 	     try {
 			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
 		}
-	    return null;
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
