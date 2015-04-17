@@ -44,6 +44,32 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * This experimental code provides a way to call Rascal functions during the compilation phase of Java files.
+ * Using the @Generator and @Analysis annotations you can define which function is called. 
+ * 
+ * For example:
+ * 
+ * @Generator{"path::to::MyModule::myGenerationFunction"}
+ * @MyAnnotation{name="Foo", address="Bar"}
+ * public class Hello { }
+ * 
+ * This will call the myGenerationFunction with keyword parameters for the sourcepath and classpath and other -A
+ * options provided to the annotationprocessor, and a keyword parameter for every additional annotation on the same
+ * construct. In this case also `MyAnnotation="MyAnnotation"(name="Foo", address="Bar")`, to give you access to 
+ * other meta information you with to provide to the generator.
+ * 
+ * A generator function is expected to have the following shape: 
+ *   `map[str classname, str compilationunitcode] f(...kwparams...);`
+ *   
+ * An analysis function is expected to have this shape:
+ *   `list[Message] f(...kwparams...);`
+ *   
+ * Any deviation from this shape will lead to run-time exceptions (ClassCastExceptions and the like)
+ * 
+ * Any Rascal modules are loaded from the Rascal standard library or from the source path for Java compilation units which
+ * is provided to the annotation processor. This may be different from the normal setup you expect.
+ */
 @SupportedAnnotationTypes(
 		{"org.rascalmpl.library.lang.java.annotations.Analysis"
 		,"org.rascalmpl.library.lang.java.annotations.Generator"
@@ -53,6 +79,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class Processor extends AbstractProcessor {
 	private static final String CLASSPATH = "classpath";
 	private static final String SOURCEPATH = "sourcepath";
+	private static final String RASCALPATH = "rascalpath";
 	private final Evaluator eval;
 	private final IValueFactory vf;
 	private Map<String,IValue> options;
@@ -73,8 +100,8 @@ public class Processor extends AbstractProcessor {
 	}
 
 	private void setRascalSearchPath() {
-		if (options.get(SOURCEPATH) != null) {
-			IList sourcePath = (IList) options.get(SOURCEPATH);
+		if (options.get(RASCALPATH) != null) {
+			IList sourcePath = (IList) options.get(RASCALPATH);
 			for (IValue elem : sourcePath) {
 				eval.addRascalSearchPath(FileURIResolver.constructFileURI(((IString) elem).getValue()));
 			}
@@ -95,6 +122,7 @@ public class Processor extends AbstractProcessor {
 			this.options.putAll(convertOptions(provider.getOptions()));
 			addToPath(SOURCEPATH, provider.getClassPath());
 			addToPath(CLASSPATH, provider.getSourcePath());
+			addToPath(RASCALPATH, provider.getRascalPath());
 		}
 	}
 
