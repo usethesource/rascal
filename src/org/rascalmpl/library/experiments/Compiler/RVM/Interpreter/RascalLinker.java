@@ -353,7 +353,7 @@ public class RascalLinker {
 								 uid_module_init, 
 								 uid_module_main, 
 								 uid_module_main_testsuite,
-								 typeStore, 
+								 typeStore,
 								 vf);
 	}
 	

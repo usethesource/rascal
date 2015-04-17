@@ -239,7 +239,8 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       if(exists(executable)){
-      	 return executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 return v;
       }
    }
    
