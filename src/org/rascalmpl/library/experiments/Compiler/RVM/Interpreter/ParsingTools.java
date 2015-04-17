@@ -113,7 +113,9 @@ public class ParsingTools {
 		return getParser(moduleName.getValue(), start, loc, false, syntax);
 	}
 
-	private boolean isBootstrapper() { return false;  }
+	private boolean isBootstrapper() {
+		return false;
+	}
 	
 	/**
 	 * Parse text from a string
@@ -306,7 +308,7 @@ public class ParsingTools {
 		startJob("Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
-		    throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
 		  parserGenerator = new ParserGenerator(rex.getMonitor(), rex.getStdErr(), classLoaders, vf, rex.getConfiguration());
@@ -323,6 +325,9 @@ public class ParsingTools {
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
+		if(getBootstrap()){
+			return new RascalParser();
+		}
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
 	    
@@ -346,12 +351,14 @@ public class ParsingTools {
 	    }
 	  }
 	  
-	  private boolean getBootstrap() { return false; }
+	  private boolean getBootstrap() { 
+		  return rex.bootstrapParser(); 
+	  }
 	 
 	  // Rascal library function (interpreter version)
 	  public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, null, false, false, false, false, ctx, null);
+			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, ctx, null);
 		  }
 		  return parseFragment(name, start, tree, loc, grammar);
 	  }

@@ -16,6 +16,7 @@ import ParseTree;
 
 public data MuModule =											
               muModule(str name, 
+              		   map[str,str] tags,
                        set[Message] messages,
                        list[loc] imports,
                        list[loc] extends,
@@ -31,7 +32,7 @@ public data MuModule =
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], [], (), (), [], [], [], 0, (), [], (), src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 

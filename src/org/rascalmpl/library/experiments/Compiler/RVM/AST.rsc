@@ -38,6 +38,7 @@ public data Declaration =
 
 public data RVMProgram = 
 		  rvm(str name,
+		  	  map[str,str] tags,
 		      set[Message] messages,
 			  list[loc] imports,
 			  list[loc] extends,
@@ -50,7 +51,7 @@ public data RVMProgram =
               loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], [], (), (), (), [], (), [], src);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

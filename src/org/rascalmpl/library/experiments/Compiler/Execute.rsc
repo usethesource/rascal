@@ -222,7 +222,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   trackCalls, 
    						   coverage);
    if(!testsuite){
-   	println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
+   		println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }
@@ -239,7 +239,8 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       if(exists(executable)){
-      	 return executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 return v;
       }
    }
    

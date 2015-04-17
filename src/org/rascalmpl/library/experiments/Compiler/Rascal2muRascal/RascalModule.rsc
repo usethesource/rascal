@@ -215,6 +215,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	];  
    	  
    	  return muModule(modName,
+   	  				  translateTags(M.header.tags),
    	                  config.messages, 
    	  				  imported_modules,
    	  				  extended_modules, 
