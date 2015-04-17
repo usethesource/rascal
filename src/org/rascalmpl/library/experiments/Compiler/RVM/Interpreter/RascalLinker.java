@@ -339,7 +339,7 @@ public class RascalLinker {
 
 		validateOverloading();
 
-		return new RVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
 							     (IMap) program.get("tags"),
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
@@ -396,6 +396,8 @@ public class RascalLinker {
 	 * @param rvm in which function will be loaded
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
+		
+		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
@@ -473,11 +475,11 @@ public class RascalLinker {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), ++continuationPoint);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"), ++continuationPoint);
 				break;
 				
 			case "APPLY":
@@ -539,11 +541,11 @@ public class RascalLinker {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoint);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"), ++continuationPoint);
 				break;
 				
 			case "SHIFT":
@@ -659,7 +661,7 @@ public class RascalLinker {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoint);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -762,7 +764,7 @@ public class RascalLinker {
 										 isConcreteArg,
 										 abstractFingerprint,
 										 concreteFingerprint, 
-										 codeblock, src);
+										 codeblock, src, continuationPoint);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);

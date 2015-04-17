@@ -51,6 +51,7 @@ public class Function implements Serializable {
 	public String[] fromLabels;
 	public String[] toLabels;
     public String[] handlerLabels;
+    public int[] fromSPsCorrected;
 	
 	public int continuationPoints = 0;
     
@@ -61,6 +62,7 @@ public class Function implements Serializable {
 
 	ISourceLocation src;			
 	IMap localNames;
+
 	
 	// transient fields 
 	transient private static TypeStore store;
@@ -259,7 +261,7 @@ public class Function implements Serializable {
 	
 	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src){
+			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -273,6 +275,7 @@ public class Function implements Serializable {
 		this.concreteFingerprint = concreteFingerprint;
 		this.codeblock = codeblock;
 		this.src = src;
+		this.continuationPoints = ctpt ;
 	}
 	
 	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
@@ -294,7 +297,12 @@ public class Function implements Serializable {
 		types = new int[exceptions.length()];
 		handlers = new int[exceptions.length()];
 		fromSPs = new int[exceptions.length()];
-		
+		fromSPsCorrected = new int[exceptions.length()];
+
+		fromLabels = new String[exceptions.length()];
+		toLabels = new String[exceptions.length()];
+		handlerLabels = new String[exceptions.length()];
+				
 		int i = 0;
 		for(IValue entry : exceptions) {
 			ITuple tuple = (ITuple) entry;
@@ -309,6 +317,11 @@ public class Function implements Serializable {
 			types[i] = codeblock.getTypeConstantIndex(type);
 			handlers[i] = codeblock.getLabelPC(handler);	
 			fromSPs[i] = fromSP;
+			fromSPsCorrected[i] = fromSP + nlocals;
+			fromLabels[i] = from;
+			toLabels[i] = to;
+			handlerLabels[i] = handler;			
+
 			i++;
 		}
 	}
@@ -365,19 +378,4 @@ public class Function implements Serializable {
 		return sb.toString();
 	}
 
-	public void finalize(BytecodeGenerator codeEmittor, final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing) {
-
-		codeEmittor.emitMethod(this, isCoroutine, continuationPoints, fromLabels, toLabels, fromSPs, types, handlerLabels, false);
-		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing, false);
-		
-		this.scopeId = codeblock.getFunctionIndex(name);
-		if (funIn != null) {
-			this.scopeIn = codeblock.getFunctionIndex(funIn);
-		}
-		this.constantStore = codeblock.getConstants();
-		this.typeConstantStore = codeblock.getTypeConstants();
-
-		codeEmittor.closeMethod();
-		codeEmittor.emitStoreInitializer(this, constantStore, typeConstantStore);
-	}
 }
