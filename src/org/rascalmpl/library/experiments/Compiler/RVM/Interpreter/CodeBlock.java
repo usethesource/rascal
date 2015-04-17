@@ -498,8 +498,8 @@ public class CodeBlock implements Serializable {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String fuid, int arity){
-		return add(new Call(this, fuid, arity));
+	public CodeBlock CALL(String fuid, int arity,int ctpt){
+		return add(new Call(this, fuid, arity, ctpt));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -561,8 +561,8 @@ public class CodeBlock implements Serializable {
 		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(int arity){
-		return add(new CallDyn(this, arity));
+	public CodeBlock CALLDYN(int arity, int ctpt){
+		return add(new CallDyn(this, arity, ctpt));
 	}
 	
 	public CodeBlock CREATE(String fuid, int arity) {
@@ -581,12 +581,12 @@ public class CodeBlock implements Serializable {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock YIELD0() {
-		return add(new Yield0(this));
+	public CodeBlock YIELD0(int ctpt) {
+		return add(new Yield0(this, ctpt));
 	}
 	
-	public CodeBlock YIELD1(int arity) {
-		return add(new Yield1(this, arity));
+	public CodeBlock YIELD1(int arity, int ctpt) {
+		return add(new Yield1(this, arity, ctpt));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -677,8 +677,8 @@ public class CodeBlock implements Serializable {
 		return add(new Exhaust(this));
 	}
 	
-	public CodeBlock GUARD() {
-		return add(new Guard(this));
+	public CodeBlock GUARD(int ctpt) {
+		return add(new Guard(this,ctpt));
 	}
 	
 	public CodeBlock SUBSCRIPTARRAY() {

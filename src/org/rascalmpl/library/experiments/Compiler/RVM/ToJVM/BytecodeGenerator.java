@@ -292,7 +292,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv = cw.visitMethod(ACC_PUBLIC, NameMangler.mangle(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 
-		emitExceptionTable(f.fromLabels, f.toLabels, f.fromSPs , f.types, f.handlerLabels);
+		emitExceptionTable(f.fromLabels, f.toLabels, f.fromSPsCorrected , f.types, f.handlerLabels);
 
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");

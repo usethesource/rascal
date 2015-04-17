@@ -24,6 +24,8 @@ public class RVMJVMExecutable extends RVMExecutable {
 			IValueFactory vfactory) {
 		super(module_name, tags, symbol_definitions, functionMap, functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites,
 				uid_module_init, uid_module_main, uid_module_main_testsuite, ts, vfactory);
+		
+		buildRunner(false);
 	}
 	public void buildRunner(boolean profile) {
 			try {
@@ -31,11 +33,12 @@ public class RVMJVMExecutable extends RVMExecutable {
 				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
 				String className = "RVMRunner";
 
-				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className, functionStore, overloadedStore,functionMap);
+				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className, functionStore, overloadedStore,functionMap, constructorMap, resolver);
 
 				codeEmittor.buildClass() ;
 				
 				jvmByteCode = codeEmittor.finalizeCode();
+				codeEmittor.dump("/Users/ferryrietveld/tmp/Running.class");
 				
 			} catch (Exception e) {
 				e.printStackTrace();
