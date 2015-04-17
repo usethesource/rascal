@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.SerializableValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 
 public class Function implements Serializable {
@@ -33,20 +34,27 @@ public class Function implements Serializable {
 	int nlocals;
 	boolean isDefault;
 	int maxstack;
-	CodeBlock codeblock;
-	IValue[] constantStore;			
-	Type[] typeConstantStore;
+	public CodeBlock codeblock;
+	public IValue[] constantStore;			
+	public Type[] typeConstantStore;
+	
 	boolean concreteArg = false;
 	int abstractFingerprint = 0;
 	int concreteFingerprint = 0;
 
-	int[] froms;
-	int[] tos;
-	int[] types;
-	int[] handlers;
-	int[] fromSPs;
+	public int[] froms;
+	public int[] tos;
+	public int[] types;
+	public int[] handlers;
+	public int[] fromSPs;
 	int lastHandler = -1;
 
+	public String[] fromLabels;
+	public String[] toLabels;
+    public String[] handlerLabels;
+	
+	public int continuationPoints = 0;
+    
 	boolean isCoroutine = false;
 	int[] refs;
 
@@ -357,5 +365,20 @@ public class Function implements Serializable {
 		sb.append(codeblock);
 		return sb.toString();
 	}
-	
+
+	public void finalize(BytecodeGenerator codeEmittor, final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing) {
+
+		codeEmittor.emitMethod(this, isCoroutine, continuationPoints, fromLabels, toLabels, fromSPs, types, handlerLabels, false);
+		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing, false);
+		
+		this.scopeId = codeblock.getFunctionIndex(name);
+		if (funIn != null) {
+			this.scopeIn = codeblock.getFunctionIndex(funIn);
+		}
+		this.constantStore = codeblock.getConstants();
+		this.typeConstantStore = codeblock.getTypeConstants();
+
+		codeEmittor.closeMethod();
+		codeEmittor.emitStoreInitializer(this, constantStore, typeConstantStore);
+	}
 }

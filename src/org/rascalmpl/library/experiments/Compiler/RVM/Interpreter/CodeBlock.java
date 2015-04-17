@@ -97,6 +97,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CodeBlock implements Serializable {
 
@@ -849,6 +850,17 @@ public class CodeBlock implements Serializable {
     	System.out.println("arg2 = " + fetchArg2(w));
     }
 
+	public void genByteCode(BytecodeGenerator gen) {
+		for(Instruction ins : insList){
+			ins.generateByteCode(gen, false);
+		}
+		if (insList.get(insList.size() - 1) instanceof Label) {
+			// The mu2rvm code generator emits faulty code and jumps outside existing space
+			// put in a panic return, code is also generated on a not used label.
+			// Activate the peephole optimizer :).
+			gen.emitPanicReturn();
+		}
+	}
 }
 
 class LabelInfo {

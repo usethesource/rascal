@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class JmpIndexed extends Instruction {
 
@@ -33,5 +34,18 @@ public class JmpIndexed extends Instruction {
 			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+
+		IListWriter w = codeblock.vf.listWriter();
+		for(IValue vlabel : labels){
+			String label = ((IString) vlabel).getValue();
+			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
+		}
+		
+		codeEmittor.emitInlineJmpIndexed(labels , debug);
 	}
 }
