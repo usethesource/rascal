@@ -325,7 +325,7 @@ public class ParsingTools {
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
-		if(getBootstrap()){
+		if(getBootstrap(name)){
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator();
@@ -351,8 +351,8 @@ public class ParsingTools {
 	    }
 	  }
 	  
-	  private boolean getBootstrap() { 
-		  return rex.bootstrapParser(); 
+	  private boolean getBootstrap(String moduleName) { 
+		  return rex.bootstrapParser(moduleName); 
 	  }
 	 
 	  // Rascal library function (interpreter version)
@@ -382,7 +382,7 @@ public class ParsingTools {
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
