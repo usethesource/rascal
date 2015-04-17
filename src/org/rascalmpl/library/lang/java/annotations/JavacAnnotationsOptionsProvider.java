@@ -29,6 +29,11 @@ public class JavacAnnotationsOptionsProvider implements AnnotationsOptionsProvid
 	}
 
 	@Override
+	public Iterable<? extends File> getRascalPath() {
+		return getSourcePath();
+	}
+	
+	@Override
 	public Iterable<? extends File> getClassPath() {
 		return fm != null ? fm.getLocation(StandardLocation.CLASS_PATH) : Collections.emptyList();
 	}
