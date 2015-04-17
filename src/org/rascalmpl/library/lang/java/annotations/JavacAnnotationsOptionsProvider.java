@@ -25,7 +25,7 @@ public class JavacAnnotationsOptionsProvider implements AnnotationsOptionsProvid
 	
 	@Override
 	public Iterable<? extends File> getSourcePath() {
-		return fm != null ? fm.getLocation(StandardLocation.SOURCE_PATH) : Collections.emptyList();
+		return fm != null ? fm.getLocation(StandardLocation.SOURCE_PATH) : Collections.<File>emptyList();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class JavacAnnotationsOptionsProvider implements AnnotationsOptionsProvid
 	
 	@Override
 	public Iterable<? extends File> getClassPath() {
-		return fm != null ? fm.getLocation(StandardLocation.CLASS_PATH) : Collections.emptyList();
+		return fm != null ? fm.getLocation(StandardLocation.CLASS_PATH) : Collections.<File>emptyList();
 	}
 
 	@Override
