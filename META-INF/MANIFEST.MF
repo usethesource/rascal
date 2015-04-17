@@ -36,6 +36,7 @@ Export-Package:
  org.rascalmpl.library.lang.aut,
  org.rascalmpl.library.lang.csv,
  org.rascalmpl.library.lang.html,
+ org.rascalmpl.library.lang.java.annotations,
  org.rascalmpl.library.lang.java.m3.internal,
  org.rascalmpl.library.lang.jvm.run,
  org.rascalmpl.library.lang.jvm.transform,
