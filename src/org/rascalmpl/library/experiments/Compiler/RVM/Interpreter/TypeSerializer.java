@@ -328,8 +328,8 @@ public class TypeSerializer {
 						
 		case "adt":		name = (String) stream.readObject();
 						typeParameters = readType(stream);
-						if(typeParameters.getArity() > 0){
-							arity = typeParameters.getArity();
+						arity = typeParameters.getArity();
+						if(arity > 0){
 							Type targs[] = new Type[arity];
 							for(int i = 0; i < arity; i++){
 								targs[i] = typeParameters.getFieldType(i);

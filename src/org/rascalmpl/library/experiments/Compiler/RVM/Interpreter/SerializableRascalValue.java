@@ -43,8 +43,7 @@ public class SerializableRascalValue<T extends IValue> implements Serializable {
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
-		store = new TypeStore();
-		store.extendStore(ts);
+		store = ts;
 		store.extendStore(Factory.getStore());
 		tr = new TypeReifier(vf);
 	}

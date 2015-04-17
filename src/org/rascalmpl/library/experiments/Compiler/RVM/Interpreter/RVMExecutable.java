@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.values.uptr.Factory;
@@ -27,7 +28,7 @@ public class RVMExecutable implements Serializable{
 	
 	// transient fields
 	transient static IValueFactory vf;
-//	transient static TypeStore store;
+	transient static TypeStore store;
 	transient private static TypeSerializer typeserializer;
 	
 	// Serializable fields
@@ -97,8 +98,8 @@ public class RVMExecutable implements Serializable{
 		this.uid_module_main_testsuite = uid_module_main_testsuite;
 		
 		vf = vfactory;
-//		store = ts;
-		typeserializer = new TypeSerializer(ts);
+		store = ts;
+		typeserializer = new TypeSerializer(ts); //new TypeSerializer(TypeFactory.getInstance());	//
 	}
 	
 	
@@ -262,6 +263,7 @@ public class RVMExecutable implements Serializable{
 		RVMExecutable executable = null;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
+		typeserializer = new TypeSerializer(typeStore);
 		SerializableRascalValue.initSerialization(vf, typeStore);
 		Function.initSerialization(vf, typeStore);
 		CodeBlock.initSerialization(vf, typeStore);
