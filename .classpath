@@ -12,5 +12,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/xz-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-compress-1.9.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path=".apt_generated">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
