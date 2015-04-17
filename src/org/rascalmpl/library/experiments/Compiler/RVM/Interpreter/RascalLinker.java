@@ -340,6 +340,7 @@ public class RascalLinker {
 		validateOverloading();
 
 		return new RVMExecutable(((IString) program.get("name")).getValue(),
+							     (IMap) program.get("tags"),
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 
@@ -352,7 +353,7 @@ public class RascalLinker {
 								 uid_module_init, 
 								 uid_module_main, 
 								 uid_module_main_testsuite,
-								 typeStore, 
+								 typeStore,
 								 vf);
 	}
 	
