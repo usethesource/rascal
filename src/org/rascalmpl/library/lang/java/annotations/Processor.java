@@ -227,7 +227,7 @@ public class Processor extends AbstractProcessor {
 		for (AnnotationMirror a : e.getAnnotationMirrors()) {
 			String name = a.getAnnotationType().asElement().getSimpleName().toString();
 			Map<String,IValue> values = convertElementValues(a.getElementValues());
-			parameters.put(name, vf.node(name, values));
+			parameters.put(name, vf.node(name, new IValue[0], values));
 		}
 
 		parameters.putAll(options);
