@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -26,7 +27,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -76,7 +76,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 		,"org.rascalmpl.library.lang.java.annotations.Generator"
 		,"org.rascalmpl.library.lang.java.annotations.Transformation"
 		})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions({Processor.CLASSPATH, Processor.SOURCEPATH, Processor.RASCALPATH})
 public class Processor extends AbstractProcessor {
 	public static final String CLASSPATH = "classpath";
