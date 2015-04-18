@@ -30,7 +30,7 @@ public class JavacAnnotationsOptionsProvider implements AnnotationsOptionsProvid
 
 	@Override
 	public Map<String, String> getOptions() {
-		return Collections.emptyMap();
+		return Collections.<String,String>emptyMap();
 	}
 
 	@Override
