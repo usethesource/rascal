@@ -120,12 +120,14 @@ public class Processor extends AbstractProcessor {
 	
 	private void inferMoreOptions(ProcessingEnvironment processingEnv) {
 		ServiceLoader<AnnotationsOptionsProvider> loader = ServiceLoader.load(AnnotationsOptionsProvider.class);
-		for (AnnotationsOptionsProvider provider : loader) {
-			provider.init(processingEnv);
-			this.options.putAll(convertOptions(provider.getOptions()));
-			addToPath(SOURCEPATH, provider.getClassPath());
-			addToPath(CLASSPATH, provider.getSourcePath());
-			addToPath(RASCALPATH, provider.getRascalPath());
+		if (loader != null) {
+			for (AnnotationsOptionsProvider provider : loader) {
+				provider.init(processingEnv);
+				this.options.putAll(convertOptions(provider.getOptions()));
+				addToPath(SOURCEPATH, provider.getClassPath());
+				addToPath(CLASSPATH, provider.getSourcePath());
+				addToPath(RASCALPATH, provider.getRascalPath());
+			}
 		}
 	}
 
