@@ -10,7 +10,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-public class JavacAnnotationsOptionsProvider implements AnnotationsOptionsProvider {
+public class JavacAnnotationOptionsProvider implements AnnotationsOptionsProvider {
 	private StandardJavaFileManager fm;
 
 	@Override
