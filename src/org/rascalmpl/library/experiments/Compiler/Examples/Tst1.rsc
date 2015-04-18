@@ -1,6 +1,10 @@
+
+@bootstrapParser
 module experiments::Compiler::Examples::Tst1
-import lang::rascal::tests::types::StaticTestingUtils;
+import lang::rascal::\syntax::Rascal;
 
 // Sanity check on the testing utilities themselves
 
-value main(list[value] args) = checkOK("13;");
+Expression exp(str  s) = [Expression] s;
+
+value main(list[value] args) = exp("1 + 2");

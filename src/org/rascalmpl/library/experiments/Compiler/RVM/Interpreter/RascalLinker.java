@@ -215,6 +215,7 @@ public class RascalLinker {
 	
 	public RVMExecutable link(
 				 IConstructor program,
+				 IMap imported_module_tags,
 				 IMap imported_types,
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
@@ -229,6 +230,8 @@ public class RascalLinker {
 		
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
+		
+		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("tags"));
 
 		/** Imported types */
 
@@ -340,7 +343,7 @@ public class RascalLinker {
 		validateOverloading();
 
 		return new RVMExecutable(((IString) program.get("name")).getValue(),
-							     (IMap) program.get("tags"),
+							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 

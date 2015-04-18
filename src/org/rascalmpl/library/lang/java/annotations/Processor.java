@@ -14,6 +14,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -75,11 +76,12 @@ import org.rascalmpl.values.ValueFactoryFactory;
 		,"org.rascalmpl.library.lang.java.annotations.Generator"
 		,"org.rascalmpl.library.lang.java.annotations.Transformation"
 		})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedOptions({Processor.CLASSPATH, Processor.SOURCEPATH, Processor.RASCALPATH})
 public class Processor extends AbstractProcessor {
-	private static final String CLASSPATH = "classpath";
-	private static final String SOURCEPATH = "sourcepath";
-	private static final String RASCALPATH = "rascalpath";
+	public static final String CLASSPATH = "classpath";
+	public static final String SOURCEPATH = "sourcepath";
+	public static final String RASCALPATH = "rascalpath";
 	private final Evaluator eval;
 	private final IValueFactory vf;
 	private Map<String,IValue> options;
@@ -95,7 +97,7 @@ public class Processor extends AbstractProcessor {
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		this.options = convertOptions(processingEnv.getOptions());
-		inferMoreOptions();
+		inferMoreOptions(processingEnv);
 		setRascalSearchPath();
 	}
 
@@ -116,13 +118,16 @@ public class Processor extends AbstractProcessor {
 		return l.done();
 	}
 	
-	private void inferMoreOptions() {
+	private void inferMoreOptions(ProcessingEnvironment processingEnv) {
 		ServiceLoader<AnnotationsOptionsProvider> loader = ServiceLoader.load(AnnotationsOptionsProvider.class);
-		for (AnnotationsOptionsProvider provider : loader) {
-			this.options.putAll(convertOptions(provider.getOptions()));
-			addToPath(SOURCEPATH, provider.getClassPath());
-			addToPath(CLASSPATH, provider.getSourcePath());
-			addToPath(RASCALPATH, provider.getRascalPath());
+		if (loader != null) {
+			for (AnnotationsOptionsProvider provider : loader) {
+				provider.init(processingEnv);
+				this.options.putAll(convertOptions(provider.getOptions()));
+				addToPath(SOURCEPATH, provider.getClassPath());
+				addToPath(CLASSPATH, provider.getSourcePath());
+				addToPath(RASCALPATH, provider.getRascalPath());
+			}
 		}
 	}
 
@@ -216,7 +221,7 @@ public class Processor extends AbstractProcessor {
 	}
 	
 	public String getMessage(IConstructor message) {
-		return ((IString) message.get("message")).getValue();
+		return ((IString) message.get("msg")).getValue();
 	}
 
 	private Map<String, IValue> inferParameters(Element e) {
@@ -224,7 +229,7 @@ public class Processor extends AbstractProcessor {
 		for (AnnotationMirror a : e.getAnnotationMirrors()) {
 			String name = a.getAnnotationType().asElement().getSimpleName().toString();
 			Map<String,IValue> values = convertElementValues(a.getElementValues());
-			parameters.put(name, vf.node(name, values));
+			parameters.put(name, vf.node(name, new IValue[0], values));
 		}
 
 		parameters.putAll(options);
@@ -322,6 +327,9 @@ public class Processor extends AbstractProcessor {
 				}
 			}, null);
 			
+			if ("value".equals(name)) {
+				name = "val";
+			}
 			result.put(name, val);
 		}
 		
@@ -373,6 +381,7 @@ public class Processor extends AbstractProcessor {
 			switch (e.getKey()) {
 			case SOURCEPATH:
 			case CLASSPATH:
+			case RASCALPATH:
 				IListWriter l = vf.listWriter();
 				for (String elem : e.getValue().split(":")) {
 					l.append(vf.string(elem));

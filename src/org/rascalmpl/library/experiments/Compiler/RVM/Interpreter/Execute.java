@@ -67,6 +67,7 @@ public class Execute {
 
 	public ITuple executeProgram(ISourceLocation rvmExecutable,
 								 IConstructor program,
+								 IMap imported_module_tags,
 								 IMap imported_types,
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
@@ -84,6 +85,7 @@ public class Execute {
 		RascalLinker linker = new RascalLinker(vf, typeStore);
 		
 		RVMExecutable executable = linker.link(program,
+								 imported_module_tags,
 								 imported_types,
 								 imported_functions,
 								 imported_overloaded_functions,
@@ -140,7 +142,7 @@ public class Execute {
 		
 		RascalExecutionContext rex = 
 				new RascalExecutionContext(vf, 
-										   executable.tags, 
+										   executable.moduleTags, 
 										   executable.symbol_definitions, 
 										   new TypeStore(), 
 										   debug.getValue(),
