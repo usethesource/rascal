@@ -7549,7 +7549,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 				int aliasId = getOneFrom(definitions[t.origin]);
 				Symbol aliasedType = c.store[aliasId].rtype;
 				c = checkDeclaration(t,true,c);
-				if(delAnnotationsRec(aliasedType) != delAnnotationsRec(c.store[aliasId].rtype)) {
+				if(unset(aliasedType) != unsetRec(c.store[aliasId].rtype)) {
 					modified = true;
 				}
 			}

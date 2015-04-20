@@ -151,6 +151,7 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	check(stmts, [
 		"Constructor overlaps existing constructors in the same datatype", 
 		"Initializer type",
+		"A non-equivalent alias named _ is already in scope",
 		"Errors present in constructor parameters, cannot add constructor to scope"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
