@@ -71,6 +71,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    set[Message] messages = mainProgram.messages;
+   map[str,map[str,str]] imported_moduleTags = ();
    
    if(any(msg <- messages, error(_,_) := msg)){
         throw "Cannot execute due to compilation errors";
@@ -114,6 +115,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
            try {
   	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;
+  	           imported_moduleTags[importedRvmProgram.name] = importedRvmProgram.tags;
   	           
   	           // Temporary work around related to issue #343
   	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
@@ -211,6 +213,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    <v, t> = executeProgram(
   						   RVMExecutableLocation(mainProgram.src, bindir),
    						   mainProgram, 
+   						   imported_moduleTags,
    						   imported_types,
    						   imported_declarations, 
    						   imported_overloaded_functions, 
@@ -222,7 +225,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   trackCalls, 
    						   coverage);
    if(!testsuite){
-   	println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
+   		println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }
@@ -239,7 +242,8 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       if(exists(executable)){
-      	 return executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 return v;
       }
    }
    
