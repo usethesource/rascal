@@ -18,6 +18,7 @@ package org.rascalmpl.ast;
 
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -183,4 +184,7 @@ public abstract class AbstractAST implements IVisitable {
 				&& annotations.get("breakable").equals(VF.bool(true));
 	}
 	
+	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+		return ResultFactory.makeResult(TF.boolType(), VF.bool(false), __eval);
+	}
 }

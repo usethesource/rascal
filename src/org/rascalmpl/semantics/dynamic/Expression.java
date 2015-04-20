@@ -848,7 +848,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
@@ -859,7 +858,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
 
 		}
-
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			return expr.has(this.getField());
+		}
 	}
 
 	static public class FieldProject extends
@@ -960,6 +964,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return getExpression().interpret(__eval).has(getName());
+		}
 	}
 
 	static public class GreaterThan extends
@@ -1136,20 +1144,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);	
 			
-			try {
-				return this.getLhs().interpret(__eval);
-			} catch (UninitializedVariable e) {
-				return this.getRhs().interpret(__eval);
-			} catch (Throw e) {
-				// TODO For now we __evaluate any Throw here, restrict to
-				// NoSuchKey and NoSuchAnno?
-				return this.getRhs().interpret(__eval);
+			if (getLhs().isDefined(__eval).getValue().getValue()) {
+				return getLhs().interpret(__eval);
 			}
-
+			else {
+				return getRhs().interpret(__eval);
+			}
 		}
 
 	}
@@ -1326,20 +1329,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			try {
-				this.getArgument().interpret(__eval); // wait for exception
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(TF.boolType(), __eval.__getVf().bool(true),
-								__eval);
-
-			} catch (Throw e) {
-				// TODO For now we __evaluate any Throw here, restrict to
-				// NoSuchKey and NoSuchAnno?
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(TF.boolType(),
-								__eval.__getVf().bool(false), __eval);
-			}
-
+			return makeResult(TF.boolType(), getArgument().isDefined(__eval).getValue(), __eval);
 		}
 
 	}
