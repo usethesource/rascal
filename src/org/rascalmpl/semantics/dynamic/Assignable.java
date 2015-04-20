@@ -17,6 +17,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -91,6 +92,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			// result.getValue()).setAnnotation(label, value.getValue()));
 			// return recur(this, result);
 
+		}
+
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getField()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
@@ -337,6 +343,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			}
 
 		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getField()).getValue(), __eval.getEvaluator());
+		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
@@ -404,26 +415,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			try {
-				this.getReceiver().interpret((Evaluator) __eval.__getEval()); // notice
-				// we
-				// use
-				// 'eval'
-				// here
-				// not
-				// '__eval'
-				// if it was not defined, __eval would have thrown an exception,
-				// so now we can just go on
-				return this.getReceiver().assignment(__eval);
-			} catch (Throw e) {
+			if (getReceiver().isDefined(__eval.getEvaluator()).getValue().getValue()) {
+				return getReceiver().assignment(__eval);
+			}
+			else {
 				__eval.__setValue(__eval.newResult(this.getDefaultExpression()
 						.interpret((Evaluator) __eval.__getEval()), __eval
 						.__getValue()));
 				__eval.__setOperator(AssignmentOperator.Default);
 				return this.getReceiver().assignment(__eval);
 			}
-
 		}
 
 		@Override
