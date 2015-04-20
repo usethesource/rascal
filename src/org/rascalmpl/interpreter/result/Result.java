@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -1071,5 +1072,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	public Type getKeywordArgumentTypes(Environment env) {
 		return TypeFactory.getInstance().voidType();
+	}
+
+	public Result<IValue> isKeyDefined(Result<?>[] subscripts) {
+		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
 	}
 }

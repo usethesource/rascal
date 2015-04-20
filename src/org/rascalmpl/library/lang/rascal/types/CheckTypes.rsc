@@ -7597,14 +7597,14 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
-  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, delAnnotationsRec(t) notin getParameters(syn.defined)) {
+  for ((Import) `<SyntaxDefinition syn>` <- defs, /Nonterminal t := syn.production, unsetRec(t) notin getParameters(syn.defined)) {
     <c,rt> = resolveSorts(sort("<t>"), t.origin, c);
   }
   
   return c;
 }
 
-list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ delAnnotationsRec(t) | (Sym) `&<Nonterminal t>` <- params];
+list[Nonterminal] getParameters((Sym) `<Nonterminal _>[<{Sym ","}+ params>]`) = [ unsetRec(t) | (Sym) `&<Nonterminal t>` <- params];
 default list[Nonterminal] getParameters(Sym _) = []; 
 
 @doc{Get the module name from the header.}

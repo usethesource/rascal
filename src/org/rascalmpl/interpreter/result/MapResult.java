@@ -81,6 +81,24 @@ public class MapResult extends ElementResult<IMap> {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
+	public Result<IValue> isKeyDefined(Result<?>[] subscripts) {
+		if (subscripts.length != 1) { 
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+		}
+		Result<IValue> key = (Result<IValue>) subscripts[0];
+		if (!getType().getKeyType().comparable(key.getType())) {
+			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
+		}
+		IValue v = getValue().get(key.getValue());
+		if (v == null){
+			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+		}
+		
+		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+	}
+	
+	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToMap(this);
 	}
