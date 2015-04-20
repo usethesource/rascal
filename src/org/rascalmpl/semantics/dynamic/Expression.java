@@ -325,6 +325,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			return this.getExpression().interpret(__eval);
 		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return getExpression().isDefined(__eval);
+		}
 	}
 
 	static public class CallOrTree extends
