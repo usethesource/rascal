@@ -2043,18 +2043,10 @@ public class Prelude {
 	}
 	
 	public IValue parse(IValue start, IMap robust, IString input, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
-
-//			if (TreeAdapter.isAppl(pt)) {
-//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-//				}
-//			}
-
-			return pt;
+			Type reified = start.getType();
+			IConstructor startSort = checkPreconditions(start, reified);
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
