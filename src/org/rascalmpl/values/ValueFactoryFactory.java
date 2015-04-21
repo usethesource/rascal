@@ -19,10 +19,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ValueFactoryFactory{
-	//private final static IValueFactory valueFactory =org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
-	private final static IValueFactory valueFactory = new RascalValueFactory();
+	private static class InstanceHolder {
+		private final static IValueFactory valueFactory = RascalValueFactory.getInstance();
+	}
 	
 	public static IValueFactory getValueFactory(){
-		return valueFactory;
+		return InstanceHolder.valueFactory;
 	}
 }
