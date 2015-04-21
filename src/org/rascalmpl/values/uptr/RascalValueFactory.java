@@ -199,7 +199,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
 	private static final IConstructor byteChars[];
 	
-	public TypeStore getStore() {
+	public static TypeStore getStore() {
 		return uptr;
 	}
 	
