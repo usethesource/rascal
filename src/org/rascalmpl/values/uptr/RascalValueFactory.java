@@ -68,17 +68,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type TypeParam = tf.parameterType("T");
 	public static final Type Type = new ReifiedType(TypeParam);
 	
-	static {
-		IConstructor[] tmp = new IConstructor[256];
-		for (byte i = 0; i < 256; i++) {
-			tmp[i] = new CharByte(i);
-		}
-		byteChars = tmp;
-		uptr.declareAbstractDataType(Type);
-	}
-
-	private final static IList EMPTY_LIST = getInstance().listWriter().done();
-	
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
 	public static final Type Attributes = tf.abstractDataType(uptr, "Attributes");
@@ -92,6 +81,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
 
+	static { 
+		uptr.declareAbstractDataType(Type); // needed for next decl; position of static block is important
+	}
 	public static final Type Type_Reified = tf.constructor(uptr, Type, "type", Symbol, "symbol", tf.mapType(Symbol , Production), "definitions");
 					
 	public static final Type Tree_Appl = tf.constructor(uptr, Tree, "appl", Production, "prod", tf.listType(Tree), "args");
@@ -197,7 +189,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
-	private static final IConstructor byteChars[];
+	private final IConstructor byteChars[];
+	
+	static {
+		
+		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
+		uptr.declareAnnotation(Tree, Length, tf.integerType());
+	}
 	
 	public static TypeStore getStore() {
 		return uptr;
@@ -213,9 +211,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	
 	private RascalValueFactory() {
 		super(bootFactory);
-		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
-		uptr.declareAnnotation(Tree, Length, tf.integerType());
+	
 		tr = new TypeReifier(bootFactory);
+		IConstructor[] tmp = new IConstructor[256];
+		for (int i = 0; i < 256; i++) {
+			tmp[i] = new CharByte((byte) i);
+		}
+		byteChars = tmp;
 	}
 
 	@Override
@@ -1436,6 +1438,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	}
 	
 	private static class Appl0 extends AbstractAppl {
+		private static final IList EMPTY_LIST = getInstance().listWriter().done();
 		public Appl0(IConstructor production) {
 			super(production);
 		}
