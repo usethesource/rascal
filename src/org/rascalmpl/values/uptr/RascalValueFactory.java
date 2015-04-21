@@ -60,7 +60,6 @@ import org.rascalmpl.interpreter.types.ReifiedType;
  */
 public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore();
-	private final static Map<Integer, IConstructor> characterClasses = new HashMap<>();
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	private final TypeReifier tr;
 	
@@ -70,10 +69,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type Type = new ReifiedType(TypeParam);
 	
 	static {
+		IConstructor[] tmp = new IConstructor[256];
+		for (byte i = 0; i < 256; i++) {
+			tmp[i] = new CharByte(i);
+		}
+		byteChars = tmp;
 		uptr.declareAbstractDataType(Type);
 	}
 
-	private final IList EMPTY_LIST = listWriter().done();
+	private final static IList EMPTY_LIST = getInstance().listWriter().done();
 	
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
@@ -193,8 +197,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
+	private static final IConstructor byteChars[];
 	
-	public static TypeStore getStore() {
+	public TypeStore getStore() {
 		return uptr;
 	}
 	
@@ -298,16 +303,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return super.constructor(constructor, children, kwParams);
 	}
 	
-	private static IConstructor charClass(int ch) {
-		IConstructor clas = characterClasses.get(ch);
-		if (clas == null) {
-			IValueFactory VF = getInstance().adapted;
-			clas = VF.constructor(Symbol_CharClass, VF.list(VF.constructor(CharRange_Range, VF.integer(ch), VF.integer(ch))));
-			characterClasses.put(ch, clas);
-		}
-		return clas;
-	}
-	
 	public IConstructor character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
 			return character((byte) ch);
@@ -317,7 +312,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	}
 	
 	public IConstructor character(byte ch) {
-		return new CharByte(ch);
+		return byteChars[ch];
 	}
 
 	public IConstructor appl(Map<String,IValue> annos, IConstructor prod, IList args) {
@@ -346,7 +341,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return new Amb(alternatives);
 	}
 	
-	private class CharInt implements IConstructor {
+	private static class CharInt implements IConstructor {
 		final int ch;
 		
 		public CharInt(int ch) {
@@ -505,7 +500,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class CharByte implements IConstructor {
+	private static class CharByte implements IConstructor {
 		final byte ch;
 		
 		public CharByte(byte ch) {
@@ -664,7 +659,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class Cycle implements IConstructor {
+	private static class Cycle implements IConstructor {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
@@ -853,7 +848,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class Amb implements IConstructor {
+	private static class Amb implements IConstructor {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
@@ -1043,7 +1038,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 			}
 		}
 	}
-	private abstract class AbstractAppl implements IConstructor {
+	private static abstract class AbstractAppl implements IConstructor {
 		protected final IConstructor production;
 
 		protected AbstractAppl(IConstructor production) {
@@ -1237,7 +1232,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	
 
 	
-	private abstract class AbstractArgumentList implements IList {
+	private static abstract class AbstractArgumentList implements IList {
 		protected abstract IList asNormal();
 		
 		@Override
@@ -1440,7 +1435,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class Appl0 extends AbstractAppl {
+	private static class Appl0 extends AbstractAppl {
 		public Appl0(IConstructor production) {
 			super(production);
 		}
@@ -1451,7 +1446,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class ApplN extends AbstractAppl {
+	private static class ApplN extends AbstractAppl {
 		private final IList args;
 
 		public ApplN(IConstructor production, IList args) {
@@ -1465,7 +1460,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class Appl1 extends AbstractAppl {
+	private static class Appl1 extends AbstractAppl {
 		private final IValue arg0;
 
 		public Appl1(IConstructor production, IValue arg) {
@@ -1491,13 +1486,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0);
+					return getInstance().list(arg0);
 				}
 			};
 		}
 	}
 	
-	private class Appl2 extends AbstractAppl {
+	private static class Appl2 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 
@@ -1526,13 +1521,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1);
+					return getInstance().list(arg0, arg1);
 				}
 			};
 		}
 	}
 	
-	private class Appl3 extends AbstractAppl {
+	private static class Appl3 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 		private final IValue arg2;
@@ -1564,13 +1559,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1, arg2);
+					return getInstance().list(arg0, arg1, arg2);
 				}
 			};
 		}
 	}
 	
-	private class Appl4 extends AbstractAppl {
+	private static class Appl4 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 		private final IValue arg2;
@@ -1605,13 +1600,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1, arg2, arg3);
+					return getInstance().list(arg0, arg1, arg2, arg3);
 				}
 			};
 		}
 	}
 	
-	private class Appl5 extends AbstractAppl {
+	private static class Appl5 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 		private final IValue arg2;
@@ -1649,13 +1644,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1, arg2, arg3, arg4);
+					return getInstance().list(arg0, arg1, arg2, arg3, arg4);
 				}
 			};
 		}
 	}
 	
-	private class Appl6 extends AbstractAppl {
+	private static class Appl6 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 		private final IValue arg2;
@@ -1696,13 +1691,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1, arg2, arg3, arg4, arg5);
+					return getInstance().list(arg0, arg1, arg2, arg3, arg4, arg5);
 				}
 			};
 		}
 	}
 
-	private class Appl7 extends AbstractAppl {
+	private static class Appl7 extends AbstractAppl {
 		private final IValue arg0;
 		private final IValue arg1;
 		private final IValue arg2;
@@ -1746,7 +1741,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				
 				@Override
 				protected IList asNormal() {
-					return list(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+					return getInstance().list(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
 				}
 			};
 		}
