@@ -1117,7 +1117,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return RascalTypeFactory.getInstance().nonTerminalType(production);
+			// it is important to give the whole tree here, to be able to check for non-empty lists which have a more concrete type
+			// than possibly empty lists!
+			return RascalTypeFactory.getInstance().nonTerminalType(this);
 		}
 
 		@Override

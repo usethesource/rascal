@@ -114,7 +114,13 @@ public class TreeAdapter {
 	
 	public static IConstructor getType(IConstructor tree) {
 		if (isAppl(tree)) {
-			return ProductionAdapter.getType(getProduction(tree));
+			IConstructor sym = ProductionAdapter.getType(getProduction(tree));
+			
+			if (SymbolAdapter.isStarList(sym) && !getArgs(tree).isEmpty()) {
+				sym = SymbolAdapter.starToPlus(sym);
+			}
+			
+			return sym;
 		}
 		else if (isCycle(tree)) {
 			return (IConstructor) tree.get("symbol");

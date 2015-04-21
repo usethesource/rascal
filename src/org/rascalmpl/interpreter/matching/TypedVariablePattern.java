@@ -30,7 +30,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -90,39 +89,6 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		if(debug) {
 			System.err.println("Subject: " + subject + " name: " + name + " getType: ");
 			System.err.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
-		}
-
-		// isSubtypeOf does not know about concrete syntax types
-		// so deal with it here explicitly
-		if (declaredType instanceof NonTerminalType && subject.getValue().getType().isAbstractData()) {
-			IConstructor subjectTree = (IConstructor) subject.getValue();
-			if (TreeAdapter.isAppl(subjectTree) || TreeAdapter.isAmb(subjectTree)) {
-				IConstructor tree = (IConstructor)subject.getValue();
-
-				NonTerminalType nt = (NonTerminalType)declaredType;
-				
-				IConstructor declaredSymbol = nt.getSymbol();
-				Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType(tree);
-				
-				if(subjectNT.isSubtypeOf(nt)) {
-				  if(TreeAdapter.isList(tree)) {
-				    if(TreeAdapter.getArgs(tree).isEmpty()) {
-				      if(SymbolAdapter.isIterPlus(declaredSymbol)  || (SymbolAdapter.isIterPlusSeps(declaredSymbol))) {
-				        return false;
-				      }
-				    }
-				  }
-
-				  if(anonymous) { 
-				    return true;
-				  }		
-
-				  ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
-				  this.alreadyStored = true;
-				  return true;
-				}
-			}
-			return false;
 		}
 
 		Type tmp;

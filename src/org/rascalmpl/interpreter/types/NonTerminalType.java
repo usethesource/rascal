@@ -30,18 +30,19 @@ public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
-		if (cons.getType() == RascalValueFactory.Symbol) {
-			this.symbol = cons;
-		}
-		else if (cons.getType() == RascalValueFactory.Production) {
-			this.symbol = ProductionAdapter.getType(cons);
-		}
-		else if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
+		if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
+			// Note that here we go from * to + lists if the list is not empty
 			this.symbol = TreeAdapter.getType(cons);
 		}
 		else if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
 			IConstructor first = (IConstructor) TreeAdapter.getAlternatives(cons).iterator().next();
 			this.symbol = TreeAdapter.getType(first);
+		}
+		else if (cons.getType() == RascalValueFactory.Symbol) {
+			this.symbol = cons;
+		}
+		else if (cons.getType() == RascalValueFactory.Production) {
+			this.symbol = ProductionAdapter.getType(cons);
 		}
 		else {
 			throw new ImplementationError("Invalid concrete syntax type constructor:" + cons);
@@ -136,10 +137,8 @@ public class NonTerminalType extends RascalType {
 	  if (type instanceof NonTerminalType) {
 	    return ((NonTerminalType) type).isSubtypeOfNonTerminal(this);
 	  }
-		if(type.isAbstractData() && getName() == type.getName()) {
-			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
-		}
-		return super.isSupertypeOf(type);
+	  
+	  return super.isSupertypeOf(type);
 	}
 	
 	@Override
