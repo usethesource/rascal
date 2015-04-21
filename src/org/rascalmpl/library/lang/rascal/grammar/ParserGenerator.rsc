@@ -104,7 +104,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.ValueFactoryFactory;
-           'import org.rascalmpl.values.uptr.Factory;
+           'import org.rascalmpl.values.uptr.RascalValueFactory;
            '
            '@SuppressWarnings(\"all\")
            'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, IConstructor, ISourceLocation\> {
@@ -112,7 +112,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '
            '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
            '    try {
-           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
+           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
            '    }
            '    catch (FactTypeUseException e) {
            '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
@@ -192,7 +192,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    
            '  // Production declarations
            '	<for (p <- sort(uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
            '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
