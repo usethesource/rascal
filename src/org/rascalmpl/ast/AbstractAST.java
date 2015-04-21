@@ -21,7 +21,6 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
@@ -37,6 +36,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
@@ -44,7 +44,7 @@ public abstract class AbstractAST implements IVisitable {
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected final RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
 	protected IMatchingResult matcher;
 	
 	AbstractAST() {

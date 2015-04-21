@@ -461,7 +461,7 @@ public class TreeAdapter {
 
 	public static void unparse(IConstructor tree, Writer stream)
 			throws IOException, FactTypeUseException {
-	  if (tree.getType().isSubtypeOf(RascalValueFactory.Tree)) { // == Factory.Tree) {
+	  if (tree.getType().isSubtypeOf(RascalValueFactory.Tree)) { 
 	    tree.accept(new Unparser(stream));
 	  } else {
 	    throw new ImplementationError("Can not unparse this " + tree + " (type = "

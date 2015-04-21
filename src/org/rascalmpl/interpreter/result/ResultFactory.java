@@ -81,7 +81,7 @@ public class ResultFactory {
 		@Override
 		public ElementResult<? extends IValue> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
-			if (type.equals(RascalValueFactory.Tree)) {
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
 			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
@@ -99,7 +99,7 @@ public class ResultFactory {
 
 		@Override
 		public Result<? extends IValue> visitConstructor(Type type) {
-			if (type.equals(RascalValueFactory.Tree)) {
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
 			if (type instanceof FunctionType) {
@@ -146,7 +146,7 @@ public class ResultFactory {
 
 		@Override
 		public ElementResult<? extends IValue> visitNode(Type type) {
-			if (type.equals(RascalValueFactory.Tree)) {
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
 			return new NodeResult(declaredType, (INode)value, ctx);

@@ -297,6 +297,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return new CharByte(ch);
 	}
 
+	public IConstructor appl(Map<String,IValue> annos, IConstructor prod, IList args) {
+		return appl(prod, args).asAnnotatable().setAnnotations(annos);
+	}
+	
 	public IConstructor appl(IConstructor prod, IList args) {
 		switch (args.length()) {
 		case 0: return new Appl0(prod);
@@ -309,6 +313,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		case 7: return new Appl7(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5), args.get(6));
 		default: return new ApplN(prod, args);
 		}
+	}
+	
+	public IConstructor cycle(IConstructor symbol, int cycleLength) {
+		return new Cycle(symbol, cycleLength);
 	}
 	
 	public IConstructor amb(ISet alternatives) {
@@ -633,6 +641,195 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
+	private class Cycle implements IConstructor {
+		protected final IConstructor symbol;
+		protected final int cycleLength;
+		
+		public Cycle(IConstructor symbol, int cycleLength) {
+			this.symbol = symbol;
+			this.cycleLength = cycleLength;
+		}
+		
+		@Override
+		public String getName() {
+			return Tree_Cycle.getName();
+		}
+		
+		@Override
+		public Iterable<IValue> getChildren() {
+			return this;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 17 + 19 * symbol.hashCode() + 29 * cycleLength; 
+		}
+		
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other instanceof IConstructor) {
+				IConstructor cons = (IConstructor) other;
+				
+				return cons.getConstructorType() == getConstructorType()
+						&& cons.get(0).isEqual(get(0))
+						&& ((IInteger) cons.get(1)).intValue() == cycleLength;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
+		}
+		
+		@Override
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+				private int count = 0;
+				
+				@Override
+				public boolean hasNext() {
+					return count < 2;
+				}
+
+				@Override
+				public IValue next() {
+					count++;
+					switch(count) {
+					case 1: return symbol;
+					case 2: return integer(cycleLength);
+					default: return null;
+					}
+				}
+			};
+		}
+
+		@Override
+		public int arity() {
+			return 2;
+		}
+		
+		@Override
+		public String toString() {
+			return StandardTextWriter.valueToString(this);
+		}
+		
+		@Override
+		public INode replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			throw new UnsupportedOperationException("Replace not supported on constructor.");
+		}
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
+				throws E {
+			return v.visitConstructor(this);
+		}
+		
+		@Override
+		public boolean isAnnotatable() {
+			return true;
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return RascalTypeFactory.getInstance().nonTerminalType(symbol);
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+			return Tree_Cycle;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+			return Tree_Cycle;
+		}
+
+		@Override
+		public IValue get(String label) {
+			switch (label) {
+			case "symbol": return symbol;
+			case "cycleLength": return integer(cycleLength);
+			default: throw new UndeclaredFieldException(Tree_Amb, label);
+			}
+		}
+
+		@Override
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			switch (label) {
+			case "symbol": return cycle((IConstructor) newChild, cycleLength);
+			case "cycleLength" : return cycle(symbol, ((IInteger) newChild).intValue());
+			default: throw new UndeclaredFieldException(Tree_Appl, label);
+			}
+		}
+
+		@Override
+		public boolean has(String label) {
+			return Tree_Cycle.hasField(label);
+		}
+
+		@Override
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			switch (index) {
+			case 0: return cycle((IConstructor) newChild, cycleLength);
+			case 1: return cycle(symbol, ((IInteger) newChild).intValue());
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+			return tf.tupleType(Symbol, tf.integerType());
+		}
+
+		@Override
+		public boolean declaresAnnotation(TypeStore store, String label) {
+			return store.getAnnotations(Tree).containsKey(label);
+		}
+
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<IConstructor>(this) {
+				@Override
+				protected IConstructor wrap(IConstructor content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedConstructorFacade(content, annotations);
+				}
+			};
+		}
+
+		@Override
+		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+				    @Override
+				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    }
+			 }; 
+		}
+		
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return symbol;
+			case 1: return integer(cycleLength);
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+	}
+	
 	private class Amb implements IConstructor {
 		protected final ISet alternatives;
 		
@@ -774,7 +971,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return constructor(Tree_Amb, newChild, getAlternatives());
+			case 0: return amb((ISet) newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}

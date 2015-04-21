@@ -130,7 +130,7 @@ public class StringTemplateConverter {
 			}
 			
 			private void appendToString(IValue value, StringBuilder b) {
-				if (value.getType() == RascalValueFactory.Tree) {
+				if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
