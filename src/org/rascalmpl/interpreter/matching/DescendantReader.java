@@ -139,8 +139,8 @@ public class DescendantReader implements Iterator<IValue> {
         if (SymbolAdapter.isAnyList(sym)) {
         	spine.push(tree);
         	
-        	sym = SymbolAdapter.getSymbol(sym);
         	int delta = SymbolAdapter.getListSkipDelta(sym);
+        	sym = SymbolAdapter.getSymbol(sym);
 
         	IList listElems = (IList) tree.get(1);
 			if (debug) {

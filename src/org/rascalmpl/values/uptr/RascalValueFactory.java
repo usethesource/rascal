@@ -44,6 +44,7 @@ import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 
@@ -60,8 +61,8 @@ import org.rascalmpl.interpreter.types.ReifiedType;
  */
 public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore();
+	private final static Map<Integer, IConstructor> characterClasses = new HashMap<>();
 	private final static TypeFactory tf = TypeFactory.getInstance();
-//	private final static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 	private final TypeReifier tr;
 	
 	private static final Type str = tf.stringType();
@@ -198,7 +199,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return uptr;
 	}
 	
-	public RascalValueFactory() {
+	static private class InstanceHolder {
+		static final RascalValueFactory sInstance = new RascalValueFactory();
+	}
+	
+	public static RascalValueFactory getInstance() {
+		return InstanceHolder.sInstance;
+	}
+	
+	private RascalValueFactory() {
 		super(bootFactory);
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
@@ -284,7 +293,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return super.constructor(constructor, children, kwParams);
 	}
 	
-
+	private static IConstructor charClass(int ch) {
+		IConstructor clas = characterClasses.get(ch);
+		if (clas == null) {
+			IValueFactory VF = getInstance().adapted;
+			clas = VF.constructor(Symbol_CharClass, VF.list(VF.constructor(CharRange_Range, VF.integer(ch), VF.integer(ch))));
+			characterClasses.put(ch, clas);
+		}
+		return clas;
+	}
+	
 	public IConstructor character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
 			return character((byte) ch);
@@ -423,7 +441,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return Tree;
+			return Tree;  // new NonTerminalType(charClass((int) ch));
 		}
 
 		@Override
@@ -582,7 +600,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return Tree;
+			return Tree;// new NonTerminalType(charClass((int) ch));
 		}
 
 		@Override
@@ -1160,8 +1178,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return constructor(Tree_Appl, newChild, getArguments());
-			case 1: return constructor(Tree_Appl, production, newChild);
+			case 0: return getInstance().constructor(Tree_Appl, newChild, getArguments());
+			case 1: return getInstance().constructor(Tree_Appl, production, newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -1214,11 +1232,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			Type lub = tf.voidType();
-			for (IValue elem : this) {
-				lub = lub.lub(elem.getType());
-			}
-			return tf.listType(lub);
+			
+			return tf.listType(getElementType());
 		}
 		
 		@Override
@@ -1320,7 +1335,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getElementType() {
-			return Tree;
+			Type lub = tf.voidType();
+			for (IValue elem : this) {
+				lub = lub.lub(elem.getType());
+			}
+			return lub;
 		}
 
 		@Override

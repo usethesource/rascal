@@ -129,6 +129,7 @@ public class QuickCheck {
 				expectedThrown = true;
 			}
 			catch (Throwable e) {
+				e.printStackTrace();
 				if(expected == null || !e.getClass().toString().endsWith("." + expected)){
 					return reportFailed(fname, e.getMessage(), tpbindings, formals, values, out);
 				}
