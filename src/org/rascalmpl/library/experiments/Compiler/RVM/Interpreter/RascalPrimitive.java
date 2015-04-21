@@ -6115,8 +6115,9 @@ public enum RascalPrimitive {
 			Type subjectType = subject.getType();
 			Type type = (Type) stack[sp - 1];
 			
+			// TODO: this special case should be unnecessary in the future
 			if(type instanceof NonTerminalType){
-				if(subjectType == RascalValueFactory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
+				if(subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((IConstructor) subject)){
 					NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
 					NonTerminalType typeNT = (NonTerminalType) type;
 					stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
@@ -7187,7 +7188,7 @@ public enum RascalPrimitive {
 	}
 
 	private static boolean $isTree(IValue v){
-		return v.getType() == RascalValueFactory.Tree; //.isAbstractData() && v.getType().getName().equals("Tree");
+		return v.getType().isSubtypeOf(RascalValueFactory.Tree); //.isAbstractData() && v.getType().getName().equals("Tree");
 	}
 	
 	private static int $getIter(IConstructor cons){

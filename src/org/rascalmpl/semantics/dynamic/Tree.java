@@ -175,7 +175,7 @@ static public class MetaVariable extends Tree {
 		}
 		
 		// TODO add function calling
-		IListWriter w = eval.getValueFactory().listWriter(RascalValueFactory.Tree);
+		IListWriter w = eval.getValueFactory().listWriter();
 		for (org.rascalmpl.ast.Expression arg : args) {
 			w.append(arg.interpret(eval).getValue());
 		}
@@ -185,10 +185,10 @@ static public class MetaVariable extends Tree {
 		if (location != null) {
 		  java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
 		  annos.put("loc", location);
-		  return makeResult(type, eval.getValueFactory().constructor(RascalValueFactory.Tree_Appl, annos, production, w.done()), eval);
+		  return makeResult(type, VF.appl(annos, production, w.done()), eval);
 		}
 		else {
-		  return makeResult(type, eval.getValueFactory().constructor(RascalValueFactory.Tree_Appl, production, w.done()), eval);
+		  return makeResult(type, VF.appl(production, w.done()), eval);
 		}
 	}
 	
@@ -256,7 +256,7 @@ static public class MetaVariable extends Tree {
 		}
 		
 		// TODO add function calling
-		IListWriter w = eval.getValueFactory().listWriter(RascalValueFactory.Tree);
+		IListWriter w = eval.getValueFactory().listWriter();
 		for (org.rascalmpl.ast.Expression arg : args) {
 			w.append(arg.interpret(eval).getValue());
 		}
@@ -266,10 +266,10 @@ static public class MetaVariable extends Tree {
     if (location != null) {
       java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
       annos.put("loc", location);
-      return makeResult(type, eval.getValueFactory().constructor(RascalValueFactory.Tree_Appl, annos, production, flatten(w.done())), eval);
+      return makeResult(type, VF.appl(annos, production, flatten(w.done())), eval);
     }
     else {
-      return makeResult(type, eval.getValueFactory().constructor(RascalValueFactory.Tree_Appl, production, flatten(w.done())), eval);
+      return makeResult(type, VF.appl(production, flatten(w.done())), eval);
     }
 	}
 
@@ -353,11 +353,11 @@ static public class MetaVariable extends Tree {
 		}
 		
 		// TODO: add filtering semantics, function calling
-		ISetWriter w = eval.getValueFactory().setWriter(RascalValueFactory.Tree);
+		ISetWriter w = eval.getValueFactory().setWriter();
 		for (org.rascalmpl.ast.Expression a : alts) {
 			w.insert(a.interpret(eval).getValue());
 		}
-		return makeResult(type, eval.getValueFactory().constructor(RascalValueFactory.Tree_Amb, (IValue) w.done()), eval);
+		return makeResult(type, VF.amb(w.done()), eval);
 	}
 	
 	@Override
@@ -453,12 +453,12 @@ static public class MetaVariable extends Tree {
 		
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  return makeResult(RascalValueFactory.Tree, VF.constructor(RascalValueFactory.Tree_Cycle, node, VF.integer(length)), eval);
+		  return makeResult(RascalValueFactory.Tree, VF.cycle(node, length), eval);
 	  }
 
 	  @Override
 	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		  return new LiteralPattern(eval, this, VF.constructor(RascalValueFactory.Tree_Cycle, node, VF.integer(length)));
+		  return new LiteralPattern(eval, this, VF.cycle(node,length));
 	  }
 
 	  @Override

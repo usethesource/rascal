@@ -7,42 +7,41 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, ISourceLocation>{
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
 	
 	public UPTRNodeFactory(){
 		super();
 	}
 
 	public IConstructor createCharNode(int charNumber){
-		return VF.constructor(RascalValueFactory.Tree_Char, VF.integer(charNumber));
+		return VF.character(charNumber);
 	}
 
 	public IConstructor createLiteralNode(int[] characters, Object production){
-		IListWriter listWriter = VF.listWriter(RascalValueFactory.Tree);
+		IListWriter listWriter = VF.listWriter();
 		for(int i = characters.length - 1; i >= 0; --i){
-			listWriter.insert(VF.constructor(RascalValueFactory.Tree_Char, VF.integer(characters[i])));
+			listWriter.insert(VF.character(characters[i]));
 		}
 		
-		return VF.constructor(RascalValueFactory.Tree_Appl, (IConstructor) production, listWriter.done());
+		return VF.appl((IConstructor) production, listWriter.done());
 	}
 	
 	private static IConstructor buildAppl(ArrayList<IConstructor> children, Object production){
-		IListWriter childrenListWriter = VF.listWriter(RascalValueFactory.Tree);
+		IListWriter childrenListWriter = VF.listWriter();
 		for(int i = children.size() - 1; i >= 0; --i){
 			childrenListWriter.insert(children.get(i));
 		}
 		
-		return VF.constructor(RascalValueFactory.Tree_Appl, (IConstructor) production, childrenListWriter.done());
+		return VF.appl((IConstructor) production, childrenListWriter.done());
 	}
 
 	public IConstructor createSortNode(ArrayList<IConstructor> children, Object production){
@@ -59,12 +58,12 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	private static IConstructor buildAmbiguityNode(ArrayList<IConstructor> alternatives){
-		ISetWriter ambSublist = VF.setWriter(RascalValueFactory.Tree);
+		ISetWriter ambSublist = VF.setWriter();
 		for(int i = alternatives.size() - 1; i >= 0; --i){
 			ambSublist.insert(alternatives.get(i));
 		}
 		
-		return VF.constructor(RascalValueFactory.Tree_Amb, ambSublist.done());
+		return VF.amb(ambSublist.done());
 	}
 
 	public IConstructor createAmbiguityNode(ArrayList<IConstructor> alternatives){
@@ -80,7 +79,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	private static IConstructor buildCycle(int depth, Object production){
-		return VF.constructor(RascalValueFactory.Tree_Cycle, ProductionAdapter.getType((IConstructor) production), VF.integer(depth));
+		return VF.cycle(ProductionAdapter.getType((IConstructor) production), depth);
 	}
 
 	public IConstructor createCycleNode(int depth, Object production){
@@ -92,12 +91,12 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 
 	public IConstructor createRecoveryNode(int[] characters){
-		IListWriter listWriter = VF.listWriter(RascalValueFactory.Tree);
+		IListWriter listWriter = VF.listWriter();
 		for(int i = characters.length - 1; i >= 0; --i){
-			listWriter.insert(VF.constructor(RascalValueFactory.Tree_Char, VF.integer(characters[i])));
+			listWriter.insert(VF.character(characters[i]));
 		}
 		
-		return VF.constructor(RascalValueFactory.Tree_Appl, VF.constructor(RascalValueFactory.Production_Skipped), listWriter.done());
+		return VF.appl(VF.constructor(RascalValueFactory.Production_Skipped), listWriter.done());
 	}
 	
 	public ISourceLocation createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore){

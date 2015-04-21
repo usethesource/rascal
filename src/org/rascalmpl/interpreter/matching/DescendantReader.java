@@ -78,7 +78,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type == RascalValueFactory.Tree) {
+			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type.isSubtypeOf(RascalValueFactory.Tree)) {
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
