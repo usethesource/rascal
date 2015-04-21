@@ -1380,6 +1380,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public org.eclipse.imp.pdb.facts.type.Type getElementType() {
 			Type lub = tf.voidType();
 			for (IValue elem : this) {
+				if (lub == Tree) {
+					// it's not going to be wider anyway
+					return Tree;
+				}
 				lub = lub.lub(elem.getType());
 			}
 			return lub;
