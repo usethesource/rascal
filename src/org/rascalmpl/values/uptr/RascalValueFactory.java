@@ -44,7 +44,6 @@ import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 
@@ -956,7 +955,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
+			if (!alternatives.isEmpty()) {
+				return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
+			}
+			else {
+				return Tree;
+			}
 		}
 
 		@Override
