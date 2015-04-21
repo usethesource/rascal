@@ -173,23 +173,23 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected Type lubWithNonTerminal(RascalType other) {
-	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  
-	  // * eats +
-    if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
-      return this;
-    }
+		IConstructor otherSym = ((NonTerminalType)other).symbol;
 
-    return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
+		// * eats +
+		if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+			return other;
+		}
+		else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+			return this;
+		}
+		else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+			return other;
+		}
+		else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+			return this;
+		}
+
+		return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
 	}
 
 	@Override

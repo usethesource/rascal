@@ -223,7 +223,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
+		return makeResult(instantiated.getAbstractDataType(), ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	
 	@Override
