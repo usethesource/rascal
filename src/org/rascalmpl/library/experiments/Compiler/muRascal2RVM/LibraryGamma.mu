@@ -13,7 +13,11 @@ function NEXT(gen) {
     return false
 }
 
+coroutine ONE(task) {
+    return next(create(task))
+}
 
+/*
 // Semantics of the all operator
 
 coroutine ALL(tasks) 
@@ -40,6 +44,7 @@ guard {
     }
 }
 
+// A specific coroutine is now generated for each OR
 coroutine OR(tasks)
 guard { 
 	var len = size_array(tasks); len > 0 
@@ -50,23 +55,28 @@ guard {
         j = j + 1
     }
 }
+*/
 
-coroutine ONE(task) {
-    return next(create(task))
-}
 
+
+/*
+// A specific coroutine is now generated for each RASCAL_ALL
 function RASCAL_ALL(genArray, generators) { 
     var len = size_array(genArray), 
         genInits = make_array(len),
         j = 0, 
         forward = true, 
-        gen   
+        gen 
+    println("RASCAL_ALL", len, genArray, generators)
     while(true) {
+    	println("RASCAL_ALL, j=", j, forward)
         if(generators[j]) {
+        	println("RASCAL_ALL, generators[j] == true", j, genArray[j])
             if(forward) {
                 genInits[j] = create(genArray[j])
             }
             gen = genInits[j]
+            println("RASCAL_ALL, gen", gen)
             if(next(gen)) {
                 forward = true
                 j = j + 1
@@ -98,6 +108,7 @@ function RASCAL_ALL(genArray, generators) {
         }
     }
 }
+*/
 
 // Initialize a pattern with a given value and exhaust all its possibilities
 
@@ -117,102 +128,69 @@ coroutine ENUM_LITERAL(iLit, rVal) {
 }
 
 coroutine ENUM_LIST(iLst, rVal)
-guard { 
-	var len = size_list(iLst); len > 0
-} {
-    var j = 0
-    while(j < len) {
-        yield get_list(iLst, j)
-        j = j + 1
+{
+    var iter = iterator(iLst);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
-coroutine ENUM_SET(iSet, rVal) 
-guard { 
-    var iLst = set2list(iSet), 
-        len = size_list(iLst)
-    len > 0 
-}
+coroutine ENUM_SET(iSet, rVal)
 {
-    var j = 0
-    while(j < len) {
-        yield get_list(iLst, j)
-        j = j + 1
+	var iter = iterator(iSet);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
-coroutine ENUM_MAP(iMap, rVal) 
-guard { 
-    var iKlst = keys(iMap), 
-        len = size_list(iKlst) 
-    len > 0 
-}
+coroutine ENUM_MAP(iMap, rVal)
 {
-    var j = 0
-    while(j < len) {
-        yield get_list(iKlst, j)
-        j = j + 1
+  	var iter = iterator(iMap);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
 coroutine ENUM_NODE(iNd, rVal) 
 {
-   var array, iLst, len, j = 0
+   var iter
    
    //println("ENUM_NODE", iNd);
-   if(prim("is_appl", iNd)){            	// A appl (concrete) node?
-      if(prim("is_concrete_list", iNd)){	// regular(opname(), ...)
-         iLst = prim("get_concrete_list_elements", iNd)
-         len = size_list(iLst)
-         //println("ENUM_NODE", len,  iLst);
+   if(iNd is appl){            	// A appl (concrete) node?
+      if(iNd is concretelist){	// regular(opname(), ...)
+         iter = iterator(prim("get_concrete_list_elements", iNd))
         
-         while(j < len) {
-               yield muprim("subscript_list_mint", iLst, j)
-               j = j + 1
+         while(hasNext(iter)) {
+               yield getNext(iter)
          }
-         666
       } else {                                    
         return iNd;                                // Concrete node, but not a concrete list
       }
    } else {                                        // Not a concrete list
-      array = get_children_and_keyword_values(iNd)
-      len = size_array(array)                    
-    
-      if(len > 0){
-         while(j < len) {
-            yield array[j]
-            j = j + 1
-         }
-       }
-    }
+      iter = iterator(get_children_and_keyword_values(iNd))
+      
+      while(hasNext(iter)){
+      	yield getNext(iter)
+     }
+   }  	                  
 }
 
 coroutine ENUM_NODE_NO_KEYWORD_PARAMS(iNd, rVal) 
 {
-   var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
-   
-   //println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
+   var iter = iterator(get_children(iNd));
+  
    // TODO concrete appl case?
-   array = get_children(iNd)
-   len = size_array(array)                    
-    
-   if(len > 0){
-      while(j < len) {
-         yield array[j]
-         j = j + 1
-       }
-       666
-    }
+ 
+   while(hasNext(iter)){
+   		yield getNext(iter)
+   }                  
 }
 
 coroutine ENUM_TUPLE(iTup, rVal)
-guard {
-	var len = size_tuple(iTup); len > 0
-} {
-    var j = 0
-    while(j < len) {
-        yield get_tuple(iTup, j)
-        j = j + 1
+{
+    var iter = iterator(iTup);
+    while(hasNext(iter)){
+        yield getNext(iter)
     }
 }
 
@@ -423,7 +401,7 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    //("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
@@ -433,7 +411,7 @@ guard
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 2", args);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, case 2", size_array(args), size_array(pats), pats, args);
         MATCH_N(pats, args)
     }
 }
@@ -453,7 +431,7 @@ guard
 
 coroutine MATCH_CONCRETE_TREE(prod, pat, iSubject)
 guard
-	prim("is_appl", iSubject)
+	iSubject is appl
 {
 	var args = get_children(iSubject),
 	    cpat;
@@ -513,6 +491,7 @@ coroutine MATCH_LITERAL(pat, iSubject)
 //guard
 //	equal(pat, iSubject)
 {
+	//println("MATCH_LITERAL", pat, iSubject)
 	if(equal(pat, iSubject)){
     	//println("MATCH_LITERAL, true", pat, iSubject)
     	yield
@@ -566,6 +545,7 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject)
 guard 
 	value_is_subtype(iSubject, typ)
 {
+	//println("MATCH_TYPED_ANONYMOUS_VAR", typ, prim("value_to_string", iSubject))
     yield
 }
 
@@ -671,28 +651,32 @@ guard
 // A list match is acceptable when the cursor points at the end of the list
 
 function ACCEPT_LIST_MATCH(subject) {
-   //println("ACCEPT_LIST_MATCH", GET_CURSOR(subject), size_list(GET_LIST(subject)) == GET_CURSOR(subject))
-   return size_list(GET_LIST(subject)) == GET_CURSOR(subject)
+   //println("ACCEPT_LIST_MATCH", GET_SUBJECT_CURSOR(subject), size_list(GET_SUBJECT_LIST(subject)) == GET_SUBJECT_CURSOR(subject))
+   //return size_list(GET_SUBJECT_LIST(subject)) == GET_SUBJECT_CURSOR(subject)
+   return muprim("accept_list_match", subject)
 }
 
-function GET_LIST(subject) { 
+// Get the list from a subject -- inlined by implode --
+function GET_SUBJECT_LIST(subject) { 
     return subject[0] 
 }
 
-function GET_CURSOR(subject) { 
-    /*if(subject[1] < size_list(subject[0])){
-    	println("GET_CURSOR", subject[1], get_list(subject[0], subject[1]))
-    } else {
-    	println("GET_CURSOR", subject[1])
-    }*/	
+// Get the list cursor from a subject -- inlined by implode --
+function GET_SUBJECT_CURSOR(subject) {
+	/*if(subject[1] < size_list(subject[0])){
+		println("GET_SUBJECT_CURSOR", subject[1], get_list(subject[0], subject[1]))
+	} else {
+		println("GET_SUBJECT_CURSOR", subject[1])
+	}*/
     return subject[1] 
 }
+
+// Make a subject -- inlined by implode --
 
 function MAKE_SUBJECT(iList, cursor) {
    var ar = make_array(2)
    ar[0] = iList
    ar[1] = cursor
-   //println("MAKE_SUBJECT", cursor, iList) 
    return ar
 }
 
@@ -706,8 +690,8 @@ function MAKE_SUBJECT(iList, cursor) {
 
 coroutine MATCH_PAT_IN_LIST(pat, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject)
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject)
     start < size_list(iList) 
 } 
 { 
@@ -723,13 +707,13 @@ guard {
 
 coroutine MATCH_LITERAL_IN_LIST(pat, rSubject) 
 //guard { 
-//   var iList = GET_LIST(deref rSubject), 
-//        start = GET_CURSOR(deref rSubject) 
+//   var iList = GET_SUBJECT_LIST(deref rSubject), 
+//        start = GET_SUBJECT_CURSOR(deref rSubject) 
 //    start < size_list(iList) 
 //} 
 {
-	var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject),
+	var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject),
         elm; 
  
     if(start < size_list(iList)){ 
@@ -747,8 +731,8 @@ coroutine MATCH_LITERAL_IN_LIST(pat, rSubject)
 
 coroutine MATCH_VAR_IN_LIST(rVar, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject) 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject) 
     start < size_list(iList) 
 }
 {
@@ -770,8 +754,8 @@ guard {
 
 coroutine MATCH_TYPED_VAR_IN_LIST(typ, rVar, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject) 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject) 
     start < size_list(iList) 
 }
 {
@@ -784,8 +768,8 @@ guard {
 
 coroutine MATCH_ANONYMOUS_VAR_IN_LIST(rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject)
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject)
     start < size_list(iList) 
 }
 {
@@ -795,8 +779,8 @@ guard {
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST(typ, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start = GET_CURSOR(deref rSubject)
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject)
     start < size_list(iList) 
 }
 {
@@ -808,8 +792,8 @@ guard {
 }
 
 coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start, 
         len = mint(iMinLen), 
         maxLen = min(mint(iMaxLen), available - mint(iLookahead)),
@@ -832,8 +816,8 @@ coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
 
 coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start, 
         len = min(mint(iMaxLen), max(available - mint(iLookahead), 0))
     len >= 0
@@ -859,8 +843,8 @@ guard {
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start, 
         len = mint(iMinLen) 
     available = min(mint(iMaxLen), available - mint(iLookahead))
@@ -873,8 +857,8 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubjec
 
 coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start,
         len = min(mint(iMaxLen), available - mint(iLookahead))
     len >= mint(iMinLen)
@@ -888,8 +872,8 @@ guard {
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), available = size_list(iList) - start,
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), available = size_list(iList) - start,
         len = mint(iMinLen), 
         sub
     available = min(mint(iMaxLen), available - mint(iLookahead))
@@ -913,8 +897,8 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, 
 }
 
 coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start,
         len = mint(iMinLen), 
         elmType
@@ -940,8 +924,8 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookah
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start,
         len = mint(iMinLen)
     available = min(mint(iMaxLen), available - mint(iLookahead))
@@ -965,8 +949,8 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahe
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, rSubject) {
-    var iList = GET_LIST(deref rSubject), 
-        start =  GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
         available = size_list(iList) - start,
         len = mint(iMinLen), elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
@@ -996,15 +980,15 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
 coroutine MATCH_APPL_IN_LIST(iProd, argspat, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject);
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject);
         start < size_list(iList) 
 } {
     var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
     //println("MATCH_APPL_IN_LIST", iProd, iElem)
-    if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
+    if(iElem is appl && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
             yield MAKE_SUBJECT(iList, start+1)
@@ -1015,27 +999,27 @@ guard {
 // Match appl(prod(lit(S),_,_), _) in a concrete list
 coroutine MATCH_LIT_IN_LIST(iProd, rSubject)
 guard { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject); 
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject); 
         start < size_list(iList) 
 } {
     var iElem = get_list(iList, start), 
         children = get_children(iElem)
     //println("MATCH_LIT_IN_LIST", iProd, iElem)
-    if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
+    if(iElem is appl && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
     }
 }
 
 // Match and skip optional layout in concrete patterns
 coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject), 
         iElem, children, prod, prodchildren;
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
         //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
-        if(iElem is node && equal(get_name(iElem), "appl")) {
+        if(iElem is node && iElem is appl) {
             children = get_children(iElem)
             prod = children[0]
             prodchildren = get_children(prod)
@@ -1052,32 +1036,32 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
 
 // Match a (or last) multivar in a concrete list
 
-coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, rSubject) {
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject),
+coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, holeProd, rSubject) {
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject),
         cavailable = size(iList) - start, 
         clen = mint(iMinLen), 
         maxLen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)), 
         iVal, end
     if(is_defined(rVar)) {
-        iVal = deref rVar                        /* TODO: check length */
-        if(occurs(iVal, iList, start)) {
+        iVal = deref rVar
+        if(size_list(iVal) <= maxLen && occurs(iVal, iList, start)) {
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }  
     while(clen <= maxLen) {
         end = start + clen
-        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
+        yield(MAKE_CONCRETE_LIST(holeProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
         clen = clen + 2
     }
     undefine(rVar)
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, rSubject) 
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, holeProd, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject), 
         cavailable = size(iList) - start, 
         clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0))
     clen >= mint(iMinLen) 
@@ -1085,24 +1069,35 @@ guard {
 {
     var iVal, end
     if(is_defined(rVar)) {
-        iVal = deref rVar                         /* TODO: check length */
+        iVal = deref rVar
         if(occurs(iVal, iList, start)) {
              yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }
     end = start + clen
-    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
+    yield(MAKE_CONCRETE_LIST(holeProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
     undefine(rVar)
 }
 
-// Skip a separator that may be present before or after a matching multivar
+// Skip an optional separator that may be present before or after a matching multivar
+// iList:	subject list
+// start: 	start index of current list match in subject
+// offset:	offset relative to start index
+// sep:		list separator
+// available:
+//			total number of list elements available for current list match
+
 function SKIP_OPTIONAL_SEPARATOR(iList, start, offset, sep, available) {
     var elm, children, prod, prodchildren
-    if(available >= offset + 2) {
+    
+    //println("SKIP_OPTIONAL_SEPARATOR", start, offset, sep, available, size_list(iList))
+      
+    if(available >= offset + 2){
         elm = get_list(iList, start + offset)
         if(elm is node) {
             children = get_children(elm)
+           // println("SKIP_OPTIONAL_SEPARATOR, children", children);
             prod = children[0]
             prodchildren = get_children(prod)
             if(equal(prodchildren[0], sep)) {
@@ -1114,9 +1109,19 @@ function SKIP_OPTIONAL_SEPARATOR(iList, start, offset, sep, available) {
     return 0
 }
 
-coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, rSubject) { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject), 
+// Concrete match of a multivar in concrete list with separators, given:
+// rVar		reference variable representing the multivar in the pattern
+// iMinLen	minimal length of the list to be matched
+// iMaxLen	maximal length of the list to be matched
+// iLookAhead
+//			number of non-null list elements following this multivar
+// sep		separator
+// holeProd	production to build a value for the multivar, given a sublist of matched elements
+// rSuject	reference variable representing the concrete list subject
+
+coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, holeProd, rSubject) { 
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject), 
         cavailable = size(iList) - start, 
         len =  mint(iMinLen), 
         skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iList, start, 0, sep, cavailable), 
@@ -1125,7 +1130,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
         iVal, sublen, end             
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iList, start)) {         /* TODO: check length */
+        if(size_list(iVal) <= maxLen && occurs(iVal, iList, start)) {
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
@@ -1139,16 +1144,18 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
         end = start + skip_leading_separator + sublen
         skip_trailing_separator = SKIP_OPTIONAL_SEPARATOR(iList, end, 1, sep, maxLen)
         end = end + skip_trailing_separator
-        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
+        yield(MAKE_CONCRETE_LIST(holeProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
         len = len + 1
     }
     undefine(rVar)
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, rSubject) 
+// Concrete match of the last multivar in a concrete list with separators
+
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, holeProd, rSubject) 
 guard { 
-    var iList = GET_LIST(deref rSubject),
-        start = GET_CURSOR(deref rSubject), 
+    var iList = GET_SUBJECT_LIST(deref rSubject),
+        start = GET_SUBJECT_CURSOR(deref rSubject), 
         cavailable = size(iList) - start, 
         skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iList, start, 0, sep, cavailable), 
         skip_trailing_separator = 0,
@@ -1166,38 +1173,28 @@ guard {
     var iVal, end  
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iList, start)) {	     /* TODO: check length */
+        if(occurs(iVal, iList, start)) {
             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }
     end = start + skip_leading_separator + sublen + skip_trailing_separator
-    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
+    yield(MAKE_CONCRETE_LIST(holeProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
     undefine(rVar)
 }
 
-// applConstr: 	Tree::appl
-// listProd:   	Chain rule surrounding the concrete list
-// applProd:  	list constructor
-// elms:		actual list elements
+// Make a concrete list given
+// concListProd:  	production of the concrete list
+// elms:			actual elements of the concrete list (including layout and separators)
 
-function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
+function MAKE_CONCRETE_LIST(concListProd, elms) {
     var listResult
     
-    //println("MAKE_CONCRETE_LIST, applConstr", applConstr)
-    //println("MAKE_CONCRETE_LIST, listProd", listProd)
-    //println("MAKE_CONCRETE_LIST, applProd", applProd)
+    //println("MAKE_CONCRETE_LIST, concListProd", concListProd)
     //println("MAKE_CONCRETE_LIST, elms", elms)
     
-    //println("MAKE_CONCRETE_LIST, size", size(get_children(listProd)[1]))
+    listResult = prim("appl_create", concListProd, elms)
     
-    // TODO: simplify these cases
-    if(size(get_children(listProd)[1]) > 1){ // chain rule with concrete syntax
-    	listResult = prim("appl_create", applConstr, applProd, elms)
-    } else {
-        listResult = prim("appl_create", applConstr, applProd, elms)
-    	//listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
-    }
     //println("MAKE_CONCRETE_LIST", listResult)
     return listResult
 }
@@ -1225,6 +1222,7 @@ function ACCEPT_SET_MATCH(subject) {
    return size_mset(subject) == 0
 }
 
+/*
 coroutine ENUM_MSET(set, rElm) {
     var iLst = mset2list(set), 
         len = size_list(iLst), 
@@ -1234,6 +1232,16 @@ coroutine ENUM_MSET(set, rElm) {
         j = j + 1
     }
 }
+*/
+
+coroutine ENUM_MSET(set, rElm) {
+	var iter = iterator(set)
+	
+	while(hasNext(iter)){
+		yield getNext(iter)
+	}
+}
+
 
 // All coroutines that may occur in a set pattern have the following parameters:
 // - pat: the actual pattern to match one or more elements
@@ -1493,40 +1501,30 @@ coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
     DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject) 	
 }
 
-coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst) 
+coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
 {
-    var last = size_list(iLst), 
-        j = 0;
-    //println("DESCENT_AND_MATCH_LIST", iLst, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
-        j = j + 1
+ 	var iter = iterator(iLst);
+    while(hasNext(iter)){
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
 coroutine DESCENT_AND_MATCH_SET(pat, descendantDescriptor, iSet) 
 {
-    var iLst = set2list(iSet), 
-        last = size_list(iLst),
-        j = 0;
-    //println("DESCENT_AND_MATCH_SET", iSet, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iLst, j))
-        j = j + 1
+	var iter = iterator(iSet);
+    while(hasNext(iter)){
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
 coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
 {
-    var iKlst = keys(iMap), 
-        iVlst = values(iMap), 
-        last = size_list(iKlst), 
-        j = 0;
-    //println("DESCENT_AND_MATCH_MAP", iMap, j, last)
-    while(j < last) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iKlst, j))
-        DESCENT_AND_MATCH(pat, descendantDescriptor, get_list(iVlst, j))  
-        j = j + 1
+	var iter = iterator(iMap),
+	    iKey;
+    while(hasNext(iter)){
+    	iKey = getNext(iter)
+    	DESCENT_AND_MATCH(pat, descendantDescriptor, iKey)
+        DESCENT_AND_MATCH(pat, descendantDescriptor, prim("map_subscript", iMap, iKey))
     }
 }
 
@@ -1534,64 +1532,51 @@ coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
 guard
 	prim("should_descent", iNd, descendantDescriptor)
 {
-   var array, iLst, len, children, j = 0, prod, op, opname, sort, val
+   var val, iter;
    
    //println("DESCENT_AND_MATCH_NODE");
    
    // isConcreteMatch?
-   if(muprim("descendant_is_concrete_match", descendantDescriptor) && prim("is_appl", iNd)){ 
+   if(muprim("descendant_is_concrete_match", descendantDescriptor) && iNd is appl){ 
       //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
-      if(prim("is_concrete_list", iNd)){
+      if(prim("is_concretelist", iNd)){
          //println("DESCENT_AND_MATCH_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
-         iLst = prim("get_nonlayout_args", iNd)
-         len = size_list(iLst)
-         if(len > 0){
-            while(j < len) {
-               val = muprim("subscript_list_mint", iLst, j)
-               //println("DESCENT_AND_MATCH_NODE, list element:", j, val);
-               DESCENT_AND_MATCH(pat,descendantDescriptor,  val)
-               j = j + 1
-            }
+         iter = iterator(prim("get_nonlayout_args", iNd))
+         while(hasNext(iter)) {
+         	val = getNext(iter)
+           	DESCENT_AND_MATCH(pat,descendantDescriptor,  val)
          }
          exhaust
       }  
-      if(prim("is_lexical", iNd)){
+      if(iNd is lexical){
          //println("DESCENT_AND_MATCH_NODE, lexical = ", iNd);
          exhaust
       }
  
-      iLst = prim("get_appl_args", iNd)
-      //println("DESCENT_AND_MATCH_NODE, is_appl, iLst = ", iLst);
-      len = size_list(iLst)
+      iter = iterator(prim("get_appl_args", iNd))
       
-      while(j < len) {
-            val = muprim("subscript_list_mint", iLst, j)
-            //println("DESCENT_AND_MATCH_NODE, is_appl, arg j = ", j, val);
+      while(hasNext(iter)) {
+            val = getNext(iter)
+            //println("DESCENT_AND_MATCH_NODE, is_appl", val);
             DESCENT_AND_MATCH(pat, descendantDescriptor, val)
-            j = j + 2
       }
       //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
       exhaust
    } 
    //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", get_name(iNd))                                 
    // Not a concrete list or appl
-   array = get_children_and_keyword_values(iNd)
-   len = size_array(array)                    
+   iter = iterator(get_children_and_keyword_values(iNd))                  
     
-   while(j < len) {
-         DESCENT_AND_MATCH(pat, descendantDescriptor, array[j])
-         j = j + 1
+   while(hasNext(iter)) {
+         DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
    }
 }
 
 coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
-    var last = size_tuple(iTup), 
-     	val,
-        j = 0;
-    while(j < last) {
-    	val = get_tuple(iTup, j)
-        DESCENT_AND_MATCH(pat, descendantDescriptor, val)
-        j = j + 1
+    var iter = iterator(iTup)
+
+    while(hasNext(iter)) {
+        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
     }
 }
 
@@ -1674,7 +1659,7 @@ function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rLeaveVisit, 
 	       iSubject = iSubject    // avoid duplicate traversal of string
 	    } else {
 	        iSubject = phi(iSubject, ref matched, ref changed, rLeaveVisit, rBegin, rEnd, descendantDescriptor)
-	        //println("TRAVERSE_TOP_DOWN, applied phi ", deref rLeaveVisit, iSubject);
+	        //println("TRAVERSE_TOP_DOWN, applied phi ", matched, deref rLeaveVisit, iSubject);
 	        if(deref rLeaveVisit){
 	        	return iSubject
 	        }
@@ -1899,6 +1884,7 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
         values, iVal
   
     //println("VISIT_NODE", iSubject, len, deref rHasMatch, deref rBeenChanged, deref rLeaveVisit, deref rBegin, deref rEnd, descendantDescriptor, rebuild);
+    //println("VISIT_NODE, enter", iSubject);
     
     // Visit positional arguments
     j = 0;
@@ -1939,12 +1925,11 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
     }
 
     if(deref rBeenChanged){
-        if(iSubject is constructor){
-            return prim("constructor", muprim("typeOf_constructor", iSubject), iChildren, kwMap)
-        } else {
-            return prim("node", muprim("get_name", iSubject), iChildren, kwMap)
-        }
+    	iVal = prim("rebuild", iSubject, iChildren, kwMap);
+    	//println("VISIT_NODE returns", iSubject, iVal);
+    	return iVal;
     }
+    //println("VISIT_NODE returns", iSubject);
     return iSubject
 }
 

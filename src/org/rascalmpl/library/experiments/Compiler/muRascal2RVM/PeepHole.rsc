@@ -10,7 +10,9 @@ import experiments::Compiler::RVM::AST;
 
 alias INS = list[Instruction];
 
-INS peephole(INS instructions) = peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
+INS peephole(INS instructions) {
+	return peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
+}
 
 INS peephole1(INS instructions, bool isSplit){
 	if(size(instructions) < 500){
@@ -57,9 +59,8 @@ INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
 INS redundant_stores([ STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction rest] ) =
 	[STOREVAR(v,p), *redundant_stores(rest)];   
 
-
 INS redundant_stores([ STORELOC(int p), POP(), LOADLOC(p),  *Instruction rest] ) =
-    [STORELOC(p), *redundant_stores(rest)];    
+    [STORELOC(p), *redundant_stores(rest)]; 
 
 INS redundant_stores([]) = [];
 
@@ -103,12 +104,12 @@ INS unused_labels([ *Instruction instructions ]){
        case JMPTRUE(lab): used += lab;
        case TYPESWITCH(labs): used += toSet(labs);
        case JMPINDEXED(labs): used += toSet(labs);
-       case SWITCH(labs, def): used += range(labs) + def;
+       case SWITCH(labs, def, useConcreteFingerprint): used += range(labs) + def;
     };
     return 
       for(ins <- instructions){
           if(LABEL(lab) := ins){
-             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "FINALLY"))
+             if(lab in used || startsWith(lab, "TRY") || startsWith(lab, "CATCH") || startsWith(lab, "FINALLY"))
                 append ins;
           } else {
             append ins;
@@ -121,7 +122,11 @@ INS dead_code([ *Instruction ins ] ) {
     i = 0;
     while(i < size(ins)){
        result += ins[i];
-       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i] || FAILRETURN() := ins[i]){
+       if(   JMP(lab) := ins[i] 
+          || RETURN0() := ins[i] 
+          || RETURN1(a) := ins[i] 
+          || FAILRETURN() := ins[i] 
+          || EXHAUST() := ins[i]){
           i += 1;
           while(i < size(ins) && LABEL(lab1) !:= ins[i]){
             //println("remove: <ins[i]>");

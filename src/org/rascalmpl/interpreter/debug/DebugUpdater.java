@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -89,7 +89,7 @@ public class DebugUpdater {
 				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
 											
 				// update children by recursively applying this visitor.
-				IListWriter writer = VF.listWriter(Factory.Args.getElementType());
+				IListWriter writer = VF.listWriter(RascalValueFactory.Args.getElementType());
 
 				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
 				for (Integer pos = 0; iter.hasNext(); pos++) {
@@ -117,7 +117,7 @@ public class DebugUpdater {
 		private static boolean hasBreakableAttributeTag(IConstructor production) {
 			ISet attributes = ProductionAdapter.getAttributes(production);
 			return attributes != null
-					&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
+					&& attributes.contains(VF.constructor(RascalValueFactory.Attr_Tag,VF.node("breakable")));
 		}		
 			
 		private static String[] getChildProductionNamesForPushDown(IConstructor production) {

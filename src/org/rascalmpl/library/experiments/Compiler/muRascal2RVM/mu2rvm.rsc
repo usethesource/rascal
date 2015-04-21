@@ -4,8 +4,10 @@ import IO;
 import Type;
 import List;
 import ListRelation;
+import Node;
 import Message;
 import String;
+import ToString;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -15,10 +17,10 @@ import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
-import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
-
+import experiments::Compiler::muRascal2RVM::StackValidator;
 
 
 alias INS = list[Instruction];
@@ -75,7 +77,7 @@ int newLocal(str fuid) {
 // Manage temporaries
 
 map[tuple[str,str],int] temporaries = ();
-str asUnwrapedThrown(str name) = name + "_unwraped";
+str asUnwrappedThrown(str name) = name + "_unwrapped";
 
 int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
@@ -87,8 +89,20 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
+bool producesValue(muLab(_)) = false;
+
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
+
+bool producesValue(muBreak(_)) = false;
+bool producesValue(muContinue(_)) = false;
+bool producesValue(muFail(_)) = false;
+bool producesValue(muFailReturn(_)) = false;
+
 bool producesValue(muReturn0()) = false;
+bool producesValue(muGuard(_)) = false;
+//bool producesValue(muYield0()) = false;
+//bool producesValue(muExhaust()) = false;
+
 bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
@@ -160,11 +174,21 @@ void resetShiftCounter() {
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imports, map[str,Symbol] types,  map[Symbol, Production] symbol_definitions,
-                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, int nlocals_in_initializations,
-                           map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar, loc src), 
+RVMProgram mu2rvm(muModule(str module_name, 
+						   map[str,str] tags,
+						   set[Message] messages, 
+						   list[loc] imports,
+						   list[loc] extends, 
+						   map[str,Symbol] types,  
+						   map[Symbol, Production] symbol_definitions,
+                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, 
+                           int nlocals_in_initializations,
+                           map[str,int] resolver,
+                           lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions, 
+                           map[Symbol, Production] grammar, 
+                           loc src), 
                   bool listing=false){
-  
+ 
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMProgram(module_name, messages, src);
   }
@@ -177,7 +201,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   	 main_fun = getFUID(module_name,"main",ftype,0);
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
-  
+ 
   funMap = ();
   nlabel = -1;
   nlocal =   ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
@@ -211,28 +235,61 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     code = tr(fun.body);
-    if(!contains(fun.qname, "_testsuite")){
+    //if(!contains(fun.qname, "_testsuite")){
     	code = peephole(code);
-    }
+    //}
     
-    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    catchBlockCode = [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + catchBlockCode;
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
     // for(ins <- code) {
     //	 println("	<ins>");
     // }
-    // println("EXCEPTION TABLE:");
-    // for(entry <- exceptionTable) {
-    //	 println("	<entry>");
-    // }
+     //println("EXCEPTION TABLE:");
+     //for(entry <- exceptionTable) {
+    	// println("	<entry>");
+     //}
     
-    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body) + 5; /* for safety */
+     lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions = 
+    	[ <range.from, range.to, entry.\type, entry.\catch, 0>
+    	| tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 									 
+    	  tuple[str from, str to] range <- entry.ranges
+    	];
+  
+    <maxStack, exceptions> = validate(fun.src, code, exceptions);
+    required_frame_size = nlocal[functionScope] + maxStack; // estimate_stack_size(fun.body);
     
-    lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
-    																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, fun.src, required_frame_size, code, exceptions))
-    							   : (fun.qname : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, 
+                                                            fun.uqname, 
+                                                            fun.scopeIn, 
+                                                            fun.nformals, 
+                                                            nlocal[functionScope], 
+                                                            localNames, 
+                                                            fun.refs, 
+                                                            fun.src, 
+                                                            required_frame_size, 
+                                                            code, 
+                                                            exceptions))
+    							   : (fun.qname : FUNCTION(fun.qname, 
+    							   						   fun.uqname, 
+    							   						   fun.ftype, 
+    							   						   fun.scopeIn, 
+    							   						   fun.nformals, 
+    							   						   nlocal[functionScope], 
+    							   						   localNames, 
+    							   						   fun.isVarArgs, 
+    							   						   fun.isPublic,
+    							   						   "default" in fun.modifiers,
+    							   						   fun.src, 
+    							   						   required_frame_size, 
+    							   						   fun.isConcreteArg,
+    							   						   fun.abstractFingerprint,
+    							   						   fun.concreteFingerprint,
+    							   						   code, 
+    							   						   exceptions));
   
   	if(listing){
   		println("===================== <fun.qname>");
@@ -244,7 +301,9 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   
   functionScope = module_init_fun;
   code = trvoidblock(initializations); // compute code first since it may generate new locals!
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, src, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
+  										 false, 0, 0,
   								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -269,7 +328,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, messages, imports, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
   return res;
 }
 
@@ -318,7 +377,9 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
-default INS tr(muCon(value c)) = [LOADCON(c)];
+
+default INS tr(muCon(value c)) =
+	[LOADCON(c)];	
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
@@ -426,7 +487,7 @@ INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), 
 INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(pos1), muTypeCon(tp), muCon(pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
@@ -468,6 +529,7 @@ INS tr(muCreate2(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREAT
 //    prevFunctionScope = functionScope;
 //    functionScope = fuid;
 //    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
+//										 false, 0, 0,
 //                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
 //    functionScope = prevFunctionScope; 
 //    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
@@ -487,6 +549,9 @@ INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 // Exceptions
 
 INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
+
+// Temporary fix for Issue #781
+Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
 
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks
@@ -521,7 +586,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	
 	// Fill in the 'try' block entry into the current exception table
 	currentTry = topTry();
-	exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+	exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 	
 	leaveTry();
 	
@@ -546,7 +611,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Fill in the 'catch' block entry into the current exception table
 	if(!isEmpty(tryBlocks)) {
 		EEntry currentCatchAsPartOfTryBlock = topCatchAsPartOfTryBlocks();
-		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		leaveCatchAsPartOfTryBlocks();
 	}
 	
@@ -578,14 +643,14 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 					   // load a thrown value,
 					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
 					   // unwrap it and store the unwrapped one in a separate local variable 
-					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrapedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrapedThrown(id),fuid)),
+					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
 		catchBlocks[currentCatchBlock] = [ LABEL(catchAsPartOfTryNew_from), *catchBlocks[currentCatchBlock], LABEL(catchAsPartOfTryNew_to) ];
 		for(currentCatchAsPartOfTryBlock <- catchAsPartOfTryBlocks) {
-			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, currentCatchAsPartOfTryBlock.\type, currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
+			exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		}
 	} else {
 		catchBlocks = oldCatchBlocks;
@@ -646,7 +711,7 @@ void inlineMuFinally() {
 		if(i < size(finallyStack) - 1) {
 			EEntry currentTry = topTry();
 			// Fill in the 'catch' block entry into the current exception table
-			exceptionTable += <currentTry.ranges, currentTry.\type, currentTry.\catch, currentTry.\finally>;
+			exceptionTable += <currentTry.ranges, filterExceptionType(currentTry.\type), currentTry.\catch, currentTry.\finally>;
 			leaveTry();
 			leaveFinally();
 		}
@@ -716,7 +781,7 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
    return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 	
-INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
+INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
    labels = ();
@@ -724,11 +789,18 @@ INS tr(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)){
    for(cs <- cases){
 		caseLab = defaultLab + "_<cs.fingerprint>";
 		labels[cs.fingerprint] = caseLab;
-		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(defaultLab) ];
+		caseCode += [ LABEL(caseLab), POP(), *tr(cs.exp), JMP(defaultLab) ];
    }
-	 
-   caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *tr(defaultExp), POP() ];
-   return [ *tr(exp), SWITCH(labels, defaultLab), *caseCode, LABEL(continueLab), *tr(result) ];
+   defaultCode = tr(defaultExp);
+   if(defaultCode == []){
+   		defaultCode = [muCon(666)];
+   }
+   if(size(cases) > 0){ 
+   		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];
+   		return [ LOADCON(false), *tr(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result) ];
+   	} else {
+   		return [ *tr(exp), POP(), *defaultCode, POP(), *tr(result) ];
+   	}	
 }
 
 // Multi/One/All/Or outside conditional context

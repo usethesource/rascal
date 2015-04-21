@@ -21,6 +21,8 @@ str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
 loc RVMProgramLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm"];
 
+loc RVMExecutableLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm.ser"];
+
 loc MuModuleLocation(loc src, loc bindir) = (bindir + src.path)[extension="mu"];
 
 RVMProgram compile(str rascalSource, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){

@@ -251,6 +251,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		case "ls": {
 			try {
+				if (!URIResolverRegistry.getInstance().exists(value)) {
+					throw RuntimeExceptionFactory.io(vf.string("You can only access ls on an existing location."), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 				if (!URIResolverRegistry.getInstance().isDirectory(value)) {
 					throw RuntimeExceptionFactory.io(vf.string("You can only access ls on a directory, or a container."), ctx.getCurrentAST(), ctx.getStackTrace());
 				}

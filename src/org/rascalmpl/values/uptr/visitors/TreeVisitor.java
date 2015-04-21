@@ -18,22 +18,22 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
 	@Override
 	public INode visitConstructor(IConstructor o) throws E {
-		if (o.getType() == Factory.Tree) {
+		if (o.getType() == RascalValueFactory.Tree) {
 			Type alt = o.getConstructorType();
 			
-			if(alt == Factory.Tree_Appl){
+			if(alt == RascalValueFactory.Tree_Appl){
 				return visitTreeAppl(o);
-			}else if (alt == Factory.Tree_Amb){
+			}else if (alt == RascalValueFactory.Tree_Amb){
 				return visitTreeAmb(o);
-			}else if (alt == Factory.Tree_Char){
+			}else if (alt == RascalValueFactory.Tree_Char){
 				return visitTreeChar(o);
-			}else if (alt == Factory.Tree_Cycle){
+			}else if (alt == RascalValueFactory.Tree_Cycle){
 				return visitTreeCycle(o);
 			}else{
 				throw new ImplementationError("TreeVisitor does not implement: " + alt);

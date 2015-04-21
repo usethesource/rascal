@@ -572,4 +572,34 @@ test bool rascalRuntimeExceptionsPlusOverloading(){
 	trace = "";
 	g(0);
 	return trace == "Bad function f; map key: 3 (not found); finally; default void g(int);";
-}	
+}
+
+test bool untypedCatch1() {
+	try {
+		throw "exception";
+	} 
+	catch s: return true;
+	
+	return false;
+}
+
+test bool untypedCatch2() {
+	try {
+		throw "exception";
+	} 
+	catch int n: return false;
+	catch s:     return true;
+	
+	return false;
+}
+
+test bool untypedCatch3() {
+	try {
+		throw "exception";
+	} 
+	catch int n: return false;
+	catch s:     return true;
+	finally;
+	
+	return false;
+}			

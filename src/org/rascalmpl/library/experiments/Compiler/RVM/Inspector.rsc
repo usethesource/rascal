@@ -32,7 +32,9 @@ void inspect(loc srcLoc,                // location of Rascal source file
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm"){
     		decls = readTextValueFile(#list[Declaration], rvmLoc);
     		p = rvm("LibraryGamma",
+    		  (),
 		      {},
+			  [],
 			  [],
               (), 
               (),
@@ -46,6 +48,10 @@ void inspect(loc srcLoc,                // location of Rascal source file
         }	
         
         println("RVM PROGRAM: <p.name>");
+        
+        if(p.tags != ()){
+        	println("TAGS: <p.tags>");
+        }
          
         if(line >= 0){
          	listDecls(p, select, line, listing);
@@ -62,6 +68,8 @@ void inspect(loc srcLoc,                // location of Rascal source file
         printMessages(p.messages);
        
         printImports(p.imports);
+        
+        printExtends(p.extends);
        
         printSymbolDefinitions(p.symbol_definitions);
        
@@ -119,6 +127,14 @@ void printImports(list[loc] imports){
         }
     }
 }
+void printExtends(list[loc] extends){
+	if(size(extends)> 0){
+    	println("EXTENDS:");
+       	for(ext <- extends){
+        	println("\t<ext>");
+        }
+    }
+}
 
 void printResolver(map[str, int] resolver, list[str] select, int line){
 	if(size(resolver) > 0){
@@ -131,12 +147,12 @@ void printResolver(map[str, int] resolver, list[str] select, int line){
     }
 }
 
-void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select, int line){
+void printOverloaded(lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded, list[str] select, int line){
 	if(size(overloaded) > 0){
     	println("OVERLOADED FUNCTIONS:");
         for(int i <- index(overloaded)){
         	t = overloaded[i];
-        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false)) || containsLine(p.declarations[dname].src, line)){
+        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false))){
             	println("\t<right("<i>", 6)>: <t>");
             }
         }
@@ -146,12 +162,17 @@ void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select,
 void printDecl(Declaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+        print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
-        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
+        print("\t\t");
+    }
+    println("nformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
+    println("\t\tsrc=<d.src>");
+    if(size(d.exceptions) > 0){
+    	for(<str from, str to, Symbol \type, str target, int fromSP> <- d.exceptions){
+    		println("\t\ttry: from=<from>, to=<to>, type=<\type>, target=<target>, fromSP=<fromSP>");
+    	}
     }
 }
 

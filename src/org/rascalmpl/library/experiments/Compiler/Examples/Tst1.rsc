@@ -1,12 +1,10 @@
-module experiments::Compiler::Examples::Tst1
 
-value main(list[value] args){
-	int f(){
-		top-down visit([1,2,3]) {
-				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
-				case int i: { i = i + 100; return 42; i = i + 200; }
-			}
-		return 101;
-	}
-	return f();
-}
+@bootstrapParser
+module experiments::Compiler::Examples::Tst1
+import lang::rascal::\syntax::Rascal;
+
+// Sanity check on the testing utilities themselves
+
+Expression exp(str  s) = [Expression] s;
+
+value main(list[value] args) = exp("1 + 2");

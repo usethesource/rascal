@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -30,16 +30,16 @@ public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
-		if (cons.getType() == Factory.Symbol) {
+		if (cons.getType() == RascalValueFactory.Symbol) {
 			this.symbol = cons;
 		}
-		else if (cons.getType() == Factory.Production) {
+		else if (cons.getType() == RascalValueFactory.Production) {
 			this.symbol = ProductionAdapter.getType(cons);
 		}
-		else if (cons.getConstructorType() == Factory.Tree_Appl) {
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
 			this.symbol = TreeAdapter.getType(cons);
 		}
-		else if (cons.getConstructorType() == Factory.Tree_Amb) {
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
 			IConstructor first = (IConstructor) TreeAdapter.getAlternatives(cons).iterator().next();
 			this.symbol = TreeAdapter.getType(first);
 		}
@@ -66,7 +66,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public Type getAbstractDataType() {
-	  return Factory.Tree;
+	  return RascalValueFactory.Tree;
 	}
 	
 	@Override
@@ -77,12 +77,12 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String getName() {
-		return Factory.Tree.getName();
+		return RascalValueFactory.Tree.getName();
 	}
 	
 	@Override
 	public Type getTypeParameters() {
-		return Factory.Tree.getTypeParameters();
+		return RascalValueFactory.Tree.getTypeParameters();
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected boolean isSubtypeOfAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree);
+	  return type.equivalent(RascalValueFactory.Tree);
 	}
 	
 	@Override
@@ -107,12 +107,12 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected Type lubWithAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree) ? type : TF.nodeType(); 
+	  return type.equivalent(RascalValueFactory.Tree) ? type : TF.nodeType(); 
 	}
 	
 	@Override
 	protected Type lubWithConstructor(Type type) {
-	  return type.getAbstractDataType().equivalent(Factory.Tree) ? Factory.Tree : TF.nodeType();
+	  return type.getAbstractDataType().equivalent(RascalValueFactory.Tree) ? RascalValueFactory.Tree : TF.nodeType();
 	}
 	
 	@Override
@@ -122,7 +122,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected Type glbWithAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree) ? this : TF.voidType(); 
+	  return type.equivalent(RascalValueFactory.Tree) ? this : TF.voidType(); 
 	}
 	
 	@Override
@@ -190,7 +190,7 @@ public class NonTerminalType extends RascalType {
       return this;
     }
 
-    return SymbolAdapter.isEqual(otherSym, symbol) ? this : Factory.Tree;
+    return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
 	}
 
 	@Override

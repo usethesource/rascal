@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+org.eclipse.jdt.core.compiler.processAnnotations=enabled
 encoding//src/org/rascalmpl/library/cobra/RandomValueTypeVisitor.java=UTF-8
 encoding//src/org/rascalmpl/library/experiments/Compiler/Examples/CoverageExample.rsc=UTF-8
 encoding//src/org/rascalmpl/library/experiments/Compiler/Examples/ProfileExample.rsc=UTF-8

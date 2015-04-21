@@ -43,7 +43,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Cases  {
@@ -209,7 +209,7 @@ public class Cases  {
 					.getType();
 
 			
-			if (subjectType.isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) value)) {
+			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((IConstructor) value)) {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((IConstructor) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
@@ -362,8 +362,8 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				boolean isTree = subjectType.isSubtypeOf(Factory.Tree) 
-				    && ((IConstructor) subject.getValue()).getConstructorType() == Factory.Tree_Appl;
+				boolean isTree = subjectType.isSubtypeOf(RascalValueFactory.Tree) 
+				    && ((IConstructor) subject.getValue()).getConstructorType() == RascalValueFactory.Tree_Appl;
 
 				if (isTree) { // matching abstract with concrete
 					TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());

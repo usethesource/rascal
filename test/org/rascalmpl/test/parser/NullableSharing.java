@@ -26,7 +26,7 @@ import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /*
 * S ::= N N
@@ -35,14 +35,14 @@ import org.rascalmpl.values.uptr.Factory;
 */
 @SuppressWarnings({"unchecked", "cast"})
 public class NullableSharing extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_N = VF.constructor(Factory.Symbol_Sort, VF.string("N"));
-	private final static IConstructor SYMBOL_empty = VF.constructor(Factory.Symbol_Empty);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_N = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("N"));
+	private final static IConstructor SYMBOL_empty = VF.constructor(RascalValueFactory.Symbol_Empty);
 	
-	private final static IConstructor PROD_S_NN = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_N, SYMBOL_N), VF.set());
-	private final static IConstructor PROD_N_A = VF.constructor(Factory.Production_Default,  SYMBOL_N, VF.list(SYMBOL_A), VF.set());
-	private final static IConstructor PROD_A_empty = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_empty), VF.set());
+	private final static IConstructor PROD_S_NN = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_N, SYMBOL_N), VF.set());
+	private final static IConstructor PROD_N_A = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_N, VF.list(SYMBOL_A), VF.set());
+	private final static IConstructor PROD_A_empty = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_empty), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
@@ -95,7 +95,7 @@ public class NullableSharing extends SGTDBF<IConstructor, IConstructor, ISourceL
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"N\"),sort(\"N\")],{}),[appl(prod(sort(\"N\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[empty()],{}),[])]),appl(prod(sort(\"N\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[empty()],{}),[])])])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

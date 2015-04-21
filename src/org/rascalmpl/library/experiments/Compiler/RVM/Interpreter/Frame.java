@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -167,6 +168,7 @@ public class Frame {
 				}
 				this.stack[this.sp++] = writer.done();
 			}
+			assert stack[start + arity - 1] instanceof HashMap<?, ?>;
 			this.stack[this.sp++] = stack[start + arity - 1]; // The keyword arguments
 		}		
 		this.sp = function.nlocals;
@@ -196,10 +198,12 @@ public class Frame {
 		for(int i = 0; i < function.nformals; i++){
 			if(i > 0) s.append(", ");
 			String repr;
-			if(stack[i] instanceof IValue ) {
+			if(stack[i] == null){
+				repr = "null";
+			} else if(stack[i] instanceof IValue ) {
 					repr = ((IValue) stack[i]).toString();
 			} else {
-				repr = (stack[i] == null) ? "null" : stack[i].toString();
+				repr = stack[i].toString();
 				int n = repr.lastIndexOf(".");
 				if(n >= 0){
 					repr = repr.substring(n + 1, repr.length());
@@ -239,18 +243,10 @@ public class Frame {
 	
 	public void printEnter(PrintWriter stdout){
 		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 	public void printBack(PrintWriter stdout, Object rval){
-		stdout.println(indent().append(this.toString()));
-		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns: ").append(rval.toString())); stdout.flush();
-		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
-	}
-	
-	public void printLeave(PrintWriter stdout){
-		stdout.println(indent().append(this.toString())); stdout.flush();
-		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	
 }

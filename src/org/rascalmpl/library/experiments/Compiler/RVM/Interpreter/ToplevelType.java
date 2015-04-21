@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.values.uptr.Factory;
 
 public enum ToplevelType {
 	VOID			(0, "void"),
@@ -154,7 +153,7 @@ public enum ToplevelType {
 			@Override
 			public ToplevelType visitExternal(Type type)
 					throws RuntimeException {
-				throw new CompilerError("External cannot occur as toplevel type");
+				throw new CompilerError("External cannot occur as toplevel type: " + type);
 			}
 
 			@Override
@@ -174,8 +173,13 @@ public enum ToplevelType {
 	private static final Integer tupleHashCode = "tuple".hashCode();
 	private static final Integer valueHashCode = "value".hashCode();
 	
-	public static int getFingerprint(final IValue v){
-		return v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
+	public static int getFingerprintNode(INode nd){
+		//System.err.println("getFingerprintNode: " + nd.hashCode() + " for " + nd);
+		return nd.hashCode();
+	}
+	
+	public static int getFingerprint(final IValue v, final boolean useConcreteFingerprint){
+		int res = v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
 
 			@Override
 			public Integer visitReal(final Type type) throws RuntimeException {
@@ -236,7 +240,7 @@ public enum ToplevelType {
 			@Override
 			public Integer visitConstructor(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+				if(useConcreteFingerprint && cons.getName().equals("appl")){	// use name to be insensitive to annotations
 					return cons.get(0).hashCode(); 
 				}
 				return cons.getName().hashCode() << 2 + cons.arity();
@@ -245,7 +249,7 @@ public enum ToplevelType {
 			@Override
 			public Integer visitAbstractData(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){	// use name to be insensitive to annotations
+				if(useConcreteFingerprint  && cons.getName().equals("appl")){	// use name to be insensitive to annotations
 					return cons.get(0).hashCode(); 
 				}
 				return cons.getName().hashCode() << 2 + cons.arity();
@@ -278,7 +282,8 @@ public enum ToplevelType {
 
 			@Override
 			public Integer visitExternal(final Type type) throws RuntimeException {
-				throw new CompilerError("External cannot occur in fingerprint");
+					return v.hashCode();
+				//throw new CompilerError("External cannot occur in fingerprint: " + type);
 			}
 
 			@Override
@@ -286,5 +291,7 @@ public enum ToplevelType {
 				return v.hashCode();
 			}
 		});
+		//System.err.println("getFingerprint: " + res + ", for useConcreteFingerprint=" + useConcreteFingerprint + " + and " + v);
+		return res;
 	}
 }

@@ -26,7 +26,7 @@ import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /*
 S ::= AA
@@ -35,19 +35,19 @@ B ::= bb | b
 */
 @SuppressWarnings({"unchecked", "cast"})
 public class Ambiguous4 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_B = VF.constructor(Factory.Symbol_Sort, VF.string("B"));
-	private final static IConstructor SYMBOL_b = VF.constructor(Factory.Symbol_Lit, VF.string("b"));
-	private final static IConstructor SYMBOL_bb = VF.constructor(Factory.Symbol_Lit, VF.string("bb"));
-	private final static IConstructor SYMBOL_char_b = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(98))));
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_B = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("B"));
+	private final static IConstructor SYMBOL_b = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("b"));
+	private final static IConstructor SYMBOL_bb = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("bb"));
+	private final static IConstructor SYMBOL_char_b = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(98))));
 	
-	private final static IConstructor PROD_S_AA = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_A), VF.set());
-	private final static IConstructor PROD_A_BB = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_B, SYMBOL_B), VF.set());
-	private final static IConstructor PROD_B_b = VF.constructor(Factory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_b), VF.set());
-	private final static IConstructor PROD_B_bb = VF.constructor(Factory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_bb), VF.set());
-	private final static IConstructor PROD_b_b = VF.constructor(Factory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
-	private final static IConstructor PROD_bb_bb = VF.constructor(Factory.Production_Default,  SYMBOL_bb, VF.list(SYMBOL_char_b, SYMBOL_char_b), VF.set());
+	private final static IConstructor PROD_S_AA = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_A), VF.set());
+	private final static IConstructor PROD_A_BB = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_B, SYMBOL_B), VF.set());
+	private final static IConstructor PROD_B_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_b), VF.set());
+	private final static IConstructor PROD_B_bb = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_bb), VF.set());
+	private final static IConstructor PROD_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
+	private final static IConstructor PROD_bb_bb = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_bb, VF.list(SYMBOL_char_b, SYMBOL_char_b), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
@@ -111,7 +111,7 @@ public class Ambiguous4 extends SGTDBF<IConstructor, IConstructor, ISourceLocati
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "amb({appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])]),appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[amb({appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])}),amb({appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])})]),appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])])])})";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

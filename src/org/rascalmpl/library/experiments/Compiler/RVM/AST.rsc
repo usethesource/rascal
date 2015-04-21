@@ -2,6 +2,7 @@ module experiments::Compiler::RVM::AST
 
 import Type;
 import Message;
+import ParseTree;
 
 public data Declaration = 
 		  FUNCTION(str qname,
@@ -12,10 +13,15 @@ public data Declaration =
 		  		   int nlocals,
 		  		   map[int, str] localNames,
 		  		   bool isVarArgs,
+		  		   bool isPublic,
+		  		   bool isDefault,
 		  		   loc src,
 		  		   int maxStack,
+		  		   bool isConcreteArg, 
+		  		   int abstractFingerprint, 
+		  		   int concreteFingerprint,
 		  		   list[Instruction] instructions,
-		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+		  		   lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		  		   
 	    | COROUTINE(str qname, 
 	                str uqname,
@@ -27,28 +33,33 @@ public data Declaration =
 		  		    loc src,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions,
-		  		    lrel[str from, str to, Symbol \type, str target] exceptions)
+		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		;
 
 public data RVMProgram = 
 		  rvm(str name,
+		  	  map[str,str] tags,
 		      set[Message] messages,
 			  list[loc] imports,
+			  list[loc] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
-              lrel[str,list[str],list[str]] overloaded_functions,
+              lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
               loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], (), (), (), [], (), [], src);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
+	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMProgram
+	   												// This is necessary to guarantee correct (de)serialization and can be removed
+	   												// when (de)serialization has been improved.
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
 	   	
 	   	| LOADFUN(str fuid)                         // Push a named *muRascal function
@@ -116,9 +127,10 @@ public data Instruction =
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
 		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and jumps to the corresponding label in the list
-		| SWITCH(map[int,str] caseLabels, str caseDefault)
+		| SWITCH(map[int,str] caseLabels, str caseDefault, bool useConcreteFingerprint)
 										 			// Switch on arbitrary value. Takes the "fingerprint" of the value on the stack, 
-													// finds associated label in map and jumps to it			
+													// finds associated label in map and jumps to it. When 	useConcreteFingerprint is true, fingerprints are computed based
+													// non-terminals rather than Tree constructors		
 													
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		

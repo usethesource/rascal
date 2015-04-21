@@ -12,7 +12,7 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -24,25 +24,25 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 
 	public IConstructor createCharNode(int charNumber){
-		return VF.constructor(Factory.Tree_Char, VF.integer(charNumber));
+		return VF.constructor(RascalValueFactory.Tree_Char, VF.integer(charNumber));
 	}
 
 	public IConstructor createLiteralNode(int[] characters, Object production){
-		IListWriter listWriter = VF.listWriter(Factory.Tree);
+		IListWriter listWriter = VF.listWriter(RascalValueFactory.Tree);
 		for(int i = characters.length - 1; i >= 0; --i){
-			listWriter.insert(VF.constructor(Factory.Tree_Char, VF.integer(characters[i])));
+			listWriter.insert(VF.constructor(RascalValueFactory.Tree_Char, VF.integer(characters[i])));
 		}
 		
-		return VF.constructor(Factory.Tree_Appl, (IConstructor) production, listWriter.done());
+		return VF.constructor(RascalValueFactory.Tree_Appl, (IConstructor) production, listWriter.done());
 	}
 	
 	private static IConstructor buildAppl(ArrayList<IConstructor> children, Object production){
-		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
+		IListWriter childrenListWriter = VF.listWriter(RascalValueFactory.Tree);
 		for(int i = children.size() - 1; i >= 0; --i){
 			childrenListWriter.insert(children.get(i));
 		}
 		
-		return VF.constructor(Factory.Tree_Appl, (IConstructor) production, childrenListWriter.done());
+		return VF.constructor(RascalValueFactory.Tree_Appl, (IConstructor) production, childrenListWriter.done());
 	}
 
 	public IConstructor createSortNode(ArrayList<IConstructor> children, Object production){
@@ -59,12 +59,12 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	private static IConstructor buildAmbiguityNode(ArrayList<IConstructor> alternatives){
-		ISetWriter ambSublist = VF.setWriter(Factory.Tree);
+		ISetWriter ambSublist = VF.setWriter(RascalValueFactory.Tree);
 		for(int i = alternatives.size() - 1; i >= 0; --i){
 			ambSublist.insert(alternatives.get(i));
 		}
 		
-		return VF.constructor(Factory.Tree_Amb, ambSublist.done());
+		return VF.constructor(RascalValueFactory.Tree_Amb, ambSublist.done());
 	}
 
 	public IConstructor createAmbiguityNode(ArrayList<IConstructor> alternatives){
@@ -80,7 +80,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	private static IConstructor buildCycle(int depth, Object production){
-		return VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType((IConstructor) production), VF.integer(depth));
+		return VF.constructor(RascalValueFactory.Tree_Cycle, ProductionAdapter.getType((IConstructor) production), VF.integer(depth));
 	}
 
 	public IConstructor createCycleNode(int depth, Object production){
@@ -92,12 +92,12 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 
 	public IConstructor createRecoveryNode(int[] characters){
-		IListWriter listWriter = VF.listWriter(Factory.Tree);
+		IListWriter listWriter = VF.listWriter(RascalValueFactory.Tree);
 		for(int i = characters.length - 1; i >= 0; --i){
-			listWriter.insert(VF.constructor(Factory.Tree_Char, VF.integer(characters[i])));
+			listWriter.insert(VF.constructor(RascalValueFactory.Tree_Char, VF.integer(characters[i])));
 		}
 		
-		return VF.constructor(Factory.Tree_Appl, VF.constructor(Factory.Production_Skipped), listWriter.done());
+		return VF.constructor(RascalValueFactory.Tree_Appl, VF.constructor(RascalValueFactory.Production_Skipped), listWriter.done());
 	}
 	
 	public ISourceLocation createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore){
@@ -107,7 +107,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	public IConstructor addPositionInformation(IConstructor node, ISourceLocation location){
-		return node.asAnnotatable().setAnnotation(Factory.Location, location);
+		return node.asAnnotatable().setAnnotation(RascalValueFactory.Location, location);
 	}
 	
 	public ArrayList<IConstructor> getChildren(IConstructor node){

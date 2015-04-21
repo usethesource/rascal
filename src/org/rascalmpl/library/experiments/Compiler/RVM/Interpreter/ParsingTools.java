@@ -33,11 +33,10 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -94,7 +93,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		stderr.println("Storing parser for " + moduleName + "/" + start);
+		//stderr.println("Storing parser for " + moduleName + "/" + start);
 		parsers.put(start, parser);
 	}
 
@@ -106,7 +105,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(start);
-		stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
+		//stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -114,7 +113,9 @@ public class ParsingTools {
 		return getParser(moduleName.getValue(), start, loc, false, syntax);
 	}
 
-	private boolean isBootstrapper() { return false;  }
+	private boolean isBootstrapper() {
+		return false;
+	}
 	
 	/**
 	 * Parse text from a string
@@ -245,7 +246,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());  // TODO: remove CTX
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex);  // TODO: remove CTX
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -307,7 +308,7 @@ public class ParsingTools {
 		startJob("Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
-		    throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
 		  parserGenerator = new ParserGenerator(rex.getMonitor(), rex.getStdErr(), classLoaders, vf, rex.getConfiguration());
@@ -317,24 +318,16 @@ public class ParsingTools {
 	}
 	
 	private char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		try {
-			textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+			return InputConverter.toChar(in);
 		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
-		}
-		
-		return data;
 	}
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
+		if(getBootstrap(name)){
+			return new RascalParser();
+		}
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
 	    
@@ -358,12 +351,14 @@ public class ParsingTools {
 	    }
 	  }
 	  
-	  private boolean getBootstrap() { return false; }
+	  private boolean getBootstrap(String moduleName) { 
+		  return rex.bootstrapParser(moduleName); 
+	  }
 	 
 	  // Rascal library function (interpreter version)
 	  public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, false, false, false, false, ctx, null);
+			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, ctx, null);
 		  }
 		  return parseFragment(name, start, tree, loc, grammar);
 	  }
@@ -387,7 +382,7 @@ public class ParsingTools {
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
@@ -474,7 +469,7 @@ public class ParsingTools {
 				  ISet attrs = ProductionAdapter.getAttributes(prod);
 
 				  for (IValue attr : attrs) {
-					  if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+					  if (((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
 						  IValue arg = ((IConstructor) attr).get(0);
 
 						  if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {

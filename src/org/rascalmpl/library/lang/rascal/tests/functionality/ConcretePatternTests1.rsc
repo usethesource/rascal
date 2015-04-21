@@ -22,6 +22,8 @@ lexical Es = {E ","}* es;
 lexical F = "f";
 lexical Fs = F* fs;
 
+syntax XorY = x : "x" | y : "y";
+
 lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
 lexical Mies = ([ab] [cd]);
 syntax Noot  = (("a"|"b") ("c"|"d"));
@@ -111,6 +113,53 @@ test bool lexicalListEnum2() = ["<x>" | F x <- ((Fs) `ffffff`).fs] == ["f", "f",
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
+
+test bool concreteSwitch1(){
+	switch([XorY] "x"){
+		case (XorY) `x`: return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch2(){
+	switch([XorY] "x"){
+		case (XorY) `x`: return true;
+		case (XorY) `y`: return false;
+	}
+	return false;
+}
+
+test bool concreteSwitch3(){
+	switch([XorY] "y"){
+		case (XorY) `x`: return false;
+		case (XorY) `y`: return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch4(){
+	switch([XorY] "y"){
+		case x(): 		 return false;
+		case (XorY) `y`: return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch5(){
+	switch([XorY] "y"){
+		case (XorY) `x`: return false;
+		case y(): 		 return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch6(){
+	switch([XorY] "y"){
+		case x(): 		 return false;
+		case y(): 		 return true;
+	}
+	return false;
+}
 
 value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  

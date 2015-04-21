@@ -1,3 +1,4 @@
+@bootstrapParser
 module experiments::Compiler::Examples::RascalExtraction
 
 import ParseTree;

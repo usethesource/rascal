@@ -598,3 +598,20 @@ throws PathNotFound(loc file), IO(str msg);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str createLink(str title, str target);
+
+
+@javaClass{org.rascalmpl.library.Prelude}
+java bool copyFile(loc source, loc target);
+
+bool copyDirectory(loc source, loc target) {
+	result = true;
+	for (e <- listEntries(source)) {
+		if (isDirectory(source + e)) {
+			result = result && copyDirectory(source + e, target + e);
+		}
+		else {
+			result = result && copyFile(source + e, target + e);
+		}
+	}
+	return result;
+}

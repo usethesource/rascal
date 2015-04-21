@@ -76,7 +76,7 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -569,7 +569,7 @@ public abstract class Import {
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
       IValueFactory vf = eval.getValueFactory();
-      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
+      prod = ProductionAdapter.setDefined(prod, vf.constructor(RascalValueFactory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
     catch (ParseError e) {
@@ -659,7 +659,7 @@ public abstract class Import {
           ISet attrs = ProductionAdapter.getAttributes(prod);
 
           for (IValue attr : attrs) {
-            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+            if (((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
               IValue arg = ((IConstructor) attr).get(0);
               
               if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {

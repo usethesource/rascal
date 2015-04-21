@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -49,10 +49,10 @@ public class PreludeCompiled extends Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue().toString());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -105,10 +105,10 @@ public class PreludeCompiled extends Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -374,7 +374,7 @@ public class PreludeCompiled extends Prelude {
 			return w.done();
 		}
 		
-		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), Factory.Attribute_Bracket)) {
+		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
 			return implode(store, type, (IConstructor) TreeAdapter.getASTArgs(tree).get(0), false, rex);
 		}
 		

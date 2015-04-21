@@ -60,7 +60,7 @@ alias UID = int;                                    // A UID is a unique identif
 
 alias FUID = str; 
 
-public Configuration getConfiguration() { return config; }
+private Configuration getConfiguration() { return config; }
 
 public map[UID uid, tuple[FUID fuid, int pos] fuid2pos] uid2addr = ();	
 													// map uids to FUIDs and positions
@@ -79,7 +79,7 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 private set[UID] constructors = {};					// declared constructors
 
 public bool isConstructor(UID uid) = uid in constructors;
-public set[UID] getConstructors() = constructors;
+//public set[UID] getConstructors() = constructors;
 
 public set[UID] variables = {};						// declared variables
 
@@ -112,14 +112,14 @@ private rel[UID,UID] containment = {};
 private map[UID,UID] declaredIn = ();				// inverse of declares
 private map[UID,UID] containedIn = ();				// inverse of containment
 
-alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
+alias OFUN = tuple[str name, Symbol funType, str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
 public map[UID,str] uid2str = ();					// map uids to str
 
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private list[OFUN] overloadedFunctions = [];	// list of overloaded functions
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -228,7 +228,7 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      
+      //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>");
@@ -258,7 +258,7 @@ void extractScopes(Configuration c){
              //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	//println("add loc2uid[<l>] = <uid>");
+		     	//println("loc2uid already defined=<loc2uid[l]?>,  add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -564,7 +564,11 @@ int declareGeneratedFunction(str name, Symbol rtype){
 /********************************************************************/
 
 // Get the type of an expression as Symbol
-Symbol getType(loc l) = config.locationTypes[l];
+Symbol getType(loc l) {
+	assert config.locationTypes[l]? : "getType for <l>";
+	//println("getType(<l>) = <config.locationTypes[l]>");
+	return config.locationTypes[l];
+}	
 
 // Get the type of an expression as string
 str getType(Tree e) = "<getType(e@\loc)>";
@@ -698,6 +702,22 @@ str convert2fuid(UID uid) {
 	return name;
 }
 
+public MuExp getConstructor(str cons) {
+   cons = unescape(cons);
+   uid = -1;
+   for(c <- constructors){
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
+     if(cons == getSimpleName(getConfiguration().store[c].name)){
+        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        uid = c;
+        break;
+     }
+   }
+   if(uid < 0)
+      throw("No definition for constructor: <cons>");
+   return muConstr(convert2fuid(uid));
+}
+
 public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
 public default bool isDataType(AbstractValue _) = false;
 
@@ -786,7 +806,7 @@ MuExp mkVar(str name, loc l) {
     str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
  
-    addOverloadedFunctionAndResolver(ofuid, <addr.fuid,ofuids>);
+    addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
   	return muOFun(ofuid);
   }
   

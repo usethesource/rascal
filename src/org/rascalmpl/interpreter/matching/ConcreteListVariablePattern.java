@@ -31,7 +31,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -109,7 +109,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		
 		iDeclaredItMyself = true;
 		
-		if (subject.getType().isSubtypeOf(Factory.Args)) {
+		if (subject.getType().isSubtypeOf(RascalValueFactory.Args)) {
 			if (((IList)subject.getValue()).isEmpty()) {
 				IConstructor sym =declaredType.getSymbol();
 				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) {
@@ -160,7 +160,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 
 	private IValue wrapWithListProd(IValue subject) {
 		IList args = (IList) subject;
-		IValue prod = ctx.getValueFactory().constructor(Factory.Production_Regular, declaredType.getSymbol());
+		IValue prod = ctx.getValueFactory().constructor(RascalValueFactory.Production_Regular, declaredType.getSymbol());
 		
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);
@@ -170,7 +170,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 			}
 		}
 		
-		return ctx.getValueFactory().constructor(Factory.Tree_Appl, prod, subject);
+		return ctx.getValueFactory().constructor(RascalValueFactory.Tree_Appl, prod, subject);
 	}
 
 	@Override
