@@ -82,10 +82,10 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Result<IValue> isKeyDefined(Result<?>[] subscripts) {
+	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
-		}
+		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!getType().getKeyType().comparable(key.getType())) {
 			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());

@@ -1074,7 +1074,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return TypeFactory.getInstance().voidType();
 	}
 
-	public Result<IValue> isKeyDefined(Result<?>[] subscripts) {
-		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
+		return bool(false, ctx);
 	}
 }

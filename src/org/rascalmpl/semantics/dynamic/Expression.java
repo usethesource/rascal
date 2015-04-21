@@ -2520,6 +2520,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(eval, this);
 		}
 
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			int nSubs = this.getSubscripts().size();
+			Result<?> subscripts[] = new Result<?>[nSubs];
+			
+			for (int i = 0; i < nSubs; i++) {
+				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts()
+						.get(i);
+				subscripts[i] = isWildCard(subsExpr) ? null
+						: subsExpr.interpret(__eval);
+			}
+			
+			return expr.isKeyDefined(subscripts);
+		}
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
