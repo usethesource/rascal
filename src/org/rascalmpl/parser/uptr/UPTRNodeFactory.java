@@ -36,12 +36,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	private static IConstructor buildAppl(ArrayList<IConstructor> children, Object production){
-		IListWriter childrenListWriter = VF.listWriter();
-		for(int i = children.size() - 1; i >= 0; --i){
-			childrenListWriter.insert(children.get(i));
-		}
-		
-		return VF.appl((IConstructor) production, childrenListWriter.done());
+		return VF.appl((IConstructor) production, children);
 	}
 
 	public IConstructor createSortNode(ArrayList<IConstructor> children, Object production){
