@@ -281,9 +281,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		
 		if (constructor.getAbstractDataType() == Tree) {
 			if (constructor == Tree_Appl) {
+				assert children.length == 2;
 				IConstructor prod = (IConstructor) children[0];
 				IList args = (IList) children[1];
 				return appl(prod, args);
+			}
+			else if (constructor == Tree_Amb) {
+				assert children.length == 1;
+				ISet alts = (ISet) children[0];
+				return amb(alts);
 			}
 			else if (constructor == Tree_Char) {
 				return character(((IInteger) children[0]).intValue());
