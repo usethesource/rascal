@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -46,6 +47,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
@@ -227,12 +229,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		
 		if (constructor.getAbstractDataType() == Tree) {
 			if (constructor == Tree_Appl) {
-				IConstructor prod = (IConstructor) children[0];
-				IList args = (IList) children[1];
-				return appl(prod, args);
+				return appl((IConstructor) children[0], (IList) children[1]);
+			}
+			else if (constructor == Tree_Amb) {
+				return amb((ISet) children[0]);
 			}
 			else if (constructor == Tree_Char) {
 				return character(((IInteger) children[0]).intValue());
+			}
+			else if (constructor == Tree_Cycle) {
+				return cycle((IConstructor) children[0], ((IInteger) children[1]).intValue());
 			}
 			else if (constructor == Type_Reified) {
 				return reifiedType((IConstructor) children[0], (IMap) children[1]);
@@ -288,14 +294,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		if (constructor.getAbstractDataType() == Tree) {
 			if (constructor == Tree_Appl) {
 				assert children.length == 2;
-				IConstructor prod = (IConstructor) children[0];
-				IList args = (IList) children[1];
-				return appl(prod, args);
+				return appl((IConstructor) children[0], (IList) children[1]);
 			}
 			else if (constructor == Tree_Amb) {
 				assert children.length == 1;
-				ISet alts = (ISet) children[0];
-				return amb(alts);
+				return amb((ISet) children[0]);
 			}
 			else if (constructor == Tree_Char) {
 				return character(((IInteger) children[0]).intValue());
@@ -320,6 +323,25 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public IConstructor appl(Map<String,IValue> annos, IConstructor prod, IList args) {
 		return appl(prod, args).asAnnotatable().setAnnotations(annos);
 	}
+
+	/**
+	 * For use with the UPTRNodeFactory otherwise will be replaced
+	 */
+	@Deprecated
+	public IConstructor appl(IConstructor prod, ArrayList<IConstructor> args) {
+		switch (args.size()) {
+		case 0: return new Appl0(prod);
+		case 1: return new Appl1(prod, args.get(0));
+		case 2: return new Appl2(prod, args.get(0), args.get(1));
+		case 3: return new Appl3(prod, args.get(0), args.get(1), args.get(2));
+		case 4: return new Appl4(prod, args.get(0), args.get(1), args.get(2), args.get(3));
+		case 5: return new Appl5(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4));
+		case 6: return new Appl6(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5));
+		case 7: return new Appl7(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5), args.get(6));
+		default:
+			return new ApplN(prod, new ArrayListArgumentList(args));
+		}
+	}
 	
 	public IConstructor appl(IConstructor prod, IList args) {
 		switch (args.length()) {
@@ -332,6 +354,23 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		case 6: return new Appl6(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5));
 		case 7: return new Appl7(prod, args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), args.get(5), args.get(6));
 		default: return new ApplN(prod, args);
+		}
+	}
+	
+	/**
+	 * Watch out, the array is not cloned! Must not modify hereafter.
+	 */
+	public IConstructor appl(IConstructor prod, IValue... args) {
+		switch (args.length) {
+		case 0: return new Appl0(prod);
+		case 1: return new Appl1(prod, args[0]);
+		case 2: return new Appl2(prod, args[0], args[1]);
+		case 3: return new Appl3(prod, args[0], args[1], args[2]);
+		case 4: return new Appl4(prod, args[0], args[1], args[2], args[3]);
+		case 5: return new Appl5(prod, args[0], args[1], args[2], args[3], args[4]);
+		case 6: return new Appl6(prod, args[0], args[1], args[2], args[3], args[4], args[5]);
+		case 7: return new Appl7(prod, args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+		default: return new ApplN(prod, new ArrayArgumentList(args));
 		}
 	}
 	
@@ -1232,14 +1271,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-
-	
 	private static abstract class AbstractArgumentList implements IList {
 		protected abstract IList asNormal();
 		
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			
 			return tf.listType(getElementType());
 		}
 		
@@ -1435,6 +1471,58 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IListRelation<IList> asRelation() {
 			throw new UnsupportedOperationException();
 		}
+	}
+	
+	private static class ArrayArgumentList extends AbstractArgumentList {
+		private final IValue[] array;
+
+		public ArrayArgumentList(IValue[] array) {
+			this.array = array;
+		}
+		
+		@Override
+		public int length() {
+			return array.length;
+		}
+
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			return array[i];
+		}
+
+		@Override
+		protected IList asNormal() {
+			return getInstance().list(array);
+		}
+	}
+	
+	@Deprecated
+	private static class ArrayListArgumentList extends AbstractArgumentList {
+		private final ArrayList<IConstructor> list;
+
+		public ArrayListArgumentList(ArrayList<IConstructor> list) {
+			this.list = list;
+		}
+		
+		@Override
+		public int length() {
+			return list.size();
+		}
+
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			return list.get(i);
+		}
+
+		@Override
+		protected IList asNormal() {
+			IListWriter w = getInstance().listWriter();
+			for (int i = 0; i < list.size(); i++) {
+				w.append(list.get(i));
+			}
+			return w.done();
+		}
+		
 	}
 	
 	private static class Appl0 extends AbstractAppl {
