@@ -357,7 +357,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			switch (i) {
-			case 0: return integer(ch);
+			case 0: return getInstance().integer(ch);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -403,7 +403,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				@Override
 				public IValue next() {
 					done = true;
-					return integer(ch); 
+					return getInstance().integer(ch); 
 				}
 
 				@Override
@@ -480,7 +480,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return character(((IInteger) newChild).intValue());
+			case 0: return getInstance().character(((IInteger) newChild).intValue());
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -516,7 +516,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			switch (i) {
-			case 0: return integer(ch);
+			case 0: return getInstance().integer(ch);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -554,7 +554,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				@Override
 				public IValue next() {
 					done = true;
-					return integer(ch); 
+					return getInstance().integer(ch); 
 				}
 
 				@Override
@@ -639,7 +639,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return character(((IInteger) newChild).intValue());
+			case 0: return getInstance().character(((IInteger) newChild).intValue());
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -725,7 +725,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					count++;
 					switch(count) {
 					case 1: return symbol;
-					case 2: return integer(cycleLength);
+					case 2: return getInstance().integer(cycleLength);
 					default: return null;
 					}
 				}
@@ -783,7 +783,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IValue get(String label) {
 			switch (label) {
 			case "symbol": return symbol;
-			case "cycleLength": return integer(cycleLength);
+			case "cycleLength": return getInstance().integer(cycleLength);
 			default: throw new UndeclaredFieldException(Tree_Amb, label);
 			}
 		}
@@ -792,8 +792,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
-			case "symbol": return cycle((IConstructor) newChild, cycleLength);
-			case "cycleLength" : return cycle(symbol, ((IInteger) newChild).intValue());
+			case "symbol": return getInstance().cycle((IConstructor) newChild, cycleLength);
+			case "cycleLength" : return getInstance().cycle(symbol, ((IInteger) newChild).intValue());
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
@@ -807,8 +807,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return cycle((IConstructor) newChild, cycleLength);
-			case 1: return cycle(symbol, ((IInteger) newChild).intValue());
+			case 0: return getInstance().cycle((IConstructor) newChild, cycleLength);
+			case 1: return getInstance().cycle(symbol, ((IInteger) newChild).intValue());
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -848,7 +848,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			switch (i) {
 			case 0: return symbol;
-			case 1: return integer(cycleLength);
+			case 1: return getInstance().integer(cycleLength);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -981,7 +981,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
-			case "alternatives": return amb((ISet) newChild);
+			case "alternatives": return getInstance().amb((ISet) newChild);
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
@@ -995,7 +995,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return amb((ISet) newChild);
+			case 0: return getInstance().amb((ISet) newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -1169,8 +1169,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IConstructor set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
-			case "prod": return appl((IConstructor) newChild, getArguments());
-			case "args": return appl(production, (IList) newChild);
+			case "prod": return getInstance().appl((IConstructor) newChild, getArguments());
+			case "args": return getInstance().appl(production, (IList) newChild);
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
