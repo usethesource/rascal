@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 	public ElementResult(Type type, T value, IEvaluatorContext ctx) {

@@ -32,7 +32,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -129,8 +129,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				throw new UnexpectedType(nont, repl.getType(), ctx.getCurrentAST());
 			}
 			
-			if (Factory.Tree_Appl.hasField(name)) {
-				Type fieldType = Factory.Tree_Appl.getFieldType(name);
+			if (RascalValueFactory.Tree_Appl.hasField(name)) {
+				Type fieldType = RascalValueFactory.Tree_Appl.getFieldType(name);
 				if (repl.getType().isSubtypeOf(fieldType)) {
 					throw new UnsupportedOperation("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}

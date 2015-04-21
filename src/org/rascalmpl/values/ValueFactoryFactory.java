@@ -16,11 +16,11 @@
 package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ValueFactoryFactory{
 	//private final static IValueFactory valueFactory =org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
-	private final static IValueFactory valueFactory = new Factory();
+	private final static IValueFactory valueFactory = new RascalValueFactory();
 	
 	public static IValueFactory getValueFactory(){
 		return valueFactory;

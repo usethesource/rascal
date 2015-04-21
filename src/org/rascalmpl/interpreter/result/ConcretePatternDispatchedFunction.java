@@ -34,7 +34,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcretePatternDispatchedFunction extends AbstractFunction {
@@ -177,7 +177,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
       throw new MatchFailed();
     }
     
-    if (argTypes[0].isSubtypeOf(Factory.Tree)) {
+    if (argTypes[0].isSubtypeOf(RascalValueFactory.Tree)) {
       if (!TreeAdapter.isAppl((IConstructor) argValues[0])) {
         throw new MatchFailed();
       }

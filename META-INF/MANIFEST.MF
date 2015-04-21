@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
@@ -74,8 +74,6 @@ Export-Package:
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
  org.rascalmpl.values,
- org.rascalmpl.values.errors,
- org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  org.tukaani.xz,

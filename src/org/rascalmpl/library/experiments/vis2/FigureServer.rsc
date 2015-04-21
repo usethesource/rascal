@@ -154,7 +154,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
     // println("render: <model_type> <trCursor(makeCursor(model))>");
 	f = visualize("init", "all", makeCursor(model));
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
-	println(getSite());
+	println("render:<getSite()>");
 	htmlDisplay(site /*+ "?name=<name>"*/);
 }
 

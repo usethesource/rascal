@@ -28,7 +28,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {
 	protected Result<IValue> subject = null;
@@ -124,11 +124,11 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		}
 		
 		if (small instanceof NonTerminalType) {
-			return large.isSubtypeOf(Factory.Tree);
+			return large.isSubtypeOf(RascalValueFactory.Tree);
 		}
 		
 		if (large instanceof NonTerminalType) {
-			return small.isSubtypeOf(Factory.Tree);
+			return small.isSubtypeOf(RascalValueFactory.Tree);
 		}
 		
 		if(small.isList() && large.isList() || 

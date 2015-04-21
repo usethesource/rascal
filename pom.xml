@@ -35,6 +35,13 @@
 		      <include>META-INF/RASCAL.MF</include>
 		    </includes>
 		  </resource>
+		  <resource>
+		    <directory>test</directory>
+		    <filtering>false</filtering>
+		    <includes>
+			  <include>org/rascalmpl/test/data/**/*</include>
+		    </includes>
+		  </resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
@@ -44,6 +51,9 @@
 					<exclude>**/*.java</exclude>
 					<exclude>**/*.class</exclude>
 				</excludes>
+			</testResource>
+			<testResource>
+				<directory>test/org/rascalmpl/test/data/</directory>
 			</testResource>
 		</testResources>
 

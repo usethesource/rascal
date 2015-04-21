@@ -26,17 +26,17 @@ import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /*
 S ::= epsilon
 */
 @SuppressWarnings({"unchecked", "cast"})
 public class Epsilon extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_epsilon = VF.constructor(Factory.Symbol_Empty);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_epsilon = VF.constructor(RascalValueFactory.Symbol_Empty);
 	
-	private final static IConstructor PROD_S_epsilon = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_epsilon), VF.set());
+	private final static IConstructor PROD_S_epsilon = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_epsilon), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> EPSILON_1 = new EpsilonStackNode<IConstructor>(1, 0);
@@ -63,7 +63,7 @@ public class Epsilon extends SGTDBF<IConstructor, IConstructor, ISourceLocation>
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[empty()],{}),[])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

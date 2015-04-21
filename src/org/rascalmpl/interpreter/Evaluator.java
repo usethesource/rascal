@@ -113,7 +113,7 @@ import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
@@ -268,11 +268,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
-		
-		// default event trigger to swallow events
-		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+		FileURIResolver testModuleResolver = new TempURIResolver() {
+		    @Override
+		    public String scheme() {
+		      return "test-modules";
+		    }
+		    
+		    @Override
+		    protected String getPath(ISourceLocation uri) {
+		      String path = uri.getPath();
+		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		      return System.getProperty("java.io.tmpdir") + path;
+		    }
+		  };
+		  
+		  resolverRegistry.registerInputOutput(testModuleResolver);
+		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+		  
+		  ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
+		  resolverRegistry.registerInput(tutor);
+
+		  // default event trigger to swallow events
+		  setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
 	private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -702,7 +719,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		int i = 0;
 		for (IValue v : args) {
 			Type type = v.getType();
-      types[i++] = type.isSubtypeOf(Factory.Tree) ? rtf.nonTerminalType((IConstructor) v) : type;
+      types[i++] = type.isSubtypeOf(RascalValueFactory.Tree) ? rtf.nonTerminalType((IConstructor) v) : type;
 		}
 		
 		if (func == null) {

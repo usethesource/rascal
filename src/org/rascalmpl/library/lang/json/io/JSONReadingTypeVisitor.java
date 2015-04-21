@@ -47,7 +47,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 @SuppressWarnings("rawtypes")
 public class JSONReadingTypeVisitor implements
@@ -732,7 +732,7 @@ public class JSONReadingTypeVisitor implements
 	@Override
 	public IValue visitExternal(Type type) throws IOException {
 		if (type instanceof NonTerminalType) {
-			return Factory.Tree.accept(this);
+			return RascalValueFactory.Tree.accept(this);
 		}
 		throw new IOException("cannot deserialize external values");
 	}

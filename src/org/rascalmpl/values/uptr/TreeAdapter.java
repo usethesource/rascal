@@ -42,7 +42,7 @@ public class TreeAdapter {
 	}
 
 	public static boolean isAppl(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Appl;
+		return tree.getConstructorType() == RascalValueFactory.Tree_Appl;
 	}
 
 	private static int findLabelPosition(IConstructor tree, String label) {
@@ -84,7 +84,7 @@ public class TreeAdapter {
 	}
 	
 	public static boolean isAmb(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Amb;
+		return tree.getConstructorType() == RascalValueFactory.Tree_Amb;
 	}
 	
 	public static boolean isTop(IConstructor tree) {
@@ -92,11 +92,11 @@ public class TreeAdapter {
 	}
 
 	public static boolean isChar(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Char;
+		return tree.getConstructorType() == RascalValueFactory.Tree_Char;
 	}
 
 	public static boolean isCycle(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Cycle;
+		return tree.getConstructorType() == RascalValueFactory.Tree_Cycle;
 	}
 
 	public static boolean isComment(IConstructor tree) {
@@ -271,7 +271,7 @@ public class TreeAdapter {
 	}
 
 	public static ISourceLocation getLocation(IConstructor tree) {
-		return (ISourceLocation) tree.asAnnotatable().getAnnotation(Factory.Location);
+		return (ISourceLocation) tree.asAnnotatable().getAnnotation(RascalValueFactory.Location);
 	}
 
 	public static int getCharacter(IConstructor tree) {
@@ -461,7 +461,7 @@ public class TreeAdapter {
 
 	public static void unparse(IConstructor tree, Writer stream)
 			throws IOException, FactTypeUseException {
-	  if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
+	  if (tree.getType().isSubtypeOf(RascalValueFactory.Tree)) { // == Factory.Tree) {
 	    tree.accept(new Unparser(stream));
 	  } else {
 	    throw new ImplementationError("Can not unparse this " + tree + " (type = "

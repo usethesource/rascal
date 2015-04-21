@@ -12,7 +12,7 @@ import Type;
 import Map;
 //import Ambiguity;
 
-import experiments::Compiler::muRascal::MuAllMuOr;
+import experiments::Compiler::muRascal::MuBoolExp;
 //import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 
 rel[str,str] global_functions = {};
@@ -69,7 +69,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, {}, [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), pmod@\location);
+   return muModule(pmod.name, (), {}, [], [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), pmod@\location);
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
@@ -138,12 +138,12 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
    //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
    return (f is preCoroutine) ? muCoroutine(uid, f.name, scopeIn, size(f.formals), size(vardefs[uid]), f@location, refs,  muBlock(body))
-                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, f@location, [], (), muBlock(body));
+                              : muFunction(uid, f.name, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, true, f@location, [], (), false, 0, 0, muBlock(body));
 }
 
 str fuid = "";
 
-list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
+private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
    println("Pre-processing a function: <uid>");
    return
@@ -272,6 +272,15 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mstr")), list[MuExp] exps) 								=> muCallMuPrim("mstr", exps)
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
+               case muCall(preVar(mvar("iterator")), [exp1])									=> muCallMuPrim("make_iterator", [exp1])
+               case muCall(preVar(mvar("hasNext")), [exp1])										=> muCallMuPrim("iterator_hasNext", [exp1])
+               case muCall(preVar(mvar("getNext")), [exp1])										=> muCallMuPrim("iterator_next", [exp1])
+               
+               // Macro-like function calls that are direcetly translated to a muExpression
+               case muCall(preVar(mvar("GET_SUBJECT_LIST")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(0)])
+               case muCall(preVar(mvar("GET_SUBJECT_CURSOR")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(1)])
+               case muCall(preVar(mvar("MAKE_SUBJECT")), [exp1, exp2])							=> muCallMuPrim("make_subject", [exp1, exp2])
+               
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
       	       case preLessEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
@@ -289,15 +298,19 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse(nextLabel("L_AND"), lhs, [rhs], [muCon(false)])      	       
       	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse(nextLabel("L_OR"), lhs, [muCon(true)], [rhs])
       	       
+      	       case org_exp: preIs(MuExp lhs, "appl")											=> muCallPrim3("is_appl", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "lexical")										=> muCallPrim3("is_lexical", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "layout")											=> muCallPrim3("is_layout", [lhs], org_exp@\location)
+      	       case org_exp: preIs(MuExp lhs, "concretelist")									=> muCallPrim3("is_concretelist", [lhs], org_exp@\location)
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
       	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun2(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
-      	       case org_exp: muAll(list[MuExp] exps)                                            => makeMu("ALL",exps,org_exp@location)
-      	       case org_exp: muOr(list[MuExp] exps)                                             => makeMu("OR",exps,org_exp@location)
-      	       case org_exp: muOne2(list[MuExp] exps)                                           => makeMuOne("ALL",exps,org_exp@location)
+      	       //case org_exp: muAll(list[MuExp] exps)                                            => makeBoolExp("ALL",exps,org_exp@location)
+      	       //case org_exp: muOr(list[MuExp] exps)                                             => makeBoolExp("OR",exps,org_exp@location)
+      	       //case org_exp: muOne2(list[MuExp] exps)                                           => makeSingleValuedBoolExp("ALL",exps,org_exp@location)
       	       
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
@@ -322,85 +335,16 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
     }    
 }
 
-MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
-    str all_uid = "<fuid>/ALL_<getNextAll()>";
-    localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
-    list[MuExp] body = [ muYield0() ];
-    for(int i <- index(exps)) {
-        int j = size(exps) - 1 - i;
-        if(backtrackfree[j]) {
-            body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
-        } else {
-            body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localvars[j]), body), muCon(222) ];
-        }
-    }
-    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), src, [], muBlock(body));
-    return muMulti(muApply(muFun2(all_uid, fuid), []));
-}
-
-MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
-    str or_uid = "<fuid>/Or_<getNextOr()>";
-    localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
-    list[MuExp] body = [];
-    for(int i <- index(exps)) {
-        if(backtrackfree[i]) {
-            body += muIfelse(nextLabel(), exps[i], [ muYield0() ], [ muCon(222) ]);
-        } else {
-            body = body + [ muCall(exps[i],[]) ];
-        }
-    }
-    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  src, [], muBlock(body));
-    return muMulti(muApply(muFun2(or_uid, fuid), []));
-}
-
-// Produces multi- or backtrack-free expressions
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps,src);
+// Produces multi-valued or backtrack-free expressions
+private MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeBoolExp(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-MuExp makeMuMulti(MuExp exp, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid,src);
+private MuExp makeSingleValuedBoolExp(str operator, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeSingleValuedBoolExp(operator,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
-
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, loc src) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,fuid,exps,src);
-    functions_in_module = functions_in_module + res.functions;
-    return res.e;
-}
-
-// Temporary copy of TmpAndLabel.rsc
-
-private int allCounter = 0;								// *** state
-
-private int getNextAll() {
-    int counter = allCounter;
-    allCounter = allCounter + 1;
-    return counter;
-}
-
-private void resetAllCounter() {
-    allCounter = 0;
-}
-
-private int orCounter = 0;								// *** state
-
-private int getNextOr() {
-    int counter = orCounter;
-    orCounter = orCounter + 1;
-    return counter;
-}
-
-private void resetOrCounter() {
-    orCounter = 0;
-}
-
-
 

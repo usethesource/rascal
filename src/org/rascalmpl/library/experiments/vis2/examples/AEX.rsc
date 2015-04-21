@@ -9,6 +9,8 @@ import experiments::vis2::FigureServer;
 import lang::csv::IO;
 import lang::json::IO;
 
+// loc location = |std://experiments/vis2/data/AEX.csv|;
+
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/AEX.csv|;
 
 void ex(str title, Figure f){
@@ -29,7 +31,7 @@ BoxHeader t(Header r) {
 public void aex() {
    Header w = readCSV(#Header, location, header=false);
    Trade v = readCSV(#Trade, location, header=true); 
-    BoxLabeledData d = [<printDate(h,"EEE:\tMM-dd"), e.low, e.open, e.close, e.high,
+    BoxLabeledData d = [<printDate(h,"E:\tMM-dd"), e.low, e.open, e.close, e.high,
     "open: <e.open>\nclose: <e.close>\nlow:\t<e.low>\nhigh:\t<e.high>"
     >|e<-v  
           , datetime h := parseDate(e.date,  "yyyy-MM-dd")
@@ -37,7 +39,7 @@ public void aex() {
    ex("aex", candlestickchart(d, t(w)
    , options = chartOptions(candlestick=candlestick(
       risingColor=candlestickColor(fill="green")
-   , fallingColor=candlestickColor(fill="red")))
+   , fallingColor=candlestickColor(fill="red")), hAxis = axis(direction=-1))
    , width = 400, height = 400));
    }
    

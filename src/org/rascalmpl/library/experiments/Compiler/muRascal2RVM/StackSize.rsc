@@ -6,10 +6,14 @@ import Type;
 import experiments::Compiler::muRascal::AST;
 
 
-public int estimate_stack_size(MuExp exp) = estimate(exp) + 1;
-public int estimate_stack_size(list[MuExp] exps) = estimate_list(exps) + 1;
 
-private int estimate(muLab(str name)) = 1;
+public int estimate_stack_size(MuExp exp) = addSlack(estimate(exp));
+	
+public int estimate_stack_size(list[MuExp] exps) = addSlack(estimate_list(exps));
+
+int addSlack(int e) = e + 1;  //10 + e + (e+40)/10;
+
+private int estimate(muLab(str name)) = 0;
 
 private int estimate(muBlock(list[MuExp] exps)) = ( 1 | max(it, estimate(e)) | e <- exps );
 
@@ -21,8 +25,6 @@ private int estimate_arg_list(list[MuExp] args) = ( 1 | max(it, i + estimate(arg
 
 private int estimate(muBool(bool b)) = 1;
 private int estimate(muInt(int n)) = 1;
-private int estimate(muCon("true")) = 1;
-private int estimate(muCon("false")) = 1;
 private default int estimate(muCon(value v)) = 1;
 
 private int estimate(muTypeCon(Symbol sym)) = 1;
@@ -48,16 +50,17 @@ private int estimate(muCall(muFun1(str fuid), list[MuExp] args)) = estimate_arg_
 private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
-private int estimate(muApply(muFun1(str fuid), list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muApply(muFun1(str fuid), list[MuExp] args)) = 1 + estimate_arg_list(args);
 private int estimate(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
-private int estimate(muApply(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
+private int estimate(muApply(MuExp fun, list[MuExp] args)) = estimate(fun) + estimate_arg_list(args);
 
 private int estimate(muOCall3(muOFun(str fuid), list[MuExp] args, loc src)) = estimate_arg_list(args);
-private int estimate(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) = max(estimate(fun), 1 + estimate_arg_list(args));
+private int estimate(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) = estimate(fun) + 1 + estimate_arg_list(args);
 
 private int estimate(muCallPrim3(str name, list[MuExp] args, loc src)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
-private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) =
+		2 + estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);
@@ -70,17 +73,17 @@ private int estimate(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[
     max(max(estimate(cond), estimate_list(thenPart)), estimate_list(elsePart));
 
 private int estimate(muWhile(str label, MuExp cond, list[MuExp] body)) = 
-    max(estimate(cond), estimate_list(body));
+    1 + max(estimate(cond), estimate_list(body));
  
 private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
 private int estimate(muFail(str label)) = 0;
 
 private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)) = 
-max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
+	max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
 
-private int estimate(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
-max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp));
+private int estimate(muSwitch(MuExp exp, bool concretePatterns, list[MuCase] cases, MuExp defaultExp, MuExp result)) = 
+	1 + max(max(estimate(exp), max((1 | max(it, estimate(cs.exp)) | cs <- cases), estimate(defaultExp))), estimate(result));
        
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
@@ -95,7 +98,7 @@ private int estimate(muYield0()) = 1;
 private int estimate(muYield1(MuExp exp)) = estimate(exp);
 private int estimate(muYield2(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
-private int estimate(muExhaust()) = 1;
+private int estimate(muExhaust()) = 0;
 
 private int estimate(muGuard(MuExp exp)) = estimate(exp);
 
@@ -106,10 +109,6 @@ private int estimate(muReturn2(MuExp exp, list[MuExp] exps)) = estimate_arg_list
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
 
 private int estimate(e:muOne1(MuExp exp)) = estimate(exp) + 1; 
-private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
-
-private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
-private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
     
 private int estimate(muLocDeref(str name, int pos)) = 1;
 private int estimate(muVarDeref(str name, str fuid, int pos)) = 1;
@@ -122,10 +121,11 @@ private int estimate(muAssignLocDeref(str id, int pos, MuExp exp)) = estimate(ex
 private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 
 private int estimate(muThrow(MuExp exp, loc src)) = estimate(exp);
-private int estimate(muTry(MuExp tryBody, muCatch(str varname, str fuid, Symbol \type, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),1 + 1 + estimate(catchBody)),estimate(\finally));
+private int estimate(muTry(MuExp tryBody, muCatch(str varname, str fuid, Symbol \type, MuExp catchBody), MuExp \finally)) = 
+	max(max(estimate(tryBody),1 + 1 + estimate(catchBody)),estimate(\finally));
 
 private int estimate(muContVar(str fuid)) = 1;
 private int estimate(muReset(MuExp fun)) = estimate(fun);
 private int estimate(muShift(MuExp body)) = estimate(body);
 
-private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; }
+private default int estimate(MuExp e) { throw "estimate: Unknown node in the muRascal AST: <e>"; } 

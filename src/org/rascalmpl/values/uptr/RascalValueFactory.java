@@ -12,15 +12,19 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
@@ -39,6 +43,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 
 /**
@@ -52,11 +58,11 @@ import org.rascalmpl.interpreter.types.ReifiedType;
  * as the Rascal interpreter).
  * 1
  */
-public class Factory extends AbstractValueFactoryAdapter {
-	public final static TypeStore uptr = new TypeStore(
-			org.rascalmpl.values.errors.Factory.getStore(), 
-			org.rascalmpl.values.locations.Factory.getStore());
+public class RascalValueFactory extends AbstractValueFactoryAdapter {
+	public final static TypeStore uptr = new TypeStore();
 	private final static TypeFactory tf = TypeFactory.getInstance();
+//	private final static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+	private final TypeReifier tr;
 	
 	private static final Type str = tf.stringType();
 	
@@ -123,7 +129,6 @@ public class Factory extends AbstractValueFactoryAdapter {
 	
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
-//	public static final Type Symbol_START = tf.constructor(uptr, Symbol, "START");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", str, "string");
 	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", str, "string");
 	public static final Type Symbol_Empty = tf.constructor(uptr, Symbol, "empty");
@@ -171,6 +176,10 @@ public class Factory extends AbstractValueFactoryAdapter {
 	public static final Type Symbol_Alias = tf.constructor(uptr, Symbol, "alias", str, "name", tf.listType(Symbol), "parameters", Symbol, "aliased");
 	public static final Type Symbol_Cons = tf.constructor(uptr, Symbol, "cons", Symbol, "adt", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_BoundParameter = tf.constructor(uptr, Symbol, "parameter", str , "name", Symbol, "bound");
+	
+	// Two constructors introduced by the type checker
+	public static final Type Symbol_Overloaded = tf.constructor(uptr, Symbol, "overloaded", tf.setType(Symbol), "overloads", tf.setType(Symbol), "defaults");
+	public static final Type Symbol_Prod = tf.constructor(uptr, Symbol, "prod", Symbol, "sort", str, "name", tf.listType(Symbol), "parameters",  tf.setType(Attr), "attributes");
 
 	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "from", tf.integerType()); // TODO: can go when older parser is gone
 	public static final Type CharRange_Range = tf.constructor(uptr, CharRange, "range", tf.integerType(), "begin", tf.integerType(), "end");
@@ -189,10 +198,11 @@ public class Factory extends AbstractValueFactoryAdapter {
 		return uptr;
 	}
 	
-	public Factory() {
+	public RascalValueFactory() {
 		super(bootFactory);
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
+		tr = new TypeReifier(bootFactory);
 	}
 
 	@Override
@@ -209,9 +219,50 @@ public class Factory extends AbstractValueFactoryAdapter {
 			else if (constructor == Tree_Char) {
 				return character(((IInteger) children[0]).intValue());
 			}
+			else if (constructor == Type_Reified) {
+				return reifiedType((IConstructor) children[0], (IMap) children[1]);
+			}
 		}
 		
 		return super.constructor(constructor, children);
+	}
+	
+	@Override
+	public INode node(String name, IValue... children) {
+		IConstructor res = specializeType(name, children);
+		return res != null ? res: adapted.node(name, children);
+	}
+
+	private IConstructor specializeType(String name, IValue... children) {
+		if ("type".equals(name) 
+				&& children.length == 2
+				&& children[0].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(0))
+				&& children[1].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(1))) {
+			return reifiedType((IConstructor) children[0], (IMap) children[1]);
+		}
+		
+		return null;
+	}
+	
+	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
+		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
+	}
+	
+	@Override
+	public INode node(String name, Map<String, IValue> annotations,
+			IValue... children) throws FactTypeUseException {
+		IConstructor res = specializeType(name, children);
+		
+		return res != null ? res: super.node(name, annotations, children);
+	}
+	
+	@Override
+	public INode node(String name, IValue[] children,
+			Map<String, IValue> keyArgValues) throws FactTypeUseException {
+		IConstructor res = specializeType(name, children);
+		return res != null ? res: super.node(name, children, keyArgValues);
 	}
 	
 	@Override
@@ -236,10 +287,14 @@ public class Factory extends AbstractValueFactoryAdapter {
 
 	public IConstructor character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
-			return new TreeByte((byte) ch);
+			return character((byte) ch);
 		}
 		
-		return new TreeInt(ch);
+		return new CharInt(ch);
+	}
+	
+	public IConstructor character(byte ch) {
+		return new CharByte(ch);
 	}
 
 	public IConstructor appl(IConstructor prod, IList args) {
@@ -256,10 +311,14 @@ public class Factory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class TreeInt implements IConstructor {
+	public IConstructor amb(ISet alternatives) {
+		return new Amb(alternatives);
+	}
+	
+	private class CharInt implements IConstructor {
 		final int ch;
 		
-		public TreeInt(int ch) {
+		public CharInt(int ch) {
 			this.ch = ch;
 		}
 
@@ -336,8 +395,8 @@ public class Factory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public boolean isEqual(IValue other) {
-			if (other instanceof TreeInt) {
-				TreeInt o = (TreeInt) other;
+			if (other instanceof CharInt) {
+				CharInt o = (CharInt) other;
 				return o.ch == ch;
 			}
 			
@@ -415,10 +474,10 @@ public class Factory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
-	private class TreeByte implements IConstructor {
+	private class CharByte implements IConstructor {
 		final byte ch;
 		
-		public TreeByte(byte ch) {
+		public CharByte(byte ch) {
 			this.ch = ch;
 		}
 
@@ -487,8 +546,8 @@ public class Factory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public boolean isEqual(IValue other) {
-			if (other instanceof TreeByte) {
-				TreeByte o = (TreeByte) other;
+			if (other instanceof CharByte) {
+				CharByte o = (CharByte) other;
 				return o.ch == ch;
 			}
 			
@@ -574,6 +633,191 @@ public class Factory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
+	private class Amb implements IConstructor {
+		protected final ISet alternatives;
+		
+		public Amb(ISet alts) {
+			this.alternatives = alts;
+		}
+		
+		@Override
+		public String getName() {
+			return Tree_Amb.getName();
+		}
+		
+		@Override
+		public Iterable<IValue> getChildren() {
+			return this;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 43 + 751 * alternatives.hashCode(); 
+		}
+		
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other instanceof IConstructor) {
+				IConstructor cons = (IConstructor) other;
+				
+				return cons.getConstructorType() == getConstructorType()
+						&& cons.get(0).isEqual(get(0));
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IValue)) {
+				return false;
+			}
+			return isEqual((IValue) obj);
+		}
+		
+		
+		public ISet getAlternatives() {
+			return alternatives;
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+				private int count = 0;
+				
+				@Override
+				public boolean hasNext() {
+					return count < 1;
+				}
+
+				@Override
+				public IValue next() {
+					count++;
+					switch(count) {
+					case 1: return getAlternatives();
+					default: return null;
+					}
+				}
+			};
+		}
+
+		@Override
+		public int arity() {
+			return 1;
+		}
+		
+		@Override
+		public String toString() {
+			return StandardTextWriter.valueToString(this);
+		}
+		
+		@Override
+		public INode replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			throw new UnsupportedOperationException("Replace not supported on constructor.");
+		}
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
+				throws E {
+			return v.visitConstructor(this);
+		}
+		
+		@Override
+		public boolean isAnnotatable() {
+			return true;
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+			return Tree_Amb;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+			return Tree_Amb;
+		}
+
+		@Override
+		public IValue get(String label) {
+			switch (label) {
+			case "alternatives": return getAlternatives();
+			default: throw new UndeclaredFieldException(Tree_Amb, label);
+			}
+		}
+
+		@Override
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			switch (label) {
+			case "alternatives": return amb((ISet) newChild);
+			default: throw new UndeclaredFieldException(Tree_Appl, label);
+			}
+		}
+
+		@Override
+		public boolean has(String label) {
+			return Tree_Amb.hasField(label);
+		}
+
+		@Override
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			switch (index) {
+			case 0: return constructor(Tree_Amb, newChild, getAlternatives());
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+			return tf.tupleType(Alternatives);
+		}
+
+		@Override
+		public boolean declaresAnnotation(TypeStore store, String label) {
+			return store.getAnnotations(Tree).containsKey(label);
+		}
+
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<IConstructor>(this) {
+				@Override
+				protected IConstructor wrap(IConstructor content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedConstructorFacade(content, annotations);
+				}
+			};
+		}
+
+		@Override
+		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+				    @Override
+				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    }
+			 }; 
+		}
+		
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return alternatives;
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+	}
 	private abstract class AbstractAppl implements IConstructor {
 		protected final IConstructor production;
 
@@ -676,7 +920,7 @@ public class Factory extends AbstractValueFactoryAdapter {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return Tree;
+			return RascalTypeFactory.getInstance().nonTerminalType(production);
 		}
 
 		@Override
@@ -771,9 +1015,13 @@ public class Factory extends AbstractValueFactoryAdapter {
 		
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type getType() {
-			return tf.listType(Tree);
+			Type lub = tf.voidType();
+			for (IValue elem : this) {
+				lub = lub.lub(elem.getType());
+			}
+			return tf.listType(lub);
 		}
-
+		
 		@Override
 		public boolean contains(IValue e) {
 			for (int i = 0; i < length(); i++) {
@@ -894,6 +1142,11 @@ public class Factory extends AbstractValueFactoryAdapter {
 		@Override
 		public IList concat(IList o) {
 			return asNormal().concat(o);
+		}
+		
+		@Override
+		public IList shuffle(Random rand) {
+			return asNormal().shuffle(rand);
 		}
 
 		@Override
@@ -1270,5 +1523,4 @@ public class Factory extends AbstractValueFactoryAdapter {
 			};
 		}
 	}
-
 }

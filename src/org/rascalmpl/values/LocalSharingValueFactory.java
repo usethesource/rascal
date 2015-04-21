@@ -415,8 +415,16 @@ public class LocalSharingValueFactory implements IValueFactory{
 		}
 
 		@Override
-		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
-			listWriter.replaceAt(index, elem);
+		public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
+			return listWriter.replaceAt(index, elem);
+		}
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			return listWriter.get(i);
+		}
+		@Override
+		public int length() {
+			return listWriter.length();
 		}
 	}
 	
@@ -512,8 +520,8 @@ public class LocalSharingValueFactory implements IValueFactory{
 			listRelationWriter.insertAt(index, elems, start, length);
 		}
 
-		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
-			listRelationWriter.replaceAt(index, elem);
+		public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException{
+			return listRelationWriter.replaceAt(index, elem);
 		}
 		
 		public void append(IValue... value) throws FactTypeUseException{
@@ -522,6 +530,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listRelationWriter.appendAll(collection);
+		}
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			return listRelationWriter.get(i);
+		}
+		@Override
+		public int length() {
+			return listRelationWriter.length();
 		}
 	}
 	

@@ -16,24 +16,24 @@ import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 @SuppressWarnings({"unchecked", "cast"})
 public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_SEP = VF.constructor(Factory.Symbol_Sort, VF.string("Sep"));
-	private final static IConstructor SYMBOL_PLUS_LIST_SEP_A = VF.constructor(Factory.Symbol_IterSepX, SYMBOL_A, VF.list(SYMBOL_SEP));
-	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
-	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
-	private final static IConstructor SYMBOL_epsilon = VF.constructor(Factory.Symbol_Empty);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_SEP = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("Sep"));
+	private final static IConstructor SYMBOL_PLUS_LIST_SEP_A = VF.constructor(RascalValueFactory.Symbol_IterSepX, SYMBOL_A, VF.list(SYMBOL_SEP));
+	private final static IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
+	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
+	private final static IConstructor SYMBOL_epsilon = VF.constructor(RascalValueFactory.Symbol_Empty);
 	
-	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(Factory.Production_Default, SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_SEP_A), VF.set());
-	private final static IConstructor PROD_SEP_epsilon = VF.constructor(Factory.Production_Default, SYMBOL_SEP, VF.list(SYMBOL_epsilon), VF.set());
-	private final static IConstructor PROD_PLUSLISTSEPA = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_SEP_A);
-	private final static IConstructor PROD_A_a = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_a), VF.set());
-	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
-	private final static IConstructor PROD_A_epsilon = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_epsilon), VF.set());
+	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(RascalValueFactory.Production_Default, SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_SEP_A), VF.set());
+	private final static IConstructor PROD_SEP_epsilon = VF.constructor(RascalValueFactory.Production_Default, SYMBOL_SEP, VF.list(SYMBOL_epsilon), VF.set());
+	private final static IConstructor PROD_PLUSLISTSEPA = VF.constructor(RascalValueFactory.Production_Regular, SYMBOL_PLUS_LIST_SEP_A);
+	private final static IConstructor PROD_A_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_a), VF.set());
+	private final static IConstructor PROD_a_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
+	private final static IConstructor PROD_A_epsilon = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_epsilon), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
@@ -93,7 +93,7 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, IConstru
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[\\iter-seps(sort(\"A\"),[sort(\"Sep\")])],{}),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)})])})])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

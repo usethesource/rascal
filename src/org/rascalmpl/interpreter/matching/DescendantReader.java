@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -78,7 +78,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type == Factory.Tree) {
+			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type == RascalValueFactory.Tree) {
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
