@@ -587,6 +587,13 @@ public enum RascalPrimitive {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	elm_add_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_add_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+	
 	loc_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
