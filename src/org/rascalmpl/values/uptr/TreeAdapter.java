@@ -332,7 +332,13 @@ public class TreeAdapter {
 		}
 		
 		public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
-			Iterator<IValue> alternatives = ((ISet) arg.get("alternatives")).iterator();
+			ISet alts = TreeAdapter.getAlternatives(arg);
+			
+			if (alts.isEmpty()) {
+				return arg;
+			}
+			
+			Iterator<IValue> alternatives = alts.iterator();
 			// do not try to print the alternative with the cycle in it.
 			// so lets try to find the tree without the cycle
 			IConstructor tree = (IConstructor)alternatives.next();
