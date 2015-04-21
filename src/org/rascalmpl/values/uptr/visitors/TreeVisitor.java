@@ -24,7 +24,7 @@ public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E
 	
 	@Override
 	public INode visitConstructor(IConstructor o) throws E {
-		if (o.getType() == RascalValueFactory.Tree) {
+		if (o.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			Type alt = o.getConstructorType();
 			
 			if(alt == RascalValueFactory.Tree_Appl){
