@@ -78,7 +78,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type.isSubtypeOf(RascalValueFactory.Tree)) {
+			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
@@ -137,19 +137,12 @@ public class DescendantReader implements Iterator<IValue> {
 		IConstructor sym = ctype.getSymbol();
 		
         if (SymbolAdapter.isAnyList(sym)) {
-        	sym = SymbolAdapter.getSymbol(sym);
+        	spine.push(tree);
         	
-        	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
+        	sym = SymbolAdapter.getSymbol(sym);
+        	int delta = SymbolAdapter.getListSkipDelta(sym);
+
         	IList listElems = (IList) tree.get(1);
-			if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
-				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
-				delta = 1; // new iters never have layout separators
-			} 
-			else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
-				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlusSeps or isIterStarSeps");
-				delta = SymbolAdapter.getSeparators(sym).length() + 1;
-			}
-			
 			if (debug) {
 				for (int i = 0; i < listElems.length(); i++){
 					System.err.println("#" + i + ": " + listElems.get(i));

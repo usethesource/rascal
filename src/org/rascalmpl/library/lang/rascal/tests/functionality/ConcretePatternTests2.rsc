@@ -1,7 +1,7 @@
 module lang::rascal::tests::functionality::ConcretePatternTests2
 
 import ParseTree;
-layout Whitespace = [\ ]*;
+layout Whitespace = [\ ]* !>> [\ ];
 lexical IntegerLiteral = [0-9]+; 
 lexical Identifier = [a-z]+;
 
@@ -62,6 +62,9 @@ test bool concreteMatch224() = sw([Exp] "5 == 5") 		 == 5;
 test bool concreteMatch225() = sw([IntegerLiteral] "2")  == 6;
 
 
+test bool semiConcrete1() = list[Identifier] _ := [[Identifier] "x"];
+test bool semiConcrete2() = tuple[Identifier,Identifier] _ := <[Identifier] "x", [Identifier] "y">;
+
 test bool concreteMatch230() = [ "<ident>" | /Identifier ident := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
  							   ["x", "a", "b", "c"];
  							   
@@ -70,6 +73,12 @@ test bool concreteMatch231() = [ "<stat>" | /Stat stat := [Stat] "if x then a :=
 							   
 test bool concreteMatch232() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  							   ["a := 1;b:=2", "c:=3"];
+ 							   
+					test bool concreteMatch232NonEmpty1() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+    ["a := 1;b:=2", "c:=3"];
+    
+test bool concreteMatch232NonEmpty2() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then else c:=3 fi" ] ==
+    ["c:=3"];
  							   
 test bool concreteMatch233() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  								["if","then",";","else",";","fi","if","then",";",":=",":=",";",":=",":=","else",";",":=",":=","fi"];

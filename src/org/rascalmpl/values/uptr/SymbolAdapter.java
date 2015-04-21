@@ -714,4 +714,29 @@ public class SymbolAdapter {
 		
 		return true;
 	}
+
+	public static int getListSkipDelta(IConstructor sym) {
+		if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
+			return 1; // new iters never have layout separators
+		} 
+		else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
+			return SymbolAdapter.getSeparators(sym).length() + 1;
+		}
+		assert false; // should be all cases
+		return 1;
+	}
+
+	public static IConstructor starToPlus(IConstructor sym) {
+		assert isStarList(sym) && !isLabel(sym) && !isConditional(sym);
+		
+		if (isIterStar(sym)) {
+			return VF.constructor(RascalValueFactory.Symbol_IterPlus, getSymbol(sym));
+		}
+		else if (isIterStarSeps(sym)) {
+			return VF.constructor(RascalValueFactory.Symbol_IterSepX, getSymbol(sym), getSeparators(sym));
+		}
+		
+		assert false;
+		return sym;
+	}
 }
