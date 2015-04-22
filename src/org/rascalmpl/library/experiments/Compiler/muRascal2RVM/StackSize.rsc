@@ -13,7 +13,7 @@ public int estimate_stack_size(list[MuExp] exps) = addSlack(estimate_list(exps))
 
 int addSlack(int e) = e + 1;  //10 + e + (e+40)/10;
 
-private int estimate(muLab(str name)) = 0;
+//private int estimate(muLab(str name)) = 0;
 
 private int estimate(muBlock(list[MuExp] exps)) = ( 1 | max(it, estimate(e)) | e <- exps );
 

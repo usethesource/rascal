@@ -167,8 +167,8 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames1, Identifier id)        						=> muVar(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
      	       // Specific to delimited continuations (experimental)
-     	       case preContLoc()                                                                => muContVar(uid)
-     	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
+ //    	       case preContLoc()                                                                => muContVar(uid)
+ //    	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
      	       //case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
      	       case preAssignLoc(Identifier id, MuExp exp1) 									=> muAssign(id.var,uid,vardefs[uid][id.var], exp1)

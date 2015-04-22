@@ -1,10 +1,6 @@
-
-@bootstrapParser
 module experiments::Compiler::Examples::Tst1
-import lang::rascal::\syntax::Rascal;
 
-// Sanity check on the testing utilities themselves
+import experiments::Compiler::Compile;
+import experiments::Compiler::RVM::AST;
 
-Expression exp(str  s) = [Expression] s;
-
-value main(list[value] args) = exp("1 + 2");
+value main(list[value] args) = compile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fib.rsc|);
