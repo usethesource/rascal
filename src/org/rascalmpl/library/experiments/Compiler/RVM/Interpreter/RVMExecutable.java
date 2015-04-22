@@ -239,7 +239,7 @@ public class RVMExecutable implements Serializable{
 		FileOutputStream fileOut;
 		
 		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
-		SerializableRascalValue.initSerialization(vf, typeStore);
+		SerializableRascalValue.initSerialization(typeStore);
 		Function.initSerialization(vf, typeStore);
 		CodeBlock.initSerialization(vf, typeStore);
 		
@@ -264,7 +264,7 @@ public class RVMExecutable implements Serializable{
 		
 		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		typeserializer = new TypeSerializer(typeStore);
-		SerializableRascalValue.initSerialization(vf, typeStore);
+		SerializableRascalValue.initSerialization(typeStore);
 		Function.initSerialization(vf, typeStore);
 		CodeBlock.initSerialization(vf, typeStore);
 		
