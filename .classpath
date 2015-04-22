@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry excluding="**/example-project/*" kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/snakeyaml-1.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gson-2.2.4.jar" sourcepath="lib/gson-2.2.4-sources.jar">
@@ -11,11 +11,12 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/xz-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-compress-1.9.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/jdom-2.0.6.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
