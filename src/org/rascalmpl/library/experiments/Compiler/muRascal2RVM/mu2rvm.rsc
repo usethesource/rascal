@@ -12,10 +12,11 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::muRascal::Implode;
+//import experiments::Compiler::muRascal::Implode;
 
-import experiments::Compiler::Rascal2muRascal::RascalModule;
-import experiments::Compiler::Rascal2muRascal::RascalExpression;
+//import experiments::Compiler::Rascal2muRascal::RascalModule;
+//import experiments::Compiler::Rascal2muRascal::RascalExpression;
+
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
@@ -27,13 +28,18 @@ alias INS = list[Instruction];
 
 // Unique label generator
 
-int nlabel = -1;
-str nextLabel() { nlabel += 1; return "L<nlabel>"; }
+private int nlabel = -1;
+private str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-public str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
-map[str,int] nlocal = ();						// number of local per scope
+private str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
 
-map[str,str] scopeIn = ();						// scope nesting
+public void setFunctionScope(str scopeId){
+	functionScope = scopeId;
+}
+
+private map[str,int] nlocal = ();						// number of local per scope
+
+private map[str,str] scopeIn = ();						// scope nesting
 
 int get_nlocals() = nlocal[functionScope];		
 
@@ -43,7 +49,7 @@ void set_nlocals(int n) {
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
 
-map[int, str] localNames = ();
+private map[int, str] localNames = ();
 
 // Systematic label generation related to loops
 

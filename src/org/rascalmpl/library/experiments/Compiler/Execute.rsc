@@ -43,7 +43,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
 // 	libTypes = libModule.types; 
  
   	for(fun <- libModule.functions) {
-  		functionScope = fun.qname;
+  		setFunctionScope(fun.qname);
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    <maxSP, exceptions> = validate(fun.src, body, []);

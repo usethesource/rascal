@@ -4,7 +4,7 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::\syntax::Rascal;
 
-import experiments::Compiler::muRascal2RVM::RascalReifiedTypes;
+import experiments::Compiler::Tests::RascalReifiedTypes;
 
 import ParseTree;
 
