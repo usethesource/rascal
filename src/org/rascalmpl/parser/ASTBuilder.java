@@ -13,7 +13,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.parser;
 
 import java.lang.reflect.Constructor;
@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -53,30 +54,29 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ASTBuilder {
 	private static final String MODULE_SORT = "Module";
 
-    private final PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
-    private final PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
-    
-    private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
-    
-    private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
+	private final PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
+
+	private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
+
+	private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
-    
+
 	public static <T extends AbstractAST> T make(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
-	
+
 	public static  <T extends Expression> T makeExp(String cons, ISourceLocation src, Object... args) {
 		return make("Expression", cons, src, args);
 	}
-	
+
 	public static <T extends Statement> T makeStat(String cons, ISourceLocation src, Object... args) {
 		return make("Statement", cons, src, args);
 	}
-	
+
 	public static <T extends AbstractAST> T makeLex(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Lexical", src, args);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
 		Object[] newArgs = new Object[args.length + 1];
@@ -86,7 +86,7 @@ public class ASTBuilder {
 
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		IConstructor tree =  parseTree;
-		
+
 		if (TreeAdapter.isAppl(tree)) {
 			if (sortName(tree).equals(MODULE_SORT)) {
 				// t must be an appl so call buildValue directly
@@ -94,84 +94,84 @@ public class ASTBuilder {
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
-		
+
 		if (TreeAdapter.isAmb(tree)) {
-		  throw new Ambiguous(tree);
+			throw new Ambiguous(tree);
 		}
-		
+
 		throw new ImplementationError("Parse of module returned invalid tree.");
 	}
-	
+
 	public Expression buildExpression(IConstructor parseTree) {
 		return buildSort(parseTree, "Expression");
 	}
-	
+
 	public Statement buildStatement(IConstructor parseTree) {
 		return buildSort(parseTree, "Statement");
 	}
-	
+
 	public Command buildCommand(IConstructor parseTree) {
 		return buildSort(parseTree, "Command");
 	}
-	
+
 	public Command buildSym(IConstructor parseTree) {
-    return buildSort(parseTree, "Sym");
-  }
-	
+		return buildSort(parseTree, "Sym");
+	}
+
 	public Commands buildCommands(IConstructor parseTree) {
 		return buildSort(parseTree, "Commands");
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
 		if (TreeAdapter.isAppl(parseTree)) {
 			IConstructor tree = TreeAdapter.getStartTop(parseTree);
-			
+
 			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
 			}
 		} 
 		else if (TreeAdapter.isAmb(parseTree)) {
-		  throw new Ambiguous(parseTree);
+			throw new Ambiguous(parseTree);
 		}
-		
+
 		throw new ImplementationError("This is not a " + sort +  ": " + parseTree);
 	}
-	
+
 	public AbstractAST buildValue(IValue arg)  {
 		IConstructor tree = (IConstructor) arg;
-		
+
 		if (TreeAdapter.isList(tree)) {
 			throw new ImplementationError("buildValue should not be called on a list");
 		}
-		
+
 		if (TreeAdapter.isAmb(tree)) {
-		  throw new Ambiguous(tree);
+			throw new Ambiguous(tree);
 		}
-		
+
 		if (!TreeAdapter.isAppl(tree)) {
 			throw new UnsupportedOperationException();
 		}	
-		
+
 		if (isLexical(tree)) {
 			if (TreeAdapter.isRascalLexical(tree)) {
 				return buildLexicalNode(tree);
 			}
 			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
-		
+
 		if (sortName(tree).equals("Pattern")) {
-		  if (isNewEmbedding(tree)) {
-		    return newLift(tree, true);
-		  }
+			if (isNewEmbedding(tree)) {
+				return newLift(tree, true);
+			}
 		}
 
 		if (sortName(tree).equals("Expression")) {
 			if (isNewEmbedding(tree)) {
-        return newLift(tree, false);
-      }
+				return newLift(tree, false);
+			}
 		}
-		
+
 		return buildContextFreeNode((IConstructor) arg);
 	}
 
@@ -179,31 +179,25 @@ public class ASTBuilder {
 		IList args = TreeAdapter.getListASTArgs(in);
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
-		  result.add(buildValue(arg));
+			result.add(buildValue(arg));
 		}
 		return result;
 	}
 
 	private AbstractAST buildContextFreeNode(IConstructor tree)  {
-		AbstractAST cached = sortCache.get(tree);
-		
-		if (cached != null) {
-			return cached;
-		}
-		
 		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
 			throw new ImplementationError("All Rascal productions should have a constructor name: " + TreeAdapter.getProduction(tree));
 		}
-		
+
 		String cons = capitalize(constructorName);
 		String sort = sortName(tree);
-		
+
 		if (sort.length() == 0) {
 			throw new ImplementationError("Could not retrieve sort name for " + tree);
 		}
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
-		
+
 		switch(sort){
 		case "Mapping":
 			sort = "Mapping_Expression"; break;
@@ -231,17 +225,10 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
-		
-		sortCache.putUnsafe(tree, ast);
-		return ast;
+		return callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
 	}
-	
+
 	private AbstractAST buildLexicalNode(IConstructor tree) {
-		AbstractAST cached = lexCache.get(tree);
-		if (cached != null) {
-			return cached;
-		}
 		String sort = capitalize(sortName(tree));
 
 		if (sort.length() == 0) {
@@ -249,20 +236,18 @@ public class ASTBuilder {
 		}
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
-		lexCache.putUnsafe(tree, result);
-		return result;
+		return callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
 	}
-	
+
 	private String getPatternLayout(IConstructor tree) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		String cons = ProductionAdapter.getConstructorName(prod);
-		
+
 		if (cons.equals("concrete")) {
-		  // TODO
-      return "???";
-    }
-		
+			// TODO
+			return "???";
+		}
+
 		throw new ImplementationError("Unexpected embedding syntax:" + prod);
 	}
 
@@ -270,39 +255,41 @@ public class ASTBuilder {
 		constructorCache.putUnsafe(in, out);
 		return out;
 	}
-	
+
+	private int hits1 = 0;
+
 	private Expression liftRec(IConstructor tree, boolean lexicalFather, String layoutOfFather) {
 		Expression cached = constructorCache.get(tree);
 		if (cached != null) {
 			return cached;
 		}
-		
+
 		if (layoutOfFather == null) {
 			throw new ImplementationError("layout is null");
 		}
-		
+
 		if (TreeAdapter.isAppl(tree)) {
 			String cons = TreeAdapter.getConstructorName(tree);
-			
+
 			if (cons != null && (cons.equals("hole"))) { // TODO: this is unsafe, what if somebody named their own production "hole"??
-			  return liftHole(tree);
+				return liftHole(tree);
 			}
 
 			boolean lex = lexicalFather ? !TreeAdapter.isSort(tree) : TreeAdapter.isLexical(tree);
-			
+
 			IList args = TreeAdapter.getArgs(tree);
 			String layout = layoutOfFather;
-			
+
 			if (cons != null && !lex) { 
 				String newLayout = getLayoutName(TreeAdapter.getProduction(tree));
-				
+
 				// this approximation is possibly harmfull. Perhaps there is a chain rule defined in another module, which nevertheless
 				// switched the applicable layout. Until we have a proper type-analysis there is nothing we can do here.
 				if (newLayout != null) {
 					layout = newLayout;
 				}
 			}
-			
+
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.length());
 			for (IValue arg : args) {
 				Expression ast = liftRec((IConstructor) arg, lex, layout);
@@ -329,19 +316,19 @@ public class ASTBuilder {
 		else if (TreeAdapter.isAmb(tree)) {
 			ISet args = TreeAdapter.getAlternatives(tree);
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.size());
-			
+
 			for (IValue arg : args) {
 				kids.add(liftRec((IConstructor) arg, lexicalFather, layoutOfFather));
 			}
-			
+
 			if (kids.size() == 0) {
 				return null;
 			}
-			
+
 			if (kids.size() == 1) {
 				return kids.get(0);
 			}
-			
+
 			return cache(tree, new Tree.Amb(tree, kids));
 		}
 		else {
@@ -353,9 +340,9 @@ public class ASTBuilder {
 	}
 
 	private Expression liftHole(IConstructor tree) {
-	  assert tree.asAnnotatable().hasAnnotation("holeType");
-	  IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
-	  tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+		assert tree.asAnnotatable().hasAnnotation("holeType");
+		IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
+		tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
 		IList args = TreeAdapter.getArgs(tree);
 		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
@@ -363,7 +350,7 @@ public class ASTBuilder {
 		result.setSourceLocation(src);
 		return result;
 	}
-	
+
 	private String getLayoutName(IConstructor production) {
 		if (ProductionAdapter.isDefault(production)) {
 			for (IValue sym : ProductionAdapter.getSymbols(production)) {
@@ -372,7 +359,7 @@ public class ASTBuilder {
 				}
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -388,7 +375,7 @@ public class ASTBuilder {
 			// skip layout
 			i++;
 		}
-		
+
 		return writer.done();
 	}
 
@@ -410,7 +397,7 @@ public class ASTBuilder {
 		if (sort.length() > 1) {
 			return Character.toUpperCase(sort.charAt(0)) + sort.substring(1);
 		}
-		
+
 		return sort.toUpperCase();
 	}
 
@@ -419,19 +406,19 @@ public class ASTBuilder {
 	}
 
 	private boolean isNewEmbedding(IConstructor tree) {
-    String name = TreeAdapter.getConstructorName(tree);
-    assert name != null;
-    
-    if (name.equals("concrete")) {
-      tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-      name = TreeAdapter.getConstructorName(tree);
-      
-      if (name.equals("$parsed")) {
-        return true;
-      }
-    }
-    return false;
-  }
+		String name = TreeAdapter.getConstructorName(tree);
+		assert name != null;
+
+		if (name.equals("concrete")) {
+			tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+			name = TreeAdapter.getConstructorName(tree);
+
+			if (name.equals("$parsed")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private boolean isLexical(IConstructor tree) {
 		if (TreeAdapter.isRascalLexical(tree)) {
@@ -441,42 +428,34 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST newLift(IConstructor tree, boolean match) {
-  		AbstractAST cached = constructorCache.get(tree);
-  		if (cached != null) {
-  			return cached;
-  		}
-  		
-  		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-  		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(7);
-  		Expression ast = liftRec(fragment, false,  getPatternLayout(tree));
-  		
-  		constructorCache.putUnsafe(tree, ast);
-  		return ast;
-  	}
+		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(7);
+		return liftRec(fragment, false,  getPatternLayout(tree));
+	}
 
-  private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
 		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals, keywordActuals);
 	}
-	
+
 	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
-			
+
 			if (constructor == null) {
 				Class<?> clazz = null;
-				
+
 				try {
 					clazz = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
 				}
 				catch (ClassNotFoundException e) {
 					// it happens
 				}
-				
+
 				if (clazz == null) {
 					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
 				}
-				
+
 				constructor = clazz.getConstructors()[0];
 				constructor.setAccessible(true);
 				astConstructors.put(name, constructor);
@@ -504,5 +483,5 @@ public class ASTBuilder {
 			throw unexpectedError(e);
 		}
 	}
-		
+
 }
