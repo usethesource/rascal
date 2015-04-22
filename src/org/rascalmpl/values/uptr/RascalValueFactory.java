@@ -37,10 +37,11 @@ import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -50,6 +51,14 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
+ * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
+ * data types it needs to bootstrap and to provide syntax features. This includes
+ *    * UPTR - universal parse tree format
+ *    * Type - reified types for PDB and Rascal types
+ *    * Functions/Closures - TBD; not represented here yet
+ *    * Modules - TBD; not represented here yet
+ *    * Grammars - Partially here in the definition of Production
+ *        
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
  * an abstract syntax for Rascal production rules, completed with constructors for parse forests.
  * <p>
@@ -58,18 +67,37 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * UPTR is consumed by tools that manipulate parse trees in general (such as
  * automatic syntax high-lighters) or tools that manipulate specific parse trees (such
  * as the Rascal interpreter).
- * 1
+ * 
+ * UPTR parse trees (Tree) are special ADT trees in the sense that:
+ *    * their implementation classes are specialized (compressed) implementations of IConstructor
+ *      for the sake of speed
+ *    * their instances have NonTerminalType instead of AbstractDataType
+ *
+ * Reified type values (Type) are special in the sense that they satisfy a special contract
+ * which binds a reified type representation to the run-time type of the reified type:
+ * Namely, for any instance of `Type[&T] = type(Symbol s, map[Symbol,Production] definitions)` 
+ * it holds that:
+ *    * &T is bound to the type represented by Symbol s
+ *    * At least all definitions necessary for constructing any value of type &T are
+ *      listed in the `definitions` map.
+ * Note that a reified type is in fact also a reified type environment.
+ * Use {@link TypeReifier} for mapping back and forth between Types and reified types.
+ * 
+ * For (de)serialization using (for example) {@link StandardTextReader} and {@link StandardTextWriter}
+ * the RascalValueFactory is needed as a parameter as well as its {@method getStore()} method to
+ * provide them with the right definitions. 
  */
 public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore();
 	private final static TypeFactory tf = TypeFactory.getInstance();
-	private final TypeReifier tr;
+
+	// This is where we bind the persistent implementation of IValueFactory:
+	private static final IValueFactory bootFactory = ValueFactory.getInstance();
+	private final TypeReifier tr = new TypeReifier(bootFactory);
 	
 	private static final Type str = tf.stringType();
 	
-	public static final Type TypeParam = tf.parameterType("T");
-	public static final Type Type = new ReifiedType(TypeParam);
-	
+	/* General abstract sort declarations */ 
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
 	public static final Type Attributes = tf.abstractDataType(uptr, "Attributes");
@@ -83,37 +111,42 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
 
-	static { 
-		uptr.declareAbstractDataType(Type); // needed for next decl; position of static block is important
-	}
+	/* next three declarations and static block are order dependend */
+	public static final Type TypeParam = tf.parameterType("T");
+	public static final Type Type = new ReifiedType(TypeParam);
+	static { uptr.declareAbstractDataType(Type); }
 	public static final Type Type_Reified = tf.constructor(uptr, Type, "type", Symbol, "symbol", tf.mapType(Symbol , Production), "definitions");
-					
+	/* end order dependence */
+	
+	/* Constructors for Tree */
 	public static final Type Tree_Appl = tf.constructor(uptr, Tree, "appl", Production, "prod", tf.listType(Tree), "args");
 	public static final Type Tree_Cycle = tf.constructor(uptr, Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycleLength");
 	public static final Type Tree_Amb = tf.constructor(uptr, Tree, "amb", Alternatives, "alternatives");
 	public static final Type Tree_Char = tf.constructor(uptr, Tree, "char", tf.integerType(), "character");
 	
+	/* Constructors for Production */
 	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
 	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "def");
 	public static final Type Production_Error = tf.constructor(uptr, Production, "error", Production, "prod", tf.integerType(), "dot");
 	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped");
-	
 	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Choice = tf.constructor(uptr, Production, "choice", Symbol, "def", tf.setType(Production), "alternatives");
 	public static final Type Production_Priority = tf.constructor(uptr, Production, "priority", Symbol, "def", tf.listType(Production), "choices");
 	public static final Type Production_Associativity = tf.constructor(uptr, Production, "associativity", Symbol, "def", Associativity, "assoc", tf.setType(Production), "alternatives");
 	
-
+	/* Constructors for Attr */
 	public static final Type Attr_Assoc = tf.constructor(uptr, Attr, "assoc", Associativity, "assoc");
 	public static final Type Attr_Tag = tf.constructor(uptr, Attr, "tag", tf.valueType(), "tag");
 	public static final Type Attr_Bracket = tf.constructor(uptr, Attr, "bracket");
 	
+	/* Constructors for Associativity */
 	public static final Type Associativity_Left = tf.constructor(uptr, Associativity, "left");
 	public static final Type Associativity_Right = tf.constructor(uptr, Associativity, "right");
 	public static final Type Associativity_Assoc = tf.constructor(uptr, Associativity, "assoc");
 	public static final Type Associativity_NonAssoc = tf.constructor(uptr, Associativity, "non-assoc");
 	
+	/* Constructors for Condition */
 	public static final Type Condition = tf.abstractDataType(uptr, "Condition");
 	public static final Type Condition_Follow = tf.constructor(uptr, Condition, "follow", Symbol, "symbol");
 	public static final Type Condition_NotFollow = tf.constructor(uptr, Condition, "not-follow", Symbol, "symbol");
@@ -125,6 +158,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type Condition_AtColumn = tf.constructor(uptr, Condition, "at-column", tf.integerType(), "column");
 	public static final Type Condition_Except = tf.constructor(uptr, Condition, "except", str, "label");
 	
+	/* Constructors for Symbol */
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", str, "string");
@@ -145,11 +179,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type Symbol_ParameterizedSort = tf.constructor(uptr, Symbol, "parameterized-sort", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_ParameterizedLex = tf.constructor(uptr, Symbol, "parameterized-lex", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", str, "name", Symbol, "bound");
-	
 	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", str, "name");
-	
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
-	
 	public static final Type Symbol_Int = tf.constructor(uptr, Symbol, "int");
 	public static final Type Symbol_Rat = tf.constructor(uptr, Symbol, "rat");
 	public static final Type Symbol_Bool = tf.constructor(uptr, Symbol, "bool");
@@ -175,34 +206,41 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type Symbol_Cons = tf.constructor(uptr, Symbol, "cons", Symbol, "adt", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_BoundParameter = tf.constructor(uptr, Symbol, "parameter", str , "name", Symbol, "bound");
 	
-	// Two constructors introduced by the type checker
+	/* Internally (type checker) used constructors for Symbol: */
 	public static final Type Symbol_Overloaded = tf.constructor(uptr, Symbol, "overloaded", tf.setType(Symbol), "overloads", tf.setType(Symbol), "defaults");
 	public static final Type Symbol_Prod = tf.constructor(uptr, Symbol, "prod", Symbol, "sort", str, "name", tf.listType(Symbol), "parameters",  tf.setType(Attr), "attributes");
 
+	/* Constructors for CharRange */
 	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "from", tf.integerType()); // TODO: can go when older parser is gone
 	public static final Type CharRange_Range = tf.constructor(uptr, CharRange, "range", tf.integerType(), "begin", tf.integerType(), "end");
-	
-	public static final String Location = "loc";
-	public static final String Length = "len";
 
-	private static final IValueFactory bootFactory = ValueFactory.getInstance(); 
+	/* Constructors for Attribute */
 	public static final IValue Attribute_Assoc_Left = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Left));
 	public static final IValue Attribute_Assoc_Right = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Right));
 	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
-	private final IConstructor byteChars[];
+	
+	@Deprecated
+	/** Will be replaced by keyword parameter "origin" */
+	public static final String Location = "loc";
+	@Deprecated
+	/** Will be removed completely */
+	public static final String Length = "len";
 	
 	static {
-		
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
 	}
+
+	/** caches ASCII characters for sharing */
+	private final IConstructor byteChars[];
 	
 	public static TypeStore getStore() {
 		return uptr;
 	}
 	
+	/** nested class for thread safe singleton allocation */
 	static private class InstanceHolder {
 		static final RascalValueFactory sInstance = new RascalValueFactory();
 	}
@@ -213,8 +251,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	
 	private RascalValueFactory() {
 		super(bootFactory);
-	
-		tr = new TypeReifier(bootFactory);
+		
 		IConstructor[] tmp = new IConstructor[256];
 		for (int i = 0; i < 256; i++) {
 			tmp[i] = new CharByte((byte) i);
@@ -223,10 +260,69 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	}
 
 	@Override
-	public IConstructor constructor(org.eclipse.imp.pdb.facts.type.Type constructor, IValue... children)
-			throws FactTypeUseException {
-		assert constructor != null;
+	public INode node(String name, IValue... children) {
+		IConstructor res = specializeNode(name, children);
+		return res != null ? res: super.node(name, children);
+	}
+
+	private IConstructor specializeNode(String name, IValue... children) {
+		if ("type".equals(name) 
+				&& children.length == 2
+				&& children[0].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(0))
+				&& children[1].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(1))) {
+			return reifiedType((IConstructor) children[0], (IMap) children[1]);
+		}
 		
+		return null;
+	}
+	
+	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
+		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
+	}
+	
+	@Override
+	public INode node(String name, Map<String, IValue> annotations,	IValue... children) throws FactTypeUseException {
+		IConstructor res = specializeNode(name, children);
+		return res != null ? res: super.node(name, annotations, children);
+	}
+	
+	@Override
+	public INode node(String name, IValue[] children,
+			Map<String, IValue> kws) throws FactTypeUseException {
+		IConstructor result = specializeNode(name, children);
+		return result != null 
+				? (kws != null ? result.asWithKeywordParameters().setParameters(kws) : result) 
+				: super.node(name, children, kws);
+	}
+	
+	@Override
+	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams) throws FactTypeUseException {
+		IConstructor result = specializeConstructor(constructor, children);
+		return result != null 
+				? (kwParams != null ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
+				: super.constructor(constructor, children, kwParams);
+	}
+	
+	@Override
+	public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
+		IConstructor result = specializeConstructor(constructor, children);
+		return result != null ? result : super.constructor(constructor, children);
+	}
+	
+	@Override
+	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+		IConstructor result = specializeConstructor(constructor, children);
+		return result != null 
+				? result.asAnnotatable().setAnnotations(annotations) 
+				: super.constructor(constructor, annotations, children);
+	}
+
+	/**
+	 * This is where the core functionality of this class is implemented, specializing IConstructor values
+	 */
+	private IConstructor specializeConstructor(Type constructor, IValue... children) {
 		if (constructor.getAbstractDataType() == Tree) {
 			if (constructor == Tree_Appl) {
 				return appl((IConstructor) children[0], (IList) children[1]);
@@ -245,67 +341,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 			}
 		}
 		
-		return super.constructor(constructor, children);
-	}
-	
-	@Override
-	public INode node(String name, IValue... children) {
-		IConstructor res = specializeType(name, children);
-		return res != null ? res: adapted.node(name, children);
-	}
-
-	private IConstructor specializeType(String name, IValue... children) {
-		if ("type".equals(name) 
-				&& children.length == 2
-				&& children[0].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(0))
-				&& children[1].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(1))) {
-			return reifiedType((IConstructor) children[0], (IMap) children[1]);
-		}
-		
 		return null;
-	}
-	
-	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
-		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
-		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
-	}
-	
-	@Override
-	public INode node(String name, Map<String, IValue> annotations,
-			IValue... children) throws FactTypeUseException {
-		IConstructor res = specializeType(name, children);
-		
-		return res != null ? res: super.node(name, annotations, children);
-	}
-	
-	@Override
-	public INode node(String name, IValue[] children,
-			Map<String, IValue> keyArgValues) throws FactTypeUseException {
-		IConstructor res = specializeType(name, children);
-		return res != null ? res: super.node(name, children, keyArgValues);
-	}
-	
-	@Override
-	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
-			throws FactTypeUseException {
-		assert constructor != null;
-		
-		if (constructor.getAbstractDataType() == Tree) {
-			if (constructor == Tree_Appl) {
-				assert children.length == 2;
-				return appl((IConstructor) children[0], (IList) children[1]);
-			}
-			else if (constructor == Tree_Amb) {
-				assert children.length == 1;
-				return amb((ISet) children[0]);
-			}
-			else if (constructor == Tree_Char) {
-				return character(((IInteger) children[0]).intValue());
-			}
-		}
-		
-		return super.constructor(constructor, children, kwParams);
 	}
 	
 	public IConstructor character(int ch) {
@@ -343,6 +379,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
+	/**
+	 * Construct a specialized IConstructor representing a Tree, applying a prod to a list of arguments
+	 */
 	public IConstructor appl(IConstructor prod, IList args) {
 		switch (args.length()) {
 		case 0: return new Appl0(prod);
@@ -381,6 +420,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public IConstructor amb(ISet alternatives) {
 		return new Amb(alternatives);
 	}
+	
+	/*
+	 * Below here are specialized static classes for {@link IConstructor}
+	 * creating slim instances for Tree appl and for lazy {@link IList} 
+	 * implementations for avoiding copying arrays/lists at parse tree creation time.
+	 * 
+	 * Some classes are specialized by arity to avoid memory overhead. Specialization
+	 * is also necessary to correctly implement getType() and to optimize hashCode().
+	 * 
+	 * To avoid code duplication between specialized classes we factor out common elements in the {@link AbstractAppl} and
+	 * and {@link AbstractArgumentList} abstract classes.
+	 */
 	
 	private static class CharInt implements IConstructor {
 		final int ch;
@@ -481,17 +532,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			return Tree;  // new NonTerminalType(charClass((int) ch));
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+		public Type getConstructorType() {
 			return Tree_Char;
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+		public Type getUninstantiatedConstructorType() {
 			return Tree_Char;
 		}
 
@@ -521,7 +572,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+		public Type getChildrenTypes() {
 			return tf.tupleType(tf.integerType());
 		}
 
@@ -640,17 +691,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			return Tree;// new NonTerminalType(charClass((int) ch));
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+		public Type getConstructorType() {
 			return Tree_Char;
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+		public Type getUninstantiatedConstructorType() {
 			return Tree_Char;
 		}
 
@@ -680,7 +731,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+		public Type getChildrenTypes() {
 			return tf.tupleType(tf.integerType());
 		}
 
@@ -800,17 +851,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			return RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+		public Type getConstructorType() {
 			return Tree_Cycle;
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+		public Type getUninstantiatedConstructorType() {
 			return Tree_Cycle;
 		}
 
@@ -849,7 +900,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+		public Type getChildrenTypes() {
 			return tf.tupleType(Symbol, tf.integerType());
 		}
 
@@ -990,7 +1041,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			if (!alternatives.isEmpty()) {
 				return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
 			}
@@ -1000,12 +1051,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+		public Type getConstructorType() {
 			return Tree_Amb;
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+		public Type getUninstantiatedConstructorType() {
 			return Tree_Amb;
 		}
 
@@ -1041,7 +1092,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+		public Type getChildrenTypes() {
 			return tf.tupleType(Alternatives);
 		}
 
@@ -1079,6 +1130,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 			}
 		}
 	}
+	
 	private static abstract class AbstractAppl implements IConstructor {
 		protected final IConstructor production;
 
@@ -1098,7 +1150,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		
 		@Override
 		public int hashCode() {
-			return 41 + 1331 * production.hashCode() + 13331 * getArguments().hashCode(); 
+			return 41 
+				  + 1331 * production.hashCode() 
+				  + 13331 * getArguments().hashCode(); 
 		}
 		
 		@Override
@@ -1180,19 +1234,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			// it is important to give the whole tree here, to be able to check for non-empty lists which have a more concrete type
 			// than possibly empty lists!
 			return RascalTypeFactory.getInstance().nonTerminalType(this);
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+		public Type getConstructorType() {
 			return Tree_Appl;
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+		public Type getUninstantiatedConstructorType() {
 			return Tree_Appl;
 		}
 
@@ -1231,7 +1285,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+		public Type getChildrenTypes() {
 			return tf.tupleType(production.getType(), Args);
 		}
 
@@ -1272,10 +1326,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	}
 	
 	private static abstract class AbstractArgumentList implements IList {
+		// caching the hash on the list level (and nowhere else)
+		// to balance memory usage and making sure computing hash codes
+		// for any parse tree node is in (amortized) constant time
+		protected int hash = 0;
+		
 		protected abstract IList asNormal();
 		
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getType() {
+		public Type getType() {
 			return tf.listType(getElementType());
 		}
 		
@@ -1328,7 +1387,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		
 		@Override
 		public int hashCode(){
-			int hash = 0;
+			if (hash != 0) {
+				return hash;
+			}
 
 			Iterator<IValue> iterator = iterator();
 			while(iterator.hasNext()){
@@ -1377,7 +1438,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type getElementType() {
+		public Type getElementType() {
 			Type lub = tf.voidType();
 			for (IValue elem : this) {
 				if (lub == Tree) {
@@ -1539,6 +1600,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		public IList getArguments() {
 			return EMPTY_LIST;
 		}
+		
+		@Override
+		public int hashCode() {
+			return 17 
+					+ 13 * production.hashCode();
+		}
 	}
 	
 	private static class ApplN extends AbstractAppl {
@@ -1552,6 +1619,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		@Override
 		public IList getArguments() {
 			return args;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 3 
+					+ 17 * production.hashCode() 
+					+ 91 * args.hashCode()
+					;
 		}
 	}
 	
@@ -1584,6 +1659,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 17 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					;
 		}
 	}
 	
@@ -1619,6 +1702,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0, arg1);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 23 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					;
 		}
 	}
 	
@@ -1657,6 +1749,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0, arg1, arg2);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 29 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					+ 29 * arg2.hashCode()
+					;
 		}
 	}
 	
@@ -1698,6 +1800,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0, arg1, arg2, arg3);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 31 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					+ 29 * arg2.hashCode()
+					+ 31 * arg3.hashCode()
+					;
 		}
 	}
 	
@@ -1742,6 +1855,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0, arg1, arg2, arg3, arg4);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 31 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					+ 29 * arg2.hashCode()
+					+ 31 * arg3.hashCode()
+					+ 37 * arg4.hashCode()
+					;
 		}
 	}
 	
@@ -1789,6 +1914,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 					return getInstance().list(arg0, arg1, arg2, arg3, arg4, arg5);
 				}
 			};
+		}
+		
+		@Override
+		public int hashCode() {
+			return 31 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					+ 29 * arg2.hashCode()
+					+ 31 * arg3.hashCode()
+					+ 37 * arg4.hashCode()
+					+ 41 * arg5.hashCode()
+					;
 		}
 	}
 
@@ -1840,5 +1978,21 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 				}
 			};
 		}
+		
+		@Override
+		public int hashCode() {
+			return 31 
+					+ 13 * production.hashCode() 
+					+ 17 * arg0.hashCode()
+					+ 23 * arg1.hashCode()
+					+ 29 * arg2.hashCode()
+					+ 31 * arg3.hashCode()
+					+ 37 * arg4.hashCode()
+					+ 41 * arg5.hashCode()
+					+ 43 * arg6.hashCode()
+					;
+		}
 	}
+	
+	// please put additional methods above the nested classes
 }
