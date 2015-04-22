@@ -7091,7 +7091,7 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header header> <Body body>`, Configuration c) {
+public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c) {
 	moduleName = getHeaderName(header);
 	importList = getHeaderImports(header);
 
@@ -7324,12 +7324,12 @@ void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
-public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	moduleName = getHeaderName(header);
 	importList = getHeaderImports(header);
 	set[RName] notImported = { };
