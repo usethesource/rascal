@@ -61,9 +61,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  *        
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
  * an abstract syntax for Rascal production rules, completed with constructors for parse forests.
- * <p>
  * UPTR is produced by parser implementations (as generated from Rascal grammars for example).
- * <p>
  * UPTR is consumed by tools that manipulate parse trees in general (such as
  * automatic syntax high-lighters) or tools that manipulate specific parse trees (such
  * as the Rascal interpreter).
@@ -85,7 +83,15 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * 
  * For (de)serialization using (for example) {@link StandardTextReader} and {@link StandardTextWriter}
  * the RascalValueFactory is needed as a parameter as well as its {@method getStore()} method to
- * provide them with the right definitions. 
+ * provide deserialization with the right definitions of data-types.
+ * 
+ * For inspecting manipulating values for the data-types which are defined here please see this API:
+ *    * {@link TreeAdapter}
+ *    * {@link SymbolAdapter}
+ *    * {@link ProductionAdapter}
+ *    
+ * All definitions included here are echoed in ParseTree.rsc and Type.rsc. The clone is necessary
+ * for bootstrapping reasons. This class is where it all starts.
  */
 public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore();
