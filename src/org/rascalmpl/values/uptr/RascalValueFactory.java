@@ -12,6 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.CharRange_Range;
+import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_CharClass;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -239,8 +242,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
 	}
 
-	/** caches ASCII characters for sharing */
-	private final IConstructor byteChars[];
+	
 	
 	/** nested class for thread safe singleton allocation */
 	static private class InstanceHolder {
@@ -251,17 +253,23 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		return InstanceHolder.sInstance;
 	}
 	
+	/** caches ASCII characters for sharing */
+	private final static IConstructor byteChars[];
+	private final static Type byteCharTypes[];
+	static {
+		byteChars = new IConstructor[256];
+		byteCharTypes = new Type[256];
+		for (int i = 0; i < 256; i++) {
+			byteChars[i] = new CharByte((byte) i);
+			byteCharTypes[i] = RascalTypeFactory.getInstance().nonTerminalType(bootFactory.constructor(Symbol_CharClass, bootFactory.list(bootFactory.constructor(CharRange_Range, bootFactory.integer(i), bootFactory.integer(i)))));
+		}
+	}
+	
 	/**
 	 * Use getInstance()
 	 */
 	private RascalValueFactory() {
 		super(bootFactory);
-		
-		IConstructor[] tmp = new IConstructor[256];
-		for (int i = 0; i < 256; i++) {
-			tmp[i] = new CharByte((byte) i);
-		}
-		byteChars = tmp;
 	}
 	
 	public static TypeStore getStore() {
@@ -304,7 +312,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams) throws FactTypeUseException {
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
-				? (kwParams != null ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
+				? (kwParams != null && result.mayHaveKeywordParameters() ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
 				: super.constructor(constructor, children, kwParams);
 	}
 	
@@ -551,7 +559,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public Type getType() {
-			return Tree;  // new NonTerminalType(charClass((int) ch));
+			return RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.charClass(ch));
 		}
 
 		@Override
@@ -710,7 +718,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public Type getType() {
-			return Tree;// new NonTerminalType(charClass((int) ch));
+			return byteCharTypes[ch];
 		}
 
 		@Override
@@ -2011,6 +2019,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 					;
 		}
 	}
-	
+
 	// please put additional methods above the nested classes
 }

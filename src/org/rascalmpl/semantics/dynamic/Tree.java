@@ -413,7 +413,6 @@ static public class MetaVariable extends Tree {
 		
 	  @Override
 	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  // TODO allow override
 		  return makeResult(RascalValueFactory.Tree, node, eval);
 	  }
 
