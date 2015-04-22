@@ -6,9 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl 
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
@@ -75,7 +75,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * which binds a reified type representation to the run-time type of the reified type:
  * Namely, for any instance of `Type[&T] = type(Symbol s, map[Symbol,Production] definitions)` 
  * it holds that:
- *    * &T is bound to the type represented by Symbol s
+ *    * &T is bound to the {@link Type} represented by Symbol s
  *    * At least all definitions necessary for constructing any value of type &T are
  *      listed in the `definitions` map.
  * Note that a reified type is in fact also a reified type environment.
@@ -93,7 +93,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * All definitions included here are echoed in ParseTree.rsc and Type.rsc. The clone is necessary
  * for bootstrapping reasons. This class is where it all starts.
  */
-public class RascalValueFactory extends AbstractValueFactoryAdapter {
+public class RascalValueFactory extends AbstractValueFactoryAdapter implements IRascalValueFactory {
 	public final static TypeStore uptr = new TypeStore();
 	private final static TypeFactory tf = TypeFactory.getInstance();
 
@@ -117,7 +117,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
 
-	/* next three declarations and static block are order dependend */
+	/* The next three declarations and the static block are order dependend */
 	public static final Type TypeParam = tf.parameterType("T");
 	public static final Type Type = new ReifiedType(TypeParam);
 	static { uptr.declareAbstractDataType(Type); }
@@ -242,19 +242,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	/** caches ASCII characters for sharing */
 	private final IConstructor byteChars[];
 	
-	public static TypeStore getStore() {
-		return uptr;
-	}
-	
 	/** nested class for thread safe singleton allocation */
 	static private class InstanceHolder {
 		static final RascalValueFactory sInstance = new RascalValueFactory();
 	}
 	
-	public static RascalValueFactory getInstance() {
+	/*package*/ static IRascalValueFactory getInstance() {
 		return InstanceHolder.sInstance;
 	}
 	
+	/**
+	 * Use getInstance()
+	 */
 	private RascalValueFactory() {
 		super(bootFactory);
 		
@@ -264,6 +263,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 		byteChars = tmp;
 	}
+	
+	public static TypeStore getStore() {
+		return uptr;
+	}
 
 	@Override
 	public INode node(String name, IValue... children) {
@@ -272,20 +275,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	}
 
 	private IConstructor specializeNode(String name, IValue... children) {
-		if ("type".equals(name) 
+		if (Type_Reified.getName().equals(name) 
 				&& children.length == 2
-				&& children[0].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(0))
-				&& children[1].getType().isSubtypeOf(RascalValueFactory.Type_Reified.getFieldType(1))) {
+				&& children[0].getType().isSubtypeOf(Type_Reified.getFieldType(0))
+				&& children[1].getType().isSubtypeOf(Type_Reified.getFieldType(1))) {
 			return reifiedType((IConstructor) children[0], (IMap) children[1]);
 		}
 		
 		return null;
-	}
-	
-	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
-		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
-		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
 	}
 	
 	@Override
@@ -350,6 +347,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return null;
 	}
 	
+	@Override
+	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
+		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
+	}
+	
+	@Override
 	public IConstructor character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
 			return character((byte) ch);
@@ -358,10 +363,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		return new CharInt(ch);
 	}
 	
+	@Override
 	public IConstructor character(byte ch) {
 		return byteChars[ch];
 	}
 
+	@Override
 	public IConstructor appl(Map<String,IValue> annos, IConstructor prod, IList args) {
 		return appl(prod, args).asAnnotatable().setAnnotations(annos);
 	}
@@ -370,6 +377,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	 * For use with the UPTRNodeFactory otherwise will be replaced
 	 */
 	@Deprecated
+	@Override
 	public IConstructor appl(IConstructor prod, ArrayList<IConstructor> args) {
 		switch (args.size()) {
 		case 0: return new Appl0(prod);
@@ -388,6 +396,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	/**
 	 * Construct a specialized IConstructor representing a Tree, applying a prod to a list of arguments
 	 */
+	@Override
 	public IConstructor appl(IConstructor prod, IList args) {
 		switch (args.length()) {
 		case 0: return new Appl0(prod);
@@ -405,6 +414,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 	/**
 	 * Watch out, the array is not cloned! Must not modify hereafter.
 	 */
+	@Override
 	public IConstructor appl(IConstructor prod, IValue... args) {
 		switch (args.length) {
 		case 0: return new Appl0(prod);
@@ -419,10 +429,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter {
 		}
 	}
 	
+	@Override
 	public IConstructor cycle(IConstructor symbol, int cycleLength) {
 		return new Cycle(symbol, cycleLength);
 	}
 	
+	@Override
 	public IConstructor amb(ISet alternatives) {
 		return new Amb(alternatives);
 	}
