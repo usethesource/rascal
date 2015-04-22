@@ -63,7 +63,7 @@ import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalShell {
@@ -154,7 +154,7 @@ public class RascalShell {
 		IValue v = value.getValue();
 		Type type = value.getType();
 
-		if (type.isAbstractData() && type.isSubtypeOf(Factory.Tree)) {
+		if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
 			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT)
 					+ (PRINTCOMMANDTIME ? "\n (" + duration + "ms)" : "");
 		}
