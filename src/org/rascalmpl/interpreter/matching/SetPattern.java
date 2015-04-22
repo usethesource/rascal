@@ -657,15 +657,14 @@ public class SetPattern extends AbstractMatchingResult {
 					Result<IValue> r = ResultFactory.makeResult(v.getType(), v, ctx);
 					varPat[currentVar].initMatch(r);
 					b = varPat[currentVar].next();
-					System.err.println("Try match " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType());
+					if (debug) System.err.println("Try match " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType());
 					if(b){
 						varVal[currentVar] = v;
-						System.err.println("Matches " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType());
+						if (debug) System.err.println("Matches " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType());
 					}
 				
 			} else {
-				
-				System.err.println("CANNOT HANDLE THIS 2");
+				if (debug) System.err.println("CANNOT HANDLE THIS 2");
 			}
 			
 			//if(debug) System.err.println("currentVar[" + currentVar + "] = " +  varName[currentVar] + "; v = " + v + "; type: " + v.getType() + "; matchPatternElement = " + b);
