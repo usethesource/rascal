@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
+import static org.rascalmpl.values.uptr.RascalValueFactory.*;
 
 public class SymbolAdapter {
   private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -40,22 +41,22 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isLabel(IConstructor sym) {
-		return sym.getConstructorType() == RascalValueFactory.Symbol_Label;
+		return sym.getConstructorType() == Symbol_Label;
 	}
 
 	public static boolean isSort(IConstructor tree) {
 		tree = delabel(tree);
-		return tree.getConstructorType() == RascalValueFactory.Symbol_Sort;
+		return tree.getConstructorType() == Symbol_Sort;
 	}
 
 	public static boolean isMeta(IConstructor tree) {
 		tree = delabel(tree);
-		return tree.getConstructorType() == RascalValueFactory.Symbol_Meta;
+		return tree.getConstructorType() == Symbol_Meta;
 	}
 	
 	public static boolean isStartSort(IConstructor tree) {
 		tree = delabel(tree);
-		return tree.getConstructorType() == RascalValueFactory.Symbol_Start_Sort;
+		return tree.getConstructorType() == Symbol_Start_Sort;
 	}  
 	
 //	public static boolean isStart(IConstructor tree) {
@@ -86,7 +87,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isConditional(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_Conditional;
+		return tree.getConstructorType() == Symbol_Conditional;
 	}
 
 	public static String getLabelName(IConstructor tree) {
@@ -113,31 +114,31 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isParameterizedSort(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_ParameterizedSort;
+		return tree.getConstructorType() == Symbol_ParameterizedSort;
 	}
 	
 	public static boolean isParameterizedLex(IConstructor tree) {
-    return tree.getConstructorType() == RascalValueFactory.Symbol_ParameterizedLex;
+    return tree.getConstructorType() == Symbol_ParameterizedLex;
   }
 	
 	public static boolean isLiteral(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_Lit;
+		return tree.getConstructorType() == Symbol_Lit;
 	}
 
 	public static boolean isCILiteral(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_CiLit;
+		return tree.getConstructorType() == Symbol_CiLit;
 	}
 
 	public static boolean isIterStar(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_IterStar;
+		return tree.getConstructorType() == Symbol_IterStar;
 	}
 	
 	public static boolean isIterPlus(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_IterPlus;
+		return tree.getConstructorType() == Symbol_IterPlus;
 	}
 	
 	public static boolean isLayouts(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Symbol_LayoutX;
+		return tree.getConstructorType() == Symbol_LayoutX;
 	}
 	
 	public static boolean isStarList(IConstructor tree) {
@@ -161,15 +162,15 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isOpt(IConstructor tree) {
-		return delabel(tree).getConstructorType() == RascalValueFactory.Symbol_Opt;
+		return delabel(tree).getConstructorType() == Symbol_Opt;
 	}
 	
 	public static boolean isSequence(IConstructor tree){
-		return delabel(tree).getConstructorType() == RascalValueFactory.Symbol_Seq;
+		return delabel(tree).getConstructorType() == Symbol_Seq;
 	}
 	
 	public static boolean isAlternative(IConstructor tree){
-		return delabel(tree).getConstructorType() == RascalValueFactory.Symbol_Alt;
+		return delabel(tree).getConstructorType() == Symbol_Alt;
 	}
 
 	public static String toString(IConstructor symbol, boolean withLayout) {
@@ -463,99 +464,99 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isCons(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Cons;
+		return symbol.getConstructorType() == Symbol_Cons;
 	}
 	
 	public static boolean isFunc(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Func;
+		return symbol.getConstructorType() == Symbol_Func;
 	}
 
 	public static boolean isAlias(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Alias;
+		return symbol.getConstructorType() == Symbol_Alias;
 	}
 
 	public static boolean isADT(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Adt;
+		return symbol.getConstructorType() == Symbol_Adt;
 	}
 
 	public static boolean isReifiedType(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_ReifiedType;
+		return symbol.getConstructorType() == Symbol_ReifiedType;
 	}
 
 	public static boolean isBag(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Bag;
+		return symbol.getConstructorType() == Symbol_Bag;
 	}
 
 	public static boolean isList(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_List;
+		return symbol.getConstructorType() == Symbol_List;
 	}
 
 	public static boolean isSet(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Set;
+		return symbol.getConstructorType() == Symbol_Set;
 	}
 
 	public static boolean isTuple(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Tuple;
+		return symbol.getConstructorType() == Symbol_Tuple;
 	}
 
 	public static boolean isRel(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Rel;
+		return symbol.getConstructorType() == Symbol_Rel;
 	}
 	
 	public static boolean isListRel(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_ListRel;
+		return symbol.getConstructorType() == Symbol_ListRel;
 	}
 
 	public static boolean isMap(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Map;
+		return symbol.getConstructorType() == Symbol_Map;
 	}
 
 	public static boolean isDatetime(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Datetime;
+		return symbol.getConstructorType() == Symbol_Datetime;
 	}
 	
 	public static boolean isLoc(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Loc;
+		return symbol.getConstructorType() == Symbol_Loc;
 	}
 
 	public static boolean isNum(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Num;
+		return symbol.getConstructorType() == Symbol_Num;
 	}
 
 	public static boolean isVoid(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Void;
+		return symbol.getConstructorType() == Symbol_Void;
 	}
 
 	public static boolean isValue(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Value;
+		return symbol.getConstructorType() == Symbol_Value;
 	}
 
 	public static boolean isNode(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Node;
+		return symbol.getConstructorType() == Symbol_Node;
 	}
 
 	public static boolean isRat(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Rat;
+		return symbol.getConstructorType() == Symbol_Rat;
 	}
 
 	public static boolean isBool(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Bool;
+		return symbol.getConstructorType() == Symbol_Bool;
 	}
 
 	public static boolean isReal(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Real;
+		return symbol.getConstructorType() == Symbol_Real;
 	}
 
 	public static boolean isStr(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Str;
+		return symbol.getConstructorType() == Symbol_Str;
 	}
 
 	public static boolean isInt(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Int;
+		return symbol.getConstructorType() == Symbol_Int;
 	}
 
 	public static boolean isParameter(IConstructor symbol) {
-		return symbol.getConstructorType() == RascalValueFactory.Symbol_Parameter;
+		return symbol.getConstructorType() == Symbol_Parameter;
 	}
 
 	public static IConstructor getRhs(IConstructor symbol) {
@@ -565,12 +566,12 @@ public class SymbolAdapter {
 	
 	public static boolean isIterStarSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
-		return rhs.getConstructorType() == RascalValueFactory.Symbol_IterStarSepX;
+		return rhs.getConstructorType() == Symbol_IterStarSepX;
 	}
 	
 	public static boolean isIterPlusSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
-		return rhs.getConstructorType() == RascalValueFactory.Symbol_IterSepX;
+		return rhs.getConstructorType() == Symbol_IterSepX;
 	}
 
 	public static IList getSeparators(IConstructor rhs) {
@@ -579,15 +580,15 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isLex(IConstructor rhs) {
-		return rhs.getConstructorType() == RascalValueFactory.Symbol_Lex;
+		return rhs.getConstructorType() == Symbol_Lex;
 	}
 	
 	public static boolean isKeyword(IConstructor rhs) {
-		return rhs.getConstructorType() == RascalValueFactory.Symbol_Keyword;
+		return rhs.getConstructorType() == Symbol_Keyword;
 	}
 
 	public static boolean isEmpty(IConstructor rhs) {
-		return rhs.getConstructorType() == RascalValueFactory.Symbol_Empty;
+		return rhs.getConstructorType() == Symbol_Empty;
 	}
 	
 	/**
@@ -664,7 +665,7 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isCharClass(IConstructor r) {
-		return r.getConstructorType() == RascalValueFactory.Symbol_CharClass;
+		return r.getConstructorType() == Symbol_CharClass;
 	}
 
 	private static IList getSequence(IConstructor r) {
@@ -694,11 +695,11 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isAlt(IConstructor l) {
-		return l.getConstructorType() == RascalValueFactory.Symbol_Alt;
+		return l.getConstructorType() == Symbol_Alt;
 	}
 
 	public static boolean isSeq(IConstructor l) {
-		return l.getConstructorType() == RascalValueFactory.Symbol_Seq;
+		return l.getConstructorType() == Symbol_Seq;
 	}
 	
 	public static boolean isEqual(IList l, IList r) {
@@ -730,13 +731,17 @@ public class SymbolAdapter {
 		assert isStarList(sym) && !isLabel(sym) && !isConditional(sym);
 		
 		if (isIterStar(sym)) {
-			return VF.constructor(RascalValueFactory.Symbol_IterPlus, getSymbol(sym));
+			return VF.constructor(Symbol_IterPlus, getSymbol(sym));
 		}
 		else if (isIterStarSeps(sym)) {
-			return VF.constructor(RascalValueFactory.Symbol_IterSepX, getSymbol(sym), getSeparators(sym));
+			return VF.constructor(Symbol_IterSepX, getSymbol(sym), getSeparators(sym));
 		}
 		
 		assert false;
 		return sym;
+	}
+
+	public static IConstructor charClass(int ch) {
+		return VF.constructor(Symbol_CharClass, VF.list(VF.constructor(CharRange_Range, VF.integer(ch), VF.integer(ch))));
 	}
 }
