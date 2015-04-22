@@ -11,6 +11,7 @@ import ParseTree;
 import experiments::Compiler::muRascal::AST;
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::CheckerConfig;		// to be sure
 
 import experiments::Compiler::Rascal2muRascal::ModuleInfo;
 import experiments::Compiler::Rascal2muRascal::RascalType;

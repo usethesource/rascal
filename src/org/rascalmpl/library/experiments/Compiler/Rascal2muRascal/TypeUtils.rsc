@@ -17,14 +17,7 @@ import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
-alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
-//data AbstractValue 
-//    = 
-//      datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-//    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-//    
-//    ;
-//    // end duplicate
+//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
 //import experiments::Compiler::Rascal2muRascal::RascalType;
 
@@ -672,6 +665,20 @@ str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cn
 
 str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+
+
+@doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
+	// Due to the current semantics of the implode
+	modName = replaceAll(modName, "::", "");
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
+}
+str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
+	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
 
 str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
