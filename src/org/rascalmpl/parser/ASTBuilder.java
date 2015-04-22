@@ -53,7 +53,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ASTBuilder {
 	private static final String MODULE_SORT = "Module";
 
-    private final PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     private final PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     
     private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
@@ -185,12 +184,6 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST buildContextFreeNode(IConstructor tree)  {
-		AbstractAST cached = sortCache.get(tree);
-		
-		if (cached != null) {
-			return cached;
-		}
-		
 		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
 			throw new ImplementationError("All Rascal productions should have a constructor name: " + TreeAdapter.getProduction(tree));
@@ -231,10 +224,7 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
-		
-		sortCache.putUnsafe(tree, ast);
-		return ast;
+		return callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
 	}
 	
 	private AbstractAST buildLexicalNode(IConstructor tree) {
