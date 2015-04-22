@@ -7,15 +7,26 @@ import Map;
 import Node;
 import Relation;
 import String;
+
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes; 
+import experiments::Compiler::muRascal::AST;
+
+import lang::rascal::grammar::definition::Symbols;
+
+import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
-import experiments::Compiler::Rascal2muRascal::RascalType;
-import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::Rascal2muRascal::TypeReifier; 
-import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
+
+alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
+//data AbstractValue 
+//    = 
+//      datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+//    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+//    
+//    ;
+//    // end duplicate
+
+//import experiments::Compiler::Rascal2muRascal::RascalType;
 
 /*
  * This module provides a bridge to the "Configuration" delivered by the type checker
@@ -27,6 +38,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunction
   *             Initializes the type reifier
  * Part II: 	Defines other functions to access this type information.
  * Part III:	Type-related code generation functions.
+ * Part IV:		Translate Rascal types
  * 
  * Some details:
  * - the typechecker generates a unique identifier (uid, an integer) for every entity it encounters and this uid
@@ -532,9 +544,9 @@ void extractScopes(Configuration c){
     
    
     
-    // Finally, extract all declarations for the benefit of the type reifier
-    
-    getDeclarationInfo(config);
+    //// Finally, extract all declarations for the benefit of the type reifier
+    //
+    //getDeclarationInfo(config);
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
@@ -721,26 +733,26 @@ public MuExp getConstructor(str cons) {
 public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
 public default bool isDataType(AbstractValue _) = false;
 
-public bool isNonTerminalType(AbstractValue::sorttype(_,_,_,_)) = true;
+public bool isNonTerminalType(sorttype(_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue a) = false;
 
-public bool hasField(Symbol s, str fieldName){
-    //println("hasField: <s>, <fieldName>");
-
-    //if(isADTType(s)){
-    //   s2v = symbolToValue(s /*, config*/);
-    //   println("s2v = <s2v>");
-    //}
-    s = symbolToValue(s);
-    // TODO: this is too liberal, restrict to outer type.
-    visit(s){
-       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
-    }
-    return false;
-}
+//public bool hasField(Symbol s, str fieldName){
+//    //println("hasField: <s>, <fieldName>");
+//
+//    //if(isADTType(s)){
+//    //   s2v = symbolToValue(s /*, config*/);
+//    //   println("s2v = <s2v>");
+//    //}
+//    s1 = symbolToValue(s);
+//    // TODO: this is too liberal, restrict to outer type.
+//    visit(s1){
+//       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
+//    }
+//    return false;
+//}
 
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
@@ -881,3 +893,81 @@ default int size(Tree t) {
 }
 
 private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
+
+
+/*
+ * translateType: translate a concrete (textual) type description to a Symbol
+ */
+
+Symbol translateType((BasicType) `value`) 		= Symbol::\value();
+Symbol translateType(t: (BasicType) `loc`) 		= Symbol::\loc();
+Symbol translateType(t: (BasicType) `node`) 	= Symbol::\node();
+Symbol translateType(t: (BasicType) `num`) 		= Symbol::\num();
+Symbol translateType(t: (BasicType) `int`) 		= Symbol::\int();
+Symbol translateType(t: (BasicType) `real`) 	= Symbol::\real();
+Symbol translateType(t: (BasicType) `rat`)      = Symbol::\rat();
+Symbol translateType(t: (BasicType) `str`) 		= Symbol::\str();
+Symbol translateType(t: (BasicType) `bool`) 	= Symbol::\bool();
+Symbol translateType(t: (BasicType) `void`) 	= Symbol::\void();
+Symbol translateType(t: (BasicType) `datetime`)	= Symbol::\datetime();
+
+Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
+												= \bag(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `list [ <TypeArg arg> ]`) 
+												= \list(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
+												= \map(translateType(arg1), translateType(arg2)); 
+Symbol translateType(t: (StructuredType) `set [ <TypeArg arg> ]`)
+												= \set(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
+												= \rel([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
+												= \lrel([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
+												= \tuple([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType(arg));      
+
+Symbol translateType(t : (Type) `(<Type tp>)`) = translateType(tp);
+Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
+Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
+Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);
+Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
+Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
+Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
+Symbol translateType(t : (Type) `<Sym symbol>`)  = sym2symbol(symbol); //insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
+
+Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
+
+Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) = 
+									\func(translateType(tp), [ translateType(arg) | arg <- args]);
+									
+Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+	// look up the name in the type environment
+	val = getAbstractValueForQualifiedName(name);
+	
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}
+Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+	// look up the name in the type environment
+	val = getAbstractValueForQualifiedName(name);
+	
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		// instantiate type parameters
+		val.rtype.parameters = [ translateType(param) | param <- parameters];
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}  
+									
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
+
+default Symbol translateType(Type t) {
+	throw "Cannot translate type <t>";
+}
+

@@ -68,7 +68,7 @@ public data MuExp =
 	   															// when (de)serialization has been improved.
             													// Some special cases are handled by preprocessor, see below.
           | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
-          | muLab(str name)										// Label
+ //         | muLab(str name)										// Label
           
           | muFun1(str fuid)							        // *muRascal* function constant: functions at the root
           | muFun2(str fuid, str scopeIn)                       // *muRascal* function constant: nested functions and closures
@@ -191,9 +191,9 @@ public data MuExp =
           
           // Delimited continuations (experimental)
           
-          | muContVar(str fuid)
-          | muReset(MuExp fun)
-          | muShift(MuExp exp)
+          //| muContVar(str fuid)
+          //| muReset(MuExp fun)
+          //| muShift(MuExp exp)
           ;
           
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);

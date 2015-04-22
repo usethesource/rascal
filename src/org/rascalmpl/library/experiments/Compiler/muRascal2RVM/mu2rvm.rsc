@@ -89,14 +89,14 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
-bool producesValue(muLab(_)) = false;
+//bool producesValue(muLab(_)) = false;
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
 
 bool producesValue(muBreak(_)) = false;
 bool producesValue(muContinue(_)) = false;
 bool producesValue(muFail(_)) = false;
-bool producesValue(muFailReturn(_)) = false;
+bool producesValue(muFailReturn()) = false;
 
 bool producesValue(muReturn0()) = false;
 bool producesValue(muGuard(_)) = false;
@@ -791,9 +791,9 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
 		labels[cs.fingerprint] = caseLab;
 		caseCode += [ LABEL(caseLab), POP(), *tr(cs.exp), JMP(defaultLab) ];
    }
-   defaultCode = tr(defaultExp);
+   INS defaultCode = tr(defaultExp);
    if(defaultCode == []){
-   		defaultCode = [muCon(666)];
+   		defaultCode = [LOADCON(666)];
    }
    if(size(cases) > 0){ 
    		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];

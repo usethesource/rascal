@@ -85,10 +85,10 @@ syntax FunNamePart = FConst fconst >> "::" "::" Integer nformals >> "::" "::";
 syntax ModNamePart = MConst mconst >> "::" "::";
 
 syntax Exp  =
-			  muLab: 					Label lid
+//			  muLab: 					Label lid
 			
 			// non-nested, named functions inside or ouside a given module
-			| preFunNN:             	ModNamePart modName FConst fid >> "::" "::" Integer nformals
+			  preFunNN:             	ModNamePart modName FConst fid >> "::" "::" Integer nformals
 			// nested functions inside a current module
 			| preFunN:              	FunNamePart+ funNames FConst fid >> "::" "::" Integer nformals
 			
@@ -176,10 +176,10 @@ syntax Exp  =
 			| muExhaust:                "exhaust"
 			
 			// delimited continuations (experimental feature)
-			| preContLoc:               "cont"
-			| preContVar:               FunNamePart+ funNames "cont"
-			| muReset:                  "reset" "(" Exp fun ")"
-			| muShift:                  "shift" "(" Exp ebody ")"
+			//| preContLoc:               "cont"
+			//| preContVar:               FunNamePart+ funNames "cont"
+			//| muReset:                  "reset" "(" Exp fun ")"
+			//| muShift:                  "shift" "(" Exp ebody ")"
 			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
