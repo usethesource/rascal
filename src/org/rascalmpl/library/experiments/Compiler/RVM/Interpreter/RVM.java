@@ -804,14 +804,14 @@ public class RVM implements java.io.Serializable {
 	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
-		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;													// postprocessing operator (following main switch)
 		int pos = 0;
 		ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 		Thrown thrown = null;
 		int arity;
-		int instruction;
+		long instruction;
 		int op;
 		Object rval;
 		
@@ -1144,7 +1144,7 @@ public class RVM implements java.io.Serializable {
 					// Get function arguments from the stack
 					arity = CodeBlock.fetchArg2(instruction);
 					
-					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					cf.sp = sp;
 					cf.pc = pc;
@@ -1215,7 +1215,7 @@ public class RVM implements java.io.Serializable {
 					Type argType = ((IValue) stack[pos]).getType();
 					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
 					
-					int pos2 = instructions[pc++];
+					int pos2 = (int) instructions[pc++];
 					if(argType.isSubtypeOf(paramType)){
 						stack[pos2] = stack[pos];
 						stack[sp++] = vf.bool(true);
@@ -1311,11 +1311,11 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLJAVA:
-					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
-					Type keywordTypes = cf.function.typeConstantStore[instructions[pc++]];
-					int reflect = instructions[pc++];
+					String methodName =  ((IString) cf.function.constantStore[(int) instructions[pc++]]).getValue();
+					String className =  ((IString) cf.function.constantStore[(int) instructions[pc++]]).getValue();
+					Type parameterTypes = cf.function.typeConstantStore[(int) instructions[pc++]];
+					Type keywordTypes = cf.function.typeConstantStore[(int) instructions[pc++]];
+					int reflect = (int) instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
 						//int sp1 = sp;
@@ -1504,7 +1504,7 @@ public class RVM implements java.io.Serializable {
 					
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
-					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					try {
 						//sp1 = sp;
