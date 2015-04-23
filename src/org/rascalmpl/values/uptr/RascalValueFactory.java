@@ -12,9 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.CharRange_Range;
-import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_CharClass;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,6 +19,7 @@ import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -42,9 +40,9 @@ import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -459,13 +457,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * and {@link AbstractArgumentList} abstract classes.
 	 */
 	
-	private static class CharInt implements IConstructor {
+	private static class CharInt implements IConstructor, IExternalValue {
 		final int ch;
 		
 		public CharInt(int ch) {
 			this.ch = ch;
 		}
 
+		@Override
+		public IConstructor encodeAsConstructor() {
+			return this;
+		}
+		
 		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			switch (i) {
@@ -618,11 +621,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class CharByte implements IConstructor {
+	private static class CharByte implements IConstructor, IExternalValue {
 		final byte ch;
 		
 		public CharByte(byte ch) {
 			this.ch = ch;
+		}
+		
+		@Override
+		public IConstructor encodeAsConstructor() {
+			return this;
 		}
 
 		@Override
@@ -777,13 +785,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Cycle implements IConstructor {
+	private static class Cycle implements IConstructor, IExternalValue {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
 		public Cycle(IConstructor symbol, int cycleLength) {
 			this.symbol = symbol;
 			this.cycleLength = cycleLength;
+		}
+		
+		@Override
+		public IConstructor encodeAsConstructor() {
+			return this;
 		}
 		
 		@Override
@@ -966,11 +979,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Amb implements IConstructor {
+	private static class Amb implements IConstructor, IExternalValue {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
 			this.alternatives = alts;
+		}
+		
+		@Override
+		public IConstructor encodeAsConstructor() {
+			return this;
 		}
 		
 		@Override
@@ -1157,13 +1175,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static abstract class AbstractAppl implements IConstructor {
+	private static abstract class AbstractAppl implements IConstructor, IExternalValue {
 		protected final IConstructor production;
 
 		protected AbstractAppl(IConstructor production) {
 			this.production = production;
 		}
 
+		@Override
+		public IConstructor encodeAsConstructor() {
+			return this;
+		}
+		
 		@Override
 		public String getName() {
 			return Tree_Appl.getName();
