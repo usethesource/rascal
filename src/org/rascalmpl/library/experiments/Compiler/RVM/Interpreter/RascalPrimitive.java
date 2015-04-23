@@ -6124,16 +6124,16 @@ public enum RascalPrimitive {
 			Type type = (Type) stack[sp - 1];
 			
 			// TODO: this special case should be unnecessary in the future
-			if(type instanceof NonTerminalType){
-				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
-					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
-				} else {
-					stack[sp - 2] = Rascal_FALSE;
-				}
-			} else {
+//			if(type instanceof NonTerminalType){
+//				if(subjectType == RascalValueFactory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
+//					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
+//					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
+//				} else {
+//					stack[sp - 2] = Rascal_FALSE;
+//				}
+//			} else {
 				stack[sp - 2] = vf.bool(subjectType.isSubtypeOf(type));
-			}
+//			}
 			return sp - 1;
 		}
 	},
