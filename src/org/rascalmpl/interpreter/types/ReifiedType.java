@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -35,7 +35,7 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public Type asAbstractDataType() {
-		return Factory.Type;
+		return RascalValueFactory.Type;
 	}
 	
 	@Override
