@@ -2,7 +2,6 @@ package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class RascalType extends ExternalType {
 
