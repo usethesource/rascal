@@ -13,7 +13,7 @@ function NEXT(gen) {
     return false
 }
 
-coroutine ONE(task) {
+function ONE(task) {
     return next(create(task))
 }
 
