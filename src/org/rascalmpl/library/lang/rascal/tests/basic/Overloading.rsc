@@ -138,4 +138,5 @@ test bool overloadingPlusVarArgsSpecialCase(){
 private bool singletonSetWithMap({()}) = true;
 private default bool singletonSetWithMap(value _) = false;
 
+@Ignore
 test bool callSingletonSetWithMap() = singletonSetWithMap({()});
