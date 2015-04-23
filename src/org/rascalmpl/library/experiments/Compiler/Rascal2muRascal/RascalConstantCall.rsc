@@ -47,17 +47,18 @@ MuExp tcc("adt", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\adt
 MuExp tcc("cons", [muCon(Symbol \adt), muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\cons(\adt, name, parameters));
 MuExp tcc("alias", [muCon(str name), muCon(list[Symbol] parameters), muCon(Symbol aliased)]) = muCon(\alias(name, parameters, aliased));
 MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters)]) = muCon(\func(ret, parameters));
-MuExp tcc("var-func", [muCon(Symbol ret), muCon(list[Symbol] parameters), Symbol varArg]) = muCon(\func(ret, parameters, varArg));
+//TODO: TC gives duplicate function error on next definition:
+//MuExp tcc("var-func", [muCon(Symbol ret), muCon(list[Symbol] parameters), Symbol varArg]) = muCon(\var-func(ret, parameters, varArg));
 MuExp tcc("reified", [muCon(Symbol symbol)]) = muCon(\reified(symbol));
 
 MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\parameter(name, bound));
 
-MuExp tcc("cons", [muCon(Symbol \adt), muCon(str name), muCon(list[Symbol] kwTypes), muCon(map[str, value(map[str,value])] kwDefaults), muCon(set[Attr] attributes)]) = 
-			muCon(\cons(\adt, name, kwTypes, kwDefaults, attributes));
-MuExp tcc("func", [muCon(Symbol def), muCon(list[Symbol] symbols), muCon(list[Symbol] kwTypes), muCon(map[str, value(map[str,value])] kwDefaults), muCon(set[Attr] attributes)]) = 
-			muCon(\cons(def, symbols, kwTypes, kwDefaults, attributes));
+MuExp tcc("cons", [muCon(Symbol \def), muCon(list[Symbol] symbols), muCon(list[Symbol] kwTypes), muCon(set[Attr] attributes)]) = 
+			muCon(\cons(\def, symbols, kwTypes, attributes));
+MuExp tcc("func", [muCon(Symbol def), muCon(list[Symbol] symbols), muCon(list[Symbol] kwTypes), muCon(set[Attr] attributes)]) = 
+			muCon(\cons(def, symbols, kwTypes, attributes));
  
-MuExp tcc("choice", [muCon(Symbol def), muCon(list[Symbol] alternatives)]) = 
+MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = 
 			muCon(\choice(def, alternatives));
 			
 MuExp tcc("subtype", [muCon(Symbol lhs), muCon(Symbol rhs)]) = muCon(subtype(lhs, rhs));
@@ -138,4 +139,4 @@ MuExp tcc("except", [muCon(str label)]) = muCon(\except(label));
 MuExp tcc("label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
 MuExp tcc("label", [muCon(str name), muCon(Symbol symbol)]) = muCon(label(name, symbol));
 
-default MuExp tcc(_, _) { throw "NotConstant"; }
+default MuExp tcc(str _, list[MuExp] _) { throw "NotConstant"; }

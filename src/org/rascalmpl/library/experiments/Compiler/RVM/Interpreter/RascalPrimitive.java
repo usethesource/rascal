@@ -588,6 +588,13 @@ public enum RascalPrimitive {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	elm_add_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_add_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+	
 	loc_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6118,10 +6125,9 @@ public enum RascalPrimitive {
 			
 			// TODO: this special case should be unnecessary in the future
 			if(type instanceof NonTerminalType){
-				if(subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((IConstructor) subject)){
+				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
 					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
-					Type typeNT = (NonTerminalType) type;
-					stack[sp - 2] = vf.bool(subjectNT.isSubtypeOf(typeNT));
+					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
 				} else {
 					stack[sp - 2] = Rascal_FALSE;
 				}
