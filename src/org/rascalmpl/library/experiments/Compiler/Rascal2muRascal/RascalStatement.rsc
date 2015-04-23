@@ -820,21 +820,42 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
   }
 }
 
-MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
-MuExp translateFunctionBody(MuExp exp) = exp;
-// TODO: check the interpreter subtyping
-default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
-default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
+//MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
+//MuExp translateFunctionBody(MuExp exp) = exp;
+//// TODO: check the interpreter subtyping
+//default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
+//default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
+//
+//default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
 
-default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
+MuExp translateFunctionBody(node nd){
 
-//MuExp translateFunctionBody(node nd){
-//    switch(nd){
-//        case Expression exp:    return translate(exp);
-//        case MuExp exp:         return exp;
-//        case Statement* stats:  muBlock([ translate(stat) | stat <- stats ]);
-//        case Statement+ stats:  muBlock([ translate(stat) | stat <- stats ]);
-//        default:
-//            throw "Cannot handle function body <nd>";
-//    }
-//}
+	println("translateFunctionBody: <nd>");
+    if(Expression exp := nd){
+    	println("translateFunctionBody: Expression");
+    	return translate(exp);
+    }
+    if(MuExp exp := nd){
+    	println("translateFunctionBody: MuExp");
+    	return exp;
+    }
+    if(Statement* stats := nd){
+    	println("translateFunctionBody: Statement*");
+    	return muBlock([ translate(stat) | stat <- stats ]);
+    }
+    if(Statement+ stats := nd){
+    	println("translateFunctionBody: Statement+");
+    	return muBlock([ translate(stat) | stat <- stats ]);
+    }
+    println("translateFunctionBody: Cannot handle function body <nd>");
+    
+    throw "Cannot handle function body <nd>";
+    //switch(nd){
+    //    case Expression exp:    return translate(exp);
+    //    case MuExp exp:         return exp;
+    //    case Statement* stats:  return muBlock([ translate(stat) | stat <- stats ]);
+    //    case Statement+ stats:  return muBlock([ translate(stat) | stat <- stats ]);
+    //    default:
+    //        throw "Cannot handle function body <nd>";
+    //}
+}
