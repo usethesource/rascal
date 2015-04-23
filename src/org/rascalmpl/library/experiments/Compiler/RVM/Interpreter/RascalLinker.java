@@ -791,7 +791,6 @@ public class RascalLinker {
 				refs[i++] = ((IInteger) ref).intValue();
 			}
 			function.refs = refs;
-			System.out.println(name + " refs size = " + refs.length);
 		} else {
 			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
