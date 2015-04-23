@@ -1,4 +1,12 @@
-@bootstrapParser
+
 module experiments::Compiler::Examples::Tst3
 
-value main(list[value] args) = 13;
+import ParseTree;
+
+
+
+syntax A = "a";
+syntax As = A+;
+
+
+value main(list[value] args) { return (A) `<A a>` := [A] "a"; }
