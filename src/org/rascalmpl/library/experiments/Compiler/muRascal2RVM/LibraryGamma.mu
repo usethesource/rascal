@@ -13,8 +13,10 @@ function NEXT(gen) {
     return false
 }
 
-function ONE(task) {
-    return next(create(task))
+coroutine ONE(task) {
+    if(next(create(task))){
+    	return;
+    }
 }
 
 /*
