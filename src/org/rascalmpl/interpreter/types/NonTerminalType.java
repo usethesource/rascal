@@ -53,6 +53,11 @@ public class NonTerminalType extends RascalType {
 		this(Symbols.typeToSymbol(type, lex, layout));
 	}
 	
+    @Override
+    public Type asAbstractDataType() {
+    	return RascalValueFactory.Tree;
+    }
+    
 	public IConstructor getSymbol() {
 		return symbol;
 	}
