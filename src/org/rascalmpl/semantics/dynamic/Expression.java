@@ -1619,7 +1619,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return TF.mapType(getKey().typeOf(env, instantiateTypeParameters, eval), getValue().typeOf(env, instantiateTypeParameters, eval));
+			Type keyType = TF.voidType();
+			Type valueType = TF.valueType();
+			
+			for (Mapping_Expression me : getMappings()) {
+				keyType = keyType.lub(me.getFrom().typeOf(env, instantiateTypeParameters, eval));
+				valueType = valueType.lub(me.getTo().typeOf(env, instantiateTypeParameters, eval));
+			}
+			
+			return TF.mapType(keyType, valueType);
 		}
 
 	}

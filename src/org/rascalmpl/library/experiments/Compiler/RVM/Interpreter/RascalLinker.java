@@ -57,19 +57,19 @@ public class RascalLinker {
 	
 	private void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		//System.out.println("size functionStore: " + nfs);
+		System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
-		//System.out.println("size constructorStore: " + ncs);
+		System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
-		//System.out.println("size overloadedStore: " + nov);
+		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -205,8 +205,20 @@ public class RascalLinker {
 	}
 	
 	private void finalizeInstructions(){
+		int i = 0;
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == null){
+				System.out.println("finalizeInstructions, null for function : " + fname);
+			}
+		}
 		for(Function f : functionStore) {
+			if(f == null){
+				System.out.println("finalizeInstructions, null at index: " + i);
+			} else {
+				//System.out.println("finalizeInstructions: " + f.name);
+			}
 			f.finalize(functionMap, constructorMap, resolver, false /*listing*/);
+			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
 			of.finalize(functionMap, functionStore);
@@ -779,6 +791,7 @@ public class RascalLinker {
 				refs[i++] = ((IInteger) ref).intValue();
 			}
 			function.refs = refs;
+			System.out.println(name + " refs size = " + refs.length);
 		} else {
 			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();

@@ -80,7 +80,6 @@ Export-Package:
  org.yaml.snakeyaml
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
- org.jdom,
  org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
  org.apache.commons.lang,
@@ -109,4 +108,5 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/gson-2.2.4.jar,
  lib/xz-1.5.jar,
  lib/commons-compress-1.9.jar,
+ lib/jdom-2.0.6.jar,
  .
