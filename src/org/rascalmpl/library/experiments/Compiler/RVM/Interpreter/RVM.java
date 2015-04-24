@@ -62,7 +62,7 @@ public class RVM implements java.io.Serializable {
 //	private boolean finalized = false;
 	
 	final ArrayList<Function> functionStore;
-	private final Map<String, Integer> functionMap;
+	protected final Map<String, Integer> functionMap;
 	
 	// Function overloading
 	private final Map<String, Integer> resolver;
@@ -317,7 +317,7 @@ public class RVM implements java.io.Serializable {
 	 * @param result to be returned
 	 * @return converted result or an exception
 	 */
-	private IValue narrow(Object result){
+	protected IValue narrow(Object result){
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}

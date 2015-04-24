@@ -211,7 +211,7 @@ public class RVMRun extends RVM {
 	 *            to be returned
 	 * @return converted result or an exception
 	 */
-	protected IValue $narrow(Object result) {
+	protected IValue narrow(Object result) {
 		if (result instanceof Boolean) {
 			return vf.bool((Boolean) result);
 		}
@@ -747,11 +747,11 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2,
+	public void inject(ArrayList<Function> functionStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2,
 			Map<String, Integer> functionMap2) {
 		// TODO check if we can generate code for them.
 		this.functionStore = functionStore2;
-		this.overloadedStore = overloadedStore2;
+//		this.overloadedStore = overloadedStore2;
 		this.constructorStore = constructorStore2;
 		this.typeStore = typeStore2;
 		this.functionMap = functionMap2;
