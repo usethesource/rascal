@@ -1227,6 +1227,20 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        bool isVarArgs(Symbol ftype) = ftype@isVarArgs? ? ftype@isVarArgs : false;
        
+       // match void in defining functions
+       bool match_void([Symbol::\list(_), *Symbol tps1], [Symbol::\list(Symbol::\void()), *Symbol tps2]) = match_void(tps1, tps2);
+       bool match_void([Symbol::\set(_), *Symbol tps1], [Symbol::\set(Symbol::\void()), *Symbol tps2]) = match_void(tps1, tps2);
+       
+ 
+       bool match_void([\map(symk1, symv1), *Symbol tps1], [\map(symk2, symv2), *Symbol tps2])
+       															= (symk2 == Symbol::\void() || subtype(symk1, symk2)) && 
+       															  (symv2 == Symbol::\void() || subtype(symv1, symv2)) &&
+       															  match_void(tps1, tps2);
+       
+       bool match_void([], []) = true;
+       default bool match_void(list[Symbol] _, list[Symbol] _) = false;
+       
+       
        // match function use and def, taking varargs into account
        bool function_subtype(Symbol fuse, Symbol fdef){
        	list[Symbol] upar = fuse.parameters;
@@ -1246,7 +1260,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
        
-       	return subtype(upar, dpar);
+       	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        
        bool matches(Symbol t) {
@@ -1267,8 +1281,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            return instantiate(t.\adt,bindings) == ftype_selected.\adt;
                        }
                        if(isFunctionType(t) && isFunctionType(ftype_selected)) {
-                           //println("t:              <t>");
-                           //println("ftype_selected: <ftype_selected>");
+                          // println("t:              <t>");
+                          // println("ftype_selected: <ftype_selected>");
                  
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype_selected),());
                            
