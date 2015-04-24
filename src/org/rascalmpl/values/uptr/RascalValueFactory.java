@@ -120,9 +120,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 	/* The next three declarations and the static block are order dependend */
 	public static final Type TypeParam = tf.parameterType("T");
-	public static final Type Type = new ReifiedType(TypeParam);
+	public static final Type Type = RascalTypeFactory.getInstance().reifiedType(TypeParam);
 	static { uptr.declareAbstractDataType(Type); }
 	public static final Type Type_Reified = tf.constructor(uptr, Type, "type", Symbol, "symbol", tf.mapType(Symbol , Production), "definitions");
+	public static final Type ADTforType = tf.abstractDataType(uptr, "type", TypeParam); // temporary for de-serializing Type
+	
 	/* end order dependence */
 	
 	/* Constructors for Tree */
@@ -345,9 +347,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			else if (constructor == Tree_Cycle) {
 				return cycle((IConstructor) children[0], ((IInteger) children[1]).intValue());
 			}
-			else if (constructor == Type_Reified) {
-				return reifiedType((IConstructor) children[0], (IMap) children[1]);
-			}
+		}
+		else if (constructor == Type_Reified || constructor.getAbstractDataType() == ADTforType) {
+			return reifiedType((IConstructor) children[0], (IMap) children[1]);
 		}
 		
 		return null;
