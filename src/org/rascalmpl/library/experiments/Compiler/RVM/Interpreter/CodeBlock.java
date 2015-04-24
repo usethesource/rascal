@@ -850,9 +850,9 @@ public class CodeBlock implements Serializable {
     	System.out.println("arg2 = " + fetchArg2(w));
     }
 
-	public void genByteCode(BytecodeGenerator gen) {
+	public void genByteCode(BytecodeGenerator gen, boolean debug) {
 		for(Instruction ins : insList){
-			ins.generateByteCode(gen, false);
+			ins.generateByteCode(gen, debug);
 		}
 		if (insList.get(insList.size() - 1) instanceof Label) {
 			// The mu2rvm code generator emits faulty code and jumps outside existing space

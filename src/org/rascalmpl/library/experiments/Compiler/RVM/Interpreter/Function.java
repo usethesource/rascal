@@ -63,6 +63,8 @@ public class Function implements Serializable {
 	ISourceLocation src;			
 	IMap localNames;
 
+	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
+
 	
 	// transient fields 
 	transient private static TypeStore store;
@@ -150,7 +152,7 @@ public class Function implements Serializable {
 		// int lastHandler = -1;
 		stream.writeObject(lastHandler);
 
-		// oolean isCoroutine = false;
+		// boolean isCoroutine = false;
 		stream.writeObject(isCoroutine);
 		
 		// int[] refs;
@@ -164,6 +166,9 @@ public class Function implements Serializable {
 		
 		// IMap localNames;
 		stream.writeObject(new SerializableRascalValue<IMap>(localNames));
+
+		// int funId;
+		stream.writeObject(funId);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -257,6 +262,9 @@ public class Function implements Serializable {
 		
 		// IMap localNames;
 		localNames = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
+
+		// int funId;
+		funId = (Integer) stream.readObject();
 	}
 	
 	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 

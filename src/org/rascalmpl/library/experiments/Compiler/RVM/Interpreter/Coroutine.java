@@ -5,8 +5,9 @@ public class Coroutine {
 	final Frame start; // Stack frame of the main coroutine function 
 	Frame frame;       // Current active stack frame of the coroutine
 	
-	boolean suspended = false;
-	boolean isInitialized = false;
+	public boolean suspended = false;
+	public boolean isInitialized = false;
+	public Frame entryFrame;
 	
 	public Coroutine(Frame frame) {
 		this.start = frame;
