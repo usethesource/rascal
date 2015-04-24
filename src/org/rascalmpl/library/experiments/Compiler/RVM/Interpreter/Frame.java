@@ -11,14 +11,14 @@ import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
-	final int scopeId;
-    Frame previousCallFrame;
-    final Frame previousScope;
-	final Object[] stack;
-	int sp;
+	public final int scopeId;
+    public Frame previousCallFrame;
+    public final Frame previousScope;
+	public final Object[] stack;
+	public int sp;
 	int pc;
-	ISourceLocation src;
-	final Function function;
+	public ISourceLocation src;
+	public final Function function;
 	
 	final boolean isCoroutine;
 		
@@ -184,6 +184,8 @@ public class Frame {
 	}
 	
 	private int MAXLEN = 40;
+	public int hotEntryPoint;
+	public Frame nextFrame;
 	
 	private String abbrev(String repr) {
 		return (repr.length() < MAXLEN) ? repr : repr.substring(0, 40) + "...";

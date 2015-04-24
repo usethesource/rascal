@@ -90,6 +90,7 @@ public class RascalLinker {
 		if(index == null){
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
+			f.funId = index;        // ID of function to find entry in dynrun
 			functionStore.add(f);
 		} else {
 			functionStore.set(index, f);

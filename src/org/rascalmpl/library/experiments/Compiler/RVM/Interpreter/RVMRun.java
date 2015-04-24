@@ -46,14 +46,16 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
+public class RVMRun extends RVM {
 
-public class RVMRun {
+	/*
+	 * The following instance variables are only used by executeProgram
+	 */
+	public Frame root; // Root frame of a program
+//	int postOp;
+	Thrown thrown;
+//	int arity;
 
-	// ----------------------------
-	// Exit stack, cf, sp, realized :)
-	// public Object[] stack;
-	// public Frame cf; // current frame
-	// public int sp;
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 
 	public IValueFactory vf;
@@ -78,7 +80,7 @@ public class RVMRun {
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	protected ArrayList<OverloadedFunction> overloadedStore;
-	protected OverloadedFunction[]  overloadedStoreV2;
+	protected OverloadedFunction[] overloadedStoreV2;
 
 	private TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -147,8 +149,8 @@ public class RVMRun {
 		return rex;
 	}
 
-	public RVMRun(RascalExecutionContext rex) {
-		super();
+	public RVMRun(RVMExecutable rrs, RascalExecutionContext rex) {
+		super(rrs, rex);
 
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
@@ -197,7 +199,7 @@ public class RVMRun {
 
 	}
 
-	public Type symbolToType(IConstructor symbol) {
+	public Type $symbolToType(IConstructor symbol) {
 		return types.symbolToType(symbol, typeStore);
 	}
 
@@ -209,7 +211,7 @@ public class RVMRun {
 	 *            to be returned
 	 * @return converted result or an exception
 	 */
-	private IValue narrow(Object result) {
+	protected IValue $narrow(Object result) {
 		if (result instanceof Boolean) {
 			return vf.bool((Boolean) result);
 		}
@@ -316,7 +318,7 @@ public class RVMRun {
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}
 
-	public String getFunctionName(int n) {
+	public String $getFunctionName(int n) {
 		for (String fname : functionMap.keySet()) {
 			if (functionMap.get(fname) == n) {
 				return fname;
@@ -325,7 +327,7 @@ public class RVMRun {
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 
-	public String getConstructorName(int n) {
+	public String $getConstructorName(int n) {
 		for (String cname : constructorMap.keySet()) {
 			if (constructorMap.get(cname) == n) {
 				return cname;
@@ -334,7 +336,7 @@ public class RVMRun {
 		throw new RuntimeException("PANIC: undefined constructor index " + n);
 	}
 
-	public String getOverloadedFunctionName(int n) {
+	public String $getOverloadedFunctionName(int n) {
 		for (String ofname : resolver.keySet()) {
 			if (resolver.get(ofname) == n) {
 				return ofname;
@@ -344,32 +346,20 @@ public class RVMRun {
 	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
-		// Frame oldCF = cf;
-		// cf.sp = sp;
-
-		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
 		Thrown oldthrown = thrown;
-		int oldarity = arity;
 
 		Function func = functionStore.get(functionMap.get(uid_func));
+		
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-		// cf = root;
-
-		// Pass the program arguments to main
+		
 		for (int i = 0; i < args.length; i++) {
 			root.stack[i] = args[i];
 		}
 		Object o = dynRun(func.funId, root);
 
-		// cf = oldCF;
-		// stack = cf.stack;
-		// sp = cf.sp;
-
-		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
 		thrown = oldthrown;
-		arity = oldarity;
 
 		if (o instanceof Thrown) {
 			throw (Thrown) o;
@@ -378,19 +368,11 @@ public class RVMRun {
 	}
 
 	public IValue executeFunction(FunctionInstance func, IValue[] args) {
-		// Frame oldCF = cf;
-		// cf.sp = sp;
 
-		int oldPostOp = postOp;
 		ArrayList<Frame> oldstacktrace = stacktrace;
 		Thrown oldthrown = thrown;
-		int oldarity = arity;
 
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-		// cf = root;
-
-		// stack = cf.stack;
-		// sp = func.function.nlocals;
 		root.sp = func.function.nlocals;
 
 		// Pass the program arguments to main
@@ -400,14 +382,8 @@ public class RVMRun {
 
 		Object o = dynRun(func.function.funId, root);
 
-		// cf = oldCF;
-		// stack = cf.stack;
-		// sp = cf.sp;
-
-		postOp = oldPostOp;
 		stacktrace = oldstacktrace;
 		thrown = oldthrown;
-		arity = oldarity;
 
 		if (o instanceof Thrown) {
 			throw (Thrown) o;
@@ -425,15 +401,6 @@ public class RVMRun {
 		this.trace = this.trace + trace + "\n";
 	}
 
-	/*
-	 * The following instance variables are only used by executeProgram
-	 */
-	public Frame root; // Root frame of a program
-	int postOp;
-	Thrown thrown;
-	int arity;
-
-	Object globalReturnValue = null;
 
 	public Class<?> getJavaClass(String className) {
 		Class<?> clazz = classCache.get(className);
@@ -790,20 +757,20 @@ public class RVMRun {
 		this.functionMap = functionMap2;
 	}
 
-//	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
-//		stack[sp++] = Rascal_TRUE;
-//		return sp;
-//	}
-//
-//	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
-//		stack[sp++] = Rascal_FALSE;
-//		return sp;
-//	}
-//
-//	public int insnLOADINT(Object[] stack, int sp, int i) {
-//		stack[sp++] = i;
-//		return sp;
-//	}
+	// public int insnLOADBOOLTRUE(Object[] stack, int sp) {
+	// stack[sp++] = Rascal_TRUE;
+	// return sp;
+	// }
+	//
+	// public int insnLOADBOOLFALSE(Object[] stack, int sp) {
+	// stack[sp++] = Rascal_FALSE;
+	// return sp;
+	// }
+	//
+	// public int insnLOADINT(Object[] stack, int sp, int i) {
+	// stack[sp++] = i;
+	// return sp;
+	// }
 
 	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
@@ -860,7 +827,7 @@ public class RVMRun {
 	}
 
 	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxArg2) {
-	
+
 		if (maxArg2) {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
@@ -974,28 +941,28 @@ public class RVMRun {
 	}
 
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
-		int newsp = sp ;
-		String methodName =  ((IString) cf.function.constantStore[m]).getValue();
-		String className =  ((IString) cf.function.constantStore[c]).getValue();
+		int newsp = sp;
+		String methodName = ((IString) cf.function.constantStore[m]).getValue();
+		String className = ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
 		Type keywordTypes = cf.function.typeConstantStore[k];
 		int reflect = r;
-		arity = parameterTypes.getArity();
+		int arity = parameterTypes.getArity();
 		try {
-		    newsp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
-		} catch(Throw e) {
+			newsp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
+		} catch (Throw e) {
 			stacktrace.add(cf);
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
-			//postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-		} catch (Thrown e){
+			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Thrown e) {
 			stacktrace.add(cf);
 			thrown = e;
-			//postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-		} catch (Exception e){
+			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
-			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
-		} 
+			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
+		}
 		return newsp;
 	}
 
@@ -1127,20 +1094,20 @@ public class RVMRun {
 		return sp;
 	}
 
-//	public void insnTHROW(Object[] stack, int sp, Frame cf) {
-//		Object obj = stack[--sp];
-//		thrown = null;
-//		if (obj instanceof IValue) {
-//			stacktrace = new ArrayList<Frame>();
-//			stacktrace.add(cf);
-//			// thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
-//		} else {
-//			// Then, an object of type 'Thrown' is on top of the stack
-//			thrown = (Thrown) obj;
-//		}
-//		postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-//		// TODO break INSTRUCTION;
-//	}
+	// public void insnTHROW(Object[] stack, int sp, Frame cf) {
+	// Object obj = stack[--sp];
+	// thrown = null;
+	// if (obj instanceof IValue) {
+	// stacktrace = new ArrayList<Frame>();
+	// stacktrace.add(cf);
+	// // thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+	// } else {
+	// // Then, an object of type 'Thrown' is on top of the stack
+	// thrown = (Thrown) obj;
+	// }
+	// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+	// // TODO break INSTRUCTION;
+	// }
 
 	public int insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
@@ -1192,18 +1159,11 @@ public class RVMRun {
 	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
 		int n = functionMap.get(fname);
-
 		Function func = functionStore.get(n);
-
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-		// cf = root;
-
-		// stack = cf.stack;
 
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
-
-		// sp = func.nlocals;
 		root.sp = func.nlocals;
 
 		Object result = dynRun(n, root);
@@ -1232,11 +1192,10 @@ public class RVMRun {
 		if (returns) {
 			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
 		}
-
 		return rval;
 	}
 
-	public Object return1Helper(Object[] lstack, int sop, Frame cof) {
+	public Object return1Helper(Object[] lstack, int sop, Frame cof, int arity) {
 		Object rval = null;
 		if (cof.isCoroutine) {
 			rval = Rascal_TRUE;
@@ -1478,7 +1437,7 @@ public class RVMRun {
 		lcf.sp = sop;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
-//		OverloadedFunction of = overloadedStore.get(ofun);
+		// OverloadedFunction of = overloadedStore.get(ofun);
 		OverloadedFunction of = overloadedStoreV2[ofun];
 
 		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
@@ -1493,6 +1452,8 @@ public class RVMRun {
 			// stack = cf.stack;
 			// sp = frame.sp;
 
+			// System.err.println("Function ID : " + frame.function.funId);
+			
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
 				return lcf.sp; // Alternative matched.
@@ -1530,7 +1491,7 @@ public class RVMRun {
 		// 2. OverloadedFunctionInstance due to named Rascal
 		// functions
 		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-		ofunCall = new OverloadedFunctionInstanceCall(lcf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+		ofunCall = new OverloadedFunctionInstanceCall(lcf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity);
 
 		boolean stackPointerAdjusted = false;
 		Frame frame = ofunCall.nextFrame(functionStore);
@@ -1614,482 +1575,681 @@ public class RVMRun {
 		} else {
 			thrown = (Thrown) obj;
 		}
-		return thrown ;
+		return thrown;
 	}
 
-	@Override
-	public void declare(Function f) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void declareConstructor(String name, IConstructor symbol) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void addResolver(IMap resolver) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void fillOverloadedStore(IList overloadedStore) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public PrintWriter getStdErr() {
-		return rex.getStdErr();
-	}
-
-	@Override
-	public IValueFactory getValueFactory() {
-		return vf;
-	}
-
-	@Override
-	public void setLocationCollector(ILocationCollector collector) {
-		locationCollector = collector;
-	}
-
-	@Override
-	public void resetLocationCollector() {
-		locationCollector = NullLocationCollector.getInstance();
-	}
-
-	@Override
-	public IValue executeProgram(String string, String uid_module_init, IValue[] arguments) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public PrintWriter getStdOut() {
 		return rex.getStdOut();
 	}
 
 	public void validateInstructionAdressingLimits() {
 		int nfs = functionStore.size();
-		//System.out.println("size functionStore: " + nfs);
+		// System.out.println("size functionStore: " + nfs);
 		if (nfs >= CodeBlock.maxArg) {
 			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int ncs = constructorStore.size();
-		//System.out.println("size constructorStore: " + ncs);
+		// System.out.println("size constructorStore: " + ncs);
 		if (ncs >= CodeBlock.maxArg) {
 			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
 		}
 		int nov = overloadedStore.size();
-		//System.out.println("size overloadedStore: " + nov);
+		// System.out.println("size overloadedStore: " + nov);
 		if (nov >= CodeBlock.maxArg) {
 			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
 		}
 	}
 
-	public static void debugPOP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	static boolean silent = false;
+
+	public static void debugPOP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC0(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC0(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC1(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC1(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC2(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC2(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC3(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC3(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC4(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC4(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC5(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC5(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC6(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC6(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC7(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC7(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC8(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC8(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC9(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC9(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOC(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOC(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugRESETLOCS(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugRESETLOCS(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADBOOL(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADBOOL(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADINT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADINT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADCON(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADCON(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOCREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOCREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALLMUPRIM(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALLMUPRIM(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugJMP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugJMP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugJMPTRUE(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugJMPTRUE(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugJMPFALSE(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugJMPFALSE(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugTYPESWITCH(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugTYPESWITCH(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugJMPINDEXED(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSWITCH(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSWITCH(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADTYPE(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADTYPE(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADLOCDEREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADLOCDEREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSTORELOC(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSTORELOC(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugUNWRAPTHROWNLOC(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugUNWRAPTHROWNLOC(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSTORELOCDEREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSTORELOCDEREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADFUN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADFUN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOAD_NESTED_FUN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOAD_NESTED_FUN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADOFUN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADOFUN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADCONSTR(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADCONSTR(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADVAR(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADVAR(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADVARREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADVARREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLOADVARDEREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLOADVARDEREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSTOREVAR(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSTOREVAR(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugUNWRAPTHROWNVAR(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugUNWRAPTHROWNVAR(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSTOREVARDEREF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSTOREVARDEREF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALLCONSTR(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALLCONSTR(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALLDYN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALLDYN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALL(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALL(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugOCALLDYN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(lcf.function.name + " : " +  insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugOCALLDYN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugOCALL(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(lcf.function.name + " : " +  insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugOCALL(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCHECKARGTYPEANDCOPY(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCHECKARGTYPEANDCOPY(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugFAILRETURN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugFAILRETURN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugFILTERRETURN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugFILTERRETURN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugRETURN0(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugRETURN0(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugRETURN1(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugRETURN1(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALLJAVA(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALLJAVA(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCREATE(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCREATE(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCREATEDYN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCREATEDYN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugGUARD(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugGUARD(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugAPPLY(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugAPPLY(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugAPPLYDYN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugAPPLYDYN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugNEXT0(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugNEXT0(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugNEXT1(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugNEXT1(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugYIELD0(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugYIELD0(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugYIELD1(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugYIELD1(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugEXHAUST(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugEXHAUST(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugCALLPRIM(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugCALLPRIM(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSUBSCRIPTARRAY(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSUBSCRIPTARRAY(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSUBSCRIPTLIST(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSUBSCRIPTLIST(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugLESSINT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugLESSINT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugGREATEREQUALINT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugGREATEREQUALINT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugADDINT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugADDINT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSUBTRACTINT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugSUBTRACTINT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugANDBOOL(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugANDBOOL(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugTYPEOF(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-
-	public static void debugTYPEOF(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+
+	public static void debugSUBTYPE(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugSUBTYPE(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugLABEL(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugLABEL(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugHALT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugHALT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugPRINTLN(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugPRINTLN(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugTHROW(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugTHROW(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugLOADLOCKWP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugLOADLOCKWP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugLOADVARKWP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugLOADVARKWP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugSTORELOCKWP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugSTORELOCKWP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugSTOREVARKWP(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugSTOREVARKWP(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugJMPINDEXED(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugLOADCONT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugLOADCONT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugRESET(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugRESET(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
 
-	public static void debugSHIFT(Frame lcf, int lsp) {
-		if (lcf == null)
-			throw new RuntimeException();
+	public static void debugSHIFT(String insName, Frame lcf, int lsp) {
+		if (!silent) {
+			System.out.println(insName);
+			if (lcf == null)
+				throw new RuntimeException();
+		}
 	}
-	
+
 	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));
 		ObjectInputStream ois = new ObjectInputStream(bais);
