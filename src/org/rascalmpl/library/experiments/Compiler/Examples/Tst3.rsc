@@ -1,4 +1,3 @@
-
 module experiments::Compiler::Examples::Tst3
 
 import ParseTree;
