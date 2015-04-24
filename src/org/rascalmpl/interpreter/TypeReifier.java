@@ -325,6 +325,7 @@ public class TypeReifier {
 		if (def) {
 			res = res.asWithKeywordParameters().setParameter("default", vf.bool(true));
 		}
+		res = res.asWithKeywordParameters().setParameter("origin", funcDef.getAst().getLocation());
 		return res;
 	}
 	
