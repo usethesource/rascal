@@ -25,7 +25,7 @@ public class RVMJVMExecutable extends RVMExecutable {
 		super(module_name, tags, symbol_definitions, functionMap, functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites,
 				uid_module_init, uid_module_main, uid_module_main_testsuite, ts, vfactory);
 		
-		buildRunnerByteCode(false, true);
+		buildRunnerByteCode(false, false);
 	}
 	
 	public void buildRunnerByteCode(boolean profile, boolean debug) {
