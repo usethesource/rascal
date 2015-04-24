@@ -6125,8 +6125,8 @@ public enum RascalPrimitive {
 			
 			if(type instanceof NonTerminalType){
 				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
-					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
+				Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
+				stack[sp - 2] = vf.bool( subjectNT.equals(type) || subjectNT.isSubtypeOf(type));
 				} else {
 					stack[sp - 2] = Rascal_FALSE;
 				}

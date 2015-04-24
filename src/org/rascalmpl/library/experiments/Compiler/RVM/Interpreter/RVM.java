@@ -56,7 +56,7 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = true;
-	private boolean ocall_debug = false;
+	private boolean ocall_debug = true;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
 //	private boolean finalized = false;
