@@ -17,6 +17,8 @@ import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
+
 //alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
 //import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -942,7 +944,7 @@ Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(
 Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
 Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
 Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  = sym2symbol(symbol); //insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
+Symbol translateType(t : (Type) `<Sym symbol>`)  = insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
 
 Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
 Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
