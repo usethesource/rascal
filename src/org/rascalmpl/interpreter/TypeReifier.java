@@ -34,10 +34,13 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -299,6 +302,48 @@ public class TypeReifier {
 	
                 // TODO: while merging the other branch had tf.voidType()... 	
 		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
+	}
+	
+	public IConstructor funcToProduction(AbstractFunction funcDef, IEvaluatorContext ctx, boolean def) {
+		FunctionType func = funcDef.getFunctionType();
+		IValue ret = ((IConstructor) typeToValue(func.getReturnType(), ctx).getValue()).get("symbol");
+		
+		IListWriter w = vf.listWriter();
+		for (Type arg : func.getArgumentTypes()) {
+			w.append(((IConstructor) typeToValue(arg, ctx).getValue()).get("symbol"));
+		}
+		
+		IListWriter m = vf.listWriter();
+		Type kws = func.getKeywordParameterTypes();
+		if (!kws.isBottom()) {
+			for (Type kw : kws.getFieldTypes()) {
+				m.append(((IConstructor) typeToValue(kw, ctx).getValue()).get("symbol"));
+			}
+		}
+		
+		IConstructor res = vf.constructor(RascalValueFactory.Production_Func, ret, w.done(), m.done(), vf.set());
+		if (def) {
+			res = res.asWithKeywordParameters().setParameter("default", vf.bool(true));
+		}
+		return res;
+	}
+	
+	public IConstructor overloadedToProduction(OverloadedFunction func, IEvaluatorContext ctx) {
+		ISetWriter alts = vf.setWriter();
+		Type returnType = tf.voidType();
+		
+		for (AbstractFunction c : func.getPrimaryCandidates()) {
+			alts.insert(funcToProduction(c, ctx, false));
+			returnType = returnType.lub(c.getReturnType());
+		}
+		
+		for (AbstractFunction c : func.getDefaultCandidates()) {
+			alts.insert(funcToProduction(c, ctx, true));
+			returnType = returnType.lub(c.getReturnType());
+		}
+		
+		IValue ret = ((IConstructor) typeToValue(returnType, ctx).getValue()).get("symbol");
+		return vf.constructor(RascalValueFactory.Production_Choice, ret, alts.done());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {

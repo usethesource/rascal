@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Function types are an extension of the pdb's type system, especially tailored to Rascal's functions 
@@ -39,6 +40,11 @@ public class FunctionType extends RascalType {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters == null ? null : keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
+	}
+	
+	@Override
+	public Type asAbstractDataType() {
+		return RascalValueFactory.Production;
 	}
 	
 	@Override
