@@ -13,10 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -26,6 +29,14 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.PreludeCompiled;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class ReflectiveCompiled extends Reflective {
@@ -37,6 +48,24 @@ public class ReflectiveCompiled extends Reflective {
 		preludeCompiled = new PreludeCompiled(values);
 	}
 	
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
+		char[] data;
+		Reader textStream = null;
+		
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
+		try {
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
+		}
+		finally{
+			if(textStream != null){
+				textStream.close();
+			}
+		}
+		
+		return data;
+	}
+	
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommand", null, null);
 	}
@@ -46,7 +75,13 @@ public class ReflectiveCompiled extends Reflective {
 	}
 	
 	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-		throw RascalRuntimeException.notImplemented("parseModule", null, null);
+		 IActionExecutor<IConstructor> actions = new NoActionExecutor();	
+		
+	     try {
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		} catch (IOException e) {
+			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+		}
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {

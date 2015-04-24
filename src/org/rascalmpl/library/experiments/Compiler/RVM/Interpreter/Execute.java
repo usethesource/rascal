@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -21,7 +20,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.uptr.Factory;
 
 public class Execute {
 
@@ -69,6 +67,7 @@ public class Execute {
 
 	public ITuple executeProgram(ISourceLocation rvmExecutable,
 								 IConstructor program,
+								 IMap imported_module_tags,
 								 IMap imported_types,
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
@@ -86,6 +85,7 @@ public class Execute {
 		RascalLinker linker = new RascalLinker(vf, typeStore);
 		
 		RVMExecutable executable = linker.link(program,
+								 imported_module_tags,
 								 imported_types,
 								 imported_functions,
 								 imported_overloaded_functions,
@@ -95,16 +95,10 @@ public class Execute {
 		
 		RVMExecutable executable2 = null;
 		
-		long before = Timing.getCpuTime();
 		try {
 			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
 			executable.write(x.getPath());
-			long afterWrite = Timing.getCpuTime();
 			executable2 = RVMExecutable.read(x.getPath());
-			long afterRead = Timing.getCpuTime();
-			
-			System.out.println("write " + ((IString) program.get("name")).getValue() + ": " + (afterWrite - before)/1000000 + " msec; read " + (afterRead - afterWrite)/1000000 + " msec");
-
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -146,12 +140,17 @@ public class Execute {
 			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
 		}
 		
-		IMap symbol_definitions = executable.symbol_definitions; //(IMap) program.get("symbol_definitions");
-		
 		RascalExecutionContext rex = 
-				new RascalExecutionContext(vf, symbol_definitions, new TypeStore(), 
-										   debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), 
-										   ctx, testResultListener);
+				new RascalExecutionContext(vf, 
+										   executable.moduleTags, 
+										   executable.symbol_definitions, 
+										   new TypeStore(), 
+										   debug.getValue(),
+										   profile.getValue(), 
+										   trackCalls.getValue(), 
+										   coverage.getValue(), 
+										   ctx, 
+										   testResultListener);
 		
 		RVM rvm = new RVM(executable, rex);
 		

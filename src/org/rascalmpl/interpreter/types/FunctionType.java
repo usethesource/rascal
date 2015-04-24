@@ -35,7 +35,7 @@ public class FunctionType extends RascalType {
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
-	/*package*/ public FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
+	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters == null ? null : keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
