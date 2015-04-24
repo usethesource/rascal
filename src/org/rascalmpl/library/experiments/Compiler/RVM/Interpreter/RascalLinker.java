@@ -57,19 +57,19 @@ public class RascalLinker {
 	
 	private void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		//System.out.println("size functionStore: " + nfs);
+		System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
-		//System.out.println("size constructorStore: " + ncs);
+		System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
-		//System.out.println("size overloadedStore: " + nov);
+		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -205,8 +205,20 @@ public class RascalLinker {
 	}
 	
 	private void finalizeInstructions(){
+		int i = 0;
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == null){
+				System.out.println("finalizeInstructions, null for function : " + fname);
+			}
+		}
 		for(Function f : functionStore) {
+			if(f == null){
+				System.out.println("finalizeInstructions, null at index: " + i);
+			} else {
+				//System.out.println("finalizeInstructions: " + f.name);
+			}
 			f.finalize(functionMap, constructorMap, resolver, false /*listing*/);
+			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
 			of.finalize(functionMap, functionStore);
@@ -215,6 +227,7 @@ public class RascalLinker {
 	
 	public RVMExecutable link(
 				 IConstructor program,
+				 IMap imported_module_tags,
 				 IMap imported_types,
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
@@ -229,6 +242,8 @@ public class RascalLinker {
 		
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
+		
+		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("tags"));
 
 		/** Imported types */
 
@@ -340,6 +355,7 @@ public class RascalLinker {
 		validateOverloading();
 
 		return new RVMExecutable(((IString) program.get("name")).getValue(),
+							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 
@@ -352,7 +368,7 @@ public class RascalLinker {
 								 uid_module_init, 
 								 uid_module_main, 
 								 uid_module_main_testsuite,
-								 typeStore, 
+								 typeStore,
 								 vf);
 	}
 	

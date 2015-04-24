@@ -17,7 +17,9 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.values.uptr.Factory;
 
 public class RVMExecutable implements Serializable{
@@ -26,12 +28,13 @@ public class RVMExecutable implements Serializable{
 	
 	// transient fields
 	transient static IValueFactory vf;
-//	transient static TypeStore store;
+	transient static TypeStore store;
 	transient private static TypeSerializer typeserializer;
 	
 	// Serializable fields
 	
 	public String module_name;
+	public IMap moduleTags;
 	public IMap symbol_definitions;
 	
 	public ArrayList<Function> functionStore;
@@ -53,6 +56,7 @@ public class RVMExecutable implements Serializable{
 	
 	public RVMExecutable(
 			final String module_name,
+			final IMap moduleTags,
 			
 			final IMap symbol_definitions,
 			final Map<String, Integer> functionMap,
@@ -74,6 +78,7 @@ public class RVMExecutable implements Serializable{
 			){
 		
 		this.module_name = module_name;
+		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
 		
 		this.functionMap = functionMap;
@@ -93,8 +98,8 @@ public class RVMExecutable implements Serializable{
 		this.uid_module_main_testsuite = uid_module_main_testsuite;
 		
 		vf = vfactory;
-//		store = ts;
-		typeserializer = new TypeSerializer(ts);
+		store = ts;
+		typeserializer = new TypeSerializer(ts); //new TypeSerializer(TypeFactory.getInstance());	//
 	}
 	
 	
@@ -105,6 +110,10 @@ public class RVMExecutable implements Serializable{
 		// public String module_name;
 		
 		stream.writeObject(module_name);
+		
+		// public IMap moduleTags;
+		
+		stream.writeObject(new SerializableRascalValue<IMap>(moduleTags));
 		
 		// public IMap symbol_definitions;
 		
@@ -165,6 +174,10 @@ public class RVMExecutable implements Serializable{
 		
 		module_name = (String) stream.readObject();
 		
+		// public IMap moduleTags;
+		
+		moduleTags = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
+		
 		// public IMap symbol_definitions;
 		
 		symbol_definitions = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
@@ -222,10 +235,7 @@ public class RVMExecutable implements Serializable{
 		uid_module_main_testsuite = (String) stream.readObject();
 	}
 	
-	public void write(String path){
-		
-		System.out.println("Writing: " + path);
-		
+	public void write(String path){		
 		FileOutputStream fileOut;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
@@ -236,8 +246,10 @@ public class RVMExecutable implements Serializable{
 		try {
 			fileOut = new FileOutputStream(path);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			long before = Timing.getCpuTime();
 			out.writeObject(this);
 			fileOut.close();
+			System.out.println("Writing: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -248,11 +260,10 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	public static RVMExecutable read(String path) {
-		
-		System.out.println("Reading: " + path);
 		RVMExecutable executable = null;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
+		typeserializer = new TypeSerializer(typeStore);
 		SerializableRascalValue.initSerialization(vf, typeStore);
 		Function.initSerialization(vf, typeStore);
 		CodeBlock.initSerialization(vf, typeStore);
@@ -260,9 +271,11 @@ public class RVMExecutable implements Serializable{
 		try {
 			FileInputStream fileIn = new FileInputStream(path);
 			ObjectInputStream in = new ObjectInputStream(fileIn);
+			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject();
 			in.close();
 			fileIn.close();
+			System.out.println("Reading: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 

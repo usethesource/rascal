@@ -3,7 +3,7 @@ module experiments::Compiler::Tests::Types
 import  experiments::Compiler::Compile;
 import  experiments::Compiler::Execute;
 
-import experiments::Compiler::muRascal2RVM::RascalReifiedTypes;
+import experiments::Compiler::Types::RascalReifiedTypes;
 import experiments::Compiler::muRascal2RVM::B;
 
 import ParseTree;

@@ -28,7 +28,7 @@ public class OverloadedFunctionType extends RascalType {
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
-	/*package*/ public OverloadedFunctionType(Set<FunctionType> alternatives) {
+	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}

@@ -12,10 +12,11 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::muRascal::Implode;
+//import experiments::Compiler::muRascal::Implode;
 
-import experiments::Compiler::Rascal2muRascal::RascalModule;
-import experiments::Compiler::Rascal2muRascal::RascalExpression;
+//import experiments::Compiler::Rascal2muRascal::RascalModule;
+//import experiments::Compiler::Rascal2muRascal::RascalExpression;
+
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
@@ -27,13 +28,18 @@ alias INS = list[Instruction];
 
 // Unique label generator
 
-int nlabel = -1;
-str nextLabel() { nlabel += 1; return "L<nlabel>"; }
+private int nlabel = -1;
+private str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-public str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
-map[str,int] nlocal = ();						// number of local per scope
+private str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
 
-map[str,str] scopeIn = ();						// scope nesting
+public void setFunctionScope(str scopeId){
+	functionScope = scopeId;
+}
+
+private map[str,int] nlocal = ();						// number of local per scope
+
+private map[str,str] scopeIn = ();						// scope nesting
 
 int get_nlocals() = nlocal[functionScope];		
 
@@ -43,7 +49,7 @@ void set_nlocals(int n) {
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
 
-map[int, str] localNames = ();
+private map[int, str] localNames = ();
 
 // Systematic label generation related to loops
 
@@ -89,14 +95,14 @@ int getTmp(str name, str fuid){
 
 // Does an expression produce a value? (needed for cleaning up the stack)
 
-bool producesValue(muLab(_)) = false;
+//bool producesValue(muLab(_)) = false;
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
 
 bool producesValue(muBreak(_)) = false;
 bool producesValue(muContinue(_)) = false;
 bool producesValue(muFail(_)) = false;
-bool producesValue(muFailReturn(_)) = false;
+bool producesValue(muFailReturn()) = false;
 
 bool producesValue(muReturn0()) = false;
 bool producesValue(muGuard(_)) = false;
@@ -175,6 +181,7 @@ void resetShiftCounter() {
 // Translate a muRascal module
 
 RVMProgram mu2rvm(muModule(str module_name, 
+						   map[str,str] tags,
 						   set[Message] messages, 
 						   list[loc] imports,
 						   list[loc] extends, 
@@ -327,7 +334,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
   return res;
 }
 
@@ -790,9 +797,9 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
 		labels[cs.fingerprint] = caseLab;
 		caseCode += [ LABEL(caseLab), POP(), *tr(cs.exp), JMP(defaultLab) ];
    }
-   defaultCode = tr(defaultExp);
+   INS defaultCode = tr(defaultExp);
    if(defaultCode == []){
-   		defaultCode = [muCon(666)];
+   		defaultCode = [LOADCON(666)];
    }
    if(size(cases) > 0){ 
    		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];
