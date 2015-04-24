@@ -37,8 +37,6 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public Type asAbstractDataType() {
-//		Map<Type,Type> bindings = new HashMap<>();
-//		bindings.put(RascalValueFactory.TypeParam, arg);
 		return RascalValueFactory.ADTforType;
 	}
 	

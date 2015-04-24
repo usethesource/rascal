@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class OverloadedFunctionType extends RascalType {
 	private final Set<FunctionType> alternatives;
@@ -33,6 +34,10 @@ public class OverloadedFunctionType extends RascalType {
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
+	@Override
+	public Type asAbstractDataType() {
+		return RascalValueFactory.Production;
+	}
 	
 	public Type getKeywordParameterTypes() {
 		// TODO: what does this union mean in case of overlapping names?
