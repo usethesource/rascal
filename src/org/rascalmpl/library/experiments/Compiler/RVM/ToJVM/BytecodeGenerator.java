@@ -373,7 +373,22 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitJumpInsn(GOTO, lb);
 	}
 
-	public void emitJMPTRUE(String targetLabel, boolean debug) {
+	public void emitJMPTRUEorFALSE(boolean tf, String targetLabel, boolean debug) {
+		if (!emit)
+			return;
+		Label lb = getNamedLabel(targetLabel);
+
+		emitInlinePop(false); // pop part of jmp...
+
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
+		if ( tf ) mv.visitJumpInsn(IFNE, lb);
+		else 	mv.visitJumpInsn(IFEQ, lb); 
+	}
+	
+	public void $emitJMPTRUE(String targetLabel, boolean debug) {
 		if (!emit)
 			return;
 		Label lb = getNamedLabel(targetLabel);
@@ -387,7 +402,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitJumpInsn(IFNE, lb);
 	}
 
-	public void emitJMPFALSE(String targetLabel, boolean debug) {
+	public void $emitJMPFALSE(String targetLabel, boolean debug) {
 		if (!emit)
 			return;
 
@@ -1487,8 +1502,6 @@ public class BytecodeGenerator implements Opcodes {
 	
 		for (Function f : functionStore) {
 			emitMethod(f, false);
-
-
 		}
 		// All functions are created create int based dispatcher
 		emitDynDispatch(functionMap.size());
@@ -1497,6 +1510,7 @@ public class BytecodeGenerator implements Opcodes {
 			emitDynCaLL(fname, e.getValue());
 		}
 		emitDynFinalize();
+
 		OverloadedFunction[] overloadedStoreV2 = overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]) ;
 		emitConstructor(overloadedStoreV2); 
 	}
