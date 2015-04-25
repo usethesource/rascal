@@ -28,7 +28,11 @@ public class StoreVar extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-		
-		codeEmittor.emitVoidCallWithArgsSSFIIZ("insnSTOREVAR", what, pos, pos == -1 ,debug);
+
+		if (pos == -1) {
+			codeEmittor.emitCallWithArgsSSFI("insnSTOREVARmax", what, debug);
+		} else {
+			codeEmittor.emitCallWithArgsSSFII("insnSTOREVAR", what, pos, debug);
+		}
 	}
 }
