@@ -29,6 +29,13 @@ public class LoadVar extends Instruction {
 		
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
-		codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,debug);
+		//codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,debug);
+
+		if (pos == -1) {
+			codeEmittor.emitCallWithArgsSSFI("insnLOADVARmax", what, debug);
+		} else {
+			codeEmittor.emitCallWithArgsSSFII("insnLOADVAR", what, pos, debug);
+		}
+
 	}
 }

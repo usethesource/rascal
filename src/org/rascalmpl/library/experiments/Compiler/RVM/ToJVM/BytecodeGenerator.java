@@ -1055,11 +1055,9 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 3); // Stack
-
-		mv.visitVarInsn(ALOAD, THIS); // SP
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ALOAD, 1); // CF
+		mv.visitVarInsn(ALOAD, STACK); 
+		mv.visitVarInsn(ILOAD, SP); 
+		mv.visitVarInsn(ALOAD, CF); 
 
 		emitIntValue(what); // I
 		emitIntValue(pos); // I

@@ -826,13 +826,11 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxArg2) {
-
-		if (maxArg2) {
+	public int insnLOADVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
-		}
-
+	}
+	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				stack[sp++] = fr.stack[pos];
@@ -843,7 +841,6 @@ public class RVMRun extends RVM {
 	}
 
 	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-
 		if (maxarg2) {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
@@ -868,13 +865,12 @@ public class RVMRun extends RVM {
 		}
 		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
 	}
-
-	public void insnSTOREVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-		if (maxarg2) {
+	
+	public void insnSTOREVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-			return;
-		}
+	}
+	public void insnSTOREVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				// TODO: We need to re-consider how to guarantee
