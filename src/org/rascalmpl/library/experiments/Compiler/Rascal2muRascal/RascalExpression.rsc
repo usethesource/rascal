@@ -1259,7 +1259,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		}
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
-       
+       	//println("function_subtype(<fuse>, <fdef>) =\> <subtype(upar, dpar) || match_void(upar, dpar)>");
        	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        

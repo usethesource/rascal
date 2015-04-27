@@ -829,8 +829,6 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
 //default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
 
 MuExp translateFunctionBody(node nd){
-
-	println("translateFunctionBody: <nd>");
     if(Expression exp := nd){
     	println("translateFunctionBody: Expression");
     	return translate(exp);
