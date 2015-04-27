@@ -1,37 +1,14 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::tests::types::StaticTestingUtils;
-import util::Benchmark;
-import IO;
+import lang::rascal::\syntax::Rascal;
+import ParseTree;
 
-value main(list[value] args) {											
-	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
+public Sym sym2symbol() {
+	return lang::rascal::\syntax::Rascal::empty();
 
-						public int tmpVar = -1;  
-						
-						public str nextTmp(){
-						    tmpVar += 1;
-						    return \"TMP\<tmpVar\>\";
-						}
-						
-						str getLabel(Label label) =
-						  (label is \\default) ? \"\<label.name\>\" : nextTmp();");		 
-	makeModule("M2", "import M1;");
-	t1 = cpuTime();
-	res = checkOK("true;", importedModules=["M1", "M2"]);
-	t2 = cpuTime();
-	
-	println("Time for checking: <(t2 - t1)/1000000>");
-	return res;
 }
 
-//value main(list[value] args) {
-//	bool f(bool c = false){
-//		void g(){
-//			c = true;
-//		}
-//		g();
-//		return c;
-//	}
-//	return f() == true;
-//}
+Symbol main(list[value] args) {
+	return sym2symbol();
+}	

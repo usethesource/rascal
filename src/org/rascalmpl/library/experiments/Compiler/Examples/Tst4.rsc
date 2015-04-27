@@ -1,17 +1,8 @@
 
 module experiments::Compiler::Examples::Tst4
 
-import Message;
-import IO;
+extend  experiments::Compiler::Tests::TestUtils;
 
 value main(list[value] args) {
-
-	messages = [];
-    if(any(Message msg <- messages, error(_,_) := msg)){
-    	println("yes");
-    } else {
-    
-    	println ("no");
-    }
-    return "OK";
-   } 	
+	return run("6") == 6;
+}

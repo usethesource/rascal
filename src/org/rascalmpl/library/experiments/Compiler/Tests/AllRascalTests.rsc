@@ -99,7 +99,6 @@ list[str] libraryTests = [
 ];
 
 list[str] importTests = [
-"Extending",				// OK
 "ImportTests1",             // OK
 "ImportTests2",             // OK
 "ImportTests3",             // OK
@@ -109,6 +108,22 @@ list[str] importTests = [
 "ImportTests7",              // OK
 "ImportTests8",              // OK
 "ModuleInitRange"
+];
+
+list[str] extendTests  = [
+"ABSTRACTTYPE",
+"A1",
+"A2",
+"B1",
+"B2",
+"B3",
+"Extending",
+"PARSETREE",
+"TYPE",
+"UseImportBase",
+"UseImportBaseExtended",
+"UseExtendBase",
+"UseExtendBaseExtended"
 ];
 
 list[str] typeTests = [
@@ -125,8 +140,7 @@ list[str] typeTests = [
 "DataTypeTCTests",			// OK
 "DeclarationTCTests",		// OK
 "ImportTCTests",			// OK
-"PatternTCTests",			// C: 3 fail: PicoQuoted[123]
-							// I : OK
+"PatternTCTests",			// OK
 "ProjectionTCTests",		// OK
 "RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
@@ -238,14 +252,15 @@ value main(list[value] args){
    
   //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
   // 
-  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
-  all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
+  //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);
     
-  all_results += runTests(files_with_tests, |std:///|);
-//
-  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  //all_results += runTests(files_with_tests, |std:///|);
+
+  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
