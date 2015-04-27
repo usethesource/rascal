@@ -8,4 +8,4 @@ data SYM = C() | D();
 bool subtype(A(), C()) = true;
 bool subtype(A(), D()) = true;
 
-value main(list[value] args) = comparable(A(), C());
+value main(list[value] args) = comparable(A(), D());
