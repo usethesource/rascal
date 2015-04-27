@@ -200,7 +200,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 1, exceptions>;  // + 1: to turn an index into a length;
+	return <maxStack + 1 + 10, exceptions>;  // + 1: to turn an index into a length; 
+										     // TODO: + 10 tmp fix for extractScopes!
 }
 
 value main(list[value] args) =
