@@ -437,7 +437,6 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
     if (ellipse():=f || circle():=f) lw = 0;
     if (ngon():=f) {lw = 0;}
     str bId = id; 
-    println("styleInside svg: <hPadding(f)>");
     int width = f.width;
     int height = f.height;
     switch (f) {

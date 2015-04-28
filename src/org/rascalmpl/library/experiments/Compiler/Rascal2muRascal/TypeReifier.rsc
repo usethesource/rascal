@@ -8,8 +8,9 @@ module experiments::Compiler::Rascal2muRascal::TypeReifier
  *     (4) type[value]            symbolToValue(Symbol) 		Compute the reified type for a symbol
  */
 
-import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckerConfig;
+//import lang::rascal::types::TestChecker;
+//import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
@@ -50,7 +51,7 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-public void getDeclarationInfo(Configuration config){
+public void extractDeclarationInfo(Configuration config){
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
@@ -66,7 +67,6 @@ public void getDeclarationInfo(Configuration config){
             + { <"CharRange", adt("CharRange",[])> }
             + { <"Condition", adt("Condition",[])> }
             ;
-    
 
 	// Collect all the constructors of the adt types in the type environment
 	
@@ -81,7 +81,7 @@ public void getDeclarationInfo(Configuration config){
     
     types = range(typeRel);
     
-	// Collect all the productions of the non-terminal types in the type environment
+	// Collect all the  uctions of the non-terminal types in the type environment
     
     grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, config.store[uid].rtype in types );
    
@@ -89,6 +89,7 @@ public void getDeclarationInfo(Configuration config){
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 						      // TODO ""??
 	              | /Production p:prod(_,_,_) := grammar 
 	              };
+	   
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
@@ -114,6 +115,15 @@ public map[Symbol,Production] getGrammar() {
  	
  	return definitions;
 }
+
+//map[int,Production] fixProds(map[int,Production] defs){
+//	return 
+//		visit(defs){ 
+// 		case Production::prod(Symbol sym, str name, list[Symbol] symbols, attributes) => 
+// 				name == "" ? ::prod(symbol, symbols, attributes) 
+// 						   : Production::prod(label(name, symbol), symbols, attributes)
+// 		};
+//}
 
 // Extract all declared symbols from a type checker configuration
 
@@ -141,8 +151,8 @@ public Production getLabeledProduction(str name, Symbol symbol){
 rel[Symbol, Symbol] dependentSymbolsInProduction(Symbol from, Symbol sym) {
 	switch(sym){
 		case label(_, s):	return /*{<from, sym>} + */dependentSymbolsInProduction(sym, s);
-		case conditional(sym, _):
-							return {<from, sym>} + dependentSymbolsInProduction(sym, s);
+		case conditional(sym1, _):
+							return {<from, sym>} + dependentSymbolsInProduction(sym, sym1);
 		case adt(_,_):		return {<from, sym>};
 		case sort(_):		return {<from, sym>};
 		case lex(_):		return {<from, sym>};
@@ -184,10 +194,10 @@ rel[Symbol, Symbol] dependentSymbols(Symbol from, Symbol sym) {
 							return {<from, sym>} + dependentSymbols(from, s);
 		case \alt(set[Symbol] syms):
 							return {<from, sym>} + { *dependentSymbols(from, s) | s <- syms};
-		case \seq(set[Symbol] syms):
+		case \seq(list[Symbol] syms):
 							return {<from, sym>} + { *dependentSymbols(from, s) | s <- syms};
-		case conditional(sym, _):
-							return {<from, sym>} + dependentSymbols(from, s);										
+		case conditional(sym2, _):
+							return {<from, sym>} + dependentSymbols(from, sym2);										
 		case \parameterized-sort(str name, list[Symbol] parameters):
 							return {<from, sym>} + { <from, striprec(param)> | param <- parameters };
 		case \parameterized-lex(str name, list[Symbol] parameters):
@@ -233,13 +243,13 @@ rel[Symbol, Symbol] getConstructorDependencies(Symbol from, c:Symbol::\cons(Symb
 private void computeReachableTypesAndConstructors(){
 	return;
 	definitions = getDefinitions();
-	rel[value,value] cleaned_productions = { <strip(def), p> | /Production p:prod(def,_,_) := grammar };
+	rel[value,value] cleaned_productions = { <strip(sym), p> | /Production p:prod(sym,_,_) := grammar };
 	
 	stripped_constructors = {<strip(s1),strip(s2)> | <s1, s2> <- constructors};
 	rel[value,value] containment = stripped_constructors
 								   + {*getConstructorDependencies(s, c) |  <s, c> <- constructors}
 	                               + cleaned_productions
-	                               + {*getProductionDependencies(s, p) |  <s, p> <- cleaned_productions};
+	                               + {*getProductionDependencies(s, p) |  <Symbol s, Production p> <- cleaned_productions};
 	
 	//println("containment [<size(containment)>] ="); for(elm <- containment) { println("\t<elm>"); }
 	
@@ -421,10 +431,12 @@ bool isConcreteType(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separato
 
 default bool isConcreteType(Symbol symbol) {
 	if(grammar[symbol]?){
-		return all(alt <- grammar[symbol].alternatives, Production p := alt);
+		return all(alternative <- grammar[symbol].alternatives, Production p := alternative);
 	}
 	return false;
 }
+
+
 
 // ---------------- symbolToValue ------------------
 // TODO: rewrite the following code using
@@ -441,8 +453,6 @@ default bool isConcreteType(Symbol symbol) {
 public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
-	
-	//symbol = regulars(symbol,activeLayout);	//TODO still needed?
 	
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
@@ -465,8 +475,8 @@ public type[value] symbolToValue(Symbol symbol) {
  			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
+ 	
  	return type(symbol, definitions); 
- 	//return type(regulars(symbol, activeLayout), definitions); // TODO: still needed?
 }
 
 // primitive
@@ -654,7 +664,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
+	= Production::\cons(Symbol::label(name, \type), parameters, [], /*(),*/ {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
 		
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
@@ -697,3 +707,19 @@ private Symbol regulars(Symbol s, Symbol l) {
 }
 
 public Symbol insertLayout(Symbol s) = regulars(s, activeLayout);
+
+
+public bool hasField(Symbol s, str fieldName){
+    //println("hasField: <s>, <fieldName>");
+
+    //if(isADTType(s)){
+    //   s2v = symbolToValue(s /*, config*/);
+    //   println("s2v = <s2v>");
+    //}
+    s1 = symbolToValue(s);
+    // TODO: this is too liberal, restrict to outer type.
+    visit(s1){
+       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
+    }
+    return false;
+}

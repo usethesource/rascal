@@ -1,4 +1,4 @@
-module experiments::Compiler::muRascal2RVM::RascalReifiedTypes
+module experiments::Compiler::Tests::RascalReifiedTypes
 
 import lang::rascal::\syntax::Rascal;
 import ParseTree;

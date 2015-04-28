@@ -1,16 +1,19 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -95,30 +98,129 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
-public class CodeBlock {
+public class CodeBlock implements Serializable {
 
-	private final String name;
-	public final IValueFactory vf;
-	int pc;
-	int labelIndex = 0;
+	private static final long serialVersionUID = 6955775282462381062L;
 	
-	private final ArrayList<Instruction> insList;
+	// Transient fields
+	transient public static IValueFactory vf;
+	transient private static TypeSerializer typeserializer;
+	transient int pc;
+	transient int labelIndex = 0;
+	transient private ArrayList<Instruction> insList;
+	transient private HashMap<String, LabelInfo> labelInfo;
 	
-	private final HashMap<String, LabelInfo> labelInfo;
+	// Serializable fields
+	private String name;
 	
-	private final Map<IValue, Integer> constantMap;
-	private final ArrayList<IValue> constantStore;
+	private Map<IValue, Integer> constantMap;
+	private ArrayList<IValue> constantStore;
 	private IValue[] finalConstantStore;
 	
-	private final Map<Type, Integer> typeConstantMap;
-	private final ArrayList<Type> typeConstantStore;
+	private Map<Type, Integer> typeConstantMap;
+	private ArrayList<Type> typeConstantStore;
 	private Type[] finalTypeConstantStore;
 	
 	private Map<String, Integer> functionMap;
 	private Map<String, Integer> resolver;
 	private Map<String, Integer> constructorMap;
 	
-	public int[] finalCode;
+	public long[] finalCode;
+	
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		typeserializer = new TypeSerializer(ts);
+		vf = vfactory;
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream stream)
+			throws IOException {
+		int n;
+		
+//		private String name;
+		stream.writeObject(name);
+		//System.out.println("*** writing: " + name);
+	
+//		private Map<IValue, Integer> constantMap;	
+//		private ArrayList<IValue> constantStore;	
+//		private IValue[] finalConstantStore;
+		n = finalConstantStore.length;
+		stream.writeObject(n);
+		for(int i = 0; i < n; i++){
+			stream.writeObject(new SerializableRascalValue<IValue>(finalConstantStore[i]));
+		}
+	
+//		private Map<Type, Integer> typeConstantMap;
+//		private ArrayList<Type> typeConstantStore;
+//		private Type[] finalTypeConstantStore;
+		n = finalTypeConstantStore.length;
+		stream.writeObject(n);
+		for(int i = 0; i < n; i++){
+			typeserializer.writeType(stream, finalTypeConstantStore[i]);
+		}	
+		
+//		private Map<String, Integer> functionMap;
+		stream.writeObject(functionMap);
+		
+//		private Map<String, Integer> resolver;
+		stream.writeObject(resolver);
+		
+//		private Map<String, Integer> constructorMap;
+		stream.writeObject(constructorMap);
+		
+//		public int[] finalCode;
+		stream.writeObject(finalCode);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void readObject(java.io.ObjectInputStream stream) throws ClassNotFoundException, IOException{
+		int n;
+		
+//		private String name;
+		name = (String) stream.readObject();
+		//System.out.println("*** reading: " + name);
+	
+//		private Map<IValue, Integer> constantMap;	
+//		private ArrayList<IValue> constantStore;	
+//		private IValue[] finalConstantStore;
+		n = (Integer) stream.readObject();
+		constantMap = new HashMap<IValue, Integer> ();
+		constantStore = new ArrayList<IValue>();
+		finalConstantStore = new IValue[n];
+		
+		for(int i = 0; i < n; i++){
+			IValue val = ((SerializableRascalValue<IValue>) stream.readObject()).getValue();
+			constantMap.put(val, i);
+			constantStore.add(i, val);
+			finalConstantStore[i] = val;
+		}
+	
+//		private Map<Type, Integer> typeConstantMap;
+//		private ArrayList<Type> typeConstantStore;	
+//		private Type[] finalTypeConstantStore;
+		n = (Integer) stream.readObject();
+		typeConstantMap = new HashMap<Type, Integer>();
+		typeConstantStore = new ArrayList<Type>();
+		finalTypeConstantStore = new Type[n];
+		
+		for(int i = 0; i < n; i++){
+			Type type = typeserializer.readType(stream);
+			typeConstantMap.put(type, i);
+			typeConstantStore.add(i, type);
+			finalTypeConstantStore[i] = type;
+		}	
+		
+//		private Map<String, Integer> functionMap;
+		functionMap = (HashMap<String, Integer>) stream.readObject();
+		
+//		private Map<String, Integer> resolver;
+		resolver = (HashMap<String, Integer>) stream.readObject();
+		
+//		private Map<String, Integer> constructorMap;
+		constructorMap = (HashMap<String, Integer>) stream.readObject();
+		
+//		public int[] finalCode;
+		finalCode = (long[]) stream.readObject();
+	}
 	
 	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
@@ -171,13 +273,13 @@ public class CodeBlock {
 		return info.instruction;
 	}
 	
-	public IValue getConstantValue(int n){
+	public IValue getConstantValue(long finalCode2){
 		for(IValue constant : constantMap.keySet()){
-			if(constantMap.get(constant) == n){
+			if(constantMap.get(constant) == finalCode2){
 				return constant;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined constant index " + finalCode2);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -273,13 +375,13 @@ public class CodeBlock {
 		return this;
 	}
 	
-	public void addCode(int c){
+	public void addCode(long c){
 		finalCode[pc++] = c;
 	}
 	
 	public void addCode0(int op){
 		finalCode[pc++] = op;
-	}
+	} 
 	
 	public void addCode1(int op, int arg1){
 //		finalCode[pc++] = op;
@@ -295,48 +397,53 @@ public class CodeBlock {
 	}
 	
 	/*
-	 * Proposed instruction encoding:
+	 * Instruction encoding:
 	 * 
 	 * 	   argument2    argument1       op
 	 *  |-----------| |-----------| |---------|
 	 *  sizeArg2 bits sizeArg1 bits sizeOp bits
 	 */
 	
-	public final static int sizeOp = 7;
-	public final static int sizeArg1 = 13;
-	public final static int sizeArg2 = 12;
-	public final static int maskOp = (1 << sizeOp) - 1;
-	public final static int maskArg1 = (1 << sizeArg1) - 1;
-	public final static int maskArg2 = (1 << sizeArg2) - 1;
+	public final static int sizeOp = 8;
+	public final static int sizeArg1 = 28;
+	public final static int sizeArg2 = 28;
+	public final static long maskOp = (1L << sizeOp) - 1;
+	public final static long maskArg1 = (1L << sizeArg1) - 1;
+	public final static long maskArg2 = (1L << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
-	
-	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
-	public static int encode0(int op){
+	public final static int maxArg1 = (int) ((1L << sizeArg1) - 1);
+	public final static int maxArg2 = (int) ((1L << sizeArg2) - 1);
+	public final static int maxArg = Math.min(maxArg1,maxArg2);
+
+	public static long encode0(int op){
 		return op;
 	}
 	
-	public static int encode1(int op, int arg1){
-		assert arg1 < (1 << sizeArg1);
-		return (arg1 << shiftArg1) | op;
+	public static long encode1(int op, int arg1){
+		assert arg1 < (1L << sizeArg1);
+		long larg1 = arg1;
+		return (larg1 << shiftArg1) | op;
 	}
 	
-	public static int encode2(int op, int arg1, int arg2){
-		assert arg1 < (1 << sizeArg1) && arg2 < (1 << sizeArg2);
-		return (arg2 << shiftArg2) | (arg1 << shiftArg1) | op;
+	public static long encode2(int op, int arg1, int arg2){
+		assert arg1 < (1L << sizeArg1) && arg2 < (1L << sizeArg2);
+		long larg1 = arg1;
+		long larg2 = arg2;
+		return (larg2 << shiftArg2) | (larg1 << shiftArg1) | op;
 	}
 	
-	public static int fetchOp(int instr){
-		return instr & maskOp;
+	public static int fetchOp(long instruction){
+		return (int) (instruction & maskOp);
 	}
 	
-	public static int fetchArg1(int instr){
-		return (instr >> shiftArg1) & maskArg1;
+	public static int fetchArg1(long instruction){
+		return (int) ((instruction >> shiftArg1) & maskArg1);
 	}
 	
-	public static int fetchArg2(int instr){
-		return (instr >> shiftArg2) & maskArg2;
+	public static int fetchArg2(long instruction){
+		return (int) ((instruction >> shiftArg2) & maskArg2);
 	}
 	
 	public static boolean isMaxArg1(int arg){
@@ -676,7 +783,7 @@ public class CodeBlock {
 		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
-		finalCode = new int[codeSize];
+		finalCode = new long[codeSize];
 		for(Instruction ins : insList){
 			ins.generate();
 		}
@@ -702,7 +809,7 @@ public class CodeBlock {
     	return this;
     }
     
-    public int[] getInstructions(){
+    public long[] getInstructions(){
     	return finalCode;
     }
     
@@ -717,7 +824,7 @@ public class CodeBlock {
     void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}
@@ -728,7 +835,7 @@ public class CodeBlock {
     	StringBuilder sb = new StringBuilder();
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
     		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}
@@ -741,7 +848,7 @@ public class CodeBlock {
     }
     
     public static void main(String[] args) {
-    	int w = encode2(13, 100, -2);
+    	long w = encode2(13, 100, -2);
     	System.out.println("op = " + fetchOp(w));
     	System.out.println("arg1 = " + fetchArg1(w));
     	System.out.println("arg2 = " + fetchArg2(w));

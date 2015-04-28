@@ -1,12 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.2.qualifier
-Export-Package: 
- org.apache.commons.compress.compressors,
+Bundle-Version: 1.0.0
+Bundle-ClassPath: lib/snakeyaml-1.11.jar,
+ lib/gson-2.2.4.jar,
+ lib/xz-1.5.jar,
+ lib/commons-compress-1.9.jar,
+ lib/jdom-2.0.6.jar,
+ .
+Bundle-Vendor: CWI
+Export-Package: org.apache.commons.compress.compressors,
  org.apache.commons.compress.compressors.bzip2,
  org.apache.commons.compress.compressors.deflate,
  org.apache.commons.compress.compressors.gzip,
@@ -81,14 +85,12 @@ Export-Package:
  org.tukaani.xz,
  org.yaml.snakeyaml
 Require-Bundle: org.eclipse.imp.pdb.values,
- org.eclipse.swt,
- org.jdom,
- org.objectweb.asm;bundle-version="4.0.0",
- org.apache.commons.math,
- org.apache.commons.lang,
- com.ibm.icu,
+ rascal,
  org.junit,
- org.eclipse.jdt.core
+ com.ibm.icu,
+ org.eclipse.jdt.core,
+ org.eclipse.wb.core.lib
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.google.gson;version="2.1.0",
  com.google.gson.annotations;version="2.1.0",
  com.google.gson.internal;version="2.1.0",
@@ -101,14 +103,11 @@ Import-Package: com.google.gson;version="2.1.0",
  org.eclipse.core.runtime.content,
  org.eclipse.core.runtime.jobs,
  org.eclipse.swt,
+ org.eclipse.swt.events,
+ org.eclipse.swt.widgets,
  org.objectweb.asm,
  org.objectweb.asm.tree,
  org.osgi.framework,
  org.osgi.service.prefs,
  org.rascalmpl.library.vis,
  org.rascalmpl.values
-Bundle-ClassPath: lib/snakeyaml-1.11.jar,
- lib/gson-2.2.4.jar,
- lib/xz-1.5.jar,
- lib/commons-compress-1.9.jar,
- .

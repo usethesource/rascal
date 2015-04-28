@@ -32,6 +32,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm"){
     		decls = readTextValueFile(#list[Declaration], rvmLoc);
     		p = rvm("LibraryGamma",
+    		  (),
 		      {},
 			  [],
 			  [],
@@ -47,6 +48,10 @@ void inspect(loc srcLoc,                // location of Rascal source file
         }	
         
         println("RVM PROGRAM: <p.name>");
+        
+        if(p.tags != ()){
+        	println("TAGS: <p.tags>");
+        }
          
         if(line >= 0){
          	listDecls(p, select, line, listing);
