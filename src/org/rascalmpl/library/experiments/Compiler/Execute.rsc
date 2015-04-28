@@ -43,7 +43,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
 // 	libTypes = libModule.types; 
  
   	for(fun <- libModule.functions) {
-  		functionScope = fun.qname;
+  		setFunctionScope(fun.qname);
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    <maxSP, exceptions> = validate(fun.src, body, []);
@@ -71,6 +71,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    set[Message] messages = mainProgram.messages;
+   map[str,map[str,str]] imported_moduleTags = ();
    
    if(any(msg <- messages, error(_,_) := msg)){
         throw "Cannot execute due to compilation errors";
@@ -114,6 +115,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
            try {
   	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;
+  	           imported_moduleTags[importedRvmProgram.name] = importedRvmProgram.tags;
   	           
   	           // Temporary work around related to issue #343
   	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
@@ -208,7 +210,10 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    //println("overloading_resolvers:"); for(res <- mainProgram.resolver) println("<res>: <mainProgram.resolver[res]>");
    
    load_time = cpuTime() - start_loading;
-   <v, t> = executeProgram(mainProgram, 
+   <v, t> = executeProgram(
+  						   RVMExecutableLocation(mainProgram.src, bindir),
+   						   mainProgram, 
+   						   imported_moduleTags,
    						   imported_types,
    						   imported_declarations, 
    						   imported_overloaded_functions, 
@@ -220,7 +225,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   trackCalls, 
    						   coverage);
    if(!testsuite){
-   	println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
+   		println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }
@@ -234,6 +239,14 @@ value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, b
 }
 
 value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
+   if(!recompile){
+      executable = RVMExecutableLocation(rascalSource, bindir);
+      if(exists(executable)){
+      	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 return v;
+      }
+   }
+   
    mainProgram = compile(rascalSource, listing=listing, recompile=recompile);
    return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }

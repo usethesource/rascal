@@ -12,24 +12,31 @@ import ParseTree;
 import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
+
+import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::MuBoolExp;
+
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::types::TypeExceptions;
+import lang::rascal::types::CheckerConfig;
+
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
-import experiments::Compiler::Rascal2muRascal::RascalModule;
-import experiments::Compiler::Rascal2muRascal::RascalPattern;
-import experiments::Compiler::Rascal2muRascal::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::ModuleInfo;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import experiments::Compiler::RVM::Interpreter::ParsingTools;
-import experiments::Compiler::muRascal::MuBoolExp;
-
 import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
+
+import experiments::Compiler::Rascal2muRascal::RascalDeclaration;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
+
+import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
 /*
  * Translate a Rascal expression to muRascal using the function: 
@@ -41,7 +48,7 @@ import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
 /*********************************************************************/
 
 int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
-    (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
+    (keywordArguments is \default) ? size([kw | /*KeywordArgument[Expression]*/ kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produce a multi-valued or backtrack-free Boolean expression
 MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
@@ -616,7 +623,7 @@ private MuExp translateConcreteParsed(Tree e, loc src){
         } else {
            translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
            if(allConstant(translated_args)){
-        	  return muCon(appl(prod, [ce | muCon(ce) <- translated_args])[@\loc=my_src]);
+        	  return muCon(appl(prod, [ce | muCon(Tree ce) <- translated_args])[@\loc=my_src]);
            }
            translated_elems = muCallPrim3("list_create", translated_args, my_src);
         }
@@ -666,6 +673,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 // Translate a closure   
  
  private MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
+    println("translateClosure: <e>, <parameters>, <cbody>");
  	uid = loc2uid[e@\loc];
 	fuid = convert2fuid(uid);
 	
@@ -706,7 +714,7 @@ private MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, false, false, e@\loc, [], (), false, 0, 0, body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
   	
   	leaveFunctionScope();								  
   	
@@ -1226,7 +1234,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		var_elm_type = dpar[-1][0];
+       		Symbol var_elm_type = dpar[-1].symbol;
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
@@ -1344,9 +1352,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
-       		name = unescape("<expression>");
+       		str fname = unescape("<expression>");
        		try {
-       			res = translateConstantCall(name, args);
+       			res = translateConstantCall(fname, args);
        			//println("REPLACED <name>, <args> BY CONSTANT");
        			return res;
        		} 

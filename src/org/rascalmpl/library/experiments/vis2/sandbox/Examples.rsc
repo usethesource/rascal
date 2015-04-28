@@ -5,6 +5,7 @@ import Prelude;
 
 void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, align = centerMid);
 
+
 void ex(Figure b) = render(vcat(figs =[text("\\\"aap\\\""), b]));
 
 public Figure box1 = box(fillColor="red", size=<200,200>);

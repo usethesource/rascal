@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -57,10 +56,10 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = true;
-	private boolean ocall_debug = false;
-	private boolean listing = false;
+	private boolean ocall_debug = true;
+//	private boolean listing = false;
 	private boolean trackCalls = false;
-	private boolean finalized = false;
+//	private boolean finalized = false;
 	
 	final ArrayList<Function> functionStore;
 	private final Map<String, Integer> functionMap;
@@ -69,8 +68,8 @@ public class RVM implements java.io.Serializable {
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
 	
-	private final TypeStore typeStore;
-	private final Types types;
+//	private final TypeStore typeStore;
+//	private final Types types;
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
@@ -92,7 +91,7 @@ public class RVM implements java.io.Serializable {
 	
 	private final Map<Class<?>, Object> instanceCache;
 	private final Map<String, Class<?>> classCache;
-	private OverloadedFunction res;
+	//private OverloadedFunction res;
 	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -123,12 +122,13 @@ public class RVM implements java.io.Serializable {
 		}  
 	};
 
-	public RVM(RascalExecutionContext rex) {
+	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
+		
 		super();
 
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
-		typeStore = rex.getTypeStore();
+		//typeStore = rex.getTypeStore();
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.classCache = new HashMap<String, Class<?>>();
 		
@@ -139,21 +139,22 @@ public class RVM implements java.io.Serializable {
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
 		this.trackCalls = rex.getTrackCalls();
-		this.finalized = false;
+		//this.finalized = false;
 		
-		this.types = new Types(this.vf);
+		//this.types = new Types(this.vf);
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
-		functionStore = new ArrayList<Function>();
-		constructorStore = new ArrayList<Type>();
-
-		functionMap = new HashMap<String, Integer>();
-		constructorMap = new HashMap<String, Integer>();
 		
-		resolver = new HashMap<String,Integer>();
-		overloadedStore = new ArrayList<OverloadedFunction>();
+		this.functionMap = rrs.functionMap;
+		this.functionStore = rrs.functionStore;
+		
+		this.constructorMap = rrs.constructorMap;
+		this.constructorStore = rrs.constructorStore;
+
+		this.resolver = rrs.resolver;
+		this.overloadedStore = rrs.overloadedStore;
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
@@ -185,125 +186,6 @@ public class RVM implements java.io.Serializable {
 	
 	public void resetLocationCollector(){
 		this.locationCollector = NullLocationCollector.getInstance();
-	}
-	
-	public void validateInstructionAdressingLimits(){
-		int nfs = functionStore.size();
-		//System.out.println("size functionStore: " + nfs);
-		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
-		}
-		int ncs = constructorStore.size();
-		//System.out.println("size constructorStore: " + ncs);
-		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
-		}
-		int nov = overloadedStore.size();
-		//System.out.println("size overloadedStore: " + nov);
-		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
-		}
-	}
-	
-	public Integer useFunctionName(String fname){
-		Integer index = functionMap.get(fname);
-		
-		if(index == null){
-			index = functionStore.size();
-			functionMap.put(fname, index);
-			functionStore.add(null);
-		}
-		//stdout.println("useFunctionName: " + index + "  => " + fname);
-		return index;
-	}
-	
-	public void declare(Function f){
-		Integer index = functionMap.get(f.getName());
-		if(index == null){
-			index = functionStore.size();
-			functionMap.put(f.getName(), index);
-			functionStore.add(f);
-		} else {
-			functionStore.set(index, f);
-		}
-		//stdout.println("declare: " + index + "  => " + f.getName());
-	}
-	
-	public Integer useConstructorName(String cname) {
-		Integer index = constructorMap.get(cname) ;
-		if(index == null) {
-			index = constructorStore.size();
-			constructorMap.put(cname, index);
-			constructorStore.add(null);
-		}
-		//stdout.println("useConstructorName: " + index + "  => " + cname);
-		return index;
-	}
-	
-	public void declareConstructor(String cname, IConstructor symbol) {
-		Type constr = types.symbolToType(symbol, typeStore);
-		Integer index = constructorMap.get(cname);
-		if(index == null) {
-			index = constructorStore.size();
-			constructorMap.put(cname, index);
-			constructorStore.add(constr);
-		} else {
-			constructorStore.set(index, constr);
-		}
-		//stdout.println("declareConstructor: " + index + "  => " + cname);
-	}
-	
-	public Type symbolToType(IConstructor symbol) {
-		return types.symbolToType(symbol, typeStore);
-	}
-	
-	public void addResolver(IMap resolver) {
-		for(IValue fuid : resolver) {
-			String of = ((IString) fuid).getValue();
-			int index = ((IInteger) resolver.get(fuid)).intValue();
-			this.resolver.put(of, index);
-		}
-	}
-	
-	public void fillOverloadedStore(IList overloadedStore) {
-		for(IValue of : overloadedStore) {
-			
-			ITuple ofTuple = (ITuple) of;
-			
-			String funName = ((IString) ofTuple.get(0)).getValue();
-			
-			IConstructor funType = (IConstructor) ofTuple.get(1);
-			
-			String scopeIn = ((IString) ofTuple.get(2)).getValue();
-			if(scopeIn.equals("")) {
-				scopeIn = null;
-			}
-			IList fuids = (IList) ofTuple.get(3);
-			int[] funs = new int[fuids.length()];
-			int i = 0;
-			for(IValue fuid : fuids) {
-				String name = ((IString) fuid).getValue();
-				//stdout.println("fillOverloadedStore: add function " + name);
-				
-				Integer index = useFunctionName(name);
-//				if(index == null){
-//					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
-//				}
-				funs[i++] = index;
-			}
-			fuids = (IList) ofTuple.get(4);
-			int[] constrs = new int[fuids.length()];
-			i = 0;
-			for(IValue fuid : fuids) {
-				Integer index = useConstructorName(((IString) fuid).getValue());
-//				if(index == null){
-//					throw new CompilerError("No definition for " + fuid + " in constructorMap");
-//				}
-				constrs[i++] = index;
-			}
-			res = new OverloadedFunction(this, funs, constrs, scopeIn);
-			this.overloadedStore.add(res);
-		}
 	}
 	
 	/**
@@ -434,18 +316,18 @@ public class RVM implements java.io.Serializable {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-	private void finalizeInstructions(){
-		// Finalize the instruction generation of all functions, if needed
-		if(!finalized){
-			finalized = true;
-			for(Function f : functionStore) {
-				f.finalize(functionMap, constructorMap, resolver, listing);
-			}
-			for(OverloadedFunction of : overloadedStore) {
-				of.finalize(functionMap);
-			}
-		}
-	}
+//	private void finalizeInstructions(){
+//		// Finalize the instruction generation of all functions, if needed
+//		if(!finalized){
+//			finalized = true;
+//			for(Function f : functionStore) {
+//				f.finalize(functionMap, constructorMap, resolver, listing);
+//			}
+//			for(OverloadedFunction of : overloadedStore) {
+//				of.finalize(functionMap);
+//			}
+//		}
+//	}
 
 	private String getFunctionName(int n) {
 		for(String fname : functionMap.keySet()) {
@@ -537,7 +419,7 @@ public class RVM implements java.io.Serializable {
 		
 		rex.setCurrentModuleName(moduleName);
 		
-		finalizeInstructions();
+		//finalizeInstructions();
 		
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
@@ -803,14 +685,14 @@ public class RVM implements java.io.Serializable {
 	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
-		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;													// postprocessing operator (following main switch)
 		int pos = 0;
 		ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 		Thrown thrown = null;
 		int arity;
-		int instruction;
+		long instruction;
 		int op;
 		Object rval;
 		
@@ -1143,7 +1025,7 @@ public class RVM implements java.io.Serializable {
 					// Get function arguments from the stack
 					arity = CodeBlock.fetchArg2(instruction);
 					
-					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					cf.sp = sp;
 					cf.pc = pc;
@@ -1214,7 +1096,7 @@ public class RVM implements java.io.Serializable {
 					Type argType = ((IValue) stack[pos]).getType();
 					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
 					
-					int pos2 = instructions[pc++];
+					int pos2 = (int) instructions[pc++];
 					if(argType.isSubtypeOf(paramType)){
 						stack[pos2] = stack[pos];
 						stack[sp++] = vf.bool(true);
@@ -1310,11 +1192,11 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLJAVA:
-					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
-					Type keywordTypes = cf.function.typeConstantStore[instructions[pc++]];
-					int reflect = instructions[pc++];
+					String methodName =  ((IString) cf.function.constantStore[(int) instructions[pc++]]).getValue();
+					String className =  ((IString) cf.function.constantStore[(int) instructions[pc++]]).getValue();
+					Type parameterTypes = cf.function.typeConstantStore[(int) instructions[pc++]];
+					Type keywordTypes = cf.function.typeConstantStore[(int) instructions[pc++]];
+					int reflect = (int) instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
 						//int sp1 = sp;
@@ -1503,7 +1385,7 @@ public class RVM implements java.io.Serializable {
 					
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
-					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					locationCollector.registerLocation(cf.src);
 					try {
 						//sp1 = sp;
@@ -1926,6 +1808,7 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
