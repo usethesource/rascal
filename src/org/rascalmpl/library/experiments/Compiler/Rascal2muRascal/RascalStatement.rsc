@@ -830,19 +830,19 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
 
 MuExp translateFunctionBody(node nd){
     if(Expression exp := nd){
-    	println("translateFunctionBody: Expression");
+    	//println("translateFunctionBody: Expression");
     	return translate(exp);
     }
     if(MuExp exp := nd){
-    	println("translateFunctionBody: MuExp");
+    	//println("translateFunctionBody: MuExp");
     	return exp;
     }
     if(Statement* stats := nd){
-    	println("translateFunctionBody: Statement*");
+    	//println("translateFunctionBody: Statement*");
     	return muBlock([ translate(stat) | stat <- stats ]);
     }
     if(Statement+ stats := nd){
-    	println("translateFunctionBody: Statement+");
+    	//println("translateFunctionBody: Statement+");
     	return muBlock([ translate(stat) | stat <- stats ]);
     }
     println("translateFunctionBody: Cannot handle function body <nd>");
