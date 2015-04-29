@@ -139,18 +139,18 @@ test bool concreteSwitch3(){
 
 test bool concreteSwitch4(){
 	switch([XorY] "y"){
-		case x(): 		 return false;
+		case x(): 		 throw "fail to due extra match";
 		case (XorY) `y`: return true;
 	}
-	return false;
+	throw "fail due to missing match";
 }
 
 test bool concreteSwitch5(){
 	switch([XorY] "y"){
-		case (XorY) `x`: return false;
+		case (XorY) `x`: throw "fail to due extra match"; 
 		case y(): 		 return true;
 	}
-	return false;
+	throw "fail due to missing match";
 }
 
 test bool concreteSwitch6(){
