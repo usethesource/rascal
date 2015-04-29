@@ -46,21 +46,16 @@ public class Execute {
 			 					 IBool coverage,
 			 					 IEvaluatorContext ctx) {
 		
-		try {
-			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
-			RVMExecutable executable = RVMExecutable.read(x.getPath());
-			
-			return executeProgram(executable,  
-					  			  argumentsAsList,
-					  			  debug, 
-					  			  testsuite, 
-					  			  profile, 
-					  			  trackCalls, 
-					  			  coverage,
-					  			  ctx);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
-		}
+		RVMExecutable executable = RVMExecutable.read(rvmExecutable);
+		
+		return executeProgram(executable,  
+				  			  argumentsAsList,
+				  			  debug, 
+				  			  testsuite, 
+				  			  profile, 
+				  			  trackCalls, 
+				  			  coverage,
+				  			  ctx);
 	}
 	
 	// Library function to execute a RVM program from Rascal
@@ -95,14 +90,13 @@ public class Execute {
 		
 		RVMExecutable executable2 = null;
 		
-		try {
-			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
-			executable.write(x.getPath());
-			executable2 = RVMExecutable.read(x.getPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+//			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
+//			executable.write(x.getPath());
+//			executable2 = RVMExecutable.read(x.getPath());
+			
+			executable.write(rvmExecutable);
+			executable2 = RVMExecutable.read(rvmExecutable);
 				
 		/*** Consistency checking after read */
 		if(!executable.comparable(executable2)){
