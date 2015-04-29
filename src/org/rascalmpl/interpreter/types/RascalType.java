@@ -77,4 +77,22 @@ public abstract class RascalType extends ExternalType {
   protected Type glbWithReified(RascalType type) {
 	return TF.voidType();
   }
+  
+  public boolean isNonterminal() {
+	  return false;
+  }
+  
+  public boolean isFunction() {
+	  return false;
+  }
+  
+  public boolean isOverloadedFunction() {
+	  return false;
+  }
+  
+  public boolean isReified() {
+	  return false;
+  }
+  
+  
 }

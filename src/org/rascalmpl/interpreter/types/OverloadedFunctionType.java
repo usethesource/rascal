@@ -35,6 +35,11 @@ public class OverloadedFunctionType extends RascalType {
 	}
 	
 	@Override
+	public boolean isOverloadedFunction() {
+		return true;
+	}
+	
+	@Override
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
 	}

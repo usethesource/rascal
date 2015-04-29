@@ -41,6 +41,11 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	public boolean isReified() {
+		return true;
+	}
+	
+	@Override
 	public String getName() {
 		return "type";
 	}
