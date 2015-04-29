@@ -134,3 +134,9 @@ test bool overloadingPlusVarArgsSpecialCase(){
 
     return f(["0","0"]) + f("1","1") ==  ["0","0","1","1"];
 }
+
+private bool singletonSetWithMap({()}) = true;
+private default bool singletonSetWithMap(value _) = false;
+
+@Ignore
+test bool callSingletonSetWithMap() = singletonSetWithMap({()});

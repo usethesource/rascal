@@ -126,7 +126,7 @@ public class CodeBlock implements Serializable {
 	private Map<String, Integer> resolver;
 	private Map<String, Integer> constructorMap;
 	
-	public int[] finalCode;
+	public long[] finalCode;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		typeserializer = new TypeSerializer(ts);
@@ -220,7 +220,7 @@ public class CodeBlock implements Serializable {
 		constructorMap = (HashMap<String, Integer>) stream.readObject();
 		
 //		public int[] finalCode;
-		finalCode = (int[]) stream.readObject();
+		finalCode = (long[]) stream.readObject();
 	}
 	
 	public CodeBlock(String name, IValueFactory factory){
@@ -274,13 +274,13 @@ public class CodeBlock implements Serializable {
 		return info.instruction;
 	}
 	
-	public IValue getConstantValue(int n){
+	public IValue getConstantValue(long finalCode2){
 		for(IValue constant : constantMap.keySet()){
-			if(constantMap.get(constant) == n){
+			if(constantMap.get(constant) == finalCode2){
 				return constant;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined constant index " + finalCode2);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -376,13 +376,13 @@ public class CodeBlock implements Serializable {
 		return this;
 	}
 	
-	public void addCode(int c){
+	public void addCode(long c){
 		finalCode[pc++] = c;
 	}
 	
 	public void addCode0(int op){
 		finalCode[pc++] = op;
-	}
+	} 
 	
 	public void addCode1(int op, int arg1){
 //		finalCode[pc++] = op;
@@ -405,41 +405,46 @@ public class CodeBlock implements Serializable {
 	 *  sizeArg2 bits sizeArg1 bits sizeOp bits
 	 */
 	
-	public final static int sizeOp = 7;
-	public final static int sizeArg1 = 13;
-	public final static int sizeArg2 = 12;
-	public final static int maskOp = (1 << sizeOp) - 1;
-	public final static int maskArg1 = (1 << sizeArg1) - 1;
-	public final static int maskArg2 = (1 << sizeArg2) - 1;
+	public final static int sizeOp = 8;
+	public final static int sizeArg1 = 28;
+	public final static int sizeArg2 = 28;
+	public final static long maskOp = (1L << sizeOp) - 1;
+	public final static long maskArg1 = (1L << sizeArg1) - 1;
+	public final static long maskArg2 = (1L << sizeArg2) - 1;
 	public final static int shiftArg1 = sizeOp;
 	public final static int shiftArg2 = sizeOp + sizeArg1;
-	
-	public final static int maxArg = (1 << Math.min(sizeArg1,sizeArg2)) - 1;
 
-	public static int encode0(int op){
+	public final static int maxArg1 = (int) ((1L << sizeArg1) - 1);
+	public final static int maxArg2 = (int) ((1L << sizeArg2) - 1);
+	public final static int maxArg = Math.min(maxArg1,maxArg2);
+
+	public static long encode0(int op){
 		return op;
 	}
 	
-	public static int encode1(int op, int arg1){
-		assert arg1 < (1 << sizeArg1);
-		return (arg1 << shiftArg1) | op;
+	public static long encode1(int op, int arg1){
+		assert arg1 < (1L << sizeArg1);
+		long larg1 = arg1;
+		return (larg1 << shiftArg1) | op;
 	}
 	
-	public static int encode2(int op, int arg1, int arg2){
-		assert arg1 < (1 << sizeArg1) && arg2 < (1 << sizeArg2);
-		return (arg2 << shiftArg2) | (arg1 << shiftArg1) | op;
+	public static long encode2(int op, int arg1, int arg2){
+		assert arg1 < (1L << sizeArg1) && arg2 < (1L << sizeArg2);
+		long larg1 = arg1;
+		long larg2 = arg2;
+		return (larg2 << shiftArg2) | (larg1 << shiftArg1) | op;
 	}
 	
-	public static int fetchOp(int instr){
-		return instr & maskOp;
+	public static int fetchOp(long instruction){
+		return (int) (instruction & maskOp);
 	}
 	
-	public static int fetchArg1(int instr){
-		return (instr >> shiftArg1) & maskArg1;
+	public static int fetchArg1(long instruction){
+		return (int) ((instruction >> shiftArg1) & maskArg1);
 	}
 	
-	public static int fetchArg2(int instr){
-		return (instr >> shiftArg2) & maskArg2;
+	public static int fetchArg2(long instruction){
+		return (int) ((instruction >> shiftArg2) & maskArg2);
 	}
 	
 	public static boolean isMaxArg1(int arg){
@@ -779,7 +784,7 @@ public class CodeBlock implements Serializable {
 		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
-		finalCode = new int[codeSize];
+		finalCode = new long[codeSize];
 		for(Instruction ins : insList){
 			ins.generate();
 		}
@@ -805,7 +810,7 @@ public class CodeBlock implements Serializable {
     	return this;
     }
     
-    public int[] getInstructions(){
+    public long[] getInstructions(){
     	return finalCode;
     }
     
@@ -820,7 +825,7 @@ public class CodeBlock implements Serializable {
     void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}
@@ -831,7 +836,7 @@ public class CodeBlock implements Serializable {
     	StringBuilder sb = new StringBuilder();
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
     		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}
@@ -844,7 +849,7 @@ public class CodeBlock implements Serializable {
     }
     
     public static void main(String[] args) {
-    	int w = encode2(13, 100, -2);
+    	long w = encode2(13, 100, -2);
     	System.out.println("op = " + fetchOp(w));
     	System.out.println("arg1 = " + fetchArg1(w));
     	System.out.println("arg2 = " + fetchArg2(w));

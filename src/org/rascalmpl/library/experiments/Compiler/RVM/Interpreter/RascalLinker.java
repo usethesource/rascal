@@ -57,19 +57,19 @@ public class RascalLinker {
 	
 	private void validateInstructionAdressingLimits(){
 		int nfs = functionStore.size();
-		//System.out.println("size functionStore: " + nfs);
+		System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
-		//System.out.println("size constructorStore: " + ncs);
+		System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
-		//System.out.println("size overloadedStore: " + nov);
+		System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -90,7 +90,6 @@ public class RascalLinker {
 		if(index == null){
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
-			f.funId = index;        // ID of function to find entry in dynrun
 			functionStore.add(f);
 		} else {
 			functionStore.set(index, f);
@@ -206,8 +205,20 @@ public class RascalLinker {
 	}
 	
 	private void finalizeInstructions(){
+		int i = 0;
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == null){
+				System.out.println("finalizeInstructions, null for function : " + fname);
+			}
+		}
 		for(Function f : functionStore) {
+			if(f == null){
+				System.out.println("finalizeInstructions, null at index: " + i);
+			} else {
+				//System.out.println("finalizeInstructions: " + f.name);
+			}
 			f.finalize(functionMap, constructorMap, resolver, false /*listing*/);
+			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
 			of.finalize(functionMap, functionStore);
@@ -216,6 +227,7 @@ public class RascalLinker {
 	
 	public RVMExecutable link(
 				 IConstructor program,
+				 IMap imported_module_tags,
 				 IMap imported_types,
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
@@ -230,6 +242,8 @@ public class RascalLinker {
 		
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
+		
+		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("tags"));
 
 		/** Imported types */
 
@@ -340,8 +354,8 @@ public class RascalLinker {
 
 		validateOverloading();
 
-		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
-							     (IMap) program.get("tags"),
+		return new RVMExecutable(((IString) program.get("name")).getValue(),
+							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 
@@ -397,8 +411,6 @@ public class RascalLinker {
 	 * @param rvm in which function will be loaded
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
-		
-		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
@@ -476,11 +488,11 @@ public class RascalLinker {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), ++continuationPoint);
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"), ++continuationPoint);
+				codeblock.CALLDYN( getIntField(instruction, "arity"));
 				break;
 				
 			case "APPLY":
@@ -542,11 +554,11 @@ public class RascalLinker {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0(++continuationPoint);
+				codeblock.YIELD0();
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"), ++continuationPoint);
+				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
 				
 			case "SHIFT":
@@ -662,7 +674,7 @@ public class RascalLinker {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD(++continuationPoint);
+				codeblock.GUARD();
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -765,7 +777,7 @@ public class RascalLinker {
 										 isConcreteArg,
 										 abstractFingerprint,
 										 concreteFingerprint, 
-										 codeblock, src, continuationPoint);
+										 codeblock, src);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);
