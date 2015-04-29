@@ -26,8 +26,11 @@ import experiments::Compiler::muRascal2RVM::StackValidator;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 import util::Reflective;
 
-public loc MuLibrary = getSearchPathLocation("/experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
-public loc MuLibraryCompiled = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.rvm");
+loc bindir = |home:///bin|;
+
+public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
+public loc MuLibraryCompiled = (bindir + "rascal/src/org/rascalmpl/library" + MuLibrary.path)[extension="rvm"];
+
 
 public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
 
@@ -71,7 +74,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    }
    
    // Read the muLibrary, recompile if necessary
-   MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
+   //MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
    println("MuLibrary: <MuLibrary>");
    println("MuLibraryCompiled: <MuLibraryCompiled>");
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
