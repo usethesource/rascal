@@ -201,6 +201,38 @@ test bool pathNotFoundException1() {
 	return false;
 }
 
+test bool emptyTryStatement() {
+	try;
+	catch: ;
+	return return true;
+}
+
+test bool emptyTryBlock() {
+	try {
+	;
+	}
+	catch: ;
+	return return true;
+}
+
+// empty catch statement
+
+test bool emptyCatchStatement() {
+	try {
+		return true;
+	} catch: ;
+	return false;
+}
+
+// empty catch block
+
+test bool emptyCatchBlock() {
+	try {
+		return true;
+	} catch: ;
+	return false;
+}
+
   
   
   	
