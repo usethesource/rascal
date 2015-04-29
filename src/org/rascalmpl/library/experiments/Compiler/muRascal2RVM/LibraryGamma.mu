@@ -2,8 +2,8 @@ module Library
 
 // Specific to delimited continuations (only experimental)
 
-declares "cons(adt(\"Gen\",[]),\"NEXT\",[ label(\"cont\",func(\\value(),[])) ])"
-declares "cons(adt(\"Gen\",[]),\"EXHAUSTED\",[])"
+//declares "cons(adt(\"Gen\",[]),\"NEXT\",[ label(\"cont\",func(\\value(),[])) ])"
+//declares "cons(adt(\"Gen\",[]),\"EXHAUSTED\",[])"
 
 
 function NEXT(gen) {
