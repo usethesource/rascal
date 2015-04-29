@@ -34,7 +34,7 @@ public class RVMExecutable implements Serializable{
 	// Serializable fields
 	
 	public String module_name;
-	public IMap tags;
+	public IMap moduleTags;
 	public IMap symbol_definitions;
 	
 	public ArrayList<Function> functionStore;
@@ -56,7 +56,7 @@ public class RVMExecutable implements Serializable{
 	
 	public RVMExecutable(
 			final String module_name,
-			final IMap tags,
+			final IMap moduleTags,
 			
 			final IMap symbol_definitions,
 			final Map<String, Integer> functionMap,
@@ -78,7 +78,7 @@ public class RVMExecutable implements Serializable{
 			){
 		
 		this.module_name = module_name;
-		this.tags = tags;
+		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
 		
 		this.functionMap = functionMap;
@@ -111,9 +111,9 @@ public class RVMExecutable implements Serializable{
 		
 		stream.writeObject(module_name);
 		
-		// public IMap tags;
+		// public IMap moduleTags;
 		
-		stream.writeObject(new SerializableRascalValue<IMap>(tags));
+		stream.writeObject(new SerializableRascalValue<IMap>(moduleTags));
 		
 		// public IMap symbol_definitions;
 		
@@ -174,9 +174,9 @@ public class RVMExecutable implements Serializable{
 		
 		module_name = (String) stream.readObject();
 		
-		// public IMap tags;
+		// public IMap moduleTags;
 		
-		tags = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
+		moduleTags = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
 		
 		// public IMap symbol_definitions;
 		

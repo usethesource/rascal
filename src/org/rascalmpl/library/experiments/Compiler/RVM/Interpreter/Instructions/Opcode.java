@@ -104,8 +104,8 @@ public enum Opcode {
 	
 	public final static Opcode[] values = Opcode.values();
 	
-	public static Opcode fromInteger(int n){
-		return values[n];
+	public static Opcode fromInteger(int finalCode){
+		return values[finalCode];
 	}
 	
 	// TODO: compiler does not like Opcode.LOADCON.getOpcode() in case expressions
@@ -249,7 +249,7 @@ public enum Opcode {
 	}
 	
 	public static String toString(CodeBlock cb, Opcode opc, int pc){
-		int instruction = cb.finalCode[pc];
+		long instruction = cb.finalCode[pc];
 		Opcode opc1 = Opcode.fromInteger(CodeBlock.fetchOp(instruction));
 		int arg1 = CodeBlock.fetchArg1(instruction);
 		int arg2 = CodeBlock.fetchArg2(instruction);
@@ -391,13 +391,13 @@ public enum Opcode {
 		case OCALLDYN:
 			return "OCALLDYN " + cb.getConstantType(arg1) + ", " 
 							   + arg2 + ", "
-							   + cb.getConstantValue(cb.finalCode[pc + 1]);
+							   + cb.getConstantValue((int) cb.finalCode[pc + 1]);
 			
 		case CALLJAVA:	
-			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " 
-							   + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " 
-							   + cb.getConstantType(cb.finalCode[pc + 3]) + ","
-							   + cb.getConstantType(cb.finalCode[pc + 4]) + ","
+			return "CALLJAVA " + cb.getConstantValue((int) cb.finalCode[pc + 1]) + ", " 
+							   + cb.getConstantValue((int) cb.finalCode[pc + 2]) + ", " 
+							   + cb.getConstantType((int) cb.finalCode[pc + 3]) + ","
+							   + cb.getConstantType((int) cb.finalCode[pc + 4]) + ","
 							   + cb.finalCode[pc + 5] ;
 			
 		case THROW:

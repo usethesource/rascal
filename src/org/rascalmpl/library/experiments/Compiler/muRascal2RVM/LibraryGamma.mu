@@ -14,7 +14,9 @@ function NEXT(gen) {
 }
 
 coroutine ONE(task) {
-    return next(create(task))
+    if(next(create(task))){
+    	return;
+    }
 }
 
 /*
@@ -401,7 +403,7 @@ guard
 	iSubject is node
 {
     var args 
-    //("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);

@@ -44,6 +44,7 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -587,6 +588,13 @@ public enum RascalPrimitive {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	elm_add_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_add_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+	
 	loc_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6117,9 +6125,8 @@ public enum RascalPrimitive {
 			
 			if(type instanceof NonTerminalType){
 				if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-					NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
-					NonTerminalType typeNT = (NonTerminalType) type;
-					stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
+				Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
+				stack[sp - 2] = vf.bool( subjectNT.equals(type) || subjectNT.isSubtypeOf(type));
 				} else {
 					stack[sp - 2] = Rascal_FALSE;
 				}
