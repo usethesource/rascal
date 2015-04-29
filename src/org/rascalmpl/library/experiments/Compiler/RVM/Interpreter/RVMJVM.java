@@ -46,8 +46,12 @@ public class RVMJVM extends RVM {
 		}
 		this.rrs = rrs;
 		this.rex = rex;
-
-		createRunner();
+		try {
+			createRunner();
+		}
+		catch(Exception e) {
+			e.printStackTrace() ;
+		}
 
 	}
 

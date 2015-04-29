@@ -91,6 +91,7 @@ public class RascalLinker {
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
 			functionStore.add(f);
+			f.funId = index ;
 		} else {
 			functionStore.set(index, f);
 		}
@@ -354,7 +355,7 @@ public class RascalLinker {
 
 		validateOverloading();
 
-		return new RVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
@@ -412,6 +413,7 @@ public class RascalLinker {
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
 	
+		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -488,11 +490,11 @@ public class RascalLinker {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoints);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"), ++continuationPoints);
 				break;
 				
 			case "APPLY":
@@ -554,11 +556,11 @@ public class RascalLinker {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoints);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoints);
 				break;
 				
 			case "SHIFT":
@@ -674,7 +676,7 @@ public class RascalLinker {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoints);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -777,7 +779,7 @@ public class RascalLinker {
 										 isConcreteArg,
 										 abstractFingerprint,
 										 concreteFingerprint, 
-										 codeblock, src);
+										 codeblock, src, continuationPoints);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);
