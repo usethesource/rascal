@@ -90,8 +90,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	@Override
 	public IConstructor encodeAsConstructor() {
 		TypeReifier tr = new TypeReifier(vf);
-		IConstructor sym = tr.funcToProduction(this, eval, false);
-		return sym.asWithKeywordParameters().setParameter("origin", getAst().getLocation());
+		return tr.funcToProduction(this, eval, false);
 	}
 	
 	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {
