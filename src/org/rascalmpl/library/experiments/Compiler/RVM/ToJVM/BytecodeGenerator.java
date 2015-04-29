@@ -637,14 +637,14 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	// Experimemtal local copy of constantStore and typeConstantStore probably need in final version.
-	public void emitInlineLoadConOrType(int n, boolean conortype, boolean debug) {
+	public void emitInlineLoadConOrType(int n, boolean conOrType, boolean debug) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 
-		if (conortype)
+		if (conOrType)
 			mv.visitVarInsn(ALOAD, CS);
 		else
 			mv.visitVarInsn(ALOAD, TS);
