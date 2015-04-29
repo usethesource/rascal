@@ -43,8 +43,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -3167,7 +3165,7 @@ public enum RascalPrimitive {
 	 */
 	
 	// Generic join
-	
+	// TODO note: how can join not know the types of its arguments yet?
 	join {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3178,6 +3176,7 @@ public enum RascalPrimitive {
 			IValue right = (IValue) stack[sp - 2];
 			Type rightType = right.getType();
 
+			// TODO: why dynamic dispatch here if the type checker should know about these cases?
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3477,7 +3476,7 @@ public enum RascalPrimitive {
 
 
 			switch (ToplevelType.getToplevelType(leftType)) {
-
+// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
 			case BOOL:
 				return bool_less_bool.execute(stack, sp, arity, currentFrame);
 			case STR:
@@ -5763,6 +5762,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
+			// TODO: this code can be optimized and simplified via TreeAdapter
 			IConstructor appl = (IConstructor) stack[sp - 2];
 			IList appl_args = (IList) appl.get("args");
 			IConstructor prod = (IConstructor) appl.get("prod");
@@ -7195,10 +7195,11 @@ public enum RascalPrimitive {
 	}
 
 	private static boolean $isTree(IValue v){
-		return v.getType().isSubtypeOf(RascalValueFactory.Tree); //.isAbstractData() && v.getType().getName().equals("Tree");
+		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
 	
 	private static int $getIter(IConstructor cons){
+		// TODO: optimize away string equality
 		switch(cons.getName()){
 		case "iter": case "iter-star":
 			return 2;
@@ -7241,7 +7242,7 @@ public enum RascalPrimitive {
 		if(given instanceof IValue){
 			IValue val = (IValue) given;
 			Type tp = val.getType();
-			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().isSubtypeOf(RascalValueFactory.Tree)){
 				IList lst = (IList) val;
 				StringWriter w = new StringWriter();
 				for(int i = 0; i < lst.length(); i++){
