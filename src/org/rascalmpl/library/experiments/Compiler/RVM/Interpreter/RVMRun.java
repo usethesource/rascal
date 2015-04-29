@@ -62,8 +62,11 @@ public class RVMRun extends RVM {
 
 	public static IBool Rascal_TRUE;
 	public static IBool Rascal_FALSE;
+	
+	public static IInteger Rascal_MONE;  // -1
 	public static IInteger Rascal_ZERO;
 	public static IInteger Rascal_ONE;
+	public static IInteger Rascal_TWO;
 
 	private final TypeFactory tf;
 
@@ -171,8 +174,10 @@ public class RVMRun extends RVM {
 
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+		Rascal_MONE = vf.integer(-1);
 		Rascal_ZERO = vf.integer(0);
 		Rascal_ONE = vf.integer(1);
+		Rascal_TWO = vf.integer(2);
 
 		// Return types used in code generator
 		NONE = vf.string("$nothing$");
@@ -772,10 +777,10 @@ public class RVMRun extends RVM {
 	// return sp;
 	// }
 
-	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
-		stack[sp++] = cf.function.constantStore[arg1];
-		return sp;
-	}
+//	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
+//		stack[sp++] = cf.function.constantStore[arg1];
+//		return sp;
+//	}
 
 	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
 		lstack[lsp++] = new Reference(lstack, args1);
