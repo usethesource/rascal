@@ -43,6 +43,11 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
+	public boolean isFunction() {
+		return true;
+	}
+	
+	@Override
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
 	}

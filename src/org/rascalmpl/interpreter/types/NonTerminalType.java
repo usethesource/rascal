@@ -54,6 +54,11 @@ public class NonTerminalType extends RascalType {
 	}
 	
     @Override
+    public boolean isNonterminal() {
+    	return true;
+    }
+    
+    @Override
     public Type asAbstractDataType() {
     	return RascalValueFactory.Tree;
     }
