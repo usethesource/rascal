@@ -4,12 +4,13 @@ import IO;
 import String;
 import util::Reflective;
 
-loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|){
-	if(src.scheme == "std"){
-		phys = getModuleLocation(src.path);
-		return (bindir + phys.authority + phys.path)[extension=extension];
+loc getDerivedLocation1(loc src, str extension, loc bindir = |home:///bin|){
+	phys = getSearchPathLocation(src.path);
+	subdir = phys.authority;
+	if(subdir == ""){
+		subdir = phys.scheme;
 	}
-	return (bindir + src.authority + src.path)[extension=extension];
+	return (bindir + subdir + src.path)[extension=extension];
 }
 
 loc cachedConfig(loc src, loc bindir) = (bindir + getModuleLocation(src.path).path)[extension="tc"];
@@ -27,27 +28,17 @@ loc MuModuleLocation(loc src, loc bindir) = (bindir + getModuleLocation(src.path
 
 void printAll(loc L){
 	bindir = |home:///bin|;
-
-	//println("cachedConfig(<L>, <bindir>): <cachedConfig(L, bindir)>");
-	//println("cachedHash(<L>, <bindir>): <cachedHash(L, bindir)>");
-	//println("cachedHashMap(<L>, <bindir>): <cachedHashMap(L, bindir)>");
-	//
-	//println("RVMProgramLocation(<L>, <bindir>): <RVMProgramLocation(L, bindir)>");
-	//println("RVMExecutableLocation(<L>, <bindir>): <RVMExecutableLocation(L, bindir)>");
-	//println("MuModuleLocation(<L>, <bindir>): <MuModuleLocation(L, bindir)>");
 	
-	println("getModuleLocation(<L>): <getModuleLocation(L.path)>");
 	println("getSearchPathLocation(<L>): <getSearchPathLocation(L.path)>");
-	println("makeBinDerivative: <makeBinDerivative(L, "rvm")>");
+	println("getDerivedLocation1: <getDerivedLocation1(L, "rvm")>");
 	
-	
-
 }
 
 void main(list[value] args){
 	printAll(|std:///lang/rascal/tests/extends/Base.rsc|);
-	
 	println("-----------");
-	//printAll(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst4.rsc|);
-	println("makeBinDerivative: <makeBinDerivative(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Compile.rsc|, "rvm")>");
+	printAll(|std:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|);
+	println("-----------");
+	printAll(|tmp:///M1.rsc|);
+	println("-----------");
 }
