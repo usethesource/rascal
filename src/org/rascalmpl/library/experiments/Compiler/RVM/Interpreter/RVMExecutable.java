@@ -4,9 +4,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +17,15 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.uri.CompressedStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 
 public class RVMExecutable implements Serializable{
@@ -235,8 +241,15 @@ public class RVMExecutable implements Serializable{
 		uid_module_main_testsuite = (String) stream.readObject();
 	}
 	
-	public void write(String path){		
-		FileOutputStream fileOut;
+	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
+		String scheme = "compressed+" + exec.getScheme();
+		String authority = exec.getAuthority();
+		String path = exec.getPath() + ".xz";
+		return vf.sourceLocation(scheme, authority, path);
+	}
+	
+	public void write(ISourceLocation rvmExecutable){		
+		OutputStream fileOut;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
 		SerializableRascalValue.initSerialization(vf, typeStore);
@@ -244,44 +257,52 @@ public class RVMExecutable implements Serializable{
 		CodeBlock.initSerialization(vf, typeStore);
 		
 		try {
-			fileOut = new FileOutputStream(path);
+			ISourceLocation compOut = compressedLoc(rvmExecutable);
+			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
 			fileOut.close();
-			System.out.println("Writing: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
-	public static RVMExecutable read(String path) {
+	public static RVMExecutable read(ISourceLocation rvmExecutable) {
 		RVMExecutable executable = null;
 		
 		TypeStore typeStore = new TypeStore(Factory.getStore());
-		typeserializer = new TypeSerializer(typeStore);
+		typeserializer = new TypeSerializer(typeStore); 
 		SerializableRascalValue.initSerialization(vf, typeStore);
 		Function.initSerialization(vf, typeStore);
 		CodeBlock.initSerialization(vf, typeStore);
 		
 		try {
-			FileInputStream fileIn = new FileInputStream(path);
+			ISourceLocation compIn = compressedLoc(rvmExecutable);
+			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject();
 			in.close();
 			fileIn.close();
-			System.out.println("Reading: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 
 		} catch (ClassNotFoundException c) {
 			System.out.println("Class not found: " + c.getMessage());
 			c.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return executable;
 	}
