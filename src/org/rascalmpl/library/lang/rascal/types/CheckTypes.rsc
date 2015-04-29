@@ -7298,9 +7298,9 @@ public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::M
 	return c;
 }
 
-loc cachedConfig(loc src, loc bindir) = (bindir + src.path)[extension="tc"];
-loc cachedHash(loc src, loc bindir) = (bindir + src.path)[extension="sig"];
-loc cachedHashMap(loc src, loc bindir) = (bindir + src.path)[extension="sigs"];
+loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
+loc cachedHash(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
+loc cachedHashMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
 
 str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(src,bindir));
 
