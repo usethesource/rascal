@@ -155,10 +155,10 @@ test bool concreteSwitch5(){
 
 test bool concreteSwitch6(){
 	switch([XorY] "y"){
-		case x(): 		 return false;
+		case x(): 		 throw "fail to due extra match";
 		case y(): 		 return true;
 	}
-	return false;
+	throw "fail due to missing match";
 }
 
 value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;

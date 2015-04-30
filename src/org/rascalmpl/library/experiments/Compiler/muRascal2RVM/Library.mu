@@ -777,6 +777,7 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
     var iElem = get_list(iSubject, start), 
         children = get_children(iElem), 
         cpats
+        // TODO: this appl can be checked faster!
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
@@ -789,6 +790,7 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
 coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
     var iElem = get_list(iSubject, start), 
         children = get_children(iElem)
+     // TODO: this appl can be checked faster!    
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
 	    yield start + 1
     }
@@ -800,6 +802,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(iSubject, rNext) {
         iElem, children, prod, prodchildren
     if(start < size_list(iSubject)) {
         iElem = get_list(iSubject, start)
+         // TODO: this appl can be checked faster!
         if(iElem is node && equal(get_name(iElem), "appl")) {
             children = get_children(iElem)
             prod = children[0]
