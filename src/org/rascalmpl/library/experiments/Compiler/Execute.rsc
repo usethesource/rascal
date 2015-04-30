@@ -37,7 +37,7 @@ public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseT
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
  
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
-    println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
+    println("execute: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
  	functions = [];
  
@@ -53,7 +53,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   	}
   
   	writeTextValueFile(MuLibraryCompiled, functions);
-    println("rascal2rvm: Writing compiled version of library <MuLibraryCompiled>");
+    println("execute: Writing compiled version of library <MuLibraryCompiled>");
   	
   	return functions; 
 }
@@ -70,19 +70,22 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    map[str,map[str,str]] imported_moduleTags = ();
    
    if(any(msg <- messages, error(_,_) := msg)){
+        for(msg <- messages){
+        	println(msg);
+        }
         throw "Cannot execute due to compilation errors";
    }
    
    // Read the muLibrary, recompile if necessary
    //MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
-   println("MuLibrary: <MuLibrary>");
-   println("MuLibraryCompiled: <MuLibraryCompiled>");
+   //println("MuLibrary: <MuLibrary>");
+   //println("MuLibraryCompiled: <MuLibraryCompiled>");
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
   	       imported_declarations = readTextValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
   	       // Temporary work around related to issue #343
   	       imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
-  	       println("rascal2rvm: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
+  	       println("execute: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
   	  } catch: {
   	       imported_declarations = parseMuLibrary();
   	  }
@@ -104,7 +107,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    rel[str,str] extending_modules = {};
    void processImports(RVMProgram rvmProgram) {
        for(imp <- rvmProgram.imports + defaultImports, imp notin processed) {
-           println("<rvmProgram.name> importing: <imp>");
+           println("execute: importing <imp> in <rvmProgram.name>");
            
            processed += imp;
            importedLoc = RVMProgramLocation(imp, bindir);
@@ -112,7 +115,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           
   	           if(imp in rvmProgram.extends){
-           			println("<rvmProgram.name> EXTENDS <imp>");
+           			println("execute: <rvmProgram.name> EXTENDS <imp>");
            			extending_modules += {<rvmProgram.name, importedRvmProgram.name>};
            		}
            
@@ -140,7 +143,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
   	           imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmProgram.resolver[ofname] + pos_delta) | str ofname <- importedRvmProgram.resolver );
   	       
-  	       } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
+  	       } catch x: println("execute: Reading <importedLoc> did not succeed: <x>");      
        }
    }
    
@@ -151,7 +154,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    
    void resolve_module_extensions(str importName, list[experiments::Compiler::RVM::AST::Declaration] imported_declarations, list[experiments::Compiler::RVM::AST::Declaration] new_declarations){
    		
-   		println("resolve_module_extensions while importing <importName>:");
+   		//println("resolve_module_extensions while importing <importName>:");
    		//for(d <- imported_declarations) println("\timported_declarations: <d>");
    		//for(d <- new_declarations) println("\tnew_declarations: <d>");
    		
@@ -173,7 +176,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
 	   					//println("tup = <tup>");
 	   					if(name == decl.uqname && funType == decl.ftype && scope == decl.scopeIn, decl.qname notin tup.ofunctions && does_extend(importName, tup.ofunctions)){
 	   					    
-	   						println("*** added <decl.uqname> *** it overlaps with: <overloads>");
+	   						println("execute: *** added as extension: <decl.uqname>, it overlaps with: <overloads> ***");
 	   						append <name, 
 	   								funType, 
 	   								decl.scopeIn, 
@@ -253,7 +256,9 @@ value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, b
 value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
-      if(exists(executable)){
+      compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
+      if(exists(compressed)){
+         println("Using <compressed>");
       	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
       	 return v;
       }
