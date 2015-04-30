@@ -163,7 +163,5 @@ test bool concreteSwitch6(){
 
 value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  
-@ignoreCompiler{Not yet implemented in typechecker}
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-@ignoreCompiler{Not yet implemented in typechecker}
 test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

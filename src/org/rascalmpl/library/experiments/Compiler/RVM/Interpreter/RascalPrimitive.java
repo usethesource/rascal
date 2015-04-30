@@ -3033,7 +3033,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isList((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((IConstructor)treeSubject) || TreeAdapter.isOpt((IConstructor)treeSubject)));
 			return sp;
 		}	
 	},
@@ -3084,7 +3084,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IConstructor treeSubject = (IConstructor) stack[sp - 1];
-			if (!TreeAdapter.isList(treeSubject)) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
+			if (!(TreeAdapter.isList(treeSubject) || TreeAdapter.isOpt(treeSubject))) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
 				throw new ImplementationError(
 						"This is not a context-free list production: " + treeSubject);
 			}

@@ -135,7 +135,9 @@ test bool overloadingPlusVarArgsSpecialCase(){
     return f(["0","0"]) + f("1","1") ==  ["0","0","1","1"];
 }
 
+@IgnoreCompiler{Map patterns not supported}
 private bool singletonSetWithMap({()}) = true;
+@IgnoreCompiler{Map patterns not supported}
 private default bool singletonSetWithMap(value _) = false;
 
 @Ignore

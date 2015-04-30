@@ -110,7 +110,7 @@ public data Figure(
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
-		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
+		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
 		int width = -1,
 		int height = -1,
 		int cellHeight = -1,
@@ -125,7 +125,7 @@ public data Figure(
     	// Line properties
     
 		int lineWidth = -1,			
-		str lineColor = "", 		
+		str lineColor = "black", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
@@ -156,6 +156,7 @@ public data Figure(
 	) =
 	
 	emptyFigure()
+  
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
@@ -167,11 +168,11 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | ellipse(num cx = 0, num cy = 0, num rx=0, num ry=0, Figure fig=emptyFigure())
+   | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
-   | circle(num cx = 0, num cy = 0, num r=0, Figure fig=emptyFigure())
+   | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
    
-   | ngon(int n=3, num r=0, Figure fig=emptyFigure())	// regular polygon
+   | ngon(int n=3, num r=-1, Figure fig=emptyFigure())	// regular polygon
    
    | polygon(Points points=[], bool fillEvenOdd = true)
    
@@ -549,4 +550,12 @@ public map[str, value] adt2map(node t) {
 public str adt2json(node t) {
    return toJSON(adt2map(t), true);
    }
+   
+public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0, fillColor = "none");
+
+public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
+
+public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
+
+public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
    

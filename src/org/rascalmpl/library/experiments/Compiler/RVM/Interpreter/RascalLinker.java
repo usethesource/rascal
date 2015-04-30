@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.uptr.Factory;
 
 public class RascalLinker {
 	private IValueFactory vf;
@@ -111,6 +112,16 @@ public class RascalLinker {
 	
 	private void declareConstructor(String cname, IConstructor symbol) {
 		
+		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
+		// should be done earlier
+		if(symbol.getConstructorType() == Factory.Symbol_Prod){
+			System.out.println("declareConstructor: " + symbol);
+			IValue sort = symbol.get("sort");
+			IValue parameters = symbol.get("parameters");
+			IValue attributes = symbol.get("attributes");
+			//constr = tf.constructor(typeStore, Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
+			symbol = vf.constructor(Factory.Production_Default, sort, parameters, attributes);
+		}	
 		Type constr = symbolToType(symbol);
 		Integer index = constructorMap.get(cname);
 		if(index == null) {

@@ -19,8 +19,16 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.uri.CWDURIResolver;
+import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.HomeURIResolver;
+import org.rascalmpl.uri.HttpURIResolver;
+import org.rascalmpl.uri.HttpsURIResolver;
+import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -63,8 +71,40 @@ public class RascalExecutionContext {
 		
 		currentModuleName = "UNDEFINED";
 		
+		// TODO: Search path initialization: compare with Evaluator!
 		rascalSearchPath = new RascalSearchPath();
+		URIResolverRegistry resolverRegistry = rascalSearchPath.getRegistry();
 		rascalSearchPath.addPathContributor(StandardLibraryContributor.getInstance());
+		
+		// register some schemes
+		FileURIResolver files = new FileURIResolver();
+		resolverRegistry.registerInputOutput(files);
+
+		HttpURIResolver http = new HttpURIResolver();
+		resolverRegistry.registerInput(http);
+
+		//added
+		HttpsURIResolver https = new HttpsURIResolver();
+		resolverRegistry.registerInput(https);
+
+		CWDURIResolver cwd = new CWDURIResolver();
+		resolverRegistry.registerLogical(cwd);
+
+		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
+		resolverRegistry.registerInput(library);
+
+		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
+		resolverRegistry.registerInput(testdata);
+
+		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		resolverRegistry.registerInput(benchmarkdata);
+
+		resolverRegistry.registerInput(new JarURIResolver());
+
+		resolverRegistry.registerLogical(new HomeURIResolver());
+		resolverRegistry.registerInputOutput(new TempURIResolver());
+
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		FileURIResolver testModuleResolver = new TempURIResolver() {		// Code borrowed from Evaluator
 		    @Override

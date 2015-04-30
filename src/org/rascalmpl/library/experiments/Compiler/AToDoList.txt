@@ -1,5 +1,12 @@
 This is a global todo list for the compiler
 
+Issues:
+- empty catch clause not handled by StackValidator
+- TypeUtils::extractScopes: needs more stack space than computed by StackValidator
+- lang::rascal::grammar::definition::Symbols:sym2symbol
+  - The Symbol:: qualifier should be unnneccessary
+  - empty (from Rascal.rsc) can cause trouble.
+
 Bootstrapping
 x Compile and test parser generator 
 - Compile and test type checker

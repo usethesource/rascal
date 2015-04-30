@@ -74,9 +74,38 @@ function adjust1(id0, id1) {
     d3.select("#"+id0).style("width",right1-left1).style("height",bottom1-top1);
    }
    
- function adjustSvg(id0, id1, lw) { 
+ function adjustEllipse(id0, id1, lw) { 
     if (document.getElementById(id0).style.width!="") return;
+    var left1 = document.getElementById(id1).getBoundingClientRect().left;
+    var right1 = document.getElementById(id1).getBoundingClientRect().right;
+    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
+    var top1 = document.getElementById(id1).getBoundingClientRect().top;
+    d3.select("#"+id0).attr("cx", (right1-left1)/2).attr("cy", (bottom1-top1)/2).
+    attr("rx", (right1 - left1)/2).attr("ry",(bottom1-top1)/2);
+    d3.select("#"+id0+"_").style("width",right1-left1).style("height",bottom1-top1);
+   }
+   
+ function adjustCircle(id0, id1, lw) { 
+    var d = d3.select("#"+id0);
+    if (d.attr("r")) return;
+    var left1 = document.getElementById(id1).getBoundingClientRect().left;
+    var right1 = document.getElementById(id1).getBoundingClientRect().right;
+    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
+    var top1 = document.getElementById(id1).getBoundingClientRect().top;
+    d.attr("cx", (left1 + right1)/2+lw).attr("cy", (bottom1+top1)/2+lw).
+    attr("r", (right1 - left1)/2);
+   }
+   
+ function adjustSvgStyle(id0, id1, lw) { 
     var d = d3.select("#"+id1);
+    if (d.attr("width")) return;
+    var b = d.node().getBBox();
+    d3.select("#"+id0).style("width",b.x+b.width+lw).style("height",b.y+b.height+lw);
+   }
+   
+ function adjustSvgAttr(id0, id1, lw) { 
+    var d = d3.select("#"+id1);
+    if (d.attr("width")) return;
     var b = d.node().getBBox();
     d3.select("#"+id0).attr("width",b.x+b.width+lw).attr("height",b.y+b.height+lw);
    }

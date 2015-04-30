@@ -44,7 +44,7 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 		case str s => "a" + s
 			when /^[ \t\n]*[0-9][ \t\n]*+r[ \t\n]*[0-9]*[ \t\n]*$/ := s
 		case str s => "a" + s
-			when /^\<[ \t]*\>$/ := s
+			when /^[ \t\n]*\<[ \t\<\>]*\>[ \t\n]*$/ := s
 	};
 }
 

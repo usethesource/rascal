@@ -55,8 +55,8 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = true;
-	private boolean ocall_debug = true;
+	private boolean debug = false;
+	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
 //	private boolean finalized = false;
@@ -1086,6 +1086,14 @@ public class RVM implements java.io.Serializable {
 						pc = cf.pc;
 					} else {
 						constructor = c_ofun_call_next.nextConstructor(constructorStore);
+						
+//					    if(constructor instanceof NonTerminalType){
+//								NonTerminalType nt = (NonTerminalType) constructor;
+//							IConstructor symbol = nt.getSymbol();
+//							Type parameters = (Type) symbol.get("parameters");
+//							Type attributes = (Type) symbol.get("attributes");
+//							constructor = tf.constructor(rex.getTypeStore(), Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
+//						}
 						sp = sp - arity;
 						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}

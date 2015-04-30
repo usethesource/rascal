@@ -1,17 +1,9 @@
-
 module experiments::Compiler::Examples::Tst4
 
-import Message;
-import IO;
+extend  experiments::Compiler::Tests::TestUtils;
+
+test bool tst1() = 13 == 12 + 1;
 
 value main(list[value] args) {
-
-	messages = [];
-    if(any(Message msg <- messages, error(_,_) := msg)){
-    	println("yes");
-    } else {
-    
-    	println ("no");
-    }
-    return "OK";
-   } 	
+	return run("{ x |x \<- [1 .. 10], x % 2 == 1}");
+}
