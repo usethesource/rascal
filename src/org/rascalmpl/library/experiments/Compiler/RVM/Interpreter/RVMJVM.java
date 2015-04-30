@@ -77,7 +77,7 @@ public class RVMJVM extends RVM {
 
 			runner = (RVMRun) cons[0].newInstance(rrs, rex);
 			// Inject is obsolete the constructor holds rrs.
-			runner.inject(rrs.functionStore, rrs.constructorStore, rrs.store, rrs.functionMap);
+			runner.inject(rrs.functionStore, rrs.constructorStore, RVMExecutable.store, rrs.functionMap);
 
 		} catch (Exception e) {
 			e.printStackTrace();
