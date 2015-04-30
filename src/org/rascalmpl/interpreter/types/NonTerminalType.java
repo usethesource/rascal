@@ -61,6 +61,10 @@ public class NonTerminalType extends RascalType {
 		return symbol;
 	}
 	
+	public int getArity() {
+		return symbol.arity();
+	}
+	
 	public boolean isConcreteListType() {
 		return SymbolAdapter.isAnyList(getSymbol());
 	}

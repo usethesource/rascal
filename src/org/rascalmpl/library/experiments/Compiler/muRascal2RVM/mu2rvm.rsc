@@ -384,7 +384,7 @@ INS tr(muBool(bool b)) = [LOADBOOL(b)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
 
-default INS tr(muCon(value c)) =
+/*default*/ INS tr(muCon(value c)) =
 	[LOADCON(c)];	
 
 INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
