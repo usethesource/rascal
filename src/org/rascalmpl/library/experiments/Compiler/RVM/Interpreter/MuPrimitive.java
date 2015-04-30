@@ -491,19 +491,21 @@ public enum MuPrimitive {
 	 * 
 	 * [ ..., IValue, IString label ] => [ ..., mbool ]
 	 */
+	// TODO rename to more parse tree specific?
 	has_label {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
+			System.err.println("WORDT NOOIT AANGEROEPEN");
 			assert arity == 2;
-			IValue v = (IValue) stack[sp - 2];;
+			IValue v = (IValue) stack[sp - 2];
 			Type vt = v.getType();
+			String label_name = ((IString) stack[sp - 1]).getValue();
 			
-			if(vt.isExternalType() && ((RascalType) vt).isNonterminal()) {
+			if (isNonTerminalType(vt)) {
 				IConstructor cons = (IConstructor) v;
-				if(TreeAdapter.isAppl(cons)) {
+				if (TreeAdapter.isAppl(cons)) {
 					String treeLabel = TreeAdapter.getConstructorName(cons);
-					String label_name = ((IString) stack[sp - 1]).getValue();
-					stack[sp - 2] = treeLabel != null && label_name.equals(treeLabel) ? Rascal_TRUE : Rascal_FALSE;;
+					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? Rascal_TRUE : Rascal_FALSE;
 					return sp - 1;
 				}
 			}
@@ -2221,6 +2223,7 @@ public enum MuPrimitive {
 	}
 
 	private static boolean isNonTerminalType(Type t) {
+		System.err.println("isNt? " + t + " = " + ((t.isExternalType() && ((RascalType) t).isNonterminal()) ? "true" : "false"));
 		return t.isExternalType() && ((RascalType) t).isNonterminal();
 	}
 	
