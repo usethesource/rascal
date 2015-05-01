@@ -114,8 +114,6 @@ public class RVMJVM extends RVM {
 
 	protected Object executeProgram(Frame root, Frame cf) {
 		// return super.executeProgram(root, cf) ;
-
 		return runner.dynRun(root.function.funId, root);
-
 	}
 }

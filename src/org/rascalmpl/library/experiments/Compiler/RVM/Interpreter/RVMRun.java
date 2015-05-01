@@ -762,25 +762,25 @@ public class RVMRun extends RVM {
 		this.functionMap = functionMap2;
 	}
 
-	// public int insnLOADBOOLTRUE(Object[] stack, int sp) {
-	// stack[sp++] = Rascal_TRUE;
-	// return sp;
-	// }
-	//
-	// public int insnLOADBOOLFALSE(Object[] stack, int sp) {
-	// stack[sp++] = Rascal_FALSE;
-	// return sp;
-	// }
-	//
-	// public int insnLOADINT(Object[] stack, int sp, int i) {
-	// stack[sp++] = i;
-	// return sp;
-	// }
+	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
+		stack[sp++] = Rascal_TRUE;
+		return sp;
+	}
 
-//	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
-//		stack[sp++] = cf.function.constantStore[arg1];
-//		return sp;
-//	}
+	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
+		stack[sp++] = Rascal_FALSE;
+		return sp;
+	}
+
+	public int insnLOADINT(Object[] stack, int sp, int i) {
+		stack[sp++] = i;
+		return sp;
+	}
+
+	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
+		stack[sp++] = cf.function.constantStore[arg1];
+		return sp;
+	}
 
 	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
 		lstack[lsp++] = new Reference(lstack, args1);
@@ -918,9 +918,6 @@ public class RVMRun extends RVM {
 	@SuppressWarnings("unchecked")
 	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
 		Type constructor = constructorStore.get(constrctr);
-
-		// arity = CodeBlock.fetchArg2(instruction);
-		// cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 
 		IValue[] args = new IValue[constructor.getArity()];
 
@@ -1095,21 +1092,6 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	// public void insnTHROW(Object[] stack, int sp, Frame cf) {
-	// Object obj = stack[--sp];
-	// thrown = null;
-	// if (obj instanceof IValue) {
-	// stacktrace = new ArrayList<Frame>();
-	// stacktrace.add(cf);
-	// // thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
-	// } else {
-	// // Then, an object of type 'Thrown' is on top of the stack
-	// thrown = (Thrown) obj;
-	// }
-	// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-	// // TODO break INSTRUCTION;
-	// }
-
 	public int insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
 		@SuppressWarnings("unchecked")
@@ -1278,9 +1260,6 @@ public class RVMRun extends RVM {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
 
-		// /**/if (lsp != sp)
-		// throw new RuntimeException();
-
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
@@ -1298,17 +1277,11 @@ public class RVMRun extends RVM {
 
 		coroutine.frame = lcf;
 		coroutine.suspended = true;
-
-		// /**/cf = lcf.previousCallFrame;
-		// /**/sp = lcf.previousCallFrame.sp;
-		// /**/ stack = cf.stack;
 	}
 
 	public void yield0Helper(Frame lcf, Object[] lstack, int lsp, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
-		// /**/if (lsp != sp)
-		// throw new RuntimeException();
 
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1320,10 +1293,6 @@ public class RVMRun extends RVM {
 
 		coroutine.frame = lcf;
 		coroutine.suspended = true;
-
-		// cf = lcf.previousCallFrame;
-		// sp = lcf.previousCallFrame.sp;
-		// stack = cf.stack;
 	}
 
 	public Object callHelper(Object[] lstack, int lsp, Frame lcf, int funid, int arity, int ep) {
@@ -1349,20 +1318,12 @@ public class RVMRun extends RVM {
 		}
 		tmp.previousCallFrame = lcf;
 
-		// cf = tmp;
-		// sp = tmp.sp;
-
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 
 		if (rval.equals(YIELD)) {
 			// drop my stack
 			lcf.hotEntryPoint = ep;
-			// lcf.sp = sp;
-
-			// sp = cf.previousCallFrame.sp;
-			// cf = cf.previousCallFrame;
-			// stack = cf.stack;
 			return YIELD; // Will cause the inline call to return YIELD
 		} else {
 			lcf.hotEntryPoint = 0;
@@ -1372,12 +1333,6 @@ public class RVMRun extends RVM {
 	}
 
 	public int jvmNEXT0(Object[] lstack, int spp, Frame lcf) {
-
-		// if (spp != sp) {
-		// System.err.println("FIXIT SP adjusted (entry next) " + spp + " should be " + sp);
-		// spp = sp;
-		// }
-
 		Coroutine coroutine = (Coroutine) lstack[--spp];
 		// Merged the hasNext and next semantics
 		if (!coroutine.hasNext()) {
@@ -1396,16 +1351,8 @@ public class RVMRun extends RVM {
 
 		coroutine.frame.previousCallFrame = lcf;
 
-		// sp = coroutine.entryFrame.sp;
-		// cf = coroutine.entryFrame;
-		// stack = cf.stack;
-
 		dynRun(coroutine.entryFrame.function.funId, coroutine.entryFrame);
 
-		// if ( lcf.sp != sp ) {
-		// System.err.println("FIXIT SP adjusted (return next) " + spp + " != " + sp);
-		// spp = sp;
-		// }
 		return lcf.sp;
 	}
 
@@ -1429,45 +1376,37 @@ public class RVMRun extends RVM {
 	// 2: Not done by nextFrame (there is no frame)
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
-	public int jvmOCALL(Object[] lstack, int sop, Frame lcf, int ofun, int arity) {
+	public int jvmOCALL(Object[] stack, int sp, Frame cf, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 
-		// if (sp != sop)
-		// throw new RuntimeException();
-
-		lcf.sp = sop;
+		cf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
-		// OverloadedFunction of = overloadedStore.get(ofun);
 		OverloadedFunction of = overloadedStoreV2[ofun];
-
-		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
-				.computeOverloadedFunctionInstanceCall(lcf, of.functions, of.constructors, of.scopeIn, null, arity);
-
+	    
+		Object arg0 = stack[sp - arity];
+		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
+				                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
+		
 		Frame frame = ofun_call.nextFrame(functionStore);
 
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text
 
-			// cf = frame;
-			// stack = cf.stack;
-			// sp = frame.sp;
-
-			// System.err.println("Function ID : " + frame.function.funId);
-			
+			// System.err.println("Function ID : " + frame.function.funId);			
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
-				return lcf.sp; // Alternative matched.
+				return cf.sp; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
 		Type constructor = ofun_call.nextConstructor(constructorStore);
 		if (stackPointerAdjusted == false) {
-			sop = sop - arity;
+			sp = sp - arity;
 		}
-		lstack[sop++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-		lcf.sp = sop;
-		return sop;
+		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
+		cf.sp = sp;
+		return sp;
 	}
 
 	public int jvmOCALLDYN(Object[] lstack, int sop, Frame lcf, int typesel, int arity) {
@@ -1498,9 +1437,6 @@ public class RVMRun extends RVM {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text at OCALL
-			// cf = frame;
-			// stack = cf.stack;
-			// sp = frame.sp;
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult.equals(NONE)) {
 				return lcf.sp; // Alternative matched.
@@ -1583,26 +1519,7 @@ public class RVMRun extends RVM {
 		return rex.getStdOut();
 	}
 
-	public void validateInstructionAdressingLimits() {
-		int nfs = functionStore.size();
-		// System.out.println("size functionStore: " + nfs);
-		if (nfs >= CodeBlock.maxArg) {
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
-		}
-		int ncs = constructorStore.size();
-		// System.out.println("size constructorStore: " + ncs);
-		if (ncs >= CodeBlock.maxArg) {
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
-		}
-		int nov = overloadedStore.size();
-		// System.out.println("size overloadedStore: " + nov);
-		if (nov >= CodeBlock.maxArg) {
-			throw new CompilerError("constructorStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
-		}
-	}
-
 	static boolean silent = false;
-
 	public static void debugPOP(String insName, Frame lcf, int lsp) {
 		if (!silent) {
 			System.out.println(insName);

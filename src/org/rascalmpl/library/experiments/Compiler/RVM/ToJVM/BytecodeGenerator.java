@@ -102,6 +102,33 @@ public class BytecodeGenerator implements Opcodes {
 		emit = flag;
 	}
 
+	static final int CHUNKSIZE = 1024 ;
+	private void emitStringValue(String str) {
+		int len = str.length() ;
+		int chunks = len / CHUNKSIZE ;
+		
+		int i = 0 ;
+		if ( len > CHUNKSIZE ) { // test value 128 should be bigger.
+			for ( i = 0 ; i < chunks ; i++) {
+				mv.visitLdcInsn(str.substring(i * CHUNKSIZE, i* CHUNKSIZE + CHUNKSIZE));	
+			}
+			if ( len > (chunks * CHUNKSIZE) ) {
+				/// final partial chunk
+				mv.visitLdcInsn(str.substring(i*CHUNKSIZE, len));					
+			}
+			else {
+				chunks-- ;  // No partial chunk perfect fit.
+			}
+			while ( chunks != 0 ) {
+				mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
+				chunks-- ;
+			}
+		}
+		else {
+			mv.visitLdcInsn(str);				
+		}
+	}
+	
 	private void emitIntValue(int value) {
 		switch (value) {
 		case 0:
@@ -162,7 +189,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 1); // rrs
 		mv.visitVarInsn(ALOAD, 2); // rex
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
-				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V");
+				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V",false);
 
 		// mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
 		// "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V");
@@ -170,16 +197,19 @@ public class BytecodeGenerator implements Opcodes {
 		// Serialize/Deserialize overloadedStore.
 		try {
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitLdcInsn(anySerialize(overloadedStore));
-			mv.visitMethodInsn(INVOKESTATIC, fullClassName, "anyDeserialize", "(Ljava/lang/String;)Ljava/lang/Object;");
+			
+			emitStringValue(anySerialize(overloadedStore));		
+			
+			mv.visitMethodInsn(INVOKESTATIC, fullClassName, "anyDeserialize", "(Ljava/lang/String;)Ljava/lang/Object;",false);
 			mv.visitTypeInsn(CHECKCAST, "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
 			mv.visitFieldInsn(PUTFIELD, fullClassName, "overloadedStoreV2", "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		for (String fname : storeCreators) {
 			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V");
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V",false);
 		}
 
 		mv.visitInsn(RETURN);
@@ -231,7 +261,7 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitFieldInsn(PUTSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
 		}
 		Label l0 = new Label();
-		Label l1 = new Label();
+		Label l1 = new Label();	
 		Label l2 = new Label();
 		Label l3 = new Label();
 
@@ -253,13 +283,13 @@ public class BytecodeGenerator implements Opcodes {
 			try {
 				new StandardTextWriter().write(f.constantStore[i], w);
 				// System.err.println(w.toString().length() + " = " + w.toString());
-				mv.visitLdcInsn(w.toString());
+				emitStringValue(w.toString());
 			} catch (Exception e) {
 			}
 
-			mv.visitMethodInsn(INVOKESPECIAL, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V");
+			mv.visitMethodInsn(INVOKESPECIAL, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V",false);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/imp/pdb/facts/io/StandardTextReader", "read",
-					"(Lorg/eclipse/imp/pdb/facts/IValueFactory;Ljava/io/Reader;)Lorg/eclipse/imp/pdb/facts/IValue;");
+					"(Lorg/eclipse/imp/pdb/facts/IValueFactory;Ljava/io/Reader;)Lorg/eclipse/imp/pdb/facts/IValue;",false);
 			mv.visitInsn(AASTORE);
 		}
 		/* */mv.visitInsn(NOP); // so there is no empty try block
@@ -271,8 +301,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 2);
 		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
 		mv.visitVarInsn(ALOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Exception", "getMessage", "()Ljava/lang/String;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Exception", "getMessage", "()Ljava/lang/String;",false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",false);
 
 		mv.visitLabel(l3);
 
