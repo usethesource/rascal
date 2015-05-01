@@ -23,6 +23,7 @@ public class LoadCon extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		IValue val = codeblock.getConstantValue(constant) ;
-		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
+		codeEmittor.emitCallWithArgsSSFI("insnLOADCON", constant, debug);
+//		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
 	}
 }
