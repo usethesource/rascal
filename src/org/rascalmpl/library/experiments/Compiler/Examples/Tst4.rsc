@@ -1,13 +1,9 @@
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
+extend  experiments::Compiler::Tests::TestUtils;
 
-value main(list[value] args){
-	makeModule("MMM", "data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() 
-  					| ellipse(Figure inner = emptyFigure()) 
-  					| box(Figure inner = emptyFigure());
+test bool tst1() = 13 == 12 + 1;
 
- 				value main(list[value] args) = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
-	return checkOK("true;", importedModules=["MMM"]);
-} 
-	
+value main(list[value] args) {
+	return run("{ x |x \<- [1 .. 10], x % 2 == 1}");
+}

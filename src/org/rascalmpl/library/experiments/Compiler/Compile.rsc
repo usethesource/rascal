@@ -6,6 +6,7 @@ import ValueIO;
 import String;
 import Message;
 import ParseTree;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
@@ -19,11 +20,11 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMProgramLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm"];
+loc RVMProgramLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm", bindir = bindir); //(bindir + src.path)[extension="rvm"];
 
-loc RVMExecutableLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm.ser"];
+loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser", bindir = bindir); //(bindir + src.path)[extension="rvm.ser"];
 
-loc MuModuleLocation(loc src, loc bindir) = (bindir + src.path)[extension="mu"];
+loc MuModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "mu", bindir = bindir); //(bindir + src.path)[extension="mu"];
 
 RVMProgram compile(str rascalSource, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
