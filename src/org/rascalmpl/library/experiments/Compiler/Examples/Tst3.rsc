@@ -1,11 +1,6 @@
 module experiments::Compiler::Examples::Tst3
 
-import ParseTree;
+test bool tst1() = 13 == 10 + 3;
 
 
-
-syntax A = "a";
-syntax As = A+;
-
-
-value main(list[value] args) { return (A) `<A a>` := [A] "a"; }
+value main(list[value] args) {  return 42;}

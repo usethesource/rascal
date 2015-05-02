@@ -99,7 +99,6 @@ list[str] libraryTests = [
 ];
 
 list[str] importTests = [
-"Extending",				// OK
 "ImportTests1",             // OK
 "ImportTests2",             // OK
 "ImportTests3",             // OK
@@ -109,6 +108,21 @@ list[str] importTests = [
 "ImportTests7",              // OK
 "ImportTests8",              // OK
 "ModuleInitRange"
+];
+
+list[str] extendTests  = [
+"ABSTRACTTYPE",
+"A1",
+"A2",
+"B1",
+"B2",
+"B3",
+"PARSETREE",
+"TYPE",
+"UseImportBase",
+"UseImportBaseExtended",
+"UseExtendBase",
+"UseExtendBaseExtended"
 ];
 
 list[str] typeTests = [
@@ -125,8 +139,7 @@ list[str] typeTests = [
 "DataTypeTCTests",			// OK
 "DeclarationTCTests",		// OK
 "ImportTCTests",			// OK
-"PatternTCTests",			// C: 3 fail: PicoQuoted[123]
-							// I : OK
+"PatternTCTests",			// OK
 "ProjectionTCTests",		// OK
 "RegExpTCTests",			// OK
 "ScopeTCTests",				// OK
@@ -147,7 +160,7 @@ list[str] files_with_tests =
 "demo/common/Cycles",                               // OK
 "demo/common/Derivative",                           // OK
 "demo/common/Lift",                                 // OK
-"demo/common/StringTemplate",                       // 1 fails
+"demo/common/StringTemplate",                       // OK
 "demo/common/Trans",                                // OK
 "demo/common/WordReplacement",                      // OK
 "demo/common/WordCount/CountInLine1",               // OK
@@ -157,11 +170,11 @@ list[str] files_with_tests =
 "demo/Dominators",                                  // OK
 "demo/lang/Exp/Abstract/Eval",                      // OK
 "demo/lang/Exp/Combined/Automatic/Eval",            // OK
-"demo/lang/Exp/Combined/Manual/Eval",               // static errors
-"demo/lang/Exp/Concrete/NoLayout/Eval",             // 4 fail, parse error, incomplete grammar info
-"demo/lang/Exp/Concrete/WithLayout/Eval",           // 4 fail parse error, incomplete grammar info
-"demo/lang/Func/Test",                              // 2 fail, "Cannot find a constructor for Prog"
-"demo/lang/Lisra/Test",                             // 2 fail
+"demo/lang/Exp/Combined/Manual/Eval",               // OK
+"demo/lang/Exp/Concrete/NoLayout/Eval",             // OK
+"demo/lang/Exp/Concrete/WithLayout/Eval",           // OK
+"demo/lang/Func/Test",                              // OK
+"demo/lang/Lisra/Test",                             // OK
 "demo/McCabe",                                      // OK
 "demo/ReachingDefs",                                // OK
 "demo/Slicing",                                     // OK
@@ -172,21 +185,21 @@ list[str] files_with_tests =
 "lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
 "lang/rascal/grammar/tests/PicoGrammar",            // ok
 "lang/rascal/grammar/tests/CGrammar",            	// ok
-"lang/rascal/grammar/tests/CharactersTests", 
-"lang/rascal/grammar/tests/LiteralsTests", 
+"lang/rascal/grammar/tests/CharactersTests", 		// OK
+"lang/rascal/grammar/tests/LiteralsTests", 			// 5 fail
 "lang/rascal/grammar/tests/RascalGrammar",          // ok
-"lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
+"lang/rascal/syntax/tests/ConcreteSyntax",          // OK
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
-"lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
+"lang/rascal/syntax/tests/ImplodeTests",            // 4 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
 //"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/meta/ModuleInfoTests",  
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
-"lang/rascal/types/tests/AbstractKindTests",
-"lang/rascal/types/tests/AbstractNameTests",
+"lang/rascal/types/tests/AbstractKindTests",		// OK
+"lang/rascal/types/tests/AbstractNameTests",		// OK
 //"lang/rascal/types/tests/TypeInstantiationTests",
-"lang/rascal/types/tests/UtilTests",
+"lang/rascal/types/tests/UtilTests",				// OK
 "lang/yaml/Model",                                  // Error
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
@@ -242,9 +255,8 @@ value main(list[value] args){
   all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
   all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
   all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
-    
-  //all_results += runTests(files_with_tests, |std:///|);
-//
+  all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);  
+  all_results += runTests(files_with_tests, |std:///|);
   //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
