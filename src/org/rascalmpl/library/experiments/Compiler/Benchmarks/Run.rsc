@@ -288,7 +288,7 @@ void main_paper1(){
 }
 
 void main_paper2(){
-   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
    						//"BRSFCalls",
    						"BSendMoreMoney",
    						//"BSendMoreMoneyNotTyped",
