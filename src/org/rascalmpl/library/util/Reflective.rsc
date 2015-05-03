@@ -78,12 +78,31 @@ for source files in a separate directory.
 }
 
 loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|){
+	loc res;
 	phys = getSearchPathLocation(src.path);
-	subdir = phys.authority;
-	if(subdir == ""){
-		subdir = phys.scheme;
+    if(exists(phys)){
+		//println("phys = <phys>, src.path = <src.path>");
+		subdir = phys.authority;
+		if(subdir == ""){
+			subdir = phys.scheme;
+		}
+		res = (bindir + subdir + phys.path)[extension=extension];
+	} else {
+	    if(src.scheme == "std")
+	    	res = (bindir + "rascal/src/org/rascalmpl/library/" + src.path)[extension=extension];
+	    else if(src.scheme == "project"){
+	    	subdir = src.authority;
+			if(subdir == ""){
+				subdir = src.scheme;
+			}
+	    	res = (bindir + subdir + src.path)[extension=extension];
+	    } else {
+			res = (bindir + "rascal" + src.path)[extension=extension];
+		}	
 	}
-	return (bindir + subdir + src.path)[extension=extension];
+	
+	//println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
+	return res;
 }
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
