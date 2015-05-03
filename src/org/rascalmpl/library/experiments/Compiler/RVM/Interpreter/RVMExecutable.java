@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.XXXFSTIValueSerializer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 
