@@ -19,7 +19,7 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 
-import util::ValueUI;
+//import util::ValueUI;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
@@ -34,7 +34,7 @@ loc MuModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "mu", bindir
 loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
 
 bool valid(loc moduleLoc, loc bindir){
-    configLoc = ConfigLocation(src, bindir);
+    configLoc = ConfigLocation(moduleLoc, bindir);
     return exists(configLoc) ==> lastModified(configLoc) > lastModified(moduleLoc);
 }
 
