@@ -111,4 +111,5 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/xz-1.5.jar,
  lib/commons-compress-1.9.jar,
  lib/jdom-2.0.6.jar,
+ lib/fst-1.34.jar,
  .
