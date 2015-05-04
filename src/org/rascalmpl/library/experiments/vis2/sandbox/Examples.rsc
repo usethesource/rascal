@@ -22,8 +22,9 @@ Figure RB = box(fillColor="red", size=<20,20>);
 
 void tRB() {render(RB, align = bottomRight, debug = true);}
 
-public Figure box4 =  box(fig=RB, align = bottomRight, fillColor="none", size=<200,200>, lineColor = "grey", lineWidth = 16);
-void tbox4(){ render(box4, debug=false, align = topLeft);} 
+public Figure box4 =  box(fig=RB, align = bottomRight, fillColor="none" , size=<200,200>
+   , lineColor = "grey", lineWidth = 16);
+void tbox4(){ render(box4, debug=false, align = bottomRight);} 
 
 public Figure box5 = box(fig=at(0, 0, WB), fillColor="blue", align = topLeft, size=<200,200>);
 void tbox5(){ render(box5, debug = false); } 
@@ -37,8 +38,8 @@ void tbox7(){ render(box7); }
 public Figure box8 = box(fig=WB, fillColor="blue", size=<200,200>, align=bottomLeft);
 void tbox8(){ render(box8); } 
 
-public Figure box9 = box(fig=WB, lineWidth = 4, fillColor="lightblue", padding=<10,10, 20, 20>, align=topLeft);
-    void tbox9(){ render(box9, debug = false); } 
+public Figure box9 = box(fig=WB, lineWidth = 60, lineColor="red", fillColor="lightblue", padding=<0,0, 0, 0>, align=bottomRight);
+    void tbox9(){ render(box9, debug = false, align = topLeft); } 
 
 public Figure box10 = box(fig=WB, fillColor="lightblue",  size=<200, 200>, gap=<10,10>, align=topRight);
 void tbox10(){ render(box10); } 
@@ -82,8 +83,8 @@ void tbox21(){ render(box21, align = topLeft, debug = false); }
 public Figure newBox(str lc, Figure el) {
       return at(10, 10, box(align = topLeft, lineColor= lc, lineWidth = 20, fillColor = "white", fig = el));
       }
-public Figure box22 = (at(0,0, box(size=<50, 200> , lineWidth=60, align = bottomRight, 
-lineColor="silver", fillColor = "yellow", lineOpacity=0.5))|newBox(e, it)| e<-["green", "red", "blue", "grey", "magenta"]);
+public Figure box22 = (at(10,10, box(size=<50, 200> , lineWidth=60, align = bottomRight, 
+lineColor="silver", fillColor = "yellow", lineOpacity=0.5))|newBox(e, it)| e<-["green", "red", "blue", "grey", "magenta", "brown"]);
 void tbox22(){ render(box22, align = bottomRight, debug = false); }
 
 void boxes(){
@@ -242,7 +243,7 @@ public Figure newEllipse(str lc, Figure el) {
       return at(0, 0, ellipse(align = topLeft, lineColor= lc, lineWidth = 20, fillColor = "white", padding=<10,10,10,10>, 
       fig = el));
       }
-public Figure ellipse8 = (idEllipse(100, 75) |newEllipse(e, it)| e<-["red","blue" ,"grey","magenta"]);
+public Figure ellipse8 = (idEllipse(100, 75) |newEllipse(e, it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
 void tellipse8()  {render(ellipse8, debug = false, align = topLeft);}
 
 void ellipses() {
@@ -444,7 +445,7 @@ public Figure ngon20 = box(lineColor="red", lineWidth = 6, fillColor ="antiquewh
 void tngon20(){ ex("ngon20", ngon20, debug=false); }
 
 public Figure newNgon(str lc, Figure el) {
-      return at(0, 0, ngon(n =7, align = topLeft, lineColor= lc, lineWidth = 10, fillColor = "white", padding=<5,5,5,5>, 
+      return at(0, 0, ngon(n =3, align = topLeft, lineColor= lc, lineWidth = 10, fillColor = "white", padding=<0,0,0,0>, 
       fig = el));
       }
 
@@ -459,6 +460,29 @@ void ngons(){
 							[ngon13, ngon14, ngon15, ngon16, ngon17, ngon18]			    
   						 ], align=topLeft), debug = false);
 }
+
+Figure plotg(num(num) g, list[num] d) {
+     Figure f = shape([move(d[0], g(d[0]))]+[line(x, g(x))|x<-tail(d)]
+         scaleX=<<-1,1>,<0,400>>,  scaleY=<<0,1>,<0,400>>
+         ,shapeCurved=  true, lineColor = "red"
+         );
+     return f;
+     }
+     
+num(num) gg(num a) = num(num x) {return a*x*x;};
+
+num g1(num x) = x*x;
+
+void tshape1() {render(plotg(gg(0.5), [-1,-0.9..1.1]));}
+
+
+
+Figure shapes() {
+   list[num ] d =  [-1,-0.99..1.01];
+   return box(fig=overlay(width= 400, height = 400, figs=[plotg(gg(a),d )|a<-[0.3,0.35..2.1]]));
+   }
+   
+void tshapes() {render(shapes());}   
 
 Figure scrabbleField = box(fillColor="antiqueWhite", size=<20,20>, lineColor = "green", lineWidth=1);
 
