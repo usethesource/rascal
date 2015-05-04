@@ -52,6 +52,59 @@ public java loc getModuleLocation(str modulePath);
 @reflect{Uses Evaluator to resolve a path name in the Rascal search path}
 public java loc getSearchPathLocation(str filePath);
 
+@doc{
+Synopsis: Derive a location from a given location
+
+Description:
+Given a location, a file name extension, and a target directory,
+a new location is constructed that is located in the target directory, with a
+path that is derived from the authority and path in the given module location, and has the new file name extension.
+
+The derived location points to a subdirectory named after either their authority or their scheme (in that order),
+followed by the original path.
+
+Examples:
+<screen>
+import util::Reflective;
+getDerivedLocation(|std:///List.rsc|, "rvm");
+getDerivedLocation(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Compile.rsc|, "rvm");
+getDerivedLocation(|std:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|);
+</screen>
+
+Benefits:
+This function is useful for type checking and compilation tasks, when derived information has to be stored
+for source files in a separate directory.
+
+}
+
+loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|){
+	loc res;
+	phys = getSearchPathLocation(src.path);
+    if(exists(phys)){
+		//println("phys = <phys>, src.path = <src.path>");
+		subdir = phys.authority;
+		if(subdir == ""){
+			subdir = phys.scheme;
+		}
+		res = (bindir + subdir + phys.path)[extension=extension];
+	} else {
+	    if(src.scheme == "std")
+	    	res = (bindir + "rascal/src/org/rascalmpl/library/" + src.path)[extension=extension];
+	    else if(src.scheme == "project"){
+	    	subdir = src.authority;
+			if(subdir == ""){
+				subdir = src.scheme;
+			}
+	    	res = (bindir + subdir + src.path)[extension=extension];
+	    } else {
+			res = (bindir + "rascal" + src.path)[extension=extension];
+		}	
+	}
+	
+	//println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
+	return res;
+}
+
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java bool inCompiledMode();

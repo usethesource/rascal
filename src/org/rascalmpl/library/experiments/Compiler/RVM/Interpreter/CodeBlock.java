@@ -7,13 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -97,129 +98,64 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.values.uptr.Factory;
 
+import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
+import de.ruedigermoeller.serialization.FSTClazzInfo;
+import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
+import de.ruedigermoeller.serialization.FSTObjectInput;
+import de.ruedigermoeller.serialization.FSTObjectOutput;
+
+/**
+ * CodeBlock contains all instructions needed for a single RVM function
+ *
+ * CodeBlock is serialized by FSTCodeBlockerializer, make sure that
+ * all fields declared here are synced with the serializer.
+ */
 public class CodeBlock implements Serializable {
 
 	private static final long serialVersionUID = 6955775282462381062L;
 	
 	// Transient fields
 	transient public static IValueFactory vf;
-	transient private static TypeSerializer typeserializer;
+	//transient private static TypeSerializer typeserializer;
 	transient int pc;
 	transient int labelIndex = 0;
 	transient private ArrayList<Instruction> insList;
 	transient private HashMap<String, LabelInfo> labelInfo;
 	
 	// Serializable fields
-	private String name;
+	String name;
 	
 	private Map<IValue, Integer> constantMap;
 	private ArrayList<IValue> constantStore;
-	private IValue[] finalConstantStore;
+	IValue[] finalConstantStore;
 	
 	private Map<Type, Integer> typeConstantMap;
 	private ArrayList<Type> typeConstantStore;
-	private Type[] finalTypeConstantStore;
+	protected Type[] finalTypeConstantStore;
 	
-	private Map<String, Integer> functionMap;
-	private Map<String, Integer> resolver;
-	private Map<String, Integer> constructorMap;
+	Map<String, Integer> functionMap;
+	Map<String, Integer> resolver;
+	Map<String, Integer> constructorMap;
 	
 	public long[] finalCode;
 	
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		typeserializer = new TypeSerializer(ts);
-		vf = vfactory;
-	}
-	
-	private void writeObject(java.io.ObjectOutputStream stream)
-			throws IOException {
-		int n;
-		
-//		private String name;
-		stream.writeObject(name);
-		//System.out.println("*** writing: " + name);
-	
-//		private Map<IValue, Integer> constantMap;	
-//		private ArrayList<IValue> constantStore;	
-//		private IValue[] finalConstantStore;
-		n = finalConstantStore.length;
-		stream.writeObject(n);
-		for(int i = 0; i < n; i++){
-			stream.writeObject(new SerializableRascalValue<IValue>(finalConstantStore[i]));
-		}
-	
-//		private Map<Type, Integer> typeConstantMap;
-//		private ArrayList<Type> typeConstantStore;
-//		private Type[] finalTypeConstantStore;
-		n = finalTypeConstantStore.length;
-		stream.writeObject(n);
-		for(int i = 0; i < n; i++){
-			typeserializer.writeType(stream, finalTypeConstantStore[i]);
-		}	
-		
-//		private Map<String, Integer> functionMap;
-		stream.writeObject(functionMap);
-		
-//		private Map<String, Integer> resolver;
-		stream.writeObject(resolver);
-		
-//		private Map<String, Integer> constructorMap;
-		stream.writeObject(constructorMap);
-		
-//		public int[] finalCode;
-		stream.writeObject(finalCode);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void readObject(java.io.ObjectInputStream stream) throws ClassNotFoundException, IOException{
-		int n;
-		
-//		private String name;
-		name = (String) stream.readObject();
-		//System.out.println("*** reading: " + name);
-	
-//		private Map<IValue, Integer> constantMap;	
-//		private ArrayList<IValue> constantStore;	
-//		private IValue[] finalConstantStore;
-		n = (Integer) stream.readObject();
-		constantMap = new HashMap<IValue, Integer> ();
-		constantStore = new ArrayList<IValue>();
-		finalConstantStore = new IValue[n];
-		
-		for(int i = 0; i < n; i++){
-			IValue val = ((SerializableRascalValue<IValue>) stream.readObject()).getValue();
-			constantMap.put(val, i);
-			constantStore.add(i, val);
-			finalConstantStore[i] = val;
-		}
-	
-//		private Map<Type, Integer> typeConstantMap;
-//		private ArrayList<Type> typeConstantStore;	
-//		private Type[] finalTypeConstantStore;
-		n = (Integer) stream.readObject();
-		typeConstantMap = new HashMap<Type, Integer>();
-		typeConstantStore = new ArrayList<Type>();
-		finalTypeConstantStore = new Type[n];
-		
-		for(int i = 0; i < n; i++){
-			Type type = typeserializer.readType(stream);
-			typeConstantMap.put(type, i);
-			typeConstantStore.add(i, type);
-			finalTypeConstantStore[i] = type;
-		}	
-		
-//		private Map<String, Integer> functionMap;
-		functionMap = (HashMap<String, Integer>) stream.readObject();
-		
-//		private Map<String, Integer> resolver;
-		resolver = (HashMap<String, Integer>) stream.readObject();
-		
-//		private Map<String, Integer> constructorMap;
-		constructorMap = (HashMap<String, Integer>) stream.readObject();
-		
-//		public int[] finalCode;
-		finalCode = (long[]) stream.readObject();
+	CodeBlock(String name, Map<IValue, Integer> constantMap, ArrayList<IValue> constantStore, IValue[] finalConstantStore,
+			Map<Type, Integer> typeConstantMap, ArrayList<Type> typeConstantStore, Type[] finalTypeConstantStore,
+			Map<String, Integer> functionMap, Map<String, Integer> resolver, Map<String, Integer> constructorMap, long[] finalCode
+			){
+			this.name = name;	
+			this.constantMap = constantMap;
+			this.constantStore = constantStore;
+			this.finalConstantStore = finalConstantStore;
+			this.typeConstantMap = typeConstantMap;
+			this.typeConstantStore = typeConstantStore;
+			this.finalTypeConstantStore = finalTypeConstantStore;
+			this.functionMap = functionMap;
+			this.resolver = resolver;
+			this.constructorMap = constructorMap;
+			this.finalCode = finalCode;
 	}
 	
 	public CodeBlock(String name, IValueFactory factory){
@@ -846,13 +782,6 @@ public class CodeBlock implements Serializable {
     	Opcode opc = Opcode.fromInteger(fetchOp(finalCode[n]));
     	return Opcode.toString(this, opc, n);
     }
-    
-    public static void main(String[] args) {
-    	long w = encode2(13, 100, -2);
-    	System.out.println("op = " + fetchOp(w));
-    	System.out.println("arg1 = " + fetchArg1(w));
-    	System.out.println("arg2 = " + fetchArg2(w));
-    }
 
 }
 
@@ -874,5 +803,128 @@ class LabelInfo {
 	
 	public boolean isResolved(){
 		return PC >= 0;
+	}
+}
+
+/**
+ * FSTCodeBlockSerializer: serializer for CodeBlock objects
+ *
+ */
+class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
+
+	private static IValueFactory vf;
+	private static TypeStore store;
+	private static TypeReifier tr;
+	//private static TypeSerializer typeserializer;
+
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		vf = vfactory;
+		store = ts;
+		store.extendStore(Factory.getStore());
+		tr = new TypeReifier(vf);
+		//typeserializer = new TypeSerializer(ts);
+	}
+
+	@Override
+	public void writeObject(FSTObjectOutput out, Object toWrite,
+			FSTClazzInfo arg2, FSTFieldInfo arg3, int arg4)
+					throws IOException {
+			int n;
+			
+			CodeBlock cb = (CodeBlock) toWrite;
+			
+			// private String name;
+			out.writeObject(cb.name);
+		
+			// private Map<IValue, Integer> constantMap;	
+			// private ArrayList<IValue> constantStore;	
+			// private IValue[] finalConstantStore;
+			n = cb.finalConstantStore.length;
+			out.writeObject(n);
+			for(int i = 0; i < n; i++){
+				out.writeObject(new FSTSerializableIValue(cb.finalConstantStore[i]));
+			}
+		
+			// private Map<Type, Integer> typeConstantMap;
+			// private ArrayList<Type> typeConstantStore;
+			// private Type[] finalTypeConstantStore;
+			n = cb.finalTypeConstantStore.length;
+			out.writeObject(n);
+			for(int i = 0; i < n; i++){
+				out.writeObject(new FSTSerializableType(cb.finalTypeConstantStore[i]));
+			}	
+			
+			// private Map<String, Integer> functionMap;
+			out.writeObject(cb.functionMap);
+			
+			// private Map<String, Integer> resolver;
+			out.writeObject(cb.resolver);
+			
+			// private Map<String, Integer> constructorMap;
+			out.writeObject(cb.constructorMap);
+			
+			// public int[] finalCode;
+			out.writeObject(cb.finalCode);
+		}
+		
+
+
+	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
+	{
+	}
+
+	@SuppressWarnings("unchecked")
+	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
+	{
+		int n;
+
+		// private String name;
+		String name = (String) in.readObject();
+
+		// private Map<IValue, Integer> constantMap;	
+		// private ArrayList<IValue> constantStore;	
+		// private IValue[] finalConstantStore;
+		n = (Integer) in.readObject();
+		Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
+		ArrayList<IValue> constantStore = new ArrayList<IValue>();
+		IValue[] finalConstantStore = new IValue[n];
+
+		for(int i = 0; i < n; i++){
+			IValue val = ((FSTSerializableIValue) in.readObject()).getValue();
+			constantMap.put(val, i);
+			constantStore.add(i, val);
+			finalConstantStore[i] = val;
+		}
+
+		// private Map<Type, Integer> typeConstantMap;
+		// private ArrayList<Type> typeConstantStore;	
+		// private Type[] finalTypeConstantStore;
+		n = (Integer) in.readObject();
+		Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
+		ArrayList<Type> typeConstantStore = new ArrayList<Type>();
+		Type[] finalTypeConstantStore = new Type[n];
+
+		for(int i = 0; i < n; i++){
+			Type type = ((FSTSerializableType) in.readObject()).getType();
+			typeConstantMap.put(type, i);
+			typeConstantStore.add(i, type);
+			finalTypeConstantStore[i] = type;
+		}	
+
+		// private Map<String, Integer> functionMap;
+		Map<String, Integer> functionMap = (HashMap<String, Integer>) in.readObject();
+
+		// private Map<String, Integer> resolver;
+		Map<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
+
+		// private Map<String, Integer> constructorMap;
+		Map<String, Integer> constructorMap = (HashMap<String, Integer>) in.readObject();
+
+		// public int[] finalCode;
+		long[] finalCode = (long[]) in.readObject();
+		
+		return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+							functionMap, resolver, constructorMap, finalCode);
+	
 	}
 }
