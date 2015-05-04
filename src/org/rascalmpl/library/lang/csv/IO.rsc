@@ -163,7 +163,7 @@ public str generate(str moduleName, loc uri) {
         options = domainX(options,{"funname"});
     }
         
-    type[value] csvType = getCSVType(uri, options);
+    type[value] csvType = getCSVType(uri, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
     
     mbody = "module <moduleName>
             'import lang::csv::IO;
