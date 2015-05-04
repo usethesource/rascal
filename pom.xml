@@ -72,10 +72,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<argLine>
-                  -ea
+					<argLine>						
+                  		-ea
 						-Xmx1g
 						-Xss128m
+						-Dfile.encoding=UTF-8
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
