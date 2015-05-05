@@ -24,11 +24,15 @@ import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
 import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
 
-
 /**
- * FSTSerializableType: a wrapper and serializer for Rascal Types.
- *
+ * FSTSerializableType acts as a serializer and wrapper for Rascal Types.
+ * - On writing a FSTSerializableType oject is written
+ * - On reading, the wrapped Type is returned.
  */
+
+enum TYPE {REAL, INT, RAT, LIST, MAP, MAP_NAMED_FIELDS, NUMBER, ALIAS, SET, LOC,STR, NODE, CONSTRUCTOR, CONSTRUCTOR_NAMED_FIELDS, 
+	ADT, TUPLE, TUPLE_NAMED_FIELDS, VALUE,VOID,BOOL, PARAMETER, FUNCTION, REIFIED, OVERLOADED, NONTERMINAL, DATETIME};
+
 public class FSTSerializableType extends FSTBasicObjectSerializer implements Serializable {
 	
 	private static final long serialVersionUID = 5122014003014853428L;
@@ -58,7 +62,6 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 	}
 	
 	private void writeType(final FSTObjectOutput out, Type t) throws IOException{
-		//System.out.println("FSTSerializableType.writeType: " + t);
 		out.writeObject(new FSTSerializableType(t));
 	}
 
@@ -73,25 +76,25 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 			@Override
 			public Void visitReal(Type type) throws IOException {
-				out.writeObject("real");
+				out.writeObject(TYPE.REAL);
 				return null;
 			}
 
 			@Override
 			public Void visitInteger(Type type) throws IOException {
-				out.writeObject("int");
+				out.writeObject(TYPE.INT);
 				return null;
 			}
 
 			@Override
 			public Void visitRational(Type type) throws IOException {
-				out.writeObject("rat");
+				out.writeObject(TYPE.RAT);
 				return null;
 			}
 
 			@Override
 			public Void visitList(Type type) throws IOException {
-				out.writeObject("list");
+				out.writeObject(TYPE.LIST);
 				writeType(out, type.getElementType());
 				return null;
 			}
@@ -102,9 +105,9 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 				String valLabel = type.getValueLabel();
 				
 				if(keyLabel == null && valLabel == null){
-					out.writeObject("map");
+					out.writeObject(TYPE.MAP);
 				} else {
-					out.writeObject("map_named_fields");
+					out.writeObject(TYPE.MAP_NAMED_FIELDS);
 					out.writeObject(keyLabel);
 					out.writeObject(valLabel);
 				}
@@ -115,15 +118,14 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 			@Override
 			public Void visitNumber(Type type) throws IOException {
-				out.writeObject("number");
+				out.writeObject(TYPE.NUMBER);
 				return null;
 			}
 
 			@Override
 			public Void visitAlias(Type type) throws IOException {
 				
-				//System.out.println("writeType, alias: " + type.getName() + ", " + type.getAliased());
-				out.writeObject("alias");
+				out.writeObject(TYPE.ALIAS);
 				out.writeObject(type.getName());
 				writeType(out, type.getAliased());
 				writeType(out, type.getTypeParameters());
@@ -132,26 +134,26 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 			@Override
 			public Void visitSet(Type type) throws IOException {
-				out.writeObject("set");
+				out.writeObject(TYPE.SET);
 				writeType(out, type.getElementType());
 				return null;
 			}
 
 			@Override
 			public Void visitSourceLocation(Type type) throws IOException {
-				out.writeObject("loc");
+				out.writeObject(TYPE.LOC);
 				return null;
 			}
 
 			@Override
 			public Void visitString(Type type) throws IOException {
-				out.writeObject("str");
+				out.writeObject(TYPE.STR);
 				return null;
 			}
 
 			@Override
 			public Void visitNode(Type type) throws IOException {
-				out.writeObject("node");
+				out.writeObject(TYPE.NODE);
 				return null;
 			}
 
@@ -159,29 +161,27 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 			public Void visitConstructor(Type type) throws IOException {
 				String[] fieldNames = type.getFieldNames();
 				if(fieldNames == null){
-					out.writeObject("constructor");
+					out.writeObject(TYPE.CONSTRUCTOR);
 				} else {
-					out.writeObject("constructor_named_fields");
+					out.writeObject(TYPE.CONSTRUCTOR_NAMED_FIELDS);
 					out.writeObject(fieldNames);
 				}
 				out.writeObject(type.getName());
 				int arity = type.getArity();
 				out.writeObject(arity);
 				
-				//System.out.println("writeType, constructor " + type.getName() + ", " + type.getAbstractDataType());System.out.flush();
 				writeType(out, type.getAbstractDataType());
 				Type elemType = type.getFieldTypes();
 				for(int i = 0; i < arity; i++){
 					writeType(out, elemType.getFieldType(i));
-					//System.out.println("writeType, constructor elemType[" + i + "] = " + elemType.getFieldType(i));System.out.flush();
+	
 				}
-				
 				return null;
 			}
 
 			@Override
 			public Void visitAbstractData(Type type) throws IOException {
-				out.writeObject("adt");
+				out.writeObject(TYPE.ADT);
 				out.writeObject(type.getName());
 				Type typeParameters = type.getTypeParameters();
 				writeType(out, typeParameters);
@@ -193,9 +193,9 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 				String[] fieldNames = type.getFieldNames();
 				
 				if(fieldNames == null){
-					out.writeObject("tuple");
+					out.writeObject(TYPE.TUPLE);
 				} else {
-					out.writeObject("tuple_named_fields");
+					out.writeObject(TYPE.TUPLE_NAMED_FIELDS);
 					out.writeObject(fieldNames);
 				}
 				int arity = type.getArity();
@@ -208,25 +208,25 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 			@Override
 			public Void visitValue(Type type) throws IOException {
-				out.writeObject("value");
+				out.writeObject(TYPE.VALUE);
 				return null;
 			}
 
 			@Override
 			public Void visitVoid(Type type) throws IOException {
-				out.writeObject("void");
+				out.writeObject(TYPE.VOID);
 				return null;
 			}
 
 			@Override
 			public Void visitBool(Type type) throws IOException {
-				out.writeObject("bool");
+				out.writeObject(TYPE.BOOL);
 				return null;
 			}
 
 			@Override
 			public Void visitParameter(Type type) throws IOException {
-				out.writeObject("parameter");
+				out.writeObject(TYPE.PARAMETER);
 				out.writeObject(type.getName());
 				writeType(out, type.getBound());
 				return null;
@@ -236,25 +236,25 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 			public Void visitExternal(Type type) throws IOException {
 				if(type instanceof FunctionType){
 					FunctionType ft = (FunctionType) type;
-					out.writeObject("function");
+					out.writeObject(TYPE.FUNCTION);
 					writeType(out, ft.getReturnType());
 					writeType(out, ft.getArgumentTypes());
 					writeType(out, ft.getKeywordParameterTypes());
 				} else if(type instanceof ReifiedType){
 					//System.out.println("writeType: " + type);
 					ReifiedType rt = (ReifiedType) type;
-					out.writeObject("reified");
+					out.writeObject(TYPE.REIFIED);
 					Type elemType = rt.getTypeParameters();  // TODO ok?
 					writeType(out, elemType);
 				} else if(type instanceof OverloadedFunctionType){
-					out.writeObject("overloaded");
+					out.writeObject(TYPE.OVERLOADED);
 					Set<FunctionType> alternatives = ((OverloadedFunctionType) type).getAlternatives();
 					out.writeObject(alternatives.size());
 					for(FunctionType ft : alternatives){
 						writeType(out, ft);
 					}
 				} else if(type instanceof NonTerminalType){
-					out.writeObject("nonterminal");
+					out.writeObject(TYPE.NONTERMINAL);
 					NonTerminalType nt = (NonTerminalType) type;
 					IConstructor cons = nt.getSymbol();
 					out.writeObject(new FSTSerializableIValue(cons));
@@ -266,7 +266,7 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 			@Override
 			public Void visitDateTime(Type type) throws IOException {
-				out.writeObject("datetime");
+				out.writeObject(TYPE.DATETIME);
 				return null;
 			}
 
@@ -280,65 +280,63 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, final FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
 	{
 		Type t = readType(in);
-		//System.out.println("FSTSerializableType.instantiate: " + t);
-		this.type = t;
-		return new FSTSerializableType(t);
+		return t;
 	}
 		
+	@SuppressWarnings("deprecation")
 	private Type readType(final FSTObjectInput in) throws ClassNotFoundException, IOException{
-		Object xx = in.readObject();
-		if(xx instanceof FSTSerializableType){
-			return ((FSTSerializableType) xx).getType();
+		Object o = in.readObject();
+		if(o instanceof Type){
+			return (Type) o;
 		}
-		String start = (String) xx;
+		TYPE start = (TYPE) o;
 		String [] fieldNames = null;
 		String keyLabel = null;
 		String valLabel = null;
 		
 		switch(start){
-		case "real":	return tf.realType();
+		case REAL:		return tf.realType();
 		
-		case "int":		return tf.integerType();
+		case INT:		return tf.integerType();
 		
-		case "rat":		return tf.rationalType();
+		case RAT:		return tf.rationalType();
 		
-		case "list":	Type elemType = readType(in);
+		case LIST:		Type elemType = readType(in);
 						return tf.listType(elemType);
 		
-		case "map_named_fields":
+		case MAP_NAMED_FIELDS:
 						keyLabel  = (String) in.readObject();
 						valLabel  = (String) in.readObject();
 						// fall through to "map" case
 						
-		case "map":		Type keyType = readType(in);
+		case MAP:		Type keyType = readType(in);
 						Type valType = readType(in);
 						if(keyLabel == null){
 							return tf.mapType(keyType, valType);
 						}
 						return tf.mapType(keyType, keyLabel, valType, valLabel);
 						
-		case "number":	return tf.numberType();
+		case NUMBER:	return tf.numberType();
 		
-		case "alias":	String name = (String) in.readObject();
+		case ALIAS:		String name = (String) in.readObject();
 						Type aliasedType = readType(in);
 						Type typeParameters = readType(in);
-						//System.out.println("readType,alias, " + name + ", " + aliasedType);
 						return tf.aliasType(store, name, aliasedType, typeParameters);
 		
-		case "set":		elemType = readType(in);
+		case SET:		elemType = readType(in);
 						return tf.setType(elemType);
 						
-		case "loc":		return tf.sourceLocationType();
+		case LOC:		return tf.sourceLocationType();
 		
-		case "str":		return tf.stringType();
+		case STR:		return tf.stringType();
 		
-		case "node":	return tf.nodeType();
+		case NODE:		return tf.nodeType();
 		
-		case "constructor_named_fields":
+		case CONSTRUCTOR_NAMED_FIELDS:
 						fieldNames = (String[]) in.readObject();
 						// fall through to "constructor" case
 			
-		case "constructor": 	
+		case CONSTRUCTOR: 	
 						name = (String) in.readObject();
 						int arity = (Integer) in.readObject();
 						Type adtType = readType(in);
@@ -348,13 +346,11 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 						if(declaredAdt != null){
 							adtType = declaredAdt;
 						}
-						//System.out.println("readType, constructor " + name + ", " + adtType);System.out.flush();
 						
 						Type fieldTypes[] = new Type[arity];
 
 						for(int i = 0; i < arity; i++){
 							fieldTypes[i] = readType(in);
-							//System.out.println("readType, constructor, fieldType[" + i + "] = " + fieldTypes[i]);System.out.flush();
 						}
 						
 						if(fieldNames == null){
@@ -378,7 +374,7 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 							return res;
 						}
 						
-		case "adt":		name = (String) in.readObject();
+		case ADT:		name = (String) in.readObject();
 						typeParameters = readType(in);
 						arity = typeParameters.getArity();
 						if(arity > 0){
@@ -390,11 +386,11 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 						}
 						return tf.abstractDataType(store, name);
 						
-		case "tuple_named_fields":
+		case TUPLE_NAMED_FIELDS:
 						fieldNames = (String[]) in.readObject();
 						// fall through to "tuple" case
 						
-		case "tuple":	arity = (Integer) in.readObject();
+		case TUPLE:		arity = (Integer) in.readObject();
 						Type[] elemTypes = new Type[arity];
 						for(int i = 0; i < arity; i++){
 							elemTypes[i] = readType(in);
@@ -405,26 +401,23 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 						}
 						return tf.tupleType(elemTypes);
 						
-		case "value":	return tf.valueType();
+		case VALUE:		return tf.valueType();
 		
-		case "void":	return tf.voidType();
+		case VOID:		return tf.voidType();
 		
-		case "bool":	return tf.boolType();
+		case BOOL:		return tf.boolType();
 		
-		case "function":
-						Type returnType = readType(in);
+		case FUNCTION:	Type returnType = readType(in);
 						Type argumentTypes =  readType(in);
 						Type keywordParameterTypes = readType(in);
 						return rtf.functionType(returnType, argumentTypes, keywordParameterTypes);
 						
-		case "reified":
-						elemType = readType(in);
+		case REIFIED:	elemType = readType(in);
 						elemType = elemType.getFieldType(0);
 						res = rtf.reifiedType(elemType);
-						//System.out.println("readType: " + res);
 						return res;
 						
-		case "overloaded":
+		case OVERLOADED:
 						int n = (Integer) in.readObject();
 						Set<FunctionType> alternatives = new HashSet<FunctionType>(n);
 						for(int i = 0; i < n; i++){
@@ -433,20 +426,17 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 						return rtf.overloadedFunctionType(alternatives);
 						
 
-		case "nonterminal":
-						IConstructor nt = (IConstructor) ((FSTSerializableIValue)in.readObject()).getValue();
+		case NONTERMINAL:
+						IConstructor nt = (IConstructor) in.readObject();
 						return rtf.nonTerminalType(nt);
 						
-		case "parameter":
-						name = (String) in.readObject();
+		case PARAMETER:	name = (String) in.readObject();
 						Type bound = readType(in);
 						return tf.parameterType(name, bound);
 						
-		case "datetime":	
-						return tf.dateTimeType();
+		case DATETIME:	return tf.dateTimeType();
 		
 		}
 		throw new RuntimeException("readType: unhandled case " + start);
 	}
-
 }
