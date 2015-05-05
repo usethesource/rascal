@@ -29,7 +29,7 @@ import util::Reflective;
 loc bindir = |home:///bin|;
 loc bindirCompressed = |compressed+home:///bin|;
 
-public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
+public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
 public loc MuLibraryCompiled = (bindirCompressed + "rascal/src/org/rascalmpl/library" + MuLibrary.path)[extension="rvm.gz"];
 
 
