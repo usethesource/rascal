@@ -3,11 +3,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +20,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
@@ -118,12 +116,12 @@ public class RVMExecutable implements Serializable{
 		store = ts;
 	}
 	
-	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
-		String scheme = "compressed+" + exec.getScheme();
-		String authority = exec.getAuthority();
-		String path = exec.getPath() + ".xz";
-		return vf.sourceLocation(scheme, authority, path);
-	}
+//	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
+//		String scheme = "compressed+" + exec.getScheme();
+//		String authority = exec.getAuthority();
+//		String path = exec.getPath() + ".gz";
+//		return vf.sourceLocation(scheme, authority, path);
+//	}
 	
 	public void write(ISourceLocation rvmExecutable){		
 		OutputStream fileOut;
@@ -138,9 +136,9 @@ public class RVMExecutable implements Serializable{
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 
 		try {
-			ISourceLocation compOut = compressedLoc(rvmExecutable);
+			ISourceLocation compOut = rvmExecutable; //compressedLoc(rvmExecutable);
 			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-			//ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			//fileOut = new GZIPOutputStream(fileOut, 8 * 1024);
 			FSTObjectOutput out = new FSTObjectOutput(fileOut, RascalLinker.conf);
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
@@ -152,15 +150,17 @@ public class RVMExecutable implements Serializable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
+//		catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) {
 		RVMExecutable executable = null;
 		
+		vf = ValueFactoryFactory.getValueFactory();
 		TypeStore typeStore = new TypeStore(Factory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
@@ -172,8 +172,9 @@ public class RVMExecutable implements Serializable{
 	
 		FSTObjectInput in = null;
 		try {
-			ISourceLocation compIn = compressedLoc(rvmExecutable);
+			ISourceLocation compIn = rvmExecutable; //compressedLoc(rvmExecutable);
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
+			//fileIn = new GZIPInputStream(fileIn);
 			in = new FSTObjectInput(fileIn, RascalLinker.conf);
 			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
@@ -307,14 +308,14 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 	private static IValueFactory vf;
 	private static TypeStore store;
-	private static TypeReifier tr;
+	//private static TypeReifier tr;
 	//private static TypeSerializer typeserializer;
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
 		store = ts;
 		store.extendStore(Factory.getStore());
-		tr = new TypeReifier(vf);
+		//tr = new TypeReifier(vf);
 		//typeserializer = new TypeSerializer(ts);
 	}
 
@@ -349,7 +350,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			//typeserializer.writeType(stream, ex.constructorStore.get(i));
 			out.writeObject(new FSTSerializableType(ex.constructorStore.get(i)));
 		}
 
@@ -402,11 +402,11 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		// public IMap moduleTags;
 
-		IMap moduleTags = (IMap) ((FSTSerializableIValue) in.readObject()).getValue();
+		IMap moduleTags = (IMap) in.readObject();
 
 		// public IMap symbol_definitions;
 
-		IMap symbol_definitions = (IMap) ((FSTSerializableIValue) in.readObject()).getValue();
+		IMap symbol_definitions = (IMap) in.readObject();
 
 		// public ArrayList<Function> functionStore;
 		// public  Map<String, Integer> functionMap;
@@ -425,7 +425,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		ArrayList<Type> constructorStore = new ArrayList<Type>(n);
 
 		for(int i = 0; i < n; i++){
-			constructorStore.add(i, ((FSTSerializableType)in.readObject()).getType());
+			constructorStore.add(i, (Type) in.readObject());
 		}
 
 		// public Map<String, Integer> constructorMap;

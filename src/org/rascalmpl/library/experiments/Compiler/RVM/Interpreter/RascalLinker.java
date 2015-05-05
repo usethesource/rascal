@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.persistent.PDBPersistentHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -27,24 +28,38 @@ import de.ruedigermoeller.serialization.FSTConfiguration;
 public class RascalLinker {
 	
 static FSTConfiguration conf;
+static FSTSerializableType serializableType;
+static FSTSerializableIValue serializableIValue;
+static FSTRVMExecutableSerializer rvmExecutableSerializer;
+static FSTFunctionSerializer functionSerializer;
+static FSTCodeBlockSerializer codeblockSerializer;
 	
 	static {
 		  
 		   conf = FSTConfiguration.createDefaultConfiguration();   
 		   
 		   // PDB Types
-		   conf.registerSerializer(FSTSerializableType.class, new FSTSerializableType(), false);
+		   serializableType = new FSTSerializableType();
+		   conf.registerSerializer(FSTSerializableType.class, serializableType, false);
 		   
-		   // PDB values		   
-		   conf.registerSerializer(FSTSerializableIValue.class, new FSTSerializableIValue(), false);
+		   // PDB values
+		   serializableIValue =  new FSTSerializableIValue();
+		   conf.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
 		   
 		   // Specific serializers
-		   conf.registerSerializer(RVMExecutable.class, new FSTRVMExecutableSerializer(), false);
-		   conf.registerSerializer(Function.class, new FSTFunctionSerializer(), false);
-		   conf.registerSerializer(CodeBlock.class, new FSTCodeBlockSerializer(), false);
+		   rvmExecutableSerializer = new FSTRVMExecutableSerializer();
+		   conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+		   
+		   functionSerializer = new FSTFunctionSerializer();
+		   conf.registerSerializer(Function.class, functionSerializer, false);
+		   
+		   codeblockSerializer = new FSTCodeBlockSerializer();
+		   conf.registerSerializer(CodeBlock.class, codeblockSerializer, false);
 		
 		   // For efficiency register some class that are known to occur in serialization
 		   conf.registerClass(OverloadedFunction.class);
+		   //conf.registerClass(FSTSerializableType.class);
+		   //conf.registerClass(FSTSerializableIValue.class);
 	}   
 		   
 	
@@ -71,6 +86,11 @@ static FSTConfiguration conf;
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
 		this.typeStore = typeStore;
+		FSTSerializableType.initSerialization(vf, typeStore);
+		FSTSerializableIValue.initSerialization(vf, typeStore);
+		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+		FSTFunctionSerializer.initSerialization(vf, typeStore);
+		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	}
 	
 	String moduleInit(String moduleName){
