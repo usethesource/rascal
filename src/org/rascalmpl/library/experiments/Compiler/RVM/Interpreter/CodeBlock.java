@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -117,7 +116,7 @@ public class CodeBlock implements Serializable {
 	private static final long serialVersionUID = 6955775282462381062L;
 	
 	// Transient fields
-	transient public static IValueFactory vf;
+	transient public IValueFactory vf;
 	//transient private static TypeSerializer typeserializer;
 	transient int pc;
 	transient int labelIndex = 0;
@@ -812,62 +811,61 @@ class LabelInfo {
  */
 class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 
-	private static IValueFactory vf;
 	private static TypeStore store;
-	private static TypeReifier tr;
-	//private static TypeSerializer typeserializer;
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		vf = vfactory;
 		store = ts;
 		store.extendStore(Factory.getStore());
-		tr = new TypeReifier(vf);
-		//typeserializer = new TypeSerializer(ts);
 	}
 
 	@Override
 	public void writeObject(FSTObjectOutput out, Object toWrite,
 			FSTClazzInfo arg2, FSTFieldInfo arg3, int arg4)
 					throws IOException {
-			int n;
-			
-			CodeBlock cb = (CodeBlock) toWrite;
-			
-			// private String name;
-			out.writeObject(cb.name);
-		
-			// private Map<IValue, Integer> constantMap;	
-			// private ArrayList<IValue> constantStore;	
-			// private IValue[] finalConstantStore;
-			n = cb.finalConstantStore.length;
-			out.writeObject(n);
-			for(int i = 0; i < n; i++){
-				out.writeObject(new FSTSerializableIValue(cb.finalConstantStore[i]));
-			}
-		
-			// private Map<Type, Integer> typeConstantMap;
-			// private ArrayList<Type> typeConstantStore;
-			// private Type[] finalTypeConstantStore;
-			n = cb.finalTypeConstantStore.length;
-			out.writeObject(n);
-			for(int i = 0; i < n; i++){
-				out.writeObject(new FSTSerializableType(cb.finalTypeConstantStore[i]));
-			}	
-			
-			// private Map<String, Integer> functionMap;
-			out.writeObject(cb.functionMap);
-			
-			// private Map<String, Integer> resolver;
-			out.writeObject(cb.resolver);
-			
-			// private Map<String, Integer> constructorMap;
-			out.writeObject(cb.constructorMap);
-			
-			// public int[] finalCode;
-			out.writeObject(cb.finalCode);
-		}
-		
+		int n;
 
+		CodeBlock cb = (CodeBlock) toWrite;
+
+		// private String name;
+
+		out.writeObject(cb.name);
+
+		// private Map<IValue, Integer> constantMap;	
+		// private ArrayList<IValue> constantStore;	
+		// private IValue[] finalConstantStore;
+
+		n = cb.finalConstantStore.length;
+		out.writeObject(n);
+		for(int i = 0; i < n; i++){
+			out.writeObject(new FSTSerializableIValue(cb.finalConstantStore[i]));
+		}
+
+		// private Map<Type, Integer> typeConstantMap;
+		// private ArrayList<Type> typeConstantStore;
+		// private Type[] finalTypeConstantStore;
+
+		n = cb.finalTypeConstantStore.length;
+		out.writeObject(n);
+		for(int i = 0; i < n; i++){
+			out.writeObject(new FSTSerializableType(cb.finalTypeConstantStore[i]));
+		}	
+
+		// private Map<String, Integer> functionMap;
+
+		out.writeObject(cb.functionMap);
+
+		// private Map<String, Integer> resolver;
+
+		out.writeObject(cb.resolver);
+
+		// private Map<String, Integer> constructorMap;
+
+		out.writeObject(cb.constructorMap);
+
+		// public int[] finalCode;
+
+		out.writeObject(cb.finalCode);
+	}
 
 	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
 	{
@@ -879,18 +877,20 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 		int n;
 
 		// private String name;
+
 		String name = (String) in.readObject();
 
 		// private Map<IValue, Integer> constantMap;	
 		// private ArrayList<IValue> constantStore;	
 		// private IValue[] finalConstantStore;
+
 		n = (Integer) in.readObject();
 		Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
 		ArrayList<IValue> constantStore = new ArrayList<IValue>();
 		IValue[] finalConstantStore = new IValue[n];
 
 		for(int i = 0; i < n; i++){
-			IValue val = ((FSTSerializableIValue) in.readObject()).getValue();
+			IValue val = (IValue) in.readObject();
 			constantMap.put(val, i);
 			constantStore.add(i, val);
 			finalConstantStore[i] = val;
@@ -899,32 +899,38 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 		// private Map<Type, Integer> typeConstantMap;
 		// private ArrayList<Type> typeConstantStore;	
 		// private Type[] finalTypeConstantStore;
+		
 		n = (Integer) in.readObject();
 		Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
 		ArrayList<Type> typeConstantStore = new ArrayList<Type>();
 		Type[] finalTypeConstantStore = new Type[n];
 
 		for(int i = 0; i < n; i++){
-			Type type = ((FSTSerializableType) in.readObject()).getType();
+
+			Type type = (Type) in.readObject();
 			typeConstantMap.put(type, i);
 			typeConstantStore.add(i, type);
 			finalTypeConstantStore[i] = type;
 		}	
 
 		// private Map<String, Integer> functionMap;
+		
 		Map<String, Integer> functionMap = (HashMap<String, Integer>) in.readObject();
 
 		// private Map<String, Integer> resolver;
+		
 		Map<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
 
 		// private Map<String, Integer> constructorMap;
+		
 		Map<String, Integer> constructorMap = (HashMap<String, Integer>) in.readObject();
 
 		// public int[] finalCode;
-		long[] finalCode = (long[]) in.readObject();
 		
+		long[] finalCode = (long[]) in.readObject();
+
 		return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
-							functionMap, resolver, constructorMap, finalCode);
-	
+				functionMap, resolver, constructorMap, finalCode);
+
 	}
 }
