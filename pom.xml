@@ -6,7 +6,7 @@
 		<relativePath>../rascal-pom-parent/pom.xml</relativePath>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-pom-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal</artifactId>
@@ -73,9 +73,10 @@
 				</executions>
 				<configuration>
 					<argLine>
-                  -ea
+                  		-ea
 						-Xmx1g
 						-Xss128m
+						-Dfile.encoding=UTF-8
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
@@ -91,8 +92,8 @@
 			<groupId>org.eclipse.imp</groupId>
 			<artifactId>org.eclipse.imp.pdb.values</artifactId>
 			<version>0.4.2.qualifier</version>
-		</dependency>	
-		
+		</dependency>
+
 		<!-- Rascal MANIFEST.MF Dependencies -->
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -113,7 +114,7 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
-		</dependency>            
+		</dependency>
 	</dependencies>
 
 </project>
