@@ -23,10 +23,10 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMProgramLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm", bindir = bindir); //(bindir + src.path)[extension="rvm"];
+loc RVMProgramLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
 
-loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser", bindir = bindir); //(bindir + src.path)[extension="rvm.ser.xz"];
-loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.xz", bindir = bindir); //(bindir + src.path)[extension="rvm.ser.xz"];
+loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
+loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
 
 
 loc MuModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "mu", bindir = bindir); //(bindir + src.path)[extension="mu"];
@@ -62,7 +62,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
 	
     if(!recompile && !needsRecompilation(moduleLoc)){
         try {
-	  	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
+	  	       rvmProgram = readBinaryValueFile(#RVMProgram, rvmProgramLoc);
 	  	       
 	  	       // Temporary work around related to issue #343
 	  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
@@ -95,7 +95,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
    	
    		if(!needsRecompilation(moduleLoc)){
    			try {
-    			rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
+    			rvmProgram = readBinaryValueFile(#RVMProgram, rvmProgramLoc);
 	  	       
 	  	       // Temporary work around related to issue #343
 	  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
@@ -114,7 +114,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
 	   	
 	    rvmProgram = mu2rvm(muMod); 
 	    println("compile: Writing RVMProgram <rvmProgramLoc>");
-	    writeTextValueFile(rvmProgramLoc, rvmProgram);
+	    writeBinaryValueFile(rvmProgramLoc, rvmProgram);
 	    for(msg <- rvmProgram.messages){
 	        println(msg);
 	    }
