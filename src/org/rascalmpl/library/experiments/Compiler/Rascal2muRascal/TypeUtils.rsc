@@ -19,7 +19,7 @@ import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
+alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
 //import experiments::Compiler::Rascal2muRascal::RascalType;
 
@@ -283,7 +283,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             //println("<uid>: <item>");
+             println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -372,7 +372,7 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ; //println("extractScopes: skipping <uid>: <item>");
+        default: println("extractScopes: skipping <uid>: <item>");
       }
     }
     
