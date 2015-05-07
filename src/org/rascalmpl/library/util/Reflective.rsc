@@ -77,8 +77,11 @@ for source files in a separate directory.
 
 }
 
-loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|){
+loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool compressed = false){
 	loc res;
+	if(compressed){
+		bindir.scheme = "compressed+" + bindir.scheme;
+	}
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){
 		//println("phys = <phys>, src.path = <src.path>");

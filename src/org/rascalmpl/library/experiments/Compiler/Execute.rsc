@@ -27,9 +27,10 @@ import experiments::Compiler::muRascal2RVM::PeepHole;
 import util::Reflective;
 
 loc bindir = |home:///bin|;
+loc bindirCompressed = |compressed+home:///bin|;
 
-public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/LibraryGamma.mu");
-public loc MuLibraryCompiled = (bindir + "rascal/src/org/rascalmpl/library" + MuLibrary.path)[extension="rvm"];
+public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
+public loc MuLibraryCompiled = (bindirCompressed + "rascal/src/org/rascalmpl/library" + MuLibrary.path)[extension="rvm.gz"];
 
 
 public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
@@ -52,7 +53,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
     									  			 false, 0, 0, body, []);
   	}
   
-  	writeTextValueFile(MuLibraryCompiled, functions);
+  	writeBinaryValueFile(MuLibraryCompiled, functions);
     println("execute: Writing compiled version of library <MuLibraryCompiled>");
   	
   	return functions; 
@@ -82,7 +83,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    //println("MuLibraryCompiled: <MuLibraryCompiled>");
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
-  	       imported_declarations = readTextValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
+  	       imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
   	       // Temporary work around related to issue #343
   	       imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	       println("execute: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
@@ -112,7 +113,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
            processed += imp;
            importedLoc = RVMProgramLocation(imp, bindir);
            try {
-  	           RVMProgram importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
+  	           RVMProgram importedRvmProgram = readBinaryValueFile(#RVMProgram, importedLoc);
   	           
   	           if(imp in rvmProgram.extends){
            			println("execute: <rvmProgram.name> EXTENDS <imp>");
@@ -259,7 +260,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
       if(exists(compressed)){
          println("Using <compressed>");
-      	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 <v, t> = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage);
       	 return v;
       }
    }

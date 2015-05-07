@@ -29,9 +29,9 @@ void inspect(loc srcLoc,                // location of Rascal source file
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
     RVMProgram p;
     try {
-    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm"){
+    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm"){
     		decls = readTextValueFile(#list[Declaration], rvmLoc);
-    		p = rvm("LibraryGamma",
+    		p = rvm("Library",
     		  (),
 		      {},
 			  [],
