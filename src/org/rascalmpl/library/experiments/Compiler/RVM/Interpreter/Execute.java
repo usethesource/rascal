@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -16,10 +15,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class Execute {
 
@@ -89,24 +86,19 @@ public class Execute {
 		/*** Serialization  */
 		
 		RVMExecutable executable2 = null;
-		
-		
-//			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
-//			executable.write(x.getPath());
-//			executable2 = RVMExecutable.read(x.getPath());
-			
-			executable.write(rvmExecutable);
-			executable2 = RVMExecutable.read(rvmExecutable);
+	
+		//executable.write(rvmExecutable);
+		//executable2 = RVMExecutable.read(rvmExecutable);
 				
 		/*** Consistency checking after read */
-		if(!executable.comparable(executable2)){
-			System.err.println("RVMExecutables differ");
-		}
+		//if(!executable.comparable(executable2)){
+		//	System.err.println("RVMExecutables differ");
+		//}
 		
 		/*** Start execution */
 		
 		// TODO: Decide here to use the orignal executable or the serialized version.
-		executable = executable2;
+		//executable = executable2;
 		
 		return executeProgram(executable,  
 							  argumentsAsList,
