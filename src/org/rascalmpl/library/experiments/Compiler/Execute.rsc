@@ -19,19 +19,16 @@ import experiments::Compiler::RVM::Run;
 import experiments::Compiler::Compile;
 
 //import lang::rascal::types::TestChecker;
-//import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckTypes;	// redundant!
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackValidator;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 import util::Reflective;
 
-loc bindir = |home:///bin|;
-loc bindirCompressed = |compressed+home:///bin|;
-
 public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
-public loc MuLibraryCompiled = (bindirCompressed + "rascal/src/org/rascalmpl/library" + MuLibrary.path)[extension="rvm.gz"];
 
+loc getMuLibraryCompiled(loc bindir = |home:///bin|) = getDerivedLocation(MuLibrary, "rvm.gz", compressed=true, bindir = bindir);
 
 public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
 
@@ -39,6 +36,7 @@ alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions
  
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("execute: Recompiling library <basename(MuLibrary)>.mu");
+    MuLibraryCompiled = getMuLibraryCompiled(bindir = bindir);
  	libModule = load(MuLibrary);
  	functions = [];
  
@@ -78,9 +76,9 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    }
    
    // Read the muLibrary, recompile if necessary
-   //MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
-   //println("MuLibrary: <MuLibrary>");
-   //println("MuLibraryCompiled: <MuLibraryCompiled>");
+   println("MuLibrary: <MuLibrary>");
+   MuLibraryCompiled = getMuLibraryCompiled(bindir = bindir);
+   println("MuLibraryCompiled: <MuLibraryCompiled>");
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
   	       imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
@@ -88,10 +86,10 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	       imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	       println("execute: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
   	  } catch: {
-  	       imported_declarations = parseMuLibrary();
+  	       imported_declarations = parseMuLibrary(bindir=bindir);
   	  }
    } else {
-     imported_declarations = parseMuLibrary();
+     imported_declarations = parseMuLibrary(bindir=bindir);
    }
    
    // Recompile the default imports, if necessary
@@ -247,7 +245,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
 }
 
 value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, loc bindir = |home:///bin|){
-	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage);
+	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, bindir=bindir);
 	//if(testsuite){
  //  	   return printTestReport(v);
  //   }
@@ -261,12 +259,26 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
       if(exists(compressed)){
          println("Using <compressed>");
       	 <v, t> = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 if(!testsuite){
+      	 	println("Result = <v>, [execute: <t> msec]");
+      	 }	
       	 return v;
       }
    }
    
-   mainProgram = compile(rascalSource, listing=listing, recompile=recompile);
+   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
    return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+}
+
+value executeBinary(loc executable, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
+  if(exists(executable)){
+     println("Using <executable>");
+  	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+  	 if(!testsuite){
+  	 	println("Result = <v>, [execute: <t> msec]");
+  	 }	
+  	 return v;
+  }
 }
 
 //value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
@@ -275,7 +287,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
 //}
 
 tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
-   mainProgram = compile(rascalSource, listing=listing, recompile=recompile);
+   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
    return execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 }
 
