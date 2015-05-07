@@ -220,11 +220,11 @@ public class Function implements Serializable {
  */
 class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 	
-	private static IValueFactory vf;
+	//private static IValueFactory vf;
 	private static TypeStore store;
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		vf = vfactory;
+		//vf = vfactory;
 		store = ts;
 		store.extendStore(Factory.getStore());
 	}
@@ -338,8 +338,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		String name = (String) in.readObject();
 
 		// Type ftype;
-		Object xxx = in.readObject();
-		Type ftype = ((FSTSerializableType) xxx).getType();
+		Type ftype = (Type) in.readObject();
 
 		// int scopeId;
 		Integer scopeId = (Integer) in.readObject();
@@ -370,7 +369,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		IValue[] constantStore = new IValue[n];
 
 		for(int i = 0; i < n; i++){
-			constantStore[i] = ((FSTSerializableIValue) in.readObject()).getValue();
+			constantStore[i] = (IValue) in.readObject();
 		}
 
 		// Type[] typeConstantStore;
@@ -378,8 +377,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		Type[] typeConstantStore = new Type[n];
 
 		for(int i = 0; i < n; i++){
-			//typeConstantStore[i] = typeserializer.readType(stream);
-			typeConstantStore[i] = ((FSTSerializableType) in.readObject()).getType();
+			typeConstantStore[i] = (Type) in.readObject();
 		}
 
 		// boolean concreteArg = false;
@@ -419,10 +417,10 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		Boolean isVarArgs = (Boolean)in.readObject();
 
 		// ISourceLocation src;
-		ISourceLocation src = (ISourceLocation)((FSTSerializableIValue) in.readObject()).getValue();
+		ISourceLocation src = (ISourceLocation) in.readObject();
 
 		// IMap localNames;
-		IMap localNames = (IMap) ((FSTSerializableIValue)in.readObject()).getValue();
+		IMap localNames = (IMap) in.readObject();
 		
 		return new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
