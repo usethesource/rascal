@@ -217,6 +217,7 @@ public data Figure(
 // Input elements
 
    | buttonInput(str trueText = "", str falseText = "")
+   | button(str txt)
    | checkboxInput()
    | choiceInput(list[str] choices = [])
    | colorInput()

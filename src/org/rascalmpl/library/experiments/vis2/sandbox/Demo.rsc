@@ -3,6 +3,42 @@ import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
 import Prelude;
 
+// --------------------------------------------------------------------------
+
+public Figure newNgon(str lc, Figure el) {
+      return at(0, 0, ngon(n =7, align = topLeft, lineColor= lc, 
+             lineWidth = 20, fillColor = "white", padding=<0,0,0,0>, 
+      fig = el));
+      }
+
+public Figure demo1() = (idNgon(50) |newNgon(e, it)| 
+              e<-["antiquewhite", "yellow", "red","blue" ,"grey","magenta"]);
+void tdemo1()  {render(demo1(), debug = false, align = topLeft);}
+
+// --------------------------------------------------------------------------
+
+public Figure newBox(str lc, Figure el) {
+      return at(10, 10, box(align = topLeft, lineColor= lc, lineWidth = 20, 
+             fillColor = "white", fig = el));
+      }
+public Figure demo2() = (at(0,0, box(size=<50, 200> , lineWidth=60, align = bottomRight, 
+lineColor="silver", fillColor = "yellow", lineOpacity=0.5))|newBox(e, 
+          it)| e<-["green", "red", "blue", "grey", "magenta", "brown"]);
+void tdemo2(){ render(demo2(), align = bottomRight, debug = false); }
+
+// --------------------------------------------------------------------------
+
+
+public Figure newEllipse(str lc, Figure el) {
+      return at(0, 0, ellipse(align = topLeft, lineColor= lc, lineWidth = 19, 
+           fillColor = "white", padding=<0,0,0,0>, 
+      fig = el));
+      }
+public Figure demo3() = (idEllipse(100, 75) |newEllipse(e, 
+      it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
+      
+void tdemo3()  {render(demo3(), debug = false, align = topLeft);}
+// ---------------------------------------------------------------------------
 
 list[Vertex] innerGridH(int n) {
      num s = 1.0/n;
@@ -30,7 +66,7 @@ Figure schoolPlot() {
         circle(r=40, cx = 200, cy = 200, fillColor = "yellow"
         ,lineWidth = 10, lineColor = "red", lineOpacity=0.5, fillOpacity=0.5, fig = text("Hello")
         )
-        ,at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<10, 10, 10, 10>, fig= at(5,5, 
+        ,at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<10, 10, 10, 10>, fig= at(0,0, 
              box(width=50, height = 50, fillColor = "antiquewhite")
              )))
         ,at(250, 250, circle(lineWidth=10, fillColor="none", lineColor="brown", padding=<5, 5, 5, 5>
@@ -65,18 +101,24 @@ Figure labeled(Figure g) {
     return labeled(simpleGrid(f));   
     }
     
- void tfgrid() {
+ Figure demo4() = labeledGrid(schoolPlot());
+    
+ void tfdemo4(loc l) {
       // println(schoolPlot());
-      writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(
-      labeledGrid(schoolPlot()), debug = false, width = 600, height = 600));
+      writeFile(l, toHtmlString(demo4(), debug = false, width = 600, height = 600));
       }
       
- void tgrid() {
+ void tdemo4() {
       // println(schoolPlot());
       render( 
-      labeledGrid(schoolPlot()), width = 600, height = 600, align = topLeft, debug = false);
+      demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
       
-Figure dbox() = box(fig=ngon(n=7, fillColor = "white", lineWidth= 4, fig=circle(r=40, lineWidth = 10, fillColor="none", lineColor = "red")));
+void demo() = render(vcat(figs=[demo1(), demo2(), demo3(), demo4()]),
+     width = 400, height = 1600);
 
-void tbox()= render(dbox(), debug = false);
+
+Figure butt() = button("Click me");
+void tbutt()= render(butt(), debug = false);
+
+void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
