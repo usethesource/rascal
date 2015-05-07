@@ -85,11 +85,15 @@ loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool 
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){
 		//println("phys = <phys>, src.path = <src.path>");
-		subdir = phys.authority;
-		if(subdir == ""){
-			subdir = phys.scheme;
+		if(phys.scheme == "std"){
+			res = (bindir + "rascal/src/org/rascalmpl/library/" + phys.path)[extension=extension];
+		} else {
+			subdir = phys.authority;
+			if(subdir == ""){
+				subdir = phys.scheme;
+			}
+			res = (bindir + subdir + phys.path)[extension=extension];
 		}
-		res = (bindir + subdir + phys.path)[extension=extension];
 	} else {
 	    if(src.scheme == "std")
 	    	res = (bindir + "rascal/src/org/rascalmpl/library/" + src.path)[extension=extension];
