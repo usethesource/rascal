@@ -54,7 +54,7 @@ public list[str] widgetOrder = [];
 
 public list[str] adjust = [];
 
-public void clearWidget() { widget = (); widgetOrder = [];}
+public void clearWidget() { widget = (); widgetOrder = [];adjust=[];}
               
 str visitFig(IFigure fig) {
     if (ifigure(str id, list[IFigure] f):= fig) {
@@ -381,15 +381,15 @@ int hPadding(Figure f) = f.padding[0]+f.padding[2];
 
 int vPadding(Figure f) = f.padding[1]+f.padding[3]; 
                          
- IFigure _rect(str id, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {
-      int lw = f.lineWidth<0?0:f.lineWidth;   
+ IFigure _rect(str id, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {   
+      if (f.lineWidth<=0) f.lineWidth = 1;   
+      int lw = f.lineWidth<=0?0:f.lineWidth;   
       if (isEmpty(f.fillColor)) f.fillColor = "none";
-      if (isEmpty(f.lineColor)) f.lineColor = "black";
-      if (f.lineWidth<0) f.lineWidth = 1;
+      if (isEmpty(f.lineColor)) f.lineColor = "black"; 
+      
       if (f.width<0 || f.height<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
-      int lw2 = lw/2;
-      int offset = round((0.5-f.align[0])*2*lw2);
-      // println("align = <lw2> <align> <0.5-align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");     
+      int offset = round((0.5-f.align[0])*lw);
+      // println("<id>: align = <lw> <f.align> <0.5-f.align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");     
       str begintag=
          "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
          '\<foreignObject  id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\", width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>
@@ -397,8 +397,10 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
          ";
        // println("<begintag>");
        str endtag = endTag();
-       if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
-       if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
+       if (getWidth(fig)>0 && getHeight(fig)>0) {
+           if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
+           if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
+           }
        endtag += "\</foreignObject\>\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
@@ -407,7 +409,8 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
         '<attr("x", 0)><attr("y", 0)> 
         '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvg(id, f, fig)>
-        ",f.width+hPadding(f), f.height+vPadding(f), getAtX(f), getAtY(f), f.align, f.lineWidth, f.lineColor >;
+        ",f.width+hPadding(f), f.height+vPadding(f), getAtX(f), getAtY(f), f.align, 
+          f.lineWidth, f.lineColor >;
          seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
@@ -415,8 +418,8 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
        return ifigure(id, [fig]);
        } 
            
- num cxL(Figure f) =  (((ellipse():=f)?f.rx:f.r) + (f.lineWidth>=0?f.lineWidth/2:0));
- num cyL(Figure f) =  (((ellipse():=f)?f.ry:f.r) + (f.lineWidth>=0?f.lineWidth/2:0));
+ num cxL(Figure f) =  1+(((ellipse():=f)?f.rx:f.r) + (f.lineWidth>=0?(f.lineWidth+1)/2:0));
+ num cyL(Figure f) =  1+(((ellipse():=f)?f.ry:f.r) + (f.lineWidth>=0?(f.lineWidth+1)/2:0));
  
  str styleInsideSvgOverlay(str id, Figure f) {
       int lw = f.lineWidth<0?1:f.lineWidth; 
@@ -438,18 +441,23 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
     int x  =getAtX(fig);
     int y = getAtX(fig);
     int lw = f.lineWidth<0?0:f.lineWidth;
-    if (ellipse():=f || circle():=f || ngon:=f) lw = 0;   
-    int width = f.width;
-    int height = f.height;
-    // str bId = id; 
-    //switch (f) {
-    //    case ngon():bId = "<id>_rect";
-    //    case ellipse():bId = "<id>_rect";
-    //    case circle():bId = "<id>_rect";
-    //    }  
-    // adjust+="adjustSvgAttr(\"<id>_svg\", \"<bId>\", 0);\n";
-    // adjust+="adjustSvgAttr(\"<id>_fo\", \"<bId>\", 0);\n"; 
-    // adjust+="adjustSvgStyle(\"<id>_fo_table\", \"<bId>\", <-lw1>);\n"; 
+    // if ((ellipse():=f) || (circle():=f) || (ngon():=f)) lw = 0; 
+    int width = f.width<0?screenWidth:f.width;
+    int height = f.height<0?screenHeight:f.height;
+    str bId = id; 
+    switch (f) {
+        case ngon():bId = "<id>_rect";
+        case ellipse():bId = "<id>_rect";
+        case circle():bId = "<id>_rect";
+        }  
+     int hpad = hPadding(f);
+     int vpad = vPadding(f);      
+    if (f.width < 0 && f.height < 0) {
+       adjust+="adjustSvgStyle(\"<id>_fo_table\", \"<getId(fig)>\", <0>, <hpad>, <vpad>);\n";
+       adjust+="adjustSvgAttr(\"<id>_fo\", \"<getId(fig)>\", <0>, <hpad>, <vpad>);\n";
+       adjust+="adjustSvgAttr(\"<id>_svg\", \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n";
+       } 
+    adjust+="adjust1(\"<id>\", \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n";  
     return "
         '<style("stroke-width",f.lineWidth)>
         '<style("stroke","<f.lineColor>")>
@@ -467,7 +475,7 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
         ';    
         '       
         'd3.select(\"#<id>_fo_table\")
-        '<style("width", width-lw)><style("height", height-lw)>
+        '<style("width", width)><style("height", height)>
         '<_padding(f.padding)> 
         '<debugStyle()>
         ';
@@ -509,16 +517,16 @@ int getEllipseHeight(Figure f, IFigure fig) {
                            if (f.rx<0 || f.ry<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid;
                            f.rx= (f.rx<0?(getWidth(fig)/2+lw/2+getAtX(fig)+hPadding(f)/2):f.rx);
                            f.ry= (f.ry<0?(getHeight(fig)/2+lw/2+getAtY(fig)+vPadding(f)/2):f.ry);
-                           if (f.width<0) f.width= round(f.rx*2+lw)/*+hPadding(f)*/;
-                           if (f.height<0) f.height = round(f.ry*2+lw)/*+vPadding(f)*/;                         
+                           if (f.width<0) f.width= round(f.rx*2+lw)+2/*+hPadding(f)*/;
+                           if (f.height<0) f.height = round(f.ry*2+lw)+2/*+vPadding(f)*/;                         
                            }
           case circle(): {tg = "circle";
                           if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid;
                           f.r= (f.r<0?(max([getWidth(fig), getHeight(fig)])/2+lw/2+max([getAtX(fig),getAtY(fig)])
                                       +max([hPadding(f), vPadding(f)])):f.r)
                           ;
-                          if (f.width<0) f.width= round(f.r*2+lw);
-                          if (f.height<0) f.height = round(f.r*2+lw);                 
+                          if (f.width<0) f.width= round(f.r*2+lw+2);
+                          if (f.height<0) f.height = round(f.r*2+lw+2);                 
                           }
           }     
        int lw2 = lw/2; 
@@ -766,17 +774,18 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
                  
 IFigure _ngon(str id, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
        int lw = f.lineWidth<0?0:f.lineWidth;
-       real alpha = 2*PI()/f.n;
+       // real alpha = 2*PI()/f.n;
+       real alpha = 0.0;
        // println(cos(alpha/2));
        if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid;
        if (f.r<0) {
-          f.r = (1.0/cos(alpha/2))*max([getWidth(fig), getHeight(fig)])+max([getAtX(fig), getAtY(fig)])+lw/2
+          f.r = 
+          // (1.0/cos(alpha/2))*
+          max([getWidth(fig), getHeight(fig)])/2+max([getAtX(fig), getAtY(fig)])+lw/2
                +max([hPadding(f), vPadding(f)]);       
           }
        if (f.width<0) f.width= round(f.r*2+corner(f));
        if (f.height<0) f.height = round(f.r*2+corner(f)); 
-       // if (f.width<0) f.width= round(f.r/cos(alpha/2)+corner(f));
-       // if (f.height<0) f.height = round(f.r/cos(alpha/2)+corner(f)); 
        if (isEmpty(f.fillColor)) f.fillColor = "none";
        if (isEmpty(f.lineColor)) f.lineColor = "black";
        if (f.lineWidth<0) f.lineWidth = 1;
@@ -842,7 +851,9 @@ str _padding(tuple[int, int, int, int] p) {
              +style("padding-right", p[2])+style("padding-bottom", p[3]);     
        }
 //   '<style("background-color", "<f.fillColor>")>;
-// <style("fill","none")><style("stroke","black")><style("stroke-width",1)>    
+// <style("fill","none")><style("stroke","black")><style("stroke-width",1)> 
+bool isSvg(str s) =  startsWith(s, "\<svg");
+   
 IFigure _overlay(str id, Figure f, IFigure fig1...) {
        int lw = f.lineWidth<0?0:f.lineWidth; 
        if (f.lineWidth<0) f.lineWidth = 1;  
@@ -872,12 +883,54 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
        widgetOrder+= id;
        return ifigure(id ,fig1);
        }
-                
-IFigure _hcat(str id, Figure f, IFigure fig1...) {
+       
+IFigure _button(str id, Figure f, str txt, bool addSvgTag) {
        int width = f.width;
-       int height = f.height;
-       str begintag="                    
-            '\<table id=\"<id>\"\>
+       int height = f.height; 
+       str begintag = "";
+       if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+       begintag+="                    
+            '\<button id=\"<id>\"\>
+            "
+            ;
+       str endtag="
+            '\</button\>
+            "
+            ;
+       if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+          }
+        widget[id] = <null, seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\") 
+        '<stylePx("width", width)><stylePx("height", height)>   
+        '<debugStyle()>
+        '<style("background-color", "<f.fillColor>")> 
+        '.text(\"<txt>\")   
+        ;"
+        , width, height, getAtX(f), getAtY(f), f.align, f.lineWidth, f.lineColor >;
+       seq=seq+1;
+       state += <id, f.fillColor>;
+       old+=f.fillColor;
+       widgetOrder+= id;
+       return ifigure(id ,[]);
+       }
+                
+IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
+       int width = f.width;
+       int height = f.height; 
+       str begintag = "";
+       if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+       begintag+="                    
+            '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
             '\<tr\>"
             ;
        str endtag="
@@ -885,6 +938,9 @@ IFigure _hcat(str id, Figure f, IFigure fig1...) {
             '\</table\>
             "
             ;
+       if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -903,11 +959,17 @@ IFigure _hcat(str id, Figure f, IFigure fig1...) {
        return ifigure(id ,[td("<id>_<getId(g)>", f, g, width, height)| g<-fig1]);
        }
        
-IFigure _vcat(str id, Figure f, IFigure fig1...) {
+IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        int width = f.width;
-       int height = f.height;
-       str begintag="                 
-            '\<table id=\"<id>\"\>"
+       int height = f.height; 
+       str begintag = "";
+       if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+       begintag+="                 
+            '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
            ;
        str endtag="\</table\>";
         widget[id] = <null, seq, id, begintag, endtag, 
@@ -918,6 +980,9 @@ IFigure _vcat(str id, Figure f, IFigure fig1...) {
         '<_padding(f.padding)> 
         ;
         ", width, height, getAtX(f), getAtY(f), f.align, f.lineWidth, f.lineColor >;
+        if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
@@ -935,13 +1000,19 @@ list[list[IFigure]] transpose(list[list[IFigure]] f) {
        return r; 
        }
 
-IFigure _grid(str id, Figure f, list[list[IFigure]] figArray=[[]]) {
+IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[]]) {
        if (isEmpty(f.fillColor)) f.fillColor = "none";
        if (isEmpty(f.lineColor)) f.lineColor = "black";
        if (f.lineWidth<0) f.lineWidth = 1;
        list[list[IFigure]] figArray1 = transpose(figArray);
-       str begintag="                    
-            '\<table id=\"<id>\"\>
+       str begintag = "";
+       if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+       begintag+="                    
+            '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
             ";
        str endtag="
             '\</table\>
@@ -955,6 +1026,9 @@ IFigure _grid(str id, Figure f, list[list[IFigure]] figArray=[[]]) {
          '<_padding(f.padding)> 
          '<debugStyle()>; 
         ", f.width, f.height, getAtX(f), getAtY(f), f.align, f.lineWidth, f.lineColor >;
+        if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
        seq=seq+1;
        state += <id, f.fillColor>;
        old+=f.fillColor;
@@ -1004,7 +1078,7 @@ bool isCentered(Figure f) = (ellipse():=f) || (circle():=f) || (ngon():=f);
 Alignment nA(Figure f, Figure fig) =  
      (f.width<0 || f.height<0 || getAtX(fig)>0 || getAtY(fig)>0)?(isCentered(f)?centerMid:topLeft):f.align;
  
-IFigure _translate(Figure f, Alignment align = <0.5, 0.5>) {
+IFigure _translate(Figure f, Alignment align = <0.5, 0.5>, bool addSvgTag = false) {
     if (f.size != <0, 0>) {
        f.width = f.size[0];
        f.height = f.size[1];
@@ -1031,13 +1105,14 @@ IFigure _translate(Figure f, Alignment align = <0.5, 0.5>) {
         case text(value s): {if (str t:=s) return _text(f.id, f, t, align = align);
                             return iemptyFigure();
                             }                 
-        case hcat(): return _hcat(f.id, f, [_translate(q, align = f.align)|q<-f.figs], align = align);
-        case vcat(): return _vcat(f.id, f, [_translate(q, align = f.align)|q<-f.figs], align = align);
-        case overlay(): return _overlay(f.id, f, [_translate(q)|q<-f.figs]);
-        case grid(): return _grid(f.id, f, figArray= [[_translate(q, align = f.align)|q<-e]|e<-f.figArray], align = align);
+        case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs], align = align);
+        case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs], align = align);
+        case overlay(): return _overlay(f.id, f, [_translate(q, addSvgTag = true)|q<-f.figs]);
+        case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, align = f.align)|q<-e]|e<-f.figArray], align = align);
         case at(int x, int y, Figure fig): {fig.at = <x, y>; return _translate(fig, align = align);}
         case atX(int x, Figure fig):	{fig.at = <x, 0>; return _translate(fig, align = align);}			
         case atY(int y, Figure fig):	{fig.at = <0, y>; return _translate(fig, align = align);}	
+        case button(str txt):  return _button(f.id, f,  txt, addSvgTag, align = align);
         }
     }
     
