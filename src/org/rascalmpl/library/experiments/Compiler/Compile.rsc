@@ -77,8 +77,9 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
     Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
    	try {
+   	    println("rascal2rvm: Parsing and checking <moduleLoc>");
    		M = parse(#start[Module], moduleLoc).top;
-   	    config  = checkModule(M, newConfiguration());
+   	    config  = checkModule(M, newConfiguration(), bindir=bindir);
    	} catch e: {
    	    throw e;
    	}
@@ -129,18 +130,18 @@ rel[loc, loc] imports = {};
 
 set[loc] recompiled = {};
 
-void collectDependencies(loc moduleLoc){
+void collectDependencies(loc moduleLoc, loc bindir = |home:///bin|){
 	rvmModules = ();
 	imports = {};
 	recompiled = {};
-	collectDependencies1(moduleLoc);
+	collectDependencies1(moduleLoc, bindir=bindir);
 }
 
-void collectDependencies1(loc moduleLoc){
-	prog = getRVMProgram(moduleLoc);
+void collectDependencies1(loc moduleLoc, loc bindir = |home:///bin|){
+	prog = getRVMProgram(moduleLoc, bindir=bindir);
 	for(imp <- prog.imports){
 		if(!rvmModules[imp]?){
-		  collectDependencies1(imp);
+		  collectDependencies1(imp, bindir=bindir);
 		}
 		imports += <moduleLoc, imp>;
 	}
@@ -149,11 +150,11 @@ void collectDependencies1(loc moduleLoc){
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
 RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
-	collectDependencies(moduleLoc);
+	collectDependencies(moduleLoc, bindir=bindir);
 	imports1 = imports*;
 	for(mloc <- rvmModules){
-		if(imports1[mloc] & recompiled != {}){
-			getRVMProgram(mloc, recompile=true);
+		if(imports1[mloc] & recompiled != {} && mloc notin recompiled){
+			getRVMProgram(mloc, recompile=true, bindir=bindir);
 		}
 	}
 	messages = {};

@@ -258,11 +258,17 @@ public class URIUtil {
 	}
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
-		File file = new File(loc.getPath());
-		File childFile = new File(file, child);
-		
+		String childPath = loc.getPath();
+		if (childPath == null || childPath.isEmpty()) {
+			childPath = "/";
+		}
+		else if (!childPath.endsWith("/")) {
+			childPath += "/";
+		}
+		childPath += child;
+
 		try {
-			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childFile.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
+			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childPath, loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
 		} catch (URISyntaxException e) {
 			assert false;
 			return loc;
