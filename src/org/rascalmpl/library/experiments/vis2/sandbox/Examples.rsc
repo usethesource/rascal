@@ -226,15 +226,15 @@ Figure ell1 = ellipse(cx=50, cy = 90, rx = 40, ry = 80, align= centerMid,  fig=v
 void tell0(){ ex("hello", hcat(figs=[ell0, ell1], gap = <10, 10>), debug = false); }
 
 // ellipse ------------------------------------------------------------
-public Figure ellipse1 = box(fig=ellipse(rx=100, ry=75, fillColor="lightblue"));
+public Figure ellipse1 = box(fig=ellipse(rx=100, ry=75,   fillColor="lightblue"));
 void tellipse1(){ ex("ellipse1", ellipse1); }
 
-public Figure ellipse2 = box(fig=ellipse(rx=100, lineWidth = 10, lineColor = "red", ry=75, 
+public Figure ellipse2 = box(fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
       fillColor="lightgrey"));
 void tellipse2(){ ex("ellipse2", ellipse2); }
 
-public Figure ellipse2a = box(lineWidth = 10,
-          fig=ellipse(rx=100, lineWidth = 10, lineColor = "red", ry=75, 
+public Figure ellipse2a = box(lineWidth = 9, lineColor = "lightblue", 
+          fig=ellipse(rx=100, lineWidth = 9, lineColor = "antiquewhite", ry=75, 
       fillColor="lightgrey"));
 void tellipse2a(){ ex("ellipse2a", ellipse2a); }
 
@@ -470,9 +470,12 @@ void ngons(){
 }
 
 Figure plotg(num(num) g, list[num] d) {
-     Figure f = shape([move(d[0], g(d[0]))]+[line(x, g(x))|x<-tail(d)]
-         scaleX=<<-1,1>,<0,400>>,  scaleY=<<0,1>,<0,400>>
-         ,shapeCurved=  true, lineColor = "red"
+     Figure f = shape( [move(d[0], g(d[0]))]+[line(x, g(x))|x<-tail(d)]
+         scaleX=<<-1,1>,<0,300>>,  scaleY=<<0,1>,<100,300>>,
+         size=<400, 400>,shapeCurved=  true, lineColor = "red"
+         , startMarker = box(width=10, height = 10,  fillColor = "blue", lineWidth = 0)
+         , midMarker = circle(r=10, fillColor = "red", lineWidth = 0)
+         , endMarker = ngon(n= 3, r=10, fillColor = "green", lineWidth = 0)
          );
      return f;
      }
@@ -481,16 +484,78 @@ num(num) gg(num a) = num(num x) {return a*x*x;};
 
 num g1(num x) = x*x;
 
-void tshape1() {render(plotg(gg(0.5), [-1,-0.9..1.1]));}
+void tshape0() {render(plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1]));}
+
+void tfshape0(loc f ) {writeFile(f, toHtmlString(plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1])));}
 
 
 
-Figure shapes() {
+Figure shapes0() {
    list[num ] d =  [-1,-0.99..1.01];
    return box(fig=overlay(width= 400, height = 400, figs=[plotg(gg(a),d )|a<-[0.3,0.35..2.1]]));
    }
    
-void tshapes() {render(shapes());}   
+void tshapes0() {render(shapes0());} 
+
+/********************** shape ******************************/
+
+public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true);
+void tshape1(){	ex("shape1", shape1); }
+void ftshape1(loc f){writeFile(f, toHtmlString(shape1));}
+
+public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true);
+void tshape2(){ ex("shape2", shape2); }
+
+public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
+	
+							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue")
+							 ]);
+void tshape3(){ ex("shape3", shape3); }
+
+public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow");
+void tshape4(){	ex("shape4", shape4); }
+
+public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow");
+void tshape5(){	ex("shape5", shape5); }
+
+public Figure shape6 = box(lineColor="red", fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+void tshape6(){	ex("shape6", shape6); }
+
+public Figure shape7 = box(lineColor="red", lineWidth=10, fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+					                      
+void tshape7(){	ex("shape7", shape7); }
+
+// SVG Essentials, p95.
+
+public Figure fillRule1 = grid(fillColor="yellow",
+						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="nonzero", fillColor = "grey"),
+					           
+					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
+					                       shapeClosed=true, fillRule="nonzero", fillColor = "grey")
+					               ],
+					               
+					               [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"),
+					           
+					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
+					                       shapeClosed=true, fillRule="evenodd", fillColor = "grey")
+					               ] ]);
+void tfillRule1(){ ex("fillRule1", fillRule1); }
+
+void shapes(){
+	ex("shapes", grid(gap=<10,10>,
+					figArray=[ [shape1, shape2, shape3, shape4, shape5 ],
+							   [shape6, shape7, fillRule1]
+							 ]));
+
+}
+
+
+// hcat  
+  
 
 Figure scrabbleField = box(fillColor="antiqueWhite", size=<20,20>, lineColor = "green", lineWidth=1);
 
