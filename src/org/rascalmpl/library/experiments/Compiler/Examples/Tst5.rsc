@@ -1,14 +1,18 @@
 @bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::\syntax::Rascal;
-import ParseTree;
+import IO;
 
-public Sym sym2symbol() {
-	return lang::rascal::\syntax::Rascal::empty();
+alias  INTEGER = int;
+alias MAP = map[INTEGER, str];
 
-}
+data DATA = d(INTEGER n);
 
-Symbol main(list[value] args) {
-	return sym2symbol();
+alias ADATA = DATA;
+
+ADATA f(ADATA x) = x;
+
+value main(list[value] args) {
+	iprintln(#DATA);
+	return true;
 }	

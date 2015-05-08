@@ -1510,8 +1510,12 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `# <Type tp>`) =
-	muCon(symbolToValue(translateType(tp)));
+MuExp translate (e:(Expression) `# <Type tp>`) {
+	println("#<tp>, translateType:");
+	iprintln("<translateType(tp)>");
+	iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
+	return muCon(symbolToValue(translateType(tp)));
+}	
 
 // -- tuple expression ----------------------------------------------
 

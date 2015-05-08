@@ -1,9 +1,7 @@
 module experiments::Compiler::Examples::Tst6
 
-data F = f() | f(int n) | g(int n) | deep(F f);
-anno int F @ pos;
-  
-// testAnnotations
- 
+import lang::rascal::tests::types::StaticTestingUtils;
 
-value main(list[value] args) { X = f(); X @ pos ?= 3; return X @ pos == 3; }
+// Sanity check on the testing utilities themselves
+
+value main(list[value] args) = checkOK("13;");
