@@ -568,6 +568,9 @@ public abstract class Import {
       char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);
       
       IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
+      
+      // Adjust locations before replacing the holes back to the original anti-quotes,
+      // since these anti-quotes already have the right location (!).
       fragment = (IConstructor) fragment.accept(new AdjustLocations(corrections, eval.getValueFactory()));
       fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes, corrections);
       
@@ -634,20 +637,12 @@ public abstract class Import {
 		
     @Override
     public IConstructor visitTreeAppl(IConstructor tree)  {
-    	//       012345
-    	// (Exp)`a \> b` parses as "a > b"
-    	// this means the loc of > must be shifted right (e.g. + 1)
-    	// (so PLUS when something bigger becomes smaller)
     	ISourceLocation loc = TreeAdapter.getLocation(tree);
     	if (loc == null) {
     		return tree;
     	}
-    	
-    	if (TreeAdapter.yield(tree).equals("this")) {
-    		System.out.println("bla");
-    	}
 
-  		int off = offsetFor(loc.getOffset());
+    	int off = offsetFor(loc.getOffset());
   		loc = vf.sourceLocation(loc, loc.getOffset() + off, loc.getLength());
 
     	IListWriter w = vf.listWriter();
@@ -661,26 +656,21 @@ public abstract class Import {
     }
   }
   
-  private static void correct(int offset, int shift, SortedMap<Integer, Integer> corrections) {
-  	if (offset == 0) {
-  		corrections.put(0,  corrections.get(0) + shift);
-  	}
-  	else {
-  		corrections.put(offset, shift);
-  	}
-  }
-  
   private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, 
   		IConstructor lit, Map<String, IConstructor> antiquotes, SortedMap<Integer, Integer> corrections ) {
     IList parts = TreeAdapter.getArgs(lit);
     StringBuilder b = new StringBuilder();
     
     ISourceLocation loc = TreeAdapter.getLocation(lit);
-		int offset = 0; 
-		int shift = loc.getOffset();
+		int offset = 0;  // where we are in the parse tree
+		
+		//  012345
+		// (Exp)`a \> b` parses as "a > b"
+		// this means the loc of > must be shifted right (e.g. + 1)
+		// (so we *add* to shift when something bigger becomes smaller)
+		int shift = loc.getOffset(); // where we need to be in the location
 		corrections.put(offset, shift);
     
-		// This needs to be in a class where all the duplication 
     for (IValue elem : parts) {
       IConstructor part = (IConstructor) elem;
       String cons = TreeAdapter.getConstructorName(part);
@@ -692,30 +682,30 @@ public abstract class Import {
       }
       else if (cons.equals("newline")) {
       	shift += partLen - 1;
-      	correct(++offset, shift, corrections);
+      	corrections.put(++offset, shift);
         b.append('\n');
       }
       else if (cons.equals("lt")) {
-      	correct(++offset, ++shift, corrections);
+      	corrections.put(++offset, ++shift);
       	b.append('<');
       }
       else if (cons.equals("gt")) {
-      	correct(++offset, ++shift, corrections);
+      	corrections.put(++offset, ++shift);
       	b.append('>');
       }
       else if (cons.equals("bq")) {
-      	correct(++offset, ++shift, corrections);
+      	corrections.put(++offset, ++shift);
       	b.append('`');
       }
       else if (cons.equals("bs")) {
-      	correct(++offset, ++shift, corrections);
+      	corrections.put(++offset, ++shift);
       	b.append('\\');
       }
       else if (cons.equals("hole")) {
         String hole = createHole(eval, part, antiquotes);
         shift += partLen - hole.length();
 				offset += hole.length();
-				correct(offset, shift, corrections);
+				corrections.put(offset, shift);
         b.append(hole);
       }
     }
@@ -749,16 +739,9 @@ public abstract class Import {
           }
           
           IConstructor type = retrieveHoleType(tree);
-          IConstructor r = antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type)
+          return  antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type)
           		.asAnnotatable().setAnnotation("category", vf.string("MetaVariable"));
           
-          new AdjustLocations(corrections, vf);
-          ISourceLocation loc = TreeAdapter.getLocation(r);
-          return r;
-          
-//          // zero the offset, so that adjust fixes it .
-//          ISourceLocation loc2 = vf.sourceLocation(loc, 0, loc.getLength());
-//          return r.asAnnotatable().setAnnotation("loc", loc2);
         }
         
         private IConstructor retrieveHoleType(IConstructor tree) {
