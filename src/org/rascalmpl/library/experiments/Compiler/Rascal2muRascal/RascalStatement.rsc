@@ -346,7 +346,7 @@ map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, bool useConcre
 	   ifname = nextLabel();
 	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
 	          ? muCallPrim3("equal", [translate(pwa.pattern.literal), muTmp(switchval,fuid)], pwa@\loc)
-	   		  : muMulti(muApply(translatePat(pwa.pattern, \value()), [ muTmp(switchval,fuid) ]));
+	   		  : muMulti(muApply(translatePat(pwa.pattern, Symbol::\value()), [ muTmp(switchval,fuid) ]));
 	   table[key] = muIfelse(ifname, cond, 
 	                         { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
 	                         { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
@@ -544,7 +544,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
       	  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
           then = [ muAssign("<c.pattern.qualifiedName>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), trBody ]; 
       } else {
-          conds = [ muMulti(muApply(translatePat(c.pattern, \value()), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
+          conds = [ muMulti(muApply(translatePat(c.pattern, Symbol::\value()), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
           then = [ trBody ];
       }
       exp = muIfelse(ifname, makeBoolExp("ALL",conds, c@\loc), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
@@ -816,7 +816,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
      enterBacktrackingScope(fname);
      // TODO: account for a variable number of arguments
      for(Pattern pat <- formals) {
-         conditions += muMulti(muApply(translatePat(pat, \value()), [ muVar("<i>",topFunctionScope(),i) ]));
+         conditions += muMulti(muApply(translatePat(pat, Symbol::\value()), [ muVar("<i>",topFunctionScope(),i) ]));
          i += 1;
       };
       conditions += [ translate(cond) | cond <- when_conditions];

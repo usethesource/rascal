@@ -502,7 +502,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    MuExp fun_pat;
    str fun_name;
    
-   argCode = [ translatePat(pat, \value()) | pat <- arguments ] + translatePatKWArguments(keywordArguments); //TODO: compute type per argument
+   argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ] + translatePatKWArguments(keywordArguments); //TODO: compute type per argument
    //iprintln(expression);
    if(expression is qualifiedName){
       fun_name = "<getType(expression@\loc).name>";
@@ -527,7 +527,7 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma option
    for(kwarg <- keywordArgumentList){
        //println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
-       pats += translatePat(kwarg.expression, \value());
+       pats += translatePat(kwarg.expression, Symbol::\value());
    }
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
@@ -663,8 +663,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType)
    literals = [];
    compiledPats = [];
    lpats = [pat | pat <- pats]; // TODO: unnnecessary
-    elmType = \value();
-    if(\set(tp) := subjectType && tp != \void()){
+    elmType = Symbol::\value();
+    if(Symbol::\set(tp) := subjectType && tp != Symbol::\void()){
     	elmType = tp;
     }
    
@@ -720,7 +720,7 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, Symbol subjectType) 
        lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
        translatedPats = [ translatePat(lpats[i], elmTypes[i]) | int i <- index(lpats) ];
     } else {
-    	translatedPats = [ translatePat(pat, \value()) | pat <- pats ];
+    	translatedPats = [ translatePat(pat, Symbol::\value()) | pat <- pats ];
     }
     return muApply(mkCallToLibFun("Library","MATCH_TUPLE"), [muCallMuPrim("make_array", translatedPats)]);
 }
@@ -730,8 +730,8 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, Symbol subjectType) 
 MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, Symbol subjectType) {
     lookahead = computeLookahead(p);  
     lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
-    elmType = \value();
-    if(\list(tp) := subjectType && tp != \void()){
+    elmType = Symbol::\value();
+    if(Symbol::\list(tp) := subjectType && tp != Symbol::\void()){
     	elmType = tp;
     }
     return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i], elmType) | i <- index(lpats) ])]);
@@ -861,7 +861,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	tc = getTypesAndConstructors(pattern);
     reachable = getReachableTypes(Symbol::\value(), tc.constructors, tc.types, concreteMatch);
     descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern, \value()),  descriptor]);
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 
 // is  a pattern a concretePattern?
