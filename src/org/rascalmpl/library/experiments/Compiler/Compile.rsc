@@ -94,7 +94,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
    	    return rvmProgram;
    	} else {
    	
-   		if(!needsRecompilation(moduleLoc)){
+   		if(!recompile && !needsRecompilation(moduleLoc) && exists(rvmProgramLoc)){
    			try {
     			rvmProgram = readBinaryValueFile(#RVMProgram, rvmProgramLoc);
 	  	       
@@ -105,7 +105,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
 	  	       rvmModules[moduleLoc] = rvmProgram;
 	  	       return rvmProgram;
 	  		} 
-	  		catch x: println("rascal2rvm: Reading <rvmProgramLoc> did not succeed: <x>");		
+	  		catch x: println("rascal2rvm: Reading <rvmProgramLoc> failed: <x>");		
    		}
    	    println("rascal2rvm: Recompiling <moduleLoc>");
 	   	muMod = r2mu(M, config);
@@ -130,15 +130,15 @@ rel[loc, loc] imports = {};
 
 set[loc] recompiled = {};
 
-void collectDependencies(loc moduleLoc, loc bindir = |home:///bin|){
+void collectDependencies(loc moduleLoc, bool recompile=false, loc bindir = |home:///bin|){
 	rvmModules = ();
 	imports = {};
 	recompiled = {};
-	collectDependencies1(moduleLoc, bindir=bindir);
+	collectDependencies1(moduleLoc, recompile=recompile, bindir=bindir);
 }
 
-void collectDependencies1(loc moduleLoc, loc bindir = |home:///bin|){
-	prog = getRVMProgram(moduleLoc, bindir=bindir);
+void collectDependencies1(loc moduleLoc, bool recompile=false,loc bindir = |home:///bin|){
+	prog = getRVMProgram(moduleLoc, recompile=recompile, bindir=bindir);
 	for(imp <- prog.imports){
 		if(!rvmModules[imp]?){
 		  collectDependencies1(imp, bindir=bindir);
@@ -150,7 +150,7 @@ void collectDependencies1(loc moduleLoc, loc bindir = |home:///bin|){
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
 RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
-	collectDependencies(moduleLoc, bindir=bindir);
+	collectDependencies(moduleLoc, recompile=recompile, bindir=bindir);
 	imports1 = imports*;
 	for(mloc <- rvmModules){
 		if(imports1[mloc] & recompiled != {} && mloc notin recompiled){
