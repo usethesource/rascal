@@ -529,6 +529,11 @@ coroutine MATCH_VAR(rVar, iSubject) {
     undefine(rVar)
 }
 
+coroutine MATCH_NEW_VAR(rVar, iSubject) {
+    var iVal 
+    yield iSubject
+}
+
 coroutine MATCH_ANONYMOUS_VAR(iSubject) {
     yield
 }
@@ -754,6 +759,17 @@ guard {
     undefine(rVar)
 }
 
+coroutine MATCH_NEW_VAR_IN_LIST(rVar, rSubject) 
+guard { 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start = GET_SUBJECT_CURSOR(deref rSubject) 
+    start < size_list(iList) 
+}
+{
+    var iElem = get_list(iList, start)
+    yield(iElem, MAKE_SUBJECT(iList, start + 1))
+}
+
 coroutine MATCH_TYPED_VAR_IN_LIST(typ, rVar, rSubject) 
 guard { 
     var iList = GET_SUBJECT_LIST(deref rSubject), 
@@ -816,6 +832,20 @@ coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
     undefine(rVar)
 }
 
+coroutine MATCH_NEW_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
+        available = size_list(iList) - start, 
+        len = mint(iMinLen), 
+        maxLen = min(mint(iMaxLen), available - mint(iLookahead))
+        
+    while(len <= maxLen) {
+        yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
+        len = len + 1
+    }
+    deref rSubject = MAKE_SUBJECT(iList, start)
+}
+
 coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) 
 guard { 
     var iList = GET_SUBJECT_LIST(deref rSubject), 
@@ -842,6 +872,24 @@ guard {
     }
     deref rSubject = MAKE_SUBJECT(iList, start)
     undefine(rVar)
+}
+
+coroutine MATCH_LAST_NEW_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) 
+guard { 
+    var iList = GET_SUBJECT_LIST(deref rSubject), 
+        start =  GET_SUBJECT_CURSOR(deref rSubject), 
+        available = size_list(iList) - start, 
+        len = min(mint(iMaxLen), max(available - mint(iLookahead), 0))
+    len >= 0
+}
+{
+    var maxLen = len
+  
+    while(len <= maxLen) {               // TODO: loop?
+        yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
+        len = len + 1
+    }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubject) {
@@ -1288,6 +1336,19 @@ guard {
     undefine(rVar)
 }
 
+coroutine MATCH_NEW_VAR_IN_SET(rVar, rSubject)
+guard {
+	var available = deref rSubject;
+	size_mset(available) > 0
+} {
+    var elm, gen  
+    gen = create(ENUM_MSET, available, ref elm)
+    while(next(gen)) {
+        yield(elm, mset_subtract_elm(available, elm))
+        deref rSubject = available
+    }
+}
+
 coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject)
 guard {
 	var available = deref rSubject;
@@ -1350,6 +1411,17 @@ coroutine MATCH_MULTIVAR_IN_SET(rVar, rSubject) {
     undefine(rVar)
 }
 
+coroutine MATCH_NEW_MULTIVAR_IN_SET(rVar, rSubject) {
+    var available = deref rSubject, 
+        gen, subset
+
+    gen = create(ENUM_SUBSETS, available, ref subset)
+    while(next(gen)) {
+        yield(set(subset), mset_subtract_mset(available, subset))
+        deref rSubject = available
+    }
+}
+
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET(rSubject) {
     var available = deref rSubject, 
         gen = create(ENUM_SUBSETS, available, ref subset),
@@ -1375,6 +1447,14 @@ coroutine MATCH_LAST_MULTIVAR_IN_SET(rVar, rSubject) {
     deref rSubject = available
     undefine(rVar)
 }
+
+coroutine MATCH_LAST_NEW_MULTIVAR_IN_SET(rVar, rSubject) {
+    var available = deref rSubject, 
+        subset
+    yield(set(available), mset_empty())
+    deref rSubject = available
+}
+
 
 coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET(rSubject) {
     var available = deref rSubject
