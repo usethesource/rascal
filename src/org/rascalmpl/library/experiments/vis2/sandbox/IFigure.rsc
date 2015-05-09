@@ -54,7 +54,9 @@ public list[str] widgetOrder = [];
 
 public list[str] adjust = [];
 
-public void clearWidget() { widget = (); widgetOrder = [];adjust=[];}
+public map[str, list[IFigure] ] defs = ();
+
+public void clearWidget() { widget = (); widgetOrder = [];adjust=[]; defs=(); }
               
 str visitFig(IFigure fig) {
     if (ifigure(str id, list[IFigure] f):= fig) {
@@ -64,6 +66,23 @@ str visitFig(IFigure fig) {
     if (ifigure(str content):=fig) return content;
     return "";
     }
+    
+str visitDefs(str id) {
+    if (defs[id]?)
+     return "\<defs\>
+           ' <for (f<-defs[id]){> \<marker id=\"m_<f.id>\" 
+           ' markerWidth=<getWidth(f)>  markerHeight=<getHeight(f)>
+           ' refX = <getWidth(f)/2>   refY = <getHeight(f)/2> orient=\"auto\"
+           ' \> 
+           ' <visitFig(f)>
+           ' \</marker\> <}>
+           '\</defs\>
+           ";
+    return "";
+    }
+    
+// ' refX = <getWidth(f)/2>   refY = <getHeight(f)/2> orient=\"auto\"
+//  orient=\"auto\"
     
 IFigure fig;
 //   'table { border-collapse: collapse;} 
@@ -418,8 +437,12 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
        return ifigure(id, [fig]);
        } 
            
- num cxL(Figure f) =  1+(((ellipse():=f)?f.rx:f.r) + (f.lineWidth>=0?(f.lineWidth+1)/2:0));
- num cyL(Figure f) =  1+(((ellipse():=f)?f.ry:f.r) + (f.lineWidth>=0?(f.lineWidth+1)/2:0));
+ num cxL(Figure f) =  
+      1+
+      (((ellipse():=f)?f.rx:(f.r-1)) + (f.lineWidth>=0?(f.lineWidth)/2:0));
+ num cyL(Figure f) =  
+      1 +
+      (((ellipse():=f)?f.ry:(f.r-1)) + (f.lineWidth>=0?(f.lineWidth)/2:0));
  
  str styleInsideSvgOverlay(str id, Figure f) {
       int lw = f.lineWidth<0?1:f.lineWidth; 
@@ -504,8 +527,9 @@ int getEllipseHeight(Figure f, IFigure fig) {
          }
      
  IFigure _ellipse(str id, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
-      int lw = f.lineWidth<0?0:f.lineWidth;
-      // println("ellipse<lw>");
+      if (f.lineWidth<0) f.lineWidth = 1;
+      int lw = f.lineWidth;
+      // println("ellipse <lw>");
       str tg = "";
       if (f.cx>0 || f.cy>0) {
            int x = f.at[0]+round(f.cx)-round((ellipse():=f)?f.rx:f.r)-lw/2;
@@ -525,8 +549,8 @@ int getEllipseHeight(Figure f, IFigure fig) {
                           f.r= (f.r<0?(max([getWidth(fig), getHeight(fig)])/2+lw/2+max([getAtX(fig),getAtY(fig)])
                                       +max([hPadding(f), vPadding(f)])):f.r)
                           ;
-                          if (f.width<0) f.width= round(f.r*2+lw+2);
-                          if (f.height<0) f.height = round(f.r*2+lw+2);                 
+                          if (f.width<0) f.width= round(f.r*2+lw)+0;
+                          if (f.height<0) f.height = round(f.r*2+lw)+0;                 
                           }
           }     
        int lw2 = lw/2; 
@@ -696,8 +720,9 @@ num yV(Vertex v) = (line(num x, num y):=v)?y:((move(num x, num y):=v)?y:0);
 int getPathWidth(Figure f) {
         if (shape(list[Vertex] vs):= f) {
              if (f.width>=0) return f.width;
-             num width = rescale(max([xV(p)|p<-vs]), f.scaleX)-rescale(min([xV(p)|p<-vs]),f.scaleX);     
-             return toInt(width);
+             // num width = rescale(max([xV(p)|p<-vs]), f.scaleX)-rescale(min([xV(p)|p<-vs]),f.scaleX);     
+             // return toInt(width);
+             return screenWidth;
             }
          return -1;
          }
@@ -705,8 +730,9 @@ int getPathWidth(Figure f) {
 int getPathHeight(Figure f) {
          if (shape(list[Vertex] vs):= f) {
              if (f.height>=0) return f.height;
-             num height = rescale(max([yV(p)|p<-vs]), f.scaleY) - rescale(min([yV(p)|p<-vs]), f.scaleY);     
-             return toInt(height);
+             //num height = rescale(max([yV(p)|p<-vs]), f.scaleY) - rescale(min([yV(p)|p<-vs]), f.scaleY);     
+             //return toInt(height);
+             return screenHeight;
          }
       }
       
@@ -746,16 +772,18 @@ bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
 
 str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
 
+str mS(Figure f, str v) = ((emptyFigure():=f)?"": v);
        
 IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
        // str begintag= beginTag("<id>_table", topLeft); 
        f.width = getPathWidth(f);
        f.height = getPathHeight(f);
+       if (f.scaleY==<<0,1>,<0,1>>) f.scaleY=<<0, f.height>,<f.height, 0>>;
        if (isEmpty(f.fillColor)) f.fillColor = "none";
        if (isEmpty(f.lineColor)) f.lineColor = "black";
        str begintag = "";
        begintag+=
-         "\<svg id=\"<id>_svg\"\>\<path id=\"<id>\"/\>       
+         "\<svg id=\"<id>_svg\"\><visitDefs(id)>\<path id=\"<id>\"/\>       
          ";
        str endtag = "\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
@@ -763,6 +791,9 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
         'd3.select(\"#<id>\")
         '<on(getEvent(f.event), "doFunction(\"<id>\")")>
         '<attr("d", "<trVertices(f)>")> 
+        '<style("marker-start", mS(f.startMarker, "url(#m_<id>_start)"))>
+        '<style("marker-mid", mS(f.midMarker, "url(#m_<id>_mid)"))>
+        '<style("marker-end",  mS(f.endMarker,"url(#m_<id>_end)"))>
         '<styleInsideSvgOverlay(id, f)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.align, f.lineWidth, f.lineColor >;
          seq=seq+1;
@@ -1074,6 +1105,21 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
     }
     
 bool isCentered(Figure f) = (ellipse():=f) || (circle():=f) || (ngon():=f);
+
+void addMarker(Figure f, str tg) {
+   Figure g = emptyFigure();
+   switch (tg) {
+       case "start": g = f.startMarker;
+       case "mid":   g = f.midMarker;
+       case "end":   g = f.endMarker;
+       }
+       if (emptyFigure()!:=g) {
+         g.id = "<f.id>_<tg>";
+         list[IFigure] fs = (defs[f.id]?)?defs[f.id]:[];
+         fs +=_translate(g, align = centerMid);
+         defs[f.id] = fs;
+       }
+   }
     
 Alignment nA(Figure f, Figure fig) =  
      (f.width<0 || f.height<0 || getAtX(fig)>0 || getAtY(fig)>0)?(isCentered(f)?centerMid:topLeft):f.align;
@@ -1100,7 +1146,12 @@ IFigure _translate(Figure f, Alignment align = <0.5, 0.5>, bool addSvgTag = fals
         case ellipse():  return _ellipse(f.id, f, fig = _translate(f.fig, align = nA(f, f.fig)), align = align);
         case circle():  return _ellipse(f.id, f, fig = _translate(f.fig, align = nA(f, f.fig)), align = align);
         case polygon():  return _polygon(f.id, f, align = align);
-        case shape(list[Vertex] _):  return _shape(f.id, f);
+        case shape(list[Vertex] _):  {
+                       addMarker(f, "start");
+                       addMarker(f, "mid");
+                       addMarker(f, "end");
+                       return _shape(f.id, f);
+                       }
         case ngon():  return _ngon(f.id, f, fig = _translate(f.fig, align = nA(f, f.fig)), align = align);
         case text(value s): {if (str t:=s) return _text(f.id, f, t, align = align);
                             return iemptyFigure();
