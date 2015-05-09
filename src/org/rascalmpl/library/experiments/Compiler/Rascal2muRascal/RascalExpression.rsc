@@ -734,7 +734,7 @@ MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expr
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
      kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
      elmType = kind != "" ? \list(\int()) : \list(\num());
-     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
 }
 
 // -- range expression ----------------------------------------------
