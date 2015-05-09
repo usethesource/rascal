@@ -673,7 +673,6 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 // Translate a closure   
  
  private MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
-    println("translateClosure: <e>, <parameters>, <cbody>");
  	uid = loc2uid[e@\loc];
 	fuid = convert2fuid(uid);
 	
@@ -726,13 +725,15 @@ private MuExp translateBoolClosure(Expression e){
 
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
     kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat), translate(first), translate(last)]));
+    elmType = kind != "" ? \list(\int()) : \list(\num());
+    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat, elmType), translate(first), translate(last)]));
  }
 
 // -- enumerator with range and step expression ---------------------
     
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
      kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+     elmType = kind != "" ? \list(\int()) : \list(\num());
      return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat), translate(first), translate(second), translate(last)]));
 }
 
@@ -1154,10 +1155,10 @@ private MuExp translatePatInVisit(Pattern pattern, str fuid, Symbol subjectType)
         
       	case p:(Pattern) `<Literal lit>`: 
       		return muApply(mkCallToLibFun("Library","MATCH_SUBSTRING"), [translate(lit), muVar("begin", fuid, beginPos), muVar("end", fuid, endPos)]);
-      	default: return translatePat(pattern);
+      	default: return translatePat(pattern, \str());
       }
    }
-   return translatePat(pattern);
+   return translatePat(pattern, \value());
 }
 
 // -- reducer expression --------------------------------------------
@@ -1511,9 +1512,9 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 // -- reified type expression ---------------------------------------
 
 MuExp translate (e:(Expression) `# <Type tp>`) {
-	println("#<tp>, translateType:");
-	iprintln("<translateType(tp)>");
-	iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
+	//println("#<tp>, translateType:");
+	//iprintln("<translateType(tp)>");
+	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
 	return muCon(symbolToValue(translateType(tp)));
 }	
 
@@ -1929,9 +1930,10 @@ MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
-MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat), translate(exp)]));
-
+MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
+    elmType = getElementType(getType(exp@\loc));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat, elmType), translate(exp)]));
+}
 // -- implies expression --------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) =

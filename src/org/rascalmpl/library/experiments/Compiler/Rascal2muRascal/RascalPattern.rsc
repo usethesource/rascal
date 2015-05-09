@@ -33,11 +33,12 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 /*********************************************************************/
 
 MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp) ;
+
 MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
     muCallMuPrim("not_mbool", [ makeBoolExp("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
-    muMulti(muApply(translatePat(pat), [ translate(exp) ]));
+    muMulti(muApply(translatePat(pat, getType(exp@\loc)), [ translate(exp) ]));
 
 /*********************************************************************/
 /*                  Patterns                                         */
@@ -45,13 +46,13 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 
 // -- literal pattern ------------------------------------------------
 
-default MuExp translatePat(p:(Pattern) `<Literal lit>`) = translateLitPat(lit);
+default MuExp translatePat(p:(Pattern) `<Literal lit>`, Symbol subjectType) = translateLitPat(lit);
 
 MuExp translateLitPat(Literal lit) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
 
 // -- regexp pattern -------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, Symbol subjectType) = translateRegExpLiteral(r);
 
 /*
 lexical RegExpLiteral
@@ -188,7 +189,7 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
 
 // -- concrete syntax pattern ----------------------------------------
 
-MuExp translatePat(p:(Pattern) `<Concrete concrete>`) = translateConcretePattern(p);
+MuExp translatePat(p:(Pattern) `<Concrete concrete>`, Symbol subjectType) = translateConcretePattern(p);
 
 /*
 lexical Concrete 
@@ -460,7 +461,7 @@ list[Lookahead] computeConcreteLookahead(list[Tree] pats){
      
 // -- qualified name pattern -----------------------------------------
 
-MuExp translatePat(p:(Pattern) `<QualifiedName name>`) = translateQualifiedNamePat(name);
+MuExp translatePat(p:(Pattern) `<QualifiedName name>`, Symbol subjectType) = translateQualifiedNamePat(name);
 
 MuExp translateQualifiedNamePat(QualifiedName name)
 {
@@ -468,33 +469,40 @@ MuExp translateQualifiedNamePat(QualifiedName name)
       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   //println("transPattern: <fuid>, <pos>");
    return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("<name>", fuid, pos)]);
 } 
 
 // -- typed name pattern ---------------------------------------------
      
-MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
+MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, Symbol subjectType){
+   trType = translateType(tp);
+   if(subtype(subjectType, trType)){
+	   if("<name>" == "_"){
+	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
+	   }
+	   <fuid, pos> = getVariableScope("<name>", name@\loc);
+	   return muApply(mkCallToLibFun("Library","MATCH_NEW_VAR"), [muVarRef("<name>", fuid, pos)]);
+   }
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR"), [muTypeCon(translateType(tp))]);
+      return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR"), [muTypeCon(trType)]);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(trType), muVarRef("<name>", fuid, pos)]);
 }  
 
 // -- reified type pattern -------------------------------------------
 
-MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) {    
+MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`, Symbol subjectType) {    
     return muApply(mkCallToLibFun("Library","MATCH_REIFIED_TYPE"), [muCon(symbol)]);
 }
 
 // -- call or tree pattern -------------------------------------------
 
-MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
+MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, Symbol subjectType) {
    MuExp fun_pat;
    str fun_name;
    
-   argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
+   argCode = [ translatePat(pat, \value()) | pat <- arguments ] + translatePatKWArguments(keywordArguments); //TODO: compute type per argument
    //iprintln(expression);
    if(expression is qualifiedName){
       fun_name = "<getType(expression@\loc).name>";
@@ -504,7 +512,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       fun_name = "<expression>"[1..-1];
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
-     fun_pat = translatePat(expression);
+     fun_pat = translatePat(expression, getType(expression@\loc));
      return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE"), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
 }
@@ -519,7 +527,7 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma option
    for(kwarg <- keywordArgumentList){
        //println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
-       pats += translatePat(kwarg.expression);
+       pats += translatePat(kwarg.expression, \value());
    }
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
@@ -542,13 +550,13 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma option
 
 // -- set pattern ----------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) = translateSetPat(p);
+MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType) = translateSetPat(p, subjectType);
 
 // Translate patterns as element of a set pattern
 
 str isLast(bool b) = b ? "LAST_" : "";
 
-MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last, Symbol subjectType) {
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET"), []);
    }
@@ -556,15 +564,23 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last) {
    return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_SET"), [muVarRef("<name>", fuid, pos)]);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, Symbol subjectType) {
+   trType = translateType(tp);
+   if(subtype(subjectType, trType)){
+	   if("<name>" == "_"){
+	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET"), []);
+	   }
+	   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   	   return muApply(mkCallToLibFun("Library","MATCH_NEW_VAR_IN_SET"), [muVarRef("<name>", fuid, pos)]);
+   }
    if("<name>" == "_"){
-       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_SET"), [muTypeCon(translateType(tp))]);
+       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_SET"), [muTypeCon(trType)]);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_SET"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_SET"), [muTypeCon(trType), muVarRef("<name>", fuid, pos)]);
 }  
 
-MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, Symbol subjectType) {
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
    }
@@ -572,15 +588,23 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last) {
    return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET"), [muVarRef("<name>", fuid, pos)]);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last, Symbol subjectType) {
+   trType = translateType(tp);
+   if(subtype(subjectType, trType)){
+	   if("<name>" == "_"){
+	      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
+	   }
+	   <fuid, pos> = getVariableScope("<name>", p@\loc);
+	   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>NEW_MULTIVAR_IN_SET"), [muVarRef("<name>", fuid, pos)]);
+   }
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_ANONYMOUS_MULTIVAR_IN_SET"), [muTypeCon(\set(translateType(tp)))]);
+      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_ANONYMOUS_MULTIVAR_IN_SET"), [muTypeCon(\set(trType))]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_MULTIVAR_IN_SET"), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_MULTIVAR_IN_SET"), [muTypeCon(\set(trType)), muVarRef("<name>", fuid, pos)]);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last, Symbol subjectType) {
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
    }
@@ -588,16 +612,16 @@ MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last) {
    return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET"), [muVarRef("<name>", fuid, pos)]);
 } 
 
-MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
+MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last, Symbol subjectType) {
   throw "splicePlus pattern";
 }   
 
-default MuExp translatePatAsSetElem(Pattern p, bool last) {
+default MuExp translatePatAsSetElem(Pattern p, bool last, Symbol subjectType) {
   //println("translatePatAsSetElem, default: <p>");
   try {
      return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET"), [muCon(translatePatternAsConstant(p))]);
   } catch:
-    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET"), [translatePat(p)]);
+    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET"), [translatePat(p, subjectType)]);
 }
 
 value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); // TODO interpolation
@@ -635,10 +659,14 @@ private str getName(Pattern pat, int k){
  * AND these patterns do not refer to that variable, then the multi-var can be moved to the end of the pattern.
 */
 
-MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
+MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType) {
    literals = [];
    compiledPats = [];
    lpats = [pat | pat <- pats]; // TODO: unnnecessary
+    elmType = \value();
+    if(\set(tp) := subjectType && tp != \void()){
+    	elmType = tp;
+    }
    
    /* remove patterns with duplicate names */
    uniquePats = [];
@@ -661,15 +689,15 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       if(pat is literal){
          literals += pat.literal;
       } else if(pat is splice){
-        compiledPats += translatePatAsSetElem(pat, i == lastPat);
+        compiledPats += translatePatAsSetElem(pat, i == lastPat, elmType);
       } else if(pat is multiVariable){
-        compiledPats += translatePatAsSetElem(pat, i == lastPat);
+        compiledPats += translatePatAsSetElem(pat, i == lastPat, elmType);
       } else if(pat is qualifiedName){
-        compiledPats += translatePatAsSetElem(pat, false);
+        compiledPats += translatePatAsSetElem(pat, false, elmType);
       } else if(pat is typedVariable){
-        compiledPats += translatePatAsSetElem(pat, false);   
+        compiledPats += translatePatAsSetElem(pat, false, elmType);   
       } else {
-        compiledPats +=  muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET"), [translatePat(pat)]);
+        compiledPats +=  muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET"), [translatePat(pat, elmType)]);
         // To enable constant elimination change to:
         // compiledPats += translatePatAsSetElem(pat, false);
       }
@@ -686,16 +714,27 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
 
 // -- tuple pattern --------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
-    return muApply(mkCallToLibFun("Library","MATCH_TUPLE"), [muCallMuPrim("make_array", [ translatePat(pat) | pat <- pats ])]);
+MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, Symbol subjectType) {
+    list[MuExp] translatedPats;
+    if(\tuple(list[Symbol] elmTypes) := subjectType && size(elmTypes) == size(pats)){
+       lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
+       translatedPats = [ translatePat(lpats[i], elmTypes[i]) | int i <- index(lpats) ];
+    } else {
+    	translatedPats = [ translatePat(pat, \value()) | pat <- pats ];
+    }
+    return muApply(mkCallToLibFun("Library","MATCH_TUPLE"), [muCallMuPrim("make_array", translatedPats)]);
 }
 
 // -- list pattern ---------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
+MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, Symbol subjectType) {
     lookahead = computeLookahead(p);  
     lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
-    return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i]) | i <- index(lpats) ])]);
+    elmType = \value();
+    if(\list(tp) := subjectType && tp != \void()){
+    	elmType = tp;
+    }
+    return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i], elmType) | i <- index(lpats) ])]);
 }
 
 bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
@@ -726,7 +765,7 @@ list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
 
 str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
 
-MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead, Symbol subjectType) {
    if("<name>" == "_"){
        return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST"), []);
    }
@@ -734,20 +773,28 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
    return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("<name>", fuid, pos)]);
 } 
 
-MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead lookahead, Symbol subjectType) {
+   trType = translateType(tp);
+   if(subtype(subjectType, trType)){
+	   if("<name>" == "_"){
+	       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST"), []);
+	   }
+	   <fuid, pos> = getVariableScope("<name>", name@\loc);
+	   return muApply(mkCallToLibFun("Library","MATCH_NEW_VAR_IN_LIST"), [muVarRef("<name>", fuid, pos)]);
+   }
    if("<name>" == "_"){
-       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_LIST"), [muTypeCon(translateType(tp))]);
+       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_LIST"), [muTypeCon(trType)]);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_LIST"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_LIST"), [muTypeCon(trType), muVarRef("<name>", fuid, pos)]);
 } 
 
 
-MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) =
+MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, Symbol subjectType) =
    muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [translate(lit)])
 when !(lit is regExp);
 
-MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead, Symbol subjectType) {
    if("<name>" == "_"){
        return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST"), [muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
    }
@@ -755,15 +802,23 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead look
    return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>MULTIVAR_IN_LIST"), [muVarRef("<name>", fuid, pos), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
 }
 
-MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`, Lookahead lookahead, Symbol subjectType) {
+   trType = translateType(tp);
+   if(subtype(subjectType, trType)){
+	   if("<name>" == "_"){
+	       return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST"), [muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
+	   }
+	   <fuid, pos> = getVariableScope("<name>", p@\loc);
+	   return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>NEW_MULTIVAR_IN_LIST"), [muVarRef("<name>", fuid, pos), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
+   }
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_ANONYMOUS_MULTIVAR_IN_LIST"), [muTypeCon(\list(translateType(tp))), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
+      return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_ANONYMOUS_MULTIVAR_IN_LIST"), [muTypeCon(\list(trType)), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_MULTIVAR_IN_LIST"), [muTypeCon(\list(translateType(tp))), muVarRef("<name>", fuid, pos), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
+   return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>TYPED_MULTIVAR_IN_LIST"), [muTypeCon(\list(trType)), muVarRef("<name>", fuid, pos), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
 }
 
-MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`, Lookahead lookahead, Symbol subjectType) {
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST"), [muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
    }
@@ -771,33 +826,33 @@ MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`, Lookahead lookahead) {
    return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>MULTIVAR_IN_LIST"), [muVarRef("<name>", fuid, pos), muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
 } 
 
-MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookahead) {
+MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookahead, Symbol subjectType) {
   throw "splicePlus pattern";
 }   
 
-default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
+default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, Symbol subjectType) {
   //println("translatePatAsListElem, default: <p>");
   //try { // Gives error for nodes (~ kw params)
   //   return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(translatePatternAsConstant(p))]);
   //} catch:
-    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translatePat(p)]);
+    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translatePat(p, subjectType)]);
 }
 
 // -- variable becomes pattern ---------------------------------------
 
-MuExp translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
+MuExp translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`, Symbol subjectType) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muApply(mkCallToLibFun("Library","MATCH_VAR_BECOMES"), [muVarRef("<name>", fuid, pos), translatePat(pattern)]);
+    return muApply(mkCallToLibFun("Library","MATCH_VAR_BECOMES"), [muVarRef("<name>", fuid, pos), translatePat(pattern, subjectType)]);
 }
 
 // -- as type pattern ------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
-    muApply(mkCallToLibFun("Library","MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), translatePat(argument)]);
+MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, Symbol subjectType) =
+    muApply(mkCallToLibFun("Library","MATCH_AS_TYPE"), [muTypeCon(translateType(tp)), translatePat(argument, subjectType)]);
 
 // -- descendant pattern ---------------------------------------------
 
-MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
+MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	//println("pattern <pattern>, isConcretePattern = <isConcretePattern(pattern)>");
 	int i = nextVisit();	
 	// Generate and add a nested function 'phi'
@@ -806,7 +861,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`){
 	tc = getTypesAndConstructors(pattern);
     reachable = getReachableTypes(Symbol::\value(), tc.constructors, tc.types, concreteMatch);
     descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern),  descriptor]);
+    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern, \value()),  descriptor]);
 }
 
 // is  a pattern a concretePattern?
@@ -835,19 +890,24 @@ tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(Pattern 
 
 // -- anti pattern ---------------------------------------------------
 
-MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =
-    muApply(mkCallToLibFun("Library","MATCH_ANTI"), [translatePat(pattern)]);
+MuExp translatePat(p:(Pattern) `! <Pattern pattern>`, Symbol subjectType) =
+    muApply(mkCallToLibFun("Library","MATCH_ANTI"), [translatePat(pattern, subjectType)]);
 
 // -- typed variable becomes pattern ---------------------------------
 
-MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
+MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Symbol subjectType) {
+    trType = translateType(tp);
+    if(subtype(subjectType, trType)){
+       <fuid, pos> = getVariableScope("<name>", name@\loc);
+    	return muApply(mkCallToLibFun("Library","MATCH_VAR_BECOMES"), [muVarRef("<name>", fuid, pos), translatePat(pattern, subjectType)]);
+    }
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_BECOMES"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translatePat(pattern)]);
+    return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_BECOMES"), [muTypeCon(trType), muVarRef("<name>", fuid, pos), translatePat(pattern, subjectType)]);
 }
 
 // -- default rule for pattern ---------------------------------------
 
-default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
+default MuExp translatePat(Pattern p, Symbol subjectType) { throw "Pattern <p> cannot be translated"; }
 
 /**********************************************************************/
 /*                 Constant Patterns                                  */
@@ -915,95 +975,3 @@ bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false;
 bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false;
 
 default bool backtrackFree(Pattern p) = true;
-
-/*********************************************************************/
-/*                  Signature Patterns                               */
-/*********************************************************************/
-
-//MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
-//   if(isEmpty(formals)) {
-//      if(isEmpty(when_conditions)){
-//  	      return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
-//  	  } else {
-//  	      ifname = nextLabel();
-//          enterBacktrackingScope(ifname);
-//          conditions = [ translate(cond) | cond <- when_conditions];
-//          mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
-//	      leaveBacktrackingScope();
-//	      return mubody;
-//  	  }
-//   }
-//   pat = formals[0];
-//   if(pat is literal){
-//   	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-//  	  ifname = nextLabel();
-//      enterBacktrackingScope(ifname);
-//      exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
-//                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
-//                   [ muFailReturn() ]
-//                  );
-//      leaveBacktrackingScope();
-//      return exp;
-//   } else {
-//      Name name = pat.name;
-//      tp = pat.\type;
-//      <fuid, pos> = getVariableScope("<name>", name@\loc);
-//      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-//  	  ifname = nextLabel();
-//      enterBacktrackingScope(ifname);
-//      exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
-//                                                      				  muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
-//                                                      				  muCon(pos)
-//                                                    				]),
-//             				[ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
-//             				[ muFailReturn() ]);
-//      leaveBacktrackingScope();
-//      return exp;
-//    }
-//}
-//
-//MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
-//  bool simpleArgs = true;
-//  for(pat <- formals){
-//      if(!(pat is typedVariable || pat is literal))
-//      simpleArgs = false;
-//  }
-//  if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
-//  	return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
-//  } else {
-//	  list[MuExp] conditions = [];
-//	  int i = 0;
-//	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-//      enterBacktrackingScope(fname);
-//      // TODO: account for a variable number of arguments
-//	  for(Pattern pat <- formals) {
-//	      conditions += muMulti(muApply(translatePat(pat), [ muVar("<i>",topFunctionScope(),i) ]));
-//	      i += 1;
-//	  };
-//	  conditions += [ translate(cond) | cond <- when_conditions];
-//
-//	  mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
-//	  leaveBacktrackingScope();
-//	  return mubody;
-//  }
-//}
-//
-//MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
-//MuExp translateFunctionBody(MuExp exp) = exp;
-//// TODO: check the interpreter subtyping
-//default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
-//default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
-//
-//default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
-//
-////MuExp translateFunctionBody(node nd){
-////    switch(nd){
-////        case Expression exp:    return translate(exp);
-////        case MuExp exp:         return exp;
-////        case Statement* stats:  muBlock([ translate(stat) | stat <- stats ]);
-////        case Statement+ stats:  muBlock([ translate(stat) | stat <- stats ]);
-////        default:
-////            throw "Cannot handle function body <nd>";
-////    }
-////}
-
