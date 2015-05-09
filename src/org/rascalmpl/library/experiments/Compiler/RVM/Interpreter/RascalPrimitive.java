@@ -1352,6 +1352,29 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	node_equal_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode leftNode = (INode) stack[sp - 2];
+			INode rightNode = (INode) stack[sp - 1];
+			int leftArity = leftNode.arity();
+			int rightArity = rightNode.arity();
+			stack[sp - 2] = Rascal_FALSE;
+			
+			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
+				return sp - 1;
+			}
+			for(int i = 0; i < leftArity; i++){
+				if(!$equal(leftNode.get(i), rightNode.get(i), currentFrame).getValue()){
+					return sp - 1;
+				}
+			}
+			stack[sp - 2] = Rascal_TRUE;
+			return sp - 1;
+		}
+	},
+	
 	// equal on other types
 	
 	equal {
@@ -1362,6 +1385,8 @@ public enum RascalPrimitive {
 			IValue right = (IValue)stack[sp - 1];
 			if(left.getType().isNumber() && right.getType().isNumber()){
 				return num_equal_num.execute(stack, sp, arity, currentFrame);
+			} else if(left.getType().isNode() && right.getType().isNode()){
+				return node_equal_node.execute(stack, sp, arity, currentFrame);
 			} else {
 				stack[sp - 2] = vf.bool(left.isEqual(right));
 				return sp - 1;
@@ -7013,7 +7038,14 @@ public enum RascalPrimitive {
 		return (IValue)fakeStack[0];
 	}
 
-
+	private static IBool $equal(IValue left, IValue right,Frame currentFrame){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		equal.execute(fakeStack, 2, 2, currentFrame);
+		return (IBool)fakeStack[0];
+	}
+	
 	private static IBool $lessequal(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
