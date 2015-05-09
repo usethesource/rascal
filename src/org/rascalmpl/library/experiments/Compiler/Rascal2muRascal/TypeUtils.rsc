@@ -283,7 +283,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             println("<uid>: <item>");
+             //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -372,7 +372,7 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: println("extractScopes: skipping <uid>: <item>");
+        default: ;//println("extractScopes: skipping <uid>: <item>");
       }
     }
     
@@ -903,6 +903,11 @@ default int size(Tree t) {
 
 private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
 
+
+Symbol getElementType(\list(Symbol et)) = et;
+Symbol getElementType(\set(Symbol et)) = et;
+Symbol getElementType(\bag(Symbol et)) = et;
+Symbol getElementType(Symbol t) = \value();
 
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
