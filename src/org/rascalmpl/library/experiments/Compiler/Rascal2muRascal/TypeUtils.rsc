@@ -19,7 +19,7 @@ import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
+//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
 //import experiments::Compiler::Rascal2muRascal::RascalType;
 
@@ -907,7 +907,7 @@ private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (
 Symbol getElementType(\list(Symbol et)) = et;
 Symbol getElementType(\set(Symbol et)) = et;
 Symbol getElementType(\bag(Symbol et)) = et;
-Symbol getElementType(Symbol t) = \value();
+Symbol getElementType(Symbol t) = Symbol::\value();
 
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
