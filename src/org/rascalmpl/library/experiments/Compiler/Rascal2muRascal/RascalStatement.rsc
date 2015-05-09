@@ -346,7 +346,7 @@ map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, bool useConcre
 	   ifname = nextLabel();
 	   cond = pwa.pattern is literal && !pwa.pattern.literal is regExp
 	          ? muCallPrim3("equal", [translate(pwa.pattern.literal), muTmp(switchval,fuid)], pwa@\loc)
-	   		  : muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
+	   		  : muMulti(muApply(translatePat(pwa.pattern, \value()), [ muTmp(switchval,fuid) ]));
 	   table[key] = muIfelse(ifname, cond, 
 	                         { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
 	                         { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
@@ -475,6 +475,9 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
 // -- try statement --------------------------------------------------
 
 MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
+    if(body is emptyStatement){
+    	return muCon(666);
+    }
     list[Catch] defaultCases = [ handler | Catch handler <- handlers, handler is \default ];
     list[Catch] otherCases   = [ handler | Catch handler <- handlers, !(handler is \default) ];
     patterns = [ handler.pattern | Catch handler <- otherCases ];
@@ -499,6 +502,9 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	// that must be executed before 'return', if any; 
 	// in this case, the return expression has to be first evaluated, stored in a temporary variable 
 	// and returned after the 'finally' block has been executed
+	if(body is emptyStatement){
+    	return muCon(666);
+    }
 	enterTryCatchFinally();
 	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
 	leaveTryCatchFinally();
@@ -520,6 +526,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
   
   c = head(catches);
   
+  trBody = c.body is emptyStatement ? muCon(666) : translate(c.body);
   if(c is binding) {
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
@@ -527,18 +534,18 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
       list[MuExp] then = [];
       if(c.pattern is literal) {
           conds = [ muCallMuPrim("equal", [ muTmp(asUnwrappedThrown(varname),varfuid), translate(c.pattern.literal) ]) ];
-          then = [ translate(c.body) ];
+          then = [ trBody ];
       } else if(c.pattern is typedVariable) {
           conds = [ muCallMuPrim("check_arg_type", [ muTmp(asUnwrappedThrown(varname),varfuid), muTypeCon(translateType(c.pattern.\type)) ]) ];
           <fuid,pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
-          then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), translate(c.body) ];
+          then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), trBody ];
       } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
       	  conds = [ muCon(true) ];
       	  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
-          then = [ muAssign("<c.pattern.qualifiedName>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), translate(c.body) ]; 
+          then = [ muAssign("<c.pattern.qualifiedName>", fuid, pos, muTmp(asUnwrappedThrown(varname),varfuid)), trBody ]; 
       } else {
-          conds = [ muMulti(muApply(translatePat(c.pattern), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
-          then = [ translate(c.body) ];
+          conds = [ muMulti(muApply(translatePat(c.pattern, \value()), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
+          then = [ trBody ];
       }
       exp = muIfelse(ifname, makeBoolExp("ALL",conds, c@\loc), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
@@ -546,7 +553,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
   }
   
   // The default case will handle any thrown value
-  exp = translate(c.body);
+  exp = trBody;
   
   return exp;
 }
@@ -758,17 +765,17 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
         return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
     } else {
         ifname = nextLabel();
-          enterBacktrackingScope(ifname);
-          conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
-      leaveBacktrackingScope();
-      return mubody;
+        enterBacktrackingScope(ifname);
+        conditions = [ translate(cond) | cond <- when_conditions];
+        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+        leaveBacktrackingScope();
+        return mubody;
     }
    }
    pat = formals[0];
    if(pat is literal){
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-    ifname = nextLabel();
+      ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
                    [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
@@ -781,7 +788,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       tp = pat.\type;
       <fuid, pos> = getVariableScope("<name>", name@\loc);
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-    ifname = nextLabel();
+      ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
                                                         muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
@@ -801,22 +808,22 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       simpleArgs = false;
   }
   if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-  return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
+     return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
   } else {
-  list[MuExp] conditions = [];
-  int i = 0;
-  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-      enterBacktrackingScope(fname);
-      // TODO: account for a variable number of arguments
-  for(Pattern pat <- formals) {
-      conditions += muMulti(muApply(translatePat(pat), [ muVar("<i>",topFunctionScope(),i) ]));
-      i += 1;
-  };
-  conditions += [ translate(cond) | cond <- when_conditions];
+     list[MuExp] conditions = [];
+     int i = 0;
+     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+     enterBacktrackingScope(fname);
+     // TODO: account for a variable number of arguments
+     for(Pattern pat <- formals) {
+         conditions += muMulti(muApply(translatePat(pat, \value()), [ muVar("<i>",topFunctionScope(),i) ]));
+         i += 1;
+      };
+      conditions += [ translate(cond) | cond <- when_conditions];
 
-  mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
-  leaveBacktrackingScope();
-  return mubody;
+      mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+      leaveBacktrackingScope();
+      return mubody;
   }
 }
 
