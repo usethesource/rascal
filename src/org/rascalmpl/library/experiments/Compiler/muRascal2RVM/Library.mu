@@ -288,6 +288,7 @@ coroutine RANGE(pat, iFirst, iEnd) {
    } else {
       j = prim("num_to_real", iFirst)
       n = prim("num_to_real", iEnd)
+      rone = prim("num_to_real", rone)
    }
     if(prim("less", j, n)) {
         while(prim("less", j, n)) {
