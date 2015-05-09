@@ -1,18 +1,8 @@
-@bootstrapParser
+
 module experiments::Compiler::Examples::Tst5
 
-import IO;
+value main(list[value] args) =[1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
 
-alias  INTEGER = int;
-alias MAP = map[INTEGER, str];
+//test bool rangeMixed3() = [1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
+//test bool rangeMixed4() = [1 .. 5.5] == [1.,2.0,3.0,4.0,5.0]; 
 
-data DATA = d(INTEGER n);
-
-alias ADATA = DATA;
-
-ADATA f(ADATA x) = x;
-
-value main(list[value] args) {
-	iprintln(#DATA);
-	return true;
-}	
