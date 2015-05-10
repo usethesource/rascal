@@ -85,7 +85,7 @@ private str reduceContainerType("rel") = "set";
 private default str reduceContainerType(str c) = c;
 
 public str typedBinaryOp(str lot, str op, str rot) {
-  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
+  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter" || lot == "void" || rot == "void"){
      return op;
   }
   if(isContainerType(lot))
@@ -242,7 +242,7 @@ MuExp comparison(str op, Expression e) {
   lot = reduceContainerType(getOuterType(e.lhs));
   rot = reduceContainerType(getOuterType(e.rhs));
   
-  if(lot == "value" || rot == "value"){
+  if(lot == "value" || rot == "value" || lot == "void" || rot == "void" || lot == "parameter" || rot == "parameter"){
      lot = ""; rot = "";
   } else {
     if(lot in numeric) lot += "_"; else lot = "";
@@ -1895,7 +1895,8 @@ MuExp translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`) =
 // -- equal expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`) = 
-    comparison("equal", e);
+    comparison("equal", e)
+    when bprintln("<lhs>: <getType(lhs@\loc)>; <rhs>: <getType(rhs@\loc)>");
 
 // -- not equal expression ------------------------------------------
 
