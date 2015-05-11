@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.uri;
 
