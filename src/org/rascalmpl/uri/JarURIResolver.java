@@ -18,15 +18,27 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 public class JarURIResolver implements ISourceLocationInput{
+
+  private static final Cache<String, JarFileHierachy> fsCache;
+
+  static {
+    fsCache = Caffeine.newBuilder()
+        .<String, JarFileHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
+        .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more than 1% of the memory
+        .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
+        .softValues()
+        .build();
+  }
 
   public JarURIResolver() {
     super();
@@ -81,21 +93,28 @@ public class JarURIResolver implements ISourceLocationInput{
       String jar = getJar(uri);
       String path = getPath(uri);
 
-      if (path == null || path.isEmpty() || path.equals("/")) {
-        return new File(jar).exists();
-      }
-      try(JarFile jarFile = new JarFile(jar)) {
-        JarEntry jarEntry = jarFile.getJarEntry(path);
-        if (jarEntry != null) {
+      if (new File(jar).exists()) {
+        if (path == null || path.isEmpty() || path.equals("/")) {
           return true;
         }
-        // it might be a jar without separate directory entries.
-        // so let's trye the more expensive check
-        return jarFile.stream().anyMatch(e -> e.getName().startsWith(path));
+        return getFileHierchyCache(jar).exists(path);
       }
+      return false;
     } catch (IOException e) {
       return false;
     }
+  }
+
+  private JarFileHierachy getFileHierchyCache(String jar) {
+    final File f = new File(jar);
+    JarFileHierachy result = fsCache.get(jar, j -> new JarFileHierachy(f));
+    if (result == null || result.getTimeStamp() != f.lastModified()) {
+      // it could be that we are calculating twice due to a race on the map
+      // but that would just cost a bit of performance, and we do avoid blocking on the map
+      result = new JarFileHierachy(f);
+      fsCache.put(jar, result);
+    }
+    return result;
   }
 
   public boolean isDirectory(ISourceLocation uri){
@@ -111,24 +130,10 @@ public class JarURIResolver implements ISourceLocationInput{
         path = path + "/";
       }
 
-      JarFile jarFile = new JarFile(jar);
-      try {
-        JarEntry jarEntry = jarFile.getJarEntry(path);
-        if (jarEntry != null && jarEntry.isDirectory()) {
-          return true;
-        }
-        // maybe the path is not in the jar as a seperate entry, but there are files in the path
-        Enumeration<JarEntry> entries =  jarFile.entries();
-        while (entries.hasMoreElements()) {
-          if (entries.nextElement().getName().startsWith(path)) {
-            return true;
-          }
-        }
-        return false;
+      if (new File(jar).exists()) {
+        return getFileHierchyCache(jar).isDirectory(path);
       }
-      finally {
-        jarFile.close();
-      }
+      return false;
     } catch (IOException e) {
       return false;
     }
@@ -138,11 +143,10 @@ public class JarURIResolver implements ISourceLocationInput{
     try {
       String jar = getJar(uri);
       String path = getPath(uri);
-
-      JarFile jarFile = new JarFile(jar);
-      JarEntry jarEntry = jarFile.getJarEntry(path);
-      jarFile.close();
-      return(jarEntry != null && !jarEntry.isDirectory());
+      if (new File(jar).exists()) {
+        return getFileHierchyCache(jar).isFile(path);
+      }
+      return false;
     } catch (IOException e) {
       return false;
     }
@@ -151,16 +155,10 @@ public class JarURIResolver implements ISourceLocationInput{
   public long lastModified(ISourceLocation uri) throws IOException{
     String jar = getJar(uri);
     String path = getPath(uri);
-
-    JarFile jarFile = new JarFile(jar);
-    JarEntry jarEntry = jarFile.getJarEntry(path);
-    jarFile.close();
-
-    if (jarEntry == null) {
-      throw new FileNotFoundException(uri.toString());
+    if (new File(jar).exists()) {
+        return getFileHierchyCache(jar).getLastModified(path);
     }
-
-    return jarEntry.getTime();
+    throw new FileNotFoundException(uri.toString());
   }
 
   @Override
@@ -171,46 +169,10 @@ public class JarURIResolver implements ISourceLocationInput{
     if (!path.endsWith("/") && !path.isEmpty()) {
       path = path + "/";
     }
-
-    JarFile jarFile = new JarFile(jar);
-
-    Enumeration<JarEntry> entries =  jarFile.entries();
-    ArrayList<String> matchedEntries = new ArrayList<>();
-    while (entries.hasMoreElements()) {
-      JarEntry je = entries.nextElement();
-      String name = je.getName();
-
-      if (name.equals(path)) {
-        continue;
-      }
-      int index = name.indexOf(path);
-
-      if (index == 0) {
-        String result = name.substring(path.length());
-
-        index = result.indexOf("/");
-
-        if (index == -1) {
-          matchedEntries.add(result);
-        } else {
-          result = result.substring(0, index);
-          boolean entryPresent = false;
-          for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
-            if (result.equals(it.next())) {
-              entryPresent = true;
-              break;
-            }
-          }
-          if (!entryPresent) {
-            matchedEntries.add(result);
-          }
-        }
-      }
+    if (new File(jar).exists()) {
+        return getFileHierchyCache(jar).directChildren(path);
     }
-    jarFile.close();
-
-    String[] listedEntries = new String[matchedEntries.size()];
-    return matchedEntries.toArray(listedEntries);
+    return new String[0];
   }
 
   public String scheme() {
