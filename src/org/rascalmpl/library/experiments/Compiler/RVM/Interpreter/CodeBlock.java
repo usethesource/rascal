@@ -97,7 +97,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -815,7 +815,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		store = ts;
-		store.extendStore(Factory.getStore());
+		store.extendStore(RascalValueFactory.getStore());
 	}
 
 	@Override
