@@ -99,8 +99,8 @@ public class JarURIResolver implements ISourceLocationInput{
 	
 	public boolean isDirectory(ISourceLocation uri){
 		try {
-			if (uri.getPath() != null && uri.getPath().endsWith(".jar!")) {
-				// if the uri is the root of a jar, and it ends with a !, it should be considered a directory
+			if (uri.getPath() != null && (uri.getPath().endsWith(".jar!") || uri.getPath().endsWith(".jar!/"))) {
+				// if the uri is the root of a jar, and it ends with a ![/], it should be considered a directory
 				return true;
 			}
 			String jar = getJar(uri);
