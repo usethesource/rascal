@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -53,7 +53,7 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
 		store = ts;
-		store.extendStore(Factory.getStore());
+		store.extendStore(RascalValueFactory.getStore());
 		tr = new TypeReifier(vf);
 		byteStream = new ByteArrayOutputStream();	// TODO should we remove it as well?
 		binaryWriter = new BinaryValueWriter();
@@ -114,9 +114,9 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 				if(nd.getName().equals("type")){
 					//System.out.println("FSTSerializableIValue.instantiate: " + v);
 					java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-					bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) nd.get(0), (IMap) nd.get(1)));
+					bindings.put(RascalValueFactory.TypeParam, tr.symbolToType((IConstructor) nd.get(0), (IMap) nd.get(1)));
 					
-					v = vf.constructor(Factory.Type_Reified.instantiate(bindings), nd.get(0), nd.get(1));
+					v = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), nd.get(0), nd.get(1));
 				}
 			}
 			in.registerObject(v,streamPosition,serializationInfo, referencee);
@@ -169,9 +169,9 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 					//&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))
 					) {
 				java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-				bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
+				bindings.put(RascalValueFactory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
 				
-				return vf.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
+				return vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), children[0], children[1]);
 			}
 			
 			return null;

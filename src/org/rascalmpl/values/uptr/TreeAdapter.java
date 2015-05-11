@@ -281,7 +281,7 @@ public class TreeAdapter {
 	}
 
 	public static IConstructor setLocation(IConstructor tree, ISourceLocation loc) {
-		return tree.asAnnotatable().setAnnotation(Factory.Location, loc);
+		return tree.asAnnotatable().setAnnotation(RascalValueFactory.Location, loc);
 	}
 	
 	public static int getCharacter(IConstructor tree) {
