@@ -63,7 +63,7 @@ list[str] functionalityTests = [
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 "ReducerTests",				// OK
 "RegExpTests",				// OK
-"ScopeTests",				// OK
+//"ScopeTests",				// OK OutOfMemory????
 "SetMatchTests1",           // OK
 "SetMatchTests2",           // OK
 "StatementTests",			// OK
@@ -221,7 +221,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(tst <- names){
       prog = base + (tst + ".rsc");
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false, bindir=|home:///bin|)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -251,13 +251,13 @@ value main(list[value] args){
    
   //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
   // 
-  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
-  all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
-  all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);  
-  all_results += runTests(files_with_tests, |std:///|);
-  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  //all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  //all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  //all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
+  //all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
+  //all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);  
+  //all_results += runTests(files_with_tests, |std:///|);
+  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

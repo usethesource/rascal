@@ -22,6 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -449,6 +451,8 @@ public abstract class Import {
 		  }
 	  }
   }
+  
+  
 
   /**
    * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
@@ -459,8 +463,6 @@ public abstract class Import {
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
   public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
-    // TODO: update source code locations!!
-    
      return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
        final IValueFactory vf = eval.getValueFactory();
        
@@ -560,11 +562,17 @@ public abstract class Import {
       DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
       UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
     
-      char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
+      SortedMap<Integer,Integer> corrections = new TreeMap<>();
+      char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);
       
       IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
-      fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
-
+      
+      // Adjust locations before replacing the holes back to the original anti-quotes,
+      // since these anti-quotes already have the right location (!).
+      fragment = (IConstructor) fragment.accept(new AdjustLocations(corrections, eval.getValueFactory()));
+      fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes, corrections);
+      
+      
       IConstructor prod = TreeAdapter.getProduction(tree);
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
@@ -592,34 +600,117 @@ public abstract class Import {
     }
   }
   
-  private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, IConstructor lit, Map<String, IConstructor> antiquotes) {
+  private static class AdjustLocations extends IdentityTreeVisitor<ImplementationError> {
+  	private SortedMap<Integer, Integer> corrections;
+  	
+		private IValueFactory vf;
+
+		AdjustLocations(SortedMap<Integer, Integer> corrections, IValueFactory vf) {
+  		this.corrections = corrections;
+  		this.vf = vf;
+    }
+		
+		private int offsetFor(int locOffset) {
+			// find the entry k, v in corrections,
+			// where k is the largest that is smaller or equal to locOffset.
+			if (corrections.isEmpty()) {
+				return 0;
+			}
+			int key = -1;
+			SortedMap<Integer, Integer> rest = corrections.tailMap(locOffset);
+			if (rest.isEmpty()) {
+				key = corrections.lastKey();
+				assert key < locOffset;
+			}
+			else if (rest.firstKey() == locOffset) {
+				key = locOffset;
+			}
+			else {
+				assert rest.firstKey() > locOffset;
+				
+				SortedMap<Integer, Integer> front = corrections.headMap(rest.firstKey());
+				if (front.isEmpty()) {
+					return 0;
+				}
+				key = front.lastKey();
+				assert key < locOffset;
+			}
+			int off = corrections.get(key);
+			return off;
+		}
+		
+    @Override
+    public IConstructor visitTreeAppl(IConstructor tree)  {
+    	ISourceLocation loc = TreeAdapter.getLocation(tree);
+    	if (loc == null) {
+    		return tree;
+    	}
+
+    	int off = offsetFor(loc.getOffset());
+  		loc = vf.sourceLocation(loc, loc.getOffset() + off, loc.getLength());
+
+    	IListWriter w = vf.listWriter();
+      IList args = TreeAdapter.getArgs(tree);
+      for (IValue arg : args) {
+        w.append(arg.accept(this));
+      }
+      args = w.done();
+      
+    	return TreeAdapter.setLocation(TreeAdapter.setArgs(tree, args), loc);
+    }
+  }
+  
+  private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, 
+  		IConstructor lit, Map<String, IConstructor> antiquotes, SortedMap<Integer, Integer> corrections ) {
     IList parts = TreeAdapter.getArgs(lit);
     StringBuilder b = new StringBuilder();
+    
+    ISourceLocation loc = TreeAdapter.getLocation(lit);
+		int offset = 0;  // where we are in the parse tree
+		
+		//  012345
+		// (Exp)`a \> b` parses as "a > b"
+		// this means the loc of > must be shifted right (e.g. + 1)
+		// (so we *add* to shift when something bigger becomes smaller)
+		int shift = loc.getOffset(); // where we need to be in the location
+		corrections.put(offset, shift);
     
     for (IValue elem : parts) {
       IConstructor part = (IConstructor) elem;
       String cons = TreeAdapter.getConstructorName(part);
       
-      if (cons.equals("text")) {
+      int partLen = TreeAdapter.getLocation(part).getLength();
+			if (cons.equals("text")) {
+      	offset += partLen;
         b.append(TreeAdapter.yield(part));
       }
       else if (cons.equals("newline")) {
+      	shift += partLen - 1;
+      	corrections.put(++offset, shift);
         b.append('\n');
       }
       else if (cons.equals("lt")) {
-        b.append('<');
+      	corrections.put(++offset, ++shift);
+      	b.append('<');
       }
       else if (cons.equals("gt")) {
-        b.append('>');
+      	corrections.put(++offset, ++shift);
+      	b.append('>');
       }
       else if (cons.equals("bq")) {
-        b.append('`');
+      	corrections.put(++offset, ++shift);
+      	b.append('`');
       }
       else if (cons.equals("bs")) {
-        b.append('\\');
+      	corrections.put(++offset, ++shift);
+      	b.append('\\');
       }
       else if (cons.equals("hole")) {
-        b.append(createHole(eval, part, antiquotes));
+        String hole = createHole(eval, part, antiquotes);
+        shift += partLen - hole.length();
+				offset += hole.length();
+				corrections.put(offset, shift);
+        b.append(hole);
       }
     }
     
@@ -632,7 +723,8 @@ public abstract class Import {
     return ph;
   }
 
-  private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, final Map<String, IConstructor> antiquotes) {
+  private static IConstructor replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, IConstructor fragment, 
+  		final Map<String, IConstructor> antiquotes, final SortedMap<Integer,Integer> corrections) {
       return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
         private final IValueFactory vf = eval.getValueFactory();
         
@@ -651,7 +743,9 @@ public abstract class Import {
           }
           
           IConstructor type = retrieveHoleType(tree);
-          return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
+          return  antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type)
+          		.asAnnotatable().setAnnotation("category", vf.string("MetaVariable"));
+          
         }
         
         private IConstructor retrieveHoleType(IConstructor tree) {

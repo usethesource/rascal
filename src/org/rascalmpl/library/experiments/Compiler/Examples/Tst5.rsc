@@ -1,14 +1,11 @@
-@bootstrapParser
+
 module experiments::Compiler::Examples::Tst5
+import lang::rascal::tests::types::StaticTestingUtils;
 
-import lang::rascal::\syntax::Rascal;
-import ParseTree;
+// Sanity check on the testing utilities themselves
 
-public Sym sym2symbol() {
-	return lang::rascal::\syntax::Rascal::empty();
 
-}
+value main(list[value] args) = checkOK("13;");
 
-Symbol main(list[value] args) {
-	return sym2symbol();
-}	
+
+//test bool StringVisit4a5()=visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBcAA";

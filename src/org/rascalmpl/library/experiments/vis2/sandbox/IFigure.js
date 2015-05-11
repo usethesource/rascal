@@ -65,13 +65,17 @@ function askServer(path, parameters, callback) {
    }
    
 
-function adjust1(id0, id1) { 
-    if (document.getElementById(id0).style.width!="") return;
+function adjust1(id0, id1, lw, hpad, vpad) { 
+    var d = d3.select("#"+id0);
+    if (d.attr("width")) return;   
     var left1 = document.getElementById(id1).getBoundingClientRect().left;
     var right1 = document.getElementById(id1).getBoundingClientRect().right;
     var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
     var top1 = document.getElementById(id1).getBoundingClientRect().top;
-    d3.select("#"+id0).style("width",right1-left1).style("height",bottom1-top1);
+    var width1 = document.getElementById(id1).getBoundingClientRect().width;
+    var height1 = document.getElementById(id1).getBoundingClientRect().height;
+    d3.select("#"+id0).attr("width",width1+lw+hpad).attr("height",height1+lw+vpad);
+    d3.select("#"+id0).attr("x",0).attr("y", 0);
    }
    
  function adjustEllipse(id0, id1, lw) { 
@@ -96,18 +100,34 @@ function adjust1(id0, id1) {
     attr("r", (right1 - left1)/2);
    }
    
- function adjustSvgStyle(id0, id1, lw) { 
-    var d = d3.select("#"+id1);
-    if (d.attr("width")) return;
-    var b = d.node().getBBox();
-    d3.select("#"+id0).style("width",b.x+b.width+lw).style("height",b.y+b.height+lw);
+ function adjustSvgStyle(id0, id1, lw, hpad, vpad) { 
+     var d = d3.select("#"+id0);
+     // if (d.attr("width")) return;   
+     var left1 = document.getElementById(id1).getBoundingClientRect().left;
+     var right1 = document.getElementById(id1).getBoundingClientRect().right;
+     var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
+     var top1 = document.getElementById(id1).getBoundingClientRect().top;
+     var width1 = document.getElementById(id1).getBoundingClientRect().width;
+     var height1 = document.getElementById(id1).getBoundingClientRect().height;
+    // if (d3.select("#"+id0).style("width")) return;
+     var d = d3.select("#"+id1); 
+     d3.select("#"+id0).style("width",width1+lw+hpad).style("height",height1+lw+vpad);
+     // alert(width1);
    }
    
- function adjustSvgAttr(id0, id1, lw) { 
-    var d = d3.select("#"+id1);
-    if (d.attr("width")) return;
-    var b = d.node().getBBox();
-    d3.select("#"+id0).attr("width",b.x+b.width+lw).attr("height",b.y+b.height+lw);
+   function adjustSvgAttr(id0, id1, lw, hpad, vpad) { 
+     var d = d3.select("#"+id0);
+     // if (d.attr("width")) return;   
+     var left1 = document.getElementById(id1).getBoundingClientRect().left;
+     var right1 = document.getElementById(id1).getBoundingClientRect().right;
+     var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
+     var top1 = document.getElementById(id1).getBoundingClientRect().top;
+     var width1 = document.getElementById(id1).getBoundingClientRect().width;
+     var height1 = document.getElementById(id1).getBoundingClientRect().height;
+    // if (d3.select("#"+id0).style("width")) return;
+     var d = d3.select("#"+id1); 
+     d3.select("#"+id0).attr("width",width1+lw+hpad).style("height",height1+lw+vpad);
+     // alert(width1);
    }
    
  
