@@ -36,7 +36,6 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    vardefs = ();
    functions_in_module = [];
    global_functions = { <f.name, getUID(pmod.name,f.funNames,f.name,size(f.formals))> | f <- pmod.functions };
-   println(global_functions);
    for(f <- pmod.functions) {
        uid = getUID(pmod.name,f.funNames,f.name,size(f.formals));
        /*
@@ -145,7 +144,7 @@ str fuid = "";
 
 private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
-   println("Pre-processing a function: <uid>");
+   println("Pre-processing function: <uid>");
    return
       for(exp <- body_exps){
         try {

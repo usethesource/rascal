@@ -12,6 +12,7 @@ module lang::rascal::tests::functionality::AliasTests
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
+import Type;
 
 alias INTEGER0 = int;
 		
@@ -52,11 +53,11 @@ test bool  aliasAndADT1() { ADT0 x = f(0); return x == f(0); }
 alias StateId = int;
 alias Permutation = list[int];
 alias StatedId = int;
-alias Symbol = int;
+alias Sym = int;
              	
 test bool aliasAndADT2() {
     map[list[Permutation], StateId] allStates = ();
-    rel[StateId from,StateId to,Symbol symbol] Transitions = {};  
+    rel[StateId from,StateId to,Sym symbol] Transitions = {};  
     Transitions = {<1,2,3>}; 
     return true;
 }
@@ -69,5 +70,108 @@ test bool  transitiveAliasAcrossTuples() {
     block aBlock = {<"a", "b", "c">};
     return aBlock == {<"a", "b", "c">};
 }	
+
+test bool reifiedAlias1() = 
+  #partition == 
+  type(
+  \alias(
+    "partition",
+    [],
+    \set(\alias(
+        "block",
+        [],
+        \rel([
+            \str(),
+            \str(),
+            \str()
+          ])))),
+  ());
 	
 
+alias STRING = str;
+
+data DATA1 = d1(STRING s);
+@ignoreCompiler{Incorrect type here}
+test bool reifiedAlias2() = #DATA1 ==
+type(
+  adt(
+    "DATA1",
+    []),
+  (adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \alias(
+                "STRING",
+                [],
+                \str()))],
+          [],
+          (),
+          {})})));
+
+data DATA2 = d2(DATA1(STRING) fun);
+
+@ignoreCompiler{Incorrect type here}
+test bool reifiedAlias3() = #DATA2 ==
+type(
+  adt(
+    "DATA2",
+    []),
+  (
+    adt(
+      "DATA2",
+      []):choice(
+      adt(
+        "DATA2",
+        []),
+      {cons(
+          label(
+            "d2",
+            adt(
+              "DATA2",
+              [])),
+          [label(
+              "fun",
+              func(
+                adt(
+                  "DATA1",
+                  []),
+                [\alias(
+                    "STRING",
+                    [],
+                    \str())]))],
+          [],
+          (),
+          {})}),
+    adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \alias(
+                "STRING",
+                [],
+                \str()))],
+          [],
+          (),
+          {})})
+  ));
