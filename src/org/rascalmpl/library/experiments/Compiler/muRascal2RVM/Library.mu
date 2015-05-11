@@ -508,9 +508,12 @@ coroutine MATCH_LITERAL(pat, iSubject)
 coroutine MATCH_SUBSTRING(pat, rBegin, rEnd, iSubject)
 //guard iSubject is str
 {
+
     var len = size(iSubject);
+    //println("MATCH_SUBSTRING:", pat, deref rBegin, rEnd, iSubject);
     if(is_tail(iSubject, pat, mint(deref rBegin))){
         //println("MATCH_SUBSTRING succeeds", pat, deref rBegin, size(pat), iSubject);
+         //println("MATCH_SUBSTRING succeeds")
         deref rEnd = len
         yield
     }
@@ -1696,7 +1699,7 @@ coroutine MATCH_REGEXP_IN_VISIT(iRegexp, varrefs, rBegin, rEnd, iSubject) {
         yield
         muprim("regexp_set_region", matcher, deref rBegin, deref rEnd)
     }
-    //println("MATCH_REGEXP_IN_VISIT fails", iSubject);
+    //println("MATCH_REGEXP_IN_VISIT fails", iSubject, deref rBegin, deref rEnd);
 }
 
 /******************************************************************************************/
@@ -2023,9 +2026,10 @@ function VISIT_STR(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeaveV
         repl,
         childHasMatch, childBeenChanged, replacement
         
-    //println("VISIT_STR", iSubject)
+   
     deref rBegin = 0;
     deref rEnd = len;     
+    //println("VISIT_STR", iSubject, len)
     while(j < len){
         childHasMatch = false
         childBeenChanged = false
