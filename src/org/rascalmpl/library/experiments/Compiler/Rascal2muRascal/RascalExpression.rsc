@@ -1895,8 +1895,7 @@ MuExp translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`) =
 // -- equal expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`) = 
-    comparison("equal", e)
-    when bprintln("<lhs>: <getType(lhs@\loc)>; <rhs>: <getType(rhs@\loc)>");
+    comparison("equal", e);
 
 // -- not equal expression ------------------------------------------
 
