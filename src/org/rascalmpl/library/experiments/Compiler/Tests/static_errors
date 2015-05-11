@@ -5,10 +5,6 @@
 |project://rascal/src/org/rascalmpl/library/demo/lang/Pico/ToDot.rsc|
 |project://rascal/src/org/rascalmpl/library/demo/lang/turing/l2/desugar/Desugar.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Benchmarks/Run.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalPattern.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/TestUtils.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/Types.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/StackSize.rsc|

@@ -1,8 +1,11 @@
 
 module experiments::Compiler::Examples::Tst5
+import lang::rascal::tests::types::StaticTestingUtils;
 
-value main(list[value] args) =[1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
+// Sanity check on the testing utilities themselves
 
-//test bool rangeMixed3() = [1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
-//test bool rangeMixed4() = [1 .. 5.5] == [1.,2.0,3.0,4.0,5.0]; 
 
+value main(list[value] args) = checkOK("13;");
+
+
+//test bool StringVisit4a5()=visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBcAA";
