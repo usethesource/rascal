@@ -49,11 +49,12 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
-	private final Type intTuple;
+	private static final Type intTuple 
+	  = TypeFactory.getInstance().tupleType(TypeFactory.getInstance().integerType(), "line", TypeFactory.getInstance().integerType(), "column");
+	
 
 	public SourceLocationResult(Type type, ISourceLocation loc, IEvaluatorContext ctx) {
 		super(type, loc, ctx);
-		intTuple = getTypeFactory().tupleType(getTypeFactory().integerType(), "line", getTypeFactory().integerType(), "column");
 	}
 
 	
