@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,13 +79,19 @@ public class JarURIResolver implements ISourceLocationInput{
 		try {
 			String jar = getJar(uri);
 			String path = getPath(uri);
-			
-			
-			
-			JarFile jarFile = new JarFile(jar);
-			JarEntry jarEntry = jarFile.getJarEntry(path);
-			jarFile.close();
-			return(jarEntry != null);
+
+			if (path == null || path.isEmpty() || path.equals("/")) {
+			  return new File(jar).exists();
+			}
+			try(JarFile jarFile = new JarFile(jar)) {
+			  JarEntry jarEntry = jarFile.getJarEntry(path);
+			  if (jarEntry != null) {
+			    return true;
+			  }
+			  // it might be a jar without separate directory entries.
+			  // so let's trye the more expensive check
+			  return jarFile.stream().anyMatch(e -> e.getName().startsWith(path));
+			}
 		} catch (IOException e) {
 			return false;
 		}
