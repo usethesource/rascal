@@ -154,7 +154,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    IntegerKeyedHashMap\<IntegerList\> result = new IntegerKeyedHashMap\<IntegerList\>(); 
            '    
            '    <if (true) { int i = 0;>
-           '    <for (<f,c> <- sort(dontNest)) { i += 1;>
+           '    <for (<f,c> <- (dontNest)) { i += 1;>
            '    <if (i % 2000 == 0) {>
            '    _initDontNest<i>(result);
            '    <if (i == 2000) {>return result;<}>
@@ -168,9 +168,9 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    IntegerMap result = new IntegerMap();
            '    int resultStoreId = result.size();
            '    
-           '    <for (<childrenIds, parentIds> <- sort(dontNestGroups)) {>
+           '    <for (<childrenIds, parentIds> <- (dontNestGroups)) {>
            '    ++resultStoreId;
-           '    <for (pid <- sort(parentIds)) {>
+           '    <for (pid <- (parentIds)) {>
            '    result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
@@ -191,11 +191,11 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '    
            '  // Production declarations
-           '	<for (p <- sort(uniqueProductions)) {>
+           '	<for (p <- (uniqueProductions)) {>
            '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
            '    
            '  // Item declarations
-           '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
+           '	<for (Symbol s <- (newItems<0>), isNonterminal(s)) {
 	           items = newItems[s];
 	           map[Production prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
@@ -214,7 +214,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
-           '    <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
@@ -222,14 +222,14 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
-           '      <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
            '  }<}>
            '	
            '  // Parse methods    
-           '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
    endJob(true);
@@ -584,7 +584,7 @@ str v2i(value v) {
         case str s()       : return escId(s);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
         case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
-        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- sort(s));
+        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
         default            : throw "value not supported <v>";
     }
 }    
