@@ -34,10 +34,12 @@ public class JarFileHierachy {
   // but for now, this works.
   private final TreeMap<String, FSEntry> fs;
   private final long totalSize;
+  private final IOException throwMe;
 
   public JarFileHierachy(File jar) {
     this.fs = new TreeMap<String, FSEntry>();
     long totalSize = 0;
+    IOException throwMe = null;
     try(JarFile jarFile = new JarFile(jar)) {
       for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
         JarEntry je = e.nextElement();
@@ -48,12 +50,17 @@ public class JarFileHierachy {
         totalSize += 8 + (name.length() * 2);
         fs.put(name, new FSEntry(je.getTime()));
       }
-    } catch (IOException e) {
+    } catch (IOException e1) {
+      throwMe = e1;
     }
     this.totalSize = totalSize;
+    this.throwMe = throwMe;
   }
 
   public boolean exists(String path) {
+    if (throwMe != null) {
+      return false;
+    }
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the actual file itself
@@ -71,6 +78,9 @@ public class JarFileHierachy {
     return result.startsWith(path);
   }
   public boolean isDirectory(String path) {
+    if (throwMe != null) {
+      return false;
+    }
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the actual file itself
@@ -89,10 +99,16 @@ public class JarFileHierachy {
   }
 
   public boolean isFile(String path) {
+    if (throwMe != null) {
+      return false;
+    }
     return fs.containsKey(path);
   }
 
-  public long getLastModified(String path) throws FileNotFoundException {
+  public long getLastModified(String path) throws IOException {
+    if (throwMe != null) {
+      throw throwMe;
+    }
     FSEntry result = fs.get(path);
     if (result == null) {
       throw new FileNotFoundException(path);
@@ -102,7 +118,10 @@ public class JarFileHierachy {
   
   private static final String biggestChar = new String(new int[] {Character.MAX_CODE_POINT},0,1);
 
-  public String[] directChildren(String path) {
+  public String[] directChildren(String path) throws IOException {
+    if (throwMe != null) {
+      throw throwMe;
+    }
     assert path.endsWith("/");
 
     NavigableMap<String, FSEntry> contents = fs.tailMap(path, true);

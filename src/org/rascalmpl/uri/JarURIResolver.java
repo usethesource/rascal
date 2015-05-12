@@ -91,20 +91,17 @@ public class JarURIResolver implements ISourceLocationInput{
       File jar = getJar(uri);
       String path = getPath(uri);
 
-      if (jar.exists()) {
-        if (path == null || path.isEmpty() || path.equals("/")) {
-          return true;
-        }
-        return getFileHierchyCache(jar).exists(path);
+      if (path == null || path.isEmpty() || path.equals("/")) {
+        return true;
       }
-      return false;
+      return getFileHierchyCache(jar).exists(path);
     } catch (IOException e) {
       return false;
     }
   }
 
   private JarFileHierachy getFileHierchyCache(final File jar) {
-    return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileHierachy(jar));
+      return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileHierachy(jar));
   }
 
   public boolean isDirectory(ISourceLocation uri){
@@ -120,10 +117,7 @@ public class JarURIResolver implements ISourceLocationInput{
         path = path + "/";
       }
 
-      if (jar.exists()) {
-        return getFileHierchyCache(jar).isDirectory(path);
-      }
-      return false;
+      return getFileHierchyCache(jar).isDirectory(path);
     } catch (IOException e) {
       return false;
     }
@@ -133,10 +127,7 @@ public class JarURIResolver implements ISourceLocationInput{
     try {
       File jar = getJar(uri);
       String path = getPath(uri);
-      if (jar.exists()) {
-        return getFileHierchyCache(jar).isFile(path);
-      }
-      return false;
+      return getFileHierchyCache(jar).isFile(path);
     } catch (IOException e) {
       return false;
     }
@@ -145,10 +136,7 @@ public class JarURIResolver implements ISourceLocationInput{
   public long lastModified(ISourceLocation uri) throws IOException{
     File jar = getJar(uri);
     String path = getPath(uri);
-    if (jar.exists()) {
-        return getFileHierchyCache(jar).getLastModified(path);
-    }
-    throw new FileNotFoundException(uri.toString());
+    return getFileHierchyCache(jar).getLastModified(path);
   }
 
   @Override
@@ -159,10 +147,12 @@ public class JarURIResolver implements ISourceLocationInput{
     if (!path.endsWith("/") && !path.isEmpty()) {
       path = path + "/";
     }
-    if (jar.exists()) {
-        return getFileHierchyCache(jar).directChildren(path);
+    try {
+      return getFileHierchyCache(jar).directChildren(path);
     }
-    return new String[0];
+    catch (IOException e) {
+      return new String[0];
+    }
   }
 
   public String scheme() {
