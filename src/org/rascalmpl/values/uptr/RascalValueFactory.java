@@ -50,6 +50,8 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -459,8 +461,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * and {@link AbstractArgumentList} abstract classes.
 	 */
 	
-	private static class CharInt implements IConstructor, IExternalValue {
+	private static class CharInt implements Tree, IExternalValue {
 		final int ch;
+		
+		@Override
+		public boolean isChar() {
+			return true;
+		}
+		
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeChar(this);
+		}
 		
 		public CharInt(int ch) {
 			this.ch = ch;
@@ -623,11 +635,21 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class CharByte implements IConstructor, IExternalValue {
+	private static class CharByte implements Tree, IExternalValue {
 		final byte ch;
 		
 		public CharByte(byte ch) {
 			this.ch = ch;
+		}
+		
+		@Override
+		public boolean isChar() {
+			return true;
+		}
+		
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeChar(this);
 		}
 		
 		@Override
@@ -787,13 +809,23 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Cycle implements IConstructor, IExternalValue {
+	private static class Cycle implements Tree, IExternalValue {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
 		public Cycle(IConstructor symbol, int cycleLength) {
 			this.symbol = symbol;
 			this.cycleLength = cycleLength;
+		}
+		
+		@Override
+		public boolean isCycle() {
+			return true;
+		}
+		
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeCycle(this);
 		}
 		
 		@Override
@@ -981,11 +1013,21 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Amb implements IConstructor, IExternalValue {
+	private static class Amb implements Tree, IExternalValue {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
 			this.alternatives = alts;
+		}
+		
+		@Override
+		public boolean isAmb() {
+			return true;
+		}
+		
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeAmb(this);
 		}
 		
 		@Override
@@ -1177,7 +1219,27 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static abstract class AbstractAppl implements IConstructor, IExternalValue {
+	public static interface Tree extends IConstructor {
+		default boolean isAppl() {
+			return false;
+		}
+		
+		default boolean isAmb() {
+			return false;
+		}
+		
+		default boolean isChar() {
+			return false;
+		}
+		
+		default boolean isCycle() {
+			return false;
+		}
+		
+		<E extends Throwable> Tree accept(TreeVisitor<E> v) throws E;
+	}
+	
+	private static abstract class AbstractAppl implements Tree, IExternalValue {
 		protected final IConstructor production;
 
 		protected AbstractAppl(IConstructor production) {
@@ -1185,8 +1247,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
+		public boolean isAppl() {
+			return true;
+		}
+		
+		@Override
 		public IConstructor encodeAsConstructor() {
 			return this;
+		}
+		
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeAppl(this);
 		}
 		
 		@Override
