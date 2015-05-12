@@ -14,10 +14,9 @@ package org.rascalmpl.uri;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.NavigableMap;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -100,18 +99,29 @@ public class JarFileHierachy {
     }
     return result.lastModified;
   }
+  
+  private static final String biggestChar = new String(new int[] {Character.MAX_CODE_POINT},0,1);
 
   public String[] directChildren(String path) {
+    assert path.endsWith("/");
+
     NavigableMap<String, FSEntry> contents = fs.tailMap(path, true);
+    String end = fs.higherKey(path + biggestChar); // the last key
     int offset = path.length();
-    Set<String> result = new HashSet<>();
+    ArrayList<String> result = new ArrayList<>();
+    String previousDir = "+"; // never valid
+
     for (String subPath : contents.keySet()) {
-      if (!subPath.startsWith(path)) {
+      if (subPath == end) {
         break;
       }
       int nextSlash = subPath.indexOf('/', offset);
       if (nextSlash != -1) {
-        result.add(subPath.substring(offset, nextSlash));
+        if (!subPath.startsWith(previousDir, offset)) {
+          previousDir = subPath.substring(offset, nextSlash);
+          result.add(previousDir);
+          previousDir = previousDir + "/"; // to make sure the starts with doesn't match same prefix dirs
+        }
       }
       else {
         result.add(subPath.substring(offset));
