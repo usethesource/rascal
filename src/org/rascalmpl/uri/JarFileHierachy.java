@@ -33,12 +33,10 @@ public class JarFileHierachy {
   // perhaps the string could be split into folders and some smart interning
   // but for now, this works.
   private final TreeMap<String, FSEntry> fs;
-  private final long timeStamp;
   private final long totalSize;
 
   public JarFileHierachy(File jar) {
     this.fs = new TreeMap<String, FSEntry>();
-    this.timeStamp = jar.lastModified();
     long totalSize = 0;
     try(JarFile jarFile = new JarFile(jar)) {
       for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
@@ -56,6 +54,9 @@ public class JarFileHierachy {
   }
 
   public boolean exists(String path) {
+    // since we only store files, but they are sorted
+    // the ceilingKey will return either the first file in the directory
+    // or the actual file itself
     String result = fs.ceilingKey(path);
     if (result == null) {
       return false;
@@ -70,6 +71,9 @@ public class JarFileHierachy {
     return result.startsWith(path);
   }
   public boolean isDirectory(String path) {
+    // since we only store files, but they are sorted
+    // the ceilingKey will return either the first file in the directory
+    // or the actual file itself
     String result = fs.ceilingKey(path);
     if (result == null) {
       return false;
@@ -86,10 +90,6 @@ public class JarFileHierachy {
 
   public boolean isFile(String path) {
     return fs.containsKey(path);
-  }
-
-  public long getTimeStamp() {
-    return timeStamp;
   }
 
   public long getLastModified(String path) throws FileNotFoundException {
