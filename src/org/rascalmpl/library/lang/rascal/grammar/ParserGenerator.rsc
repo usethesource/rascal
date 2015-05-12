@@ -561,6 +561,7 @@ public str sym2name(Symbol s){
     }
 }
 
+@Memo
 public str value2id(value v) {
   return v2i(v);
 }
@@ -577,7 +578,7 @@ str v2i(value v) {
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
-	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
+	        case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
         case str s()       : return escId(s);
