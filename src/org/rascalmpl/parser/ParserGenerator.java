@@ -184,11 +184,11 @@ public class ParserGenerator {
    */
 	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 130);
-		Profiler profiler = new Profiler(evaluator);
+//		Profiler profiler = new Profiler(evaluator);
 
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
-			profiler.start();
+//			profiler.start();
 			IConstructor grammar = getGrammar(monitor, name, definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
@@ -198,12 +198,12 @@ public class ParserGenerator {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
 		} finally {
 			monitor.endJob(true);
-			if (profiler != null) {
-				profiler.pleaseStop();
-				evaluator.getStdOut().println("PROFILE:");
-				profiler.report();
-				profiler = null;
-			}
+//			if (profiler != null) {
+//				profiler.pleaseStop();
+//				evaluator.getStdOut().println("PROFILE:");
+//				profiler.report();
+//				profiler = null;
+//			}
 		}
 	}
 
