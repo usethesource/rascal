@@ -29,29 +29,27 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class JarURIResolver implements ISourceLocationInput{
 
-  private static final Cache<String, JarFileHierachy> fsCache;
-
-  static {
-    fsCache = Caffeine.newBuilder()
+  private static final Cache<String, JarFileHierachy> fsCache
+     = Caffeine.newBuilder()
         .<String, JarFileHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
         .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more than 1% of the memory
         .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
         .softValues()
-        .build();
-  }
+        .build()
+     ;
 
   public JarURIResolver() {
     super();
   }
 
-  private String getJar(ISourceLocation uri) throws IOException {
+  private File getJar(ISourceLocation uri) throws IOException {
     String path = uri.getPath();
     if (path == null) {
       path = uri.toString();
     }
     int bang = path.indexOf('!');
     if (bang != -1) {
-      return path.substring(path.indexOf("/"), bang);
+      return new File(path.substring(path.indexOf("/"), bang));
     }
     else {
       throw new IOException("The jar and the internal path should be separated with a !");
@@ -78,7 +76,7 @@ public class JarURIResolver implements ISourceLocationInput{
   }
 
   public InputStream getInputStream(ISourceLocation uri) throws IOException {
-    String jar = getJar(uri);
+    File jar = getJar(uri);
     String path = getPath(uri);
 
     @SuppressWarnings("resource")
@@ -90,10 +88,10 @@ public class JarURIResolver implements ISourceLocationInput{
 
   public boolean exists(ISourceLocation uri) {
     try {
-      String jar = getJar(uri);
+      File jar = getJar(uri);
       String path = getPath(uri);
 
-      if (new File(jar).exists()) {
+      if (jar.exists()) {
         if (path == null || path.isEmpty() || path.equals("/")) {
           return true;
         }
@@ -105,16 +103,8 @@ public class JarURIResolver implements ISourceLocationInput{
     }
   }
 
-  private JarFileHierachy getFileHierchyCache(String jar) {
-    final File f = new File(jar);
-    JarFileHierachy result = fsCache.get(jar, j -> new JarFileHierachy(f));
-    if (result == null || result.getTimeStamp() != f.lastModified()) {
-      // it could be that we are calculating twice due to a race on the map
-      // but that would just cost a bit of performance, and we do avoid blocking on the map
-      result = new JarFileHierachy(f);
-      fsCache.put(jar, result);
-    }
-    return result;
+  private JarFileHierachy getFileHierchyCache(final File jar) {
+    return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileHierachy(jar));
   }
 
   public boolean isDirectory(ISourceLocation uri){
@@ -123,14 +113,14 @@ public class JarURIResolver implements ISourceLocationInput{
         // if the uri is the root of a jar, and it ends with a ![/], it should be considered a directory
         return true;
       }
-      String jar = getJar(uri);
+      File jar = getJar(uri);
       String path = getPath(uri);
 
       if (!path.endsWith("/")) {
         path = path + "/";
       }
 
-      if (new File(jar).exists()) {
+      if (jar.exists()) {
         return getFileHierchyCache(jar).isDirectory(path);
       }
       return false;
@@ -141,9 +131,9 @@ public class JarURIResolver implements ISourceLocationInput{
 
   public boolean isFile(ISourceLocation uri){
     try {
-      String jar = getJar(uri);
+      File jar = getJar(uri);
       String path = getPath(uri);
-      if (new File(jar).exists()) {
+      if (jar.exists()) {
         return getFileHierchyCache(jar).isFile(path);
       }
       return false;
@@ -153,9 +143,9 @@ public class JarURIResolver implements ISourceLocationInput{
   }
 
   public long lastModified(ISourceLocation uri) throws IOException{
-    String jar = getJar(uri);
+    File jar = getJar(uri);
     String path = getPath(uri);
-    if (new File(jar).exists()) {
+    if (jar.exists()) {
         return getFileHierchyCache(jar).getLastModified(path);
     }
     throw new FileNotFoundException(uri.toString());
@@ -163,13 +153,13 @@ public class JarURIResolver implements ISourceLocationInput{
 
   @Override
   public String[] list(ISourceLocation uri) throws IOException {
-    String jar = getJar(uri);
+    File jar = getJar(uri);
     String path = getPath(uri);
 
     if (!path.endsWith("/") && !path.isEmpty()) {
       path = path + "/";
     }
-    if (new File(jar).exists()) {
+    if (jar.exists()) {
         return getFileHierchyCache(jar).directChildren(path);
     }
     return new String[0];
