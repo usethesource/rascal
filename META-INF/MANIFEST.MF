@@ -6,6 +6,12 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.7.2.qualifier
 Export-Package: 
+ com.github.benmanes.caffeine,
+ com.github.benmanes.caffeine.base,
+ com.github.benmanes.caffeine.cache,
+ com.github.benmanes.caffeine.cache.stats,
+ com.github.benmanes.caffeine.cache.tracing,
+ com.github.benmanes.caffeine.locks,
  org.apache.commons.compress.compressors,
  org.apache.commons.compress.compressors.bzip2,
  org.apache.commons.compress.compressors.deflate,
@@ -110,4 +116,5 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/commons-compress-1.9.jar,
  lib/jdom-2.0.6.jar,
  lib/fst-1.34.jar,
+ lib/caffeine-1.2.0.jar,
  .
