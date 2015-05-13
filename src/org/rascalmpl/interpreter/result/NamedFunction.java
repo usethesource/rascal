@@ -143,7 +143,7 @@ abstract public class NamedFunction extends AbstractFunction {
 
     protected boolean checkMemoization(FunctionDeclaration func) {
         for (Tag tag : func.getTags().getTags()) {
-            if (Names.name(tag.getName()).equals("memo")) {
+            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
                 return true;
             }
         }
