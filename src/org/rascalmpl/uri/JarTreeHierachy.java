@@ -21,9 +21,9 @@ import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class JarFileHierachy {
+public abstract class JarTreeHierachy {
 
-  private static class FSEntry {
+  protected static class FSEntry {
     public long lastModified;
     public FSEntry(long lastModified) {
       this.lastModified = lastModified;
@@ -32,29 +32,14 @@ public class JarFileHierachy {
 
   // perhaps the string could be split into folders and some smart interning
   // but for now, this works.
-  private final TreeMap<String, FSEntry> fs;
-  private final long totalSize;
-  private final IOException throwMe;
+  protected final NavigableMap<String, FSEntry> fs;
+  protected long totalSize;
+  protected IOException throwMe;
 
-  public JarFileHierachy(File jar) {
-    this.fs = new TreeMap<String, FSEntry>();
-    long totalSize = 0;
-    IOException throwMe = null;
-    try(JarFile jarFile = new JarFile(jar)) {
-      for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
-        JarEntry je = e.nextElement();
-        if (je.isDirectory()) {
-          continue;
-        }
-        String name = je.getName();
-        totalSize += 8 + (name.length() * 2);
-        fs.put(name, new FSEntry(je.getTime()));
-      }
-    } catch (IOException e1) {
-      throwMe = e1;
-    }
-    this.totalSize = totalSize;
-    this.throwMe = throwMe;
+  public JarTreeHierachy() {
+    fs = new TreeMap<String, FSEntry>();
+    totalSize = 0;
+    throwMe = null;
   }
 
   public boolean exists(String path) {

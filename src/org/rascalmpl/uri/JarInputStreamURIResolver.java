@@ -2,6 +2,7 @@ package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,45 +17,49 @@ import java.util.jar.JarInputStream;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-public class JarInputStreamURIResolver implements ISourceLocationInput {
-	private URIResolverRegistry registry = URIResolverRegistry.getInstance();
-	private ISourceLocation jarURI;
-	private String scheme;
-	private Map<String, Integer> index;
+public class JarInputStreamURIResolver extends JarURIResolver {
+	private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
+	private final ISourceLocation jarURI;
+	private final String scheme;
+	private final JarInputStreamTreeHierachy index;
 
-	public JarInputStreamURIResolver(ISourceLocation jarURI) {
+	public JarInputStreamURIResolver(ISourceLocation jarURI) throws IOException {
 		this.jarURI = jarURI;
-		this.scheme = "jarstream+" + UUID.randomUUID();
-		buildIndex();
+		scheme = "jarstream+" + UUID.randomUUID();
+	  index = new JarInputStreamTreeHierachy(getJarStream());
+	}
+	
+	@Override
+	protected File getJar(ISourceLocation uri) throws IOException {
+	  return new File(jarURI.getPath());
+	}
+	
+	@Override
+	protected String getPath(ISourceLocation uri) {
+	  String path = uri.getPath();
+	  if (path == null || path.isEmpty() || path.equals("/")) {
+	    return "";
+	  }
+    while (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    return path;
+	}
+	
+	@Override
+	protected JarTreeHierachy getFileHierchyCache(File jar) {
+	  return index;
 	}
 	
 	public InputStream getJarStream() throws IOException {
 		return registry.getInputStream(jarURI);
 	}
 
-	private void buildIndex() {
-		index = new HashMap<>();
-		
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry next = null;
-			int pos = 0;
-			
-			while ((next = stream.getNextJarEntry()) != null) {
-				index.put(next.getName(), pos++);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			index = null;
-		}		
-	}
 	
-	private JarEntry getEntry(JarInputStream stream, String file) throws IOException {
-		if (file.startsWith("/")) {
-			file = file.substring(1);
-		}
-		Integer pos = index == null ? null : index.get(file);
+	private JarEntry getEntry(JarInputStream stream, ISourceLocation subPath) throws IOException {
+		int pos = index.getPosition(getPath(subPath));
 		
-		if (pos != null) {
+		if (pos != -1) {
 			JarEntry entry;
 			do {
 				entry = stream.getNextJarEntry();
@@ -68,115 +73,45 @@ public class JarInputStreamURIResolver implements ISourceLocationInput {
 	
 	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			if (getEntry(stream, uri.getPath()) != null) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = stream.read(buf)) > 0) {
-					out.write(buf, 0, len);
-				}
-				
-				return new ByteArrayInputStream(out.toByteArray());
-			}
+		final JarInputStream stream = new JarInputStream(getJarStream());
+		if (getEntry(stream, uri) != null) {
+		  // ideally we could just return the stream
+		  // except that the JarInputStream doesn't hold the InputStream contract
+		  // mainly, the read(byte[],int,int) works correctly, as that it stops at the boundary of the file
+		  // but the read() doesn't limit itself to the end of the nested file, but works on the whole stream.
+			return new InputStream() {
+
+        @Override
+        public int read() throws IOException {
+          byte[] result = new byte[1];
+          if (stream.read(result, 0, 1) != -1) {
+            return result[0] & 0xFF;
+          }
+          return -1;
+        }
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+          return stream.read(b, off, len);
+        }
+        @Override
+        public int read(byte[] b) throws IOException {
+          return stream.read(b, 0, b.length);
+        }
+        @Override
+        public void close() throws IOException {
+          stream.close();
+        }
+        @Override
+        public int available() throws IOException {
+          return stream.available();
+        }
+        @Override
+        public long skip(long n) throws IOException {
+          return stream.skip(n);
+        }
+			};
 		}
-		
 		return null;
-	}
-
-	@Override
-	public Charset getCharset(ISourceLocation uri) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean exists(ISourceLocation uri) {
-		String file = uri.getPath();
-		if (file.startsWith("/")) {
-			file = file.substring(1);
-		}
-		return index.containsKey(file);
-	}
-
-	@Override
-	public long lastModified(ISourceLocation uri) throws IOException {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath());
-			if (je != null) {
-				return je.getTime();
-			}
-		}
-		
-		throw new FileNotFoundException(uri.toString());
-	}
-
-	@Override
-	public boolean isDirectory(ISourceLocation uri) {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath());
-			if (je != null) {
-				return je.isDirectory();
-			}
-		} catch (IOException e) {
-			return false;
-		}
-		
-		return false;
-	}
-
-	@Override
-	public boolean isFile(ISourceLocation uri) {
-		return !isDirectory(uri);
-	}
-
-	@Override
-	public String[] list(ISourceLocation uri) throws IOException {
-		String path = uri.getPath();
-
-		if (!path.endsWith("/") && !path.isEmpty()) {
-			path = path + "/";
-		}
-
-		ArrayList<String> matchedEntries = new ArrayList<>();
-
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
-
-			while ((je = stream.getNextJarEntry()) != null) {
-				String name = je.getName();
-
-				if (name.equals(path)) {
-					continue;
-				}
-				int index = name.indexOf(path);
-
-				if (index == 0) {
-					String result = name.substring(path.length());
-
-					index = result.indexOf("/");
-
-					if (index == -1) {
-						matchedEntries.add(result);
-					} else {
-						result = result.substring(0, index);
-						boolean entryPresent = false;
-						for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
-							if (result.equals(it.next())) {
-								entryPresent = true;
-								break;
-							}
-						}
-						if (!entryPresent) {
-							matchedEntries.add(result);
-						}
-					}
-				}
-			}
-		}
-
-		String[] listedEntries = new String[matchedEntries.size()];
-		return matchedEntries.toArray(listedEntries);
 	}
 
 	@Override

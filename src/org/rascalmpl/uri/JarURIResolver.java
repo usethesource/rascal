@@ -29,9 +29,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class JarURIResolver implements ISourceLocationInput{
 
-  private static final Cache<String, JarFileHierachy> fsCache
+  private static final Cache<String, JarTreeHierachy> fsCache
      = Caffeine.newBuilder()
-        .<String, JarFileHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
+        .<String, JarTreeHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
         .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more than 1% of the memory
         .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
         .softValues()
@@ -42,7 +42,7 @@ public class JarURIResolver implements ISourceLocationInput{
     super();
   }
 
-  private File getJar(ISourceLocation uri) throws IOException {
+  protected File getJar(ISourceLocation uri) throws IOException {
     String path = uri.getPath();
     if (path == null) {
       path = uri.toString();
@@ -56,7 +56,7 @@ public class JarURIResolver implements ISourceLocationInput{
     }
   }
 
-  private String getPath(ISourceLocation uri) {
+  protected String getPath(ISourceLocation uri) {
     String path = uri.getPath();
     if (path == null) {
       path = uri.toString();
@@ -100,8 +100,8 @@ public class JarURIResolver implements ISourceLocationInput{
     }
   }
 
-  private JarFileHierachy getFileHierchyCache(final File jar) {
-      return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileHierachy(jar));
+  protected JarTreeHierachy getFileHierchyCache(final File jar) {
+      return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileTreeHierachy(jar));
   }
 
   public boolean isDirectory(ISourceLocation uri){
