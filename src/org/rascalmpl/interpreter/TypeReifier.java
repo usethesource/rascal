@@ -509,14 +509,13 @@ public class TypeReifier {
 				}
 				
 				IListWriter kwTypes = vf.listWriter();
-				IMapWriter kwDefaults = vf.mapWriter();
 				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
 						
 				for (String label : keywordParameters.keySet()) {
 					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
