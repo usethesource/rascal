@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -347,7 +347,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 577 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+      return 499 + 881 * lhs.hashCode() + 211 * rhs.hashCode() ; 
     } 
   
     
@@ -369,6 +369,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isAll() {
     return false;
@@ -407,7 +412,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 257 * generators.hashCode() ; 
+      return 227 + 659 * generators.hashCode() ; 
     } 
   
     
@@ -420,6 +425,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(generators));
+    }
   }
   public boolean isAnd() {
     return false;
@@ -460,7 +470,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 97 * lhs.hashCode() + 821 * rhs.hashCode() ; 
+      return 599 + 839 * lhs.hashCode() + 829 * rhs.hashCode() ; 
     } 
   
     
@@ -482,6 +492,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isAnti() {
     return false;
@@ -520,7 +535,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 19 * pattern.hashCode() ; 
+      return 941 + 743 * pattern.hashCode() ; 
     } 
   
     
@@ -533,6 +548,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern));
+    }
   }
   public boolean isAny() {
     return false;
@@ -571,7 +591,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 613 * generators.hashCode() ; 
+      return 809 + 929 * generators.hashCode() ; 
     } 
   
     
@@ -584,6 +604,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(generators));
+    }
   }
   public boolean isAppendAfter() {
     return false;
@@ -624,7 +649,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 677 * lhs.hashCode() + 641 * rhs.hashCode() ; 
+      return 13 + 347 * lhs.hashCode() + 631 * rhs.hashCode() ; 
     } 
   
     
@@ -646,6 +671,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isAsType() {
     return false;
@@ -686,7 +716,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 337 * type.hashCode() + 823 * argument.hashCode() ; 
+      return 13 + 257 * type.hashCode() + 179 * argument.hashCode() ; 
     } 
   
     
@@ -708,6 +738,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type), clone(argument));
+    }
   }
   public boolean isBracket() {
     return false;
@@ -746,7 +781,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 277 * expression.hashCode() ; 
+      return 997 + 827 * expression.hashCode() ; 
     } 
   
     
@@ -759,6 +794,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression));
+    }
   }
   public boolean isCallOrTree() {
     return false;
@@ -801,7 +841,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 5 * expression.hashCode() + 733 * arguments.hashCode() + 547 * keywordArguments.hashCode() ; 
+      return 673 + 479 * expression.hashCode() + 197 * arguments.hashCode() + 757 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -832,6 +872,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasKeywordArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(arguments), clone(keywordArguments));
+    }
   }
   public boolean isClosure() {
     return false;
@@ -874,7 +919,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 61 * type.hashCode() + 223 * parameters.hashCode() + 293 * statements.hashCode() ; 
+      return 409 + 197 * type.hashCode() + 101 * parameters.hashCode() + 131 * statements.hashCode() ; 
     } 
   
     
@@ -905,6 +950,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type), clone(parameters), clone(statements));
+    }
   }
   public boolean isComposition() {
     return false;
@@ -945,7 +995,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 509 * lhs.hashCode() + 193 * rhs.hashCode() ; 
+      return 463 + 523 * lhs.hashCode() + 881 * rhs.hashCode() ; 
     } 
   
     
@@ -967,6 +1017,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isComprehension() {
     return false;
@@ -1005,7 +1060,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 + 809 * comprehension.hashCode() ; 
+      return 751 + 919 * comprehension.hashCode() ; 
     } 
   
     
@@ -1018,6 +1073,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasComprehension() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(comprehension));
+    }
   }
   public boolean isConcrete() {
     return false;
@@ -1056,7 +1116,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 337 * concrete.hashCode() ; 
+      return 977 + 79 * concrete.hashCode() ; 
     } 
   
     
@@ -1069,6 +1129,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasConcrete() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(concrete));
+    }
   }
   public boolean isDescendant() {
     return false;
@@ -1107,7 +1172,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 163 * pattern.hashCode() ; 
+      return 263 + 659 * pattern.hashCode() ; 
     } 
   
     
@@ -1120,6 +1185,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern));
+    }
   }
   public boolean isDivision() {
     return false;
@@ -1160,7 +1230,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 971 * lhs.hashCode() + 449 * rhs.hashCode() ; 
+      return 113 + 953 * lhs.hashCode() + 389 * rhs.hashCode() ; 
     } 
   
     
@@ -1182,6 +1252,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isEnumerator() {
     return false;
@@ -1222,7 +1297,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 599 * pattern.hashCode() + 691 * expression.hashCode() ; 
+      return 601 + 383 * pattern.hashCode() + 257 * expression.hashCode() ; 
     } 
   
     
@@ -1244,6 +1319,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(expression));
+    }
   }
   public boolean isEquals() {
     return false;
@@ -1284,7 +1364,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 859 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+      return 83 + 401 * lhs.hashCode() + 281 * rhs.hashCode() ; 
     } 
   
     
@@ -1306,6 +1386,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isEquivalence() {
     return false;
@@ -1346,7 +1431,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 811 * lhs.hashCode() + 599 * rhs.hashCode() ; 
+      return 809 + 499 * lhs.hashCode() + 367 * rhs.hashCode() ; 
     } 
   
     
@@ -1368,6 +1453,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isFieldAccess() {
     return false;
@@ -1408,7 +1498,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 563 * expression.hashCode() + 787 * field.hashCode() ; 
+      return 233 + 757 * expression.hashCode() + 67 * field.hashCode() ; 
     } 
   
     
@@ -1430,6 +1520,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasField() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(field));
+    }
   }
   public boolean isFieldProject() {
     return false;
@@ -1470,7 +1565,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 547 * expression.hashCode() + 541 * fields.hashCode() ; 
+      return 971 + 277 * expression.hashCode() + 479 * fields.hashCode() ; 
     } 
   
     
@@ -1492,6 +1587,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasFields() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(fields));
+    }
   }
   public boolean isFieldUpdate() {
     return false;
@@ -1534,7 +1634,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 3 * expression.hashCode() + 521 * key.hashCode() + 7 * replacement.hashCode() ; 
+      return 223 + 271 * expression.hashCode() + 311 * key.hashCode() + 47 * replacement.hashCode() ; 
     } 
   
     
@@ -1565,6 +1665,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasReplacement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(key), clone(replacement));
+    }
   }
   public boolean isGetAnnotation() {
     return false;
@@ -1605,7 +1710,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 467 * expression.hashCode() + 149 * name.hashCode() ; 
+      return 557 + 41 * expression.hashCode() + 199 * name.hashCode() ; 
     } 
   
     
@@ -1627,6 +1732,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(name));
+    }
   }
   public boolean isGreaterThan() {
     return false;
@@ -1667,7 +1777,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 859 * lhs.hashCode() + 263 * rhs.hashCode() ; 
+      return 599 + 607 * lhs.hashCode() + 587 * rhs.hashCode() ; 
     } 
   
     
@@ -1689,6 +1799,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isGreaterThanOrEq() {
     return false;
@@ -1729,7 +1844,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 677 * lhs.hashCode() + 313 * rhs.hashCode() ; 
+      return 269 + 31 * lhs.hashCode() + 839 * rhs.hashCode() ; 
     } 
   
     
@@ -1751,6 +1866,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isHas() {
     return false;
@@ -1791,7 +1911,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 617 * expression.hashCode() + 709 * name.hashCode() ; 
+      return 241 + 23 * expression.hashCode() + 607 * name.hashCode() ; 
     } 
   
     
@@ -1813,6 +1933,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(name));
+    }
   }
   public boolean isIfDefinedOtherwise() {
     return false;
@@ -1853,7 +1978,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 281 * lhs.hashCode() + 701 * rhs.hashCode() ; 
+      return 31 + 643 * lhs.hashCode() + 173 * rhs.hashCode() ; 
     } 
   
     
@@ -1875,6 +2000,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isIfThenElse() {
     return false;
@@ -1917,7 +2047,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 971 * condition.hashCode() + 883 * thenExp.hashCode() + 149 * elseExp.hashCode() ; 
+      return 173 + 449 * condition.hashCode() + 389 * thenExp.hashCode() + 263 * elseExp.hashCode() ; 
     } 
   
     
@@ -1948,6 +2078,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElseExp() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(condition), clone(thenExp), clone(elseExp));
+    }
   }
   public boolean isImplication() {
     return false;
@@ -1988,7 +2123,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 631 * lhs.hashCode() + 199 * rhs.hashCode() ; 
+      return 73 + 251 * lhs.hashCode() + 157 * rhs.hashCode() ; 
     } 
   
     
@@ -2010,6 +2145,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isIn() {
     return false;
@@ -2050,7 +2190,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 967 * lhs.hashCode() + 271 * rhs.hashCode() ; 
+      return 863 + 181 * lhs.hashCode() + 521 * rhs.hashCode() ; 
     } 
   
     
@@ -2072,6 +2212,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isInsertBefore() {
     return false;
@@ -2112,7 +2257,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 23 * lhs.hashCode() + 223 * rhs.hashCode() ; 
+      return 641 + 643 * lhs.hashCode() + 3 * rhs.hashCode() ; 
     } 
   
     
@@ -2134,6 +2279,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isIntersection() {
     return false;
@@ -2174,7 +2324,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 557 * lhs.hashCode() + 47 * rhs.hashCode() ; 
+      return 929 + 263 * lhs.hashCode() + 947 * rhs.hashCode() ; 
     } 
   
     
@@ -2196,6 +2346,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isIs() {
     return false;
@@ -2236,7 +2391,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 139 * expression.hashCode() + 13 * name.hashCode() ; 
+      return 757 + 811 * expression.hashCode() + 89 * name.hashCode() ; 
     } 
   
     
@@ -2258,6 +2413,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(name));
+    }
   }
   public boolean isIsDefined() {
     return false;
@@ -2296,7 +2456,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 859 * argument.hashCode() ; 
+      return 947 + 467 * argument.hashCode() ; 
     } 
   
     
@@ -2309,6 +2469,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isIt() {
     return false;
@@ -2345,10 +2510,15 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 ; 
+      return 947 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isJoin() {
     return false;
@@ -2389,7 +2559,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 349 * lhs.hashCode() + 599 * rhs.hashCode() ; 
+      return 163 + 223 * lhs.hashCode() + 883 * rhs.hashCode() ; 
     } 
   
     
@@ -2411,6 +2581,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isLessThan() {
     return false;
@@ -2451,7 +2626,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 2 * lhs.hashCode() + 929 * rhs.hashCode() ; 
+      return 479 + 181 * lhs.hashCode() + 223 * rhs.hashCode() ; 
     } 
   
     
@@ -2473,6 +2648,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isLessThanOrEq() {
     return false;
@@ -2513,7 +2693,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 463 * lhs.hashCode() + 929 * rhs.hashCode() ; 
+      return 167 + 821 * lhs.hashCode() + 181 * rhs.hashCode() ; 
     } 
   
     
@@ -2535,6 +2715,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isList() {
     return false;
@@ -2573,7 +2758,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 179 * elements0.hashCode() ; 
+      return 191 + 107 * elements0.hashCode() ; 
     } 
   
     
@@ -2586,6 +2771,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(elements0));
+    }
   }
   public boolean isLiteral() {
     return false;
@@ -2624,7 +2814,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 + 31 * literal.hashCode() ; 
+      return 31 + 491 * literal.hashCode() ; 
     } 
   
     
@@ -2637,6 +2827,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(literal));
+    }
   }
   public boolean isMap() {
     return false;
@@ -2675,7 +2870,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 743 * mappings.hashCode() ; 
+      return 211 + 419 * mappings.hashCode() ; 
     } 
   
     
@@ -2688,6 +2883,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasMappings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mappings));
+    }
   }
   public boolean isMatch() {
     return false;
@@ -2728,7 +2928,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 103 * pattern.hashCode() + 653 * expression.hashCode() ; 
+      return 941 + 47 * pattern.hashCode() + 751 * expression.hashCode() ; 
     } 
   
     
@@ -2750,6 +2950,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(expression));
+    }
   }
   public boolean isModulo() {
     return false;
@@ -2790,7 +2995,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 757 * lhs.hashCode() + 109 * rhs.hashCode() ; 
+      return 103 + 787 * lhs.hashCode() + 173 * rhs.hashCode() ; 
     } 
   
     
@@ -2812,6 +3017,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isMultiVariable() {
     return false;
@@ -2850,7 +3060,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 619 * qualifiedName.hashCode() ; 
+      return 307 + 337 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -2863,6 +3073,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(qualifiedName));
+    }
   }
   public boolean isNegation() {
     return false;
@@ -2901,7 +3116,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 79 * argument.hashCode() ; 
+      return 71 + 193 * argument.hashCode() ; 
     } 
   
     
@@ -2914,6 +3129,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isNegative() {
     return false;
@@ -2952,7 +3172,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 + 157 * argument.hashCode() ; 
+      return 641 + 509 * argument.hashCode() ; 
     } 
   
     
@@ -2965,6 +3185,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isNoMatch() {
     return false;
@@ -3005,7 +3230,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 661 * pattern.hashCode() + 461 * expression.hashCode() ; 
+      return 587 + 47 * pattern.hashCode() + 2 * expression.hashCode() ; 
     } 
   
     
@@ -3027,6 +3252,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(expression));
+    }
   }
   public boolean isNonEmptyBlock() {
     return false;
@@ -3065,7 +3295,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 3 * statements.hashCode() ; 
+      return 241 + 607 * statements.hashCode() ; 
     } 
   
     
@@ -3078,6 +3308,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(statements));
+    }
   }
   public boolean isNonEquals() {
     return false;
@@ -3118,7 +3353,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 883 * lhs.hashCode() + 397 * rhs.hashCode() ; 
+      return 23 + 109 * lhs.hashCode() + 7 * rhs.hashCode() ; 
     } 
   
     
@@ -3140,6 +3375,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isNotIn() {
     return false;
@@ -3180,7 +3420,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 149 * lhs.hashCode() + 593 * rhs.hashCode() ; 
+      return 131 + 487 * lhs.hashCode() + 269 * rhs.hashCode() ; 
     } 
   
     
@@ -3202,6 +3442,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isOr() {
     return false;
@@ -3242,7 +3487,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 643 * lhs.hashCode() + 821 * rhs.hashCode() ; 
+      return 487 + 373 * lhs.hashCode() + 607 * rhs.hashCode() ; 
     } 
   
     
@@ -3264,6 +3509,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isProduct() {
     return false;
@@ -3304,7 +3554,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 953 * lhs.hashCode() + 443 * rhs.hashCode() ; 
+      return 953 + 127 * lhs.hashCode() + 937 * rhs.hashCode() ; 
     } 
   
     
@@ -3326,6 +3576,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isQualifiedName() {
     return false;
@@ -3364,7 +3619,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 619 * qualifiedName.hashCode() ; 
+      return 743 + 479 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -3377,6 +3632,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(qualifiedName));
+    }
   }
   public boolean isRange() {
     return false;
@@ -3417,7 +3677,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 911 * first.hashCode() + 17 * last.hashCode() ; 
+      return 337 + 223 * first.hashCode() + 683 * last.hashCode() ; 
     } 
   
     
@@ -3439,6 +3699,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(first), clone(last));
+    }
   }
   public boolean isReducer() {
     return false;
@@ -3481,7 +3746,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 757 * init.hashCode() + 523 * result.hashCode() + 631 * generators.hashCode() ; 
+      return 977 + 577 * init.hashCode() + 83 * result.hashCode() + 61 * generators.hashCode() ; 
     } 
   
     
@@ -3512,6 +3777,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(init), clone(result), clone(generators));
+    }
   }
   public boolean isReifiedType() {
     return false;
@@ -3552,7 +3822,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 859 * symbol.hashCode() + 719 * definitions.hashCode() ; 
+      return 151 + 13 * symbol.hashCode() + 857 * definitions.hashCode() ; 
     } 
   
     
@@ -3574,6 +3844,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasDefinitions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(definitions));
+    }
   }
   public boolean isReifyType() {
     return false;
@@ -3612,7 +3887,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 839 * type.hashCode() ; 
+      return 593 + 433 * type.hashCode() ; 
     } 
   
     
@@ -3625,6 +3900,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type));
+    }
   }
   public boolean isRemainder() {
     return false;
@@ -3665,7 +3945,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 811 * lhs.hashCode() + 229 * rhs.hashCode() ; 
+      return 151 + 101 * lhs.hashCode() + 439 * rhs.hashCode() ; 
     } 
   
     
@@ -3687,6 +3967,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isSet() {
     return false;
@@ -3725,7 +4010,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 + 883 * elements0.hashCode() ; 
+      return 263 + 137 * elements0.hashCode() ; 
     } 
   
     
@@ -3738,6 +4023,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(elements0));
+    }
   }
   public boolean isSetAnnotation() {
     return false;
@@ -3780,7 +4070,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 59 * expression.hashCode() + 983 * name.hashCode() + 673 * value.hashCode() ; 
+      return 397 + 769 * expression.hashCode() + 41 * name.hashCode() + 367 * value.hashCode() ; 
     } 
   
     
@@ -3811,6 +4101,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasValue() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(name), clone(value));
+    }
   }
   public boolean isSlice() {
     return false;
@@ -3853,7 +4148,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 541 * expression.hashCode() + 443 * optFirst.hashCode() + 107 * optLast.hashCode() ; 
+      return 331 + 311 * expression.hashCode() + 397 * optFirst.hashCode() + 487 * optLast.hashCode() ; 
     } 
   
     
@@ -3884,6 +4179,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(optFirst), clone(optLast));
+    }
   }
   public boolean isSliceStep() {
     return false;
@@ -3928,7 +4228,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 883 * expression.hashCode() + 463 * optFirst.hashCode() + 163 * second.hashCode() + 809 * optLast.hashCode() ; 
+      return 641 + 733 * expression.hashCode() + 311 * optFirst.hashCode() + 593 * second.hashCode() + 353 * optLast.hashCode() ; 
     } 
   
     
@@ -3968,6 +4268,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(optFirst), clone(second), clone(optLast));
+    }
   }
   public boolean isSplice() {
     return false;
@@ -4006,7 +4311,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 + 181 * argument.hashCode() ; 
+      return 911 + 107 * argument.hashCode() ; 
     } 
   
     
@@ -4019,6 +4324,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isSplicePlus() {
     return false;
@@ -4057,7 +4367,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 47 * argument.hashCode() ; 
+      return 839 + 373 * argument.hashCode() ; 
     } 
   
     
@@ -4070,6 +4380,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isStepRange() {
     return false;
@@ -4112,7 +4427,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 199 * first.hashCode() + 109 * second.hashCode() + 971 * last.hashCode() ; 
+      return 823 + 373 * first.hashCode() + 491 * second.hashCode() + 163 * last.hashCode() ; 
     } 
   
     
@@ -4143,6 +4458,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(first), clone(second), clone(last));
+    }
   }
   public boolean isSubscript() {
     return false;
@@ -4183,7 +4503,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 823 * expression.hashCode() + 929 * subscripts.hashCode() ; 
+      return 823 + 997 * expression.hashCode() + 811 * subscripts.hashCode() ; 
     } 
   
     
@@ -4205,6 +4525,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasSubscripts() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(subscripts));
+    }
   }
   public boolean isSubtraction() {
     return false;
@@ -4245,7 +4570,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 11 * lhs.hashCode() + 449 * rhs.hashCode() ; 
+      return 971 + 431 * lhs.hashCode() + 163 * rhs.hashCode() ; 
     } 
   
     
@@ -4267,6 +4592,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isTransitiveClosure() {
     return false;
@@ -4305,7 +4635,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 163 * argument.hashCode() ; 
+      return 641 + 659 * argument.hashCode() ; 
     } 
   
     
@@ -4318,6 +4648,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isTransitiveReflexiveClosure() {
     return false;
@@ -4356,7 +4691,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 199 * argument.hashCode() ; 
+      return 409 + 641 * argument.hashCode() ; 
     } 
   
     
@@ -4369,6 +4704,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(argument));
+    }
   }
   public boolean isTuple() {
     return false;
@@ -4407,7 +4747,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 347 * elements.hashCode() ; 
+      return 787 + 137 * elements.hashCode() ; 
     } 
   
     
@@ -4420,6 +4760,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(elements));
+    }
   }
   public boolean isTypedVariable() {
     return false;
@@ -4460,7 +4805,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 239 + 787 * type.hashCode() + 11 * name.hashCode() ; 
+      return 613 + 191 * type.hashCode() + 857 * name.hashCode() ; 
     } 
   
     
@@ -4482,6 +4827,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type), clone(name));
+    }
   }
   public boolean isTypedVariableBecomes() {
     return false;
@@ -4524,7 +4874,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 653 * type.hashCode() + 887 * name.hashCode() + 919 * pattern.hashCode() ; 
+      return 419 + 353 * type.hashCode() + 197 * name.hashCode() + 31 * pattern.hashCode() ; 
     } 
   
     
@@ -4555,6 +4905,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type), clone(name), clone(pattern));
+    }
   }
   public boolean isVariableBecomes() {
     return false;
@@ -4595,7 +4950,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 677 + 631 * name.hashCode() + 449 * pattern.hashCode() ; 
+      return 607 + 257 * name.hashCode() + 5 * pattern.hashCode() ; 
     } 
   
     
@@ -4617,6 +4972,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(pattern));
+    }
   }
   public boolean isVisit() {
     return false;
@@ -4657,7 +5017,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 491 * label.hashCode() + 43 * visit.hashCode() ; 
+      return 769 + 83 * label.hashCode() + 727 * visit.hashCode() ; 
     } 
   
     
@@ -4679,6 +5039,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasVisit() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(label), clone(visit));
+    }
   }
   public boolean isVoidClosure() {
     return false;
@@ -4719,7 +5084,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 521 * parameters.hashCode() + 751 * statements0.hashCode() ; 
+      return 883 + 499 * parameters.hashCode() + 907 * statements0.hashCode() ; 
     } 
   
     
@@ -4741,5 +5106,10 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(parameters), clone(statements0));
+    }
   }
 }

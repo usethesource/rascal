@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 523 + 541 * pattern.hashCode() + 541 * statement.hashCode() ; 
+      return 829 + 719 * pattern.hashCode() + 829 * statement.hashCode() ; 
     } 
   
     
@@ -110,6 +110,11 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(statement));
+    }
   }
   public boolean isReplacing() {
     return false;
@@ -150,7 +155,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 337 * pattern.hashCode() + 647 * replacement.hashCode() ; 
+      return 659 + 683 * pattern.hashCode() + 347 * replacement.hashCode() ; 
     } 
   
     
@@ -172,5 +177,10 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasReplacement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(replacement));
+    }
   }
 }

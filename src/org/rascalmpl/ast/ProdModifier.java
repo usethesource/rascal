@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 643 * associativity.hashCode() ; 
+      return 457 + 887 * associativity.hashCode() ; 
     } 
   
     
@@ -92,6 +92,11 @@ public abstract class ProdModifier extends AbstractAST {
     public boolean hasAssociativity() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(associativity));
+    }
   }
   public boolean isBracket() {
     return false;
@@ -128,10 +133,15 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 ; 
+      return 677 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTag() {
     return false;
@@ -170,7 +180,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 661 * tag.hashCode() ; 
+      return 823 + 857 * tag.hashCode() ; 
     } 
   
     
@@ -183,5 +193,10 @@ public abstract class ProdModifier extends AbstractAST {
     public boolean hasTag() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tag));
+    }
   }
 }

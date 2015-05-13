@@ -6,25 +6,21 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
-public class JarFileHierachy {
+public abstract class JarTreeHierachy {
 
-  private static class FSEntry {
+  protected static class FSEntry {
     public long lastModified;
+
     public FSEntry(long lastModified) {
       this.lastModified = lastModified;
     }
@@ -32,29 +28,14 @@ public class JarFileHierachy {
 
   // perhaps the string could be split into folders and some smart interning
   // but for now, this works.
-  private final TreeMap<String, FSEntry> fs;
-  private final long totalSize;
-  private final IOException throwMe;
+  protected final NavigableMap<String, FSEntry> fs;
+  protected long totalSize;
+  protected IOException throwMe;
 
-  public JarFileHierachy(File jar) {
-    this.fs = new TreeMap<String, FSEntry>();
-    long totalSize = 0;
-    IOException throwMe = null;
-    try(JarFile jarFile = new JarFile(jar)) {
-      for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
-        JarEntry je = e.nextElement();
-        if (je.isDirectory()) {
-          continue;
-        }
-        String name = je.getName();
-        totalSize += 8 + (name.length() * 2);
-        fs.put(name, new FSEntry(je.getTime()));
-      }
-    } catch (IOException e1) {
-      throwMe = e1;
-    }
-    this.totalSize = totalSize;
-    this.throwMe = throwMe;
+  public JarTreeHierachy() {
+    fs = new TreeMap<String, FSEntry>();
+    totalSize = 0;
+    throwMe = null;
   }
 
   public boolean exists(String path) {
@@ -77,6 +58,7 @@ public class JarFileHierachy {
     }
     return result.startsWith(path);
   }
+
   public boolean isDirectory(String path) {
     if (throwMe != null) {
       return false;
@@ -115,8 +97,8 @@ public class JarFileHierachy {
     }
     return result.lastModified;
   }
-  
-  private static final String biggestChar = new String(new int[] {Character.MAX_CODE_POINT},0,1);
+
+  private static final String biggestChar = new String(new int[] {Character.MAX_CODE_POINT}, 0, 1);
 
   public String[] directChildren(String path) throws IOException {
     if (throwMe != null) {
@@ -139,7 +121,8 @@ public class JarFileHierachy {
         if (!subPath.startsWith(previousDir, offset)) {
           previousDir = subPath.substring(offset, nextSlash);
           result.add(previousDir);
-          previousDir = previousDir + "/"; // to make sure the starts with doesn't match same prefix dirs
+          previousDir = previousDir + "/"; // to make sure the starts with doesn't match same prefix
+                                           // dirs
         }
       }
       else {

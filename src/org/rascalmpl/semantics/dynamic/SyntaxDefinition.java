@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2015 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -38,6 +48,11 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
+		public Object clone() {
+			return new Language(node, clone(getStart()), clone(getDefined()), clone(getProduction()));
+		}
+		
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
@@ -63,6 +78,12 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public IConstructor getTree() {
 			return node;
+		}
+		
+		
+		@Override
+		public Object clone() {
+			return new Lexical(node, clone(getDefined()), clone(getProduction()));
 		}
 		
 		@Override
@@ -95,6 +116,11 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
+		public Object clone() {
+			return new Layout(node, clone(getVis()), clone(getDefined()), clone(getProduction()));
+		}
+		
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  Sym type = getDefined();
       IValueFactory vf = eval.getValueFactory();
@@ -120,6 +146,11 @@ public abstract class SyntaxDefinition extends
 		@Override
 		public IConstructor getTree() {
 			return node;
+		}
+		
+		@Override
+		public Object clone() {
+			return new Keyword(node, clone(getDefined()), clone(getProduction()));
 		}
 
 		@Override

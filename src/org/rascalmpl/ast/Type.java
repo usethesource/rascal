@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 619 * basic.hashCode() ; 
+      return 433 + 73 * basic.hashCode() ; 
     } 
   
     
@@ -134,6 +134,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasBasic() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(basic));
+    }
   }
   public boolean isBracket() {
     return false;
@@ -172,7 +177,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 113 * type.hashCode() ; 
+      return 997 + 431 * type.hashCode() ; 
     } 
   
     
@@ -185,6 +190,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type));
+    }
   }
   public boolean isFunction() {
     return false;
@@ -223,7 +233,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 89 * function.hashCode() ; 
+      return 599 + 911 * function.hashCode() ; 
     } 
   
     
@@ -236,6 +246,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasFunction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(function));
+    }
   }
   public boolean isSelector() {
     return false;
@@ -274,7 +289,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 83 * selector.hashCode() ; 
+      return 619 + 613 * selector.hashCode() ; 
     } 
   
     
@@ -287,6 +302,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasSelector() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(selector));
+    }
   }
   public boolean isStructured() {
     return false;
@@ -325,7 +345,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 173 * structured.hashCode() ; 
+      return 149 + 757 * structured.hashCode() ; 
     } 
   
     
@@ -338,6 +358,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasStructured() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(structured));
+    }
   }
   public boolean isSymbol() {
     return false;
@@ -376,7 +401,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 683 * symbol.hashCode() ; 
+      return 197 + 463 * symbol.hashCode() ; 
     } 
   
     
@@ -389,6 +414,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isUser() {
     return false;
@@ -427,7 +457,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 719 * user.hashCode() ; 
+      return 349 + 139 * user.hashCode() ; 
     } 
   
     
@@ -440,6 +470,11 @@ public abstract class Type extends AbstractAST {
     public boolean hasUser() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(user));
+    }
   }
   public boolean isVariable() {
     return false;
@@ -478,7 +513,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 397 * typeVar.hashCode() ; 
+      return 229 + 443 * typeVar.hashCode() ; 
     } 
   
     
@@ -491,5 +526,10 @@ public abstract class Type extends AbstractAST {
     public boolean hasTypeVar() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(typeVar));
+    }
   }
 }

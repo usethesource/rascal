@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 907 * optionalComma.hashCode() + 151 * keywordArgumentList.hashCode() ; 
+      return 541 + 241 * optionalComma.hashCode() + 2 * keywordArgumentList.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
     public boolean hasKeywordArgumentList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(optionalComma), clone(keywordArgumentList));
+    }
   }
   public boolean isNone() {
     return false;
@@ -139,9 +144,14 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 ; 
+      return 191 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

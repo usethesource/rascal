@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			return type;
 		}
 
+		@Override
+		public Object clone() {
+			return new MetaVariable(null, ((NonTerminalType) type).getSymbol(), name);
+		}
+
 		public boolean equals(Object o) {
 			if (!(o instanceof MetaVariable)) {
 				return false;
@@ -134,6 +139,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			if (src != null) {
 				this.setSourceLocation(src);
 			}
+		}
+
+		@Override
+		public Object clone() {
+			return new Amb(node, clone(args));
 		}
 
 		@Override
@@ -218,6 +228,10 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			super(node, args);
 		}
 
+		@Override
+		public Object clone() {
+			return new Optional(node, clone(args));
+		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
@@ -235,6 +249,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		public List(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 			super(node, args);
 			this.delta = getDelta(production);
+		}
+
+		@Override
+		public Object clone() {
+			return new List(node, clone(args));
 		}
 
 		@Override
@@ -282,7 +301,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		private IList flatten(IList args) {
-			IListWriter result = VF.listWriter(RascalValueFactory.Args.getElementType());
+			IListWriter result = VF.listWriter();
 			boolean previousWasEmpty = false;
 
 			for (int i = 0; i < args.length(); i+=(delta+1)) {
@@ -331,6 +350,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			this.alts = alternatives;
 			this.constant = false; // TODO! isConstant(alternatives);
 			this.node = this.constant ? node : null;
+		}
+
+		@Override
+		public Object clone() {
+			return new Amb(node, clone(alts));
 		}
 
 		public boolean equals(Object o) {
@@ -398,6 +422,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			this.node = node;
 		}
 
+		@Override
+		public Object clone() {
+			return new Char(node);
+		}
+
 		public boolean equals(Object o) {
 			if (!(o instanceof Char)) {
 				return false;
@@ -435,6 +464,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			super(node);
 			this.length = length;
 			this.node = node;
+		}
+
+		@Override
+		public Object clone() {
+			return new Cycle(node, length);
 		}
 
 		public boolean equals(Object o) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 929 * optionalComma.hashCode() + 131 * keywordFormalList.hashCode() ; 
+      return 547 + 479 * optionalComma.hashCode() + 419 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class KeywordFormals extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(optionalComma), clone(keywordFormalList));
+    }
   }
   public boolean isNone() {
     return false;
@@ -139,9 +144,14 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 ; 
+      return 89 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

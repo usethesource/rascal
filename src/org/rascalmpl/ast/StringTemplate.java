@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 223 * preStats.hashCode() + 277 * body.hashCode() + 37 * postStats.hashCode() + 823 * condition.hashCode() ; 
+      return 439 + 331 * preStats.hashCode() + 71 * body.hashCode() + 331 * postStats.hashCode() + 83 * condition.hashCode() ; 
     } 
   
     
@@ -195,6 +195,11 @@ public abstract class StringTemplate extends AbstractAST {
     public boolean hasCondition() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(preStats), clone(body), clone(postStats), clone(condition));
+    }
   }
   public boolean isFor() {
     return false;
@@ -239,7 +244,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 743 * generators.hashCode() + 379 * preStats.hashCode() + 383 * body.hashCode() + 631 * postStats.hashCode() ; 
+      return 409 + 349 * generators.hashCode() + 587 * preStats.hashCode() + 13 * body.hashCode() + 733 * postStats.hashCode() ; 
     } 
   
     
@@ -279,6 +284,11 @@ public abstract class StringTemplate extends AbstractAST {
     public boolean hasPostStats() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(generators), clone(preStats), clone(body), clone(postStats));
+    }
   }
   public boolean isIfThen() {
     return false;
@@ -323,7 +333,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 103 * conditions.hashCode() + 691 * preStats.hashCode() + 67 * body.hashCode() + 373 * postStats.hashCode() ; 
+      return 983 + 647 * conditions.hashCode() + 389 * preStats.hashCode() + 457 * body.hashCode() + 569 * postStats.hashCode() ; 
     } 
   
     
@@ -363,6 +373,11 @@ public abstract class StringTemplate extends AbstractAST {
     public boolean hasPostStats() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(conditions), clone(preStats), clone(body), clone(postStats));
+    }
   }
   public boolean isIfThenElse() {
     return false;
@@ -413,7 +428,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 887 * conditions.hashCode() + 709 * preStatsThen.hashCode() + 809 * thenString.hashCode() + 467 * postStatsThen.hashCode() + 547 * preStatsElse.hashCode() + 19 * elseString.hashCode() + 727 * postStatsElse.hashCode() ; 
+      return 379 + 71 * conditions.hashCode() + 181 * preStatsThen.hashCode() + 331 * thenString.hashCode() + 761 * postStatsThen.hashCode() + 691 * preStatsElse.hashCode() + 439 * elseString.hashCode() + 587 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -480,6 +495,11 @@ public abstract class StringTemplate extends AbstractAST {
     public boolean hasPostStatsElse() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(conditions), clone(preStatsThen), clone(thenString), clone(postStatsThen), clone(preStatsElse), clone(elseString), clone(postStatsElse));
+    }
   }
   public boolean isWhile() {
     return false;
@@ -524,7 +544,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 419 * condition.hashCode() + 5 * preStats.hashCode() + 857 * body.hashCode() + 311 * postStats.hashCode() ; 
+      return 131 + 701 * condition.hashCode() + 503 * preStats.hashCode() + 617 * body.hashCode() + 83 * postStats.hashCode() ; 
     } 
   
     
@@ -564,5 +584,10 @@ public abstract class StringTemplate extends AbstractAST {
     public boolean hasPostStats() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(condition), clone(preStats), clone(body), clone(postStats));
+    }
   }
 }
