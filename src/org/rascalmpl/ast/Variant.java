@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 461 * name.hashCode() + 193 * arguments.hashCode() + 547 * keywordArguments.hashCode() ; 
+      return 157 + 709 * name.hashCode() + 683 * arguments.hashCode() + 359 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -121,5 +121,10 @@ public abstract class Variant extends AbstractAST {
     public boolean hasKeywordArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(arguments), clone(keywordArguments));
+    }
   }
 }

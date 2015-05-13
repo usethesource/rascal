@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 263 * lhs.hashCode() + 311 * rhs.hashCode() ; 
+      return 67 + 593 * lhs.hashCode() + 401 * rhs.hashCode() ; 
     } 
   
     
@@ -145,6 +145,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isAssociativityGroup() {
     return false;
@@ -185,7 +190,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 991 * associativity.hashCode() + 167 * group.hashCode() ; 
+      return 193 + 977 * associativity.hashCode() + 17 * group.hashCode() ; 
     } 
   
     
@@ -207,6 +212,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasGroup() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(associativity), clone(group));
+    }
   }
   public boolean isFirst() {
     return false;
@@ -247,7 +257,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 197 * lhs.hashCode() + 269 * rhs.hashCode() ; 
+      return 11 + 307 * lhs.hashCode() + 883 * rhs.hashCode() ; 
     } 
   
     
@@ -269,6 +279,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isLabeled() {
     return false;
@@ -311,7 +326,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 599 * modifiers.hashCode() + 743 * name.hashCode() + 911 * syms.hashCode() ; 
+      return 79 + 911 * modifiers.hashCode() + 3 * name.hashCode() + 911 * syms.hashCode() ; 
     } 
   
     
@@ -342,6 +357,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasSyms() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(modifiers), clone(name), clone(syms));
+    }
   }
   public boolean isOthers() {
     return false;
@@ -378,10 +398,15 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 439 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isReference() {
     return false;
@@ -420,7 +445,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 11 * referenced.hashCode() ; 
+      return 521 + 3 * referenced.hashCode() ; 
     } 
   
     
@@ -433,6 +458,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasReferenced() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(referenced));
+    }
   }
   public boolean isUnlabeled() {
     return false;
@@ -473,7 +503,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 761 + 337 * modifiers.hashCode() + 877 * syms.hashCode() ; 
+      return 263 + 853 * modifiers.hashCode() + 397 * syms.hashCode() ; 
     } 
   
     
@@ -495,5 +525,10 @@ public abstract class Prod extends AbstractAST {
     public boolean hasSyms() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(modifiers), clone(syms));
+    }
   }
 }

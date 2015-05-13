@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 17 * dateAndTime.hashCode() ; 
+      return 37 + 223 * dateAndTime.hashCode() ; 
     } 
   
     
@@ -99,6 +99,11 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasDateAndTime() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(dateAndTime));
+    }
   }
   public boolean isDateLiteral() {
     return false;
@@ -137,7 +142,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 347 * date.hashCode() ; 
+      return 229 + 761 * date.hashCode() ; 
     } 
   
     
@@ -150,6 +155,11 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasDate() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(date));
+    }
   }
   public boolean isTimeLiteral() {
     return false;
@@ -188,7 +198,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 643 * time.hashCode() ; 
+      return 643 + 619 * time.hashCode() ; 
     } 
   
     
@@ -201,5 +211,10 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasTime() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(time));
+    }
   }
 }
