@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 43 * formals.hashCode() + 241 * keywordFormals.hashCode() ; 
+      return 613 + 769 * formals.hashCode() + 743 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
   }
   public boolean isVarArgs() {
     return false;
@@ -143,7 +148,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 929 * formals.hashCode() + 353 * keywordFormals.hashCode() ; 
+      return 797 + 941 * formals.hashCode() + 881 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -165,5 +170,10 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
   }
 }

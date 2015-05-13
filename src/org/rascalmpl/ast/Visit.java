@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 359 + 769 * subject.hashCode() + 47 * cases.hashCode() ; 
+      return 947 + 53 * subject.hashCode() + 421 * cases.hashCode() ; 
     } 
   
     
@@ -110,6 +110,11 @@ public abstract class Visit extends AbstractAST {
     public boolean hasCases() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(subject), clone(cases));
+    }
   }
   public boolean isGivenStrategy() {
     return false;
@@ -152,7 +157,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 3 * strategy.hashCode() + 643 * subject.hashCode() + 661 * cases.hashCode() ; 
+      return 311 + 157 * strategy.hashCode() + 107 * subject.hashCode() + 359 * cases.hashCode() ; 
     } 
   
     
@@ -183,5 +188,10 @@ public abstract class Visit extends AbstractAST {
     public boolean hasCases() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(strategy), clone(subject), clone(cases));
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 419 * booleanLiteral.hashCode() ; 
+      return 991 + 443 * booleanLiteral.hashCode() ; 
     } 
   
     
@@ -134,6 +134,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasBooleanLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(booleanLiteral));
+    }
   }
   public boolean isDateTime() {
     return false;
@@ -172,7 +177,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 587 + 563 * dateTimeLiteral.hashCode() ; 
+      return 257 + 349 * dateTimeLiteral.hashCode() ; 
     } 
   
     
@@ -185,6 +190,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasDateTimeLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(dateTimeLiteral));
+    }
   }
   public boolean isInteger() {
     return false;
@@ -223,7 +233,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 151 * integerLiteral.hashCode() ; 
+      return 257 + 19 * integerLiteral.hashCode() ; 
     } 
   
     
@@ -236,6 +246,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasIntegerLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(integerLiteral));
+    }
   }
   public boolean isLocation() {
     return false;
@@ -274,7 +289,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 887 * locationLiteral.hashCode() ; 
+      return 43 + 19 * locationLiteral.hashCode() ; 
     } 
   
     
@@ -287,6 +302,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasLocationLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(locationLiteral));
+    }
   }
   public boolean isRational() {
     return false;
@@ -325,7 +345,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 229 * rationalLiteral.hashCode() ; 
+      return 883 + 397 * rationalLiteral.hashCode() ; 
     } 
   
     
@@ -338,6 +358,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasRationalLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(rationalLiteral));
+    }
   }
   public boolean isReal() {
     return false;
@@ -376,7 +401,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 787 * realLiteral.hashCode() ; 
+      return 283 + 569 * realLiteral.hashCode() ; 
     } 
   
     
@@ -389,6 +414,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasRealLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(realLiteral));
+    }
   }
   public boolean isRegExp() {
     return false;
@@ -427,7 +457,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 751 * regExpLiteral.hashCode() ; 
+      return 727 + 829 * regExpLiteral.hashCode() ; 
     } 
   
     
@@ -440,6 +470,11 @@ public abstract class Literal extends AbstractAST {
     public boolean hasRegExpLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(regExpLiteral));
+    }
   }
   public boolean isString() {
     return false;
@@ -478,7 +513,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 877 * stringLiteral.hashCode() ; 
+      return 503 + 983 * stringLiteral.hashCode() ; 
     } 
   
     
@@ -491,5 +526,10 @@ public abstract class Literal extends AbstractAST {
     public boolean hasStringLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(stringLiteral));
+    }
   }
 }

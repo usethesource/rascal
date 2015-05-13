@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,7 +97,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 691 * mid.hashCode() + 569 * expression.hashCode() + 293 * tail.hashCode() ; 
+      return 499 + 839 * mid.hashCode() + 691 * expression.hashCode() + 601 * tail.hashCode() ; 
     } 
   
     
@@ -128,6 +128,11 @@ public abstract class PathTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
   }
   public boolean isPost() {
     return false;
@@ -166,7 +171,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 73 * post.hashCode() ; 
+      return 883 + 739 * post.hashCode() ; 
     } 
   
     
@@ -179,5 +184,10 @@ public abstract class PathTail extends AbstractAST {
     public boolean hasPost() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(post));
+    }
   }
 }

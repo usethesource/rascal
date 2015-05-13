@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -158,7 +158,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 113 * receiver.hashCode() + 211 * annotation.hashCode() ; 
+      return 877 + 503 * receiver.hashCode() + 859 * annotation.hashCode() ; 
     } 
   
     
@@ -180,6 +180,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasAnnotation() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(annotation));
+    }
   }
   public boolean isBracket() {
     return false;
@@ -218,7 +223,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 103 * arg.hashCode() ; 
+      return 797 + 179 * arg.hashCode() ; 
     } 
   
     
@@ -231,6 +236,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArg() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(arg));
+    }
   }
   public boolean isConstructor() {
     return false;
@@ -271,7 +281,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 823 * name.hashCode() + 7 * arguments.hashCode() ; 
+      return 653 + 521 * name.hashCode() + 997 * arguments.hashCode() ; 
     } 
   
     
@@ -293,6 +303,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(arguments));
+    }
   }
   public boolean isFieldAccess() {
     return false;
@@ -333,7 +348,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 269 * receiver.hashCode() + 401 * field.hashCode() ; 
+      return 467 + 241 * receiver.hashCode() + 677 * field.hashCode() ; 
     } 
   
     
@@ -355,6 +370,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasField() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(field));
+    }
   }
   public boolean isIfDefinedOrDefault() {
     return false;
@@ -395,7 +415,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 + 151 * receiver.hashCode() + 107 * defaultExpression.hashCode() ; 
+      return 67 + 947 * receiver.hashCode() + 691 * defaultExpression.hashCode() ; 
     } 
   
     
@@ -417,6 +437,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasDefaultExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(defaultExpression));
+    }
   }
   public boolean isSlice() {
     return false;
@@ -459,7 +484,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 31 * receiver.hashCode() + 467 * optFirst.hashCode() + 499 * optLast.hashCode() ; 
+      return 53 + 251 * receiver.hashCode() + 433 * optFirst.hashCode() + 149 * optLast.hashCode() ; 
     } 
   
     
@@ -490,6 +515,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(optFirst), clone(optLast));
+    }
   }
   public boolean isSliceStep() {
     return false;
@@ -534,7 +564,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 + 79 * receiver.hashCode() + 397 * optFirst.hashCode() + 367 * second.hashCode() + 2 * optLast.hashCode() ; 
+      return 107 + 599 * receiver.hashCode() + 61 * optFirst.hashCode() + 433 * second.hashCode() + 467 * optLast.hashCode() ; 
     } 
   
     
@@ -574,6 +604,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(optFirst), clone(second), clone(optLast));
+    }
   }
   public boolean isSubscript() {
     return false;
@@ -614,7 +649,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 659 * receiver.hashCode() + 383 * subscript.hashCode() ; 
+      return 937 + 523 * receiver.hashCode() + 353 * subscript.hashCode() ; 
     } 
   
     
@@ -636,6 +671,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasSubscript() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(receiver), clone(subscript));
+    }
   }
   public boolean isTuple() {
     return false;
@@ -674,7 +714,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 487 * elements.hashCode() ; 
+      return 859 + 977 * elements.hashCode() ; 
     } 
   
     
@@ -687,6 +727,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasElements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(elements));
+    }
   }
   public boolean isVariable() {
     return false;
@@ -725,7 +770,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 877 * qualifiedName.hashCode() ; 
+      return 401 + 307 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -738,5 +783,10 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(qualifiedName));
+    }
   }
 }

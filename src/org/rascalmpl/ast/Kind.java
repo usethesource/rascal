@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,10 +63,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 ; 
+      return 3 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isAll() {
     return false;
@@ -103,10 +108,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 ; 
+      return 797 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isAnno() {
     return false;
@@ -143,10 +153,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 227 ; 
+      return 563 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isData() {
     return false;
@@ -183,10 +198,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 ; 
+      return 373 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isFunction() {
     return false;
@@ -223,10 +243,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 ; 
+      return 293 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isModule() {
     return false;
@@ -263,10 +288,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 523 ; 
+      return 977 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTag() {
     return false;
@@ -303,10 +333,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 ; 
+      return 397 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isVariable() {
     return false;
@@ -343,10 +378,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 881 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isView() {
     return false;
@@ -383,9 +423,14 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 37 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

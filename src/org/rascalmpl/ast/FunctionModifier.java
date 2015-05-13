@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,10 +63,15 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 ; 
+      return 829 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isJava() {
     return false;
@@ -103,10 +108,15 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 ; 
+      return 53 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTest() {
     return false;
@@ -143,9 +153,14 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 449 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }
