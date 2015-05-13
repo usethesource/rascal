@@ -15,19 +15,28 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.values.uptr.Factory;
 
+import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
+import de.ruedigermoeller.serialization.FSTClazzInfo;
+import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
+import de.ruedigermoeller.serialization.FSTObjectInput;
+import de.ruedigermoeller.serialization.FSTObjectOutput;
+
+/**
+ * Function contains all data needed for a single RVM function
+ *
+ * Function is serialized by FSTFunctionSerializer, make sure that
+ * all fields declared here are synced with the serializer.
+ */
 
 public class Function implements Serializable {
-	 /**
-	 * 
-	 */
 	private static final long serialVersionUID = -1741144671553091111L;
 	
 	String name;
 	Type ftype;
 	int scopeId;
-	private String funIn;
+	String funIn;
 	int scopeIn = -1;
 	int nformals;
 	int nlocals;
@@ -36,17 +45,18 @@ public class Function implements Serializable {
 	public CodeBlock codeblock;
 	public IValue[] constantStore;			
 	public Type[] typeConstantStore;
-	
 	boolean concreteArg = false;
 	int abstractFingerprint = 0;
 	int concreteFingerprint = 0;
 
-	public int[] froms;
-	public int[] tos;
+	int[] froms;
+	int[] tos;
 	public int[] types;
-	public int[] handlers;
-	public int[] fromSPs;
+	int[] handlers;
+	int[] fromSPs;
 	int lastHandler = -1;
+
+	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
 
 	public String[] fromLabels;
 	public String[] toLabels;
@@ -54,7 +64,7 @@ public class Function implements Serializable {
     public int[] fromSPsCorrected;
 	
 	public int continuationPoints = 0;
-    
+	
 	boolean isCoroutine = false;
 	int[] refs;
 
@@ -62,209 +72,12 @@ public class Function implements Serializable {
 
 	ISourceLocation src;			
 	IMap localNames;
-
-	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
-
 	
 	// transient fields 
-	transient private static TypeStore store;
-	transient private static TypeSerializer typeserializer;
 	transient static IValueFactory vf;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		store = ts;
-		typeserializer = new TypeSerializer(store);
 		vf = vfactory;
-	}
-	
-	private void writeObject(java.io.ObjectOutputStream stream)
-			throws IOException {
-		// String name;
-		stream.writeObject(name);
-		
-		// Type ftype;
-		typeserializer.writeType(stream, ftype);
-		
-		// int scopeId;
-		stream.writeObject(scopeId);
-		
-		// private String funIn;
-		stream.writeObject(funIn);
-		
-		// int scopeIn = -1;
-		stream.writeObject(scopeIn);
-		
-		// int nformals;
-		stream.writeObject(nformals);
-		
-		// int nlocals;
-		stream.writeObject(nlocals);
-		
-		// boolean isDefault;
-		stream.writeObject(isDefault);
-		
-		// int maxstack;
-		stream.writeObject(maxstack);
-		
-		// CodeBlock codeblock;
-		stream.writeObject(codeblock);
-		
-		// IValue[] constantStore;
-		int n = constantStore.length;
-		stream.writeObject(n);
-		
-		for(int i = 0; i < n; i++){
-			stream.writeObject(new SerializableRascalValue<IValue>(constantStore[i]));
-		}
-		
-		// Type[] typeConstantStore;
-		n = typeConstantStore.length;
-		stream.writeObject(n);
-		
-		for(int i = 0; i < n; i++){
-			typeserializer.writeType(stream, typeConstantStore[i]);
-		}
-		
-		// boolean concreteArg = false;
-		stream.writeObject(concreteArg);
-		
-		// int abstractFingerprint = 0;
-		stream.writeObject(abstractFingerprint);
-		
-		// int concreteFingerprint = 0;
-		stream.writeObject(concreteFingerprint);
-		
-		// int[] froms;
-		stream.writeObject(froms);
-		
-		// int[] tos;
-		stream.writeObject(tos);
-		
-		// int[] types;
-		stream.writeObject(types);
-		
-		// int[] handlers;
-		stream.writeObject(handlers);
-		
-		// int[] fromSPs;
-		stream.writeObject(fromSPs);
-		
-		// int lastHandler = -1;
-		stream.writeObject(lastHandler);
-
-		// boolean isCoroutine = false;
-		stream.writeObject(isCoroutine);
-		
-		// int[] refs;
-		stream.writeObject(refs);
-
-		// boolean isVarArgs = false;
-		stream.writeObject(isVarArgs);
-
-		// ISourceLocation src;
-		stream.writeObject(new SerializableRascalValue<ISourceLocation>(src));
-		
-		// IMap localNames;
-		stream.writeObject(new SerializableRascalValue<IMap>(localNames));
-
-		// int funId;
-		stream.writeObject(funId);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void readObject(java.io.ObjectInputStream stream)
-			throws IOException, ClassNotFoundException {
-		
-		// String name;
-		name = (String) stream.readObject();
-		
-		// Type ftype;
-		ftype = typeserializer.readType(stream);
-		
-		// int scopeId;
-		scopeId = (Integer) stream.readObject();
-		
-		// private String funIn;
-		funIn = (String) stream.readObject();
-		
-		// int scopeIn = -1;
-		scopeIn = (Integer) stream.readObject();
-		
-		// int nformals;
-		nformals = (Integer) stream.readObject();
-		
-		// int nlocals;
-		nlocals = (Integer) stream.readObject();
-		
-		// boolean isDefault;
-		isDefault = (Boolean) stream.readObject();
-		
-		// int maxstack;
-		maxstack = (Integer) stream.readObject();
-		
-		// CodeBlock codeblock;
-		codeblock = (CodeBlock) stream.readObject();
-		
-		// IValue[] constantStore;
-		int n = (Integer) stream.readObject();
-		constantStore = new IValue[n];
-		
-		for(int i = 0; i < n; i++){
-			constantStore[i] = ((SerializableRascalValue<IValue>) stream.readObject()).getValue();
-		}
-		
-		// Type[] typeConstantStore;
-		n = (Integer) stream.readObject();
-		typeConstantStore = new Type[n];
-		
-		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = typeserializer.readType(stream);
-		}
-		
-		// boolean concreteArg = false;
-		concreteArg = (Boolean) stream.readObject();
-		
-		// int abstractFingerprint = 0;
-		abstractFingerprint = (Integer) stream.readObject();
-		
-		// int concreteFingerprint = 0;
-		concreteFingerprint = (Integer) stream.readObject();
-
-		// int[] froms;
-		froms = (int[]) stream.readObject();
-		
-		// int[] tos;
-		tos = (int[]) stream.readObject();
-		
-		// int[] types;
-		types = (int[]) stream.readObject();
-		
-		// int[] handlers;
-		handlers = (int[]) stream.readObject();
-		
-		// int[] fromSPs;
-		fromSPs = (int[]) stream.readObject();
-		
-		// int lastHandler = -1;
-		lastHandler = (Integer) stream.readObject();
-
-		// boolean isCoroutine = false;
-		isCoroutine = (Boolean) stream.readObject();
-		
-		// int[] refs;
-		refs = (int[]) stream.readObject();
-
-		// boolean isVarArgs = false;
-		isVarArgs = (Boolean)stream.readObject();
-
-		// ISourceLocation src;
-		src = ((SerializableRascalValue<ISourceLocation>) stream.readObject()).getValue();
-		
-		// IMap localNames;
-		localNames = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
-
-		// int funId;
-		funId = (Integer) stream.readObject();
 	}
 	
 	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
@@ -283,6 +96,40 @@ public class Function implements Serializable {
 		this.concreteFingerprint = concreteFingerprint;
 		this.codeblock = codeblock;
 		this.src = src;
+		this.continuationPoints = ctpt ;
+	}
+	
+	Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+			 final int maxstack, boolean concreteArg, int abstractFingerprint,
+			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
+			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
+			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
+		this.name = name;
+		this.ftype = ftype;
+		this.funIn = funIn;
+		this.nformals = nformals;
+		this.nlocals = nlocals;
+		this.isDefault = isDefault;
+		this.localNames = localNames;
+		this.maxstack = maxstack;
+		this.concreteArg = concreteArg;
+		this.abstractFingerprint = abstractFingerprint;
+		this.concreteFingerprint = concreteFingerprint;
+		this.codeblock = codeblock;
+		this.src = src;
+		this.scopeIn = scopeIn;
+		this.constantStore = constantStore;
+		this.typeConstantStore = typeConstantStore;
+		this.froms = froms;
+		this.tos = tos;
+		this.types = types;
+		this.handlers = handlers;
+		this.fromSPs = fromSPs;
+		this.lastHandler = lastHandler;
+		this.scopeId = scopeId;
+		this.isCoroutine = isCoroutine;
+		this.refs = refs;
+		this.isVarArgs = isVarArgs;
 		this.continuationPoints = ctpt ;
 	}
 	
@@ -305,12 +152,7 @@ public class Function implements Serializable {
 		types = new int[exceptions.length()];
 		handlers = new int[exceptions.length()];
 		fromSPs = new int[exceptions.length()];
-		fromSPsCorrected = new int[exceptions.length()];
-
-		fromLabels = new String[exceptions.length()];
-		toLabels = new String[exceptions.length()];
-		handlerLabels = new String[exceptions.length()];
-				
+		
 		int i = 0;
 		for(IValue entry : exceptions) {
 			ITuple tuple = (ITuple) entry;
@@ -325,11 +167,6 @@ public class Function implements Serializable {
 			types[i] = codeblock.getTypeConstantIndex(type);
 			handlers[i] = codeblock.getLabelPC(handler);	
 			fromSPs[i] = fromSP;
-			fromSPsCorrected[i] = fromSP + nlocals;
-			fromLabels[i] = from;
-			toLabels[i] = to;
-			handlerLabels[i] = handler;			
-
 			i++;
 		}
 	}
@@ -385,5 +222,227 @@ public class Function implements Serializable {
 		sb.append(codeblock);
 		return sb.toString();
 	}
+	
+}
 
+/**
+ * FSTFunctionSerializer: serializer for Function objects
+ *
+ */
+class FSTFunctionSerializer extends FSTBasicObjectSerializer {
+	
+	//private static IValueFactory vf;
+	private static TypeStore store;
+
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		//vf = vfactory;
+		store = ts;
+		store.extendStore(Factory.getStore());
+	}
+
+	@Override
+	public void writeObject(FSTObjectOutput out, Object toWrite,
+			FSTClazzInfo clzInfo, FSTFieldInfo arg3, int arg4)
+					throws IOException {
+		
+		Function fun = (Function) toWrite;
+
+		// String name;
+		out.writeObject(fun.name);
+
+		// Type ftype;
+		out.writeObject(new FSTSerializableType(fun.ftype));
+
+		// int scopeId;
+		out.writeObject(fun.scopeId);
+
+		// private String funIn;
+		out.writeObject(fun.funIn);
+
+		// int scopeIn = -1;
+		out.writeObject(fun.scopeIn);
+
+		// int nformals;
+		out.writeObject(fun.nformals);
+
+		// int nlocals;
+		out.writeObject(fun.nlocals);
+
+		// boolean isDefault;
+		out.writeObject(fun.isDefault);
+
+		// int maxstack;
+		out.writeObject(fun.maxstack);
+
+		// CodeBlock codeblock;
+		out.writeObject(fun.codeblock);
+
+		// IValue[] constantStore;
+		int n = fun.constantStore.length;
+		out.writeObject(n);
+
+		for(int i = 0; i < n; i++){
+			out.writeObject(new FSTSerializableIValue(fun.constantStore[i]));
+		}
+
+		// Type[] typeConstantStore;
+		n = fun.typeConstantStore.length;
+		out.writeObject(n);
+
+		for(int i = 0; i < n; i++){
+			out.writeObject(new FSTSerializableType(fun.typeConstantStore[i]));
+		}
+
+		// boolean concreteArg = false;
+		out.writeObject(fun.concreteArg);
+
+		// int abstractFingerprint = 0;
+		out.writeObject(fun.abstractFingerprint);
+
+		// int concreteFingerprint = 0;
+		out.writeObject(fun.concreteFingerprint);
+
+		// int[] froms;
+		out.writeObject(fun.froms);
+
+		// int[] tos;
+		out.writeObject(fun.tos);
+
+		// int[] types;
+		out.writeObject(fun.types);
+
+		// int[] handlers;
+		out.writeObject(fun.handlers);
+
+		// int[] fromSPs;
+		out.writeObject(fun.fromSPs);
+
+		// int lastHandler = -1;
+		out.writeObject(fun.lastHandler);
+
+		// boolean isCoroutine = false;
+		out.writeObject(fun.isCoroutine);
+
+		// int[] refs;
+		out.writeObject(fun.refs);
+
+		// boolean isVarArgs = false;
+		out.writeObject(fun.isVarArgs);
+
+		// ISourceLocation src;
+		out.writeObject(new FSTSerializableIValue(fun.src));
+
+		// IMap localNames;
+		out.writeObject(new FSTSerializableIValue(fun.localNames));
+
+		// int continuationPoints
+		out.writeObject(fun.continuationPoints);
+	}
+	
+
+	@Override
+	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
+	{
+	}
+	
+	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
+	{
+
+		// String name;
+		String name = (String) in.readObject();
+
+		// Type ftype;
+		Type ftype = (Type) in.readObject();
+
+		// int scopeId;
+		Integer scopeId = (Integer) in.readObject();
+
+		// private String funIn;
+		String funIn = (String) in.readObject();
+
+		// int scopeIn = -1;
+		Integer scopeIn = (Integer) in.readObject();
+
+		// int nformals;
+		Integer nformals = (Integer) in.readObject();
+
+		// int nlocals;
+		Integer nlocals = (Integer) in.readObject();
+
+		// boolean isDefault;
+		Boolean isDefault = (Boolean) in.readObject();
+
+		// int maxstack;
+		Integer maxstack = (Integer) in.readObject();
+
+		// CodeBlock codeblock;
+		CodeBlock codeblock = (CodeBlock) in.readObject();
+
+		// IValue[] constantStore;
+		int n = (Integer) in.readObject();
+		IValue[] constantStore = new IValue[n];
+
+		for(int i = 0; i < n; i++){
+			constantStore[i] = (IValue) in.readObject();
+		}
+
+		// Type[] typeConstantStore;
+		n = (Integer) in.readObject();
+		Type[] typeConstantStore = new Type[n];
+
+		for(int i = 0; i < n; i++){
+			typeConstantStore[i] = (Type) in.readObject();
+		}
+
+		// boolean concreteArg = false;
+		Boolean concreteArg = (Boolean) in.readObject();
+
+		// int abstractFingerprint = 0;
+		Integer abstractFingerprint = (Integer) in.readObject();
+
+		// int concreteFingerprint = 0;
+		Integer concreteFingerprint = (Integer) in.readObject();
+
+		// int[] froms;
+		int[] froms = (int[]) in.readObject();
+
+		// int[] tos;
+		int[] tos = (int[]) in.readObject();
+
+		// int[] types;
+		int[] types = (int[]) in.readObject();
+
+		// int[] handlers;
+		int[] handlers = (int[]) in.readObject();
+
+		// int[] fromSPs;
+		int[] fromSPs = (int[]) in.readObject();
+
+		// int lastHandler = -1;
+		Integer lastHandler = (Integer) in.readObject();
+
+		// boolean isCoroutine = false;
+		Boolean isCoroutine = (Boolean) in.readObject();
+
+		// int[] refs;
+		int[] refs = (int[]) in.readObject();
+
+		// boolean isVarArgs = false;
+		Boolean isVarArgs = (Boolean)in.readObject();
+
+		// ISourceLocation src;
+		ISourceLocation src = (ISourceLocation) in.readObject();
+
+		// IMap localNames;
+		IMap localNames = (IMap) in.readObject();
+		
+		// int continuationPoints
+		Integer continuationPoints = (Integer) in.readObject();
+		
+		return new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+				codeblock, src, scopeIn, constantStore, typeConstantStore,
+				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
+				isCoroutine, refs, isVarArgs, continuationPoints);
+	
+	}
 }
