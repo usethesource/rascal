@@ -40,40 +40,43 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /*                  Translate one module                            */
 /********************************************************************/
 
-@doc{Compile a Rascal source module (given as string) to muRascal}
-MuModule r2mu(str moduleStr){
-	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
-}
-
-@doc{Compile a Rascal source module (given at a location) to muRascal}
-MuModule r2mu(loc moduleLoc){
-    //println(readFile(moduleLoc));   
-   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-}
+//@doc{Compile a Rascal source module (given as string) to muRascal}
+//MuModule r2mu(str moduleStr){
+//	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
+//}
+//
+//@doc{Compile a Rascal source module (given at a location) to muRascal}
+//MuModule r2mu(loc moduleLoc){
+//    //println(readFile(moduleLoc));   
+//   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
+//}
+//
+//MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
+//   	Configuration config;
+//   	try {
+//   	    config  = checkModule(M, newConfiguration());
+//   	} catch e: {
+//   	    throw e;
+//   	}
+//   	// Uncomment to dump the type checker configuration:
+//   	//text(config);
+//   	errors = [ e | e:error(_,_) <- config.messages];
+//   	warnings = [ w | w:warning(_,_) <- config.messages ];
+//   
+//   	if(size(errors) > 0) {
+//   	    return errorMuModule("<M.header.name>", config.messages, M@\loc);
+//   	 }
+//   	 
+//   	 return r2mu(M, config);
+//}
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
    try {
     resetModuleInfo();
     module_name = "<M.header.name>";
     setModuleName(module_name);
     println("r2mu: entering ... <module_name>");
-   	Configuration c = newConfiguration();
-   	
-   	Configuration config;
-   	try {
-   	    config  = checkModule(M, c);
-   	} catch e: {
-   	    throw e;
-   	}
-   	// Uncomment to dump the type checker configuration:
-   	//text(config);
-   	errors = [ e | e:error(_,_) <- config.messages];
-   	warnings = [ w | w:warning(_,_) <- config.messages ];
-   
-   	if(size(errors) > 0) {
-   	    return errorMuModule(module_name, config.messages, M@\loc);
-   	} else {
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
    	  
@@ -167,10 +170,11 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  overloaded_functions, 
    	  				  getGrammar(),
    	  				  M@\loc);
-   	}
-   } catch Java("ParseError","Parse error"): {
-   	   return errorMuModule(getModuleName(), {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
+
    } 
+   //catch Java("ParseError","Parse error"): {
+   //	   return errorMuModule(getModuleName(), {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
+   //} 
    catch e: {
         return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M@\loc)}, M@\loc);
    }

@@ -762,25 +762,11 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			String indent = $getCurrentIndent();
 			
 			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
-			int len = iarg_s.length();
-			boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
-			String arg_s = iarg_s.getValue();
-			arg_s = $removeMargins(arg_s);
-			String [] lines = arg_s.split("\n");
-			if(lines.length <= 1){
-				templateBuilder.append(arg_s);
-			} else {
-				templateBuilder.append(lines[0]);
-				for(int j = 1; j < lines.length; j++){
-					templateBuilder.append("\n").append(indent).append(lines[j]);
-				}
-				if(endsWithNL)
-					templateBuilder.append("\n");
-			}
+			String arg_s = $removeMargins(iarg_s).getValue();
 			
+			templateBuilder.append(arg_s);
 			stack[sp - 1] = vf.string("");
 			return sp;
 		}
@@ -1366,6 +1352,29 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	node_equal_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode leftNode = (INode) stack[sp - 2];
+			INode rightNode = (INode) stack[sp - 1];
+			int leftArity = leftNode.arity();
+			int rightArity = rightNode.arity();
+			stack[sp - 2] = Rascal_FALSE;
+			
+			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
+				return sp - 1;
+			}
+			for(int i = 0; i < leftArity; i++){
+				if(!$equal(leftNode.get(i), rightNode.get(i), currentFrame).getValue()){
+					return sp - 1;
+				}
+			}
+			stack[sp - 2] = Rascal_TRUE;
+			return sp - 1;
+		}
+	},
+	
 	// equal on other types
 	
 	equal {
@@ -1376,6 +1385,8 @@ public enum RascalPrimitive {
 			IValue right = (IValue)stack[sp - 1];
 			if(left.getType().isNumber() && right.getType().isNumber()){
 				return num_equal_num.execute(stack, sp, arity, currentFrame);
+			} else if(left.getType().isNode() && right.getType().isNode()){
+				return node_equal_node.execute(stack, sp, arity, currentFrame);
 			} else {
 				stack[sp - 2] = vf.bool(left.isEqual(right));
 				return sp - 1;
@@ -6658,13 +6669,54 @@ public enum RascalPrimitive {
 		indentStack.push(ind.substring(0, endIndex));
 		return s;
 	}
-
 	
-
-	private static String $removeMargins(String arg) {
-		arg = MARGIN.matcher(arg).replaceAll("");
-		return arg;
-		//return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
+	private static IString $removeMargins(IString s) {
+		// NB: ignored margin indents can only start *after* a new line.
+		// So atBeginning is initially false.
+		boolean atBeginning = false;
+		StringBuffer buf = new StringBuffer();
+		String indent = $getCurrentIndent();
+		
+		StringBuilder sb = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			int ch = s.charAt(i);
+			if (atBeginning && (ch == ' ' || ch == '\t')) {
+				buf.appendCodePoint(ch);
+				continue;
+			}
+			if (atBeginning && ch == '\'') {
+				// we've only seen ' ' and/or '\t' so we're about
+				// to reach real content, don't add to buf.
+				buf = new StringBuffer();
+				atBeginning = false;
+				continue;
+			}
+			if (ch == '\n') { // atBeginning &&
+				sb.append(buf);
+				buf = new StringBuffer(indent);
+				atBeginning = true;
+				sb.appendCodePoint(ch);
+				continue;
+			}
+			if (atBeginning) {
+				// we were in the margin, but found something other
+				// than ' ', '\t' and '\'', so anything in buf
+				// is actual content; add it.
+				sb.append(buf);
+				buf = new StringBuffer();
+				sb.appendCodePoint(ch);
+				atBeginning = false;
+				continue;
+			}
+			sb.appendCodePoint(ch);
+		}
+		
+		// Add trailing whitespace (fixes #543)
+		sb.append(buf.toString());
+		String jstr = sb.toString();
+		// TODO: inline this to avoid another pass over the string.
+		return vf.string(jstr);
+		//return vf.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(jstr));
 	}
 
 	private static ISourceLocation $loc_field_update(ISourceLocation sloc, String field, IValue repl,Frame currentFrame) {		
@@ -6986,7 +7038,14 @@ public enum RascalPrimitive {
 		return (IValue)fakeStack[0];
 	}
 
-
+	private static IBool $equal(IValue left, IValue right,Frame currentFrame){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		equal.execute(fakeStack, 2, 2, currentFrame);
+		return (IBool)fakeStack[0];
+	}
+	
 	private static IBool $lessequal(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;

@@ -20,6 +20,8 @@ import lang::json::IO;
 
 alias Position = tuple[num x, num y];
 
+alias Rescale = tuple[tuple[num, num], tuple[num, num]];
+
 // Alignment for relative placement of figure in parent
 
 public alias Alignment = tuple[num hpos, num vpos];
@@ -132,7 +134,7 @@ public data Figure(
 		// Area properties
 
 		str fillColor    = "", 			
-		real fillOpacity = 1.0,	
+		real fillOpacity = -1.0,	
 		str fillRule     = "evenodd",
 		
 		tuple[int, int] rounded = <0, 0>,
@@ -172,15 +174,22 @@ public data Figure(
    
    | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
    
-   | ngon(int n=3, num r=-1, Figure fig=emptyFigure())	// regular polygon
+   | ngon(int n=3, num r=-1, Figure fig=emptyFigure(),
+        Rescale scaleX = <<0,1>, <0, 1>>,
+   	    Rescale scaleY = <<0,1>, <0, 1>>
+     )	// regular polygon
    
-   | polygon(Points points=[], bool fillEvenOdd = true)
+   | polygon(Points points=[], bool fillEvenOdd = true,
+            Rescale scaleX = <<0,1>, <0, 1>>,
+   			Rescale scaleY = <<0,1>, <0, 1>>)
    
    | shape(Vertices vertices, 				// Arbitrary shape
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
    			bool fillEvenOdd = true,		// The fill rule to be used. (TODO: remove?)
+   			Rescale scaleX = <<0,1>, <0, 1>>,
+   			Rescale scaleY = <<0,1>, <0, 1>>,
    			Figure startMarker=emptyFigure(),
    			Figure midMarker=emptyFigure(), 
    			Figure endMarker=emptyFigure())
@@ -208,6 +217,7 @@ public data Figure(
 // Input elements
 
    | buttonInput(str trueText = "", str falseText = "")
+   | button(str txt)
    | checkboxInput()
    | choiceInput(list[str] choices = [])
    | colorInput()
@@ -558,4 +568,6 @@ public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
 public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
+
+
    
