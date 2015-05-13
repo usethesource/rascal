@@ -198,10 +198,10 @@ public data Figure(
 
 // Figure composers
                    
-   | hcat(Figures figs=[]) 					// horizontal and vertical concatenation
-   | vcat(Figures figs=[]) 					// horizontal and vertical concatenation 
+   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				// overlay (stacked) comAlignment
-   | grid(list[Figures] figArray = [[]])	// grid of figures
+   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 	// grid of figures
 
 // Figure transformations
 
