@@ -143,7 +143,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Object clone() {
-			return new Amb(node, clone(args));
+			return new Appl(node, clone(args));
 		}
 
 		@Override
