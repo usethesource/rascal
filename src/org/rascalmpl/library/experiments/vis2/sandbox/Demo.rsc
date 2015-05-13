@@ -58,7 +58,16 @@ list[Vertex] innerSchoolPlot1() {
      
 list[Vertex] innerSchoolPlot2() {
      return [move(i, 0), line(0, 10-i)|i<-[0,0.5..10]];
-     }  
+     }
+     
+Figure tst0() = circle(padding=<30, 30, 30, 30>, lineWidth = 2, fillColor = "yellow", lineColor = "red", fig= box(fillColor = "lightblue",
+        width = 100, height = 100, lineWidth = 4, lineColor = "blue"));
+        
+void tst() = render(tst0()); 
+        
+void tst(loc l) = writeFile(l, toHtmlString(hcat(figs=[shape(innerSchoolPlot1()+innerSchoolPlot2(), fillColor = "none",
+        scaleX=<<0,10>,<0,400>>, scaleY=<<0,10>,<400,0>>, width = 400, height = 400, 
+        lineColor = "blue")])));  
      
 Figure schoolPlot() {
      return  overlay(width = 600, height = 600, figs = [
@@ -116,7 +125,7 @@ Figure labeled(Figure g) {
       demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
       
-void demo() = render(vcat(figs=[demo1(), demo2(), demo3(), demo4()]),
+void demo() = render(vcat(figs=[demo1(), demo2(), demo3(), demo4(), demo5()]),
      width = 400, height = 1600);
 
 
@@ -141,16 +150,20 @@ Vertices hilbert(num x0, num y0, num xis, num xjs, num yis, num yjs, int n){
    	}
 }
 
-void hilbert1(){
-	render(shape(hilbert(0, 0, 300, 0, 0, 300, 5)));
-}
-
-void hilbert2(){
-	ex("hilbert2", shape(hilbert(0, 0, 300, 0, 0, 300, 5), 
+Figure demo5() = shape(hilbert(0, 0, 300, 0, 0, 300, 5), 
 								startMarker=box(size=<10,10>,fillColor="red"),
 								midMarker=box(size=<3,3>,fillColor="blue"),
 								endMarker=box(size=<10,10>,fillColor="green")
-					   ));
+					   );
+
+void hilbert1(){
+	render(shape(hilbert(0, 0, 300, 0, 0, 300, 5)));
+	
+	
+}
+
+void hilbert2(){
+	ex("hilbert2", demo5());
 }
 
 void hilbert3(){
