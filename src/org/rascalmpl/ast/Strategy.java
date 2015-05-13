@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,10 +63,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 ; 
+      return 467 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isBottomUpBreak() {
     return false;
@@ -103,10 +108,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 ; 
+      return 919 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isInnermost() {
     return false;
@@ -143,10 +153,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 ; 
+      return 503 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isOutermost() {
     return false;
@@ -183,10 +198,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 ; 
+      return 107 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTopDown() {
     return false;
@@ -223,10 +243,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 ; 
+      return 151 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTopDownBreak() {
     return false;
@@ -263,9 +288,14 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 ; 
+      return 599 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

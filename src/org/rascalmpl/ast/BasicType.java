@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,10 +63,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 ; 
+      return 739 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isBool() {
     return false;
@@ -103,10 +108,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 ; 
+      return 947 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isDateTime() {
     return false;
@@ -143,10 +153,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 ; 
+      return 379 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isInt() {
     return false;
@@ -183,10 +198,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 ; 
+      return 89 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isList() {
     return false;
@@ -223,10 +243,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 ; 
+      return 97 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isListRelation() {
     return false;
@@ -263,10 +288,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 ; 
+      return 929 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isLoc() {
     return false;
@@ -303,10 +333,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 ; 
+      return 467 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isMap() {
     return false;
@@ -343,10 +378,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 ; 
+      return 89 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isNode() {
     return false;
@@ -383,10 +423,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 ; 
+      return 53 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isNum() {
     return false;
@@ -423,10 +468,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 557 ; 
+      return 337 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isRational() {
     return false;
@@ -463,10 +513,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 ; 
+      return 89 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isReal() {
     return false;
@@ -503,10 +558,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 ; 
+      return 647 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isRelation() {
     return false;
@@ -543,10 +603,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 ; 
+      return 863 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isSet() {
     return false;
@@ -583,10 +648,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 5 ; 
+      return 59 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isString() {
     return false;
@@ -623,10 +693,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 ; 
+      return 367 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isTuple() {
     return false;
@@ -663,10 +738,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 7 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isType() {
     return false;
@@ -703,10 +783,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 ; 
+      return 977 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isValue() {
     return false;
@@ -743,10 +828,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 ; 
+      return 409 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isVoid() {
     return false;
@@ -783,9 +873,14 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 ; 
+      return 61 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

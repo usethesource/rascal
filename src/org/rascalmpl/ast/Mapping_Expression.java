@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Mapping_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 757 * from.hashCode() + 269 * to.hashCode() ; 
+      return 607 + 491 * from.hashCode() + 317 * to.hashCode() ; 
     } 
   
     
@@ -103,5 +103,10 @@ public abstract class Mapping_Expression extends AbstractAST {
     public boolean hasTo() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(from), clone(to));
+    }
   }
 }

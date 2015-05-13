@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 + 97 * name.hashCode() ; 
+      return 743 + 503 * name.hashCode() ; 
     } 
   
     
@@ -92,6 +92,11 @@ public abstract class UserType extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
   public boolean isParametric() {
     return false;
@@ -132,7 +137,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 71 * name.hashCode() + 11 * parameters.hashCode() ; 
+      return 719 + 101 * name.hashCode() + 223 * parameters.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class UserType extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(parameters));
+    }
   }
 }

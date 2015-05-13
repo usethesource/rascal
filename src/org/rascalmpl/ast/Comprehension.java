@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 353 * results.hashCode() + 101 * generators.hashCode() ; 
+      return 619 + 449 * results.hashCode() + 521 * generators.hashCode() ; 
     } 
   
     
@@ -117,6 +117,11 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(results), clone(generators));
+    }
   }
   public boolean isMap() {
     return false;
@@ -159,7 +164,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 107 * from.hashCode() + 227 * to.hashCode() + 677 * generators.hashCode() ; 
+      return 89 + 379 * from.hashCode() + 67 * to.hashCode() + 733 * generators.hashCode() ; 
     } 
   
     
@@ -190,6 +195,11 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(from), clone(to), clone(generators));
+    }
   }
   public boolean isSet() {
     return false;
@@ -230,7 +240,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 + 463 * results.hashCode() + 701 * generators.hashCode() ; 
+      return 317 + 577 * results.hashCode() + 353 * generators.hashCode() ; 
     } 
   
     
@@ -252,5 +262,10 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(results), clone(generators));
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 173 * replacementExpression.hashCode() + 199 * conditions.hashCode() ; 
+      return 463 + 337 * replacementExpression.hashCode() + 467 * conditions.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class Replacement extends AbstractAST {
     public boolean hasConditions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(replacementExpression), clone(conditions));
+    }
   }
   public boolean isUnconditional() {
     return false;
@@ -141,7 +146,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 613 * replacementExpression.hashCode() ; 
+      return 419 + 599 * replacementExpression.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class Replacement extends AbstractAST {
     public boolean hasReplacementExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(replacementExpression));
+    }
   }
 }

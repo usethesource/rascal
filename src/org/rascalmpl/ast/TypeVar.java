@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 23 * name.hashCode() + 457 * bound.hashCode() ; 
+      return 199 + 157 * name.hashCode() + 47 * bound.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class TypeVar extends AbstractAST {
     public boolean hasBound() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(bound));
+    }
   }
   public boolean isFree() {
     return false;
@@ -141,7 +146,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 + 677 * name.hashCode() ; 
+      return 839 + 7 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class TypeVar extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
 }

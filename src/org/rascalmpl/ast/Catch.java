@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 193 * pattern.hashCode() + 73 * body.hashCode() ; 
+      return 883 + 409 * pattern.hashCode() + 769 * body.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class Catch extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(body));
+    }
   }
   public boolean isDefault() {
     return false;
@@ -141,7 +146,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 709 * body.hashCode() ; 
+      return 911 + 103 * body.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class Catch extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(body));
+    }
   }
 }
