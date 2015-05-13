@@ -3003,7 +3003,10 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-   // println("extractPatternTree: <pat> <concrete.parts.args>");
+  println("extractPatternTree: <pat> <concrete.parts>");
+  if (!(concrete has parts)) {
+    throw "it seems concrete syntax has already been expanded";
+  }
   psList = for (hole(\one(Sym sym, Name n)) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
    
@@ -8454,7 +8457,7 @@ public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|,
 
 public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false) {
     c = newConfiguration();
-	t = parseModule(l);    
+	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck);
