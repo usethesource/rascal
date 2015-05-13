@@ -547,6 +547,7 @@ public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Sy
 	
 // alias
 public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
+    //println("reify alias: <name>, <aliased>");
 	definitions = reify(aliased, definitions);
 	definitions = ( definitions | reify(sym, it) | sym <- parameters );
 	return definitions;

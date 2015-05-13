@@ -77,13 +77,39 @@ for source files in a separate directory.
 
 }
 
-loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|){
-	phys = getSearchPathLocation(src.path);
-	subdir = phys.authority;
-	if(subdir == ""){
-		subdir = phys.scheme;
+loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool compressed = false){
+	loc res;
+	if(compressed){
+		bindir.scheme = "compressed+" + bindir.scheme;
 	}
-	return (bindir + subdir + src.path)[extension=extension];
+	phys = getSearchPathLocation(src.path);
+    if(exists(phys)){
+		//println("phys = <phys>, src.path = <src.path>");
+		if(phys.scheme == "std"){
+			res = (bindir + "rascal/src/org/rascalmpl/library/" + phys.path)[extension=extension];
+		} else {
+			subdir = phys.authority;
+			if(subdir == ""){
+				subdir = phys.scheme;
+			}
+			res = (bindir + subdir + phys.path)[extension=extension];
+		}
+	} else {
+	    if(src.scheme == "std")
+	    	res = (bindir + "rascal/src/org/rascalmpl/library/" + src.path)[extension=extension];
+	    else if(src.scheme == "project"){
+	    	subdir = src.authority;
+			if(subdir == ""){
+				subdir = src.scheme;
+			}
+	    	res = (bindir + subdir + src.path)[extension=extension];
+	    } else {
+			res = (bindir + "rascal" + src.path)[extension=extension];
+		}	
+	}
+	
+	//println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
+	return res;
 }
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
