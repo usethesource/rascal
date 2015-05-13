@@ -109,12 +109,13 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
 	public RascalFunction cloneInto(Environment env) {
-		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
+		AbstractAST clone = (AbstractAST) getAst().clone();
+		// TODO: add source location to constructor of AbstractAST..
+		clone.setSourceLocation(getAst().getLocation());
+		RascalFunction rf = new RascalFunction(clone, getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
 		rf.setPublic(isPublic()); // TODO: should be in constructors
 		return rf;
 	}
-	
-	
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
 		return ast.accept(new NullASTVisitor<String>() {

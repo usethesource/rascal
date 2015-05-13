@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 739 * name.hashCode() + 677 * actuals.hashCode() ; 
+      return 457 + 787 * name.hashCode() + 739 * actuals.hashCode() ; 
     } 
   
     
@@ -110,6 +110,11 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasActuals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(actuals));
+    }
   }
   public boolean isActualsRenaming() {
     return false;
@@ -152,7 +157,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 191 * name.hashCode() + 523 * actuals.hashCode() + 829 * renamings.hashCode() ; 
+      return 229 + 787 * name.hashCode() + 557 * actuals.hashCode() + 557 * renamings.hashCode() ; 
     } 
   
     
@@ -183,6 +188,11 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasRenamings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(actuals), clone(renamings));
+    }
   }
   public boolean isDefault() {
     return false;
@@ -221,7 +231,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 409 * name.hashCode() ; 
+      return 757 + 397 * name.hashCode() ; 
     } 
   
     
@@ -234,6 +244,11 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
   public boolean isRenamings() {
     return false;
@@ -274,7 +289,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 307 * name.hashCode() + 479 * renamings.hashCode() ; 
+      return 173 + 691 * name.hashCode() + 641 * renamings.hashCode() ; 
     } 
   
     
@@ -296,5 +311,10 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasRenamings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(renamings));
+    }
   }
 }

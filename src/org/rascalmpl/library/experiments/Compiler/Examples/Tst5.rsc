@@ -1,18 +1,14 @@
-@bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import IO;
+int twice (int n) = 2 * n;
+int triple (int n) = 3 * n;
 
-alias  INTEGER = int;
-alias MAP = map[INTEGER, str];
+int dup (int n) = n + n;
+str dup (str s) = s + s;
 
-data DATA = d(INTEGER n);
+int trip(int n) = n + n + n;
+str trip(str s) = s + s + s;
 
-alias ADATA = DATA;
-
-ADATA f(ADATA x) = x;
-
-value main(list[value] args) {
-	iprintln(#DATA);
-	return true;
-}	
+test bool twiceTriple1(){
+    return (twice o triple)(5) == twice(triple(5));
+}

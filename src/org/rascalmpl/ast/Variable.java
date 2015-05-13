@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 463 * name.hashCode() + 569 * initial.hashCode() ; 
+      return 199 + 911 * name.hashCode() + 587 * initial.hashCode() ; 
     } 
   
     
@@ -103,6 +103,11 @@ public abstract class Variable extends AbstractAST {
     public boolean hasInitial() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(initial));
+    }
   }
   public boolean isUnInitialized() {
     return false;
@@ -141,7 +146,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 463 * name.hashCode() ; 
+      return 991 + 691 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class Variable extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
 }

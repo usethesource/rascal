@@ -737,58 +737,69 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADLOC0:
 					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
 					assert stack[0] != null: "Local variable 0 is null";
-					stack[sp++] = stack[0]; continue NEXT_INSTRUCTION;
+					Object oval = stack[0]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
 					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
 					assert stack[1] != null: "Local variable 1 is null";
-					stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; 
+					oval = stack[1]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
 					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
 					assert stack[2] != null: "Local variable 2 is null";
-					stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; 
+					oval = stack[2]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
 					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
 					assert stack[3] != null: "Local variable 3 is null";
-					stack[sp++] = stack[3]; continue NEXT_INSTRUCTION;
+					oval = stack[3]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
 					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
 					assert stack[4] != null: "Local variable 4 is null";
-					stack[sp++] = stack[4]; continue NEXT_INSTRUCTION;
+					oval = stack[4]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
 					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
 					assert stack[5] != null: "Local variable 5 is null";
-					stack[sp++] = stack[5]; continue NEXT_INSTRUCTION;
+					oval = stack[5]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
 					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
 					assert stack[6] != null: "Local variable 6 is null";
-					stack[sp++] = stack[6]; continue NEXT_INSTRUCTION;
+					oval = stack[6]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
 					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
 					assert stack[7] != null: "Local variable 7 is null";
-					stack[sp++] = stack[7]; continue NEXT_INSTRUCTION;
+					oval = stack[7]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
 					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
 					assert stack[8] != null: "Local variable 8 is null";
-					stack[sp++] = stack[8]; continue NEXT_INSTRUCTION;
+					oval = stack[8]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
 					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
 					assert stack[9] != null: "Local variable 9 is null";
-					stack[sp++] = stack[9]; continue NEXT_INSTRUCTION;
+					oval = stack[9]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
 					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
 					assert stack[pos] != null: "Local variable " + pos + " is null";
-					stack[sp++] = stack[pos];
+					oval = stack[pos]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_RESETLOCS:
@@ -923,6 +934,7 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADVAR:
 					 sp = LOADVAR(CodeBlock.fetchArg1(instruction), 
 							 	  CodeBlock.fetchArg2(instruction), cf, stack, sp);
+					 if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					 continue NEXT_INSTRUCTION;
 					 
 				case Opcode.OP_LOADVARREF: 
@@ -931,6 +943,7 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_LOADVARDEREF: 
 					sp = LOADVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
+					if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_STOREVAR:

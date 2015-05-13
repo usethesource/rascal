@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,7 +100,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 + 17 * charclass.hashCode() ; 
+      return 89 + 307 * charclass.hashCode() ; 
     } 
   
     
@@ -113,6 +113,11 @@ public abstract class Class extends AbstractAST {
     public boolean hasCharclass() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(charclass));
+    }
   }
   public boolean isComplement() {
     return false;
@@ -151,7 +156,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 467 * charClass.hashCode() ; 
+      return 857 + 113 * charClass.hashCode() ; 
     } 
   
     
@@ -164,6 +169,11 @@ public abstract class Class extends AbstractAST {
     public boolean hasCharClass() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(charClass));
+    }
   }
   public boolean isDifference() {
     return false;
@@ -204,7 +214,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 167 * lhs.hashCode() + 607 * rhs.hashCode() ; 
+      return 661 + 337 * lhs.hashCode() + 467 * rhs.hashCode() ; 
     } 
   
     
@@ -226,6 +236,11 @@ public abstract class Class extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isIntersection() {
     return false;
@@ -266,7 +281,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 857 * lhs.hashCode() + 7 * rhs.hashCode() ; 
+      return 389 + 509 * lhs.hashCode() + 17 * rhs.hashCode() ; 
     } 
   
     
@@ -288,6 +303,11 @@ public abstract class Class extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
   public boolean isSimpleCharclass() {
     return false;
@@ -326,7 +346,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 887 + 47 * ranges.hashCode() ; 
+      return 337 + 563 * ranges.hashCode() ; 
     } 
   
     
@@ -339,6 +359,11 @@ public abstract class Class extends AbstractAST {
     public boolean hasRanges() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(ranges));
+    }
   }
   public boolean isUnion() {
     return false;
@@ -379,7 +404,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 971 * lhs.hashCode() + 331 * rhs.hashCode() ; 
+      return 3 + 463 * lhs.hashCode() + 919 * rhs.hashCode() ; 
     } 
   
     
@@ -401,5 +426,10 @@ public abstract class Class extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(lhs), clone(rhs));
+    }
   }
 }

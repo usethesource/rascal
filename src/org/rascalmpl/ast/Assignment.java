@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,10 +63,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 ; 
+      return 239 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isAppend() {
     return false;
@@ -103,10 +108,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 ; 
+      return 41 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isDefault() {
     return false;
@@ -143,10 +153,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 ; 
+      return 5 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isDivision() {
     return false;
@@ -183,10 +198,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 101 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isIfDefined() {
     return false;
@@ -223,10 +243,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 ; 
+      return 139 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isIntersection() {
     return false;
@@ -263,10 +288,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 ; 
+      return 5 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isProduct() {
     return false;
@@ -303,10 +333,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 103 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isSubtraction() {
     return false;
@@ -343,9 +378,14 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 ; 
+      return 947 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

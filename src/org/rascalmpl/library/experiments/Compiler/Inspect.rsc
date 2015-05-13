@@ -1,4 +1,4 @@
-module experiments::Compiler::RVM::Inspector
+module experiments::Compiler::Inspect
 
 import IO;
 import ValueIO;

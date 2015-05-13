@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 743 * expression.hashCode() ; 
+      return 769 + 653 * expression.hashCode() ; 
     } 
   
     
@@ -85,6 +85,11 @@ public abstract class Bound extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression));
+    }
   }
   public boolean isEmpty() {
     return false;
@@ -121,9 +126,14 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 ; 
+      return 167 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

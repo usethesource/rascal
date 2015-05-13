@@ -19,7 +19,7 @@ import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
+//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
 //import experiments::Compiler::Rascal2muRascal::RascalType;
 
@@ -115,9 +115,11 @@ private map[UID uid,int n] sig_scopes = ();         // number of signature scope
 @doc{Handling nesting}
 private rel[UID,UID] declares = {};
 private rel[UID,UID] containment = {};
+private rel[UID,UID] containmentPlus = {};			// containment+
 
 private map[UID,UID] declaredIn = ();				// inverse of declares
 private map[UID,UID] containedIn = ();				// inverse of containment
+private rel[UID,UID] containedInPlus = {};			// inverse of containment+
 
 alias OFUN = tuple[str name, Symbol funType, str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
@@ -182,9 +184,11 @@ public void resetScopeExtraction() {
 	sig_scopes = ();
 	declares = {};
 	containment = {};
+	containmentPlus = {};
 	
 	declaredIn = ();
 	containedIn = ();
+	containedInPlus = {};
 	
 	uid2str = ();
 	uid2type = ();
@@ -238,7 +242,7 @@ void extractScopes(Configuration c){
       //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-         	 //println("<uid>: <item>");
+         	 //println("<uid>: <item>, scope: <inScope>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -283,7 +287,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             println("<uid>: <item>");
+             //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -372,12 +376,13 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: println("extractScopes: skipping <uid>: <item>");
+        default: ;//println("extractScopes: skipping <uid>: <item>");
       }
     }
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
+    containedInPlus = invert(containmentPlus);
     declaredIn = toMapUnique(invert(declares));
 	containedIn = toMapUnique(invert(containment));
     
@@ -544,24 +549,24 @@ void extractScopes(Configuration c){
     //getDeclarationInfo(config);
 }
 
-int declareGeneratedFunction(str name, Symbol rtype){
+int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 	//println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
+    // TODO: all are placed in scope 0, is that ok?
+    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, [], false, src);
     functions += {uid};
     //declares += {<inScope, uid>}; TODO: do we need this?
      
     // Fill in uid2name
-    //name = getFUID(name,rtype);
-	//println("name = <name>");
-     
-    uid2name[uid] = name;
+    uid2name[uid] = fuid;
+    loc2uid[src] = uid;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
     if(!uid2str[uid]?){
-    	uid2str[uid] = name;
+    	uid2str[uid] = fuid;
     } else {
-    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <fuid>";
     }
     return uid;
 }
@@ -779,6 +784,8 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
      throw "Block scope at <l> has not been found!";
 }
 
+
+
 /********************************************************************/
 /*     Part III: Type-related code generation functions             */
 /********************************************************************/
@@ -794,15 +801,48 @@ public MuExp mkCallToLibFun(str modName, str fname)
 // Generate a MuExp to access a variable
 
 // Sort available overloading alternatives as follows:
-// First non-default (most recent first), then defaults (also most recent first).
+// First non-default (inner scope first, most recent first), then defaults (also most inner scope firsts, then recent first).
 
-bool funIdLess(int n, int m) = n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = funInnerScope(n,m) || n > m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
 	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, funIdLess) + sort(defaults, funIdLess);
+	return sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+}
+
+bool funInnerScope(int n, int m) =
+	config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
+
+public list[UID] sortFunctionsByRecentScope(list[UID] funs){
+	return sort(funs, funInnerScope);
+}
+
+public set[UID] accessibleScopes(loc luse) {
+//println("containmentPlus = <containmentPlus>");
+	 return {0, 1} +
+     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], //av has containedIn, av has at
+               (  blockScope(int scope, loc l) := av 
+               || booleanScope(int scope, loc l) := av
+               || function(_,_,_, _, int scope, _, _, loc l) := av
+               || constructor(_,_,_,int scope, loc l) := av
+               || label(_,functionLabel(), int scope, loc l) := av
+               || closure(_,_, int scope, loc l)  := av
+               || \module(_, loc l) := av
+               )
+               , luse < av.at || av.at.path != luse.path
+               };
+} 
+ 
+public UID declaredScope(UID uid) {
+	if(config.store[uid]?){
+		res = config.store[uid].containedIn;
+		//println("declaredScope[<uid>] = <res>");
+		return res;
+	}
+	println("declaredScope[<uid>] = 0 (generated)");
+	return 0;
 }
 
 MuExp mkVar(str name, loc l) {
@@ -903,6 +943,11 @@ default int size(Tree t) {
 
 private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
 
+
+Symbol getElementType(\list(Symbol et)) = et;
+Symbol getElementType(\set(Symbol et)) = et;
+Symbol getElementType(\bag(Symbol et)) = et;
+Symbol getElementType(Symbol t) = Symbol::\value();
 
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
