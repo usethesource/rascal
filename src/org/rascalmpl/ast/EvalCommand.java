@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 631 * declaration.hashCode() ; 
+      return 179 + 941 * declaration.hashCode() ; 
     } 
   
     
@@ -99,6 +99,11 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(declaration));
+    }
   }
   public boolean isImport() {
     return false;
@@ -137,7 +142,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 103 * imported.hashCode() ; 
+      return 277 + 37 * imported.hashCode() ; 
     } 
   
     
@@ -150,6 +155,11 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasImported() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(imported));
+    }
   }
   public boolean isStatement() {
     return false;
@@ -188,7 +198,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 571 * statement.hashCode() ; 
+      return 409 + 131 * statement.hashCode() ; 
     } 
   
     
@@ -201,5 +211,10 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(statement));
+    }
   }
 }

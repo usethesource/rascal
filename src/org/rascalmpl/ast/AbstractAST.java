@@ -16,6 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.ast;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -24,6 +27,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -38,7 +42,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public abstract class AbstractAST implements IVisitable {
+public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected ISourceLocation src;
 	protected Map<String, IValue> annotations;
 	protected Type _type = null;
@@ -58,6 +62,46 @@ public abstract class AbstractAST implements IVisitable {
 	public Type _getType() {
 	  return _type;
 	}
+	
+	@Override
+	public abstract Object clone();
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Used in generated clone methods to avoid case distinctions in the code generator
+	 */
+	protected <T extends AbstractAST> T clone(T in) {
+		T tmp = (T) in.clone();
+		tmp.setSourceLocation(src);
+		return tmp;
+	}
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Used in generated clone methods to avoid regenerating the same code;
+	 */
+	protected <T extends AbstractAST> java.util.List<T> clone(java.util.List<T> in) {
+		java.util.List<T> tmp = new ArrayList<T>(in.size());
+		for (T elem : in) {
+			tmp.add((T) elem.clone());
+		}
+		return tmp;
+	}
+	
+	/**
+	 * Used in clone and AST Builder
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends AbstractAST> T newInstance(java.lang.Class<T> clazz, Object... args) {
+    	try {
+    		Constructor<?> cons = clazz.getConstructors()[0];
+    		cons.setAccessible(true);
+    		return (T) cons.newInstance(args);
+    	}
+    	catch (ClassCastException | ArrayIndexOutOfBoundsException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+    		throw new ImplementationError("Can not instantiate AST object for " + clazz.getName(), e);
+    	}
+    }
 	
 	public AbstractAST findNode(int offset) {
 		if (src.getOffset() <= offset

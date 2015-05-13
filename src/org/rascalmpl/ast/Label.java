@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 167 * name.hashCode() ; 
+      return 947 + 467 * name.hashCode() ; 
     } 
   
     
@@ -85,6 +85,11 @@ public abstract class Label extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
   public boolean isEmpty() {
     return false;
@@ -121,9 +126,14 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 853 ; 
+      return 991 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,7 +104,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 337 * mid.hashCode() + 991 * expression.hashCode() + 191 * tail.hashCode() ; 
+      return 197 + 79 * mid.hashCode() + 941 * expression.hashCode() + 11 * tail.hashCode() ; 
     } 
   
     
@@ -135,6 +135,11 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
   }
   public boolean isMidTemplate() {
     return false;
@@ -177,7 +182,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 331 * mid.hashCode() + 919 * template.hashCode() + 139 * tail.hashCode() ; 
+      return 101 + 113 * mid.hashCode() + 797 * template.hashCode() + 379 * tail.hashCode() ; 
     } 
   
     
@@ -208,6 +213,11 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(template), clone(tail));
+    }
   }
   public boolean isPost() {
     return false;
@@ -246,7 +256,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 617 * post.hashCode() ; 
+      return 643 + 883 * post.hashCode() ; 
     } 
   
     
@@ -259,5 +269,10 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasPost() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(post));
+    }
   }
 }

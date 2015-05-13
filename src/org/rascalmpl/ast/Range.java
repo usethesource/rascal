@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 439 * character.hashCode() ; 
+      return 149 + 521 * character.hashCode() ; 
     } 
   
     
@@ -99,6 +99,11 @@ public abstract class Range extends AbstractAST {
     public boolean hasCharacter() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(character));
+    }
   }
   public boolean isFromTo() {
     return false;
@@ -139,7 +144,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 907 * start.hashCode() + 521 * end.hashCode() ; 
+      return 857 + 769 * start.hashCode() + 317 * end.hashCode() ; 
     } 
   
     
@@ -161,5 +166,10 @@ public abstract class Range extends AbstractAST {
     public boolean hasEnd() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(start), clone(end));
+    }
   }
 }

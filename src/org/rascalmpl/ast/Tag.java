@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 677 * name.hashCode() + 2 * contents.hashCode() ; 
+      return 383 + 173 * name.hashCode() + 373 * contents.hashCode() ; 
     } 
   
     
@@ -110,6 +110,11 @@ public abstract class Tag extends AbstractAST {
     public boolean hasContents() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(contents));
+    }
   }
   public boolean isEmpty() {
     return false;
@@ -148,7 +153,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 73 * name.hashCode() ; 
+      return 277 + 523 * name.hashCode() ; 
     } 
   
     
@@ -161,6 +166,11 @@ public abstract class Tag extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name));
+    }
   }
   public boolean isExpression() {
     return false;
@@ -201,7 +211,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 941 * name.hashCode() + 271 * expression.hashCode() ; 
+      return 89 + 191 * name.hashCode() + 881 * expression.hashCode() ; 
     } 
   
     
@@ -223,5 +233,10 @@ public abstract class Tag extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(expression));
+    }
   }
 }

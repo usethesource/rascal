@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,7 +169,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 401 * tags.hashCode() + 313 * visibility.hashCode() + 829 * user.hashCode() + 641 * base.hashCode() ; 
+      return 29 + 499 * tags.hashCode() + 829 * visibility.hashCode() + 5 * user.hashCode() + 983 * base.hashCode() ; 
     } 
   
     
@@ -209,6 +209,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasBase() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(base));
+    }
   }
   public boolean isAnnotation() {
     return false;
@@ -255,7 +260,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 47 * tags.hashCode() + 653 * visibility.hashCode() + 193 * annoType.hashCode() + 811 * onType.hashCode() + 541 * name.hashCode() ; 
+      return 607 + 409 * tags.hashCode() + 271 * visibility.hashCode() + 149 * annoType.hashCode() + 73 * onType.hashCode() + 227 * name.hashCode() ; 
     } 
   
     
@@ -304,6 +309,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(annoType), clone(onType), clone(name));
+    }
   }
   public boolean isData() {
     return false;
@@ -350,7 +360,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 223 * tags.hashCode() + 457 * visibility.hashCode() + 719 * user.hashCode() + 409 * commonKeywordParameters.hashCode() + 109 * variants.hashCode() ; 
+      return 971 + 859 * tags.hashCode() + 349 * visibility.hashCode() + 271 * user.hashCode() + 719 * commonKeywordParameters.hashCode() + 773 * variants.hashCode() ; 
     } 
   
     
@@ -399,6 +409,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasVariants() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(commonKeywordParameters), clone(variants));
+    }
   }
   public boolean isDataAbstract() {
     return false;
@@ -443,7 +458,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 419 * tags.hashCode() + 83 * visibility.hashCode() + 773 * user.hashCode() + 839 * commonKeywordParameters.hashCode() ; 
+      return 461 + 641 * tags.hashCode() + 139 * visibility.hashCode() + 613 * user.hashCode() + 71 * commonKeywordParameters.hashCode() ; 
     } 
   
     
@@ -483,6 +498,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasCommonKeywordParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(commonKeywordParameters));
+    }
   }
   public boolean isFunction() {
     return false;
@@ -521,7 +541,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 823 * functionDeclaration.hashCode() ; 
+      return 853 + 887 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -534,6 +554,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasFunctionDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(functionDeclaration));
+    }
   }
   public boolean isTag() {
     return false;
@@ -580,7 +605,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 379 * tags.hashCode() + 809 * visibility.hashCode() + 277 * kind.hashCode() + 821 * name.hashCode() + 101 * types.hashCode() ; 
+      return 47 + 461 * tags.hashCode() + 433 * visibility.hashCode() + 769 * kind.hashCode() + 191 * name.hashCode() + 743 * types.hashCode() ; 
     } 
   
     
@@ -629,6 +654,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasTypes() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(kind), clone(name), clone(types));
+    }
   }
   public boolean isVariable() {
     return false;
@@ -673,7 +703,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 83 * tags.hashCode() + 191 * visibility.hashCode() + 409 * type.hashCode() + 241 * variables.hashCode() ; 
+      return 47 + 307 * tags.hashCode() + 677 * visibility.hashCode() + 809 * type.hashCode() + 523 * variables.hashCode() ; 
     } 
   
     
@@ -713,5 +743,10 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasVariables() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(type), clone(variables));
+    }
   }
 }

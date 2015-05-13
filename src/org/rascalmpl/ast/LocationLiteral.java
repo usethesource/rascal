@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public abstract class LocationLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 811 * protocolPart.hashCode() + 677 * pathPart.hashCode() ; 
+      return 233 + 433 * protocolPart.hashCode() + 359 * pathPart.hashCode() ; 
     } 
   
     
@@ -103,5 +103,10 @@ public abstract class LocationLiteral extends AbstractAST {
     public boolean hasPathPart() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(protocolPart), clone(pathPart));
+    }
   }
 }
