@@ -280,17 +280,19 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printExcept(Throwable e) {
-		StringBuilder b = new StringBuilder();
-		b.append("except>");
-		printNesting(b);
-		b.append(moduleName());
-		b.append("::");
-		b.append(getName());
-		b.append(": ");
-		String msg = e.getMessage();
-		b.append(msg == null ? e.getClass().getSimpleName() : msg);
-		eval.getStdOut().println(b.toString());
-		eval.getStdOut().flush();
+		if (callTracing) {
+			StringBuilder b = new StringBuilder();
+			b.append("except>");
+			printNesting(b);
+			b.append(moduleName());
+			b.append("::");
+			b.append(getName());
+			b.append(": ");
+			String msg = e.getMessage();
+			b.append(msg == null ? e.getClass().getSimpleName() : msg);
+			eval.getStdOut().println(b.toString());
+			eval.getStdOut().flush();
+		}
 	}
 	
 	protected void printEndTrace(IValue result) {
