@@ -52,8 +52,10 @@ public class TestEvaluator {
 		ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
 
 		runTests(topModule, topModule.getTests());
+		List<String> imports = new ArrayList<>(topModule.getImports());
+		Collections.shuffle(imports);
 
-		for (String i : topModule.getImports()) {
+		for (String i : imports) {
 			ModuleEnvironment mod = topModule.getImport(i);
 			
 			if (mod != null) {

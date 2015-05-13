@@ -123,8 +123,8 @@ public class RascalJUnitTestRunner extends Runner {
 		
 		try {
 			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+			Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
 			
-			List<Description> testDescriptions = new ArrayList<>();
 			for (String module : modules) {
 				String name = prefix + "::" + module;
 				
@@ -137,7 +137,7 @@ public class RascalJUnitTestRunner extends Runner {
 				
 				
 				Description modDesc = Description.createSuiteDescription(name);
-				testDescriptions.add(modDesc);
+			  desc.addChild(modDesc);
 				// the order of the tests aren't decided by this list so no need to randomly order them.
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
 				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
@@ -146,10 +146,6 @@ public class RascalJUnitTestRunner extends Runner {
 				}
 			}
 			
-			Collections.shuffle(testDescriptions);
-			for (Description d : testDescriptions) {
-			  desc.addChild(d);
-			}
 			return desc;
 		} catch (IOException e) {
 			throw new RuntimeException("could not create test suite", e);
