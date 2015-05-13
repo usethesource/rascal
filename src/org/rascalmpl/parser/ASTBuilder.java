@@ -295,13 +295,13 @@ public class ASTBuilder {
 
 			if (TreeAdapter.isList(tree)) {
 				// TODO: splice element lists (can happen in case of ambiguous lists)
-				return cache(tree, new Tree.List(tree, kids));
+				return cache(tree, new Tree.List(TreeAdapter.getProduction(tree), TreeAdapter.getLocation(tree), kids));
 			}
 			else if (TreeAdapter.isOpt(tree)) {
-				return cache(tree, new Tree.Optional(tree, kids));
+				return cache(tree, new Tree.Optional(TreeAdapter.getProduction(tree), TreeAdapter.getLocation(tree), kids));
 			}
 			else { 
-				return cache(tree, new Tree.Appl(tree, kids));
+				return cache(tree, new Tree.Appl(TreeAdapter.getProduction(tree), TreeAdapter.getLocation(tree), kids));
 			}
 		}
 		else if (TreeAdapter.isCycle(tree)) {
