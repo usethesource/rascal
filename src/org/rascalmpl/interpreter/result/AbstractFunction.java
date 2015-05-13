@@ -294,18 +294,20 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printEndTrace(IValue result) {
-		StringBuilder b = new StringBuilder();
-		b.append("return>");
-		printNesting(b);
-		b.append(moduleName());
-		b.append("::");
-		b.append(getName());
-		if (result != null) {
-			b.append(":");
-			b.append(strval(result));
+		if (callTracing) {
+			StringBuilder b = new StringBuilder();
+			b.append("return>");
+			printNesting(b);
+			b.append(moduleName());
+			b.append("::");
+			b.append(getName());
+			if (result != null) {
+				b.append(":");
+				b.append(strval(result));
+			}
+			eval.getStdOut().println(b);
+			eval.getStdOut().flush();
 		}
-		eval.getStdOut().println(b);
-		eval.getStdOut().flush();
 	}
 	
 	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
