@@ -1,11 +1,14 @@
-
 module experiments::Compiler::Examples::Tst5
-import lang::rascal::tests::types::StaticTestingUtils;
 
-// Sanity check on the testing utilities themselves
+int twice (int n) = 2 * n;
+int triple (int n) = 3 * n;
 
+int dup (int n) = n + n;
+str dup (str s) = s + s;
 
-value main(list[value] args) = checkOK("13;");
+int trip(int n) = n + n + n;
+str trip(str s) = s + s + s;
 
-
-//test bool StringVisit4a5()=visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBcAA";
+test bool twiceTriple1(){
+    return (twice o triple)(5) == twice(triple(5));
+}

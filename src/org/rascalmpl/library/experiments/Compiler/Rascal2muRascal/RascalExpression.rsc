@@ -168,7 +168,7 @@ private MuExp translateComposeFunction(Expression e){
   leaveFunctionScope();
   fun = muFunction(comp_fuid, comp_name, comp_ftype, scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
  
-  int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
+  int uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
   addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [uid]>);
  
@@ -1346,9 +1346,14 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            throw "Ups, unexpected type of the call receiver expression!";
        }
        
-     
-       //println("ftype = <ftype>, of.alts = <of.alts>");
-       for(int alt <- of.alts) {
+  //     println("e = <expression@\loc>");
+  //     println("of = <of>");
+  //     println("ftype = <ftype>, of.alts = <of.alts>");
+  //
+       
+       accessible = accessibleScopes(expression@\loc) + {0};
+       //println("accessible = <accessible>");
+       for(int alt <- of.alts, declaredScope(alt) in accessible) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
@@ -1356,6 +1361,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
+       resolved = sortOverloadedFunctions(toSet(resolved));
+       
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
