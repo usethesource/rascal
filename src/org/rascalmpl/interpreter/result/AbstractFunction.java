@@ -17,6 +17,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -48,6 +51,8 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
@@ -225,51 +230,80 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected void printHeader(StringBuilder b) {
-		b.append(getReturnType());
-		b.append(' ');
+	private String strval(IValue value) {
+		Writer w = new LimitedResultWriter(50);
+		try {
+			new StandardTextWriter(true, 2).write(value, w);
+			return w.toString();
+		} 
+		catch (IOLimitReachedException e) {
+			return w.toString();
+		}
+		catch (IOException e) {
+			return "...";
+		}
+	}
+	protected void printHeader(StringBuilder b, IValue[] actuals) {
+		b.append(moduleName());
+		b.append("::");
 		b.append(getName());
 		b.append('(');
 		Type formals = getFormals();
 		for (int i = 0; i < formals.getArity(); i++) {
-			b.append(formals.getFieldType(i));
-		    b.append(' ');
-		    b.append(formals.getFieldName(i));
+		    b.append(strval(actuals[i]));
 		    
 		    if (i < formals.getArity() - 1) {
-		    	b.append(',');
+		    	b.append(", ");
 		    }
 		}
 		b.append(')');
 	}
 
 	
-	protected void printStartTrace() {
+	protected void printStartTrace(IValue[] actuals) {
 		StringBuilder b = new StringBuilder();
 		b.append("call  >");
 		printNesting(b);
-		printHeader(b);
+		printHeader(b, actuals);
 		eval.getStdOut().println(b.toString());
 		eval.getStdOut().flush();
 		callNesting++;
 	}
 
-	protected void printFinally() {
-		callNesting--;
+	private String moduleName() {
+		String name = getEnv().getName();
+		int ind = name.lastIndexOf("::");
+		if (ind != -1) {
+			name = name.substring(ind + 2);
+		}
+		return name;
+	}
+	
+	protected void printExcept(Throwable e) {
 		StringBuilder b = new StringBuilder();
 		b.append("except>");
 		printNesting(b);
-		printHeader(b);
+		b.append(moduleName());
+		b.append("::");
+		b.append(getName());
+		b.append(": ");
+		String msg = e.getMessage();
+		b.append(msg == null ? e.getClass().getSimpleName() : msg);
 		eval.getStdOut().println(b.toString());
 		eval.getStdOut().flush();
 	}
 	
-	protected void printEndTrace() {
-		callNesting--;
+	protected void printEndTrace(IValue result) {
 		StringBuilder b = new StringBuilder();
 		b.append("return>");
 		printNesting(b);
-		printHeader(b);
+		b.append(moduleName());
+		b.append("::");
+		b.append(getName());
+		if (result != null) {
+			b.append(":");
+			b.append(strval(result));
+		}
 		eval.getStdOut().println(b);
 		eval.getStdOut().flush();
 	}
