@@ -1,193 +1,138 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2015 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
+ *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-public class JarInputStreamURIResolver implements ISourceLocationInput {
-	private URIResolverRegistry registry = URIResolverRegistry.getInstance();
-	private ISourceLocation jarURI;
-	private String scheme;
-	private Map<String, Integer> index;
+public class JarInputStreamURIResolver extends JarURIResolver {
+  private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
+  private final ISourceLocation jarURI;
+  private final String scheme;
+  private final JarInputStreamTreeHierachy index;
 
-	public JarInputStreamURIResolver(ISourceLocation jarURI) {
-		this.jarURI = jarURI;
-		this.scheme = "jarstream+" + UUID.randomUUID();
-		buildIndex();
-	}
-	
-	public InputStream getJarStream() throws IOException {
-		return registry.getInputStream(jarURI);
-	}
+  public JarInputStreamURIResolver(ISourceLocation jarURI) throws IOException {
+    this.jarURI = jarURI;
+    scheme = "jarstream+" + UUID.randomUUID();
+    index = new JarInputStreamTreeHierachy(getJarStream());
+  }
 
-	private void buildIndex() {
-		index = new HashMap<>();
-		
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry next = null;
-			int pos = 0;
-			
-			while ((next = stream.getNextJarEntry()) != null) {
-				index.put(next.getName(), pos++);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			index = null;
-		}		
-	}
-	
-	private JarEntry getEntry(JarInputStream stream, String file) throws IOException {
-		if (file.startsWith("/")) {
-			file = file.substring(1);
-		}
-		Integer pos = index == null ? null : index.get(file);
-		
-		if (pos != null) {
-			JarEntry entry;
-			do {
-				entry = stream.getNextJarEntry();
-			} while (pos-- > 0);
-			
-			return entry;
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			if (getEntry(stream, uri.getPath()) != null) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = stream.read(buf)) > 0) {
-					out.write(buf, 0, len);
-				}
-				
-				return new ByteArrayInputStream(out.toByteArray());
-			}
-		}
-		
-		return null;
-	}
+  @Override
+  protected File getJar(ISourceLocation uri) throws IOException {
+    return new File(jarURI.getPath());
+  }
 
-	@Override
-	public Charset getCharset(ISourceLocation uri) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  protected String getPath(ISourceLocation uri) {
+    String path = uri.getPath();
+    if (path == null || path.isEmpty() || path.equals("/")) {
+      return "";
+    }
+    while (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    return path;
+  }
 
-	@Override
-	public boolean exists(ISourceLocation uri) {
-		String file = uri.getPath();
-		if (file.startsWith("/")) {
-			file = file.substring(1);
-		}
-		return index.containsKey(file);
-	}
+  @Override
+  protected JarTreeHierachy getFileHierchyCache(File jar) {
+    return index;
+  }
 
-	@Override
-	public long lastModified(ISourceLocation uri) throws IOException {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath());
-			if (je != null) {
-				return je.getTime();
-			}
-		}
-		
-		throw new FileNotFoundException(uri.toString());
-	}
+  public InputStream getJarStream() throws IOException {
+    return registry.getInputStream(jarURI);
+  }
 
-	@Override
-	public boolean isDirectory(ISourceLocation uri) {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath());
-			if (je != null) {
-				return je.isDirectory();
-			}
-		} catch (IOException e) {
-			return false;
-		}
-		
-		return false;
-	}
 
-	@Override
-	public boolean isFile(ISourceLocation uri) {
-		return !isDirectory(uri);
-	}
+  private JarEntry getEntry(JarInputStream stream, ISourceLocation subPath) throws IOException {
+    int pos = index.getPosition(getPath(subPath));
 
-	@Override
-	public String[] list(ISourceLocation uri) throws IOException {
-		String path = uri.getPath();
+    if (pos != -1) {
+      JarEntry entry;
+      do {
+        entry = stream.getNextJarEntry();
+      }
+      while (pos-- > 0);
 
-		if (!path.endsWith("/") && !path.isEmpty()) {
-			path = path + "/";
-		}
+      return entry;
+    }
 
-		ArrayList<String> matchedEntries = new ArrayList<>();
+    return null;
+  }
 
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
+  @Override
+  public InputStream getInputStream(ISourceLocation uri) throws IOException {
+    final JarInputStream stream = new JarInputStream(getJarStream());
+    if (getEntry(stream, uri) != null) {
+      // ideally we could just return the stream
+      // except that the JarInputStream doesn't hold the InputStream contract.
+      // Mainly, the read(byte[],int,int) works correctly, as that it stops at 
+      // the boundary of the file but the read() doesn't limit itself to the end 
+      // of the nested file, but works on the whole stream.
+      return new InputStream() {
 
-			while ((je = stream.getNextJarEntry()) != null) {
-				String name = je.getName();
+        @Override
+        public int read() throws IOException {
+          byte[] result = new byte[1];
+          if (stream.read(result, 0, 1) != -1) {
+            return result[0] & 0xFF;
+          }
+          return -1;
+        }
 
-				if (name.equals(path)) {
-					continue;
-				}
-				int index = name.indexOf(path);
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+          return stream.read(b, off, len);
+        }
 
-				if (index == 0) {
-					String result = name.substring(path.length());
+        @Override
+        public int read(byte[] b) throws IOException {
+          return stream.read(b, 0, b.length);
+        }
 
-					index = result.indexOf("/");
+        @Override
+        public void close() throws IOException {
+          stream.close();
+        }
 
-					if (index == -1) {
-						matchedEntries.add(result);
-					} else {
-						result = result.substring(0, index);
-						boolean entryPresent = false;
-						for (Iterator<String> it = matchedEntries.iterator(); it.hasNext(); ) {
-							if (result.equals(it.next())) {
-								entryPresent = true;
-								break;
-							}
-						}
-						if (!entryPresent) {
-							matchedEntries.add(result);
-						}
-					}
-				}
-			}
-		}
+        @Override
+        public int available() throws IOException {
+          return stream.available();
+        }
 
-		String[] listedEntries = new String[matchedEntries.size()];
-		return matchedEntries.toArray(listedEntries);
-	}
+        @Override
+        public long skip(long n) throws IOException {
+          return stream.skip(n);
+        }
+      };
+    }
+    return null;
+  }
 
-	@Override
-	public String scheme() {
-		return scheme;
-	}
+  @Override
+  public String scheme() {
+    return scheme;
+  }
 
-	@Override
-	public boolean supportsHost() {
-		return false;
-	}
-	
-	
+  @Override
+  public boolean supportsHost() {
+    return false;
+  }
+
+
 }
