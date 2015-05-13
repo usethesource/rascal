@@ -14,7 +14,6 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -31,7 +30,7 @@ public class JarURIResolver implements ISourceLocationInput{
 
   private static final Cache<String, JarTreeHierachy> fsCache
      = Caffeine.newBuilder()
-        .<String, JarTreeHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
+        .weigher((String e, JarTreeHierachy v) -> (int)(v.totalSize() / 1024))
         .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more than 1% of the memory
         .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
         .softValues()
