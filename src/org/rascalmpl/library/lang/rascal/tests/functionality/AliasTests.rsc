@@ -116,7 +116,6 @@ type(
                 [],
                 \str()))],
           [],
-          (),
           {})})));
 
 data DATA2 = d2(DATA1(STRING) fun);
