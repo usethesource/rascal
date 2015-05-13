@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -158,7 +158,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 499 * first.hashCode() + 601 * alternatives.hashCode() ; 
+      return 991 + 739 * first.hashCode() + 409 * alternatives.hashCode() ; 
     } 
   
     
@@ -180,6 +180,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasAlternatives() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(first), clone(alternatives));
+    }
   }
   public boolean isCaseInsensitiveLiteral() {
     return false;
@@ -218,7 +223,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 883 * cistring.hashCode() ; 
+      return 2 + 139 * cistring.hashCode() ; 
     } 
   
     
@@ -231,6 +236,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasCistring() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(cistring));
+    }
   }
   public boolean isCharacterClass() {
     return false;
@@ -269,7 +279,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 997 * charClass.hashCode() ; 
+      return 743 + 61 * charClass.hashCode() ; 
     } 
   
     
@@ -282,6 +292,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasCharClass() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(charClass));
+    }
   }
   public boolean isColumn() {
     return false;
@@ -322,7 +337,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 227 * symbol.hashCode() + 631 * column.hashCode() ; 
+      return 773 + 577 * symbol.hashCode() + 541 * column.hashCode() ; 
     } 
   
     
@@ -344,6 +359,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasColumn() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(column));
+    }
   }
   public boolean isEmpty() {
     return false;
@@ -380,10 +400,15 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 ; 
+      return 367 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isEndOfLine() {
     return false;
@@ -422,7 +447,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 43 * symbol.hashCode() ; 
+      return 479 + 487 * symbol.hashCode() ; 
     } 
   
     
@@ -435,6 +460,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isExcept() {
     return false;
@@ -475,7 +505,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 163 * symbol.hashCode() + 61 * label.hashCode() ; 
+      return 601 + 937 * symbol.hashCode() + 773 * label.hashCode() ; 
     } 
   
     
@@ -497,6 +527,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasLabel() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(label));
+    }
   }
   public boolean isFollow() {
     return false;
@@ -537,7 +572,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 761 + 719 * symbol.hashCode() + 151 * match.hashCode() ; 
+      return 571 + 683 * symbol.hashCode() + 433 * match.hashCode() ; 
     } 
   
     
@@ -559,6 +594,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+    }
   }
   public boolean isIter() {
     return false;
@@ -597,7 +637,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 3 * symbol.hashCode() ; 
+      return 691 + 563 * symbol.hashCode() ; 
     } 
   
     
@@ -610,6 +650,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isIterSep() {
     return false;
@@ -650,7 +695,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 557 * symbol.hashCode() + 853 * sep.hashCode() ; 
+      return 601 + 199 * symbol.hashCode() + 137 * sep.hashCode() ; 
     } 
   
     
@@ -672,6 +717,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSep() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(sep));
+    }
   }
   public boolean isIterStar() {
     return false;
@@ -710,7 +760,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 103 * symbol.hashCode() ; 
+      return 751 + 419 * symbol.hashCode() ; 
     } 
   
     
@@ -723,6 +773,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isIterStarSep() {
     return false;
@@ -763,7 +818,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 709 * symbol.hashCode() + 2 * sep.hashCode() ; 
+      return 283 + 149 * symbol.hashCode() + 853 * sep.hashCode() ; 
     } 
   
     
@@ -785,6 +840,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSep() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(sep));
+    }
   }
   public boolean isLabeled() {
     return false;
@@ -825,7 +885,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 173 * symbol.hashCode() + 587 * label.hashCode() ; 
+      return 311 + 673 * symbol.hashCode() + 479 * label.hashCode() ; 
     } 
   
     
@@ -847,6 +907,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasLabel() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(label));
+    }
   }
   public boolean isLiteral() {
     return false;
@@ -885,7 +950,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 229 * string.hashCode() ; 
+      return 709 + 619 * string.hashCode() ; 
     } 
   
     
@@ -898,6 +963,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasString() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(string));
+    }
   }
   public boolean isNonterminal() {
     return false;
@@ -936,7 +1006,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 19 * nonterminal.hashCode() ; 
+      return 503 + 241 * nonterminal.hashCode() ; 
     } 
   
     
@@ -949,6 +1019,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+    }
   }
   public boolean isNotFollow() {
     return false;
@@ -989,7 +1064,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 701 * symbol.hashCode() + 643 * match.hashCode() ; 
+      return 743 + 401 * symbol.hashCode() + 523 * match.hashCode() ; 
     } 
   
     
@@ -1011,6 +1086,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+    }
   }
   public boolean isNotPrecede() {
     return false;
@@ -1051,7 +1131,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 757 * match.hashCode() + 971 * symbol.hashCode() ; 
+      return 17 + 599 * match.hashCode() + 53 * symbol.hashCode() ; 
     } 
   
     
@@ -1073,6 +1153,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(match), clone(symbol));
+    }
   }
   public boolean isOptional() {
     return false;
@@ -1111,7 +1196,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 227 * symbol.hashCode() ; 
+      return 541 + 491 * symbol.hashCode() ; 
     } 
   
     
@@ -1124,6 +1209,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isParameter() {
     return false;
@@ -1162,7 +1252,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 821 * nonterminal.hashCode() ; 
+      return 569 + 61 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1175,6 +1265,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+    }
   }
   public boolean isParametrized() {
     return false;
@@ -1215,7 +1310,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 821 + 991 * nonterminal.hashCode() + 941 * parameters.hashCode() ; 
+      return 293 + 223 * nonterminal.hashCode() + 389 * parameters.hashCode() ; 
     } 
   
     
@@ -1237,6 +1332,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(nonterminal), clone(parameters));
+    }
   }
   public boolean isPrecede() {
     return false;
@@ -1277,7 +1377,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 967 * match.hashCode() + 487 * symbol.hashCode() ; 
+      return 211 + 907 * match.hashCode() + 569 * symbol.hashCode() ; 
     } 
   
     
@@ -1299,6 +1399,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(match), clone(symbol));
+    }
   }
   public boolean isSequence() {
     return false;
@@ -1339,7 +1444,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 743 * first.hashCode() + 431 * sequence.hashCode() ; 
+      return 929 + 509 * first.hashCode() + 311 * sequence.hashCode() ; 
     } 
   
     
@@ -1361,6 +1466,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSequence() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(first), clone(sequence));
+    }
   }
   public boolean isStart() {
     return false;
@@ -1399,7 +1509,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 61 * nonterminal.hashCode() ; 
+      return 61 + 359 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1412,6 +1522,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+    }
   }
   public boolean isStartOfLine() {
     return false;
@@ -1450,7 +1565,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 37 * symbol.hashCode() ; 
+      return 383 + 659 * symbol.hashCode() ; 
     } 
   
     
@@ -1463,6 +1578,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+    }
   }
   public boolean isUnequal() {
     return false;
@@ -1503,7 +1623,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 379 * symbol.hashCode() + 53 * match.hashCode() ; 
+      return 3 + 211 * symbol.hashCode() + 307 * match.hashCode() ; 
     } 
   
     
@@ -1525,5 +1645,10 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+    }
   }
 }

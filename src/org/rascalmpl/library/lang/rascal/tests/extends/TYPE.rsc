@@ -10,3 +10,4 @@ default bool subtype(SYM s, SYM t) = false;
 
 test bool comparableT1() = comparable(A(), B());
 test bool comparableT2() = comparable(B(), A());
+

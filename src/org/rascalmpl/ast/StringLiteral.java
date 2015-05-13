@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,7 +104,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 313 * pre.hashCode() + 457 * expression.hashCode() + 947 * tail.hashCode() ; 
+      return 577 + 107 * pre.hashCode() + 397 * expression.hashCode() + 97 * tail.hashCode() ; 
     } 
   
     
@@ -135,6 +135,11 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pre), clone(expression), clone(tail));
+    }
   }
   public boolean isNonInterpolated() {
     return false;
@@ -173,7 +178,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 307 * constant.hashCode() ; 
+      return 769 + 547 * constant.hashCode() ; 
     } 
   
     
@@ -186,6 +191,11 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasConstant() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(constant));
+    }
   }
   public boolean isTemplate() {
     return false;
@@ -228,7 +238,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 839 * pre.hashCode() + 373 * template.hashCode() + 191 * tail.hashCode() ; 
+      return 829 + 787 * pre.hashCode() + 881 * template.hashCode() + 883 * tail.hashCode() ; 
     } 
   
     
@@ -259,5 +269,10 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pre), clone(template), clone(tail));
+    }
   }
 }

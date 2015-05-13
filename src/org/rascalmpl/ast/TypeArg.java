@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 347 * type.hashCode() ; 
+      return 199 + 199 * type.hashCode() ; 
     } 
   
     
@@ -92,6 +92,11 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type));
+    }
   }
   public boolean isNamed() {
     return false;
@@ -132,7 +137,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 829 * type.hashCode() + 389 * name.hashCode() ; 
+      return 883 + 929 * type.hashCode() + 337 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +159,10 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(type), clone(name));
+    }
   }
 }

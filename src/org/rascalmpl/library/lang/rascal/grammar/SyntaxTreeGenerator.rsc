@@ -198,6 +198,11 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  public boolean has<cname>() {
          '    return true;
          '  }<}>	
+         '
+         '  @Override
+         '  public Object clone()  {
+         '    return newInstance(getClass(), (IConstructor) null <cloneActuals(sig.args)>);
+         '  }
          '}";
 }
 
@@ -220,6 +225,11 @@ public str lexicalClass(str name) {
          '  @Override
          '  public boolean equals(Object o) {
          '    return o instanceof Lexical && ((Lexical) o).string.equals(string);  
+         '  }
+         '
+         '  @Override
+         '  public Object clone()  {
+         '    return newInstance(getClass(), (IConstructor) null, string);
          '  }
          '
          '  @Override
@@ -285,6 +295,14 @@ str actuals(list[Arg] args) {
   }
   h = head(args);
   return (", <h.name>" | "<it>, <a>" | arg(_, a) <- tail(args) );
+}
+
+str cloneActuals(list[Arg] args) {
+  if (args == []) {
+     return "";
+  }
+  h = head(args);
+  return (", clone(<h.name>)" | "<it>, clone(<a>)" | arg(_, a) <- tail(args) );
 }
 
 public str construct(Sig sig) {

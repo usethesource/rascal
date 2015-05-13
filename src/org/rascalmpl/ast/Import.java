@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,7 +93,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 461 * module.hashCode() ; 
+      return 223 + 631 * module.hashCode() ; 
     } 
   
     
@@ -106,6 +106,11 @@ public abstract class Import extends AbstractAST {
     public boolean hasModule() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(module));
+    }
   }
   public boolean isExtend() {
     return false;
@@ -144,7 +149,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 241 * module.hashCode() ; 
+      return 743 + 311 * module.hashCode() ; 
     } 
   
     
@@ -157,6 +162,11 @@ public abstract class Import extends AbstractAST {
     public boolean hasModule() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(module));
+    }
   }
   public boolean isExternal() {
     return false;
@@ -197,7 +207,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 997 * name.hashCode() + 929 * at.hashCode() ; 
+      return 911 + 139 * name.hashCode() + 13 * at.hashCode() ; 
     } 
   
     
@@ -219,6 +229,11 @@ public abstract class Import extends AbstractAST {
     public boolean hasAt() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(name), clone(at));
+    }
   }
   public boolean isSyntax() {
     return false;
@@ -257,7 +272,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 733 * syntax.hashCode() ; 
+      return 859 + 127 * syntax.hashCode() ; 
     } 
   
     
@@ -270,5 +285,10 @@ public abstract class Import extends AbstractAST {
     public boolean hasSyntax() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(syntax));
+    }
   }
 }

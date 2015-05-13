@@ -6,7 +6,6 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
@@ -14,7 +13,6 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -27,22 +25,20 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-public class JarURIResolver implements ISourceLocationInput{
+public class JarURIResolver implements ISourceLocationInput {
 
-  private static final Cache<String, JarFileHierachy> fsCache
-     = Caffeine.newBuilder()
-        .<String, JarFileHierachy>weigher((e, v) -> (int)(v.totalSize() / 1024))
-        .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more than 1% of the memory
-        .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
-        .softValues()
-        .build()
-     ;
+  private static final Cache<String, JarTreeHierachy> fsCache = Caffeine.newBuilder()
+      .weigher((String e, JarTreeHierachy v) -> (int) (v.totalSize() / 1024))
+      .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more
+                                                                      // than 1% of the memory
+      .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
+      .softValues().build();
 
   public JarURIResolver() {
     super();
   }
 
-  private File getJar(ISourceLocation uri) throws IOException {
+  protected File getJar(ISourceLocation uri) throws IOException {
     String path = uri.getPath();
     if (path == null) {
       path = uri.toString();
@@ -56,7 +52,7 @@ public class JarURIResolver implements ISourceLocationInput{
     }
   }
 
-  private String getPath(ISourceLocation uri) {
+  protected String getPath(ISourceLocation uri) {
     String path = uri.getPath();
     if (path == null) {
       path = uri.toString();
@@ -95,19 +91,21 @@ public class JarURIResolver implements ISourceLocationInput{
         return true;
       }
       return getFileHierchyCache(jar).exists(path);
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       return false;
     }
   }
 
-  private JarFileHierachy getFileHierchyCache(final File jar) {
-      return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileHierachy(jar));
+  protected JarTreeHierachy getFileHierchyCache(final File jar) {
+    return fsCache.get(jar.getAbsolutePath() + jar.lastModified(), j -> new JarFileTreeHierachy(jar));
   }
 
-  public boolean isDirectory(ISourceLocation uri){
+  public boolean isDirectory(ISourceLocation uri) {
     try {
       if (uri.getPath() != null && (uri.getPath().endsWith(".jar!") || uri.getPath().endsWith(".jar!/"))) {
-        // if the uri is the root of a jar, and it ends with a ![/], it should be considered a directory
+        // if the uri is the root of a jar, and it ends with a ![/], it should be considered a
+        // directory
         return true;
       }
       File jar = getJar(uri);
@@ -118,22 +116,24 @@ public class JarURIResolver implements ISourceLocationInput{
       }
 
       return getFileHierchyCache(jar).isDirectory(path);
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       return false;
     }
   }
 
-  public boolean isFile(ISourceLocation uri){
+  public boolean isFile(ISourceLocation uri) {
     try {
       File jar = getJar(uri);
       String path = getPath(uri);
       return getFileHierchyCache(jar).isFile(path);
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       return false;
     }
   }
 
-  public long lastModified(ISourceLocation uri) throws IOException{
+  public long lastModified(ISourceLocation uri) throws IOException {
     File jar = getJar(uri);
     String path = getPath(uri);
     return getFileHierchyCache(jar).getLastModified(path);

@@ -454,7 +454,7 @@ public class ASTBuilder {
 				constructor.setAccessible(true);
 				astConstructors.put(name, constructor);
 			}
-
+			
 			AbstractAST result = (AbstractAST) constructor.newInstance(actuals);
 			if (src != null) {
 				result.setSourceLocation(src);

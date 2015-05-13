@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,7 +97,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 331 * pre.hashCode() + 761 * expression.hashCode() + 811 * tail.hashCode() ; 
+      return 59 + 739 * pre.hashCode() + 487 * expression.hashCode() + 199 * tail.hashCode() ; 
     } 
   
     
@@ -128,6 +128,11 @@ public abstract class ProtocolPart extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(pre), clone(expression), clone(tail));
+    }
   }
   public boolean isNonInterpolated() {
     return false;
@@ -166,7 +171,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 11 * protocolChars.hashCode() ; 
+      return 151 + 109 * protocolChars.hashCode() ; 
     } 
   
     
@@ -179,5 +184,10 @@ public abstract class ProtocolPart extends AbstractAST {
     public boolean hasProtocolChars() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(protocolChars));
+    }
   }
 }

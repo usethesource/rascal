@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 + 277 * declarator.hashCode() ; 
+      return 929 + 449 * declarator.hashCode() ; 
     } 
   
     
@@ -85,6 +85,11 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     public boolean hasDeclarator() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(declarator));
+    }
   }
   public boolean isDynamic() {
     return false;
@@ -123,7 +128,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 911 * declarator.hashCode() ; 
+      return 41 + 929 * declarator.hashCode() ; 
     } 
   
     
@@ -136,5 +141,10 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     public boolean hasDeclarator() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(declarator));
+    }
   }
 }

@@ -50,8 +50,8 @@ private INS peephole2(INS instructions, bool isSplit){
 INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest ] ) = 
 	redundant_stores(rest);
 	
-INS redundant_stores([ LOADCON(true), GUARD(),  *Instruction rest] ) =
-    redundant_stores(rest); 
+//INS redundant_stores([ LOADCON(true), GUARD(),  *Instruction rest] ) =
+//    redundant_stores(rest); 
 
 INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
 	[LABEL(p), *redundant_stores(rest)];
