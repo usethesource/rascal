@@ -91,7 +91,7 @@ test bool reifiedAlias1() =
 alias STRING = str;
 
 data DATA1 = d1(STRING s);
-
+@ignoreCompiler{Incorrect type here}
 test bool reifiedAlias2() = #DATA1 ==
 type(
   adt(
@@ -116,11 +116,11 @@ type(
                 [],
                 \str()))],
           [],
-          (),
           {})})));
 
 data DATA2 = d2(DATA1(STRING) fun);
 
+@ignoreCompiler{Incorrect type here}
 test bool reifiedAlias3() = #DATA2 ==
 type(
   adt(
@@ -150,7 +150,6 @@ type(
                     [],
                     \str())]))],
           [],
-          (),
           {})}),
     adt(
       "DATA1",
@@ -171,6 +170,5 @@ type(
                 [],
                 \str()))],
           [],
-          (),
           {})})
   ));

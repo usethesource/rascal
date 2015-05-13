@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,7 +111,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 571 * tags.hashCode() + 547 * visibility.hashCode() + 487 * signature.hashCode() ; 
+      return 157 + 811 * tags.hashCode() + 107 * visibility.hashCode() + 127 * signature.hashCode() ; 
     } 
   
     
@@ -142,6 +142,11 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasSignature() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(signature));
+    }
   }
   public boolean isConditional() {
     return false;
@@ -188,7 +193,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 + 983 * tags.hashCode() + 709 * visibility.hashCode() + 211 * signature.hashCode() + 673 * expression.hashCode() + 353 * conditions.hashCode() ; 
+      return 181 + 89 * tags.hashCode() + 743 * visibility.hashCode() + 743 * signature.hashCode() + 191 * expression.hashCode() + 857 * conditions.hashCode() ; 
     } 
   
     
@@ -237,6 +242,11 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasConditions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(expression), clone(conditions));
+    }
   }
   public boolean isDefault() {
     return false;
@@ -281,7 +291,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 991 * tags.hashCode() + 23 * visibility.hashCode() + 787 * signature.hashCode() + 181 * body.hashCode() ; 
+      return 409 + 491 * tags.hashCode() + 89 * visibility.hashCode() + 839 * signature.hashCode() + 463 * body.hashCode() ; 
     } 
   
     
@@ -321,6 +331,11 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(body));
+    }
   }
   public boolean isExpression() {
     return false;
@@ -365,7 +380,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 167 * tags.hashCode() + 331 * visibility.hashCode() + 103 * signature.hashCode() + 607 * expression.hashCode() ; 
+      return 89 + 941 * tags.hashCode() + 977 * visibility.hashCode() + 43 * signature.hashCode() + 467 * expression.hashCode() ; 
     } 
   
     
@@ -405,5 +420,10 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(expression));
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,7 +100,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 59 * declaration.hashCode() ; 
+      return 83 + 163 * declaration.hashCode() ; 
     } 
   
     
@@ -113,6 +113,11 @@ public abstract class Command extends AbstractAST {
     public boolean hasDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(declaration));
+    }
   }
   public boolean isExpression() {
     return false;
@@ -151,7 +156,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 97 * expression.hashCode() ; 
+      return 17 + 233 * expression.hashCode() ; 
     } 
   
     
@@ -164,6 +169,11 @@ public abstract class Command extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(expression));
+    }
   }
   public boolean isImport() {
     return false;
@@ -202,7 +212,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 107 * imported.hashCode() ; 
+      return 17 + 17 * imported.hashCode() ; 
     } 
   
     
@@ -215,6 +225,11 @@ public abstract class Command extends AbstractAST {
     public boolean hasImported() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(imported));
+    }
   }
   public boolean isShell() {
     return false;
@@ -253,7 +268,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 257 * command.hashCode() ; 
+      return 79 + 983 * command.hashCode() ; 
     } 
   
     
@@ -266,6 +281,11 @@ public abstract class Command extends AbstractAST {
     public boolean hasCommand() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(command));
+    }
   }
   public boolean isStatement() {
     return false;
@@ -304,7 +324,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 157 * statement.hashCode() ; 
+      return 389 + 617 * statement.hashCode() ; 
     } 
   
     
@@ -317,5 +337,10 @@ public abstract class Command extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(statement));
+    }
   }
 }

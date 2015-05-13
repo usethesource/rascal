@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,7 +97,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 229 * mid.hashCode() + 643 * expression.hashCode() + 547 * tail.hashCode() ; 
+      return 547 + 11 * mid.hashCode() + 727 * expression.hashCode() + 443 * tail.hashCode() ; 
     } 
   
     
@@ -128,6 +128,11 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
   }
   public boolean isMid() {
     return false;
@@ -166,7 +171,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 773 * mid.hashCode() ; 
+      return 277 + 137 * mid.hashCode() ; 
     } 
   
     
@@ -179,6 +184,11 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasMid() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid));
+    }
   }
   public boolean isTemplate() {
     return false;
@@ -221,7 +231,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 223 * mid.hashCode() + 617 * template.hashCode() + 11 * tail.hashCode() ; 
+      return 13 + 829 * mid.hashCode() + 269 * template.hashCode() + 313 * tail.hashCode() ; 
     } 
   
     
@@ -252,5 +262,10 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(template), clone(tail));
+    }
   }
 }

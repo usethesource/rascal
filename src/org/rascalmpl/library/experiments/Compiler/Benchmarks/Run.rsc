@@ -116,7 +116,7 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted2.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted4.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
@@ -281,7 +281,7 @@ void main_paper(){
 }
 
 void main_paper1(){
-   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension",/*"BExceptions",*/"BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
              		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
              	]);
@@ -291,13 +291,13 @@ void main_paper2(){
    run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
    						//"BRSFCalls",
    						"BSendMoreMoney",
-   						//"BSendMoreMoneyNotTyped",
-   						//"BSudoku",
+   						"BSendMoreMoneyNotTyped",
+   						"BSudoku",
    						"BTemplate"
    					 ]);
 }
 
 void main_setmatch(){
-   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
+   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3", "BSetMatch1", "BSetMatch2", "BSetMatch3"]);
 }
 

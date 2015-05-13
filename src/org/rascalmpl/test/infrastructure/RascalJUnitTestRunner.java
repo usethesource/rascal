@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -122,6 +123,7 @@ public class RascalJUnitTestRunner extends Runner {
 		
 		try {
 			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+			Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
 			
 			for (String module : modules) {
 				String name = prefix + "::" + module;
@@ -133,9 +135,10 @@ public class RascalJUnitTestRunner extends Runner {
 					throw new RuntimeException("Could not import " + name + " for testing...", e);
 				}
 				
-				Description modDesc = Description.createSuiteDescription(name);
-				desc.addChild(modDesc);
 				
+				Description modDesc = Description.createSuiteDescription(name);
+			  desc.addChild(modDesc);
+				// the order of the tests aren't decided by this list so no need to randomly order them.
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
 				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
 				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
@@ -143,7 +146,6 @@ public class RascalJUnitTestRunner extends Runner {
 				}
 			}
 			
-		
 			return desc;
 		} catch (IOException e) {
 			throw new RuntimeException("could not create test suite", e);

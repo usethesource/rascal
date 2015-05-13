@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,10 +70,15 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 ; 
+      return 251 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null );
+    }
   }
   public boolean isPresent() {
     return false;
@@ -112,7 +117,7 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 727 * keywordFormalList.hashCode() ; 
+      return 691 + 641 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -125,5 +130,10 @@ public abstract class CommonKeywordParameters extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(keywordFormalList));
+    }
   }
 }

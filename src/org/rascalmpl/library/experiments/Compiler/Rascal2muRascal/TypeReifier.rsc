@@ -522,7 +522,7 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	println("reify adt: <name>, <symbols>, <defs>, <constructors>");
+	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
 	   if(adtDef: Symbol::\adt(name,_) := s){
@@ -533,7 +533,7 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
         	 definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
           }
           definitions = ( definitions | reify(sym, it) | sym <- symbols );
-          println("reify adt <name> =\> <definitions>");
+          //println("reify adt <name> =\> <definitions>");
           return definitions;
        }
     }
@@ -547,7 +547,7 @@ public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Sy
 	
 // alias
 public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
-    println("reify alias: <name>, <aliased>");
+    //println("reify alias: <name>, <aliased>");
 	definitions = reify(aliased, definitions);
 	definitions = ( definitions | reify(sym, it) | sym <- parameters );
 	return definitions;

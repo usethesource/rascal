@@ -463,8 +463,6 @@ public abstract class Import {
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
   public static IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
-    // TODO: update source code locations!!
-    
      return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
        final IValueFactory vf = eval.getValueFactory();
        
@@ -605,6 +603,7 @@ public abstract class Import {
   
   private static class AdjustLocations extends IdentityTreeVisitor<ImplementationError> {
   	private SortedMap<Integer, Integer> corrections;
+  	
 		private IValueFactory vf;
 
 		AdjustLocations(SortedMap<Integer, Integer> corrections, IValueFactory vf) {
@@ -613,6 +612,8 @@ public abstract class Import {
     }
 		
 		private int offsetFor(int locOffset) {
+			// find the entry k, v in corrections,
+			// where k is the largest that is smaller or equal to locOffset.
 			if (corrections.isEmpty()) {
 				return 0;
 			}
@@ -620,16 +621,20 @@ public abstract class Import {
 			SortedMap<Integer, Integer> rest = corrections.tailMap(locOffset);
 			if (rest.isEmpty()) {
 				key = corrections.lastKey();
+				assert key < locOffset;
 			}
 			else if (rest.firstKey() == locOffset) {
 				key = locOffset;
 			}
 			else {
+				assert rest.firstKey() > locOffset;
+				
 				SortedMap<Integer, Integer> front = corrections.headMap(rest.firstKey());
 				if (front.isEmpty()) {
 					return 0;
 				}
 				key = front.lastKey();
+				assert key < locOffset;
 			}
 			int off = corrections.get(key);
 			return off;

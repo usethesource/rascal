@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 61 * decimal.hashCode() ; 
+      return 547 + 977 * decimal.hashCode() ; 
     } 
   
     
@@ -99,6 +99,11 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasDecimal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(decimal));
+    }
   }
   public boolean isHexIntegerLiteral() {
     return false;
@@ -137,7 +142,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 337 * hex.hashCode() ; 
+      return 443 + 443 * hex.hashCode() ; 
     } 
   
     
@@ -150,6 +155,11 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasHex() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(hex));
+    }
   }
   public boolean isOctalIntegerLiteral() {
     return false;
@@ -188,7 +198,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 181 * octal.hashCode() ; 
+      return 659 + 773 * octal.hashCode() ; 
     } 
   
     
@@ -201,5 +211,10 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasOctal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(octal));
+    }
   }
 }

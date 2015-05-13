@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 193 * defined.hashCode() + 419 * production.hashCode() ; 
+      return 7 + 821 * defined.hashCode() + 223 * production.hashCode() ; 
     } 
   
     
@@ -117,6 +117,11 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(defined), clone(production));
+    }
   }
   public boolean isLanguage() {
     return false;
@@ -159,7 +164,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 487 * start.hashCode() + 409 * defined.hashCode() + 163 * production.hashCode() ; 
+      return 757 + 607 * start.hashCode() + 37 * defined.hashCode() + 211 * production.hashCode() ; 
     } 
   
     
@@ -190,6 +195,11 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(start), clone(defined), clone(production));
+    }
   }
   public boolean isLayout() {
     return false;
@@ -232,7 +242,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 953 * vis.hashCode() + 809 * defined.hashCode() + 37 * production.hashCode() ; 
+      return 127 + 499 * vis.hashCode() + 461 * defined.hashCode() + 59 * production.hashCode() ; 
     } 
   
     
@@ -263,6 +273,11 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(vis), clone(defined), clone(production));
+    }
   }
   public boolean isLexical() {
     return false;
@@ -303,7 +318,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 19 * defined.hashCode() + 503 * production.hashCode() ; 
+      return 199 + 937 * defined.hashCode() + 409 * production.hashCode() ; 
     } 
   
     
@@ -325,5 +340,10 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(defined), clone(production));
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 941 * fieldIndex.hashCode() ; 
+      return 971 + 17 * fieldIndex.hashCode() ; 
     } 
   
     
@@ -92,6 +92,11 @@ public abstract class Field extends AbstractAST {
     public boolean hasFieldIndex() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(fieldIndex));
+    }
   }
   public boolean isName() {
     return false;
@@ -130,7 +135,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 + 11 * fieldName.hashCode() ; 
+      return 661 + 727 * fieldName.hashCode() ; 
     } 
   
     
@@ -143,5 +148,10 @@ public abstract class Field extends AbstractAST {
     public boolean hasFieldName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), (IConstructor) null , clone(fieldName));
+    }
   }
 }
