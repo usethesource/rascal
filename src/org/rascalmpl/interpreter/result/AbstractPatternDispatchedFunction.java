@@ -177,7 +177,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
       List<AbstractFunction> funcs = alternatives.get(label);
       
       // for abstract patterns on concrete trees
-      if (funcs == null && argTypes[0].isSubtypeOf(RascalValueFactory.Tree)) {
+      if (funcs == null && cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
     	  label = TreeAdapter.getConstructorName((Tree) cons);
     	  funcs = alternatives.get(label);
       }

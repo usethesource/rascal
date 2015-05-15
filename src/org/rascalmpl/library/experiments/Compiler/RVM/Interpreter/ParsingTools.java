@@ -358,7 +358,7 @@ public class ParsingTools {
 	  }
 	 
 	  // Rascal library function (interpreter version)
-	  public Tree parseFragment(IString name, IValue start, Tree tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+	  public Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
 			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, ctx, null);
 		  }
@@ -366,7 +366,7 @@ public class ParsingTools {
 	  }
 		
 	// Rascal library function (compiler version)
-	public Tree parseFragment(IString name, IValue start, Tree tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+	public Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
 		if(this.rex == null){
 			this.rex = rex;
 		}
@@ -379,12 +379,12 @@ public class ParsingTools {
 	 * 
 	 */
 
-	Tree parseFragment(IString name, IValue start, Tree tree, ISourceLocation uri, IMap grammar) {
-	    Tree symTree = TreeAdapter.getArg(tree, "symbol");
-	    Tree lit = TreeAdapter.getArg(tree, "parts");
+	Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+	    Tree symTree = TreeAdapter.getArg((Tree) tree, "symbol");
+	    Tree lit = TreeAdapter.getArg((Tree) tree, "parts");
 	    Map<String, Tree> antiquotes = new HashMap<String,Tree>();
 	    
-	    IGTD<IConstructor, Tree, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree), false, grammar);
+	    IGTD<IConstructor, Tree, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation((Tree) tree), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
@@ -398,7 +398,7 @@ public class ParsingTools {
 	      return fragment;
 	    }
 	    catch (ParseError e) {
-	      ISourceLocation loc = TreeAdapter.getLocation(tree);
+	      ISourceLocation loc = TreeAdapter.getLocation((Tree) tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
 	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
 	      //getMonitor().warning("parse error in concrete syntax", src);
