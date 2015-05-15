@@ -4,8 +4,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 public enum ToplevelType {
 	VOID			(0, "void"),
@@ -53,7 +55,7 @@ public enum ToplevelType {
 	}
 	
 	public static ToplevelType getToplevelType(final Type t){
-		return t.accept(new ITypeVisitor<ToplevelType,RuntimeException>() {
+		return t.accept(new DefaultRascalTypeVisitor<ToplevelType,RuntimeException>(VOID) {
 
 			@Override
 			public ToplevelType visitReal(Type type) throws RuntimeException {
@@ -155,6 +157,34 @@ public enum ToplevelType {
 					throws RuntimeException {
 				throw new CompilerError("External cannot occur as toplevel type: " + type);
 			}
+			
+			@Override
+			public ToplevelType visitNonTerminal(RascalType type)
+					throws RuntimeException {
+				// TODO: @paulk review
+				return CONSTRUCTOR;
+			}
+			
+			@Override
+			public ToplevelType visitReified(RascalType type)
+					throws RuntimeException {
+				// TODO: @paulk review
+				return CONSTRUCTOR;
+			}
+			
+			@Override
+			public ToplevelType visitFunction(RascalType type)
+					throws RuntimeException {
+				// TODO: @paulk review
+				return VALUE;
+			}
+			
+			@Override
+			public ToplevelType visitOverloadedFunction(RascalType type)
+					throws RuntimeException {
+				// TODO: @paulk review
+				return VALUE;
+			}
 
 			@Override
 			public ToplevelType visitDateTime(Type type)
@@ -179,23 +209,7 @@ public enum ToplevelType {
 	}
 	
 	public static int getFingerprint(final IValue v, final boolean useConcreteFingerprint){
-		int res = v.getType().accept(new ITypeVisitor<Integer,RuntimeException>() {
-
-			@Override
-			public Integer visitReal(final Type type) throws RuntimeException {
-				return v.hashCode();
-			}
-
-			@Override
-			public Integer visitInteger(final Type type) throws RuntimeException {
-				return v.hashCode();
-			}
-
-			@Override
-			public Integer visitRational(final Type type) throws RuntimeException {
-				return v.hashCode();
-			}
-
+		int res = v.getType().accept(new DefaultRascalTypeVisitor<Integer,RuntimeException>(v.hashCode()) {
 			@Override
 			public Integer visitList(final Type type) throws RuntimeException {
 				return listHashCode;
@@ -207,29 +221,8 @@ public enum ToplevelType {
 			}
 
 			@Override
-			public Integer visitNumber(final Type type) throws RuntimeException {
-				return v.hashCode();
-			}
-
-			@Override
-			public Integer visitAlias(final Type type) throws RuntimeException {
-				throw new CompilerError("Alias cannot occur in fingerprint");
-			}
-
-			@Override
 			public Integer visitSet(final Type type) throws RuntimeException {
 				return setHashCode;
-			}
-
-			@Override
-			public Integer visitSourceLocation(final Type type)
-					throws RuntimeException {
-				return v.hashCode();
-			}
-
-			@Override
-			public Integer visitString(final Type type) throws RuntimeException {
-				return v.hashCode();
 			}
 
 			@Override
@@ -240,19 +233,12 @@ public enum ToplevelType {
 			@Override
 			public Integer visitConstructor(final Type type) throws RuntimeException {
 				IConstructor cons = (IConstructor) v;
-				if(useConcreteFingerprint && cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
 				return cons.getName().hashCode() << 2 + cons.arity();
 			}
 
 			@Override
 			public Integer visitAbstractData(final Type type) throws RuntimeException {
-				IConstructor cons = (IConstructor) v;
-				if(useConcreteFingerprint  && cons.getName().equals("appl")){	// use name to be insensitive to annotations
-					return cons.get(0).hashCode(); 
-				}
-				return cons.getName().hashCode() << 2 + cons.arity();
+				return visitConstructor(type);
 			}
 
 			@Override
@@ -266,32 +252,22 @@ public enum ToplevelType {
 			}
 
 			@Override
-			public Integer visitVoid(Type type) throws RuntimeException {
-				throw new CompilerError("Void cannot occur in fingerprint");
+			public Integer visitReified(RascalType type)
+					throws RuntimeException {
+				// TODO: this might work; need to check
+				return visitConstructor(type);
 			}
 
 			@Override
-			public Integer visitBool(final Type type) throws RuntimeException {
-				return v.hashCode();
-			}
-
-			@Override
-			public Integer visitParameter(final Type type) throws RuntimeException {
-				throw new CompilerError("Parameter cannot occur in fingerprint");
-			}
-
-			@Override
-			public Integer visitExternal(final Type type) throws RuntimeException {
-					return v.hashCode();
-				//throw new CompilerError("External cannot occur in fingerprint: " + type);
-			}
-
-			@Override
-			public Integer visitDateTime(final Type type) throws RuntimeException {
-				return v.hashCode();
+			public Integer visitNonTerminal(RascalType type) throws RuntimeException {
+				assert v instanceof Tree;
+				if (useConcreteFingerprint && ((Tree) v).isAppl()) {	
+					return ((Tree) v).getProduction().hashCode(); 
+				}
+				
+				return visitAbstractData(type.asAbstractDataType());
 			}
 		});
-		//System.err.println("getFingerprint: " + res + ", for useConcreteFingerprint=" + useConcreteFingerprint + " + and " + v);
 		return res;
 	}
 }

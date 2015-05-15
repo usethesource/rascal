@@ -1,6 +1,11 @@
 module experiments::Compiler::Examples::Tst1
 
-import experiments::Compiler::Execute;
-import experiments::Compiler::RVM::AST; 
+syntax XorY = x : "x" | y : "y";
 
-value main(list[value] args) = execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst3.rsc|, [], recompile=true, testsuite=true);
+test bool concreteSwitch5(){
+  switch([XorY] "y"){
+    case (XorY) `x`: throw "fail to due extra match"; 
+    case y():  return true;
+  }
+  throw "fail due to missing match";
+}

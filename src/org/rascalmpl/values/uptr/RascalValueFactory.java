@@ -48,9 +48,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 /**
@@ -984,11 +982,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(this) {
+			return new AbstractDefaultAnnotatable<Tree>(this) {
 				@Override
-				protected IConstructor wrap(IConstructor content,
+				protected Tree wrap(Tree content,
 						ImmutableMap<String, IValue> annotations) {
-					return new AnnotatedConstructorFacade(content, annotations);
+					return new AnnotatedTreeFacade(content, annotations);
 				}
 			};
 		}
@@ -1018,6 +1016,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		public Amb(ISet alts) {
 			this.alternatives = alts;
+		}
+		
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<Tree>(this) {
+				@Override
+				protected Tree wrap(Tree content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedTreeFacade(content, annotations);
+				}
+			};
 		}
 		
 		@Override
@@ -1190,17 +1199,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(this) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
-					return new AnnotatedConstructorFacade(content, annotations);
-				}
-			};
-		}
-
-		@Override
 		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
@@ -1236,14 +1234,104 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return false;
 		}
 		
+		default IConstructor getProduction() {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		default IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<Tree>(this) {
+				@Override
+				protected Tree wrap(Tree content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedTreeFacade(content, annotations);
+				}
+			};
+		}
+		
 		<E extends Throwable> Tree accept(TreeVisitor<E> v) throws E;
+	}
+	
+	private static class AnnotatedTreeFacade extends AnnotatedConstructorFacade implements Tree {
+		public AnnotatedTreeFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
+			super(content, annotations);
+		}
+
+		@Override
+		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
+			return (Tree) v.visitTreeAppl(this);
+		}
+		
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			IConstructor newContent = content.set(label, newChild);
+			return new AnnotatedTreeFacade(newContent, annotations);				
+		}
+		
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			IConstructor newContent = content.set(index, newChild);
+			return new AnnotatedTreeFacade(newContent, annotations);			
+		}
+		
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
+				@Override
+				protected IConstructor wrap(IConstructor content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedTreeFacade(content, annotations);
+				}
+			};
+		}
+		
+		@Override
+		public boolean isAppl() {
+			return ((Tree) content).isAppl();
+		}
+		
+		@Override
+		public boolean isAmb() {
+			return ((Tree) content).isAmb();
+		}
+
+		@Override
+		public boolean isCycle() {
+			return ((Tree) content).isCycle();
+		}
+		
+		@Override
+		public boolean isChar() {
+			return ((Tree) content).isChar();
+		}
+		
+		@Override
+		public IConstructor getProduction() {
+			return ((Tree) content).getProduction();
+		}
 	}
 	
 	private static abstract class AbstractAppl implements Tree, IExternalValue {
 		protected final IConstructor production;
 
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<Tree>(this) {
+				@Override
+				protected Tree wrap(Tree content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedTreeFacade(content, annotations);
+				}
+			};
+		}
+		
 		protected AbstractAppl(IConstructor production) {
 			this.production = production;
+		}
+		
+		@Override
+		public IConstructor getProduction() {
+			return production;
 		}
 
 		@Override
@@ -1415,17 +1503,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean declaresAnnotation(TypeStore store, String label) {
 			return store.getAnnotations(Tree).containsKey(label);
-		}
-
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(this) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
-					return new AnnotatedConstructorFacade(content, annotations);
-				}
-			};
 		}
 
 		@Override

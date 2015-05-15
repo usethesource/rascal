@@ -495,7 +495,6 @@ public enum MuPrimitive {
 	has_label {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
-			System.err.println("WORDT NOOIT AANGEROEPEN");
 			assert arity == 2;
 			IValue v = (IValue) stack[sp - 2];
 			Type vt = v.getType();
@@ -2223,7 +2222,6 @@ public enum MuPrimitive {
 	}
 
 	private static boolean isNonTerminalType(Type t) {
-		System.err.println("isNt? " + t + " = " + ((t.isExternalType() && ((RascalType) t).isNonterminal()) ? "true" : "false"));
 		return t.isExternalType() && ((RascalType) t).isNonterminal();
 	}
 	

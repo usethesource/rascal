@@ -79,7 +79,7 @@ public class ASTBuilder {
 		System.arraycopy(args, 0, newArgs, 1, args.length);
 		return (T) callMakerMethod(sort, cons, src, null, newArgs, null);
 	}
-
+ 
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		IConstructor tree =  parseTree;
 
