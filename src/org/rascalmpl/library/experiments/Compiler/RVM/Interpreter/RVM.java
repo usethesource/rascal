@@ -874,7 +874,7 @@ public class RVM implements java.io.Serializable {
 					IInteger x = (IInteger) caseLabels.get(fp);
 					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
-							stack[sp++] = vf.bool(false);
+							//stack[sp++] = vf.bool(false);
 							pc = caseDefault;
 					} else {
 						pc = x.intValue();
