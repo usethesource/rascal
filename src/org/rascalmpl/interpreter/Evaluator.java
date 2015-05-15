@@ -96,12 +96,12 @@ import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.CompressedStreamResolver;
@@ -114,6 +114,7 @@ import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
@@ -732,8 +733,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	@Override	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
+	public Tree parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
+		IGTD<IConstructor, Tree, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
@@ -749,9 +750,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
-		
-		return (IConstructor) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		IActionExecutor<Tree> exec = new RascalFunctionActionExecutor(this);
+		 
+		return (Tree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory(), (IRecoverer<IConstructor>) null);
 	}
 	
 	/**
@@ -820,7 +821,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ISourceLocation loc){
+	private IGTD<IConstructor, Tree, ISourceLocation> getObjectParser(ISourceLocation loc){
 		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
 
@@ -1004,8 +1005,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> eval(String command, ISourceLocation location)
 			throws ImplementationError {
 		__setInterrupt(false);
-    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-		IConstructor tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    IActionExecutor<Tree> actionExecutor =  new NoActionExecutor();
+    Tree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 		
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1023,10 +1024,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> evalMore(String command, ISourceLocation location)
 			throws ImplementationError {
 		__setInterrupt(false);
-		IConstructor tree;
+		Tree tree;
 		
-		IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
-		tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IActionExecutor<Tree> actionExecutor = new NoActionExecutor();
+		tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
 	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1063,7 +1064,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override
-	public IConstructor parseCommand(IRascalMonitor monitor, String command, ISourceLocation location) {
+	public Tree parseCommand(IRascalMonitor monitor, String command, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return parseCommand(command, location);
@@ -1073,10 +1074,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}	
 	
-	private IConstructor parseCommand(String command, ISourceLocation location) {
+	private Tree parseCommand(String command, ISourceLocation location) {
 		__setInterrupt(false);
-    IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-		IConstructor tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+    IActionExecutor<Tree> actionExecutor =  new NoActionExecutor();
+    Tree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1086,12 +1087,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public IConstructor parseCommands(IRascalMonitor monitor, String commands, ISourceLocation location) {
+	public Tree parseCommands(IRascalMonitor monitor, String commands, ISourceLocation location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
-		  IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
-      IConstructor tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		  IActionExecutor<Tree> actionExecutor =  new NoActionExecutor();
+		  Tree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
   
 			if (!noBacktickOutsideStringConstant(commands)) {
 			  tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1434,11 +1435,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * effect of declaring non-terminal types in the given environment.
 	 */
 	@Override
-	public IConstructor parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException{
+	public Tree parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException{
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	
-	public IConstructor parseModule(IRascalMonitor monitor, char[] data, ISourceLocation location){
+	public Tree parseModule(IRascalMonitor monitor, char[] data, ISourceLocation location){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return org.rascalmpl.semantics.dynamic.Import.parseModule(data, location, this);

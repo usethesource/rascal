@@ -70,9 +70,9 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		IConstructor tree = (IConstructor) subject.getValue();
+		org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) subject.getValue();
 		
-		if (tree.getConstructorType() != RascalValueFactory.Tree_Appl) {
+		if (!tree.isAppl()) {
 			hasNext = false;
 			return;
 		}

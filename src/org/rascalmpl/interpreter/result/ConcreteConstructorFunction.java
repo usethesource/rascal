@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -61,7 +62,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i+=(delta + 1)) {
-			IConstructor tree = (IConstructor) args.get(i);
+			Tree tree = (Tree) args.get(i);
 			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
 				if (ProductionAdapter.shouldFlatten(prod, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);

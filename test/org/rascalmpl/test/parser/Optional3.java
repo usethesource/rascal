@@ -28,14 +28,14 @@ import org.rascalmpl.parser.gtd.stack.OptionalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 /*
 S ::= aO? | aA
 O ::= A
 A ::= a
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class Optional3 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
+public class Optional3 extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_O = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("O"));
@@ -107,8 +107,8 @@ public class Optional3 extends SGTDBF<IConstructor, IConstructor, ISourceLocatio
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{O_EXPECT_1[0]};
 	}
 	
-	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public Tree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

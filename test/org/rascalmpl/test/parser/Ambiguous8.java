@@ -28,7 +28,7 @@ import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 /*
 * S ::= AB | AC
 * A ::= a
@@ -38,7 +38,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 * NOTE: This test, tests prefix sharing.
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class Ambiguous8 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
+public class Ambiguous8 extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_B = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("B"));
@@ -110,8 +110,8 @@ public class Ambiguous8 extends SGTDBF<IConstructor, IConstructor, ISourceLocati
 		return C_EXPECTS;
 	}
 	
-	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public Tree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

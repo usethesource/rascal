@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
@@ -41,8 +40,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 
 public class RVM implements java.io.Serializable {
@@ -1925,8 +1927,18 @@ public class RVM implements java.io.Serializable {
 		return jtypes;
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
 
+		public JavaClasses() {
+			super(IValue.class);
+		}
+
+		@Override
+		public Class<?> visitNonTerminal(RascalType type)
+				throws RuntimeException {
+			return Tree.class;
+		}
+		
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
@@ -2015,12 +2027,6 @@ public class RVM implements java.io.Serializable {
 		@Override
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
-		}
-
-		@Override
-		public Class<?> visitExternal(
-				org.eclipse.imp.pdb.facts.type.Type externalType) {
-			return IValue.class;
 		}
 
 		@Override

@@ -125,7 +125,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 			return true;
 		}
 		
-		IConstructor subjectTree = (IConstructor) subject.getValue();
+		org.rascalmpl.values.uptr.RascalValueFactory.Tree subjectTree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) subject.getValue();
 		if (TreeAdapter.isList(subjectTree)) {
 			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
 				IConstructor sym = declaredType.getSymbol();
@@ -163,7 +163,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		IValue prod = ctx.getValueFactory().constructor(RascalValueFactory.Production_Regular, declaredType.getSymbol());
 		
 		if (args.length() == 1) {
-			IConstructor arg = (IConstructor) args.get(0);
+			org.rascalmpl.values.uptr.RascalValueFactory.Tree arg = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) args.get(0);
 			
 			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(prod)) {
 				return arg;

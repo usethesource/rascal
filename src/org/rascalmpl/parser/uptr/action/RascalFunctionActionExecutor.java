@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -50,7 +51,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Note that RascalFunctionActionExecutors use functions visible from the call site of the parse
  * function.
  */
-public class RascalFunctionActionExecutor implements IActionExecutor<IConstructor> {
+public class RascalFunctionActionExecutor implements IActionExecutor<Tree> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final IEvaluatorContext ctx;
 
@@ -89,7 +90,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 	public void exitedProduction(Object production, boolean filtered, Object environment) {
 	}
 
-	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment) {
+	public Tree filterAmbiguity(Tree ambCluster, Object environment) {
 		ISet alts = (ISet) ambCluster.get("alternatives");
 		
 		if (alts.size() == 0) {
@@ -111,11 +112,11 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 				if (result.getType().isBottom()) {
 					return ambCluster;
 				}
-				IConstructor r = (IConstructor) result.getValue();
+				Tree r = (Tree) result.getValue();
 				if (TreeAdapter.isAmb(r)) {
 					ISet returnedAlts = TreeAdapter.getAlternatives(r);
 					if (returnedAlts.size() == 1) {
-						return (IConstructor) returnedAlts.iterator().next();
+						return (Tree) returnedAlts.iterator().next();
 					}
 					else if (returnedAlts.size() == 0) {
 						return null;
@@ -125,7 +126,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 					}
 				}
 					
-				return (IConstructor) result.getValue();
+				return (Tree) result.getValue();
 			}
 			catch (ArgumentsMismatch e) {
 				return ambCluster;
@@ -135,23 +136,28 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 		return ambCluster;
 	}
 
-	public IConstructor filterCycle(IConstructor cycle, Object environment) {
+	@Override
+	public Tree filterCycle(Tree cycle, Object environment) {
 		return cycle;
 	}
 
-	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment) {
+	@Override
+	public Tree filterListAmbiguity(Tree ambCluster, Object environment) {
 		return filterAmbiguity(ambCluster, environment);
 	}
 
-	public IConstructor filterListCycle(IConstructor cycle, Object environment) {
+	@Override
+	public Tree filterListCycle(Tree cycle, Object environment) {
 		return cycle;
 	}
 
-	public IConstructor filterListProduction(IConstructor tree, Object environment) {
+	@Override
+	public Tree filterListProduction(Tree tree, Object environment) {
 		return tree;
 	}
 
-	public IConstructor filterProduction(IConstructor tree,
+	@Override
+	public Tree filterProduction(Tree tree,
 			Object environment) {
 		String cons = TreeAdapter.getConstructorName(tree);
 		
@@ -188,7 +194,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 						return tree;
 					}
 					
-					return (IConstructor) result.getValue();
+					return (Tree) result.getValue();
 				} catch(Filtered f){
 					return null;
 				}

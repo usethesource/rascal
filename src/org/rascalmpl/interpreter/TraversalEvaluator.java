@@ -57,6 +57,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -253,32 +255,34 @@ public class TraversalEvaluator {
 			return subject; // constants have no children to traverse into
 		} 
 
-		if (casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isChar(cons)) {
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isChar((Tree) cons)) {
 				return subject; // we dont traverse into the structure of literals and characters
 		}
 
 		IValue args[] = new IValue[cons.arity()];
-
-		if (casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isAppl(cons)){
+		
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((Tree) cons)){
+			Tree tree = (Tree)cons;
+			
 			// Constructor is "appl": we are dealing with a syntax tree
 			// - Lexical or literal are returned immediately
 
-			if (TreeAdapter.isLexical(cons)|| TreeAdapter.isLiteral(cons)){
+			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree)){
 				return subject; // we dont traverse into the structure of literals, lexicals, and characters
 			}
 			
 			// Otherwise:
 			// - Copy prod node verbatim to result
 			// - Only visit non-layout nodes in argument list
-			args[0] = TreeAdapter.getProduction(cons);
-			IList list = TreeAdapter.getArgs(cons);
+			args[0] = TreeAdapter.getProduction(tree);
+			IList list = TreeAdapter.getArgs(tree);
 			int len = list.length();
 
 			if (len > 0) {
 				IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
 				boolean hasChanged = false;
 				boolean hasMatched = false;
-				boolean isTop = TreeAdapter.isTop(cons);
+				boolean isTop = TreeAdapter.isTop(tree);
 				
 				if (isTop) {
 					w.append(list.get(0)); // copy layout before

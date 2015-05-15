@@ -80,15 +80,13 @@ public class ASTBuilder {
 		return (T) callMakerMethod(sort, cons, src, null, newArgs, null);
 	}
  
-	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
-		IConstructor tree =  parseTree;
-
+	public Module buildModule(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) throws FactTypeUseException {
 		if (TreeAdapter.isAppl(tree)) {
-			if (sortName(tree).equals(MODULE_SORT)) {
+	 		if (sortName(tree).equals(MODULE_SORT)) {
 				// t must be an appl so call buildValue directly
 				return (Module) buildValue(tree);
 			}
-			return buildSort(parseTree, MODULE_SORT);
+			return buildSort(tree, MODULE_SORT);
 		}
 
 		if (TreeAdapter.isAmb(tree)) {
@@ -98,30 +96,30 @@ public class ASTBuilder {
 		throw new ImplementationError("Parse of module returned invalid tree.");
 	}
 
-	public Expression buildExpression(IConstructor parseTree) {
+	public Expression buildExpression(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree) {
 		return buildSort(parseTree, "Expression");
 	}
 
-	public Statement buildStatement(IConstructor parseTree) {
+	public Statement buildStatement(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree) {
 		return buildSort(parseTree, "Statement");
 	}
 
-	public Command buildCommand(IConstructor parseTree) {
+	public Command buildCommand(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree) {
 		return buildSort(parseTree, "Command");
 	}
 
-	public Command buildSym(IConstructor parseTree) {
+	public Command buildSym(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree) {
 		return buildSort(parseTree, "Sym");
 	}
 
-	public Commands buildCommands(IConstructor parseTree) {
+	public Commands buildCommands(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree) {
 		return buildSort(parseTree, "Commands");
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
+	private <T extends AbstractAST> T buildSort(org.rascalmpl.values.uptr.RascalValueFactory.Tree parseTree, String sort) {
 		if (TreeAdapter.isAppl(parseTree)) {
-			IConstructor tree = TreeAdapter.getStartTop(parseTree);
+			org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = TreeAdapter.getStartTop(parseTree);
 
 			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
@@ -135,7 +133,7 @@ public class ASTBuilder {
 	}
 
 	public AbstractAST buildValue(IValue arg)  {
-		IConstructor tree = (IConstructor) arg;
+		org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg;
 
 		if (TreeAdapter.isList(tree)) {
 			throw new ImplementationError("buildValue should not be called on a list");
@@ -153,7 +151,7 @@ public class ASTBuilder {
 			if (TreeAdapter.isRascalLexical(tree)) {
 				return buildLexicalNode(tree);
 			}
-			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
+			return buildLexicalNode((org.rascalmpl.values.uptr.RascalValueFactory.Tree) ((IList) ((org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg).get("args")).get(0));
 		}
 
 		if (sortName(tree).equals("Pattern")) {
@@ -168,10 +166,10 @@ public class ASTBuilder {
 			}
 		}
 
-		return buildContextFreeNode((IConstructor) arg);
+		return buildContextFreeNode((org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg);
 	}
 
-	private List<AbstractAST> buildList(IConstructor in)  {
+	private List<AbstractAST> buildList(org.rascalmpl.values.uptr.RascalValueFactory.Tree in)  {
 		IList args = TreeAdapter.getListASTArgs(in);
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
@@ -180,7 +178,7 @@ public class ASTBuilder {
 		return result;
 	}
 
-	private AbstractAST buildContextFreeNode(IConstructor tree)  {
+	private AbstractAST buildContextFreeNode(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree)  {
 		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
 			throw new ImplementationError("All Rascal productions should have a constructor name: " + TreeAdapter.getProduction(tree));
@@ -210,10 +208,10 @@ public class ASTBuilder {
 
 		int i = 1;
 		for (IValue arg : args) {
-			IConstructor argTree = (IConstructor) arg;
+			org.rascalmpl.values.uptr.RascalValueFactory.Tree argTree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg;
 
 			if (TreeAdapter.isList(argTree)) {
-				actuals[i] = buildList((IConstructor) arg);
+				actuals[i] = buildList((org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg);
 			}
 			else {
 				actuals[i] = buildValue(arg);
@@ -224,7 +222,7 @@ public class ASTBuilder {
 		return callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
 	}
 
-	private AbstractAST buildLexicalNode(IConstructor tree) {
+	private AbstractAST buildLexicalNode(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		String sort = capitalize(sortName(tree));
 
 		if (sort.length() == 0) {
@@ -235,7 +233,7 @@ public class ASTBuilder {
 		return callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
 	}
 
-	private String getPatternLayout(IConstructor tree) {
+	private String getPatternLayout(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		String cons = ProductionAdapter.getConstructorName(prod);
 
@@ -252,7 +250,7 @@ public class ASTBuilder {
 		return out;
 	}
 
-	private Expression liftRec(IConstructor tree, boolean lexicalFather, String layoutOfFather) {
+	private Expression liftRec(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree, boolean lexicalFather, String layoutOfFather) {
 		Expression cached = constructorCache.get(tree);
 		if (cached != null) {
 			return cached;
@@ -286,7 +284,7 @@ public class ASTBuilder {
 
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.length());
 			for (IValue arg : args) {
-				Expression ast = liftRec((IConstructor) arg, lex, layout);
+				Expression ast = liftRec((org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg, lex, layout);
 				if (ast == null) {
 					return null;
 				}
@@ -312,7 +310,7 @@ public class ASTBuilder {
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.size());
 
 			for (IValue arg : args) {
-				kids.add(liftRec((IConstructor) arg, lexicalFather, layoutOfFather));
+				kids.add(liftRec((org.rascalmpl.values.uptr.RascalValueFactory.Tree) arg, lexicalFather, layoutOfFather));
 			}
 
 			if (kids.size() == 0) {
@@ -333,10 +331,10 @@ public class ASTBuilder {
 		}
 	}
 
-	private Expression liftHole(IConstructor tree) {
+	private Expression liftHole(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		assert tree.asAnnotatable().hasAnnotation("holeType");
 		IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
-		tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+		tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) TreeAdapter.getArgs(tree).get(0);
 		IList args = TreeAdapter.getArgs(tree);
 		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
@@ -357,12 +355,12 @@ public class ASTBuilder {
 		return null;
 	}
 
-	private IList getASTArgs(IConstructor tree) {
+	private IList getASTArgs(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 	
 		for (int i = 0; i < children.length(); i++) {
-			IConstructor kid = (IConstructor) children.get(i);
+			org.rascalmpl.values.uptr.RascalValueFactory.Tree kid = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) children.get(i);
 			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
 				writer.append(kid);	
 			} 
@@ -373,13 +371,13 @@ public class ASTBuilder {
 		return writer.done();
 	}
 
-	private String sortName(IConstructor tree) {
-		if (TreeAdapter.isAppl(tree)) {
+	private String sortName(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
+		if (TreeAdapter.isAppl(tree)) { 
 			return TreeAdapter.getSortName(tree);
 		}
 		if (TreeAdapter.isAmb(tree)) {
 			// all alternatives in an amb cluster have the same sort
-			return sortName((IConstructor) TreeAdapter.getAlternatives(tree).iterator().next());
+			return sortName((org.rascalmpl.values.uptr.RascalValueFactory.Tree) TreeAdapter.getAlternatives(tree).iterator().next());
 		}
 		return "";
 	}
@@ -399,12 +397,12 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
-	private boolean isNewEmbedding(IConstructor tree) {
+	private boolean isNewEmbedding(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		String name = TreeAdapter.getConstructorName(tree);
 		assert name != null;
 
 		if (name.equals("concrete")) {
-			tree = (IConstructor) TreeAdapter.getArgs(tree).get(0);
+			tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) TreeAdapter.getArgs(tree).get(0);
 			name = TreeAdapter.getConstructorName(tree);
 
 			if (name.equals("$parsed")) {
@@ -414,21 +412,21 @@ public class ASTBuilder {
 		return false;
 	}
 
-	private boolean isLexical(IConstructor tree) {
+	private boolean isLexical(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree) {
 		if (TreeAdapter.isRascalLexical(tree)) {
 			return true;
 		}
 		return false;
 	}
 
-	private AbstractAST newLift(IConstructor tree, boolean match) {
-		IConstructor concrete = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-		IConstructor fragment = (IConstructor) TreeAdapter.getArgs(concrete).get(7);
+	private AbstractAST newLift(org.rascalmpl.values.uptr.RascalValueFactory.Tree tree, boolean match) {
+		org.rascalmpl.values.uptr.RascalValueFactory.Tree concrete = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) TreeAdapter.getArgs(tree).get(0);
+		org.rascalmpl.values.uptr.RascalValueFactory.Tree fragment = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) TreeAdapter.getArgs(concrete).get(7);
 		return liftRec(fragment, false,  getPatternLayout(tree));
 	}
 
 	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
-		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), annotations, actuals, keywordActuals);
+		return callMakerMethod(sort, cons, TreeAdapter.getLocation((org.rascalmpl.values.uptr.RascalValueFactory.Tree) actuals[0]), annotations, actuals, keywordActuals);
 	}
 
 	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
