@@ -254,10 +254,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	/** caches ASCII characters for sharing */
-	private final static Tree byteChars[];
+	private final static ITree byteChars[];
 	private final static Type byteCharTypes[];
 	static {
-		byteChars = new Tree[256];
+		byteChars = new ITree[256];
 		byteCharTypes = new Type[256];
 		for (int i = 0; i < 256; i++) {
 			byteChars[i] = new CharByte((byte) i);
@@ -363,7 +363,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public Tree character(int ch) {
+	public ITree character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
 			return character((byte) ch);
 		}
@@ -372,13 +372,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public Tree character(byte ch) {
+	public ITree character(byte ch) {
 		return byteChars[ch];
 	}
 
 	@Override
-	public Tree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
-		return (Tree) appl(prod, args).asAnnotatable().setAnnotations(annos);
+	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
+		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 */
 	@Deprecated
 	@Override
-	public Tree appl(IConstructor prod, ArrayList<Tree> args) {
+	public ITree appl(IConstructor prod, ArrayList<ITree> args) {
 		switch (args.size()) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args.get(0));
@@ -405,7 +405,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * Construct a specialized IConstructor representing a Tree, applying a prod to a list of arguments
 	 */
 	@Override
-	public Tree appl(IConstructor prod, IList args) {
+	public ITree appl(IConstructor prod, IList args) {
 		switch (args.length()) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args.get(0));
@@ -423,7 +423,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * Watch out, the array is not cloned! Must not modify hereafter.
 	 */
 	@Override
-	public Tree appl(IConstructor prod, IValue... args) {
+	public ITree appl(IConstructor prod, IValue... args) {
 		switch (args.length) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args[0]);
@@ -438,12 +438,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public Tree cycle(IConstructor symbol, int cycleLength) {
+	public ITree cycle(IConstructor symbol, int cycleLength) {
 		return new Cycle(symbol, cycleLength);
 	}
 	
 	@Override
-	public Tree amb(ISet alternatives) {
+	public ITree amb(ISet alternatives) {
 		return new Amb(alternatives);
 	}
 	
@@ -459,7 +459,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * and {@link AbstractArgumentList} abstract classes.
 	 */
 	
-	private static class CharInt implements Tree, IExternalValue {
+	static class CharInt implements ITree, IExternalValue {
 		final int ch;
 		
 		@Override
@@ -468,8 +468,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeChar(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeChar(this);
 		}
 		
 		public CharInt(int ch) {
@@ -633,7 +633,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class CharByte implements Tree, IExternalValue {
+	private static class CharByte implements ITree, IExternalValue {
 		final byte ch;
 		
 		public CharByte(byte ch) {
@@ -646,8 +646,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeChar(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeChar(this);
 		}
 		
 		@Override
@@ -807,7 +807,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Cycle implements Tree, IExternalValue {
+	private static class Cycle implements ITree, IExternalValue {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
@@ -822,8 +822,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeCycle(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeCycle(this);
 		}
 		
 		@Override
@@ -982,9 +982,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<Tree>(this) {
+			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
-				protected Tree wrap(Tree content,
+				protected ITree wrap(ITree content,
 						ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedTreeFacade(content, annotations);
 				}
@@ -1011,7 +1011,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Amb implements Tree, IExternalValue {
+	private static class Amb implements ITree, IExternalValue {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
@@ -1020,9 +1020,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<Tree>(this) {
+			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
-				protected Tree wrap(Tree content,
+				protected ITree wrap(ITree content,
 						ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedTreeFacade(content, annotations);
 				}
@@ -1035,8 +1035,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeAmb(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeAmb(this);
 		}
 		
 		@Override
@@ -1061,11 +1061,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public boolean isEqual(IValue other) {
-			if (other instanceof IConstructor) {
-				IConstructor cons = (IConstructor) other;
-				
-				return cons.getConstructorType() == getConstructorType()
-						&& cons.get(0).isEqual(get(0));
+			if (other instanceof Amb) {
+				ITree cons = (ITree) other;
+				return cons.getAlternatives().isEqual(alternatives);
 			}
 			
 			return false;
@@ -1080,6 +1078,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		
+		@Override
 		public ISet getAlternatives() {
 			return alternatives;
 		}
@@ -1166,7 +1165,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IConstructor set(String label, IValue newChild)
+		public ITree set(String label, IValue newChild)
 				throws FactTypeUseException {
 			switch (label) {
 			case "alternatives": return getInstance().amb((ISet) newChild);
@@ -1180,7 +1179,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IConstructor set(int index, IValue newChild)
+		public ITree set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
 			case 0: return getInstance().amb((ISet) newChild);
@@ -1217,58 +1216,25 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	public static interface Tree extends IConstructor {
-		default boolean isAppl() {
-			return false;
-		}
-		
-		default boolean isAmb() {
-			return false;
-		}
-		
-		default boolean isChar() {
-			return false;
-		}
-		
-		default boolean isCycle() {
-			return false;
-		}
-		
-		default IConstructor getProduction() {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		default IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<Tree>(this) {
-				@Override
-				protected Tree wrap(Tree content,
-						ImmutableMap<String, IValue> annotations) {
-					return new AnnotatedTreeFacade(content, annotations);
-				}
-			};
-		}
-		
-		<E extends Throwable> Tree accept(TreeVisitor<E> v) throws E;
-	}
-	
-	private static class AnnotatedTreeFacade extends AnnotatedConstructorFacade implements Tree {
+	static class AnnotatedTreeFacade extends AnnotatedConstructorFacade implements ITree {
 		public AnnotatedTreeFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}
 
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeAppl(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeAppl(this);
 		}
 		
-		public IConstructor set(String label, IValue newChild)
+		@Override
+		public ITree set(String label, IValue newChild)
 				throws FactTypeUseException {
 			IConstructor newContent = content.set(label, newChild);
 			return new AnnotatedTreeFacade(newContent, annotations);				
 		}
 		
-		public IConstructor set(int index, IValue newChild)
+		@Override
+		public ITree set(int index, IValue newChild)
 				throws FactTypeUseException {
 			IConstructor newContent = content.set(index, newChild);
 			return new AnnotatedTreeFacade(newContent, annotations);			
@@ -1287,39 +1253,43 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public boolean isAppl() {
-			return ((Tree) content).isAppl();
+			return ((ITree) content).isAppl();
 		}
 		
 		@Override
 		public boolean isAmb() {
-			return ((Tree) content).isAmb();
+			return ((ITree) content).isAmb();
 		}
 
 		@Override
 		public boolean isCycle() {
-			return ((Tree) content).isCycle();
+			return ((ITree) content).isCycle();
 		}
 		
 		@Override
 		public boolean isChar() {
-			return ((Tree) content).isChar();
+			return ((ITree) content).isChar();
 		}
 		
 		@Override
 		public IConstructor getProduction() {
-			return ((Tree) content).getProduction();
+			return ((ITree) content).getProduction();
+		}
+		
+		@Override
+		public ISet getAlternatives() {
+			return ((ITree) content).getAlternatives();
 		}
 	}
 	
-	private static abstract class AbstractAppl implements Tree, IExternalValue {
+	private static abstract class AbstractAppl implements ITree, IExternalValue {
 		protected final IConstructor production;
 
 		@Override
 		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<Tree>(this) {
+			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
-				protected Tree wrap(Tree content,
-						ImmutableMap<String, IValue> annotations) {
+				protected ITree wrap(ITree content, ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedTreeFacade(content, annotations);
 				}
 			};
@@ -1345,8 +1315,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public <E extends Throwable> Tree accept(TreeVisitor<E> v) throws E {
-			return (Tree) v.visitTreeAppl(this);
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+			return (ITree) v.visitTreeAppl(this);
 		}
 		
 		@Override
@@ -1363,7 +1333,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public int hashCode() {
 			return 41 
 				  + 1331 * production.hashCode() 
-				  + 13331 * getArguments().hashCode(); 
+				  + 13331 * getArgs().hashCode(); 
 		}
 		
 		@Override
@@ -1387,8 +1357,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return isEqual((IValue) obj);
 		}
 		
-		
-		abstract public IList getArguments();
+		@Override
+		abstract public IList getArgs();
 
 		@Override
 		public Iterator<IValue> iterator() {
@@ -1405,7 +1375,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 					count++;
 					switch(count) {
 					case 1: return production;
-					case 2: return getArguments();
+					case 2: return getArgs();
 					default: return null;
 					}
 				}
@@ -1465,16 +1435,15 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IValue get(String label) {
 			switch (label) {
 			case "prod": return production;
-			case "args": return getArguments();
+			case "args": return getArgs();
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
 		}
 
 		@Override
-		public IConstructor set(String label, IValue newChild)
-				throws FactTypeUseException {
+		public ITree set(String label, IValue newChild) throws FactTypeUseException {
 			switch (label) {
-			case "prod": return getInstance().appl((IConstructor) newChild, getArguments());
+			case "prod": return getInstance().appl((IConstructor) newChild, getArgs());
 			case "args": return getInstance().appl(production, (IList) newChild);
 			default: throw new UndeclaredFieldException(Tree_Appl, label);
 			}
@@ -1486,11 +1455,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IConstructor set(int index, IValue newChild)
+		public ITree set(int index, IValue newChild)
 				throws FactTypeUseException {
 			switch (index) {
-			case 0: return getInstance().constructor(Tree_Appl, newChild, getArguments());
-			case 1: return getInstance().constructor(Tree_Appl, production, newChild);
+			case 0: return getInstance().appl((IConstructor) newChild, getArgs());
+			case 1: return getInstance().appl(production, newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -1519,7 +1488,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			switch (i) {
 			case 0: return production;
-			case 1: return getArguments();
+			case 1: return getArgs();
 			default: throw new IndexOutOfBoundsException();
 			}
 		}
@@ -1763,9 +1732,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Deprecated
 	private static class ArrayListArgumentList extends AbstractArgumentList {
-		private final ArrayList<Tree> list;
+		private final ArrayList<ITree> list;
 
-		public ArrayListArgumentList(ArrayList<Tree> list) {
+		public ArrayListArgumentList(ArrayList<ITree> list) {
 			this.list = list;
 		}
 		
@@ -1797,7 +1766,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return EMPTY_LIST;
 		}
 		
@@ -1817,7 +1786,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return args;
 		}
 		
@@ -1839,7 +1808,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -1881,7 +1850,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -1927,7 +1896,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -1977,7 +1946,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -2031,7 +2000,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -2089,7 +2058,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {
@@ -2151,7 +2120,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IList getArguments() {
+		public IList getArgs() {
 			return new AbstractArgumentList() {
 				@Override
 				public int length() {

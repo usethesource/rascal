@@ -73,7 +73,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) subject.getValue();
+		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
 		
 		if (tree.getConstructorType() != RascalValueFactory.Tree_Appl) {
 			hasNext = false;

@@ -38,8 +38,8 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
@@ -49,25 +49,25 @@ public class ParsingTools {
 	private IRascalMonitor monitor;
 	private List<ClassLoader> classLoaders;
 	private PrintWriter stderr;
-	private HashMap<IValue,  Class<IGTD<IConstructor, Tree, ISourceLocation>>> parsers;
+	private HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parsers;
 	private RascalExecutionContext rex;
 	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf; 
-		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, Tree, ISourceLocation>>>();
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
 		stderr = new PrintWriter(System.err);
 	}
 	
 	public void reset(){
-		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, Tree, ISourceLocation>>>();
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
 	}
 	
 	public void setContext(RascalExecutionContext rex){
 		this.rex = rex;
 		monitor = rex.getMonitor();
 		stderr = rex.getStdErr();
-		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, Tree, ISourceLocation>>>();
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
 		classLoaders = rex.getClassLoaders();
 	}
 	
@@ -93,7 +93,7 @@ public class ParsingTools {
 	 * @param start TODO
 	 * @param parser		The generated parser class
 	 */
-	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, Tree, ISourceLocation>> parser) {
+	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
 		//stderr.println("Storing parser for " + moduleName + "/" + start);
 		parsers.put(start, parser);
 	}
@@ -104,13 +104,13 @@ public class ParsingTools {
 	 * @param start TODO
 	 * @return				The generated parser class or NULL
 	 */
-	private Class<IGTD<IConstructor, Tree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
-		Class<IGTD<IConstructor, Tree, ISourceLocation>> parser = parsers.get(start);
+	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
+		Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parsers.get(start);
 		//stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
-	private IGTD<IConstructor, Tree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax){
+	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax){
 		return getParser(moduleName.getValue(), start, loc, false, syntax);
 	}
 
@@ -230,8 +230,8 @@ public class ParsingTools {
 	 * @return				ParseTree or Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public Tree parseObject(IString moduleName, IConstructor startSort, IMap robust, ISourceLocation location, char[] input, IMap syntax){
-		IGTD<IConstructor, Tree, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax);
+	public ITree parseObject(IString moduleName, IConstructor startSort, IMap robust, ISourceLocation location, char[] input, IMap syntax){
+		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax);
 		String name = ""; moduleName.getValue();
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
@@ -247,7 +247,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<Tree> exec = new RascalFunctionActionExecutor(rex);  // TODO: remove CTX
+		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(rex);  // TODO: remove CTX
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -255,7 +255,7 @@ public class ParsingTools {
 	        try {
 	          //stderr.println("Trying classloader: " + cl);
 	          clazz = cl.loadClass(className);
-	          parser =  (IGTD<IConstructor, Tree, ISourceLocation>) clazz.newInstance();
+	          parser =  (IGTD<IConstructor, ITree, ISourceLocation>) clazz.newInstance();
 	          //stderr.println("succeeded!");
 	          break;
 	        } catch (ClassNotFoundException e) {
@@ -270,7 +270,7 @@ public class ParsingTools {
 	        //throw new ImplementationError("class for cached parser " + className + " could not be found");
 	      }
 	     
-		return (Tree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory(), (IRecoverer<IConstructor>) null);
+		return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(), (IRecoverer<IConstructor>) null);
 	}
 	
 	/**
@@ -324,7 +324,7 @@ public class ParsingTools {
 		}
 	}
 	  
-	  public IGTD<IConstructor, Tree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
+	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
 		if(getBootstrap(name)){
 			stderr.println("getParser: " + name + " returns RascalParser");
@@ -333,7 +333,7 @@ public class ParsingTools {
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
 	    
-	    Class<IGTD<IConstructor, Tree, ISourceLocation>> parser = getObjectParser(name, start);
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = getObjectParser(name, start);
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
@@ -358,7 +358,7 @@ public class ParsingTools {
 	  }
 	 
 	  // Rascal library function (interpreter version)
-	  public Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
 			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, ctx, null);
 		  }
@@ -366,7 +366,7 @@ public class ParsingTools {
 	  }
 		
 	// Rascal library function (compiler version)
-	public Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
 		if(this.rex == null){
 			this.rex = rex;
 		}
@@ -379,39 +379,39 @@ public class ParsingTools {
 	 * 
 	 */
 
-	Tree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
-	    Tree symTree = TreeAdapter.getArg((Tree) tree, "symbol");
-	    Tree lit = TreeAdapter.getArg((Tree) tree, "parts");
-	    Map<String, Tree> antiquotes = new HashMap<String,Tree>();
+	ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+	    ITree symTree = TreeAdapter.getArg((ITree) tree, "symbol");
+	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
+	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();
 	    
-	    IGTD<IConstructor, Tree, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation((Tree) tree), false, grammar);
+	    IGTD<IConstructor, ITree, ISourceLocation> parser = getBootstrap(name.getValue()) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation((ITree) tree), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
-	      DefaultNodeFlattener<IConstructor, Tree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>();
+	      DefaultNodeFlattener<IConstructor, ITree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>();
 	      UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
 	    
 	      char[] input = replaceAntiQuotesByHoles(lit, antiquotes);
 	      
-	      Tree fragment = (Tree) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
+	      ITree fragment = (ITree) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 	      return fragment;
 	    }
 	    catch (ParseError e) {
-	      ISourceLocation loc = TreeAdapter.getLocation((Tree) tree);
+	      ISourceLocation loc = TreeAdapter.getLocation((ITree) tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
 	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
 	      //getMonitor().warning("parse error in concrete syntax", src);
-	      return (Tree) tree.asAnnotatable().setAnnotation("parseError", src);
+	      return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
 	  }
 	  
-	  private char[] replaceAntiQuotesByHoles(Tree lit, Map<String, Tree> antiquotes) {
+	  private char[] replaceAntiQuotesByHoles(ITree lit, Map<String, ITree> antiquotes) {
 	    IList parts = TreeAdapter.getArgs(lit);
 	    StringBuilder b = new StringBuilder();
 	    
 	    for (IValue elem : parts) {
-	    	Tree part = (Tree) elem;
+	    	ITree part = (ITree) elem;
 	      String cons = TreeAdapter.getConstructorName(part);
 	      
 	      if (cons.equals("text")) {
@@ -439,17 +439,17 @@ public class ParsingTools {
 	    return b.toString().toCharArray();
 	  }
 
-	  private String createHole(Tree part, Map<String, Tree> antiquotes) {
+	  private String createHole(ITree part, Map<String, ITree> antiquotes) {
 	    String ph = getParserGenerator().createHole(part, antiquotes.size());
 	    antiquotes.put(ph, part);
 	    return ph;
 	  }
 
-	  private Tree replaceHolesByAntiQuotes(Tree fragment, final Map<String, Tree> antiquotes) {
-		  return (Tree) fragment.accept(new IdentityTreeVisitor<CompilerError>() {
+	  private ITree replaceHolesByAntiQuotes(ITree fragment, final Map<String, ITree> antiquotes) {
+		  return (ITree) fragment.accept(new IdentityTreeVisitor<CompilerError>() {
 
 			  @Override
-			  public Tree visitTreeAppl(Tree tree)  {
+			  public ITree visitTreeAppl(ITree tree)  {
 				  String cons = TreeAdapter.getConstructorName(tree);
 				  if (cons == null || !cons.equals("$MetaHole") ) {
 					  IListWriter w = vf.listWriter();
@@ -463,10 +463,10 @@ public class ParsingTools {
 				  }
 
 				  IConstructor type = retrieveHoleType(tree);
-				  return (Tree) antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
+				  return (ITree) antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
 			  }
 
-			  private IConstructor retrieveHoleType(Tree tree) {
+			  private IConstructor retrieveHoleType(ITree tree) {
 				  IConstructor prod = TreeAdapter.getProduction(tree);
 				  ISet attrs = ProductionAdapter.getAttributes(prod);
 
@@ -484,12 +484,12 @@ public class ParsingTools {
 			  }
 
 			  @Override
-			  public Tree visitTreeAmb(Tree arg)  {
+			  public ITree visitTreeAmb(ITree arg)  {
 				  ISetWriter w = vf.setWriter();
 				  for (IValue elem : TreeAdapter.getAlternatives(arg)) {
 					  w.insert(elem.accept(this));
 				  }
-				  return (Tree) arg.set("alternatives", w.done());
+				  return (ITree) arg.set("alternatives", w.done());
 			  }
 		  });
 	  }

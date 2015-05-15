@@ -28,13 +28,13 @@ import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 /*
 S ::= A+
 A ::= a | aa
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class AmbiguousNonTerminalPlusList2 extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
+public class AmbiguousNonTerminalPlusList2 extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = VF.constructor(RascalValueFactory.Symbol_IterPlus, SYMBOL_A);
@@ -88,8 +88,8 @@ public class AmbiguousNonTerminalPlusList2 extends SGTDBF<IConstructor, Tree, IS
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0], A_EXPECT_2[0]};
 	}
 	
-	public Tree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

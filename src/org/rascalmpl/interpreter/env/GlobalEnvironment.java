@@ -33,7 +33,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 
 /**
@@ -172,7 +172,7 @@ public class GlobalEnvironment {
 		return current;
 	}
 	
-	public Class<IGTD<IConstructor, Tree, ISourceLocation>> getObjectParser(String module, IMap productions) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String module, IMap productions) {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
@@ -182,7 +182,7 @@ public class GlobalEnvironment {
 	 * @param module
 	 * @param productions
 	 */
-	private Class<IGTD<IConstructor, Tree, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
+	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
 		ParserTuple parser = store.get(module);
 		if(parser != null && parser.getProductions().isEqual(productions)) {
 			return parser.getParser();
@@ -191,11 +191,11 @@ public class GlobalEnvironment {
 		return null;
 	}
 	
-	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, Tree, ISourceLocation>> parser) {
+	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
-	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, Tree, ISourceLocation>> parser) {
+	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
 		ParserTuple newT = new ParserTuple(productions, parser);
 		store.put(module, newT);
 	}
@@ -238,9 +238,9 @@ public class GlobalEnvironment {
 	
 	private static class ParserTuple {
 		private final IMap production;
-		private final Class<IGTD<IConstructor, Tree, ISourceLocation>> parser;
+		private final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
 
-		public ParserTuple(IMap productions, Class<IGTD<IConstructor, Tree, ISourceLocation>> parser) {
+		public ParserTuple(IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
 			this.production = productions;
 			this.parser = parser;
 		}
@@ -249,7 +249,7 @@ public class GlobalEnvironment {
 			return production;
 		}
 		
-		public Class<IGTD<IConstructor, Tree, ISourceLocation>> getParser() {
+		public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser() {
 			return parser;
 		}
 	}

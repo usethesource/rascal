@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteListVariablePattern extends AbstractMatchingResult implements IVarPattern {
@@ -125,7 +126,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 			return true;
 		}
 		
-		org.rascalmpl.values.uptr.RascalValueFactory.Tree subjectTree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) subject.getValue();
+		org.rascalmpl.values.uptr.ITree subjectTree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
 		if (TreeAdapter.isList(subjectTree)) {
 			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
 				IConstructor sym = declaredType.getSymbol();
@@ -163,7 +164,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		IValue prod = ctx.getValueFactory().constructor(RascalValueFactory.Production_Regular, declaredType.getSymbol());
 		
 		if (args.length() == 1) {
-			org.rascalmpl.values.uptr.RascalValueFactory.Tree arg = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) args.get(0);
+			org.rascalmpl.values.uptr.ITree arg = (org.rascalmpl.values.uptr.ITree) args.get(0);
 			
 			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(prod)) {
 				return arg;

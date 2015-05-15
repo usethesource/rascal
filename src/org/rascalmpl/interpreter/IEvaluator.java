@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 /**
  * TODO: This interface was used by the
@@ -109,10 +109,10 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public RascalSearchPath getRascalResolver();
 
-	public Tree parseCommand(IRascalMonitor monitor, String command,
+	public ITree parseCommand(IRascalMonitor monitor, String command,
 			ISourceLocation location);
 
-	public Tree parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException;
+	public ITree parseModule(IRascalMonitor monitor, ISourceLocation location) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 

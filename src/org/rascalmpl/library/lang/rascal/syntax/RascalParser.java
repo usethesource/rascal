@@ -37,10 +37,10 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 @SuppressWarnings("all")
-public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, Tree, ISourceLocation> {
+public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ITree, ISourceLocation> {
   protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {

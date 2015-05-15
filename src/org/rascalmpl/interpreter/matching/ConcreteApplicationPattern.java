@@ -179,7 +179,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super.initMatch(subject);
 
 		if(subjectType.isAbstractData()){
-			org.rascalmpl.values.uptr.RascalValueFactory.Tree treeSubject = (org.rascalmpl.values.uptr.RascalValueFactory.Tree)subject.getValue();
+			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {
 				// fail early if the subject is an ambiguity cluster

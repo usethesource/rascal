@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteListPattern extends AbstractMatchingResult {
@@ -70,7 +71,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) subject.getValue();
+		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
 		
 		if (!tree.isAppl()) {
 			hasNext = false;

@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 public enum ToplevelType {
 	VOID			(0, "void"),
@@ -260,9 +260,9 @@ public enum ToplevelType {
 
 			@Override
 			public Integer visitNonTerminal(RascalType type) throws RuntimeException {
-				assert v instanceof Tree;
-				if (useConcreteFingerprint && ((Tree) v).isAppl()) {	
-					return ((Tree) v).getProduction().hashCode(); 
+				assert v instanceof ITree;
+				if (useConcreteFingerprint && ((ITree) v).isAppl()) {	
+					return ((ITree) v).getProduction().hashCode(); 
 				}
 				
 				return visitAbstractData(type.asAbstractDataType());

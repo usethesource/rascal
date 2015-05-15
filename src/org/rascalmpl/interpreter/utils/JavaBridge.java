@@ -77,7 +77,7 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 
 public class JavaBridge {
@@ -310,7 +310,7 @@ public class JavaBridge {
 		@Override
 		public Class<?> visitNonTerminal(RascalType type)
 				throws RuntimeException {
-			return Tree.class;
+			return ITree.class;
 		}
 	}
 	

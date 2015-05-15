@@ -1,11 +1,8 @@
 module experiments::Compiler::Examples::Tst1
 
-syntax XorY = x : "x" | y : "y";
+layout L = [\ ]*;
+start syntax P = "program";
 
-test bool concreteSwitch5(){
-  switch([XorY] "y"){
-    case (XorY) `x`: throw "fail to due extra match"; 
-    case y():  return true;
-  }
-  throw "fail due to missing match";
-}
+test bool topField() = P _ := ([start[P]] " program ").top;
+
+test bool hasTop() = ([start[P]] " program ") has top;

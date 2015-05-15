@@ -19,8 +19,8 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -33,10 +33,10 @@ public class NonTerminalType extends RascalType {
 	/*package*/ public NonTerminalType(IConstructor cons) {
 		if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
 			// Note that here we go from * to + lists if the list is not empty
-			this.symbol = TreeAdapter.getType((Tree) cons);
+			this.symbol = TreeAdapter.getType((ITree) cons);
 		}
 		else if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
-			Tree first = (Tree) TreeAdapter.getAlternatives((Tree) cons).iterator().next();
+			ITree first = (ITree) TreeAdapter.getAlternatives((ITree) cons).iterator().next();
 			this.symbol = TreeAdapter.getType(first);
 		}
 		else if (cons.getType() == RascalValueFactory.Symbol) {

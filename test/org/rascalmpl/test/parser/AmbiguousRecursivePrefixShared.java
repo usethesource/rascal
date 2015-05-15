@@ -17,7 +17,7 @@ import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 // NOTE: This test only succeeds when the expect builder is used and it shares
 // all productions correctly. Otherwise graph node sharing breaks, since the
 // id's of the stack nodes do not end up being unique.
@@ -30,7 +30,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 S ::= SSS | SS | a
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
+public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
@@ -64,8 +64,8 @@ public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, Tree, I
 		return S_EXPECTS;
 	}
 	
-	public Tree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

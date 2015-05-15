@@ -48,9 +48,10 @@ import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTyp
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -119,10 +120,12 @@ public enum RascalPrimitive {
 			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
 			
 			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+			// TODO: jurgen can be optimized for the ITree case
 			if(subject.getType().isAbstractData()){
 				IConstructor cons1 = (IConstructor) subject;
 				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
 				if(annotations.size() > 0){
+					// TODO: @paulklint what about the keyword parameters?
 					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
 				}
 				stack[sp - 3] = cons2;
@@ -1416,17 +1419,15 @@ public enum RascalPrimitive {
 			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
 				stack[sp - 2] = Rascal_TRUE;
 			} else {
-				if(cons.getName().equals("appl")){
-					IConstructor prod = (IConstructor) cons.get("prod");
-					IList prod_symbols = (IList) prod.get("symbols");
+				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+					IConstructor prod = ((ITree) cons).getProduction();
+					IList prod_symbols = ProductionAdapter.getSymbols(prod);
 					
 					for(int i = 0; i < prod_symbols.length(); i++){
 						IConstructor arg = (IConstructor) prod_symbols.get(i);
-						if(arg.getName().equals("label")){
-							if(((IString) arg.get(0)).equals(field)){
-								stack[sp - 2] = Rascal_TRUE;
-								return sp - 1;
-							}
+						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(field)) {
+							stack[sp - 2] = Rascal_TRUE;
+							return sp - 1;
 						}
 					}
 				}
@@ -1462,6 +1463,7 @@ public enum RascalPrimitive {
 					stack[sp - 2] = v;
 					return sp - 1;
 				}
+				// TODO jurgen rewrite to ITree API
 				if(cons.getName().equals("appl")){
 					IList appl_args = (IList) cons.get("args");
 					IConstructor prod = (IConstructor) cons.get("prod");
@@ -1917,6 +1919,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IConstructor appl = (IConstructor) stack[sp - 2];
 			IString field = ((IString) stack[sp - 1]);
+			// TODO jurgen rewrite to ITree API
 			IList appl_args = (IList) appl.get("args");
 			if(field.getValue().equals("args")){		// TODO: Not sure does this belong here? Add more fields?
 				stack[sp - 2] = appl_args;
@@ -1948,7 +1951,7 @@ public enum RascalPrimitive {
 			IConstructor prod = (IConstructor) appl.get("prod");
 			IList prod_symbols = (IList) prod.get("symbols");
 			IString field = ((IString) stack[sp - 1]);
-
+			// TODO jurgen rewrite to ITree API
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
 				if(arg.getName().equals("label")){
@@ -3021,9 +3024,8 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isAppl((Tree)treeSubject));
+			IConstructor treeSubject = (IConstructor) stack[sp - 1];
+			stack[sp - 1] = vf.bool(TreeAdapter.isTree(treeSubject) && TreeAdapter.isAppl((ITree) treeSubject));
 			return sp;
 		}	
 	},
@@ -3033,7 +3035,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((Tree)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3043,7 +3045,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((Tree)treeSubject) || TreeAdapter.isOpt((Tree)treeSubject)));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
 			return sp;
 		}	
 	},
@@ -3054,7 +3056,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((Tree)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3065,7 +3067,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((Tree)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3075,7 +3077,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((Tree)treeSubject);
+			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3084,7 +3086,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getArgs((Tree)treeSubject);
+			stack[sp - 1] = TreeAdapter.getArgs((ITree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3093,7 +3095,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			Tree treeSubject = (Tree) stack[sp - 1];
+			ITree treeSubject = (ITree) stack[sp - 1];
 			if (!(TreeAdapter.isList(treeSubject) || TreeAdapter.isOpt(treeSubject))) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
 				throw new ImplementationError(
 						"This is not a context-free list production: " + treeSubject);
@@ -3104,7 +3106,7 @@ public enum RascalPrimitive {
 			IConstructor symbol = TreeAdapter.getType(treeSubject);
 			boolean layoutPresent = false;
 			if(children.length() > 1){
-				Tree child1 = (Tree)children.get(1);
+				ITree child1 = (ITree)children.get(1);
 				if(TreeAdapter.isLayout(child1)){
 					layoutPresent = true;
 				}
@@ -3153,7 +3155,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getType((Tree)treeSubject);
+			stack[sp - 1] = TreeAdapter.getType((ITree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3163,7 +3165,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			IConstructor symbol = TreeAdapter.getType((Tree)treeSubject);
+			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			stack[sp - 1] = 
 					
@@ -5466,7 +5468,7 @@ public enum RascalPrimitive {
 			assert arity == 5;
 			IString module_name = (IString) stack[sp - 5];
 			IValue start = (IValue) stack[sp - 4];
-			Tree ctree = (Tree) stack[sp - 3];
+			ITree ctree = (ITree) stack[sp - 3];
 			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 			IMap grammar = (IMap) stack[sp - 1];
 

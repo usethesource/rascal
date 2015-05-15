@@ -285,7 +285,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			boolean previousWasEmpty = false;
 
 			for (int i = 0; i < args.length(); i+=(delta+1)) {
-				org.rascalmpl.values.uptr.RascalValueFactory.Tree tree = (org.rascalmpl.values.uptr.RascalValueFactory.Tree) args.get(i);
+				org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) args.get(i);
 
 				if (TreeAdapter.isList(tree) && ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);
