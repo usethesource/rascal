@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
@@ -28,13 +29,13 @@ public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E
 			Type alt = o.getConstructorType();
 			
 			if(alt == RascalValueFactory.Tree_Appl){
-				return visitTreeAppl(o);
+				return visitTreeAppl((Tree) o);
 			}else if (alt == RascalValueFactory.Tree_Amb){
-				return visitTreeAmb(o);
+				return visitTreeAmb((Tree)o);
 			}else if (alt == RascalValueFactory.Tree_Char){
-				return visitTreeChar(o);
+				return visitTreeChar((Tree)o);
 			}else if (alt == RascalValueFactory.Tree_Cycle){
-				return visitTreeCycle(o);
+				return visitTreeCycle((Tree)o);
 			}else{
 				throw new ImplementationError("TreeVisitor does not implement: " + alt);
 			}
@@ -43,8 +44,8 @@ public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E
 		return o;
 	}
 	
-	public abstract IConstructor visitTreeAppl(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeAmb(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeChar(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeCycle(IConstructor arg) throws E;
+	public abstract Tree visitTreeAppl(Tree arg) throws E;
+	public abstract Tree visitTreeAmb(Tree arg) throws E;
+	public abstract Tree visitTreeChar(Tree arg) throws E;
+	public abstract Tree visitTreeCycle(Tree arg) throws E;
 }

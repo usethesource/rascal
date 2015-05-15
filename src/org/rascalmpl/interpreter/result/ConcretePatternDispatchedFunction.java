@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcretePatternDispatchedFunction extends AbstractFunction {
@@ -178,10 +179,10 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
     }
     
     if (argTypes[0].isSubtypeOf(RascalValueFactory.Tree)) {
-      if (!TreeAdapter.isAppl((IConstructor) argValues[0])) {
+      if (!TreeAdapter.isAppl((Tree) argValues[0])) {
         throw new MatchFailed();
       }
-      label = TreeAdapter.getProduction((IConstructor) argValues[0]);
+      label = TreeAdapter.getProduction((Tree) argValues[0]);
       List<AbstractFunction> funcs = alternatives.get(label);
       
       if (funcs != null) {

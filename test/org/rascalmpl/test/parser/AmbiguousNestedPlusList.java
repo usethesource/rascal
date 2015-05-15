@@ -28,13 +28,13 @@ import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 /*
 S ::= A+
 A ::= [a]+
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
+public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = VF.constructor(RascalValueFactory.Symbol_IterPlus, SYMBOL_A);
@@ -78,8 +78,8 @@ public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, IConstructor, 
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0]};
 	}
 	
-	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public Tree executeParser(){
+		return (Tree) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -89,7 +89,7 @@ public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, IConstructor, 
 
 	public static void main(String[] args){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		IConstructor result = anpl.executeParser();
+		Tree result = anpl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([A+(A([a]+([a](a))),A([a]+([a](a)))),A+(A([a]+([a](a),[a](a))))]) <- good");

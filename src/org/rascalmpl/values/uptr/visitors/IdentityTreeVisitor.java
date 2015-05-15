@@ -11,27 +11,27 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr.visitors;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 public abstract class IdentityTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
 
 	@Override
-	public IConstructor visitTreeAmb(IConstructor arg) throws E {
+	public Tree visitTreeAmb(Tree arg) throws E {
 		return arg;
 	}
 	
 	@Override
-	public IConstructor visitTreeAppl(IConstructor arg) throws E  {
+	public Tree visitTreeAppl(Tree arg) throws E  {
 		return arg;
 	}
 
 	@Override
-	public IConstructor visitTreeChar(IConstructor arg) throws E {
+	public Tree visitTreeChar(Tree arg) throws E {
 		return arg;
 	}
 
 	@Override
-	public IConstructor visitTreeCycle(IConstructor arg) throws E {
+	public Tree visitTreeCycle(Tree arg) throws E {
 		return arg;
 	}
 }

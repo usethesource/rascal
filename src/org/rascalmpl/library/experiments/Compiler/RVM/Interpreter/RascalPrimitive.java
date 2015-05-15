@@ -49,6 +49,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -3022,7 +3023,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isAppl((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isAppl((Tree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3032,7 +3033,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((Tree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3042,7 +3043,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((IConstructor)treeSubject) || TreeAdapter.isOpt((IConstructor)treeSubject)));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((Tree)treeSubject) || TreeAdapter.isOpt((Tree)treeSubject)));
 			return sp;
 		}	
 	},
@@ -3053,7 +3054,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((Tree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3064,7 +3065,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((Tree)treeSubject));
 			return sp;
 		}	
 	},
@@ -3074,7 +3075,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((Tree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3083,7 +3084,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getArgs((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getArgs((Tree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3092,7 +3093,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			IConstructor treeSubject = (IConstructor) stack[sp - 1];
+			Tree treeSubject = (Tree) stack[sp - 1];
 			if (!(TreeAdapter.isList(treeSubject) || TreeAdapter.isOpt(treeSubject))) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
 				throw new ImplementationError(
 						"This is not a context-free list production: " + treeSubject);
@@ -3103,8 +3104,8 @@ public enum RascalPrimitive {
 			IConstructor symbol = TreeAdapter.getType(treeSubject);
 			boolean layoutPresent = false;
 			if(children.length() > 1){
-				IConstructor child1 = (IConstructor)children.get(1);
-				if(TreeAdapter.getType(child1).getName().equals("layouts")){
+				Tree child1 = (Tree)children.get(1);
+				if(TreeAdapter.isLayout(child1)){
 					layoutPresent = true;
 				}
 			}
@@ -3152,7 +3153,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getType((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getType((Tree)treeSubject);
 			return sp;
 		}	
 	},
@@ -3162,7 +3163,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			IConstructor symbol = TreeAdapter.getType((IConstructor)treeSubject);
+			IConstructor symbol = TreeAdapter.getType((Tree)treeSubject);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			stack[sp - 1] = 
 					
@@ -5459,12 +5460,13 @@ public enum RascalPrimitive {
 
 	},
 	parse_fragment {
+		// TODO: @paulklint how can parse fragment be a run-time primitive? 
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 5;
 			IString module_name = (IString) stack[sp - 5];
 			IValue start = (IValue) stack[sp - 4];
-			IConstructor ctree = (IConstructor) stack[sp - 3];
+			Tree ctree = (Tree) stack[sp - 3];
 			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 			IMap grammar = (IMap) stack[sp - 1];
 
@@ -6538,8 +6540,6 @@ public enum RascalPrimitive {
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
-	private static Type valueType;
-	private static Type nodeType;
 	private static final Object[] temp_array_of_2 = new Object[2];
 	
 	private static ITestResultListener testResultListener;
@@ -6569,8 +6569,6 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
-		valueType = tf.valueType();
-		nodeType = tf.nodeType();
 		testResultListener = rex.getTestResultListener();
 	}
 	

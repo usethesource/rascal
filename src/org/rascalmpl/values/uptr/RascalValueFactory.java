@@ -254,10 +254,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	/** caches ASCII characters for sharing */
-	private final static IConstructor byteChars[];
+	private final static Tree byteChars[];
 	private final static Type byteCharTypes[];
 	static {
-		byteChars = new IConstructor[256];
+		byteChars = new Tree[256];
 		byteCharTypes = new Type[256];
 		for (int i = 0; i < 256; i++) {
 			byteChars[i] = new CharByte((byte) i);
@@ -363,7 +363,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public IConstructor character(int ch) {
+	public Tree character(int ch) {
 		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
 			return character((byte) ch);
 		}
@@ -372,13 +372,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public IConstructor character(byte ch) {
+	public Tree character(byte ch) {
 		return byteChars[ch];
 	}
 
 	@Override
-	public IConstructor appl(Map<String,IValue> annos, IConstructor prod, IList args) {
-		return appl(prod, args).asAnnotatable().setAnnotations(annos);
+	public Tree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
+		return (Tree) appl(prod, args).asAnnotatable().setAnnotations(annos);
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 */
 	@Deprecated
 	@Override
-	public IConstructor appl(IConstructor prod, ArrayList<IConstructor> args) {
+	public Tree appl(IConstructor prod, ArrayList<Tree> args) {
 		switch (args.size()) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args.get(0));
@@ -405,7 +405,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * Construct a specialized IConstructor representing a Tree, applying a prod to a list of arguments
 	 */
 	@Override
-	public IConstructor appl(IConstructor prod, IList args) {
+	public Tree appl(IConstructor prod, IList args) {
 		switch (args.length()) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args.get(0));
@@ -423,7 +423,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * Watch out, the array is not cloned! Must not modify hereafter.
 	 */
 	@Override
-	public IConstructor appl(IConstructor prod, IValue... args) {
+	public Tree appl(IConstructor prod, IValue... args) {
 		switch (args.length) {
 		case 0: return new Appl0(prod);
 		case 1: return new Appl1(prod, args[0]);
@@ -438,12 +438,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public IConstructor cycle(IConstructor symbol, int cycleLength) {
+	public Tree cycle(IConstructor symbol, int cycleLength) {
 		return new Cycle(symbol, cycleLength);
 	}
 	
 	@Override
-	public IConstructor amb(ISet alternatives) {
+	public Tree amb(ISet alternatives) {
 		return new Amb(alternatives);
 	}
 	
@@ -1763,9 +1763,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Deprecated
 	private static class ArrayListArgumentList extends AbstractArgumentList {
-		private final ArrayList<IConstructor> list;
+		private final ArrayList<Tree> list;
 
-		public ArrayListArgumentList(ArrayList<IConstructor> list) {
+		public ArrayListArgumentList(ArrayList<Tree> list) {
 			this.list = list;
 		}
 		

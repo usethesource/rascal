@@ -36,9 +36,9 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -182,7 +182,7 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, Tree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 130);
 //		Profiler profiler = new Profiler(evaluator);
 
@@ -216,7 +216,7 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
+	public Class<IGTD<IConstructor, Tree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
 		monitor.startJob("Generating parser:" + name, 100, 60);
 
 		try {
@@ -242,7 +242,7 @@ public class ParserGenerator {
    * @param outStream An output stream
    * @throws IOException on IO error
    */
-  public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
+  public void saveToJar(Class<IGTD<IConstructor, Tree, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
 	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
   }
 

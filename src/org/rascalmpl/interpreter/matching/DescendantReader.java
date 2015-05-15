@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -79,7 +80,7 @@ public class DescendantReader implements Iterator<IValue> {
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
 			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
-				pushConcreteSyntaxNode((IConstructor) v);
+				pushConcreteSyntaxNode((Tree) v);
 				return;
 			}
 			INode node = (INode) v;
@@ -111,7 +112,7 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 	}
 
-	private void pushConcreteSyntaxNode(IConstructor tree){
+	private void pushConcreteSyntaxNode(Tree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		String name = tree.getName();
 		
@@ -126,7 +127,7 @@ public class DescendantReader implements Iterator<IValue> {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				pushConcreteSyntaxNode((IConstructor) alt);
+				pushConcreteSyntaxNode((Tree) alt);
 			}
 			return;
 //			throw new ImplementationError("Cannot handle ambiguous subject");
@@ -151,7 +152,7 @@ public class DescendantReader implements Iterator<IValue> {
         	
 			for (int i = listElems.length() - 1; i >= 0 ; i -= delta){
 				if (debug) System.err.println("adding: " + listElems.get(i));
-				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
+				pushConcreteSyntaxNode((Tree)listElems.get(i));
 			}
 		} 
         else {
@@ -165,7 +166,7 @@ public class DescendantReader implements Iterator<IValue> {
 			
 			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
 				//spine.push(applArgs.get(i));
-				pushConcreteSyntaxNode((IConstructor) applArgs.get(i));
+				pushConcreteSyntaxNode((Tree) applArgs.get(i));
 			}
 		}
 	}
