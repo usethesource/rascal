@@ -34,8 +34,8 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteSyntaxResult extends ConstructorResult {
@@ -47,8 +47,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public Result<IBool> is(Name name) {
-		if (TreeAdapter.isAppl((Tree) getValue())) {
-			String consName = TreeAdapter.getConstructorName((Tree) getValue());
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			String consName = TreeAdapter.getConstructorName((ITree) getValue());
 			if (consName != null) {
 				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
 			}
@@ -58,7 +58,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		Tree tree = (Tree) getValue();
+		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
 			int found = -1;
@@ -101,7 +101,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
-		Tree tree = (Tree) getValue();
+		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
 			int found = -1;
@@ -144,14 +144,14 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public Tree getValue() {
-		return (Tree) super.getValue();
+	public ITree getValue() {
+		return (ITree) super.getValue();
 	}
 	
 	@Override
 	public Result<IBool> has(Name name) {
-		if (TreeAdapter.isAppl((Tree) getValue())) {
-			IConstructor prod = TreeAdapter.getProduction((Tree) getValue());
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
 			IList syms = ProductionAdapter.getSymbols(prod);
 			String tmp = Names.name(name);
 			
@@ -185,8 +185,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
-		Tree left = this.getValue();
-		Tree right = that.getValue();
+		ITree left = this.getValue();
+		ITree right = that.getValue();
 		
 		if (TreeAdapter.isLayout(left) && TreeAdapter.isLayout(right)) {
 			return bool(true, ctx);

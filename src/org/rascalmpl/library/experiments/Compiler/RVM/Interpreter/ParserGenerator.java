@@ -37,7 +37,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove impo
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -86,7 +86,7 @@ public class ParserGenerator {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Class<IGTD<IConstructor, Tree, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 90);
 
 		try {
@@ -98,14 +98,14 @@ public class ParserGenerator {
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.event("Compiling generated java code: " + name, 30);
-			Class<IGTD<IConstructor, Tree, ISourceLocation>> p = bridge.compileJava(loc, packageName + "." + normName, getClass(), classString.getValue());
+			Class<IGTD<IConstructor, ITree, ISourceLocation>> p = bridge.compileJava(loc, packageName + "." + normName, getClass(), classString.getValue());
 
 			String className = normName;
 			Class<?> clazz;
 			for (ClassLoader cl: evaluator.getClassLoaders()) {
 				try {
 					clazz = cl.loadClass(className);
-					return (Class<IGTD<IConstructor, Tree, ISourceLocation>>) clazz.newInstance();
+					return (Class<IGTD<IConstructor, ITree, ISourceLocation>>) clazz.newInstance();
 
 				} catch (ClassNotFoundException e) {
 					continue;
@@ -228,7 +228,7 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, Tree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
+  public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
   		return getNewParser(monitor, loc, name,  convertMapToGrammar(definition));
   }
 
@@ -241,7 +241,7 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-  public Class<IGTD<IConstructor, Tree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
+  public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
   	monitor.startJob("Generating parser:" + name, 100, 60);
   	try {
 

@@ -45,7 +45,7 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -96,8 +96,8 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 
-		if (!matchUPTR && subject.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((Tree) subject.getValue())) {
-			this.subject = new TreeAsNode((Tree) subject.getValue());
+		if (!matchUPTR && subject.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) subject.getValue())) {
+			this.subject = new TreeAsNode((ITree) subject.getValue());
 		}
 		else {
 			this.subject = (INode) subject.getValue();
@@ -339,7 +339,7 @@ public class NodePattern extends AbstractMatchingResult {
 		private final String name;
 		private final IList args;
 
-		public TreeAsNode(Tree tree) {
+		public TreeAsNode(ITree tree) {
 			this.name = TreeAdapter.getConstructorName(tree);
 			this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
 		}

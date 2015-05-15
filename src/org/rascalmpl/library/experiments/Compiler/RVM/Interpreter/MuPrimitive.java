@@ -30,7 +30,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -502,7 +502,7 @@ public enum MuPrimitive {
 			String label_name = ((IString) stack[sp - 1]).getValue();
 			
 			if (isNonTerminalType(vt)) {
-				Tree cons = (Tree) v;
+				ITree cons = (ITree) v;
 				if (TreeAdapter.isAppl(cons)) {
 					String treeLabel = TreeAdapter.getConstructorName(cons);
 					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? Rascal_TRUE : Rascal_FALSE;
@@ -2253,14 +2253,14 @@ public enum MuPrimitive {
 	 */
 	private static boolean $is_literal(final IValue v){
 		if(isNonTerminalType(v.getType())) {
-			return TreeAdapter.isLiteral((Tree) v);
+			return TreeAdapter.isLiteral((ITree) v);
 		}
 		return false;
 	}
 	
 	private static boolean $is_layout(final IValue v){
 		if (isNonTerminalType(v.getType())) {
-			return TreeAdapter.isLayout((Tree) v);
+			return TreeAdapter.isLayout((ITree) v);
 		}
 		return false;
 	}

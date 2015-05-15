@@ -13,21 +13,21 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class UPTRNodeFactory implements INodeConstructorFactory<Tree, ISourceLocation>{
+public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
 	
 	public UPTRNodeFactory(){
 		super();
 	}
 
-	public Tree createCharNode(int charNumber){
+	public ITree createCharNode(int charNumber){
 		return VF.character(charNumber);
 	}
 
-	public Tree createLiteralNode(int[] characters, Object production){
+	public ITree createLiteralNode(int[] characters, Object production){
 		IListWriter listWriter = VF.listWriter();
 		for(int i = characters.length - 1; i >= 0; --i){
 			listWriter.insert(VF.character(characters[i]));
@@ -36,24 +36,24 @@ public class UPTRNodeFactory implements INodeConstructorFactory<Tree, ISourceLoc
 		return VF.appl((IConstructor) production, listWriter.done());
 	}
 	
-	private static Tree buildAppl(ArrayList<Tree> children, Object production){
+	private static ITree buildAppl(ArrayList<ITree> children, Object production){
 		return VF.appl((IConstructor) production, children);
 	}
 
-	public Tree createSortNode(ArrayList<Tree> children, Object production){
+	public ITree createSortNode(ArrayList<ITree> children, Object production){
 		return buildAppl(children, production);
 	}
 
-	public Tree createSubListNode(ArrayList<Tree> children, Object production){
+	public ITree createSubListNode(ArrayList<ITree> children, Object production){
 		return buildAppl(children, production);
 	}
 
-	public Tree createListNode(ArrayList<Tree> children, Object production){
+	public ITree createListNode(ArrayList<ITree> children, Object production){
 		return buildAppl(children, production);
 		
 	}
 	
-	private static Tree buildAmbiguityNode(ArrayList<Tree> alternatives){
+	private static ITree buildAmbiguityNode(ArrayList<ITree> alternatives){
 		ISetWriter ambSublist = VF.setWriter();
 		for(int i = alternatives.size() - 1; i >= 0; --i){
 			ambSublist.insert(alternatives.get(i));
@@ -62,31 +62,31 @@ public class UPTRNodeFactory implements INodeConstructorFactory<Tree, ISourceLoc
 		return VF.amb(ambSublist.done());
 	}
 
-	public Tree createAmbiguityNode(ArrayList<Tree> alternatives){
+	public ITree createAmbiguityNode(ArrayList<ITree> alternatives){
 		return buildAmbiguityNode(alternatives);
 	}
 
-	public Tree createSubListAmbiguityNode(ArrayList<Tree> alternatives){
+	public ITree createSubListAmbiguityNode(ArrayList<ITree> alternatives){
 		return buildAmbiguityNode(alternatives);
 	}
 
-	public Tree createListAmbiguityNode(ArrayList<Tree> alternatives){
+	public ITree createListAmbiguityNode(ArrayList<ITree> alternatives){
 		return buildAmbiguityNode(alternatives);
 	}
 	
-	private static Tree buildCycle(int depth, Object production){
+	private static ITree buildCycle(int depth, Object production){
 		return VF.cycle(ProductionAdapter.getType((IConstructor) production), depth);
 	}
 
-	public Tree createCycleNode(int depth, Object production){
+	public ITree createCycleNode(int depth, Object production){
 		return buildCycle(depth, production);
 	}
 
-	public Tree createSubListCycleNode(Object production){
+	public ITree createSubListCycleNode(Object production){
 		return buildCycle(1, production);
 	}
 
-	public Tree createRecoveryNode(int[] characters){
+	public ITree createRecoveryNode(int[] characters){
 		IListWriter listWriter = VF.listWriter();
 		for(int i = characters.length - 1; i >= 0; --i){
 			listWriter.insert(VF.character(characters[i]));
@@ -101,15 +101,15 @@ public class UPTRNodeFactory implements INodeConstructorFactory<Tree, ISourceLoc
 		return VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 	}
 	
-	public Tree addPositionInformation(Tree node, ISourceLocation location){
-		return (Tree) node.asAnnotatable().setAnnotation(RascalValueFactory.Location, location);
+	public ITree addPositionInformation(ITree node, ISourceLocation location){
+		return (ITree) node.asAnnotatable().setAnnotation(RascalValueFactory.Location, location);
 	}
 	
-	public ArrayList<Tree> getChildren(Tree node){
+	public ArrayList<ITree> getChildren(ITree node){
 		IList args = TreeAdapter.getArgs(node);
-		ArrayList<Tree> children = new ArrayList<>(args.length());
+		ArrayList<ITree> children = new ArrayList<>(args.length());
 		for(int i = 0; i < args.length(); ++i){
-			children.add((Tree) args.get(i));
+			children.add((ITree) args.get(i));
 		}
 		return children;
 	}
@@ -118,11 +118,11 @@ public class UPTRNodeFactory implements INodeConstructorFactory<Tree, ISourceLoc
 		return ProductionAdapter.getType((IConstructor) production);
 	}
 	
-	public boolean isAmbiguityNode(Tree node){
+	public boolean isAmbiguityNode(ITree node){
 		return TreeAdapter.isAmb(node);
 	}
 	
-	public Object getProductionFromNode(Tree node){
+	public Object getProductionFromNode(ITree node){
 		return TreeAdapter.getProduction(node);
 	}
 }

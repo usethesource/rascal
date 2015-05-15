@@ -57,8 +57,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -255,14 +255,14 @@ public class TraversalEvaluator {
 			return subject; // constants have no children to traverse into
 		} 
 
-		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isChar((Tree) cons)) {
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isChar((ITree) cons)) {
 				return subject; // we dont traverse into the structure of literals and characters
 		}
 
 		IValue args[] = new IValue[cons.arity()];
 		
-		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((Tree) cons)){
-			Tree tree = (Tree)cons;
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) cons)){
+			ITree tree = (ITree)cons;
 			
 			// Constructor is "appl": we are dealing with a syntax tree
 			// - Lexical or literal are returned immediately

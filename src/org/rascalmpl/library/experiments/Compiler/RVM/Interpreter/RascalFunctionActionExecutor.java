@@ -13,7 +13,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -36,7 +36,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Note that RascalFunctionActionExecutors use functions visible from the call site of the parse
  * function.
  */
-public class RascalFunctionActionExecutor implements IActionExecutor<Tree> {
+public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final RascalExecutionContext rex;
 
@@ -75,7 +75,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<Tree> {
 	public void exitedProduction(Object production, boolean filtered, Object environment) {
 	}
 
-	public Tree filterAmbiguity(Tree ambCluster, Object environment) {
+	public ITree filterAmbiguity(ITree ambCluster, Object environment) {
 		ISet alts = (ISet) ambCluster.get("alternatives");
 		
 		if (alts.size() == 0) {
@@ -124,27 +124,27 @@ public class RascalFunctionActionExecutor implements IActionExecutor<Tree> {
 	}
 
 	@Override
-	public Tree filterCycle(Tree cycle, Object environment) {
+	public ITree filterCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 
 	@Override
-	public Tree filterListAmbiguity(Tree ambCluster, Object environment) {
+	public ITree filterListAmbiguity(ITree ambCluster, Object environment) {
 		return filterAmbiguity(ambCluster, environment);
 	}
 
 	@Override
-	public Tree filterListCycle(Tree cycle, Object environment) {
+	public ITree filterListCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 
 	@Override
-	public Tree filterListProduction(Tree tree, Object environment) {
+	public ITree filterListProduction(ITree tree, Object environment) {
 		return tree;
 	}
 
 	@Override
-	public Tree filterProduction(Tree tree,
+	public ITree filterProduction(ITree tree,
 			Object environment) {
 		String cons = TreeAdapter.getConstructorName(tree);
 		

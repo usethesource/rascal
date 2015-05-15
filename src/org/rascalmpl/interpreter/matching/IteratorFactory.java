@@ -34,8 +34,8 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class IteratorFactory {
@@ -108,7 +108,7 @@ public class IteratorFactory {
 		} else if (subjectType.isExternalType()) {
 			if (subjectType instanceof NonTerminalType) {
 				// NonTerminal (both pattern and subject are non-terminals, so we can skip layout and stuff)
-				Tree tree = (Tree) subjectValue;
+				ITree tree = (ITree) subjectValue;
 				NonTerminalType nt = (NonTerminalType) subjectType;
 
 				if (!shallow) {

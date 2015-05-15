@@ -29,7 +29,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 public class Resource {
 
@@ -110,7 +110,7 @@ public class Resource {
 		StringBuilder sb = new StringBuilder();
 		sb.append("public ").append(tagStr).append("Type ").append(tagStr).append("() { ");
 		sb.append(" return getTypedResource(").append(uriLoc.toString()).append(",#").append(tagStr).append("Type); }");
-		Tree declTree = ctx.getEvaluator().parseCommand(ctx.getEvaluator().getMonitor(), sb.toString(), ctx.getCurrentAST().getLocation());
+		ITree declTree = ctx.getEvaluator().parseCommand(ctx.getEvaluator().getMonitor(), sb.toString(), ctx.getCurrentAST().getLocation());
 		Command cmd = new ASTBuilder().buildCommand(declTree);
 		Environment env = ctx.getCurrentEnvt();
 		ctx.setCurrentEnvt(env.getRoot());

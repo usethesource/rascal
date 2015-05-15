@@ -17,9 +17,9 @@ import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 @SuppressWarnings({"unchecked", "cast"})
-public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, Tree, ISourceLocation> implements IParserTest{
+public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_SEP = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("Sep"));
@@ -87,8 +87,8 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, Tree, IS
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{SEP_EXPECT_1[0]};
 	}
 	
-	public Tree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new DefaultNodeFlattener<IConstructor, Tree, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

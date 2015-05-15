@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 
 public class RVM implements java.io.Serializable {
@@ -1414,14 +1414,12 @@ public class RVM implements java.io.Serializable {
 						//sp1 = sp;
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 						//assert sp == sp1 - arity + 1;
-					} catch(Exception exception) {
-						if(!(exception instanceof Thrown)){
-							throw exception;
-						}
-						thrown = (Thrown) exception;
+					} catch (Thrown exception) {
+						thrown = exception;
 						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
-						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
 					}
 					
 					continue NEXT_INSTRUCTION;
@@ -1638,10 +1636,13 @@ public class RVM implements java.io.Serializable {
 				}
 				
 			}
-		} catch (Exception e) {
-			if(e instanceof Thrown){
-				throw e;
-			}
+		}
+		catch (Thrown e) {
+			throw e; 
+			// this is a normal Rascal exception, but we want to handle the next case here exceptionally, which 
+			// should not happen normally and hints at a compiler or run-time bug:
+		}
+		catch (Exception e) {
 			stdout.println("EXCEPTION " + e + " at: " + cf.src);
 			for(Frame f = cf; f != null; f = f.previousCallFrame) {
 				stdout.println("\t" + f.toString());
@@ -1651,10 +1652,6 @@ public class RVM implements java.io.Serializable {
 			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
 			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
-			
-			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
-			//e.printStackTrace();
-			//stderr.println(e.getStackTrace());
 		}
 	}
 	
@@ -1685,40 +1682,15 @@ public class RVM implements java.io.Serializable {
 	
 	public Object getJavaClassInstance(Class<?> clazz){
 		Object instance = instanceCache.get(clazz);
-		if(instance != null){
+		if (instance != null){
 			return instance;
 		}
-//		Class<?> clazz = null;
-//		try {
-//			clazz = this.getClass().getClassLoader().loadClass(className);
-//		} catch(ClassNotFoundException e1) {
-//			// If the class is not found, try other class loaders
-//			for(ClassLoader loader : this.classLoaders) {
-//				//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//				try {
-//					clazz = loader.loadClass(className);
-//					break;
-//				} catch(ClassNotFoundException e2) {
-//					;
-//				}
-//			}
-//		}
-		try{
+		try {
 			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		} 
 	}
@@ -1726,28 +1698,6 @@ public class RVM implements java.io.Serializable {
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
-//			try {
-//				clazz = this.getClass().getClassLoader().loadClass(className);
-//			} catch(ClassNotFoundException e1) {
-//				// If the class is not found, try other class loaders
-//				for(ClassLoader loader : this.classLoaders) {
-//					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//					try {
-//						clazz = loader.loadClass(className);
-//						break;
-//					} catch(ClassNotFoundException e2) {
-//						;
-//					}
-//				}
-//			}
-//			
-//			if(clazz == null) {
-//				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
-//			}
-			
-//			Constructor<?> cons;
-//			cons = clazz.getConstructor(IValueFactory.class);
-//			Object instance = cons.newInstance(vf);
 			clazz = getJavaClass(className);
 			Object instance = getJavaClassInstance(clazz);
 			
@@ -1936,7 +1886,7 @@ public class RVM implements java.io.Serializable {
 		@Override
 		public Class<?> visitNonTerminal(RascalType type)
 				throws RuntimeException {
-			return Tree.class;
+			return ITree.class;
 		}
 		
 		@Override

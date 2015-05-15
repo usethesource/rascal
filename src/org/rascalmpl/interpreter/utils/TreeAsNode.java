@@ -11,15 +11,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeAsNode implements INode {
   private final String name;
   private final IList args;
-  private final Tree tree;
+  private final ITree tree;
 
-  public TreeAsNode(Tree tree) {
+  public TreeAsNode(ITree tree) {
     this.name = TreeAdapter.getConstructorName(tree);
     this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
     this.tree = tree;

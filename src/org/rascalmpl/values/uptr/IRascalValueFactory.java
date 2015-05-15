@@ -18,9 +18,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 /**
  * See {@link RascalValueFactory} for documentation.
@@ -28,18 +26,18 @@ import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 public interface IRascalValueFactory extends IValueFactory {
 	IConstructor reifiedType(IConstructor symbol, IMap definitions);
 	
-	Tree appl(Map<String,IValue> annos, IConstructor prod, IList args);
-	Tree appl(IConstructor prod, IList args);
-	Tree appl(IConstructor prod, IValue... args);
-	@Deprecated IConstructor appl(IConstructor prod, ArrayList<Tree> args);
+	ITree appl(Map<String,IValue> annos, IConstructor prod, IList args);
+	ITree appl(IConstructor prod, IList args);
+	ITree appl(IConstructor prod, IValue... args);
+	@Deprecated IConstructor appl(IConstructor prod, ArrayList<ITree> args);
 	
-	Tree cycle(IConstructor symbol, int cycleLength);
+	ITree cycle(IConstructor symbol, int cycleLength);
 
-	Tree amb(ISet alternatives);
+	ITree amb(ISet alternatives);
 	
-	Tree character(int ch);
+	ITree character(int ch);
 	
-	Tree character(byte ch);
+	ITree character(byte ch);
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
