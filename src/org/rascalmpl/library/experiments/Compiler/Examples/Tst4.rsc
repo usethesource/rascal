@@ -1,9 +1,7 @@
 module experiments::Compiler::Examples::Tst4
 
-extend  experiments::Compiler::Tests::TestUtils;
+import List;
 
-test bool tst1() = 13 == 12 + 1;
+bool less(int a, int b) = a < b;
 
-value main(list[value] args) {
-	return run("{ x |x \<- [1 .. 10], x % 2 == 1}");
-}
+value main(list[value] args) = sort([5, 3, 10], less);
