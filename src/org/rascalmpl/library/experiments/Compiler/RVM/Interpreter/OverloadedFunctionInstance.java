@@ -2,20 +2,25 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
-public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternalValue {
+public class OverloadedFunctionInstance implements ICallableCompiledValue, IExternalValue {
 	
 	private final int[] functions;
 	private final int[] constructors;
@@ -121,52 +126,6 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		return null;
 	}
 
-//	@Override
-//	public int getArity() {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-//
-//	@Override
-//	public boolean hasVarArgs() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean hasKeywordArgs() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-//		// TODO: 
-//		return null;
-//	}
-//
-//	@Override
-//	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-//		return this.call(null, argTypes, argValues, keyArgValues);
-//	}
-//
-//	@Override
-//	public ICallableValue cloneInto(Environment env) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public boolean isStatic() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public IEvaluator<Result<IValue>> getEval() {
-//		return rvm.getEvaluatorContext().getEvaluator();
-//	}
-
 	@Override
   public boolean mayHaveKeywordParameters() {
     return false;
@@ -177,4 +136,30 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
     throw new IllegalOperationException(
         "Cannot be viewed as with keyword parameters", getType());
   }
+
+@Override
+public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+		Map<String, IValue> keyArgValues) {
+	IValue[] args = new IValue[argValues.length + 1];
+	int i = 0;
+	for(IValue argValue : argValues) {
+		args[i++] = argValue;
+	}
+	IMapWriter kwargs = rvm.vf.mapWriter();
+	if(keyArgValues != null) {
+		for(Entry<String, IValue> entry : keyArgValues.entrySet()) {
+			kwargs.put(rvm.vf.string(entry.getKey()), keyArgValues.get(entry.getValue()));
+		}
+	}
+	args[i] = kwargs.done();
+	IValue rval = rvm.executeFunction(this, args);
+	return rval;
+}
+
+@Override
+public IValue call(Type[] argTypes, IValue[] argValues,
+		Map<String, IValue> keyArgValues) {
+	
+	return call(rvm.getMonitor(), argTypes, argValues, keyArgValues);
+}
 }
