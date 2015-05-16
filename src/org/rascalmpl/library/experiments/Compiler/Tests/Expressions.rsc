@@ -296,7 +296,7 @@ test bool tst() = run("all(int x \<- [])") == !all(int x <- []);
 test bool tst() = run("all(i \<- [1,2,3], (i % 2 == 0 || i % 2 == 1))") == !all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1));
 test bool tst() = run("all([*x, *y] := [1,2,3], true)") == !all([*x, *y] := [1,2,3], true);
 
- test bool tst() = run("all(int M \<- {1,2}, M == 1, true)") == all(int M <- {1,2}, M == 1, true);
+test bool tst() = run("all(int M \<- {1,2}, M == 1, true)") == all(int M <- {1,2}, M == 1, true);
 
 
 // Range
