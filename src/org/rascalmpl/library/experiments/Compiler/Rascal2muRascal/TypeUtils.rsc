@@ -823,15 +823,15 @@ public list[UID] sortFunctionsByRecentScope(list[UID] funs){
 public set[UID] accessibleScopes(loc luse) {
 //println("containmentPlus = <containmentPlus>");
 	 return {0, 1} +
-     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], //av has containedIn, av has at
-               (  blockScope(int scope, loc l) := av 
-               || booleanScope(int scope, loc l) := av
-               || function(_,_,_, _, int scope, _, _, loc l) := av
-               || constructor(_,_,_,int scope, loc l) := av
-               || label(_,functionLabel(), int scope, loc l) := av
-               || closure(_,_, int scope, loc l)  := av
-               || \module(_, loc l) := av
-               )
+     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
+               //(  blockScope(int scope, loc l) := av 
+               //|| booleanScope(int scope, loc l) := av
+               //|| function(_,_,_, _, int scope, _, _, loc l) := av
+               //|| constructor(_,_,_,int scope, loc l) := av
+               //|| label(_,functionLabel(), int scope, loc l) := av
+               //|| closure(_,_, int scope, loc l)  := av
+               //|| \module(_, loc l) := av
+               //)
                , luse < av.at || av.at.path != luse.path
                };
 } 
