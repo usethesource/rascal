@@ -389,6 +389,31 @@ public class RVM implements java.io.Serializable {
 		}
 		return narrow(o); 
 	}
+	
+	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){
+		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		int arity = args.length;
+		int scopeId = func.env.scopeId;
+		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+		root.sp = arity;
+		
+		OverloadedFunctionInstanceCall c_ofun_call_next = 
+				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity)  // changed root to cf
+        					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity);
+				
+		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		// Pass the program arguments to func
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		cf.sp = args.length;
+		cf.previousCallFrame = null;		// ensure that func will retrun here
+		Object o = executeProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
+	}
 			
 	private String trace = "";
 	
@@ -681,8 +706,12 @@ public class RVM implements java.io.Serializable {
 		return sp;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
+		return executeProgram(root, cf, /*cf.function.nlocals,*/ /*cf.function.codeblock.getInstructions(),*/ null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Object executeProgram(final Frame root, Frame cf, /*final int nlocals,*/ /*long[] instructions, */OverloadedFunctionInstanceCall c_ofun_call) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -698,7 +727,10 @@ public class RVM implements java.io.Serializable {
 		
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
-		OverloadedFunctionInstanceCall c_ofun_call = null;
+		if(c_ofun_call != null){
+			ocalls.push(c_ofun_call);
+		}
+		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
 		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 		
@@ -977,25 +1009,6 @@ public class RVM implements java.io.Serializable {
 						stack[sp++] = vf.constructor(constr, args);
 						continue NEXT_INSTRUCTION;
 					}
-					
-//					// Specific to delimited continuations (experimental)
-//					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Coroutine) {
-//						arity = CodeBlock.fetchArg1(instruction);
-//						Coroutine coroutine = (Coroutine) stack[--sp];
-//						// Merged the hasNext and next semantics
-//						activeCoroutines.push(coroutine);
-//						ccf = coroutine.start;
-//						coroutine.next(cf);
-//						instructions = coroutine.frame.function.codeblock.getInstructions();
-//						coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ? stack[--sp] : null;
-//						cf.pc = pc;
-//						cf.sp = sp;
-//						cf = coroutine.frame;
-//						stack = cf.stack;
-//						sp = cf.sp;
-//						pc = cf.pc;
-//						continue NEXT_INSTRUCTION;
-//					}
 					
 					cf.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
@@ -1825,6 +1838,7 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.PreludeCompiled.iprintln",
 			"org.rascalmpl.library.PreludeCompiled.rprint",
 			"org.rascalmpl.library.PreludeCompiled.rprintln",
+			"org.rascalmpl.library.PreludeCompiled.sort",
 			"org.rascalmpl.library.util.MonitorCompiled.startJob",
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
