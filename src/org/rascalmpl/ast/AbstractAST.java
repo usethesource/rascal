@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -79,11 +78,14 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	@SuppressWarnings("unchecked")
 	/**
 	 * Used in generated clone methods to avoid regenerating the same code;
-	 */
-	protected <T extends AbstractAST> java.util.List<T> clone(java.util.List<T> in) {
+	 */ 
+	public <T extends AbstractAST> java.util.List<T> clone(java.util.List<T> in) {
 		java.util.List<T> tmp = new ArrayList<T>(in.size());
 		for (T elem : in) {
-			tmp.add((T) elem.clone());
+			T cl = (T) elem.clone();
+			cl.setSourceLocation(elem.getLocation());
+			tmp.add(cl);
+			
 		}
 		return tmp;
 	}
