@@ -64,70 +64,42 @@ function askServer(path, parameters, callback) {
 	});
    }
    
-
-function adjust1(id0, id1, lw, hpad, vpad) { 
-    var d = d3.select("#"+id0);
-    if (d.attr("width")) return;   
-    var left1 = document.getElementById(id1).getBoundingClientRect().left;
-    var right1 = document.getElementById(id1).getBoundingClientRect().right;
-    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
-    var top1 = document.getElementById(id1).getBoundingClientRect().top;
-    var width1 = document.getElementById(id1).getBoundingClientRect().width;
-    var height1 = document.getElementById(id1).getBoundingClientRect().height;
-    d3.select("#"+id0).attr("width",width1+lw+hpad).attr("height",height1+lw+vpad);
-    d3.select("#"+id0).attr("x",0).attr("y", 0);
-   }
-   
- function adjustEllipse(id0, id1, lw) { 
-    if (document.getElementById(id0).style.width!="") return;
-    var left1 = document.getElementById(id1).getBoundingClientRect().left;
-    var right1 = document.getElementById(id1).getBoundingClientRect().right;
-    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
-    var top1 = document.getElementById(id1).getBoundingClientRect().top;
-    d3.select("#"+id0).attr("cx", (right1-left1)/2).attr("cy", (bottom1-top1)/2).
-    attr("rx", (right1 - left1)/2).attr("ry",(bottom1-top1)/2);
-    d3.select("#"+id0+"_").style("width",right1-left1).style("height",bottom1-top1);
-   }
-   
- function adjustCircle(id0, id1, lw) { 
-    var d = d3.select("#"+id0);
-    if (d.attr("r")) return;
-    var left1 = document.getElementById(id1).getBoundingClientRect().left;
-    var right1 = document.getElementById(id1).getBoundingClientRect().right;
-    var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
-    var top1 = document.getElementById(id1).getBoundingClientRect().top;
-    d.attr("cx", (left1 + right1)/2+lw).attr("cy", (bottom1+top1)/2+lw).
-    attr("r", (right1 - left1)/2);
-   }
-   
- function adjustSvgStyle(id0, id1, lw, hpad, vpad) { 
-     var d = d3.select("#"+id0);
-     // if (d.attr("width")) return;   
-     var left1 = document.getElementById(id1).getBoundingClientRect().left;
-     var right1 = document.getElementById(id1).getBoundingClientRect().right;
-     var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
-     var top1 = document.getElementById(id1).getBoundingClientRect().top;
-     var width1 = document.getElementById(id1).getBoundingClientRect().width;
-     var height1 = document.getElementById(id1).getBoundingClientRect().height;
-    // if (d3.select("#"+id0).style("width")) return;
-     var d = d3.select("#"+id1); 
-     d3.select("#"+id0).style("width",width1+lw+hpad).style("height",height1+lw+vpad);
-     // alert(width1);
-   }
-   
-   function adjustSvgAttr(id0, id1, lw, hpad, vpad) { 
-     var d = d3.select("#"+id0);
-     // if (d.attr("width")) return;   
-     var left1 = document.getElementById(id1).getBoundingClientRect().left;
-     var right1 = document.getElementById(id1).getBoundingClientRect().right;
-     var bottom1 = document.getElementById(id1).getBoundingClientRect().bottom;
-     var top1 = document.getElementById(id1).getBoundingClientRect().top;
-     var width1 = document.getElementById(id1).getBoundingClientRect().width;
-     var height1 = document.getElementById(id1).getBoundingClientRect().height;
-    // if (d3.select("#"+id0).style("width")) return;
-     var d = d3.select("#"+id1); 
-     d3.select("#"+id0).attr("width",width1+lw+hpad).style("height",height1+lw+vpad);
-     // alert(width1);
-   }
-   
+ rxL= function(rx, ry) {return rx * Math.sqrt(rx*rx+ry*ry)/ry;};
+ ryL= function(rx, ry) {return ry * Math.sqrt(rx*rx+ry*ry)/rx;};
  
+ function adjust0(id0, id1, lw, hpad, vpad) { 
+    var d = d3.select("#"+id0);
+    var lw0 = parseInt(d3.select("#"+id1).style("stroke-width"));
+    var width = document.getElementById(id1).getBoundingClientRect().width+lw+hpad;
+    var height = document.getElementById(id1).getBoundingClientRect().height+lw+vpad;  
+    // alert(d.node().nodeName);
+    var c = d3.select("#"+id1);
+    if (c.node().nodeName == "ellipse" || c.node().nodeName == "circle"
+                                       || c.node().nodeName == "path")
+        {width += lw0; height += lw0;}
+    switch (d.node().nodeName) {
+        case "rect": 
+                   d.attr("width",width).attr("height",height).
+                   attr("x",0).attr("y", 0); 
+                   break;
+        case "circle":  
+                    var side =  Math.max(width, height);           
+                    var r = side/2;
+                    d.attr("cx", r+lw/2).attr("cy", r+lw/2)
+                     .attr("r", r); 
+                    width = 2*r+lw;
+                    height = 2*r+lw;               
+                    break;
+        case "ellipse":  
+                    var rx = rxL(width/2, height/2);
+                    var ry = ryL(width/2, height/2);
+                    d.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
+                     .attr("rx", rx).attr("ry", ry); 
+                     width = 2*rx + lw;
+                     height= 2*ry + lw;               
+                    break; 
+        };
+    d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
+    d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
+    d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
+   }

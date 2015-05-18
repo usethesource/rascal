@@ -110,46 +110,74 @@ void tgrid() {render(grid(figArray=[[WB, RB], [RB, WB], [WB, RB, WB]]));}
 
 Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue", size=<10,10>)];
 
-public Figure hcat1 = hcat(figs=rgbFigs, align=topLeft);    
-void thcat1(){ render(hcat1, align = topLeft); }
-void thcatf1(loc l){ writeFile(l, toHtmlString(hcat1, align = topLeft, debug = false)); }
+public Figure hcat1 = box(align = topLeft, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=topLeft));    
+void thcat1(){ render(hcat1); }
+void thcatf1(loc l){ writeFile(l, toHtmlString(hcat1,debug = false, align = topLeft)); }
 
-public Figure hcat2 = hcat(figs=rgbFigs, align=centerMid);  
+public Figure hcat2 = box(align = topMid, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=topMid));  
 void thcat2(){ ex("hcat2", hcat2); }
 
-public Figure hcat3 = hcat(figs=rgbFigs, align=bottomMid);  
+public Figure hcat3 = box(align = topRight, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=topRight));  
 void thcat3(){ ex("hcat3", hcat3); }
 
-public Figure hcat4 = hcat(figs=rgbFigs, align=bottomMid, gap=<10,10>);
-void thcat4(){ ex("hcat4", hcat4); }
+public Figure hcat4 = box(align = centerLeft, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=centerLeft));    
+void thcat4(){ render(hcat4, align = topLeft); }
+
+public Figure hcat5 = box(align = centerMid, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=centerMid));  
+void thcat5(){ ex("hcat5", hcat5); }
+
+public Figure hcat6 = box(align =  centerRight, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=centerRight));  
+void thcat6(){ ex("hcat6", hcat6); }
+
+public Figure hcat7 = box(align = bottomLeft, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=bottomLeft));    
+void thcat7(){ render(hcat7, align = topLeft); }
+
+public Figure hcat8 = box(align = bottomMid, size=<300, 300>,   fig = hcat(figs=rgbFigs, align=bottomMid));  
+void thcat8(){ ex("hcat8", hcat8); }
+
+public Figure hcat9 = box(align = bottomRight, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=bottomRight));  
+void thcat9(){ ex("hcat9", hcat9); }
 
 // hcat in box
 
-Figure tlFigs = hcat(align=topLeft,
-					  figs = [ box(fillColor="red",size=<50,100>), 
+Figure tlFigs = hcat(align=topLeft, padding=<0, 0, 0, 0>
+ //  , borderWidth = 4, borderStyle="groove" , borderColor = "lightgrey"
+					  , figs = [ box(fillColor="red",size=<50,100>), 
 				               box(fillColor="green", size=<200,200>), 
 				               box(fillColor="blue", size=<10,10>)
 				             ]);
 
 				             
-Figure ctFigs = hcat(align=centerMid, gap=<10,10>, fillColor="lightgrey",
+Figure ctFigs = hcat(align=centerMid, gap=<10,10>, fillColor="lightgrey", 
 					  figs = [ box(fillColor="red",size=<50,100>), 
 				               box(fillColor="green", size=<200,200>), 
 				               box(fillColor="blue", size=<10,10>)
 				             ]);
 
 // public Figure hcat0 = hcat(figs= tlFigs, align=topLeft); 
+Figure hcat10 = box(lineWidth = 2, lineColor="brown", fig = hcat(figs=rgbFigs));
      
-void thcat0(){ ex("hcat0", box(width = 300, height = 400,fig=tlFigs)); } 
+void thcat10(){ ex("hcat10", hcat10); } 
 
 void tfhcat0(loc l)= writeFile(l,
-     toHtmlString(box(width = 300, height = 400, fig=tlFigs), debug = false));
+     toHtmlString(box(fig=Figs,  lineWidth = 10, lineColor= "brown"), debug = false));
      
-public Figure box_hcat1 = box(padding=<0, 0, 0, 0>, fig=tlFigs,  lineWidth = 10, lineColor= "brown", fillColor="lightgrey",align = centerMid);
-void tbox_hcat1(){ render(box_hcat1, debug = false); }
+public Figure hcat11 = 
+       box(padding=<0, 0, 0, 0>, lineWidth = 10, fillColor = "antiquewhite", lineColor = "blue"
+       ,fig= ellipse(padding=<0, 0, 0, 0>
+             ,fig=hcat(figs=rgbFigs) 
+       ,lineWidth = 10, lineColor= "brown", fillColor="lightgrey",align = centerMid
+       )
+ )
+;
 
-public Figure box_hcat2 = box(fig=tlFigs, fillColor="lightgrey", lineWidth = 20, size=<300,300>, align=topLeft);
-void tbox_hcat2(){ ex("box_hcat2", box_hcat2); }
+void tfhcat11(loc l)= writeFile(l,
+     toHtmlString(hcat11, debug = false));
+void thcat11(){ render(hcat11, debug = false);}
+
+public Figure hcat12 = box(lineColor="yellow", lineWidth = 10, fig = 
+       box(fig=hcat(figs=rgbFigs), fillColor="lightgrey", lineWidth = 20,  lineColor="brown", align=topLeft));
+void hcat12(){ ex("hcat12", hcat12); }
 
 public Figure box_hcat3 = box(fig=tlFigs, fillColor="lightgrey", size=<400,400>, align=topRight);
 void tbox_hcat3(){ ex("box_hcat3", box_hcat3); }
@@ -181,6 +209,154 @@ vcat(figs=[text("box(fig=ctFigs, fillColor=, size=\<400,400\>)"),
        ], align = topRight);
 
 void tboxt_hcat6(){ ex("boxt_hcat6", boxt_hcat6); }
+
+void hcats(){
+	ex("hcats", vcat(figs=[grid(gap=<0,0>
+	   , borderWidth = 4 , borderColor = "brown", borderStyle = "ridge" 
+	                 ,figArray=[
+							[hcat1, hcat2, hcat3],
+							[hcat4, hcat5, hcat6],
+							[hcat7, hcat8, hcat9]], align=topLeft),
+							 hcat10,
+							 hcat12,	 
+							 hcat11]					
+						  ));
+}
+
+// vcat
+
+public Figure vcat1 = box(align = topLeft, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=topLeft));    
+void tvcat1(){ render(vcat1); }
+void tvcatf1(loc l){ writeFile(l, toHtmlString(vcat1,debug = false, align = topLeft)); }
+
+public Figure vcat2 = box(align = topMid, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=topMid));  
+void tvcat2(){ ex("vcat2", vcat2); }
+
+public Figure vcat3 = box(align = topRight, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=topRight));  
+void tvcat3(){ ex("vcat3", vcat3); }
+
+public Figure vcat4 = box(align = centerLeft, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=centerLeft));    
+void tvcat4(){ render(vcat4, align = topLeft); }
+
+public Figure vcat5 = box(align = centerMid, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=centerMid));  
+void tvcat5(){ ex("vcat5", vcat5); }
+
+public Figure vcat6 = box(align =  centerRight, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=centerRight));  
+void tvcat6(){ ex("vcat6", vcat6); }
+
+public Figure vcat7 = box(align = bottomLeft, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=bottomLeft));    
+void tvcat7(){ render(vcat7, align = topLeft); }
+
+public Figure vcat8 = box(align = bottomMid, size=<300, 350>,   fig = vcat(figs=rgbFigs, align=bottomMid));  
+void tvcat8(){ ex("vcat8", vcat8); }
+
+public Figure vcat9 = box(align = bottomRight, size=<300, 350>,  fig = vcat(figs=rgbFigs, align=bottomRight));  
+void tvcat9(){ ex("vcat9", vcat9); }
+
+
+Figure vcat10 = box(lineWidth = 2, lineColor="brown", fig = vcat(figs=rgbFigs));
+     
+void tvcat10(){ ex("vcat10", vcat10); } 
+
+void tfvcat10(loc l)= writeFile(l,
+     toHtmlString(box(fig=tlFigs,  lineWidth = 10, lineColor= "brown"), debug = false));
+     
+public Figure vcat11 = 
+       box(padding=<0, 0, 0, 0>, lineWidth = 10, fillColor = "antiquewhite", lineColor = "blue"
+       ,fig= ellipse(padding=<0, 0, 0, 0>
+       ,fig=vcat(figs=rgbFigs) 
+       ,lineWidth = 10, lineColor= "brown", fillColor="lightgrey",align = centerMid
+       )
+ )
+;
+
+void tfvcat11(loc l)= writeFile(l,
+     toHtmlString(vcat11, debug = false));
+void tvcat11(){ render(vcat11, debug = false);}
+
+public Figure vcat12 = box(lineColor="yellow", lineWidth = 10, fig = 
+       box(fig=vcat(figs=rgbFigs), fillColor="lightgrey", lineWidth = 20,  lineColor="brown", align=topLeft));
+void vcat12(){ ex("vcat12", vcat12); }
+
+void vcats(){
+	ex("vcats", vcat(figs=[grid(gap=<0,0>
+	   //, borderWidth = 4 , borderColor = "brown", borderStyle = "ridge" 
+	                 ,figArray=[
+							[vcat1, vcat2, vcat3],
+							[vcat4, vcat5, vcat6],
+							[vcat7, vcat8, vcat9]], align=topLeft),
+							 vcat10,
+							 vcat12,	 
+							 vcat11]					
+						  ));
+}	
+
+// vcat in box
+
+Figure vtlFigs = vcat(align=topLeft, gap=<10,10>,
+					  figs = [ box(fillColor="red",size=<50,100>), 
+				               box(fillColor="green", size=<200,200>), 
+				               box(fillColor="blue", size=<10,10>)
+				             ]);
+				             
+Figure vctFigs = vcat(align=centerMid, gap=<0,0>,
+					  figs = [ box(fillColor="red",size=<50,100>), 
+				               box(fillColor="green", size=<200,200>), 
+				               box(fillColor="blue", size=<10,10>)
+				             ]);
+
+public Figure box_vcat1 = box(fig=vtlFigs, fillColor="grey");
+void tbox_vcat1(){ ex("box_vcat1", box_vcat1); }
+
+public Figure box_vcat2 =  box(fig=vtlFigs, size=<400,400>, align=topLeft, fillColor="grey");
+void tbox_vcat2(){ ex("box_vcat2", box_vcat2); }
+
+public Figure box_vcat3 = box(fig=vtlFigs, size=<400,400>, align=topRight, fillColor="grey");
+void tbox_vcat3(){ ex("box_vcat3", box_vcat3); }
+
+public Figure box_vcat4 = box(fig=vtlFigs, size=<400,400>, align=bottomRight, fillColor="grey");
+void tbox_vcat4(){ ex("box_vcat4", box_vcat4); }
+
+public Figure box_vcat5 = box(fig=vtlFigs, size=<400,400>, align=bottomLeft, fillColor="grey");
+void tbox_vcat5(){ ex("box_vcat5", box_vcat5); }
+
+public Figure box_vcat6 = box(fig=vctFigs, size=<400,400>, align=topLeft, fillColor="grey");
+void tbox_vcat6(){ ex("box_vcat6", box_vcat6); }
+
+public Figure box_vcat7 = box(fig=vctFigs, size=<400,400>, align=topRight, fillColor="grey");
+void tbox_vcat7(){ ex("box_vcat7", box_vcat7); }
+
+public Figure box_vcat8 = box(fig=vctFigs, size=<400,400>, align=bottomRight, fillColor="grey");
+void tbox_vcat8(){ ex("box_vcat8", box_vcat8); }
+
+public Figure box_vcat9 = box(fig=vctFigs, size=<400,400>, align=bottomLeft, fillColor="grey");
+void tbox_vcat9(){ ex("box_vcat9", box_vcat9);
+}
+
+public Figure box_vcat10 = ellipse(lineWidth=10, lineColor = "blue", fillColor = "antiquewhite"
+      , padding = <52, 52, 52, 52>
+      , fig = 
+      box(lineWidth = 10, lineColor="brown", fig=vctFigs, align=bottomLeft, 
+      fillColor="lightgrey")
+      )
+      ;
+      
+void tbox_vcat10(){ ex("box_vcat10", box_vcat10);
+}
+
+/*
+void vcats(){
+	ex("vcats", grid(gap=<10,10>, 
+	                 figArray=[
+							[vcat1, vcat2, vcat3, vcat4, box_vcat1],
+							[box_vcat2,box_vcat3,box_vcat4,box_vcat5],
+							[box_vcat6,box_vcat7,box_vcat8, box_vcat9],
+							[box_vcat10]
+							
+						  ], align=centerMid));
+}
+*/	
+
 
 /********************** grid ******************************/
 
@@ -226,15 +402,17 @@ Figure ell1 = ellipse(cx=50, cy = 90, rx = 40, ry = 80, align= centerMid,  fig=v
 void tell0(){ ex("hello", hcat(figs=[ell0, ell1], gap = <10, 10>), debug = false); }
 
 // ellipse ------------------------------------------------------------
-public Figure ellipse1 = box(fig=ellipse(rx=100, ry=75,   fillColor="lightblue"));
+public Figure ellipse1 = box(lineWidth = 2, fig=ellipse(rx=100, ry=75,   fillColor="lightblue"));
 void tellipse1(){ ex("ellipse1", ellipse1); }
 
-public Figure ellipse2 = box(fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
+void tfellipse1(loc l)  = writeFile(l, toHtmlString(ellipse1));
+
+public Figure ellipse2 = box(lineWidth = 2, fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
       fillColor="lightgrey"));
 void tellipse2(){ ex("ellipse2", ellipse2); }
 
-public Figure ellipse2a = box(lineWidth = 9, lineColor = "lightblue", 
-          fig=ellipse(rx=100, lineWidth = 9, lineColor = "antiquewhite", ry=75, 
+public Figure ellipse2a = box(lineWidth = 10, lineColor = "lightblue", 
+          fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
       fillColor="lightgrey"));
 void tellipse2a(){ ex("ellipse2a", ellipse2a); }
 
@@ -290,6 +468,9 @@ void tcircle5(){ ex("circle5", circle5); }
 
 public Figure circle6 = box(lineColor="red", lineWidth=1, fig=circle(fillColor="lightblue", r=100, lineWidth=10, lineColor="silver"));
 void tcircle6(){ ex("circle6", circle6); }
+
+public Figure circle7 = box(lineColor="red", lineWidth=5, fig=box(fillColor="black", width=200, height = 100, lineWidth=0, lineColor="silver"));
+void tcircle7(){ ex("circle7", circle7); }
 
 void circles() {
    ex("circles", vcat(align=bottomRight, figs=[circle1, circle2, circle3, circle4, circle5, circle6]), debug = false);
@@ -484,7 +665,9 @@ num(num) gg(num a) = num(num x) {return a*x*x;};
 
 num g1(num x) = x*x;
 
-void tshape0() {render(plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1]));}
+Figure shape0 = plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1]);
+
+void tshape0() {render(shape0);}
 
 void tfshape0(loc f ) {writeFile(f, toHtmlString(plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1])));}
 
@@ -529,33 +712,107 @@ void tshape7(){	ex("shape7", shape7); }
 
 // SVG Essentials, p95.
 
-public Figure fillRule1 = grid(fillColor="yellow",
+public Figure fillRule1 = grid(fillColor="antiquewhite",
 						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="nonzero", fillColor = "grey"),
+						                 startMarker=ngon(n=3, r=10 ,fillColor="red"),     
+										 endMarker=ngon(n=3, r =10,fillColor="green"),
+					                     shapeClosed=true, fillEvenOdd=false, fillColor = "grey"),
 					           
-					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
-					                       shapeClosed=true, fillRule="nonzero", fillColor = "grey")
+					                 shape([line(0,0), line(0, 60), line(60,60), line(60, 0), move(15,15), line(15,45), line(45,45), line(45, 15)],
+					                       startMarker=ngon(n=3, r=10 ,fillColor="red"),     
+										   endMarker=ngon(n=3, r =10,fillColor="green"), 	// clockwise/counter clockwise
+					                       shapeClosed=true, fillEvenOdd=false, fillColor = "grey")
 					               ],
 					               
 					               [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"),
+					                      startMarker=ngon(n=3, r=10 ,fillColor="red"),     
+										  endMarker=ngon(n=3, r =10,fillColor="green"),
+					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey"),
 					           
-					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
-					                       shapeClosed=true, fillRule="evenodd", fillColor = "grey")
+					                 shape([line(0,0), line(0, 60), line(60,60), line(60,0), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
+					                       startMarker=ngon(n=3, r=10 ,fillColor="red"),     
+										   endMarker=ngon(n=3, r =10,fillColor="green"),
+					                       shapeClosed=true, fillEvenOdd=true, fillColor = "grey")
 					               ] ]);
 void tfillRule1(){ ex("fillRule1", fillRule1); }
+
+void tfill(loc l) = writeFile(l, toHtmlString(fillRule1));
 
 void shapes(){
 	ex("shapes", grid(gap=<10,10>,
 					figArray=[ [shape1, shape2, shape3, shape4, shape5 ],
-							   [shape6, shape7, fillRule1]
+							   [shape6, shape7, fillRule1],
+							   [shape0]
 							 ]));
 
 }
 
+// ------------------------------------  TO DO  --------------------------------
 
-// hcat  
-  
+public Figure hflex1 = hcat(size = <200,200>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+
+void thflex1(){	ex("hflex1", hflex1); }
+
+public Figure hflex2 = hcat(size = <200,200>,
+					        figs = [ box(fillColor="red", height=10), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+void thflex2(){	ex("hflex2", hflex2); }
+
+public Figure hflex3 = hcat(size = <200,200>,
+					        figs = [ box(fillColor="red", width=10), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+void thflex3(){	ex("hflex3", hflex3); }	
+
+public Figure hflex4 = hcat(size = <200,200>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue")
+				                   ]);
+void thflex4(){	ex("hflex4", hflex4); }
+
+public Figure hflex5 = hcat(size = <400,400>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue")
+				                   ]);
+void thflex5(){ ex("hflex5", hflex5); }						               
+
+	
+
+ 
+
+// grid flex
+
+void gflex1(){
+	ex("gflex1", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", width=50), box(fillColor="blue")],
+				                  [box(fillColor="yellow", height=50), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
+}
+
+void gflex2(){
+	ex("gflex2", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", size=<50,50>), box(fillColor="blue")],
+				                  [box(fillColor="yellow", height=50), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
+}
+
+void gflex3(){
+	ex("gflex3", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", size=<50,50>, align=topRight), box(fillColor="blue")],
+				                  [box(fillColor="yellow", size=<50,50>, align=bottomLeft), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
+}
+
+// ------------------------------------------------------------------------------ 
 
 Figure scrabbleField = box(fillColor="antiqueWhite", size=<20,20>, lineColor = "green", lineWidth=1);
 

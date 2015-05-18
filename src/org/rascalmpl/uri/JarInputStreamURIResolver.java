@@ -14,6 +14,7 @@ package org.rascalmpl.uri;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -24,12 +25,12 @@ public class JarInputStreamURIResolver extends JarURIResolver {
   private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
   private final ISourceLocation jarURI;
   private final String scheme;
-  private final JarInputStreamTreeHierachy index;
+  private SoftReference<JarInputStreamTreeHierachy> index;
 
   public JarInputStreamURIResolver(ISourceLocation jarURI) throws IOException {
     this.jarURI = jarURI;
     scheme = "jarstream+" + UUID.randomUUID();
-    index = new JarInputStreamTreeHierachy(getJarStream());
+    index = new SoftReference<>(new JarInputStreamTreeHierachy(getJarStream()));
   }
 
   @Override
@@ -51,7 +52,17 @@ public class JarInputStreamURIResolver extends JarURIResolver {
 
   @Override
   protected JarTreeHierachy getFileHierchyCache(File jar) {
-    return index;
+    JarInputStreamTreeHierachy result = index.get();
+    if (result ==null) {
+      try {
+        result = new JarInputStreamTreeHierachy(getJarStream());
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e); // shouldn't happen
+      } 
+      index = new SoftReference<>(result);
+    }
+    return result;
   }
 
   public InputStream getJarStream() throws IOException {
@@ -60,7 +71,7 @@ public class JarInputStreamURIResolver extends JarURIResolver {
 
 
   private JarEntry getEntry(JarInputStream stream, ISourceLocation subPath) throws IOException {
-    int pos = index.getPosition(getPath(subPath));
+    int pos = ((JarInputStreamTreeHierachy)getFileHierchyCache(new File(subPath.getPath()))).getPosition(getPath(subPath));
 
     if (pos != -1) {
       JarEntry entry;
