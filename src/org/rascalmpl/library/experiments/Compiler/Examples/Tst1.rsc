@@ -1,8 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-layout L = [\ ]*;
-start syntax P = "program";
+data F = f(F, F) | g(F, F) | i(int i);
 
-test bool topField() = P _ := ([start[P]] " program ").top;
-
-test bool hasTop() = ([start[P]] " program ") has top;
+test bool nodeGenerator13() = [N | /int N <- f(i(1),g(i(2),i(3)))] == [1,2,3];
