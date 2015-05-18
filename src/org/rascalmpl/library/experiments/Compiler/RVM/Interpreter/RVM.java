@@ -1734,23 +1734,18 @@ public class RVM implements java.io.Serializable {
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException e) {
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} 
+		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
 				throw (Throw) e.getTargetException();
 			}
 			if(e.getTargetException() instanceof Thrown){
 				throw (Thrown) e.getTargetException();
 			}
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return sp;
 	}

@@ -3024,8 +3024,8 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			IConstructor treeSubject = (IConstructor) stack[sp - 1];
-			stack[sp - 1] = vf.bool(TreeAdapter.isTree(treeSubject) && TreeAdapter.isAppl((ITree) treeSubject));
+			IValue treeSubject = (IValue) stack[sp - 1];
+			stack[sp - 1] = vf.bool(treeSubject instanceof IConstructor && TreeAdapter.isTree((IConstructor) treeSubject) && TreeAdapter.isAppl((ITree) treeSubject));
 			return sp;
 		}	
 	},
