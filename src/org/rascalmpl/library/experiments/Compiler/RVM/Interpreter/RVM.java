@@ -1749,7 +1749,7 @@ public class RVM implements java.io.Serializable {
 //		return sp;
 	}
 	
-	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
