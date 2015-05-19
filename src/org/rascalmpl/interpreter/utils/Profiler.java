@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,10 +25,9 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
@@ -56,29 +55,36 @@ class Count {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Count other = (Count) obj;
-		if (ticks != other.ticks)
+		if (ticks != other.ticks) {
 			return false;
+		}
 		return true;
 	}
-	
 }
 
 public class Profiler extends Thread {
 	private Evaluator eval;
-	private HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
+	private final Map<ISourceLocation,Count> ast;
+	private final Map<ISourceLocation, Count> frame;
+	private final Map<ISourceLocation, String> names;
 	
 	public Profiler(Evaluator ev){
 		this.eval = ev;
-		this.data = new HashMap<ISourceLocation,Count>();
+		this.ast = new HashMap<>();
+		this.frame = new HashMap<>();
+		this.names = new HashMap<>();
 		running = true;
 	}
 	
@@ -86,20 +92,37 @@ public class Profiler extends Thread {
 	public void run(){
 		while(running) {
 			AbstractAST current = eval.getCurrentAST();
+			Environment env = eval.getCurrentEnvt();
+			String name = env.getName();
+			
 			if (current != null) {
 				ISourceLocation stat = current.getLocation();
 				if(stat != null){
-					Count currentCount = data.get(stat);
-					if(currentCount == null)
-						data.put(stat, new Count());
-					else
+					Count currentCount = ast.get(stat);
+					if (currentCount == null) {
+						ast.put(stat, new Count());
+						names.put(stat, name);
+					} else {
 						currentCount.increment();
+					}
+				}
+				while (env.getParent() != null && !env.getParent().isRootScope()) {
+					env = env.getParent();
+				}
+				if (env != null) {
+					Count currentCount = frame.get(env.getLocation());
+					if (currentCount == null) {
+						frame.put(env.getLocation(), new Count());
+						names.put(env.getLocation(), env.getName());
+					}
+					else {
+						currentCount.increment();
+					}
 				}
 			}
 			try {
 				sleep(resolution);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -113,7 +136,7 @@ public class Profiler extends Thread {
 	 * sort it with descending tick values.
 	 */
 	
-	private List<Map.Entry<ISourceLocation, Count>> sortData(){
+	private List<Map.Entry<ISourceLocation, Count>> sortData(Map<ISourceLocation,Count> data) {
 	  List<Map.Entry<ISourceLocation, Count>> sortedData = new Vector<Entry<ISourceLocation, Count>>(data.entrySet());
 
 	  java.util.Collections.sort(sortedData, new Comparator<Map.Entry<ISourceLocation, Count>>(){
@@ -126,42 +149,49 @@ public class Profiler extends Thread {
 	}
 	
 	public IList getProfileData(){
-		TypeFactory TF = TypeFactory.getInstance();
-		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		IListWriter w = VF.listWriter(elemType);
-		for(Map.Entry<ISourceLocation, Count> e : sortData()){
+		IListWriter w = VF.listWriter();
+		for(Map.Entry<ISourceLocation, Count> e : sortData(ast)){
 			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
 		}
 		return w.done();
 	}
 	
 	public void report() {
-	  List<Map.Entry<ISourceLocation, Count>> sortedData = sortData();
+		report("FRAMES", frame);
+		eval.getStdOut().println();
+		report("ASTS", ast);
+	}
+	
+	private void report(String title, Map<ISourceLocation, Count> data) {
+	  List<Map.Entry<ISourceLocation, Count>> sortedData = sortData(data);
 
-	  int maxURL = 1;
+	  int maxName = 1;
 	  long nTicks = 0;
 
 	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
-	    int sz = e.getKey().getURI().toString().length();
-	    if(sz > maxURL)
-	      maxURL = sz;
+	    int sz = names.get(e.getKey()).length();
+	    if(sz > maxName) {
+	      maxName = sz;
+	    }
 	    nTicks += e.getValue().getTicks();
 	  }
+	  
 	  PrintWriter out = eval.getStdOut();
-	  String URLFormat = "%" + maxURL + "s";
-	  out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
-	  out.printf(URLFormat + "%8s%9s  %s\n", " Source File", "Ticks", "%", "Source");
+	  String nameFormat = "%" + maxName + "s";
+	  out.printf(title + " PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", ast.size(), nTicks, resolution);
+	  out.printf(nameFormat + "%8s%9s  %s\n", " Scope", "Ticks", "%", "Source");
 
-	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
+	  for (Map.Entry<ISourceLocation, Count> e : sortedData) {
 	    String L = e.getKey().getURI().toString();
-
+	    String name = names.get(e.getKey());
+	    
 	    int ticks = e.getValue().getTicks();
 	    double perc = (ticks * 100.0)/nTicks;
+	    
+	    String source = String.format("%s", L);
 
-	    String source = String.format("%s", e.getKey().toString());
-
-	    out.printf(URLFormat + "%8d%8.1f%%  %s\n", L, ticks, perc, source);
+	    out.printf(nameFormat + "%8d%8.1f%%  %s\n", name, ticks, perc, source);
 	  }
 	  
 	  // Make sure that our output is seen:
