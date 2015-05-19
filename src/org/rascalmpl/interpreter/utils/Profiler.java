@@ -183,11 +183,15 @@ public class Profiler extends Thread {
 	  out.printf(nameFormat + "%8s%9s  %s\n", " Scope", "Ticks", "%", "Source");
 
 	  for (Map.Entry<ISourceLocation, Count> e : sortedData) {
-	    String L = e.getKey().getURI().toString();
+	    String L = e.getKey().toString();
 	    String name = names.get(e.getKey());
 	    
 	    int ticks = e.getValue().getTicks();
 	    double perc = (ticks * 100.0)/nTicks;
+	    
+	    if (perc < 1.0) {
+	    	break;
+	    }
 	    
 	    String source = String.format("%s", L);
 
