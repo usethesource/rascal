@@ -50,11 +50,11 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 bool checkModuleOK(loc moduleToCheck){
 	c = newConfiguration();							// Copied from checkStatementsString
 	try {
-		pt = parse(#start[Module],moduleToCheck);
+		pt = parse(#start[Module], moduleToCheck);
 		if (pt has top && Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
-			c = addScopeError(c, "Unexpected parse result for module to check", moduleToCheck); 
+			c = addScopeError(c, "Unexpected parse result for module to check: <pt>", moduleToCheck); 
 		}
 	} catch perror : {
 		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleToCheck);

@@ -44,7 +44,7 @@ test bool makeNode4() {node n = makeNode("f", 1, 2, 3); return getName(n) == "f"
 /*TODO: clean up tmp */
 
 private bool textWriteRead(type[&T] typ, str termString, value termValue){
-   tmp = |file:///tmp/xxx|;
+   tmp = |tmp:///xxx|; 
    writeFile(tmp, termString);
    try {
         if(readTextValueFile(typ, tmp) == termValue) return true;
