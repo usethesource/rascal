@@ -711,24 +711,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return call(qualifiedName, kwArgs, args);
 	}
 	
-  public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
-    OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
-		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-    
+	public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
+		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 		Type[] types = new Type[args.length];
 
 		int i = 0;
 		for (IValue v : args) {
-			Type type = v.getType();
-      types[i++] = type.isSubtypeOf(RascalValueFactory.Tree) ? rtf.nonTerminalType((IConstructor) v) : type;
+			types[i++] = v.getType();
 		}
-		
+
 		if (func == null) {
 			throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
 		}
 
 		return func.call(getMonitor(), types, args, kwArgs).getValue();
-  }
+	}
 	
 	
 	
