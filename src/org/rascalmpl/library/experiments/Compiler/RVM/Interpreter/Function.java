@@ -147,28 +147,38 @@ public class Function implements Serializable {
 	}
 	
 	public void attachExceptionTable(final IList exceptions, final RascalLinker rascalLinker) {
-		froms = new int[exceptions.length()];
-		tos = new int[exceptions.length()];
-		types = new int[exceptions.length()];
-		handlers = new int[exceptions.length()];
-		fromSPs = new int[exceptions.length()];
-		
-		int i = 0;
-		for(IValue entry : exceptions) {
-			ITuple tuple = (ITuple) entry;
-			String from = ((IString) tuple.get(0)).getValue();
-			String to = ((IString) tuple.get(1)).getValue();
-			Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
-			String handler = ((IString) tuple.get(3)).getValue();
-			int fromSP =  ((IInteger) tuple.get(4)).intValue();
-			
-			froms[i] = codeblock.getLabelPC(from);
-			tos[i] = codeblock.getLabelPC(to);
-			types[i] = codeblock.getTypeConstantIndex(type);
-			handlers[i] = codeblock.getLabelPC(handler);	
-			fromSPs[i] = fromSP;
-			i++;
-		}
+			froms = new int[exceptions.length()];
+			tos = new int[exceptions.length()];
+			types = new int[exceptions.length()];
+			handlers = new int[exceptions.length()];
+			fromSPs = new int[exceptions.length()];
+			fromSPsCorrected = new int[exceptions.length()];
+
+			fromLabels = new String[exceptions.length()];
+			toLabels = new String[exceptions.length()];
+			handlerLabels = new String[exceptions.length()];
+					
+			int i = 0;
+			for(IValue entry : exceptions) {
+				ITuple tuple = (ITuple) entry;
+				String from = ((IString) tuple.get(0)).getValue();
+				String to = ((IString) tuple.get(1)).getValue();
+				Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
+				String handler = ((IString) tuple.get(3)).getValue();
+				int fromSP =  ((IInteger) tuple.get(4)).intValue();
+				
+				froms[i] = codeblock.getLabelPC(from);
+				tos[i] = codeblock.getLabelPC(to);
+				types[i] = codeblock.getTypeConstantIndex(type);
+				handlers[i] = codeblock.getLabelPC(handler);	
+				fromSPs[i] = fromSP;
+				fromSPsCorrected[i] = fromSP + nlocals;
+				fromLabels[i] = from;
+				toLabels[i] = to;
+				handlerLabels[i] = handler;			
+
+				i++;
+			}
 	}
 	
 	public int getHandler(final int pc, final Type type) {
