@@ -102,13 +102,11 @@ bool isSubset(set[set[&T]] candidate, set[&T] s ) {
          return false;
      }   
 
-set[&Attribute] sigma(FormalContext[&Object, &Attribute] fc, set[&Object] objects) {
-      return isEmpty(objects)?fc<1>:intersection({{y|<x,y><-fc}| x <- objects});
-      }
+set[&Attribute] sigma(FormalContext[&Object, &Attribute] fc, set[&Object] objects)
+	= objects == {} ? fc<1> : { a | a <- fc<1>, all(obj <- objects, <obj,a> in fc)};
       
-set[&Object] tau(FormalContext[&Object, &Attribute] fc, set[&Attributes] attributes) {
-      return isEmpty(attributes)?fc<0>:intersection({{x|<x,y><-fc}|y <- attributes});
-      }
+set[&Object] tau(FormalContext[&Object, &Attribute] fc, set[&Attributes] attributes) 
+	= attributes == {} ? fc<0> : { ob | ob <- fc<0>, all(a <- attributes, <ob, a> in fc)};
       
 set[set[&T]] maxincl(set[set[&T]] c) {return {s|set[&T] s <- c, !isSubset(c, s)};}
 
