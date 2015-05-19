@@ -10,6 +10,10 @@ public class CompilerError extends RuntimeException {
 		super(msg);
 	}
 	
+	public CompilerError(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+
 	public CompilerError(String msg, Frame currentFrame) {
 		super(msg);
 		printStackTrace(currentFrame, new PrintWriter(System.out));
@@ -19,6 +23,7 @@ public class CompilerError extends RuntimeException {
 		super(msg);
 		printStackTrace(currentFrame, out);
 	}
+	
 	
 	public void printStackTrace(Frame currentFrame, PrintWriter stdout) {
 		
