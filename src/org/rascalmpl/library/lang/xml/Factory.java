@@ -9,7 +9,7 @@
 
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.xml;
+package org.rascalmpl.library.lang.xml;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
