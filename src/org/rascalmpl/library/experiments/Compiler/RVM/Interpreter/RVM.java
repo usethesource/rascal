@@ -44,7 +44,6 @@ import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.uptr.ITree;
 
 
 public class RVM implements java.io.Serializable {
@@ -1225,7 +1224,7 @@ public class RVM implements java.io.Serializable {
 						//int sp1 = sp;
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					    //assert sp == sp1 - arity + 1;
-					} catch(Throw e) {
+					} catch (Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
@@ -1233,10 +1232,9 @@ public class RVM implements java.io.Serializable {
 						stacktrace.add(cf);
 						thrown = e;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-					} catch (Exception e){
-						e.printStackTrace(stderr);
-						stderr.flush();
-						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
+					} catch (Throwable e){
+						thrown = Thrown.getInstance(e, cf.src, cf);
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} 
 					
 					continue NEXT_INSTRUCTION;
@@ -1695,7 +1693,7 @@ public class RVM implements java.io.Serializable {
 		} 
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
 		Class<?> clazz = null;
 		try {
 			clazz = getJavaClass(className);
@@ -1735,8 +1733,7 @@ public class RVM implements java.io.Serializable {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new CompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
@@ -1745,9 +1742,11 @@ public class RVM implements java.io.Serializable {
 			if(e.getTargetException() instanceof Thrown){
 				throw (Thrown) e.getTargetException();
 			}
+			
+			throw e.getTargetException();
 //			e.printStackTrace();
 		}
-		return sp;
+//		return sp;
 	}
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
