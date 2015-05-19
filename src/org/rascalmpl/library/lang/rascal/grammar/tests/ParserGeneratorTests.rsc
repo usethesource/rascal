@@ -527,16 +527,16 @@ grammar(
  
 test bool tstNewGenerateGEMPTY() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY), 
-		      readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
+		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
 		      
 test bool tstNewGenerateG0() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "G0Parser", G0), 
-	          readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
+	          readFile(|std:///lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
 	          
 test bool tstNewGenerateGEXP() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP), 
-	readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
+	readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
 	
 test bool tstNewGenerateGEXPPRIO() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPPRIOParser", GEXPPRIO), 
-		      readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));
+		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));
