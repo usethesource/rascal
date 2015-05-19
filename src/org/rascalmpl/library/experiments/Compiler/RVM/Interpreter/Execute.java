@@ -88,12 +88,12 @@ public class Execute {
 		RVMExecutable executable2 = null;
 	
 		executable.write(rvmExecutable);
-				
-		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-		executable2 = RVMExecutable.read(rvmExecutable);
-		if(!executable.comparable(executable2)){
-			System.err.println("RVMExecutables differ");
-		}
+//				
+//		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
+//		executable2 = RVMExecutable.read(rvmExecutable);
+//		if(!executable.comparable(executable2)){
+//			System.err.println("RVMExecutables differ");
+//		}
 		
 		/*** Start execution */
 		
