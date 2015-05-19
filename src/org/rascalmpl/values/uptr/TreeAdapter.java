@@ -458,7 +458,7 @@ public class TreeAdapter {
 
 				if (childLoc.getOffset() <= offset
 						&& offset < childLoc.getOffset() + childLoc.getLength()) {
-					ITree result = locateAnnotatedITree((ITree) child, label, offset);
+					ITree result = locateAnnotatedTree((ITree) child, label, offset);
 
 					if (result != null) {
 						return result;
