@@ -200,7 +200,7 @@ private str resolveLibOverriding(str lib){
 	if(lib in getOverriddenlibs()) return "<lib>Compiled";
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |project://rascal/src/org/rascalmpl/library/| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    rlib2 = |std:///| + "<replaceAll(rlib1, ".", "/")>Compiled.class";
     
     println("rlib1 = <rlib1>, rlib2 = <rlib2>");
   
