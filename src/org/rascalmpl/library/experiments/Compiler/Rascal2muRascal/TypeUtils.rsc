@@ -800,10 +800,11 @@ public MuExp mkCallToLibFun(str modName, str fname)
 
 // Generate a MuExp to access a variable
 
-// Sort available overloading alternatives as follows:
-// First non-default (inner scope first, most recent first), then defaults (also most inner scope firsts, then recent first).
+// Sort available overloading alternatives as follows (trying to maintain good compatibility with the interpreter):
+// - First non-default functions (inner scope first, most recent last), 
+// - then default functions (also most inner scope first, then most recent last).
 
-bool funFirst(int n, int m) = funInnerScope(n,m) || n > m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = funInnerScope(n,m) || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
@@ -822,15 +823,15 @@ public list[UID] sortFunctionsByRecentScope(list[UID] funs){
 public set[UID] accessibleScopes(loc luse) {
 //println("containmentPlus = <containmentPlus>");
 	 return {0, 1} +
-     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], //av has containedIn, av has at
-               (  blockScope(int scope, loc l) := av 
-               || booleanScope(int scope, loc l) := av
-               || function(_,_,_, _, int scope, _, _, loc l) := av
-               || constructor(_,_,_,int scope, loc l) := av
-               || label(_,functionLabel(), int scope, loc l) := av
-               || closure(_,_, int scope, loc l)  := av
-               || \module(_, loc l) := av
-               )
+     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
+               //(  blockScope(int scope, loc l) := av 
+               //|| booleanScope(int scope, loc l) := av
+               //|| function(_,_,_, _, int scope, _, _, loc l) := av
+               //|| constructor(_,_,_,int scope, loc l) := av
+               //|| label(_,functionLabel(), int scope, loc l) := av
+               //|| closure(_,_, int scope, loc l)  := av
+               //|| \module(_, loc l) := av
+               //)
                , luse < av.at || av.at.path != luse.path
                };
 } 
