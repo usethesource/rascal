@@ -1880,7 +1880,7 @@ public class RVM implements java.io.Serializable {
 		@Override
 		public Class<?> visitNonTerminal(RascalType type)
 				throws RuntimeException {
-			return ITree.class;
+			return IConstructor.class;
 		}
 		
 		@Override
