@@ -430,7 +430,7 @@ public class TreeAdapter {
 	/**
 	 * This finds the most specific (smallest) annotated tree which has its yield around the given offset.
 	 */
-	public static ITree locateAnnotatedITree(ITree tree, String label, int offset) {
+	public static ITree locateAnnotatedTree(ITree tree, String label, int offset) {
 		ISourceLocation l = TreeAdapter.getLocation(tree);
 
 		if (l == null) {
