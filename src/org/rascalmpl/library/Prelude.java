@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
@@ -3022,12 +3023,12 @@ public class Prelude {
       return s.toReal();
   }
 	
-	public IString toBase64(IString in) {
-		return values.string(new String(Base64.getEncoder().encode(in.getValue().getBytes())));
+	public IString toBase64(IString in) throws UnsupportedEncodingException {
+      return values.string(Base64.getEncoder().encodeToString(in.getValue().getBytes("UTF8")));
 	}
 	
-	public IString fromBase64(IString in) {
-		return values.string(new String(Base64.getDecoder().decode(in.getValue().getBytes())));
+	public IString fromBase64(IString in) throws UnsupportedEncodingException {
+		return values.string(new String(Base64.getDecoder().decode(in.getValue()), "UTF8"));
 	}
 
 	public IValue toLowerCase(IString s)
