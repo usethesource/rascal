@@ -117,6 +117,39 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
+	private static final class CourseResolver extends FileURIResolver {
+		private final String courseSrc;
+
+		private CourseResolver(String courseSrc) {
+			this.courseSrc = courseSrc;
+		}
+
+		@Override
+		public String scheme() {
+		  return "courses";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+		  String path = uri.getPath();
+		  return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		}
+	}
+
+	private static final class TestModuleResolver extends TempURIResolver {
+		@Override
+		public String scheme() {
+		  return "test-modules";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+		  String path = uri.getPath();
+		  path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		  return System.getProperty("java.io.tmpdir") + path;
+		}
+	}
+
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
@@ -249,18 +282,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
 		final String courseSrc = System.getProperty("rascal.courses");
 		if (courseSrc != null) {
-		   FileURIResolver fileURIResolver = new FileURIResolver() {
-		    @Override
-		    public String scheme() {
-		      return "courses";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		    }
-		  };
+		   FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
 		  
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
@@ -268,19 +290,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		FileURIResolver testModuleResolver = new TempURIResolver() {
-		    @Override
-		    public String scheme() {
-		      return "test-modules";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-		      return System.getProperty("java.io.tmpdir") + path;
-		    }
-		  };
+		FileURIResolver testModuleResolver = new TestModuleResolver();
 		  
 		  resolverRegistry.registerInputOutput(testModuleResolver);
 		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
