@@ -45,9 +45,9 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected ISourceLocation src;
 	protected Map<String, IValue> annotations;
 	protected Type _type = null;
-	protected final TypeFactory TF = TypeFactory.getInstance();
-	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected static final TypeFactory TF = TypeFactory.getInstance();
+	protected static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected IMatchingResult matcher;
 	
 	AbstractAST() {
