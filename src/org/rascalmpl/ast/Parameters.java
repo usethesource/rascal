@@ -82,7 +82,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 983 * formals.hashCode() + 811 * keywordFormals.hashCode() ; 
+      return 331 + 613 * formals.hashCode() + 977 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -150,7 +150,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 499 * formals.hashCode() + 101 * keywordFormals.hashCode() ; 
+      return 773 + 859 * formals.hashCode() + 619 * keywordFormals.hashCode() ; 
     } 
   
     

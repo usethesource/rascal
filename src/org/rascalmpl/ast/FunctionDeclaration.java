@@ -112,7 +112,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 653 * tags.hashCode() + 421 * visibility.hashCode() + 877 * signature.hashCode() ; 
+      return 239 + 577 * tags.hashCode() + 443 * visibility.hashCode() + 257 * signature.hashCode() ; 
     } 
   
     
@@ -195,7 +195,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 863 * tags.hashCode() + 751 * visibility.hashCode() + 37 * signature.hashCode() + 449 * expression.hashCode() + 523 * conditions.hashCode() ; 
+      return 947 + 911 * tags.hashCode() + 103 * visibility.hashCode() + 491 * signature.hashCode() + 751 * expression.hashCode() + 827 * conditions.hashCode() ; 
     } 
   
     
@@ -294,7 +294,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 179 * tags.hashCode() + 929 * visibility.hashCode() + 317 * signature.hashCode() + 881 * body.hashCode() ; 
+      return 223 + 349 * tags.hashCode() + 739 * visibility.hashCode() + 607 * signature.hashCode() + 3 * body.hashCode() ; 
     } 
   
     
@@ -384,7 +384,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 563 * tags.hashCode() + 5 * visibility.hashCode() + 883 * signature.hashCode() + 229 * expression.hashCode() ; 
+      return 757 + 157 * tags.hashCode() + 157 * visibility.hashCode() + 263 * signature.hashCode() + 773 * expression.hashCode() ; 
     } 
   
     

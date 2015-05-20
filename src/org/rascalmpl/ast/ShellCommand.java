@@ -78,7 +78,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 ; 
+      return 457 ; 
     } 
   
     	
@@ -126,7 +126,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 571 * name.hashCode() ; 
+      return 71 + 659 * name.hashCode() ; 
     } 
   
     
@@ -181,7 +181,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 ; 
+      return 41 ; 
     } 
   
     	
@@ -227,7 +227,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 ; 
+      return 599 ; 
     } 
   
     	
@@ -273,7 +273,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 ; 
+      return 467 ; 
     } 
   
     	
@@ -319,7 +319,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 587 ; 
+      return 317 ; 
     } 
   
     	
@@ -365,7 +365,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 ; 
+      return 977 ; 
     } 
   
     	
@@ -415,7 +415,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 983 * name.hashCode() + 149 * expression.hashCode() ; 
+      return 659 + 421 * name.hashCode() + 631 * expression.hashCode() ; 
     } 
   
     
@@ -479,7 +479,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 ; 
+      return 349 ; 
     } 
   
     	
@@ -527,7 +527,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 919 * name.hashCode() ; 
+      return 997 + 829 * name.hashCode() ; 
     } 
   
     
@@ -584,7 +584,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 383 * name.hashCode() ; 
+      return 317 + 109 * name.hashCode() ; 
     } 
   
     

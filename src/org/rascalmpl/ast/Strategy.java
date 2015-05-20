@@ -64,7 +64,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 ; 
+      return 593 ; 
     } 
   
     	
@@ -110,7 +110,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 ; 
+      return 271 ; 
     } 
   
     	
@@ -156,7 +156,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 ; 
+      return 263 ; 
     } 
   
     	
@@ -202,7 +202,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 ; 
+      return 389 ; 
     } 
   
     	
@@ -248,7 +248,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 ; 
+      return 941 ; 
     } 
   
     	
@@ -294,7 +294,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 ; 
+      return 757 ; 
     } 
   
     	

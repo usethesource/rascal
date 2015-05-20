@@ -64,7 +64,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 ; 
+      return 107 ; 
     } 
   
     	
@@ -110,7 +110,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 ; 
+      return 947 ; 
     } 
   
     	
@@ -156,7 +156,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 761 ; 
+      return 823 ; 
     } 
   
     	
@@ -202,7 +202,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 811 ; 
     } 
   
     	
@@ -248,7 +248,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 ; 
+      return 509 ; 
     } 
   
     	
@@ -294,7 +294,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 ; 
+      return 83 ; 
     } 
   
     	
@@ -340,7 +340,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 ; 
+      return 487 ; 
     } 
   
     	
@@ -386,7 +386,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 997 ; 
     } 
   
     	
@@ -432,7 +432,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 ; 
+      return 107 ; 
     } 
   
     	
@@ -478,7 +478,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 ; 
+      return 337 ; 
     } 
   
     	
@@ -524,7 +524,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 ; 
+      return 173 ; 
     } 
   
     	
@@ -570,7 +570,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 ; 
+      return 487 ; 
     } 
   
     	
@@ -616,7 +616,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 ; 
+      return 263 ; 
     } 
   
     	
@@ -662,7 +662,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 ; 
+      return 809 ; 
     } 
   
     	
@@ -708,7 +708,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 ; 
+      return 769 ; 
     } 
   
     	
@@ -754,7 +754,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 ; 
+      return 991 ; 
     } 
   
     	
@@ -800,7 +800,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 ; 
+      return 401 ; 
     } 
   
     	
@@ -846,7 +846,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 ; 
+      return 373 ; 
     } 
   
     	
@@ -892,7 +892,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 ; 
+      return 719 ; 
     } 
   
     	
