@@ -646,6 +646,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return ITree.super.asAnnotatable();
+		}
+		 
+		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeChar(this);
 		}
@@ -794,11 +799,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean declaresAnnotation(TypeStore store, String label) {
 			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			throw new UnsupportedOperationException();
 		}
 
 		@Override
