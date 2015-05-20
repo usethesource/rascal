@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Parameters extends AbstractAST {
-  public Parameters(IConstructor node) {
-    super();
+  public Parameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Parameters extends AbstractAST {
   }
 
   static public class Default extends Parameters {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -81,7 +82,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 769 * formals.hashCode() + 743 * keywordFormals.hashCode() ; 
+      return 313 + 61 * formals.hashCode() + 109 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -106,22 +107,23 @@ public abstract class Parameters extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(formals), clone(keywordFormals));
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
     }
+            
   }
   public boolean isVarArgs() {
     return false;
   }
 
   static public class VarArgs extends Parameters {
-    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public VarArgs(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -148,7 +150,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 941 * formals.hashCode() + 881 * keywordFormals.hashCode() ; 
+      return 79 + 811 * formals.hashCode() + 907 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -173,7 +175,8 @@ public abstract class Parameters extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(formals), clone(keywordFormals));
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
     }
+            
   }
 }

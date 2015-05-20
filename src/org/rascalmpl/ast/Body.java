@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Body extends AbstractAST {
-  public Body(IConstructor node) {
-    super();
+  public Body(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Body extends AbstractAST {
   }
 
   static public class Toplevels extends Body {
-    // Production: sig("Toplevels",[arg("java.util.List\<org.rascalmpl.ast.Toplevel\>","toplevels")])
+    // Production: sig("Toplevels",[arg("java.util.List\<org.rascalmpl.ast.Toplevel\>","toplevels")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Toplevel> toplevels;
   
-    public Toplevels(IConstructor node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
-      super(node);
+    public Toplevels(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
+      super(src, node);
       
       this.toplevels = toplevels;
     }
@@ -72,7 +73,7 @@ public abstract class Body extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 401 * toplevels.hashCode() ; 
+      return 673 + 137 * toplevels.hashCode() ; 
     } 
   
     
@@ -88,7 +89,8 @@ public abstract class Body extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(toplevels));
+      return newInstance(getClass(), src, (IConstructor) null , clone(toplevels));
     }
+            
   }
 }

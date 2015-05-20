@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Assignable;
@@ -56,9 +57,9 @@ import org.rascalmpl.interpreter.utils.Names;
 public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Append extends org.rascalmpl.ast.Statement.Append {
-		public Append(IConstructor node, DataTarget __param2,
+		public Append(ISourceLocation src, IConstructor node, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
-			super(node, __param2, __param3);
+			super(src, node, __param2, __param3);
 		}
 		
 		protected Accumulator getTarget(IEvaluator<Result<IValue>> __eval) {
@@ -121,8 +122,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Assert extends org.rascalmpl.ast.Statement.Assert {
 
-		public Assert(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
-			super(__param1, __param2);
+		public Assert(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -152,10 +153,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class AssertWithMessage extends
 			org.rascalmpl.ast.Statement.AssertWithMessage {
 
-		public AssertWithMessage(IConstructor __param1,
+		public AssertWithMessage(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -188,10 +189,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class Assignment extends
 			org.rascalmpl.ast.Statement.Assignment {
 
-		public Assignment(IConstructor __param1, Assignable __param2,
+		public Assignment(ISourceLocation __param1, IConstructor tree, Assignable __param2,
 				org.rascalmpl.ast.Assignment __param3,
 				org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -215,8 +216,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Break extends org.rascalmpl.ast.Statement.Break {
 
-		public Break(IConstructor __param1, Target __param2) {
-			super(__param1, __param2);
+		public Break(ISourceLocation __param1, IConstructor tree, Target __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -238,8 +239,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Continue extends org.rascalmpl.ast.Statement.Continue {
 
-		public Continue(IConstructor __param1, Target __param2) {
-			super(__param1, __param2);
+		public Continue(ISourceLocation __param1, IConstructor tree, Target __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -261,10 +262,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class DoWhile extends org.rascalmpl.ast.Statement.DoWhile {
 
-		public DoWhile(IConstructor __param1, Label __param2,
+		public DoWhile(ISourceLocation __param1, IConstructor tree, Label __param2,
 				org.rascalmpl.ast.Statement __param3,
 				org.rascalmpl.ast.Expression __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -328,8 +329,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class EmptyStatement extends
 			org.rascalmpl.ast.Statement.EmptyStatement {
 
-		public EmptyStatement(IConstructor __param1) {
-			super(__param1);
+		public EmptyStatement(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -347,8 +348,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class Expression extends
 			org.rascalmpl.ast.Statement.Expression {
 
-		public Expression(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
-			super(__param1, __param2);
+		public Expression(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -372,8 +373,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Fail extends org.rascalmpl.ast.Statement.Fail {
 
-		public Fail(IConstructor __param1, Target __param2) {
-			super(__param1, __param2);
+		public Fail(ISourceLocation __param1, IConstructor tree, Target __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -394,8 +395,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Filter extends org.rascalmpl.ast.Statement.Filter {
 
-		public Filter(IConstructor __param1) {
-			super(__param1);
+		public Filter(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 		
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
@@ -411,10 +412,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class For extends org.rascalmpl.ast.Statement.For {
 
-		public For(IConstructor __param1, Label __param2,
+		public For(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -530,9 +531,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class FunctionDeclaration extends
 			org.rascalmpl.ast.Statement.FunctionDeclaration {
 
-		public FunctionDeclaration(IConstructor __param1,
+		public FunctionDeclaration(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.FunctionDeclaration __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -550,9 +551,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class GlobalDirective extends
 			org.rascalmpl.ast.Statement.GlobalDirective {
 
-		public GlobalDirective(IConstructor __param1, Type __param2,
+		public GlobalDirective(ISourceLocation __param1, IConstructor tree, Type __param2,
 				List<QualifiedName> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -564,10 +565,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class IfThen extends org.rascalmpl.ast.Statement.IfThen {
 
-		public IfThen(IConstructor __param1, Label __param2,
+		public IfThen(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -638,11 +639,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class IfThenElse extends
 			org.rascalmpl.ast.Statement.IfThenElse {
 
-		public IfThenElse(IConstructor __param1, Label __param2,
+		public IfThenElse(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4,
 				org.rascalmpl.ast.Statement __param5) {
-			super(__param1, __param2, __param3, __param4, __param5);
+			super(__param1, tree, __param2, __param3, __param4, __param5);
 		}
 
 		@Override
@@ -715,9 +716,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Insert extends org.rascalmpl.ast.Statement.Insert {
 
-		public Insert(IConstructor __param1, DataTarget __param2,
+		public Insert(ISourceLocation __param1, IConstructor tree, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -736,9 +737,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class NonEmptyBlock extends
 			org.rascalmpl.ast.Statement.NonEmptyBlock {
 
-		public NonEmptyBlock(IConstructor __param1, Label __param2,
+		public NonEmptyBlock(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Statement> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -768,8 +769,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Return extends org.rascalmpl.ast.Statement.Return {
 
-		public Return(IConstructor __param1, org.rascalmpl.ast.Statement __param2) {
-			super(__param1, __param2);
+		public Return(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -788,9 +789,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Solve extends org.rascalmpl.ast.Statement.Solve {
 
-		public Solve(IConstructor __param1, List<QualifiedName> __param2,
+		public Solve(ISourceLocation __param1, IConstructor tree, List<QualifiedName> __param2,
 				Bound __param3, org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -881,9 +882,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class Switch extends org.rascalmpl.ast.Statement.Switch {
 		private List<CaseBlock> blocks;
 
-		public Switch(IConstructor __param1, Label __param2,
+		public Switch(ISourceLocation __param1, IConstructor tree, Label __param2,
 				org.rascalmpl.ast.Expression __param3, List<Case> cases) {
-			super(__param1, __param2, __param3, cases);
+			super(__param1, tree, __param2, __param3, cases);
 			blocks = Cases.precompute(cases);
 		}
 
@@ -908,8 +909,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Throw extends org.rascalmpl.ast.Statement.Throw {
 
-		public Throw(IConstructor __param1, org.rascalmpl.ast.Statement __param2) {
-			super(__param1, __param2);
+		public Throw(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -923,9 +924,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Try extends org.rascalmpl.ast.Statement.Try {
 
-		public Try(IConstructor __param1, org.rascalmpl.ast.Statement __param2,
+		public Try(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2,
 				List<Catch> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -970,9 +971,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class TryFinally extends
 			org.rascalmpl.ast.Statement.TryFinally {
 
-		public TryFinally(IConstructor __param1, org.rascalmpl.ast.Statement __param2,
+		public TryFinally(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2,
 				List<org.rascalmpl.ast.Catch> __param3, org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -990,9 +991,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class VariableDeclaration extends
 			org.rascalmpl.ast.Statement.VariableDeclaration {
 
-		public VariableDeclaration(IConstructor __param1,
+		public VariableDeclaration(ISourceLocation __param1, IConstructor tree,
 				LocalVariableDeclaration __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -1009,9 +1010,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Visit extends org.rascalmpl.ast.Statement.Visit {
 
-		public Visit(IConstructor __param1, Label __param2,
+		public Visit(ISourceLocation __param1, IConstructor tree, Label __param2,
 				org.rascalmpl.ast.Visit __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -1028,10 +1029,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class While extends org.rascalmpl.ast.Statement.While {
 
-		public While(IConstructor __param1, Label __param2,
+		public While(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -1158,7 +1159,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	}
 
-	public Statement(IConstructor __param1) {
-		super(__param1);
+	public Statement(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

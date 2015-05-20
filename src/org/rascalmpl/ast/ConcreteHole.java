@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ConcreteHole extends AbstractAST {
-  public ConcreteHole(IConstructor node) {
-    super();
+  public ConcreteHole(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class ConcreteHole extends AbstractAST {
   }
 
   static public class One extends ConcreteHole {
-    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Name name;
   
-    public One(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public One(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.symbol = symbol;
       this.name = name;
@@ -81,7 +82,7 @@ public abstract class ConcreteHole extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 977 * symbol.hashCode() + 433 * name.hashCode() ; 
+      return 557 + 29 * symbol.hashCode() + 251 * name.hashCode() ; 
     } 
   
     
@@ -106,7 +107,8 @@ public abstract class ConcreteHole extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(name));
     }
+            
   }
 }

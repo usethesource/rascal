@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BooleanLiteral;
@@ -42,8 +43,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Boolean extends org.rascalmpl.ast.Literal.Boolean {
 
-		public Boolean(IConstructor __param1, BooleanLiteral __param2) {
-			super(__param1, __param2);
+		public Boolean(ISourceLocation __param1, IConstructor tree, BooleanLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -72,8 +73,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class DateTime extends org.rascalmpl.ast.Literal.DateTime {
 
-		public DateTime(IConstructor __param1, DateTimeLiteral __param2) {
-			super(__param1, __param2);
+		public DateTime(ISourceLocation __param1, IConstructor tree, DateTimeLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -92,8 +93,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Integer extends org.rascalmpl.ast.Literal.Integer {
 
-		public Integer(IConstructor __param1, IntegerLiteral __param2) {
-			super(__param1, __param2);
+		public Integer(ISourceLocation __param1, IConstructor tree, IntegerLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -115,8 +116,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Location extends org.rascalmpl.ast.Literal.Location {
 
-		public Location(IConstructor __param1, LocationLiteral __param2) {
-			super(__param1, __param2);
+		public Location(ISourceLocation __param1, IConstructor tree, LocationLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -135,8 +136,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Real extends org.rascalmpl.ast.Literal.Real {
 
-		public Real(IConstructor __param1, RealLiteral __param2) {
-			super(__param1, __param2);
+		public Real(ISourceLocation __param1, IConstructor tree, RealLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -165,8 +166,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 	
 	static public class Rational extends org.rascalmpl.ast.Literal.Rational {
 
-		public Rational(IConstructor __param1, RationalLiteral __param2) {
-			super(__param1, __param2);
+		public Rational(ISourceLocation __param1, IConstructor tree, RationalLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -190,8 +191,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class RegExp extends org.rascalmpl.ast.Literal.RegExp {
 
-		public RegExp(IConstructor __param1, RegExpLiteral __param2) {
-			super(__param1, __param2);
+		public RegExp(ISourceLocation __param1, IConstructor tree, RegExpLiteral __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -221,8 +222,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		private final Statement stat;
 
-		public String(IConstructor __param1, StringLiteral __param2) {
-			super(__param1, __param2);
+		public String(ISourceLocation __param1, IConstructor tree, StringLiteral __param2) {
+			super(__param1, tree, __param2);
 			this.stat = new StringTemplateConverter().convert(this.getStringLiteral());
 		}
 
@@ -271,7 +272,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	}
 
-	public Literal(IConstructor __param1) {
-		super(__param1);
+	public Literal(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

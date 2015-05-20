@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Variant extends AbstractAST {
-  public Variant(IConstructor node) {
-    super();
+  public Variant(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,15 +55,15 @@ public abstract class Variant extends AbstractAST {
   }
 
   static public class NAryConstructor extends Variant {
-    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments"),arg("org.rascalmpl.ast.KeywordFormals","keywordArguments")])
+    // Production: sig("NAryConstructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments"),arg("org.rascalmpl.ast.KeywordFormals","keywordArguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
     private final org.rascalmpl.ast.KeywordFormals keywordArguments;
   
-    public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments,  org.rascalmpl.ast.KeywordFormals keywordArguments) {
-      super(node);
+    public NAryConstructor(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments,  org.rascalmpl.ast.KeywordFormals keywordArguments) {
+      super(src, node);
       
       this.name = name;
       this.arguments = arguments;
@@ -90,7 +91,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 709 * name.hashCode() + 683 * arguments.hashCode() + 359 * keywordArguments.hashCode() ; 
+      return 701 + 379 * name.hashCode() + 257 * arguments.hashCode() + 709 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -124,7 +125,8 @@ public abstract class Variant extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(arguments), clone(keywordArguments));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(arguments), clone(keywordArguments));
     }
+            
   }
 }

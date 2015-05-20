@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Tag extends AbstractAST {
-  public Tag(IConstructor node) {
-    super();
+  public Tag(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class Tag extends AbstractAST {
   }
 
   static public class Default extends Tag {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.TagString","contents")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.TagString","contents")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.TagString contents;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
+      super(src, node);
       
       this.name = name;
       this.contents = contents;
@@ -88,7 +89,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 173 * name.hashCode() + 373 * contents.hashCode() ; 
+      return 571 + 257 * name.hashCode() + 421 * contents.hashCode() ; 
     } 
   
     
@@ -113,21 +114,22 @@ public abstract class Tag extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(contents));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(contents));
     }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Tag {
-    // Production: sig("Empty",[arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Empty",[arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
   
-    public Empty(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -153,7 +155,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 523 * name.hashCode() ; 
+      return 101 + 197 * name.hashCode() ; 
     } 
   
     
@@ -169,22 +171,23 @@ public abstract class Tag extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
   public boolean isExpression() {
     return false;
   }
 
   static public class Expression extends Tag {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression expression;
   
-    public Expression(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Expression(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.name = name;
       this.expression = expression;
@@ -211,7 +214,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 191 * name.hashCode() + 881 * expression.hashCode() ; 
+      return 619 + 103 * name.hashCode() + 283 * expression.hashCode() ; 
     } 
   
     
@@ -236,7 +239,8 @@ public abstract class Tag extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(expression));
     }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Signature extends AbstractAST {
-  public Signature(IConstructor node) {
-    super();
+  public Signature(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,7 +69,7 @@ public abstract class Signature extends AbstractAST {
   }
 
   static public class NoThrows extends Signature {
-    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")])
+    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionModifiers modifiers;
@@ -76,8 +77,8 @@ public abstract class Signature extends AbstractAST {
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Parameters parameters;
   
-    public NoThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
-      super(node);
+    public NoThrows(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.type = type;
@@ -106,7 +107,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 503 * modifiers.hashCode() + 409 * type.hashCode() + 457 * name.hashCode() + 787 * parameters.hashCode() ; 
+      return 809 + 197 * modifiers.hashCode() + 83 * type.hashCode() + 647 * name.hashCode() + 701 * parameters.hashCode() ; 
     } 
   
     
@@ -149,15 +150,16 @@ public abstract class Signature extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters));
     }
+            
   }
   public boolean isWithThrows() {
     return false;
   }
 
   static public class WithThrows extends Signature {
-    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")])
+    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionModifiers modifiers;
@@ -166,8 +168,8 @@ public abstract class Signature extends AbstractAST {
     private final org.rascalmpl.ast.Parameters parameters;
     private final java.util.List<org.rascalmpl.ast.Type> exceptions;
   
-    public WithThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
-      super(node);
+    public WithThrows(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.type = type;
@@ -197,7 +199,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 227 + 443 * modifiers.hashCode() + 503 * type.hashCode() + 577 * name.hashCode() + 997 * parameters.hashCode() + 167 * exceptions.hashCode() ; 
+      return 37 + 709 * modifiers.hashCode() + 739 * type.hashCode() + 601 * name.hashCode() + 31 * parameters.hashCode() + 509 * exceptions.hashCode() ; 
     } 
   
     
@@ -249,7 +251,8 @@ public abstract class Signature extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters), clone(exceptions));
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters), clone(exceptions));
     }
+            
   }
 }

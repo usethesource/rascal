@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PathTail extends AbstractAST {
-  public PathTail(IConstructor node) {
-    super();
+  public PathTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class PathTail extends AbstractAST {
   }
 
   static public class Mid extends PathTail {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidPathChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidPathChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidPathChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.PathTail tail;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -97,7 +98,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 839 * mid.hashCode() + 691 * expression.hashCode() + 601 * tail.hashCode() ; 
+      return 619 + 701 * mid.hashCode() + 853 * expression.hashCode() + 761 * tail.hashCode() ; 
     } 
   
     
@@ -131,21 +132,22 @@ public abstract class PathTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
     }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends PathTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostPathChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostPathChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostPathChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostPathChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostPathChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -171,7 +173,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 739 * post.hashCode() ; 
+      return 683 + 2 * post.hashCode() ; 
     } 
   
     
@@ -187,7 +189,8 @@ public abstract class PathTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(post));
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
     }
+            
   }
 }
