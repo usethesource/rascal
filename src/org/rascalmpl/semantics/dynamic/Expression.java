@@ -681,6 +681,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     }
     
     @Override
+    public Type typeOf(Environment env, boolean instantiateTypeParameters,
+    		IEvaluator<Result<IValue>> eval) {
+       return Factory.Tree;
+    }
+
+    @Override
     public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
       throw new SyntaxError("concrete syntax fragment", getLocation());
     }
@@ -689,8 +695,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     public IMatchingResult buildMatcher(IEvaluatorContext eval) {
       throw new SyntaxError("concrete syntax fragment", getLocation());
     }
-    
   }
+	
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
