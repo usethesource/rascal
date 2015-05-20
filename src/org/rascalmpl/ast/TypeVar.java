@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class TypeVar extends AbstractAST {
-  public TypeVar(IConstructor node) {
-    super();
+  public TypeVar(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class TypeVar extends AbstractAST {
   }
 
   static public class Bounded extends TypeVar {
-    // Production: sig("Bounded",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Type","bound")])
+    // Production: sig("Bounded",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Type","bound")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Type bound;
   
-    public Bounded(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
-      super(node);
+    public Bounded(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
+      super(src, node);
       
       this.name = name;
       this.bound = bound;
@@ -81,7 +82,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 157 * name.hashCode() + 47 * bound.hashCode() ; 
+      return 769 + 293 * name.hashCode() + 809 * bound.hashCode() ; 
     } 
   
     
@@ -106,21 +107,22 @@ public abstract class TypeVar extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(bound));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(bound));
     }
+            
   }
   public boolean isFree() {
     return false;
   }
 
   static public class Free extends TypeVar {
-    // Production: sig("Free",[arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Free",[arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
   
-    public Free(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
+    public Free(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -146,7 +148,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 7 * name.hashCode() ; 
+      return 983 + 941 * name.hashCode() ; 
     } 
   
     
@@ -162,7 +164,8 @@ public abstract class TypeVar extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
 }

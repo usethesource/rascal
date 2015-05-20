@@ -11,6 +11,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Nonterminal;
@@ -29,16 +30,16 @@ import org.rascalmpl.values.uptr.Factory;
 public abstract class SyntaxDefinition extends
 		org.rascalmpl.ast.SyntaxDefinition {
 	
-	public SyntaxDefinition(IConstructor node) {
-		super(node);
+	public SyntaxDefinition(ISourceLocation src, IConstructor node) {
+		super(src, node);
 	}
 
 	public static class Language extends org.rascalmpl.ast.SyntaxDefinition.Language {
 		private final IConstructor node;
 
-		public Language(IConstructor node, Start start, Sym defined,
+		public Language(ISourceLocation src, IConstructor node, Start start, Sym defined,
 				Prod production) {
-			super(node, start, defined, production);
+			super(src, node, start, defined, production);
 			this.node = node;
 		}
 
@@ -49,7 +50,7 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Object clone() {
-			return new Language(node, clone(getStart()), clone(getDefined()), clone(getProduction()));
+			return new Language(src, node, clone(getStart()), clone(getDefined()), clone(getProduction()));
 		}
 		
 		@Override
@@ -70,8 +71,8 @@ public abstract class SyntaxDefinition extends
 	public static class Lexical extends org.rascalmpl.ast.SyntaxDefinition.Lexical {
 		private final IConstructor node;
 
-		public Lexical(IConstructor node, Sym defined, Prod production) {
-			super(node, defined, production);
+		public Lexical(ISourceLocation src, IConstructor node, Sym defined, Prod production) {
+			super(src, node, defined, production);
 			this.node = node;
 		}
 
@@ -83,7 +84,7 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Object clone() {
-			return new Lexical(node, clone(getDefined()), clone(getProduction()));
+			return new Lexical(src, node, clone(getDefined()), clone(getProduction()));
 		}
 		
 		@Override
@@ -104,9 +105,9 @@ public abstract class SyntaxDefinition extends
 	public static class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
 		private final IConstructor node;
 
-		public Layout(IConstructor node, Visibility vis, Sym defined,
+		public Layout(ISourceLocation src, IConstructor node, Visibility vis, Sym defined,
 				Prod production) {
-			super(node, vis, defined, production);
+			super(src, node, vis, defined, production);
 			this.node = node;
 		}
 
@@ -117,7 +118,7 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Object clone() {
-			return new Layout(node, clone(getVis()), clone(getDefined()), clone(getProduction()));
+			return new Layout(src, node, clone(getVis()), clone(getDefined()), clone(getProduction()));
 		}
 		
 		@Override
@@ -138,8 +139,8 @@ public abstract class SyntaxDefinition extends
 	public static class Keyword extends org.rascalmpl.ast.SyntaxDefinition.Keyword {
 		private final IConstructor node;
 
-		public Keyword(IConstructor node, Sym defined, Prod production) {
-			super(node, defined, production);
+		public Keyword(ISourceLocation src, IConstructor node, Sym defined, Prod production) {
+			super(src, node, defined, production);
 			this.node = node;
 		}
 		
@@ -150,7 +151,7 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Object clone() {
-			return new Keyword(node, clone(getDefined()), clone(getProduction()));
+			return new Keyword(src, node, clone(getDefined()), clone(getProduction()));
 		}
 
 		@Override

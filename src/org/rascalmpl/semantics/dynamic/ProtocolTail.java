@@ -13,6 +13,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidProtocolChars;
@@ -24,9 +25,9 @@ public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
 
 	static public class Mid extends org.rascalmpl.ast.ProtocolTail.Mid {
 
-		public Mid(IConstructor __param1, MidProtocolChars __param2,
+		public Mid(ISourceLocation __param1, IConstructor tree, MidProtocolChars __param2,
 				Expression __param3, org.rascalmpl.ast.ProtocolTail __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -42,8 +43,8 @@ public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
 
 	static public class Post extends org.rascalmpl.ast.ProtocolTail.Post {
 
-		public Post(IConstructor __param1, PostProtocolChars __param2) {
-			super(__param1, __param2);
+		public Post(ISourceLocation __param1, IConstructor tree, PostProtocolChars __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -53,8 +54,8 @@ public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
 
 	}
 
-	public ProtocolTail(IConstructor __param1) {
-		super(__param1);
+	public ProtocolTail(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 
 }

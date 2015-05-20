@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Bound extends AbstractAST {
-  public Bound(IConstructor node) {
-    super();
+  public Bound(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Bound extends AbstractAST {
   }
 
   static public class Default extends Bound {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -72,7 +73,7 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 653 * expression.hashCode() ; 
+      return 701 + 337 * expression.hashCode() ; 
     } 
   
     
@@ -88,20 +89,21 @@ public abstract class Bound extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
     }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Bound {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -126,14 +128,15 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 ; 
+      return 521 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

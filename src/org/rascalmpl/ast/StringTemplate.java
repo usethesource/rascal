@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringTemplate extends AbstractAST {
-  public StringTemplate(IConstructor node) {
-    super();
+  public StringTemplate(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -117,7 +118,7 @@ public abstract class StringTemplate extends AbstractAST {
   }
 
   static public class DoWhile extends StringTemplate {
-    // Production: sig("DoWhile",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats"),arg("org.rascalmpl.ast.Expression","condition")])
+    // Production: sig("DoWhile",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats"),arg("org.rascalmpl.ast.Expression","condition")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
@@ -125,8 +126,8 @@ public abstract class StringTemplate extends AbstractAST {
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
     private final org.rascalmpl.ast.Expression condition;
   
-    public DoWhile(IConstructor node , java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
-      super(node);
+    public DoWhile(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
+      super(src, node);
       
       this.preStats = preStats;
       this.body = body;
@@ -155,7 +156,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 331 * preStats.hashCode() + 71 * body.hashCode() + 331 * postStats.hashCode() + 83 * condition.hashCode() ; 
+      return 787 + 821 * preStats.hashCode() + 887 * body.hashCode() + 797 * postStats.hashCode() + 109 * condition.hashCode() ; 
     } 
   
     
@@ -198,15 +199,16 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(preStats), clone(body), clone(postStats), clone(condition));
+      return newInstance(getClass(), src, (IConstructor) null , clone(preStats), clone(body), clone(postStats), clone(condition));
     }
+            
   }
   public boolean isFor() {
     return false;
   }
 
   static public class For extends StringTemplate {
-    // Production: sig("For",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")])
+    // Production: sig("For",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
@@ -214,8 +216,8 @@ public abstract class StringTemplate extends AbstractAST {
     private final org.rascalmpl.ast.StringMiddle body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public For(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
-      super(node);
+    public For(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+      super(src, node);
       
       this.generators = generators;
       this.preStats = preStats;
@@ -244,7 +246,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 349 * generators.hashCode() + 587 * preStats.hashCode() + 13 * body.hashCode() + 733 * postStats.hashCode() ; 
+      return 919 + 367 * generators.hashCode() + 641 * preStats.hashCode() + 761 * body.hashCode() + 509 * postStats.hashCode() ; 
     } 
   
     
@@ -287,15 +289,16 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(generators), clone(preStats), clone(body), clone(postStats));
+      return newInstance(getClass(), src, (IConstructor) null , clone(generators), clone(preStats), clone(body), clone(postStats));
     }
+            
   }
   public boolean isIfThen() {
     return false;
   }
 
   static public class IfThen extends StringTemplate {
-    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")])
+    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
@@ -303,8 +306,8 @@ public abstract class StringTemplate extends AbstractAST {
     private final org.rascalmpl.ast.StringMiddle body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public IfThen(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
-      super(node);
+    public IfThen(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+      super(src, node);
       
       this.conditions = conditions;
       this.preStats = preStats;
@@ -333,7 +336,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 + 647 * conditions.hashCode() + 389 * preStats.hashCode() + 457 * body.hashCode() + 569 * postStats.hashCode() ; 
+      return 859 + 577 * conditions.hashCode() + 997 * preStats.hashCode() + 491 * body.hashCode() + 677 * postStats.hashCode() ; 
     } 
   
     
@@ -376,15 +379,16 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(conditions), clone(preStats), clone(body), clone(postStats));
+      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStats), clone(body), clone(postStats));
     }
+            
   }
   public boolean isIfThenElse() {
     return false;
   }
 
   static public class IfThenElse extends StringTemplate {
-    // Production: sig("IfThenElse",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsThen"),arg("org.rascalmpl.ast.StringMiddle","thenString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsThen"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsElse"),arg("org.rascalmpl.ast.StringMiddle","elseString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsElse")])
+    // Production: sig("IfThenElse",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsThen"),arg("org.rascalmpl.ast.StringMiddle","thenString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsThen"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsElse"),arg("org.rascalmpl.ast.StringMiddle","elseString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsElse")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
@@ -395,8 +399,8 @@ public abstract class StringTemplate extends AbstractAST {
     private final org.rascalmpl.ast.StringMiddle elseString;
     private final java.util.List<org.rascalmpl.ast.Statement> postStatsElse;
   
-    public IfThenElse(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  org.rascalmpl.ast.StringMiddle thenString,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  org.rascalmpl.ast.StringMiddle elseString,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
-      super(node);
+    public IfThenElse(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  org.rascalmpl.ast.StringMiddle thenString,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  org.rascalmpl.ast.StringMiddle elseString,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
+      super(src, node);
       
       this.conditions = conditions;
       this.preStatsThen = preStatsThen;
@@ -428,7 +432,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 71 * conditions.hashCode() + 181 * preStatsThen.hashCode() + 331 * thenString.hashCode() + 761 * postStatsThen.hashCode() + 691 * preStatsElse.hashCode() + 439 * elseString.hashCode() + 587 * postStatsElse.hashCode() ; 
+      return 709 + 683 * conditions.hashCode() + 47 * preStatsThen.hashCode() + 821 * thenString.hashCode() + 43 * postStatsThen.hashCode() + 757 * preStatsElse.hashCode() + 263 * elseString.hashCode() + 151 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -498,15 +502,16 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(conditions), clone(preStatsThen), clone(thenString), clone(postStatsThen), clone(preStatsElse), clone(elseString), clone(postStatsElse));
+      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStatsThen), clone(thenString), clone(postStatsThen), clone(preStatsElse), clone(elseString), clone(postStatsElse));
     }
+            
   }
   public boolean isWhile() {
     return false;
   }
 
   static public class While extends StringTemplate {
-    // Production: sig("While",[arg("org.rascalmpl.ast.Expression","condition"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")])
+    // Production: sig("While",[arg("org.rascalmpl.ast.Expression","condition"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression condition;
@@ -514,8 +519,8 @@ public abstract class StringTemplate extends AbstractAST {
     private final org.rascalmpl.ast.StringMiddle body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public While(IConstructor node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
-      super(node);
+    public While(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+      super(src, node);
       
       this.condition = condition;
       this.preStats = preStats;
@@ -544,7 +549,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 701 * condition.hashCode() + 503 * preStats.hashCode() + 617 * body.hashCode() + 83 * postStats.hashCode() ; 
+      return 229 + 431 * condition.hashCode() + 257 * preStats.hashCode() + 313 * body.hashCode() + 509 * postStats.hashCode() ; 
     } 
   
     
@@ -587,7 +592,8 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(condition), clone(preStats), clone(body), clone(postStats));
+      return newInstance(getClass(), src, (IConstructor) null , clone(condition), clone(preStats), clone(body), clone(postStats));
     }
+            
   }
 }

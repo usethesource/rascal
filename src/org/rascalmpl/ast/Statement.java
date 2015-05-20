@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Statement extends AbstractAST {
-  public Statement(IConstructor node) {
-    super();
+  public Statement(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -208,14 +209,14 @@ public abstract class Statement extends AbstractAST {
   }
 
   static public class Append extends Statement {
-    // Production: sig("Append",[arg("org.rascalmpl.ast.DataTarget","dataTarget"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Append",[arg("org.rascalmpl.ast.DataTarget","dataTarget"),arg("org.rascalmpl.ast.Statement","statement")],breakable=true)
   
     
     private final org.rascalmpl.ast.DataTarget dataTarget;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Append(IConstructor node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Append(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.dataTarget = dataTarget;
       this.statement = statement;
@@ -242,7 +243,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 19 * dataTarget.hashCode() + 229 * statement.hashCode() ; 
+      return 227 + 13 * dataTarget.hashCode() + 47 * statement.hashCode() ; 
     } 
   
     
@@ -267,21 +268,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(dataTarget), clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(dataTarget), clone(statement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isAssert() {
     return false;
   }
 
   static public class Assert extends Statement {
-    // Production: sig("Assert",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Assert",[arg("org.rascalmpl.ast.Expression","expression")],breakable=true)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Assert(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Assert(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -307,7 +312,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 761 * expression.hashCode() ; 
+      return 157 + 83 * expression.hashCode() ; 
     } 
   
     
@@ -323,22 +328,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isAssertWithMessage() {
     return false;
   }
 
   static public class AssertWithMessage extends Statement {
-    // Production: sig("AssertWithMessage",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Expression","message")])
+    // Production: sig("AssertWithMessage",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Expression","message")],breakable=true)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Expression message;
   
-    public AssertWithMessage(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Expression message) {
-      super(node);
+    public AssertWithMessage(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Expression message) {
+      super(src, node);
       
       this.expression = expression;
       this.message = message;
@@ -365,7 +374,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 439 * expression.hashCode() + 43 * message.hashCode() ; 
+      return 29 + 349 * expression.hashCode() + 67 * message.hashCode() ; 
     } 
   
     
@@ -390,23 +399,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression), clone(message));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(message));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isAssignment() {
     return false;
   }
 
   static public class Assignment extends Statement {
-    // Production: sig("Assignment",[arg("org.rascalmpl.ast.Assignable","assignable"),arg("org.rascalmpl.ast.Assignment","operator"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Assignment",[arg("org.rascalmpl.ast.Assignable","assignable"),arg("org.rascalmpl.ast.Assignment","operator"),arg("org.rascalmpl.ast.Statement","statement")],breakable=true)
   
     
     private final org.rascalmpl.ast.Assignable assignable;
     private final org.rascalmpl.ast.Assignment operator;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Assignment(IConstructor node , org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Assignment(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.assignable = assignable;
       this.operator = operator;
@@ -434,7 +447,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 613 * assignable.hashCode() + 967 * operator.hashCode() + 257 * statement.hashCode() ; 
+      return 593 + 397 * assignable.hashCode() + 919 * operator.hashCode() + 269 * statement.hashCode() ; 
     } 
   
     
@@ -468,21 +481,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(assignable), clone(operator), clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(assignable), clone(operator), clone(statement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isBreak() {
     return false;
   }
 
   static public class Break extends Statement {
-    // Production: sig("Break",[arg("org.rascalmpl.ast.Target","target")])
+    // Production: sig("Break",[arg("org.rascalmpl.ast.Target","target")],breakable=true)
   
     
     private final org.rascalmpl.ast.Target target;
   
-    public Break(IConstructor node , org.rascalmpl.ast.Target target) {
-      super(node);
+    public Break(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Target target) {
+      super(src, node);
       
       this.target = target;
     }
@@ -508,7 +525,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 809 * target.hashCode() ; 
+      return 331 + 599 * target.hashCode() ; 
     } 
   
     
@@ -524,21 +541,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(target));
+      return newInstance(getClass(), src, (IConstructor) null , clone(target));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isContinue() {
     return false;
   }
 
   static public class Continue extends Statement {
-    // Production: sig("Continue",[arg("org.rascalmpl.ast.Target","target")])
+    // Production: sig("Continue",[arg("org.rascalmpl.ast.Target","target")],breakable=true)
   
     
     private final org.rascalmpl.ast.Target target;
   
-    public Continue(IConstructor node , org.rascalmpl.ast.Target target) {
-      super(node);
+    public Continue(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Target target) {
+      super(src, node);
       
       this.target = target;
     }
@@ -564,7 +585,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 167 * target.hashCode() ; 
+      return 11 + 3 * target.hashCode() ; 
     } 
   
     
@@ -580,23 +601,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(target));
+      return newInstance(getClass(), src, (IConstructor) null , clone(target));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isDoWhile() {
     return false;
   }
 
   static public class DoWhile extends Statement {
-    // Production: sig("DoWhile",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Statement","body"),arg("org.rascalmpl.ast.Expression","condition")])
+    // Production: sig("DoWhile",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Statement","body"),arg("org.rascalmpl.ast.Expression","condition")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final org.rascalmpl.ast.Statement body;
     private final org.rascalmpl.ast.Expression condition;
   
-    public DoWhile(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Statement body,  org.rascalmpl.ast.Expression condition) {
-      super(node);
+    public DoWhile(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Statement body,  org.rascalmpl.ast.Expression condition) {
+      super(src, node);
       
       this.label = label;
       this.body = body;
@@ -624,7 +649,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 83 * label.hashCode() + 727 * body.hashCode() + 239 * condition.hashCode() ; 
+      return 419 + 997 * label.hashCode() + 3 * body.hashCode() + 503 * condition.hashCode() ; 
     } 
   
     
@@ -658,20 +683,24 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(body), clone(condition));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(body), clone(condition));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isEmptyStatement() {
     return false;
   }
 
   static public class EmptyStatement extends Statement {
-    // Production: sig("EmptyStatement",[])
+    // Production: sig("EmptyStatement",[],breakable=false)
   
     
   
-    public EmptyStatement(IConstructor node ) {
-      super(node);
+    public EmptyStatement(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -696,28 +725,29 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 ; 
+      return 61 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isExpression() {
     return false;
   }
 
   static public class Expression extends Statement {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")],breakable=true)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Expression(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -743,7 +773,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 653 * expression.hashCode() ; 
+      return 761 + 223 * expression.hashCode() ; 
     } 
   
     
@@ -759,21 +789,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isFail() {
     return false;
   }
 
   static public class Fail extends Statement {
-    // Production: sig("Fail",[arg("org.rascalmpl.ast.Target","target")])
+    // Production: sig("Fail",[arg("org.rascalmpl.ast.Target","target")],breakable=true)
   
     
     private final org.rascalmpl.ast.Target target;
   
-    public Fail(IConstructor node , org.rascalmpl.ast.Target target) {
-      super(node);
+    public Fail(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Target target) {
+      super(src, node);
       
       this.target = target;
     }
@@ -799,7 +833,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 251 * target.hashCode() ; 
+      return 691 + 967 * target.hashCode() ; 
     } 
   
     
@@ -815,20 +849,24 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(target));
+      return newInstance(getClass(), src, (IConstructor) null , clone(target));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isFilter() {
     return false;
   }
 
   static public class Filter extends Statement {
-    // Production: sig("Filter",[])
+    // Production: sig("Filter",[],breakable=true)
   
     
   
-    public Filter(IConstructor node ) {
-      super(node);
+    public Filter(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -853,30 +891,34 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 ; 
+      return 811 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isFor() {
     return false;
   }
 
   static public class For extends Statement {
-    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
     private final org.rascalmpl.ast.Statement body;
   
-    public For(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
-      super(node);
+    public For(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.label = label;
       this.generators = generators;
@@ -904,7 +946,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 577 * label.hashCode() + 41 * generators.hashCode() + 137 * body.hashCode() ; 
+      return 337 + 743 * label.hashCode() + 463 * generators.hashCode() + 43 * body.hashCode() ; 
     } 
   
     
@@ -938,21 +980,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(generators), clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(generators), clone(body));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isFunctionDeclaration() {
     return false;
   }
 
   static public class FunctionDeclaration extends Statement {
-    // Production: sig("FunctionDeclaration",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")])
+    // Production: sig("FunctionDeclaration",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")],breakable=true)
   
     
     private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
   
-    public FunctionDeclaration(IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
-      super(node);
+    public FunctionDeclaration(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+      super(src, node);
       
       this.functionDeclaration = functionDeclaration;
     }
@@ -978,7 +1024,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 7 * functionDeclaration.hashCode() ; 
+      return 401 + 97 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -994,22 +1040,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(functionDeclaration));
+      return newInstance(getClass(), src, (IConstructor) null , clone(functionDeclaration));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isGlobalDirective() {
     return false;
   }
 
   static public class GlobalDirective extends Statement {
-    // Production: sig("GlobalDirective",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","names")])
+    // Production: sig("GlobalDirective",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","names")],breakable=true)
   
     
     private final org.rascalmpl.ast.Type type;
     private final java.util.List<org.rascalmpl.ast.QualifiedName> names;
   
-    public GlobalDirective(IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.QualifiedName> names) {
-      super(node);
+    public GlobalDirective(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.QualifiedName> names) {
+      super(src, node);
       
       this.type = type;
       this.names = names;
@@ -1036,7 +1086,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 + 97 * type.hashCode() + 491 * names.hashCode() ; 
+      return 509 + 457 * type.hashCode() + 547 * names.hashCode() ; 
     } 
   
     
@@ -1061,23 +1111,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(type), clone(names));
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(names));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isIfThen() {
     return false;
   }
 
   static public class IfThen extends Statement {
-    // Production: sig("IfThen",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement")])
+    // Production: sig("IfThen",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
     private final org.rascalmpl.ast.Statement thenStatement;
   
-    public IfThen(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement) {
-      super(node);
+    public IfThen(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement) {
+      super(src, node);
       
       this.label = label;
       this.conditions = conditions;
@@ -1105,7 +1159,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 743 * label.hashCode() + 619 * conditions.hashCode() + 659 * thenStatement.hashCode() ; 
+      return 463 + 733 * label.hashCode() + 467 * conditions.hashCode() + 383 * thenStatement.hashCode() ; 
     } 
   
     
@@ -1139,15 +1193,19 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(conditions), clone(thenStatement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(conditions), clone(thenStatement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isIfThenElse() {
     return false;
   }
 
   static public class IfThenElse extends Statement {
-    // Production: sig("IfThenElse",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement"),arg("org.rascalmpl.ast.Statement","elseStatement")])
+    // Production: sig("IfThenElse",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement"),arg("org.rascalmpl.ast.Statement","elseStatement")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
@@ -1155,8 +1213,8 @@ public abstract class Statement extends AbstractAST {
     private final org.rascalmpl.ast.Statement thenStatement;
     private final org.rascalmpl.ast.Statement elseStatement;
   
-    public IfThenElse(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.Statement elseStatement) {
-      super(node);
+    public IfThenElse(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.Statement elseStatement) {
+      super(src, node);
       
       this.label = label;
       this.conditions = conditions;
@@ -1185,7 +1243,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 167 * label.hashCode() + 577 * conditions.hashCode() + 929 * thenStatement.hashCode() + 809 * elseStatement.hashCode() ; 
+      return 883 + 239 * label.hashCode() + 73 * conditions.hashCode() + 19 * thenStatement.hashCode() + 563 * elseStatement.hashCode() ; 
     } 
   
     
@@ -1228,22 +1286,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(conditions), clone(thenStatement), clone(elseStatement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(conditions), clone(thenStatement), clone(elseStatement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isInsert() {
     return false;
   }
 
   static public class Insert extends Statement {
-    // Production: sig("Insert",[arg("org.rascalmpl.ast.DataTarget","dataTarget"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Insert",[arg("org.rascalmpl.ast.DataTarget","dataTarget"),arg("org.rascalmpl.ast.Statement","statement")],breakable=true)
   
     
     private final org.rascalmpl.ast.DataTarget dataTarget;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Insert(IConstructor node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Insert(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.dataTarget = dataTarget;
       this.statement = statement;
@@ -1270,7 +1332,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 971 * dataTarget.hashCode() + 647 * statement.hashCode() ; 
+      return 971 + 821 * dataTarget.hashCode() + 431 * statement.hashCode() ; 
     } 
   
     
@@ -1295,22 +1357,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(dataTarget), clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(dataTarget), clone(statement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isNonEmptyBlock() {
     return false;
   }
 
   static public class NonEmptyBlock extends Statement {
-    // Production: sig("NonEmptyBlock",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+    // Production: sig("NonEmptyBlock",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")],breakable=false)
   
     
     private final org.rascalmpl.ast.Label label;
     private final java.util.List<org.rascalmpl.ast.Statement> statements;
   
-    public NonEmptyBlock(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-      super(node);
+    public NonEmptyBlock(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+      super(src, node);
       
       this.label = label;
       this.statements = statements;
@@ -1337,7 +1403,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 659 * label.hashCode() + 229 * statements.hashCode() ; 
+      return 443 + 709 * label.hashCode() + 821 * statements.hashCode() ; 
     } 
   
     
@@ -1362,21 +1428,22 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(statements));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(statements));
     }
+            
   }
   public boolean isReturn() {
     return false;
   }
 
   static public class Return extends Statement {
-    // Production: sig("Return",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Return",[arg("org.rascalmpl.ast.Statement","statement")],breakable=true)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Return(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Return(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -1402,7 +1469,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 2 * statement.hashCode() ; 
+      return 29 + 431 * statement.hashCode() ; 
     } 
   
     
@@ -1418,23 +1485,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isSolve() {
     return false;
   }
 
   static public class Solve extends Statement {
-    // Production: sig("Solve",[arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","variables"),arg("org.rascalmpl.ast.Bound","bound"),arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("Solve",[arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","variables"),arg("org.rascalmpl.ast.Bound","bound"),arg("org.rascalmpl.ast.Statement","body")],breakable=true)
   
     
     private final java.util.List<org.rascalmpl.ast.QualifiedName> variables;
     private final org.rascalmpl.ast.Bound bound;
     private final org.rascalmpl.ast.Statement body;
   
-    public Solve(IConstructor node , java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
-      super(node);
+    public Solve(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.variables = variables;
       this.bound = bound;
@@ -1462,7 +1533,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 953 * variables.hashCode() + 283 * bound.hashCode() + 673 * body.hashCode() ; 
+      return 797 + 929 * variables.hashCode() + 103 * bound.hashCode() + 443 * body.hashCode() ; 
     } 
   
     
@@ -1496,23 +1567,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(variables), clone(bound), clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(variables), clone(bound), clone(body));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isSwitch() {
     return false;
   }
 
   static public class Switch extends Statement {
-    // Production: sig("Switch",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")])
+    // Production: sig("Switch",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Case> cases;
   
-    public Switch(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Case> cases) {
-      super(node);
+    public Switch(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Case> cases) {
+      super(src, node);
       
       this.label = label;
       this.expression = expression;
@@ -1540,7 +1615,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 + 967 * label.hashCode() + 103 * expression.hashCode() + 701 * cases.hashCode() ; 
+      return 13 + 953 * label.hashCode() + 97 * expression.hashCode() + 167 * cases.hashCode() ; 
     } 
   
     
@@ -1574,21 +1649,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(expression), clone(cases));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(expression), clone(cases));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isThrow() {
     return false;
   }
 
   static public class Throw extends Statement {
-    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")],breakable=true)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Throw(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Throw(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -1614,7 +1693,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 461 * statement.hashCode() ; 
+      return 929 + 769 * statement.hashCode() ; 
     } 
   
     
@@ -1630,22 +1709,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isTry() {
     return false;
   }
 
   static public class Try extends Statement {
-    // Production: sig("Try",[arg("org.rascalmpl.ast.Statement","body"),arg("java.util.List\<org.rascalmpl.ast.Catch\>","handlers")])
+    // Production: sig("Try",[arg("org.rascalmpl.ast.Statement","body"),arg("java.util.List\<org.rascalmpl.ast.Catch\>","handlers")],breakable=true)
   
     
     private final org.rascalmpl.ast.Statement body;
     private final java.util.List<org.rascalmpl.ast.Catch> handlers;
   
-    public Try(IConstructor node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers) {
-      super(node);
+    public Try(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers) {
+      super(src, node);
       
       this.body = body;
       this.handlers = handlers;
@@ -1672,7 +1755,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 181 * body.hashCode() + 733 * handlers.hashCode() ; 
+      return 673 + 353 * body.hashCode() + 47 * handlers.hashCode() ; 
     } 
   
     
@@ -1697,23 +1780,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(body), clone(handlers));
+      return newInstance(getClass(), src, (IConstructor) null , clone(body), clone(handlers));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isTryFinally() {
     return false;
   }
 
   static public class TryFinally extends Statement {
-    // Production: sig("TryFinally",[arg("org.rascalmpl.ast.Statement","body"),arg("java.util.List\<org.rascalmpl.ast.Catch\>","handlers"),arg("org.rascalmpl.ast.Statement","finallyBody")])
+    // Production: sig("TryFinally",[arg("org.rascalmpl.ast.Statement","body"),arg("java.util.List\<org.rascalmpl.ast.Catch\>","handlers"),arg("org.rascalmpl.ast.Statement","finallyBody")],breakable=true)
   
     
     private final org.rascalmpl.ast.Statement body;
     private final java.util.List<org.rascalmpl.ast.Catch> handlers;
     private final org.rascalmpl.ast.Statement finallyBody;
   
-    public TryFinally(IConstructor node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers,  org.rascalmpl.ast.Statement finallyBody) {
-      super(node);
+    public TryFinally(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers,  org.rascalmpl.ast.Statement finallyBody) {
+      super(src, node);
       
       this.body = body;
       this.handlers = handlers;
@@ -1741,7 +1828,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 547 * body.hashCode() + 599 * handlers.hashCode() + 373 * finallyBody.hashCode() ; 
+      return 241 + 769 * body.hashCode() + 19 * handlers.hashCode() + 331 * finallyBody.hashCode() ; 
     } 
   
     
@@ -1775,21 +1862,25 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(body), clone(handlers), clone(finallyBody));
+      return newInstance(getClass(), src, (IConstructor) null , clone(body), clone(handlers), clone(finallyBody));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isVariableDeclaration() {
     return false;
   }
 
   static public class VariableDeclaration extends Statement {
-    // Production: sig("VariableDeclaration",[arg("org.rascalmpl.ast.LocalVariableDeclaration","declaration")])
+    // Production: sig("VariableDeclaration",[arg("org.rascalmpl.ast.LocalVariableDeclaration","declaration")],breakable=true)
   
     
     private final org.rascalmpl.ast.LocalVariableDeclaration declaration;
   
-    public VariableDeclaration(IConstructor node , org.rascalmpl.ast.LocalVariableDeclaration declaration) {
-      super(node);
+    public VariableDeclaration(ISourceLocation src, IConstructor node , org.rascalmpl.ast.LocalVariableDeclaration declaration) {
+      super(src, node);
       
       this.declaration = declaration;
     }
@@ -1815,7 +1906,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 199 * declaration.hashCode() ; 
+      return 157 + 7 * declaration.hashCode() ; 
     } 
   
     
@@ -1831,22 +1922,26 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(declaration));
+      return newInstance(getClass(), src, (IConstructor) null , clone(declaration));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isVisit() {
     return false;
   }
 
   static public class Visit extends Statement {
-    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
+    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final org.rascalmpl.ast.Visit visit;
   
-    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-      super(node);
+    public Visit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+      super(src, node);
       
       this.label = label;
       this.visit = visit;
@@ -1873,7 +1968,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 421 * label.hashCode() + 739 * visit.hashCode() ; 
+      return 421 + 853 * label.hashCode() + 71 * visit.hashCode() ; 
     } 
   
     
@@ -1898,23 +1993,27 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(visit));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(visit));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
   public boolean isWhile() {
     return false;
   }
 
   static public class While extends Statement {
-    // Production: sig("While",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("While",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","body")],breakable=true)
   
     
     private final org.rascalmpl.ast.Label label;
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
     private final org.rascalmpl.ast.Statement body;
   
-    public While(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement body) {
-      super(node);
+    public While(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.label = label;
       this.conditions = conditions;
@@ -1942,7 +2041,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 + 769 * label.hashCode() + 179 * conditions.hashCode() + 233 * body.hashCode() ; 
+      return 829 + 31 * label.hashCode() + 151 * conditions.hashCode() + 79 * body.hashCode() ; 
     } 
   
     
@@ -1976,7 +2075,11 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(label), clone(conditions), clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(conditions), clone(body));
     }
+    @Override
+    public boolean isBreakable() {
+      return true;
+    }        
   }
 }

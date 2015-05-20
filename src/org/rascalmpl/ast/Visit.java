@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Visit extends AbstractAST {
-  public Visit(IConstructor node) {
-    super();
+  public Visit(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class Visit extends AbstractAST {
   }
 
   static public class DefaultStrategy extends Visit {
-    // Production: sig("DefaultStrategy",[arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")])
+    // Production: sig("DefaultStrategy",[arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression subject;
     private final java.util.List<org.rascalmpl.ast.Case> cases;
   
-    public DefaultStrategy(IConstructor node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
-      super(node);
+    public DefaultStrategy(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+      super(src, node);
       
       this.subject = subject;
       this.cases = cases;
@@ -88,7 +89,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 53 * subject.hashCode() + 421 * cases.hashCode() ; 
+      return 331 + 727 * subject.hashCode() + 757 * cases.hashCode() ; 
     } 
   
     
@@ -113,23 +114,24 @@ public abstract class Visit extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(subject), clone(cases));
+      return newInstance(getClass(), src, (IConstructor) null , clone(subject), clone(cases));
     }
+            
   }
   public boolean isGivenStrategy() {
     return false;
   }
 
   static public class GivenStrategy extends Visit {
-    // Production: sig("GivenStrategy",[arg("org.rascalmpl.ast.Strategy","strategy"),arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")])
+    // Production: sig("GivenStrategy",[arg("org.rascalmpl.ast.Strategy","strategy"),arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")],breakable=false)
   
     
     private final org.rascalmpl.ast.Strategy strategy;
     private final org.rascalmpl.ast.Expression subject;
     private final java.util.List<org.rascalmpl.ast.Case> cases;
   
-    public GivenStrategy(IConstructor node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
-      super(node);
+    public GivenStrategy(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+      super(src, node);
       
       this.strategy = strategy;
       this.subject = subject;
@@ -157,7 +159,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 157 * strategy.hashCode() + 107 * subject.hashCode() + 359 * cases.hashCode() ; 
+      return 89 + 823 * strategy.hashCode() + 983 * subject.hashCode() + 521 * cases.hashCode() ; 
     } 
   
     
@@ -191,7 +193,8 @@ public abstract class Visit extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(strategy), clone(subject), clone(cases));
+      return newInstance(getClass(), src, (IConstructor) null , clone(strategy), clone(subject), clone(cases));
     }
+            
   }
 }

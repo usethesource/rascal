@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Range extends AbstractAST {
-  public Range(IConstructor node) {
-    super();
+  public Range(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,13 +55,13 @@ public abstract class Range extends AbstractAST {
   }
 
   static public class Character extends Range {
-    // Production: sig("Character",[arg("org.rascalmpl.ast.Char","character")])
+    // Production: sig("Character",[arg("org.rascalmpl.ast.Char","character")],breakable=false)
   
     
     private final org.rascalmpl.ast.Char character;
   
-    public Character(IConstructor node , org.rascalmpl.ast.Char character) {
-      super(node);
+    public Character(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Char character) {
+      super(src, node);
       
       this.character = character;
     }
@@ -86,7 +87,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 521 * character.hashCode() ; 
+      return 211 + 277 * character.hashCode() ; 
     } 
   
     
@@ -102,22 +103,23 @@ public abstract class Range extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(character));
+      return newInstance(getClass(), src, (IConstructor) null , clone(character));
     }
+            
   }
   public boolean isFromTo() {
     return false;
   }
 
   static public class FromTo extends Range {
-    // Production: sig("FromTo",[arg("org.rascalmpl.ast.Char","start"),arg("org.rascalmpl.ast.Char","end")])
+    // Production: sig("FromTo",[arg("org.rascalmpl.ast.Char","start"),arg("org.rascalmpl.ast.Char","end")],breakable=false)
   
     
     private final org.rascalmpl.ast.Char start;
     private final org.rascalmpl.ast.Char end;
   
-    public FromTo(IConstructor node , org.rascalmpl.ast.Char start,  org.rascalmpl.ast.Char end) {
-      super(node);
+    public FromTo(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Char start,  org.rascalmpl.ast.Char end) {
+      super(src, node);
       
       this.start = start;
       this.end = end;
@@ -144,7 +146,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 769 * start.hashCode() + 317 * end.hashCode() ; 
+      return 929 + 683 * start.hashCode() + 17 * end.hashCode() ; 
     } 
   
     
@@ -169,7 +171,8 @@ public abstract class Range extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(start), clone(end));
+      return newInstance(getClass(), src, (IConstructor) null , clone(start), clone(end));
     }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ModuleParameters extends AbstractAST {
-  public ModuleParameters(IConstructor node) {
-    super();
+  public ModuleParameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class ModuleParameters extends AbstractAST {
   }
 
   static public class Default extends ModuleParameters {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.TypeVar\>","parameters")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.TypeVar\>","parameters")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.TypeVar> parameters;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
+      super(src, node);
       
       this.parameters = parameters;
     }
@@ -72,7 +73,7 @@ public abstract class ModuleParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 359 + 491 * parameters.hashCode() ; 
+      return 547 + 601 * parameters.hashCode() ; 
     } 
   
     
@@ -88,7 +89,8 @@ public abstract class ModuleParameters extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(parameters));
     }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Command extends AbstractAST {
-  public Command(IConstructor node) {
-    super();
+  public Command(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,13 +69,13 @@ public abstract class Command extends AbstractAST {
   }
 
   static public class Declaration extends Command {
-    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
+    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declaration declaration;
   
-    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
-      super(node);
+    public Declaration(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(src, node);
       
       this.declaration = declaration;
     }
@@ -100,7 +101,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 163 * declaration.hashCode() ; 
+      return 571 + 5 * declaration.hashCode() ; 
     } 
   
     
@@ -116,21 +117,22 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(declaration));
+      return newInstance(getClass(), src, (IConstructor) null , clone(declaration));
     }
+            
   }
   public boolean isExpression() {
     return false;
   }
 
   static public class Expression extends Command {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Expression(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -156,7 +158,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 233 * expression.hashCode() ; 
+      return 443 + 101 * expression.hashCode() ; 
     } 
   
     
@@ -172,21 +174,22 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
     }
+            
   }
   public boolean isImport() {
     return false;
   }
 
   static public class Import extends Command {
-    // Production: sig("Import",[arg("org.rascalmpl.ast.Import","imported")])
+    // Production: sig("Import",[arg("org.rascalmpl.ast.Import","imported")],breakable=false)
   
     
     private final org.rascalmpl.ast.Import imported;
   
-    public Import(IConstructor node , org.rascalmpl.ast.Import imported) {
-      super(node);
+    public Import(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Import imported) {
+      super(src, node);
       
       this.imported = imported;
     }
@@ -212,7 +215,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 17 * imported.hashCode() ; 
+      return 547 + 509 * imported.hashCode() ; 
     } 
   
     
@@ -228,21 +231,22 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(imported));
+      return newInstance(getClass(), src, (IConstructor) null , clone(imported));
     }
+            
   }
   public boolean isShell() {
     return false;
   }
 
   static public class Shell extends Command {
-    // Production: sig("Shell",[arg("org.rascalmpl.ast.ShellCommand","command")])
+    // Production: sig("Shell",[arg("org.rascalmpl.ast.ShellCommand","command")],breakable=false)
   
     
     private final org.rascalmpl.ast.ShellCommand command;
   
-    public Shell(IConstructor node , org.rascalmpl.ast.ShellCommand command) {
-      super(node);
+    public Shell(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ShellCommand command) {
+      super(src, node);
       
       this.command = command;
     }
@@ -268,7 +272,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 983 * command.hashCode() ; 
+      return 547 + 857 * command.hashCode() ; 
     } 
   
     
@@ -284,21 +288,22 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(command));
+      return newInstance(getClass(), src, (IConstructor) null , clone(command));
     }
+            
   }
   public boolean isStatement() {
     return false;
   }
 
   static public class Statement extends Command {
-    // Production: sig("Statement",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Statement",[arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Statement(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Statement(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -324,7 +329,7 @@ public abstract class Command extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 617 * statement.hashCode() ; 
+      return 13 + 857 * statement.hashCode() ; 
     } 
   
     
@@ -340,7 +345,8 @@ public abstract class Command extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
     }
+            
   }
 }

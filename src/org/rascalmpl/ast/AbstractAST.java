@@ -19,7 +19,6 @@ package org.rascalmpl.ast;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -42,20 +41,14 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractAST implements IVisitable, Cloneable {
-	protected ISourceLocation src;
-	protected Map<String, IValue> annotations;
-	protected Type _type = null;
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	protected static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	protected IMatchingResult matcher;
+	protected ISourceLocation src;
+	protected Type _type = null;
 	
-	AbstractAST() {
-	
-	}
-	
-	AbstractAST(IConstructor node) {
-		
+	AbstractAST(ISourceLocation src) {
+		this.src = src;
 	}
 	
 	public Type _getType() {
@@ -70,9 +63,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Used in generated clone methods to avoid case distinctions in the code generator
 	 */
 	protected <T extends AbstractAST> T clone(T in) {
-		T tmp = (T) in.clone();
-		tmp.setSourceLocation(src);
-		return tmp;
+		return (T) in.clone();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -82,10 +73,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	public <T extends AbstractAST> java.util.List<T> clone(java.util.List<T> in) {
 		java.util.List<T> tmp = new ArrayList<T>(in.size());
 		for (T elem : in) {
-			T cl = (T) elem.clone();
-			cl.setSourceLocation(elem.getLocation());
-			tmp.add(cl);
-			
+			tmp.add((T) elem.clone());
 		}
 		return tmp;
 	}
@@ -112,18 +100,6 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 		}
 		
 		return null;
-	}
-	
-	public void setSourceLocation(ISourceLocation src) {
-		this.src = src;
-	}
-	
-	public void setAnnotations(Map<String, IValue> annotations) {
-		this.annotations = annotations;
-	}
-	
-	public Map<String, IValue> getAnnotations() {
-		return annotations;
 	}
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
@@ -224,9 +200,6 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * @return <code>true</code> if suspension is supported, otherwise <code>false</code>
 	 */
 	public boolean isBreakable() {
-		return annotations != null
-				&& annotations.containsKey("breakable") 
-				&& annotations.get("breakable").equals(VF.bool(true));
+		return false;
 	}
-	
 }

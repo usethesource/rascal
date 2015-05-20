@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Label extends AbstractAST {
-  public Label(IConstructor node) {
-    super();
+  public Label(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Label extends AbstractAST {
   }
 
   static public class Default extends Label {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -72,7 +73,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 467 * name.hashCode() ; 
+      return 349 + 13 * name.hashCode() ; 
     } 
   
     
@@ -88,20 +89,21 @@ public abstract class Label extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Label {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -126,14 +128,15 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 ; 
+      return 389 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }
