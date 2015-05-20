@@ -64,7 +64,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 ; 
+      return 157 ; 
     } 
   
     	
@@ -110,7 +110,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 ; 
+      return 173 ; 
     } 
   
     	
@@ -202,7 +202,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 ; 
+      return 89 ; 
     } 
   
     	
@@ -248,7 +248,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 ; 
+      return 409 ; 
     } 
   
     	
@@ -294,7 +294,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 ; 
+      return 409 ; 
     } 
   
     	
@@ -340,7 +340,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 ; 
+      return 283 ; 
     } 
   
     	
@@ -386,7 +386,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 ; 
+      return 317 ; 
     } 
   
     	
@@ -432,7 +432,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 ; 
+      return 443 ; 
     } 
   
     	

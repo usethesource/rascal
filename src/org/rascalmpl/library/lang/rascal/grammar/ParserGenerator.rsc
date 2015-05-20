@@ -566,7 +566,7 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str uu(value s) = escape(toBase64("<s>"),("=":"00","+":"11","/":"22"));
+str uu(value s) = escape(toBase64("<delAnnotationsRec(s)>"),("=":"00","+":"11","/":"22"));
 
 default str v2i(value v) {
     switch (v) {

@@ -73,7 +73,7 @@ public abstract class Body extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 503 * toplevels.hashCode() ; 
+      return 619 + 61 * toplevels.hashCode() ; 
     } 
   
     
