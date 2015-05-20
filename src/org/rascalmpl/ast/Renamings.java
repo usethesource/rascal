@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Renamings extends AbstractAST {
-  public Renamings(IConstructor node) {
-    super();
+  public Renamings(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Renamings extends AbstractAST {
   }
 
   static public class Default extends Renamings {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Renaming\>","renamings")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Renaming\>","renamings")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Renaming> renamings;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Renaming> renamings) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Renaming> renamings) {
+      super(src, node);
       
       this.renamings = renamings;
     }
@@ -72,7 +73,7 @@ public abstract class Renamings extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 163 * renamings.hashCode() ; 
+      return 811 + 353 * renamings.hashCode() ; 
     } 
   
     
@@ -88,7 +89,8 @@ public abstract class Renamings extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(renamings));
+      return newInstance(getClass(), src, (IConstructor) null , clone(renamings));
     }
+            
   }
 }

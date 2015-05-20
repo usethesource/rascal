@@ -17,18 +17,19 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class RegExpLiteral extends AbstractAST {
-  public RegExpLiteral(IConstructor node) {
-    super();
+  public RegExpLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
 
   static public class Lexical extends RegExpLiteral {
   private final java.lang.String string;
-  public Lexical(IConstructor node, java.lang.String string) {
-    super(node);
+  public Lexical(ISourceLocation src, IConstructor node, java.lang.String string) {
+    super(src, node);
     this.string = string;
   }
   public java.lang.String getString() {
@@ -47,7 +48,7 @@ public abstract class RegExpLiteral extends AbstractAST {
 
   @Override
   public Object clone()  {
-    return newInstance(getClass(), (IConstructor) null, string);
+    return newInstance(getClass(), src, (IConstructor) null, string);
   }
 
   @Override

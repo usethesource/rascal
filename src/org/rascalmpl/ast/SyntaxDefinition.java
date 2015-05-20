@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class SyntaxDefinition extends AbstractAST {
-  public SyntaxDefinition(IConstructor node) {
-    super();
+  public SyntaxDefinition(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,14 +62,14 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Keyword extends SyntaxDefinition {
-    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Keyword(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.defined = defined;
       this.production = production;
@@ -95,7 +96,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 821 * defined.hashCode() + 223 * production.hashCode() ; 
+      return 367 + 13 * defined.hashCode() + 569 * production.hashCode() ; 
     } 
   
     
@@ -120,23 +121,24 @@ public abstract class SyntaxDefinition extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(defined), clone(production));
+      return newInstance(getClass(), src, (IConstructor) null , clone(defined), clone(production));
     }
+            
   }
   public boolean isLanguage() {
     return false;
   }
 
   static public class Language extends SyntaxDefinition {
-    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Start start;
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Language(IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Language(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.start = start;
       this.defined = defined;
@@ -164,7 +166,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 607 * start.hashCode() + 37 * defined.hashCode() + 211 * production.hashCode() ; 
+      return 401 + 947 * start.hashCode() + 971 * defined.hashCode() + 37 * production.hashCode() ; 
     } 
   
     
@@ -198,23 +200,24 @@ public abstract class SyntaxDefinition extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(start), clone(defined), clone(production));
+      return newInstance(getClass(), src, (IConstructor) null , clone(start), clone(defined), clone(production));
     }
+            
   }
   public boolean isLayout() {
     return false;
   }
 
   static public class Layout extends SyntaxDefinition {
-    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Visibility vis;
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Layout(IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.vis = vis;
       this.defined = defined;
@@ -242,7 +245,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 499 * vis.hashCode() + 461 * defined.hashCode() + 59 * production.hashCode() ; 
+      return 953 + 617 * vis.hashCode() + 89 * defined.hashCode() + 311 * production.hashCode() ; 
     } 
   
     
@@ -276,22 +279,23 @@ public abstract class SyntaxDefinition extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(vis), clone(defined), clone(production));
+      return newInstance(getClass(), src, (IConstructor) null , clone(vis), clone(defined), clone(production));
     }
+            
   }
   public boolean isLexical() {
     return false;
   }
 
   static public class Lexical extends SyntaxDefinition {
-    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Lexical(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.defined = defined;
       this.production = production;
@@ -318,7 +322,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 937 * defined.hashCode() + 409 * production.hashCode() ; 
+      return 227 + 751 * defined.hashCode() + 73 * production.hashCode() ; 
     } 
   
     
@@ -343,7 +347,8 @@ public abstract class SyntaxDefinition extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(defined), clone(production));
+      return newInstance(getClass(), src, (IConstructor) null , clone(defined), clone(production));
     }
+            
   }
 }

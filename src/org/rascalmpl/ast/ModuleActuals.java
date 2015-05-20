@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ModuleActuals extends AbstractAST {
-  public ModuleActuals(IConstructor node) {
-    super();
+  public ModuleActuals(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class ModuleActuals extends AbstractAST {
   }
 
   static public class Default extends ModuleActuals {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Type\>","types")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Type\>","types")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Type> types;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Type> types) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Type> types) {
+      super(src, node);
       
       this.types = types;
     }
@@ -72,7 +73,7 @@ public abstract class ModuleActuals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 67 * types.hashCode() ; 
+      return 691 + 907 * types.hashCode() ; 
     } 
   
     
@@ -88,7 +89,8 @@ public abstract class ModuleActuals extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(types));
+      return newInstance(getClass(), src, (IConstructor) null , clone(types));
     }
+            
   }
 }

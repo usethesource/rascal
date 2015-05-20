@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
@@ -46,6 +47,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +132,7 @@ public class Prelude {
 	/*
 	 * Boolean
 	 */
+	
 	
 	public IValue arbBool()  // get an arbitrary boolean value.}
 	{
@@ -3014,6 +3017,14 @@ public class Prelude {
       return s.toReal();
   }
 	
+	public IString toBase64(IString in) throws UnsupportedEncodingException {
+      return values.string(Base64.getEncoder().encodeToString(in.getValue().getBytes("UTF8")));
+	}
+	
+	public IString fromBase64(IString in) throws UnsupportedEncodingException {
+		return values.string(new String(Base64.getDecoder().decode(in.getValue()), "UTF8"));
+	}
+
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
 	{

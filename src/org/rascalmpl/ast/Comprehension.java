@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Comprehension extends AbstractAST {
-  public Comprehension(IConstructor node) {
-    super();
+  public Comprehension(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,14 +62,14 @@ public abstract class Comprehension extends AbstractAST {
   }
 
   static public class List extends Comprehension {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> results;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public List(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.results = results;
       this.generators = generators;
@@ -95,7 +96,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 449 * results.hashCode() + 521 * generators.hashCode() ; 
+      return 107 + 509 * results.hashCode() + 23 * generators.hashCode() ; 
     } 
   
     
@@ -120,23 +121,24 @@ public abstract class Comprehension extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(results), clone(generators));
+      return newInstance(getClass(), src, (IConstructor) null , clone(results), clone(generators));
     }
+            
   }
   public boolean isMap() {
     return false;
   }
 
   static public class Map extends Comprehension {
-    // Production: sig("Map",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Map",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression from;
     private final org.rascalmpl.ast.Expression to;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Map(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Map(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.from = from;
       this.to = to;
@@ -164,7 +166,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 379 * from.hashCode() + 67 * to.hashCode() + 733 * generators.hashCode() ; 
+      return 347 + 937 * from.hashCode() + 677 * to.hashCode() + 227 * generators.hashCode() ; 
     } 
   
     
@@ -198,22 +200,23 @@ public abstract class Comprehension extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(from), clone(to), clone(generators));
+      return newInstance(getClass(), src, (IConstructor) null , clone(from), clone(to), clone(generators));
     }
+            
   }
   public boolean isSet() {
     return false;
   }
 
   static public class Set extends Comprehension {
-    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> results;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Set(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.results = results;
       this.generators = generators;
@@ -240,7 +243,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 + 577 * results.hashCode() + 353 * generators.hashCode() ; 
+      return 911 + 191 * results.hashCode() + 653 * generators.hashCode() ; 
     } 
   
     
@@ -265,7 +268,8 @@ public abstract class Comprehension extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(results), clone(generators));
+      return newInstance(getClass(), src, (IConstructor) null , clone(results), clone(generators));
     }
+            
   }
 }

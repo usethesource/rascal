@@ -94,10 +94,9 @@ public class StringTemplateConverter {
 		
 		private class IndentingAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
-			public IndentingAppend(ISourceLocation __param1, DataTarget __param2,
+			public IndentingAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2,
 					Statement __param3) {
-				super(null, __param2, __param3);
-				setSourceLocation(__param1);
+				super(__param1, null, __param2, __param3);
 			} 
 			
 			@Override
@@ -149,9 +148,8 @@ public class StringTemplateConverter {
 		private static class ConstAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 			protected final IString str;
 
-			public ConstAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
-				super(null, __param2, null);
-				setSourceLocation(__param1);
+			public ConstAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
+				super(__param1, null,  __param2, null);
 				str = initString(preprocess(arg));
 			}
 			
@@ -228,8 +226,8 @@ public class StringTemplateConverter {
 			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
 			private String indent;
 			
-			public IndentingStringFragmentAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
-				super(__param1, __param2, arg);
+			public IndentingStringFragmentAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
+				super(__param1, tree, __param2, arg);
 			}
 			
 			@Override
@@ -269,8 +267,8 @@ public class StringTemplateConverter {
 		}
 
 		private static class PreAppend extends IndentingStringFragmentAppend {
-			public PreAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
-				super(__param1, __param2, arg);
+			public PreAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
+				super(__param1, tree, __param2, arg);
 			}
 			
 			@Override
@@ -283,8 +281,8 @@ public class StringTemplateConverter {
 
 		private static class MidAppend extends IndentingStringFragmentAppend {
 
-			public MidAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
-				super(__param1, __param2, arg);
+			public MidAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
+				super(__param1, tree, __param2, arg);
 			}
 			
 			@Override
@@ -297,8 +295,8 @@ public class StringTemplateConverter {
 		}
 
 		private static class PostAppend extends ConstAppend {
-			public PostAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
-				super(__param1, __param2, arg);
+			public PostAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
+				super(__param1, tree, __param2, arg);
 			}
 			
 			@Override
@@ -312,24 +310,24 @@ public class StringTemplateConverter {
 		
 		
 		private Statement makeConstAppend(ISourceLocation tree, String str) {
-			return new ConstAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
+			return new ConstAppend(tree, null, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
 		private Statement makePostAppend(ISourceLocation tree, String str) {
-			return new PostAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
+			return new PostAppend(tree, null, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
 		private Statement makePreAppend(ISourceLocation tree, String str) {
-			return new PreAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
+			return new PreAppend(tree, null, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
 		private Statement makeMidAppend(ISourceLocation tree, String str) {
-			return new MidAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
+			return new MidAppend(tree, null, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
 		private Statement makeIndentingAppend(Expression exp) {
 			ISourceLocation loc = exp.getLocation();
-			return new IndentingAppend(exp.getLocation(), ASTBuilder.<DataTarget>make("DataTarget","Labeled", loc, label),
+			return new IndentingAppend(exp.getLocation(), null, ASTBuilder.<DataTarget>make("DataTarget","Labeled", loc, label),
 					ASTBuilder.<Statement>make("Statement","Expression", loc, exp)); 
 		}
 		

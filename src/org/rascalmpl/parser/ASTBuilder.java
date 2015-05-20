@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -75,9 +74,10 @@ public class ASTBuilder {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
-		Object[] newArgs = new Object[args.length + 1];
-		System.arraycopy(args, 0, newArgs, 1, args.length);
-		return (T) callMakerMethod(sort, cons, src, null, newArgs, null);
+		Object[] newArgs = new Object[args.length + 2];
+		System.arraycopy(args, 0, newArgs, 2, args.length);
+		newArgs[0] = src;
+		return (T) callMakerMethod(sort, cons, newArgs, null);
 	}
  
 	public Module buildModule(org.rascalmpl.values.uptr.ITree tree) throws FactTypeUseException {
@@ -203,10 +203,11 @@ public class ASTBuilder {
 
 		IList args = getASTArgs(tree);
 		int arity = args.length();
-		Object actuals[] = new Object[arity+1];
-		actuals[0] = tree;
+		Object actuals[] = new Object[arity+2];
+		actuals[0] = TreeAdapter.getLocation(tree);
+		actuals[1] = tree;
 
-		int i = 1;
+		int i = 2;
 		for (IValue arg : args) {
 			org.rascalmpl.values.uptr.ITree argTree = (org.rascalmpl.values.uptr.ITree) arg;
 
@@ -219,7 +220,7 @@ public class ASTBuilder {
 			i++;
 		}
 
-		return callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
+		return callMakerMethod(sort, cons, actuals, null);
 	}
 
 	private AbstractAST buildLexicalNode(org.rascalmpl.values.uptr.ITree tree) {
@@ -228,9 +229,9 @@ public class ASTBuilder {
 		if (sort.length() == 0) {
 			throw new ImplementationError("could not retrieve sort name for " + tree);
 		}
-		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
+		Object actuals[] = new Object[] { TreeAdapter.getLocation(tree), tree, new String(TreeAdapter.yield(tree)) };
 
-		return callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
+		return callMakerMethod(sort, "Lexical", actuals, null);
 	}
 
 	private String getPatternLayout(org.rascalmpl.values.uptr.ITree tree) {
@@ -303,7 +304,7 @@ public class ASTBuilder {
 			}
 		}
 		else if (TreeAdapter.isCycle(tree)) {
-			return new Tree.Cycle(TreeAdapter.getCycleType(tree), TreeAdapter.getCycleLength(tree));
+			return new Tree.Cycle(TreeAdapter.getLocation(tree), TreeAdapter.getCycleType(tree), TreeAdapter.getCycleLength(tree));
 		}
 		else if (TreeAdapter.isAmb(tree)) {
 			ISet args = TreeAdapter.getAlternatives(tree);
@@ -321,13 +322,13 @@ public class ASTBuilder {
 				return kids.get(0);
 			}
 
-			return cache(tree, new Tree.Amb(tree, kids));
+			return cache(tree, new Tree.Amb(TreeAdapter.getLocation(tree), tree, kids));
 		}
 		else {
 			if (!TreeAdapter.isChar(tree)) {
 				throw new ImplementationError("unexpected tree type: " + tree);
 			}
-			return cache(tree, new Tree.Char(tree)); 
+			return cache(tree, new Tree.Char(TreeAdapter.getLocation(tree), tree)); 
 		}
 	}
 
@@ -338,8 +339,7 @@ public class ASTBuilder {
 		IList args = TreeAdapter.getArgs(tree);
 		IConstructor nameTree = (IConstructor) args.get(4);
 		ISourceLocation src = TreeAdapter.getLocation(tree);
-		Expression result = new Tree.MetaVariable(tree, type, TreeAdapter.yield(nameTree));
-		result.setSourceLocation(src);
+		Expression result = new Tree.MetaVariable(src, tree, type, TreeAdapter.yield(nameTree));
 		return result;
 	}
 
@@ -358,8 +358,8 @@ public class ASTBuilder {
 	private IList getASTArgs(org.rascalmpl.values.uptr.ITree tree) {
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-	
-		for (int i = 0; i < children.length(); i++) {
+		
+                for (int i = 0; i < children.length(); i++) {
 			org.rascalmpl.values.uptr.ITree kid = (org.rascalmpl.values.uptr.ITree) children.get(i);
 			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
 				writer.append(kid);	
@@ -425,11 +425,7 @@ public class ASTBuilder {
 		return liftRec(fragment, false,  getPatternLayout(tree));
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
-		return callMakerMethod(sort, cons, TreeAdapter.getLocation((org.rascalmpl.values.uptr.ITree) actuals[0]), annotations, actuals, keywordActuals);
-	}
-
-	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Map<String, IValue> annotations, Object actuals[], Object keywordActuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
@@ -453,14 +449,7 @@ public class ASTBuilder {
 				astConstructors.put(name, constructor);
 			}
 			
-			AbstractAST result = (AbstractAST) constructor.newInstance(actuals);
-			if (src != null) {
-				result.setSourceLocation(src);
-			}
-			if (annotations != null && !annotations.isEmpty()) {
-				result.setAnnotations(annotations);
-			}
-			return result;
+			return (AbstractAST) constructor.newInstance(actuals);
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (IllegalArgumentException e) {

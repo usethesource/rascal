@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class BasicType extends AbstractAST {
-  public BasicType(IConstructor node) {
-    super();
+  public BasicType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class BasicType extends AbstractAST {
   }
 
   static public class Bag extends BasicType {
-    // Production: sig("Bag",[])
+    // Production: sig("Bag",[],breakable=false)
   
     
   
-    public Bag(IConstructor node ) {
-      super(node);
+    public Bag(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,27 +64,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 ; 
+      return 107 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isBool() {
     return false;
   }
 
   static public class Bool extends BasicType {
-    // Production: sig("Bool",[])
+    // Production: sig("Bool",[],breakable=false)
   
     
   
-    public Bool(IConstructor node ) {
-      super(node);
+    public Bool(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -115,20 +117,21 @@ public abstract class BasicType extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isDateTime() {
     return false;
   }
 
   static public class DateTime extends BasicType {
-    // Production: sig("DateTime",[])
+    // Production: sig("DateTime",[],breakable=false)
   
     
   
-    public DateTime(IConstructor node ) {
-      super(node);
+    public DateTime(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -153,27 +156,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 ; 
+      return 823 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isInt() {
     return false;
   }
 
   static public class Int extends BasicType {
-    // Production: sig("Int",[])
+    // Production: sig("Int",[],breakable=false)
   
     
   
-    public Int(IConstructor node ) {
-      super(node);
+    public Int(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -198,27 +202,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 ; 
+      return 811 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isList() {
     return false;
   }
 
   static public class List extends BasicType {
-    // Production: sig("List",[])
+    // Production: sig("List",[],breakable=false)
   
     
   
-    public List(IConstructor node ) {
-      super(node);
+    public List(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -243,27 +248,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 ; 
+      return 509 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isListRelation() {
     return false;
   }
 
   static public class ListRelation extends BasicType {
-    // Production: sig("ListRelation",[])
+    // Production: sig("ListRelation",[],breakable=false)
   
     
   
-    public ListRelation(IConstructor node ) {
-      super(node);
+    public ListRelation(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -288,27 +294,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 ; 
+      return 83 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isLoc() {
     return false;
   }
 
   static public class Loc extends BasicType {
-    // Production: sig("Loc",[])
+    // Production: sig("Loc",[],breakable=false)
   
     
   
-    public Loc(IConstructor node ) {
-      super(node);
+    public Loc(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -333,27 +340,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 ; 
+      return 487 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isMap() {
     return false;
   }
 
   static public class Map extends BasicType {
-    // Production: sig("Map",[])
+    // Production: sig("Map",[],breakable=false)
   
     
   
-    public Map(IConstructor node ) {
-      super(node);
+    public Map(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -378,27 +386,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 ; 
+      return 997 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isNode() {
     return false;
   }
 
   static public class Node extends BasicType {
-    // Production: sig("Node",[])
+    // Production: sig("Node",[],breakable=false)
   
     
   
-    public Node(IConstructor node ) {
-      super(node);
+    public Node(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -423,27 +432,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 107 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isNum() {
     return false;
   }
 
   static public class Num extends BasicType {
-    // Production: sig("Num",[])
+    // Production: sig("Num",[],breakable=false)
   
     
   
-    public Num(IConstructor node ) {
-      super(node);
+    public Num(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -475,20 +485,21 @@ public abstract class BasicType extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isRational() {
     return false;
   }
 
   static public class Rational extends BasicType {
-    // Production: sig("Rational",[])
+    // Production: sig("Rational",[],breakable=false)
   
     
   
-    public Rational(IConstructor node ) {
-      super(node);
+    public Rational(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -513,27 +524,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 ; 
+      return 173 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isReal() {
     return false;
   }
 
   static public class Real extends BasicType {
-    // Production: sig("Real",[])
+    // Production: sig("Real",[],breakable=false)
   
     
   
-    public Real(IConstructor node ) {
-      super(node);
+    public Real(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -558,27 +570,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 ; 
+      return 487 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isRelation() {
     return false;
   }
 
   static public class Relation extends BasicType {
-    // Production: sig("Relation",[])
+    // Production: sig("Relation",[],breakable=false)
   
     
   
-    public Relation(IConstructor node ) {
-      super(node);
+    public Relation(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -603,27 +616,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 ; 
+      return 263 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isSet() {
     return false;
   }
 
   static public class Set extends BasicType {
-    // Production: sig("Set",[])
+    // Production: sig("Set",[],breakable=false)
   
     
   
-    public Set(IConstructor node ) {
-      super(node);
+    public Set(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -648,27 +662,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 ; 
+      return 809 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isString() {
     return false;
   }
 
   static public class String extends BasicType {
-    // Production: sig("String",[])
+    // Production: sig("String",[],breakable=false)
   
     
   
-    public String(IConstructor node ) {
-      super(node);
+    public String(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -693,27 +708,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 ; 
+      return 769 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTuple() {
     return false;
   }
 
   static public class Tuple extends BasicType {
-    // Production: sig("Tuple",[])
+    // Production: sig("Tuple",[],breakable=false)
   
     
   
-    public Tuple(IConstructor node ) {
-      super(node);
+    public Tuple(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -738,27 +754,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 ; 
+      return 991 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isType() {
     return false;
   }
 
   static public class Type extends BasicType {
-    // Production: sig("Type",[])
+    // Production: sig("Type",[],breakable=false)
   
     
   
-    public Type(IConstructor node ) {
-      super(node);
+    public Type(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -783,27 +800,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 ; 
+      return 401 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isValue() {
     return false;
   }
 
   static public class Value extends BasicType {
-    // Production: sig("Value",[])
+    // Production: sig("Value",[],breakable=false)
   
     
   
-    public Value(IConstructor node ) {
-      super(node);
+    public Value(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -828,27 +846,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 ; 
+      return 373 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isVoid() {
     return false;
   }
 
   static public class Void extends BasicType {
-    // Production: sig("Void",[])
+    // Production: sig("Void",[],breakable=false)
   
     
   
-    public Void(IConstructor node ) {
-      super(node);
+    public Void(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -873,14 +892,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 ; 
+      return 719 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

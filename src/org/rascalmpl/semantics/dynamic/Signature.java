@@ -15,6 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionModifiers;
@@ -31,9 +32,9 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 
 	static public class NoThrows extends org.rascalmpl.ast.Signature.NoThrows {
 
-		public NoThrows(IConstructor __param1,FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
+		public NoThrows(ISourceLocation __param1, IConstructor tree,FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
 				 Name __param4, Parameters __param5) {
-			super(__param1, __param3, __param2, __param4, __param5);
+			super(__param1, tree, __param3, __param2, __param4, __param5);
 		}
 
 		@Override
@@ -53,10 +54,10 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 	}
 
 	static public class WithThrows extends org.rascalmpl.ast.Signature.WithThrows {
-		public WithThrows(IConstructor __param1, FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
+		public WithThrows(ISourceLocation __param1, IConstructor tree, FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
 				Name __param4, Parameters __param5,
 				List<org.rascalmpl.ast.Type> __param6) {
-			super(__param1, __param3, __param2, __param4, __param5, __param6);
+			super(__param1, tree, __param3, __param2, __param4, __param5, __param6);
 		}
 
 		@Override
@@ -78,7 +79,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 
 	}
 
-	public Signature(IConstructor __param1) {
-		super(__param1);
+	public Signature(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

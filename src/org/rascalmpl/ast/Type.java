@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Type extends AbstractAST {
-  public Type(IConstructor node) {
-    super();
+  public Type(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -89,13 +90,13 @@ public abstract class Type extends AbstractAST {
   }
 
   static public class Basic extends Type {
-    // Production: sig("Basic",[arg("org.rascalmpl.ast.BasicType","basic")])
+    // Production: sig("Basic",[arg("org.rascalmpl.ast.BasicType","basic")],breakable=false)
   
     
     private final org.rascalmpl.ast.BasicType basic;
   
-    public Basic(IConstructor node , org.rascalmpl.ast.BasicType basic) {
-      super(node);
+    public Basic(ISourceLocation src, IConstructor node , org.rascalmpl.ast.BasicType basic) {
+      super(src, node);
       
       this.basic = basic;
     }
@@ -121,7 +122,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 + 73 * basic.hashCode() ; 
+      return 109 + 83 * basic.hashCode() ; 
     } 
   
     
@@ -137,21 +138,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(basic));
+      return newInstance(getClass(), src, (IConstructor) null , clone(basic));
     }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends Type {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Type","type")])
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Type","type")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
   
-    public Bracket(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type) {
+      super(src, node);
       
       this.type = type;
     }
@@ -177,7 +179,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 431 * type.hashCode() ; 
+      return 947 + 659 * type.hashCode() ; 
     } 
   
     
@@ -193,21 +195,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(type));
+      return newInstance(getClass(), src, (IConstructor) null , clone(type));
     }
+            
   }
   public boolean isFunction() {
     return false;
   }
 
   static public class Function extends Type {
-    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionType","function")])
+    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionType","function")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionType function;
   
-    public Function(IConstructor node , org.rascalmpl.ast.FunctionType function) {
-      super(node);
+    public Function(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionType function) {
+      super(src, node);
       
       this.function = function;
     }
@@ -233,7 +236,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 911 * function.hashCode() ; 
+      return 541 + 719 * function.hashCode() ; 
     } 
   
     
@@ -249,21 +252,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(function));
+      return newInstance(getClass(), src, (IConstructor) null , clone(function));
     }
+            
   }
   public boolean isSelector() {
     return false;
   }
 
   static public class Selector extends Type {
-    // Production: sig("Selector",[arg("org.rascalmpl.ast.DataTypeSelector","selector")])
+    // Production: sig("Selector",[arg("org.rascalmpl.ast.DataTypeSelector","selector")],breakable=false)
   
     
     private final org.rascalmpl.ast.DataTypeSelector selector;
   
-    public Selector(IConstructor node , org.rascalmpl.ast.DataTypeSelector selector) {
-      super(node);
+    public Selector(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DataTypeSelector selector) {
+      super(src, node);
       
       this.selector = selector;
     }
@@ -289,7 +293,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 613 * selector.hashCode() ; 
+      return 941 + 811 * selector.hashCode() ; 
     } 
   
     
@@ -305,21 +309,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(selector));
+      return newInstance(getClass(), src, (IConstructor) null , clone(selector));
     }
+            
   }
   public boolean isStructured() {
     return false;
   }
 
   static public class Structured extends Type {
-    // Production: sig("Structured",[arg("org.rascalmpl.ast.StructuredType","structured")])
+    // Production: sig("Structured",[arg("org.rascalmpl.ast.StructuredType","structured")],breakable=false)
   
     
     private final org.rascalmpl.ast.StructuredType structured;
   
-    public Structured(IConstructor node , org.rascalmpl.ast.StructuredType structured) {
-      super(node);
+    public Structured(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StructuredType structured) {
+      super(src, node);
       
       this.structured = structured;
     }
@@ -345,7 +350,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 757 * structured.hashCode() ; 
+      return 353 + 193 * structured.hashCode() ; 
     } 
   
     
@@ -361,21 +366,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(structured));
+      return newInstance(getClass(), src, (IConstructor) null , clone(structured));
     }
+            
   }
   public boolean isSymbol() {
     return false;
   }
 
   static public class Symbol extends Type {
-    // Production: sig("Symbol",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Symbol",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Symbol(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Symbol(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -401,7 +407,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 463 * symbol.hashCode() ; 
+      return 97 + 193 * symbol.hashCode() ; 
     } 
   
     
@@ -417,21 +423,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isUser() {
     return false;
   }
 
   static public class User extends Type {
-    // Production: sig("User",[arg("org.rascalmpl.ast.UserType","user")])
+    // Production: sig("User",[arg("org.rascalmpl.ast.UserType","user")],breakable=false)
   
     
     private final org.rascalmpl.ast.UserType user;
   
-    public User(IConstructor node , org.rascalmpl.ast.UserType user) {
-      super(node);
+    public User(ISourceLocation src, IConstructor node , org.rascalmpl.ast.UserType user) {
+      super(src, node);
       
       this.user = user;
     }
@@ -457,7 +464,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 139 * user.hashCode() ; 
+      return 659 + 421 * user.hashCode() ; 
     } 
   
     
@@ -473,21 +480,22 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(user));
+      return newInstance(getClass(), src, (IConstructor) null , clone(user));
     }
+            
   }
   public boolean isVariable() {
     return false;
   }
 
   static public class Variable extends Type {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")])
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")],breakable=false)
   
     
     private final org.rascalmpl.ast.TypeVar typeVar;
   
-    public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
-      super(node);
+    public Variable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
+      super(src, node);
       
       this.typeVar = typeVar;
     }
@@ -513,7 +521,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 443 * typeVar.hashCode() ; 
+      return 569 + 103 * typeVar.hashCode() ; 
     } 
   
     
@@ -529,7 +537,8 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(typeVar));
+      return newInstance(getClass(), src, (IConstructor) null , clone(typeVar));
     }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProtocolTail extends AbstractAST {
-  public ProtocolTail(IConstructor node) {
-    super();
+  public ProtocolTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class ProtocolTail extends AbstractAST {
   }
 
   static public class Mid extends ProtocolTail {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidProtocolChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidProtocolChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidProtocolChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.ProtocolTail tail;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -97,7 +98,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 659 * mid.hashCode() + 757 * expression.hashCode() + 797 * tail.hashCode() ; 
+      return 491 + 53 * mid.hashCode() + 157 * expression.hashCode() + 307 * tail.hashCode() ; 
     } 
   
     
@@ -131,21 +132,22 @@ public abstract class ProtocolTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
     }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends ProtocolTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostProtocolChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -171,7 +173,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 263 * post.hashCode() ; 
+      return 743 + 181 * post.hashCode() ; 
     } 
   
     
@@ -187,7 +189,8 @@ public abstract class ProtocolTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(post));
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
     }
+            
   }
 }

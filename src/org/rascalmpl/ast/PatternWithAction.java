@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PatternWithAction extends AbstractAST {
-  public PatternWithAction(IConstructor node) {
-    super();
+  public PatternWithAction(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   static public class Arbitrary extends PatternWithAction {
-    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Arbitrary(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.statement = statement;
@@ -88,7 +89,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 719 * pattern.hashCode() + 829 * statement.hashCode() ; 
+      return 541 + 367 * pattern.hashCode() + 383 * statement.hashCode() ; 
     } 
   
     
@@ -113,22 +114,23 @@ public abstract class PatternWithAction extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(statement));
     }
+            
   }
   public boolean isReplacing() {
     return false;
   }
 
   static public class Replacing extends PatternWithAction {
-    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")])
+    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Replacement replacement;
   
-    public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
-      super(node);
+    public Replacing(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.replacement = replacement;
@@ -155,7 +157,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 683 * pattern.hashCode() + 347 * replacement.hashCode() ; 
+      return 313 + 433 * pattern.hashCode() + 139 * replacement.hashCode() ; 
     } 
   
     
@@ -180,7 +182,8 @@ public abstract class PatternWithAction extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(replacement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(replacement));
     }
+            
   }
 }

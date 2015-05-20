@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Kind extends AbstractAST {
-  public Kind(IConstructor node) {
-    super();
+  public Kind(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Kind extends AbstractAST {
   }
 
   static public class Alias extends Kind {
-    // Production: sig("Alias",[])
+    // Production: sig("Alias",[],breakable=false)
   
     
   
-    public Alias(IConstructor node ) {
-      super(node);
+    public Alias(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,27 +64,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 ; 
+      return 157 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isAll() {
     return false;
   }
 
   static public class All extends Kind {
-    // Production: sig("All",[])
+    // Production: sig("All",[],breakable=false)
   
     
   
-    public All(IConstructor node ) {
-      super(node);
+    public All(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -108,27 +110,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 ; 
+      return 173 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isAnno() {
     return false;
   }
 
   static public class Anno extends Kind {
-    // Production: sig("Anno",[])
+    // Production: sig("Anno",[],breakable=false)
   
     
   
-    public Anno(IConstructor node ) {
-      super(node);
+    public Anno(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -153,27 +156,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 ; 
+      return 421 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isData() {
     return false;
   }
 
   static public class Data extends Kind {
-    // Production: sig("Data",[])
+    // Production: sig("Data",[],breakable=false)
   
     
   
-    public Data(IConstructor node ) {
-      super(node);
+    public Data(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -198,27 +202,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 ; 
+      return 89 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isFunction() {
     return false;
   }
 
   static public class Function extends Kind {
-    // Production: sig("Function",[])
+    // Production: sig("Function",[],breakable=false)
   
     
   
-    public Function(IConstructor node ) {
-      super(node);
+    public Function(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -243,27 +248,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 ; 
+      return 409 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isModule() {
     return false;
   }
 
   static public class Module extends Kind {
-    // Production: sig("Module",[])
+    // Production: sig("Module",[],breakable=false)
   
     
   
-    public Module(IConstructor node ) {
-      super(node);
+    public Module(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -288,27 +294,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 ; 
+      return 409 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTag() {
     return false;
   }
 
   static public class Tag extends Kind {
-    // Production: sig("Tag",[])
+    // Production: sig("Tag",[],breakable=false)
   
     
   
-    public Tag(IConstructor node ) {
-      super(node);
+    public Tag(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -333,27 +340,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 ; 
+      return 283 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isVariable() {
     return false;
   }
 
   static public class Variable extends Kind {
-    // Production: sig("Variable",[])
+    // Production: sig("Variable",[],breakable=false)
   
     
   
-    public Variable(IConstructor node ) {
-      super(node);
+    public Variable(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -378,27 +386,28 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 317 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isView() {
     return false;
   }
 
   static public class View extends Kind {
-    // Production: sig("View",[])
+    // Production: sig("View",[],breakable=false)
   
     
   
-    public View(IConstructor node ) {
-      super(node);
+    public View(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -423,14 +432,15 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 ; 
+      return 443 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }
