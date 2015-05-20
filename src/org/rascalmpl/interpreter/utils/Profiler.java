@@ -81,6 +81,7 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation, String> names;
 	
 	public Profiler(Evaluator ev){
+		super("Rascal-Sampling-Profiler");
 		this.eval = ev;
 		this.ast = new HashMap<>();
 		this.frame = new HashMap<>();
