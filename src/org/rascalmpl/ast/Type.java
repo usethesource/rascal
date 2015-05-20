@@ -122,7 +122,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 227 * basic.hashCode() ; 
+      return 5 + 139 * basic.hashCode() ; 
     } 
   
     
@@ -179,7 +179,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 199 * type.hashCode() ; 
+      return 647 + 241 * type.hashCode() ; 
     } 
   
     
@@ -236,7 +236,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 47 * function.hashCode() ; 
+      return 449 + 883 * function.hashCode() ; 
     } 
   
     
@@ -293,7 +293,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 673 * selector.hashCode() ; 
+      return 743 + 463 * selector.hashCode() ; 
     } 
   
     
@@ -350,7 +350,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 641 * structured.hashCode() ; 
+      return 967 + 353 * structured.hashCode() ; 
     } 
   
     
@@ -407,7 +407,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 349 * symbol.hashCode() ; 
+      return 907 + 149 * symbol.hashCode() ; 
     } 
   
     
@@ -464,7 +464,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 457 * user.hashCode() ; 
+      return 97 + 431 * user.hashCode() ; 
     } 
   
     
@@ -521,7 +521,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 83 * typeVar.hashCode() ; 
+      return 179 + 331 * typeVar.hashCode() ; 
     } 
   
     

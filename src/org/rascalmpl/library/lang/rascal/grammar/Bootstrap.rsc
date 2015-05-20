@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascal::grammar::Bootstrap
 
 import lang::rascal::\syntax::Rascal; 

@@ -73,7 +73,7 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 241 * expression.hashCode() ; 
+      return 541 + 223 * expression.hashCode() ; 
     } 
   
     
@@ -128,7 +128,7 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 ; 
+      return 521 ; 
     } 
   
     	
