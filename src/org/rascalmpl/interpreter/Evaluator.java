@@ -118,6 +118,39 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.ITree;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
+	private static final class CourseResolver extends FileURIResolver {
+		private final String courseSrc;
+
+		private CourseResolver(String courseSrc) {
+			this.courseSrc = courseSrc;
+		}
+
+		@Override
+		public String scheme() {
+		  return "courses";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+		  String path = uri.getPath();
+		  return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		}
+	}
+
+	private static final class TestModuleResolver extends TempURIResolver {
+		@Override
+		public String scheme() {
+		  return "test-modules";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+		  String path = uri.getPath();
+		  path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+		  return System.getProperty("java.io.tmpdir") + path;
+		}
+	}
+
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
@@ -142,15 +175,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static boolean doProfiling = false;
 	
 	/**
+	 * Track if we already started a profiler, to avoid starting duplicates after a callback to an eval function.
+	 */
+	private boolean profilerRunning = false;
+
+	
+	/**
 	 * This flag helps preventing non-terminating bootstrapping cycles. If 
 	 * it is set we do not allow loading of another nested Parser Generator.
 	 */
 	private boolean isBootstrapper = false;
-
-	/**
-	 * The current profiler; private to this evaluator
-	 */
-	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator; // not sharable
 
@@ -250,18 +284,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
 		final String courseSrc = System.getProperty("rascal.courses");
 		if (courseSrc != null) {
-		   FileURIResolver fileURIResolver = new FileURIResolver() {
-		    @Override
-		    public String scheme() {
-		      return "courses";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		    }
-		  };
+		   FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
 		  
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
@@ -269,19 +292,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		FileURIResolver testModuleResolver = new TempURIResolver() {
-		    @Override
-		    public String scheme() {
-		      return "test-modules";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-		      return System.getProperty("java.io.tmpdir") + path;
-		    }
-		  };
+		FileURIResolver testModuleResolver = new TestModuleResolver();
 		  
 		  resolverRegistry.registerInputOutput(testModuleResolver);
 		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
@@ -928,21 +939,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public Result<IValue> eval(Statement stat) {
 		__setInterrupt(false);
 		try {
-			if (Evaluator.doProfiling) {
+			Profiler profiler = null;
+			if (Evaluator.doProfiling && !profilerRunning) {
 				profiler = new Profiler(this);
 				profiler.start();
-
+				profilerRunning = true;
 			}
 			currentAST = stat;
 			try {
 				return stat.interpret(this);
 			} finally {
-				if (Evaluator.doProfiling) {
-					if (profiler != null) {
-						profiler.pleaseStop();
-						profiler.report();
-						profiler = null;
-					}
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
+					profilerRunning = false;
 				}
 				getEventTrigger().fireIdleEvent();
 			}
@@ -999,18 +1009,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	private Result<IValue> eval(String command, ISourceLocation location)
-			throws ImplementationError {
+	private Result<IValue> eval(String command, ISourceLocation location) throws ImplementationError {
 		__setInterrupt(false);
-    IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-    ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
-		
+		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
+		ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+
 		if (!noBacktickOutsideStringConstant(command)) {
-		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+			tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}
-		
+
 		Command stat = new ASTBuilder().buildCommand(tree);
-		
+
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
@@ -1116,10 +1125,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private Result<IValue> eval(Commands commands) {
 		__setInterrupt(false);
-		if (Evaluator.doProfiling) {
+		Profiler profiler = null;
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
-
+			profilerRunning = true;
 		}
 		try {
 			Result<IValue> last = ResultFactory.nothing();
@@ -1128,33 +1138,29 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 			return last;
 		} finally {
-			if (Evaluator.doProfiling) {
-				if (profiler != null) {
-					profiler.pleaseStop();
-					profiler.report();
-					profiler = null;
-				}
+			if (profiler != null) {
+				profiler.pleaseStop();
+				profiler.report();
+				profilerRunning = false;
 			}
 		}
 	}
 	
 	private Result<IValue> eval(Command command) {
 		__setInterrupt(false);
-		if (Evaluator.doProfiling) {
+		Profiler profiler = null;
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
-
+			profilerRunning = true;
 		}
 		try {
 			return command.interpret(this);
 		} finally {
-			if (Evaluator.doProfiling) {
-				if (profiler != null) {
-//				  getCurrentModuleEnvironment().storeVariable("PROFILE", ResultFactory.makeResult(tf.lrelType(tf.sourceLocationType(), tf.integerType()), profiler.getProfileData(), this));
-					profiler.pleaseStop();
-					profiler.report();
-					profiler = null;
-				}
+			if (profiler != null) {
+				profiler.pleaseStop();
+				profiler.report();
+				profilerRunning = false;
 			}
 		}
 	}
@@ -1558,16 +1564,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		if (Evaluator.doProfiling && profiler == null) {
+		Profiler profiler = null;
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
+			profilerRunning = true;
 			try {
 				return fun.call(monitor, argTypes, argValues, keyArgValues);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
-					profiler = null;
+					profilerRunning = false;
 				}
 			}
 		}

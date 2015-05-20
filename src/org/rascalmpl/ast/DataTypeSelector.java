@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class DataTypeSelector extends AbstractAST {
-  public DataTypeSelector(IConstructor node) {
-    super();
+  public DataTypeSelector(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class DataTypeSelector extends AbstractAST {
   }
 
   static public class Selector extends DataTypeSelector {
-    // Production: sig("Selector",[arg("org.rascalmpl.ast.QualifiedName","sort"),arg("org.rascalmpl.ast.Name","production")])
+    // Production: sig("Selector",[arg("org.rascalmpl.ast.QualifiedName","sort"),arg("org.rascalmpl.ast.Name","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName sort;
     private final org.rascalmpl.ast.Name production;
   
-    public Selector(IConstructor node , org.rascalmpl.ast.QualifiedName sort,  org.rascalmpl.ast.Name production) {
-      super(node);
+    public Selector(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName sort,  org.rascalmpl.ast.Name production) {
+      super(src, node);
       
       this.sort = sort;
       this.production = production;
@@ -81,7 +82,7 @@ public abstract class DataTypeSelector extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 293 * sort.hashCode() + 229 * production.hashCode() ; 
+      return 563 + 563 * sort.hashCode() + 229 * production.hashCode() ; 
     } 
   
     
@@ -106,7 +107,8 @@ public abstract class DataTypeSelector extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(sort), clone(production));
+      return newInstance(getClass(), src, (IConstructor) null , clone(sort), clone(production));
     }
+            
   }
 }

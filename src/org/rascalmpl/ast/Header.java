@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Header extends AbstractAST {
-  public Header(IConstructor node) {
-    super();
+  public Header(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class Header extends AbstractAST {
   }
 
   static public class Default extends Header {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Import\>","imports")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Import\>","imports")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
     private final org.rascalmpl.ast.QualifiedName name;
     private final java.util.List<org.rascalmpl.ast.Import> imports;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Import> imports) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Import> imports) {
+      super(src, node);
       
       this.tags = tags;
       this.name = name;
@@ -97,7 +98,7 @@ public abstract class Header extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 977 * tags.hashCode() + 919 * name.hashCode() + 523 * imports.hashCode() ; 
+      return 13 + 421 * tags.hashCode() + 787 * name.hashCode() + 233 * imports.hashCode() ; 
     } 
   
     
@@ -131,15 +132,16 @@ public abstract class Header extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(name), clone(imports));
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(name), clone(imports));
     }
+            
   }
   public boolean isParameters() {
     return false;
   }
 
   static public class Parameters extends Header {
-    // Production: sig("Parameters",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleParameters","params"),arg("java.util.List\<org.rascalmpl.ast.Import\>","imports")])
+    // Production: sig("Parameters",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleParameters","params"),arg("java.util.List\<org.rascalmpl.ast.Import\>","imports")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -147,8 +149,8 @@ public abstract class Header extends AbstractAST {
     private final org.rascalmpl.ast.ModuleParameters params;
     private final java.util.List<org.rascalmpl.ast.Import> imports;
   
-    public Parameters(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleParameters params,  java.util.List<org.rascalmpl.ast.Import> imports) {
-      super(node);
+    public Parameters(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleParameters params,  java.util.List<org.rascalmpl.ast.Import> imports) {
+      super(src, node);
       
       this.tags = tags;
       this.name = name;
@@ -177,7 +179,7 @@ public abstract class Header extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 877 * tags.hashCode() + 947 * name.hashCode() + 239 * params.hashCode() + 563 * imports.hashCode() ; 
+      return 997 + 977 * tags.hashCode() + 607 * name.hashCode() + 13 * params.hashCode() + 787 * imports.hashCode() ; 
     } 
   
     
@@ -220,7 +222,8 @@ public abstract class Header extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(tags), clone(name), clone(params), clone(imports));
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(name), clone(params), clone(imports));
     }
+            
   }
 }

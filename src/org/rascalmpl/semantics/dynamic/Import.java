@@ -89,9 +89,9 @@ public abstract class Import {
 	
 	static public class External extends org.rascalmpl.ast.Import.External {
 
-		public External(IConstructor node, QualifiedName name,
+		public External(ISourceLocation src, IConstructor node, QualifiedName name,
 				LocationLiteral at) {
-			super(node, name, at);
+			super(src, node, name, at);
 		}
 		
 	
@@ -120,7 +120,7 @@ public abstract class Import {
 			}
 			
 			String moduleName = Names.fullName(this.getName());
-			IString mn = this.VF.string(moduleName);
+			IString mn = VF.string(moduleName);
 			
 			// Using the scheme, get back the correct importer
 			ICallableValue importer = getImporter(resourceScheme, eval.getCurrentEnvt());
@@ -183,8 +183,8 @@ public abstract class Import {
 	}
 	
 	static public class Extend extends org.rascalmpl.ast.Import.Extend {
-		public Extend(IConstructor node, ImportedModule module) {
-			super(node, module);
+		public Extend(ISourceLocation src, IConstructor node, ImportedModule module) {
+			super(src, node, module);
 		}
 		
 		@Override
@@ -196,8 +196,8 @@ public abstract class Import {
 	}
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
-		public Default(IConstructor __param1, ImportedModule __param2) {
-			super(__param1, __param2);
+		public Default(ISourceLocation __param1, IConstructor tree, ImportedModule __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -214,8 +214,8 @@ public abstract class Import {
 	}
 
 	static public class Syntax extends org.rascalmpl.ast.Import.Syntax {
-		public Syntax(IConstructor __param1, SyntaxDefinition __param2) {
-			super(__param1, __param2);
+		public Syntax(ISourceLocation __param1, IConstructor tree, SyntaxDefinition __param2) {
+			super(__param1, tree, __param2);
 		}
 
     @Override

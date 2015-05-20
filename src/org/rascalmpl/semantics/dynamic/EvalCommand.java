@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -23,9 +24,9 @@ public abstract class EvalCommand extends org.rascalmpl.ast.EvalCommand {
 	static public class Declaration extends
 			org.rascalmpl.ast.EvalCommand.Declaration {
 
-		public Declaration(IConstructor __param1,
+		public Declaration(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Declaration __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -40,8 +41,8 @@ public abstract class EvalCommand extends org.rascalmpl.ast.EvalCommand {
 
 	static public class Import extends org.rascalmpl.ast.EvalCommand.Import {
 
-		public Import(IConstructor __param1, org.rascalmpl.ast.Import __param2) {
-			super(__param1, __param2);
+		public Import(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Import __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -63,8 +64,8 @@ public abstract class EvalCommand extends org.rascalmpl.ast.EvalCommand {
 
 	static public class Statement extends org.rascalmpl.ast.EvalCommand.Statement {
 
-		public Statement(IConstructor __param1, org.rascalmpl.ast.Statement __param2) {
-			super(__param1, __param2);
+		public Statement(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -77,7 +78,7 @@ public abstract class EvalCommand extends org.rascalmpl.ast.EvalCommand {
 
 	}
 
-	public EvalCommand(IConstructor __param1) {
-		super(__param1);
+	public EvalCommand(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

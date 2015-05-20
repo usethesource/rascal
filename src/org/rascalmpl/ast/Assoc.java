@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assoc extends AbstractAST {
-  public Assoc(IConstructor node) {
-    super();
+  public Assoc(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Assoc extends AbstractAST {
   }
 
   static public class Associative extends Assoc {
-    // Production: sig("Associative",[])
+    // Production: sig("Associative",[],breakable=false)
   
     
   
-    public Associative(IConstructor node ) {
-      super(node);
+    public Associative(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,27 +64,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 ; 
+      return 113 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isLeft() {
     return false;
   }
 
   static public class Left extends Assoc {
-    // Production: sig("Left",[])
+    // Production: sig("Left",[],breakable=false)
   
     
   
-    public Left(IConstructor node ) {
-      super(node);
+    public Left(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -108,27 +110,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 ; 
+      return 757 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isNonAssociative() {
     return false;
   }
 
   static public class NonAssociative extends Assoc {
-    // Production: sig("NonAssociative",[])
+    // Production: sig("NonAssociative",[],breakable=false)
   
     
   
-    public NonAssociative(IConstructor node ) {
-      super(node);
+    public NonAssociative(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -153,27 +156,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 ; 
+      return 881 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isRight() {
     return false;
   }
 
   static public class Right extends Assoc {
-    // Production: sig("Right",[])
+    // Production: sig("Right",[],breakable=false)
   
     
   
-    public Right(IConstructor node ) {
-      super(node);
+    public Right(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -198,14 +202,15 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 ; 
+      return 67 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

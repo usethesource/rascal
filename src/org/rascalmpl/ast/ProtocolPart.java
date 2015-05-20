@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProtocolPart extends AbstractAST {
-  public ProtocolPart(IConstructor node) {
-    super();
+  public ProtocolPart(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class ProtocolPart extends AbstractAST {
   }
 
   static public class Interpolated extends ProtocolPart {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreProtocolChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreProtocolChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.PreProtocolChars pre;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.ProtocolTail tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+      super(src, node);
       
       this.pre = pre;
       this.expression = expression;
@@ -97,7 +98,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 739 * pre.hashCode() + 487 * expression.hashCode() + 199 * tail.hashCode() ; 
+      return 3 + 263 * pre.hashCode() + 593 * expression.hashCode() + 7 * tail.hashCode() ; 
     } 
   
     
@@ -131,21 +132,22 @@ public abstract class ProtocolPart extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(pre), clone(expression), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(expression), clone(tail));
     }
+            
   }
   public boolean isNonInterpolated() {
     return false;
   }
 
   static public class NonInterpolated extends ProtocolPart {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")])
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")],breakable=false)
   
     
     private final org.rascalmpl.ast.ProtocolChars protocolChars;
   
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
-      super(node);
+    public NonInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
+      super(src, node);
       
       this.protocolChars = protocolChars;
     }
@@ -171,7 +173,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 109 * protocolChars.hashCode() ; 
+      return 23 + 73 * protocolChars.hashCode() ; 
     } 
   
     
@@ -187,7 +189,8 @@ public abstract class ProtocolPart extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(protocolChars));
+      return newInstance(getClass(), src, (IConstructor) null , clone(protocolChars));
     }
+            
   }
 }

@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Declarator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -25,8 +26,8 @@ public abstract class LocalVariableDeclaration extends
 	static public class Default extends
 			org.rascalmpl.ast.LocalVariableDeclaration.Default {
 
-		public Default(IConstructor __param1, Declarator __param2) {
-			super(__param1, __param2);
+		public Default(ISourceLocation __param1, IConstructor tree, Declarator __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -37,8 +38,8 @@ public abstract class LocalVariableDeclaration extends
 
 	}
 
-	public LocalVariableDeclaration(IConstructor __param1) {
-		super(__param1);
+	public LocalVariableDeclaration(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 
 }

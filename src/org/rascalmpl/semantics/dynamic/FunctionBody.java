@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -25,8 +26,8 @@ public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 
 	static public class Default extends org.rascalmpl.ast.FunctionBody.Default {
 
-		public Default(IConstructor __param1, List<Statement> __param2) {
-			super(__param1, __param2);
+		public Default(ISourceLocation __param1, IConstructor tree, List<Statement> __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -46,8 +47,8 @@ public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 
 	}
 
-	public FunctionBody(IConstructor __param1) {
-		super(__param1);
+	public FunctionBody(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 
 }

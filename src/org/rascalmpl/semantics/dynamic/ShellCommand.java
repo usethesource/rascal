@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
@@ -27,8 +28,8 @@ import org.rascalmpl.interpreter.utils.Names;
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Edit extends org.rascalmpl.ast.ShellCommand.Edit {
-		public Edit(IConstructor __param1, QualifiedName __param2) {
-			super(__param1, __param2);
+		public Edit(ISourceLocation __param1, IConstructor tree, QualifiedName __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -39,8 +40,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	
 	static public class Clear extends org.rascalmpl.ast.ShellCommand.Clear {
 
-		public Clear(IConstructor __param1) {
-			super(__param1);
+		public Clear(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 		
 		@Override
@@ -52,8 +53,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Help extends org.rascalmpl.ast.ShellCommand.Help {
 
-		public Help(IConstructor __param1) {
-			super(__param1);
+		public Help(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -69,8 +70,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class History extends org.rascalmpl.ast.ShellCommand.History {
 
-		public History(IConstructor __param1) {
-			super(__param1);
+		public History(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 	}
@@ -78,8 +79,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class ListDeclarations extends
 			org.rascalmpl.ast.ShellCommand.ListDeclarations {
 
-		public ListDeclarations(IConstructor __param1) {
-			super(__param1);
+		public ListDeclarations(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -91,8 +92,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Quit extends org.rascalmpl.ast.ShellCommand.Quit {
 
-		public Quit(IConstructor __param1) {
-			super(__param1);
+		public Quit(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -105,9 +106,9 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class SetOption extends
 			org.rascalmpl.ast.ShellCommand.SetOption {
 
-		public SetOption(IConstructor __param1, QualifiedName __param2,
+		public SetOption(ISourceLocation __param1, IConstructor tree, QualifiedName __param2,
 				Expression __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -117,6 +118,10 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 					.toString();
 
 			switch (name) {
+			case Configuration.GENERATOR_PROFILING_PROPERTY:
+				  __eval.getConfiguration().setGeneratorProfiling(Boolean.parseBoolean(value));
+				  __eval.getParserGenerator().setGeneratorProfiling(Boolean.parseBoolean(value));
+				  break;
 			case Configuration.PROFILING_PROPERTY: 
 			  __eval.getConfiguration().setProfiling(Boolean.parseBoolean(value));
 			  break;
@@ -137,8 +142,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Test extends org.rascalmpl.ast.ShellCommand.Test {
 
-		public Test(IConstructor __param1) {
-			super(__param1);
+		public Test(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -150,8 +155,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class Unimport extends
 			org.rascalmpl.ast.ShellCommand.Unimport {
 
-		public Unimport(IConstructor __param1, QualifiedName __param2) {
-			super(__param1, __param2);
+		public Unimport(ISourceLocation __param1, IConstructor tree, QualifiedName __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -162,7 +167,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	}
 
-	public ShellCommand(IConstructor __param1) {
-		super(__param1);
+	public ShellCommand(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }
