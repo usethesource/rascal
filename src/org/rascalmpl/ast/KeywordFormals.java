@@ -82,7 +82,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 523 * optionalComma.hashCode() + 127 * keywordFormalList.hashCode() ; 
+      return 613 + 733 * optionalComma.hashCode() + 53 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -146,7 +146,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 ; 
+      return 953 ; 
     } 
   
     	

@@ -73,7 +73,7 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 337 * expression.hashCode() ; 
+      return 5 + 647 * expression.hashCode() ; 
     } 
   
     
@@ -128,7 +128,7 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 ; 
+      return 331 ; 
     } 
   
     	

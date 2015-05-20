@@ -64,7 +64,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 ; 
+      return 661 ; 
     } 
   
     	
@@ -110,7 +110,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 ; 
+      return 47 ; 
     } 
   
     	
@@ -156,7 +156,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 ; 
+      return 709 ; 
     } 
   
     	
@@ -202,7 +202,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 ; 
+      return 739 ; 
     } 
   
     	
@@ -248,7 +248,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 ; 
+      return 331 ; 
     } 
   
     	
@@ -294,7 +294,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 ; 
+      return 971 ; 
     } 
   
     	
@@ -340,7 +340,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 ; 
+      return 641 ; 
     } 
   
     	
@@ -386,7 +386,7 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 ; 
+      return 769 ; 
     } 
   
     	

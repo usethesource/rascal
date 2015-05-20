@@ -570,6 +570,7 @@ str uu(value s) = escape(toBase64("<s>"),("=":"00","+":"11","/":"22"));
 
 default str v2i(value v) {
     switch (v) {
+        case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";

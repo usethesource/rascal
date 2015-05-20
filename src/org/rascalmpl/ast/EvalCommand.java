@@ -87,7 +87,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 + 431 * declaration.hashCode() ; 
+      return 167 + 191 * declaration.hashCode() ; 
     } 
   
     
@@ -144,7 +144,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 61 * imported.hashCode() ; 
+      return 131 + 613 * imported.hashCode() ; 
     } 
   
     
@@ -201,7 +201,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 233 * statement.hashCode() ; 
+      return 467 + 593 * statement.hashCode() ; 
     } 
   
     
