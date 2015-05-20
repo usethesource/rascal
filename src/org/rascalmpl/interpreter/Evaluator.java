@@ -174,6 +174,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static boolean doProfiling = false;
 	
 	/**
+	 * Track if we already started a profiler, to avoid starting duplicates after a callback to an eval function.
+	 */
+	private boolean profilerRunning = false;
+
+	
+	/**
 	 * This flag helps preventing non-terminating bootstrapping cycles. If 
 	 * it is set we do not allow loading of another nested Parser Generator.
 	 */
@@ -936,10 +942,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		try {
 			Profiler profiler = null;
-			if (Evaluator.doProfiling) {
+			if (Evaluator.doProfiling && !profilerRunning) {
 				profiler = new Profiler(this);
 				profiler.start();
-
+				profilerRunning = true;
 			}
 			currentAST = stat;
 			try {
@@ -948,6 +954,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
+					profilerRunning = false;
 				}
 				getEventTrigger().fireIdleEvent();
 			}
@@ -1122,10 +1129,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> eval(Commands commands) {
 		__setInterrupt(false);
 		Profiler profiler = null;
-		if (Evaluator.doProfiling) {
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
-
+			profilerRunning = true;
 		}
 		try {
 			Result<IValue> last = ResultFactory.nothing();
@@ -1137,6 +1144,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			if (profiler != null) {
 				profiler.pleaseStop();
 				profiler.report();
+				profilerRunning = false;
 			}
 		}
 	}
@@ -1144,10 +1152,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> eval(Command command) {
 		__setInterrupt(false);
 		Profiler profiler = null;
-		if (Evaluator.doProfiling) {
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
-
+			profilerRunning = true;
 		}
 		try {
 			return command.interpret(this);
@@ -1155,6 +1163,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			if (profiler != null) {
 				profiler.pleaseStop();
 				profiler.report();
+				profilerRunning = false;
 			}
 		}
 	}
@@ -1559,15 +1568,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		Profiler profiler = null;
-		if (Evaluator.doProfiling) {
+		if (Evaluator.doProfiling && !profilerRunning) {
 			profiler = new Profiler(this);
 			profiler.start();
+			profilerRunning = true;
 			try {
 				return fun.call(monitor, argTypes, argValues, keyArgValues);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
+					profilerRunning = false;
 				}
 			}
 		}
