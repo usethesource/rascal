@@ -528,6 +528,12 @@ public java str capitalize(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str uncapitalize(str src);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str toBase64(str src);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str fromBase64(str src);
+
 @doc{
 Synopsis: word wrap a string to fit in a certain width.
 Description:
