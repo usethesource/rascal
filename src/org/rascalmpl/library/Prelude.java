@@ -46,6 +46,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +131,7 @@ public class Prelude {
 	/*
 	 * Boolean
 	 */
+	
 	
 	public IValue arbBool()  // get an arbitrary boolean value.}
 	{
@@ -3020,6 +3022,14 @@ public class Prelude {
       return s.toReal();
   }
 	
+	public IString toBase64(IString in) {
+		return values.string(new String(Base64.getEncoder().encode(in.getValue().getBytes())));
+	}
+	
+	public IString fromBase64(IString in) {
+		return values.string(new String(Base64.getDecoder().decode(in.getValue().getBytes())));
+	}
+
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
 	{
