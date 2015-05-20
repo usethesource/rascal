@@ -160,7 +160,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type _getType() {
+		public Type getConcreteSyntaxType() {
 			return type;
 		}
 

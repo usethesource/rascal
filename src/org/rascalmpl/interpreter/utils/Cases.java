@@ -104,8 +104,7 @@ public class Cases  {
 			pattern = pattern.getPattern();
 		}
 		
-		if (pattern._getType() != null
-				&& pattern._getType() instanceof NonTerminalType) {
+		if (pattern.getConcreteSyntaxType() != null && pattern.getConcreteSyntaxType() instanceof NonTerminalType) {
 			return true;
 		}
 
@@ -173,7 +172,7 @@ public class Cases  {
 				Expression pattern = c.getPatternWithAction().getPattern();
 				hasRegExp |= pattern.isLiteral() && pattern.getLiteral().isRegExp();
 
-				Type type = pattern._getType();
+				Type type = pattern.getConcreteSyntaxType();
 				allConcrete &= isNonTerminalType(type);
 			}
 		}

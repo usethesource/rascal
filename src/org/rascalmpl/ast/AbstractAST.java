@@ -45,14 +45,16 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected ISourceLocation src;
-	protected Type _type = null;
 	
 	AbstractAST(ISourceLocation src) {
 		this.src = src;
 	}
 	
-	public Type _getType() {
-	  return _type;
+	/**
+	 * @return a non-terminal type for ASTs which represent concrete syntax patterns or null otherwise
+	 */
+	public Type getConcreteSyntaxType() {
+		return null;
 	}
 	
 	@Override
@@ -109,16 +111,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	public static Result<IValue> nothing() {
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
-	
 
-  public void _setType(Type nonterminalType) {
-		if (_type != null && (! _type.equals(nonterminalType))) {
-			// For debugging purposes
-			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
-		}
-		this._type = nonterminalType;
-	}
-	
 	public <T> T accept(IASTVisitor<T> v) {
 		return null;
 	}
@@ -129,7 +122,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new ImplementationError("we should have implemented concrete hashCode/equals methods");
+		throw new ImplementationError("Missing generated hashCode/equals methods");
 	}
 
 	@Deprecated
@@ -139,7 +132,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 
 	@Override
 	public int hashCode() {
-		throw new ImplementationError("we should have implemented concrete hashCode/equals methods");
+		throw new ImplementationError("Missing generated concrete hashCode/equals methods");
 	}
 
 	@Override
