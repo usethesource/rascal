@@ -179,11 +179,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private boolean isBootstrapper = false;
 
-	/**
-	 * The current profiler; private to this evaluator
-	 */
-	private Profiler profiler;
-
 	private final TypeDeclarationEvaluator typeDeclarator; // not sharable
 
 	private final List<ClassLoader> classLoaders; // sharable if frozen
@@ -940,6 +935,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public Result<IValue> eval(Statement stat) {
 		__setInterrupt(false);
 		try {
+			Profiler profiler = null;
 			if (Evaluator.doProfiling) {
 				profiler = new Profiler(this);
 				profiler.start();
@@ -949,12 +945,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			try {
 				return stat.interpret(this);
 			} finally {
-				if (Evaluator.doProfiling) {
-					if (profiler != null) {
-						profiler.pleaseStop();
-						profiler.report();
-						profiler = null;
-					}
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
 				}
 				getEventTrigger().fireIdleEvent();
 			}
@@ -1128,6 +1121,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private Result<IValue> eval(Commands commands) {
 		__setInterrupt(false);
+		Profiler profiler = null;
 		if (Evaluator.doProfiling) {
 			profiler = new Profiler(this);
 			profiler.start();
@@ -1140,18 +1134,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 			return last;
 		} finally {
-			if (Evaluator.doProfiling) {
-				if (profiler != null) {
-					profiler.pleaseStop();
-					profiler.report();
-					profiler = null;
-				}
+			if (profiler != null) {
+				profiler.pleaseStop();
+				profiler.report();
 			}
 		}
 	}
 	
 	private Result<IValue> eval(Command command) {
 		__setInterrupt(false);
+		Profiler profiler = null;
 		if (Evaluator.doProfiling) {
 			profiler = new Profiler(this);
 			profiler.start();
@@ -1160,13 +1152,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		try {
 			return command.interpret(this);
 		} finally {
-			if (Evaluator.doProfiling) {
-				if (profiler != null) {
-//				  getCurrentModuleEnvironment().storeVariable("PROFILE", ResultFactory.makeResult(tf.lrelType(tf.sourceLocationType(), tf.integerType()), profiler.getProfileData(), this));
-					profiler.pleaseStop();
-					profiler.report();
-					profiler = null;
-				}
+			if (profiler != null) {
+				profiler.pleaseStop();
+				profiler.report();
 			}
 		}
 	}
@@ -1570,7 +1558,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		if (Evaluator.doProfiling && profiler == null) {
+		Profiler profiler = null;
+		if (Evaluator.doProfiling) {
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
@@ -1579,7 +1568,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
-					profiler = null;
 				}
 			}
 		}
