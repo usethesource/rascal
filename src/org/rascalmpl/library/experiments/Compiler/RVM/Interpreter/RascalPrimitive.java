@@ -48,10 +48,10 @@ import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTyp
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -1416,16 +1416,16 @@ public enum RascalPrimitive {
 			IString field = ((IString) stack[sp - 1]);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
-			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
+			if (tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
 				stack[sp - 2] = Rascal_TRUE;
-			} else {
+			} 
+			else {
 				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
 					IConstructor prod = ((ITree) cons).getProduction();
-					IList prod_symbols = ProductionAdapter.getSymbols(prod);
 					
-					for(int i = 0; i < prod_symbols.length(); i++){
-						IConstructor arg = (IConstructor) prod_symbols.get(i);
-						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(field)) {
+					for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+						IConstructor arg = (IConstructor) elem;
+						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
 							stack[sp - 2] = Rascal_TRUE;
 							return sp - 1;
 						}
@@ -6480,12 +6480,14 @@ public enum RascalPrimitive {
 			IString uri = ((IString) stack[sp - 1]);
 
 			try {
-				stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
+				stack[sp - 1] = vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
 				return sp;
-			} catch (URISyntaxException e) {
-				throw RascalRuntimeException.illegalArgument(uri, currentFrame);
+			} 
+			catch (URISyntaxException e) {
+				// this is actually an unexpected run-time exception since Rascal prevents you from 
+				// creating non-encoded 
+				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
 			}
-
 		}
 	},
 	loc_with_offset_create {
