@@ -3353,7 +3353,7 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, "UTF8")) {
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, in);
 		}
 		catch (IOException e) {
@@ -3386,7 +3386,7 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
-		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), "UTF8")) {
+		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
