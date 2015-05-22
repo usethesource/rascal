@@ -1494,8 +1494,10 @@ public class BytecodeGenerator implements Opcodes {
 
 		for (Function f : functionStore) {
 			emitMethod(f, debug);
+			System.out.println(f.toString() );
 		}
 
+		
 		// All functions are created create int based dispatcher
 		emitDynDispatch(functionMap.size());
 		for (Map.Entry<String, Integer> e : functionMap.entrySet()) {

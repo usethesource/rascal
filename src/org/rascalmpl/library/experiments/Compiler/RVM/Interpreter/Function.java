@@ -222,14 +222,15 @@ public class Function implements Serializable {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("FUNCTION ").append(name).append(" ").append(ftype);
+		sb.append("FUNCTION ").append(name).append(" ->> ").append(ftype).append("\n");
 		for(int i = 0; i < constantStore.length; i++){
-			sb.append("constant "). append(i).append(": "). append(constantStore[i]);
+			sb.append("\t constant "). append(i).append(": "). append(constantStore[i]).append("\n");
 		}
 		for(int i = 0; i < typeConstantStore.length; i++){
-			sb.append("type constant "). append(i).append(": "). append(typeConstantStore[i]);
+			sb.append("\t type constant "). append(i).append(": "). append(typeConstantStore[i]).append("\n");
 		}
-		sb.append(codeblock);
+//		codeblock.toString() ;
+		sb.append(codeblock.toString());
 		return sb.toString();
 	}
 	
