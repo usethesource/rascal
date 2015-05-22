@@ -13,7 +13,7 @@ public class Label extends Instruction {
 		ins.defLabel(label, this);
 	}
 	
-	public String toString() { return "LABEL " + label + " [" +  "]"; }
+	public String toString() { return label; }
 	
 	public void generate(){
 	}

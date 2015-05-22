@@ -770,11 +770,22 @@ public class CodeBlock implements Serializable {
     
     public String toString(){
     	StringBuilder sb = new StringBuilder();
-    	int pc = 0;
-    	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
-    		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
-    		pc += opc.getPcIncrement();
+    	sb.append("\n") ;
+    	boolean prevLabel = false ;
+    	for (Instruction ins : insList ) {
+    		if ( ins instanceof Label ) {
+    			sb.append(ins).append(": ");
+    			prevLabel = true ;
+    		}
+    		else {
+    			if ( prevLabel ) {
+    				sb.append("\t").append(ins).append("\n") ;
+    				prevLabel = false ;
+    			}
+    			else {
+    				sb.append("\t\t").append(ins).append("\n") ;    				
+    			}
+    		}
     	}
     	return sb.toString();
     }
