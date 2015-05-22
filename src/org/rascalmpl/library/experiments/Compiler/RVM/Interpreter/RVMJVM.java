@@ -28,6 +28,7 @@ public class RVMJVM extends RVM {
 	RVMExecutable rrs;
 	RascalExecutionContext rex;
 	byte[] generatedRunner = null;
+	String generatedName = null;
 	RVMRun runner = null;
 
 	/*
@@ -43,6 +44,7 @@ public class RVMJVM extends RVM {
 		super(rrs, rex);
 		if (rrs instanceof RVMJVMExecutable) {
 			generatedRunner = ((RVMJVMExecutable) rrs).jvmByteCode;
+			generatedName = ((RVMJVMExecutable) rrs).fullyQualifiedDottedName;
 		}
 		this.rrs = rrs;
 		this.rex = rex;
@@ -71,7 +73,7 @@ public class RVMJVM extends RVM {
 					}
 					return null;
 				}
-			}.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMRunner", generatedRunner);
+			}.defineClass(generatedName, generatedRunner);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
@@ -84,7 +86,7 @@ public class RVMJVM extends RVM {
 		}
 	}
 
-	boolean useRVMInterpreter = true;
+	boolean useRVMInterpreter = false;
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		if (useRVMInterpreter) {
 			return super.executeProgram(moduleName, uid_main, args);
@@ -113,7 +115,6 @@ public class RVMJVM extends RVM {
 	}
 
 	protected Object executeProgram(Frame root, Frame cf) {
-		// return super.executeProgram(root, cf) ;
 		return runner.dynRun(root.function.funId, root);
 	}
 }
