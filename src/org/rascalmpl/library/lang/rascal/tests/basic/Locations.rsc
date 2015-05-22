@@ -81,3 +81,7 @@ test bool noFile()    = |tmp://X|.file == "";
 test bool rootPath()  = |tmp://X|.path == "/";
 test bool rootPath3() = |tmp:///|.path == "/";
 test bool rootPath4() = |tmp://X/|.path == "/";
+
+test bool splicePathEncoded()         = str x := " " && |tmp:///<x>.rsc| == |tmp:///| + "<x>.rsc";
+test bool spliceArbPathEncoded(str x) = |tmp:///<x>.rsc| == |tmp:///| + "<x>.rsc";
+
