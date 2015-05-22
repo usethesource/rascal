@@ -566,8 +566,11 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str v2i(value v) {	
+str uu(value s) = escape(toBase64("<delAnnotationsRec(s)>"),("=":"00","+":"11","/":"22"));
+
+default str v2i(value v) {
     switch (v) {
+        case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
@@ -575,17 +578,17 @@ str v2i(value v) {
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
-        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
-        case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
+        case \parameterized-sort(str s, list[Symbol] args) : return "<s>_<uu(args)>";
+        case \parameterized-lex(str s, list[Symbol] args) : return "<s>_<uu(args)>";
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
 	        case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
-        case str s()       : return escId(s);
-        case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
-        case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
-        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
-        default            : throw "value not supported <v>";
+        //case str s()       : return escId(s);
+        //case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
+        //case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
+        //case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
+        default            : return uu(v);
     }
 }    
 

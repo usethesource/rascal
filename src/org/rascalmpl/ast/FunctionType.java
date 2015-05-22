@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionType extends AbstractAST {
-  public FunctionType(IConstructor node) {
-    super();
+  public FunctionType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class FunctionType extends AbstractAST {
   }
 
   static public class TypeArguments extends FunctionType {
-    // Production: sig("TypeArguments",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments")])
+    // Production: sig("TypeArguments",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
   
-    public TypeArguments(IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
-      super(node);
+    public TypeArguments(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+      super(src, node);
       
       this.type = type;
       this.arguments = arguments;
@@ -81,7 +82,7 @@ public abstract class FunctionType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 877 * type.hashCode() + 911 * arguments.hashCode() ; 
+      return 233 + 733 * type.hashCode() + 701 * arguments.hashCode() ; 
     } 
   
     
@@ -106,7 +107,8 @@ public abstract class FunctionType extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(type), clone(arguments));
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(arguments));
     }
+            
   }
 }

@@ -25,11 +25,13 @@ public class Configuration {
 	
 	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
 	public final static String PROFILING_PROPERTY = "rascal.profiling";
+	public final static String GENERATOR_PROFILING_PROPERTY = "rascal.generatorProfiling";
 	public final static String TRACING_PROPERTY = "rascal.tracing";
 	public final static String ERRORS_PROPERTY = "rascal.errors";
 	
 	private String javaClassPath = getDefaultString(RASCAL_JAVA_COMPILER_CLASSPATH, System.getProperty("java.class.path"));
   private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
+  private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
   private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
   private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
   
@@ -65,6 +67,10 @@ public class Configuration {
 		return profiling;
 	}
 	
+	public boolean getGeneratorProfilingProperty(){
+		return generatorProfiling;
+	}
+	
 	public boolean getTracingProperty(){
 		return tracing;
 	}
@@ -80,6 +86,10 @@ public class Configuration {
 	public void setProfiling(boolean profiling) {
 	  this.profiling = profiling;
 	}
+	
+	public void setGeneratorProfiling(boolean profiling) {
+		  this.generatorProfiling = profiling;
+		}
 	
 	public void setTracing(boolean tracing) {
 	  this.tracing = tracing;

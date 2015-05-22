@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class KeywordArgument_Expression extends AbstractAST {
-  public KeywordArgument_Expression(IConstructor node) {
-    super();
+  public KeywordArgument_Expression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
   }
 
   static public class Default extends KeywordArgument_Expression {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression expression;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.name = name;
       this.expression = expression;
@@ -81,7 +82,7 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 599 * name.hashCode() + 821 * expression.hashCode() ; 
+      return 691 + 109 * name.hashCode() + 67 * expression.hashCode() ; 
     } 
   
     
@@ -106,7 +107,8 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(expression));
     }
+            
   }
 }

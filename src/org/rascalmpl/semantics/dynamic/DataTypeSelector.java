@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
@@ -35,8 +36,8 @@ public abstract class DataTypeSelector extends
 	static public class Selector extends
 			org.rascalmpl.ast.DataTypeSelector.Selector {
 
-		public Selector(IConstructor __param1, QualifiedName __param2, Name __param3) {
-			super(__param1, __param2, __param3);
+		public Selector(ISourceLocation __param1, IConstructor tree, QualifiedName __param2, Name __param3) {
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -83,7 +84,7 @@ public abstract class DataTypeSelector extends
 
 	}
 
-	public DataTypeSelector(IConstructor __param1) {
-		super(__param1);
+	public DataTypeSelector(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascal::grammar::Bootstrap
 
 import lang::rascal::\syntax::Rascal; 
@@ -30,6 +31,14 @@ public void bootstrap(loc rascalHome) {
   bootParser(gr, rascalHome);
   bootAST(gr, rascalHome);
 }
+
+public void bootstrapAst(loc rascalHome) {
+  println("generating from <rascalHome>");
+  gr = getRascalGrammar(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc");
+  bootAST(gr, rascalHome);
+}
+
+
 
 public void bootParser(Grammar gr, loc rascalHome) {
   event("generating new Rascal parser");

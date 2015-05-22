@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Declarator extends AbstractAST {
-  public Declarator(IConstructor node) {
-    super();
+  public Declarator(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Declarator extends AbstractAST {
   }
 
   static public class Default extends Declarator {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final java.util.List<org.rascalmpl.ast.Variable> variables;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+      super(src, node);
       
       this.type = type;
       this.variables = variables;
@@ -81,7 +82,7 @@ public abstract class Declarator extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 701 * type.hashCode() + 149 * variables.hashCode() ; 
+      return 599 + 257 * type.hashCode() + 983 * variables.hashCode() ; 
     } 
   
     
@@ -106,7 +107,8 @@ public abstract class Declarator extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(type), clone(variables));
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(variables));
     }
+            
   }
 }

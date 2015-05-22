@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -28,9 +29,9 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 
 	static public class List extends org.rascalmpl.ast.Comprehension.List {
 
-		public List(IConstructor __param1, java.util.List<Expression> __param2,
+		public List(ISourceLocation __param1, IConstructor tree, java.util.List<Expression> __param2,
 				java.util.List<Expression> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -43,9 +44,9 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 
 	static public class Map extends org.rascalmpl.ast.Comprehension.Map {
 
-		public Map(IConstructor __param1, Expression __param2, Expression __param3,
+		public Map(ISourceLocation __param1, IConstructor tree, Expression __param2, Expression __param3,
 				java.util.List<Expression> __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -60,9 +61,9 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 	}
 
 	static public class Set extends org.rascalmpl.ast.Comprehension.Set {
-		public Set(IConstructor __param1, java.util.List<Expression> __param2,
+		public Set(ISourceLocation __param1, IConstructor tree, java.util.List<Expression> __param2,
 				java.util.List<Expression> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -110,7 +111,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 		return w.done();
 	}
 
-	public Comprehension(IConstructor __param1) {
-		super(__param1);
+	public Comprehension(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

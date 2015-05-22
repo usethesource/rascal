@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class UserType extends AbstractAST {
-  public UserType(IConstructor node) {
-    super();
+  public UserType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class UserType extends AbstractAST {
   }
 
   static public class Name extends UserType {
-    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Name(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Name(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -79,7 +80,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 503 * name.hashCode() ; 
+      return 373 + 617 * name.hashCode() ; 
     } 
   
     
@@ -95,22 +96,23 @@ public abstract class UserType extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
   public boolean isParametric() {
     return false;
   }
 
   static public class Parametric extends UserType {
-    // Production: sig("Parametric",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","parameters")])
+    // Production: sig("Parametric",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final java.util.List<org.rascalmpl.ast.Type> parameters;
   
-    public Parametric(IConstructor node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
-      super(node);
+    public Parametric(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
+      super(src, node);
       
       this.name = name;
       this.parameters = parameters;
@@ -137,7 +139,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 101 * name.hashCode() + 223 * parameters.hashCode() ; 
+      return 163 + 491 * name.hashCode() + 607 * parameters.hashCode() ; 
     } 
   
     
@@ -162,7 +164,8 @@ public abstract class UserType extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(parameters));
     }
+            
   }
 }

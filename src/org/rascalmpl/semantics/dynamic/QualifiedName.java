@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -34,8 +35,8 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 		private String moduleName;
 
 
-		public Default(IConstructor __param1, List<Name> __param2) {
-			super(__param1, __param2);
+		public Default(ISourceLocation __param1, IConstructor tree, List<Name> __param2) {
+			super(__param1, tree, __param2);
 			lastName = ((Name.Lexical) __param2.get(__param2.size() - 1)).getString();
 		}
 
@@ -113,7 +114,7 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 		}
 	}
 
-	public QualifiedName(IConstructor __param1) {
-		super(__param1);
+	public QualifiedName(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

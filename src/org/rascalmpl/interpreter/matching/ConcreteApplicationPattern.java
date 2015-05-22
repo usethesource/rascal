@@ -59,7 +59,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		this.tupleSubject = new TreeAsTuple();
 		
 		// save the type of this tree
-		this.myType = x._getType();
+		this.myType = x.getConcreteSyntaxType();
 	}
 	
 	public List<IVarPattern> getVariables() {
