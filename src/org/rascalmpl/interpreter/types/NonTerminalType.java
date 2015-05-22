@@ -14,6 +14,7 @@
 package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
@@ -31,6 +32,8 @@ public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
+		// TODO refactor this into different factory methods in RascalTypeFactory
+		
 		if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
 			// Note that here we go from * to + lists if the list is not empty
 			this.symbol = TreeAdapter.getType((ITree) cons);
@@ -174,15 +177,48 @@ public class NonTerminalType extends RascalType {
 	@Override
 	public boolean isSubtypeOfNonTerminal(RascalType other) {
 	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym));
+	 
+	  if ((SymbolAdapter.isIterPlus(symbol) && (SymbolAdapter.isIterStar(otherSym) || SymbolAdapter.isIterPlus(otherSym)))
+		 || (SymbolAdapter.isIterStar(symbol) && SymbolAdapter.isIterStar(otherSym))) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  return nt1.isSubtypeOfNonTerminal(nt2);
 	  }
+	  else if ((SymbolAdapter.isIterPlusSeps(symbol) && (SymbolAdapter.isIterStarSeps(otherSym) || SymbolAdapter.isIterPlusSeps(otherSym)))
+			  || (SymbolAdapter.isIterStarSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym))) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  
+		  if (nt1.isSubtypeOfNonTerminal(nt2)) {
+			  IList seps1 = SymbolAdapter.getSeparators(symbol);
+			  IList seps2 = SymbolAdapter.getSeparators(otherSym);
 
-	  if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
-	        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
+			  // this works around broken regular prods in the RVM which have the wrong or missing layout symbols:
+			  int sep1index = seps1.length() == 3 ? 1 : 0;
+			  int sep2index = seps2.length() == 3 ? 1 : 0;
+
+			  nt1 = (RascalType) RTF.nonTerminalType((IConstructor) seps1.get(sep1index));
+			  nt2 = (RascalType) RTF.nonTerminalType((IConstructor) seps2.get(sep2index));
+			  return nt1.isSubtypeOfNonTerminal(nt2);
+		  }
+
+		  return false;
+	  }
+	  else if (SymbolAdapter.isOpt(symbol) && SymbolAdapter.isOpt(otherSym)) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  return nt1.isSubtypeOfNonTerminal(nt2);
+	  }
+//	  else if (SymbolAdapter.isSequence(symbol) && SymbolAdapter.isSeq(otherSym)) {
+		  // TODO pairwise issubtype
+//	  }
+
+	  if (SymbolAdapter.isParameter(otherSym)) {
+		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
+		  return isSubtypeOf(bound);
 	  }
 	  
+	  // TODO co-variance for the other structured symbols (sequence, opt, list)
 	  return SymbolAdapter.isEqual(otherSym, symbol);
 	}
 	
