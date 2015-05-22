@@ -82,7 +82,7 @@ public class RVMRun extends RVM {
 
 	// Function overloading
 	private final Map<String, Integer> resolver;
-	protected ArrayList<OverloadedFunction> overloadedStore;
+//	protected ArrayList<OverloadedFunction> overloadedStore;
 	protected OverloadedFunction[] overloadedStoreV2;
 
 	private TypeStore typeStore = new TypeStore();
@@ -192,7 +192,7 @@ public class RVMRun extends RVM {
 		constructorMap = new HashMap<String, Integer>();
 
 		resolver = new HashMap<String, Integer>();
-		overloadedStore = new ArrayList<OverloadedFunction>();
+//		overloadedStore = new ArrayList<OverloadedFunction>();
 
 		moduleVariables = new HashMap<IValue, IValue>();
 
