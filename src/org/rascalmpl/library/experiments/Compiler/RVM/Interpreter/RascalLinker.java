@@ -411,7 +411,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		return new RVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
