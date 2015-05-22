@@ -34,18 +34,17 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		'<for (id <- initialDecls) {>
 		'<id><}>
 		";
-println("moduleToCheck:");
-println(moduleToCheck);
 	c = newConfiguration();
 	try {
 		pt = parseModuleWithSpaces(moduleToCheck);
+
 		if (pt has top && Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
-			c = addScopeError(c, "Unexpected parse result for module to check <pt>", |here:///<moduleToCheck>|); 
+			c = addScopeError(c, "Unexpected parse result for module to check <pt>", |unknown:///|); 
 		}
 	} catch perror : {
-		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", |here:///<moduleToCheck>|);
+		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", |unknown:///|);
 	}
 			
 //	// Convert the string representations of the module name into
