@@ -13,6 +13,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PathChars;
@@ -26,9 +27,9 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 	static public class Interpolated extends
 			org.rascalmpl.ast.PathPart.Interpolated {
 
-		public Interpolated(IConstructor __param1, PrePathChars __param2,
+		public Interpolated(ISourceLocation __param1, IConstructor tree, PrePathChars __param2,
 				Expression __param3, PathTail __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -46,8 +47,8 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 	static public class NonInterpolated extends
 			org.rascalmpl.ast.PathPart.NonInterpolated {
 
-		public NonInterpolated(IConstructor __param1, PathChars __param2) {
-			super(__param1, __param2);
+		public NonInterpolated(ISourceLocation __param1, IConstructor tree, PathChars __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -59,8 +60,8 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 
 	}
 
-	public PathPart(IConstructor __param1) {
-		super(__param1);
+	public PathPart(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 
 }

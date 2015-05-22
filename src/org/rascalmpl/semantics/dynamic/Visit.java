@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Case;
@@ -38,9 +39,9 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			org.rascalmpl.ast.Visit.DefaultStrategy {
 		private final CaseBlockList blocks;
 
-		public DefaultStrategy(IConstructor __param1, Expression __param2,
+		public DefaultStrategy(ISourceLocation __param1, IConstructor tree, Expression __param2,
 				List<Case> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 			blocks = new CaseBlockList(Cases.precompute(getCases()));
 		}
 
@@ -74,9 +75,9 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			org.rascalmpl.ast.Visit.GivenStrategy {
 		private final CaseBlockList blocks;
 
-		public GivenStrategy(IConstructor __param1, Strategy __param2,
+		public GivenStrategy(ISourceLocation __param1, IConstructor tree, Strategy __param2,
 				Expression __param3, List<Case> __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 			blocks = new CaseBlockList(Cases.precompute(getCases()));
 		}
 
@@ -133,7 +134,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		}
 	}
 
-	public Visit(IConstructor __param1) {
-		super(__param1);
+	public Visit(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

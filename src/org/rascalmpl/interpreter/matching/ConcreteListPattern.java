@@ -82,7 +82,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
-		return callOrTree._getType();
+		return callOrTree.getConcreteSyntaxType();
 	}
 
 	@Override

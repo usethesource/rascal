@@ -13,6 +13,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -25,8 +26,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Bag extends org.rascalmpl.ast.BasicType.Bag {
 
-		public Bag(IConstructor __param1) {
-			super(__param1);
+		public Bag(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -48,8 +49,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Bool extends org.rascalmpl.ast.BasicType.Bool {
 
-		public Bool(IConstructor __param1) {
-			super(__param1);
+		public Bool(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -75,8 +76,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class DateTime extends org.rascalmpl.ast.BasicType.DateTime {
 
-		public DateTime(IConstructor __param1) {
-			super(__param1);
+		public DateTime(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -100,8 +101,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Int extends org.rascalmpl.ast.BasicType.Int {
 
-		public Int(IConstructor __param1) {
-			super(__param1);
+		public Int(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -128,8 +129,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Rational extends org.rascalmpl.ast.BasicType.Rational {
 
-		public Rational(IConstructor __param1) {
-			super(__param1);
+		public Rational(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -156,8 +157,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class List extends org.rascalmpl.ast.BasicType.List {
 
-		public List(IConstructor __param1) {
-			super(__param1);
+		public List(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -184,8 +185,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Loc extends org.rascalmpl.ast.BasicType.Loc {
 
-		public Loc(IConstructor __param1) {
-			super(__param1);
+		public Loc(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -211,8 +212,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Map extends org.rascalmpl.ast.BasicType.Map {
 
-		public Map(IConstructor __param1) {
-			super(__param1);
+		public Map(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -241,8 +242,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Node extends org.rascalmpl.ast.BasicType.Node {
 
-		public Node(IConstructor __param1) {
-			super(__param1);
+		public Node(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -268,8 +269,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Num extends org.rascalmpl.ast.BasicType.Num {
 
-		public Num(IConstructor __param1) {
-			super(__param1);
+		public Num(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -295,8 +296,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Real extends org.rascalmpl.ast.BasicType.Real {
 
-		public Real(IConstructor __param1) {
-			super(__param1);
+		public Real(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -321,8 +322,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class Type extends
 			org.rascalmpl.ast.BasicType.Type {
 
-		public Type(IConstructor __param1) {
-			super(__param1);
+		public Type(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -350,8 +351,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Relation extends org.rascalmpl.ast.BasicType.Relation {
 
-		public Relation(IConstructor __param1) {
-			super(__param1);
+		public Relation(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -375,8 +376,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	
 	static public class ListRelation extends org.rascalmpl.ast.BasicType.ListRelation {
 
-		public ListRelation(IConstructor __param1) {
-			super(__param1);
+		public ListRelation(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -400,8 +401,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Set extends org.rascalmpl.ast.BasicType.Set {
 
-		public Set(IConstructor __param1) {
-			super(__param1);
+		public Set(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -429,8 +430,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class String extends org.rascalmpl.ast.BasicType.String {
 
-		public String(IConstructor __param1) {
-			super(__param1);
+		public String(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -455,8 +456,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Tuple extends org.rascalmpl.ast.BasicType.Tuple {
 
-		public Tuple(IConstructor __param1) {
-			super(__param1);
+		public Tuple(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -479,8 +480,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Value extends org.rascalmpl.ast.BasicType.Value {
 
-		public Value(IConstructor __param1) {
-			super(__param1);
+		public Value(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -505,8 +506,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Void extends org.rascalmpl.ast.BasicType.Void {
 
-		public Void(IConstructor __param1) {
-			super(__param1);
+		public Void(ISourceLocation __param1, IConstructor tree) {
+			super(__param1, tree);
 		}
 
 		@Override
@@ -526,7 +527,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	}
 
-	public BasicType(IConstructor __param1) {
-		super(__param1);
+	public BasicType(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

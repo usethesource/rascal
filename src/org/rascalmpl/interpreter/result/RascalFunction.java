@@ -118,17 +118,11 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	private AbstractAST cloneAst() {
-		AbstractAST clone = (AbstractAST) getAst().clone();
-		clone.setSourceLocation(getAst().getLocation());
-		return clone;
+		return (AbstractAST) getAst().clone();
 	}
 
 	private List<Statement> cloneBody() {
-		List<Statement> clonedBody = getAst().clone(body);
-		for (int i = 0; i < body.size(); i++) {
-			clonedBody.get(i).setSourceLocation(body.get(i).getLocation());
-		}
-		return clonedBody;
+		return getAst().clone(body);
 	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {

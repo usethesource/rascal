@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Field extends AbstractAST {
-  public Field(IConstructor node) {
-    super();
+  public Field(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class Field extends AbstractAST {
   }
 
   static public class Index extends Field {
-    // Production: sig("Index",[arg("org.rascalmpl.ast.IntegerLiteral","fieldIndex")])
+    // Production: sig("Index",[arg("org.rascalmpl.ast.IntegerLiteral","fieldIndex")],breakable=false)
   
     
     private final org.rascalmpl.ast.IntegerLiteral fieldIndex;
   
-    public Index(IConstructor node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
-      super(node);
+    public Index(ISourceLocation src, IConstructor node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
+      super(src, node);
       
       this.fieldIndex = fieldIndex;
     }
@@ -79,7 +80,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 17 * fieldIndex.hashCode() ; 
+      return 283 + 379 * fieldIndex.hashCode() ; 
     } 
   
     
@@ -95,21 +96,22 @@ public abstract class Field extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(fieldIndex));
+      return newInstance(getClass(), src, (IConstructor) null , clone(fieldIndex));
     }
+            
   }
   public boolean isName() {
     return false;
   }
 
   static public class Name extends Field {
-    // Production: sig("Name",[arg("org.rascalmpl.ast.Name","fieldName")])
+    // Production: sig("Name",[arg("org.rascalmpl.ast.Name","fieldName")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name fieldName;
   
-    public Name(IConstructor node , org.rascalmpl.ast.Name fieldName) {
-      super(node);
+    public Name(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name fieldName) {
+      super(src, node);
       
       this.fieldName = fieldName;
     }
@@ -135,7 +137,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 727 * fieldName.hashCode() ; 
+      return 41 + 353 * fieldName.hashCode() ; 
     } 
   
     
@@ -151,7 +153,8 @@ public abstract class Field extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(fieldName));
+      return newInstance(getClass(), src, (IConstructor) null , clone(fieldName));
     }
+            
   }
 }

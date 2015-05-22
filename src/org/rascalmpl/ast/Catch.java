@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Catch extends AbstractAST {
-  public Catch(IConstructor node) {
-    super();
+  public Catch(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Catch extends AbstractAST {
   }
 
   static public class Binding extends Catch {
-    // Production: sig("Binding",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("Binding",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Statement body;
   
-    public Binding(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
-      super(node);
+    public Binding(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.pattern = pattern;
       this.body = body;
@@ -81,7 +82,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 409 * pattern.hashCode() + 769 * body.hashCode() ; 
+      return 23 + 719 * pattern.hashCode() + 233 * body.hashCode() ; 
     } 
   
     
@@ -106,21 +107,22 @@ public abstract class Catch extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(pattern), clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(body));
     }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends Catch {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement body;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Statement body) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.body = body;
     }
@@ -146,7 +148,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 103 * body.hashCode() ; 
+      return 877 + 271 * body.hashCode() ; 
     } 
   
     
@@ -162,7 +164,8 @@ public abstract class Catch extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(body));
     }
+            
   }
 }
