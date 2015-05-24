@@ -275,7 +275,7 @@ test bool tstUnique1() = makeUnique(GEXP)== grammar(
 test bool tstGenerateNewItems1() = generateNewItems(makeUnique(GEMPTY)) == ();
 
 test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) == 
- (
+(
   sort("S")[
     @id=5
   ]:(item(
@@ -287,7 +287,7 @@ test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) ==
             @id=6
           ]],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(6, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",6>),
+      0):<"new LiteralStackNode\<IConstructor\>(6, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",6>),
   lit("0")[
     @id=9
   ]:(item(
@@ -303,7 +303,7 @@ test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) ==
 );
 
 test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) == 
- (
+(
   lit("+")[
     @id=5
   ]:(item(
@@ -340,7 +340,7 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
             @id=14
           ]],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(14, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",14>,
+      0):<"new LiteralStackNode\<IConstructor\>(14, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",14>,
     item(
       prod(
         sort("B")[
@@ -350,7 +350,7 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
             @id=16
           ]],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(16, 0, prod__lit_1__char_class___range__49_49_, new int[] {49}, null, null)",16>
+      0):<"new LiteralStackNode\<IConstructor\>(16, 0, cHJvZChsaXQoIjEiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ5LDQ5KV0pXSx7fSk00, new int[] {49}, null, null)",16>
   ),
   lit("0")[
     @id=19
@@ -380,24 +380,6 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
     item(
       prod(
         sort("E")[
-          @id=25
-        ],
-        [
-          sort("E")[
-            @id=26
-          ],
-          lit("+")[
-            @id=27
-          ],
-          sort("B")[
-            @id=28
-          ]
-        ],
-        {}),
-      1):<"new LiteralStackNode\<IConstructor\>(27, 1, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null)",27>,
-    item(
-      prod(
-        sort("E")[
           @id=29
         ],
         [
@@ -412,7 +394,25 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
           ]
         ],
         {}),
-      1):<"new LiteralStackNode\<IConstructor\>(31, 1, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null)",31>,
+      1):<"new LiteralStackNode\<IConstructor\>(31, 1, cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00, new int[] {42}, null, null)",31>,
+    item(
+      prod(
+        sort("E")[
+          @id=25
+        ],
+        [
+          sort("E")[
+            @id=26
+          ],
+          lit("+")[
+            @id=27
+          ],
+          sort("B")[
+            @id=28
+          ]
+        ],
+        {}),
+      1):<"new LiteralStackNode\<IConstructor\>(27, 1, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null)",27>,
     item(
       prod(
         sort("E")[
@@ -448,6 +448,24 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
           ]
         ],
         {}),
+      0):<"new NonTerminalStackNode\<IConstructor\>(30, 0, \"E\", null, null)",30>,
+    item(
+      prod(
+        sort("E")[
+          @id=29
+        ],
+        [
+          sort("E")[
+            @id=30
+          ],
+          lit("*")[
+            @id=31
+          ],
+          sort("B")[
+            @id=32
+          ]
+        ],
+        {}),
       2):<"new NonTerminalStackNode\<IConstructor\>(32, 2, \"B\", null, null)",32>,
     item(
       prod(
@@ -466,25 +484,7 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
           ]
         ],
         {}),
-      2):<"new NonTerminalStackNode\<IConstructor\>(28, 2, \"B\", null, null)",28>,
-    item(
-      prod(
-        sort("E")[
-          @id=29
-        ],
-        [
-          sort("E")[
-            @id=30
-          ],
-          lit("*")[
-            @id=31
-          ],
-          sort("B")[
-            @id=32
-          ]
-        ],
-        {}),
-      0):<"new NonTerminalStackNode\<IConstructor\>(30, 0, \"E\", null, null)",30>
+      2):<"new NonTerminalStackNode\<IConstructor\>(28, 2, \"B\", null, null)",28>
   ),
   lit("1")[
     @id=35
