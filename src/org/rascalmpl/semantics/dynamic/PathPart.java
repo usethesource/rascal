@@ -12,8 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.net.URISyntaxException;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PathChars;
@@ -21,6 +24,10 @@ import org.rascalmpl.ast.PathTail;
 import org.rascalmpl.ast.PrePathChars;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 
@@ -34,14 +41,22 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			Result<IValue> pre = this.getPre().interpret(__eval);
-			Result<IValue> expr = this.getExpression().interpret(__eval);
-			Result<IValue> tail = this.getTail().interpret(__eval);
+			String expr = ((IString) this.getExpression().interpret(__eval).getValue()).getValue();
+			String workExpr;
+			
+			try {
+				workExpr = expr.startsWith("/") ? expr : ("/" + expr);
+				workExpr = URIUtil.create("tmp", "", workExpr).getRawPath();
+				workExpr = expr.startsWith("/") ? workExpr : workExpr.substring(1);
+				Result<IValue> tail = this.getTail().interpret(__eval);
 
-			return pre.add(expr).add(tail);
+				Result<IValue> tmp = ResultFactory.makeResult(TF.stringType(), VF.string(workExpr), __eval);
+				return pre.add(tmp).add(tail);
+			} catch (URISyntaxException e) {
+				throw RuntimeExceptionFactory.malformedURI(expr, this, __eval.getStackTrace());
+			} 
 		}
-
 	}
 
 	static public class NonInterpolated extends
