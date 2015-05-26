@@ -1223,7 +1223,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return (ITree) v.visitTreeAppl(this);
+			return (ITree) content.accept(v);
 		}
 		
 		@Override
