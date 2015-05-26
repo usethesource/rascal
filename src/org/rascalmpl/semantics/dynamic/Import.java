@@ -312,7 +312,7 @@ public abstract class Import {
         
         return env;
       }
-    } catch (StaticError | Throw e) {
+    } catch (StaticError | Throw  e) {
       heap.removeModule(env);
       eval.getEvaluator().warning("Could not load " + name, x);
       throw e;
