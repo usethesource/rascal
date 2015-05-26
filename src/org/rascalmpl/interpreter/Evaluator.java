@@ -1308,8 +1308,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	private void reloadModule(String name, ISourceLocation errorLocation) {	
-		org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
+	private void reloadModule(String name, ISourceLocation errorLocation) {
+		try {
+			org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
+		}
+		catch (Throwable e) {
+			// warnings should have been emitted, but we don't fail here
+		}
 	}
 
 	/**
