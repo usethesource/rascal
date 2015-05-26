@@ -659,6 +659,11 @@ public abstract class Import {
       
     	return TreeAdapter.setLocation(TreeAdapter.setArgs(tree, args), loc);
     }
+    
+    @Override
+    public ITree visitTreeAmb(ITree arg) throws ImplementationError {
+    	return (ITree) TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+    }
   }
   
   private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, 
