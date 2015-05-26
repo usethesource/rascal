@@ -37,13 +37,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -61,7 +62,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.InflaterOutputStream;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.CharSetUtils;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -3016,14 +3021,69 @@ public class Prelude {
   {
       return s.toReal();
   }
-	
-	public IString toBase64(IString in) throws UnsupportedEncodingException {
-      return values.string(Base64.getEncoder().encodeToString(in.getValue().getBytes("UTF8")));
+
+	// based on http://stackoverflow.com/a/6603018/11098
+	public class ByteBufferBackedInputStream extends InputStream {
+	  private final ByteBuffer buf;
+
+	  public ByteBufferBackedInputStream(ByteBuffer buf) {
+	    this.buf = buf;
+	  }
+
+	  public int read() throws IOException {
+	    if (!buf.hasRemaining()) {
+	      return -1;
+	    }
+	    return buf.get() & 0xFF;
+	  }
+
+	  public int read(byte[] bytes, int off, int len)
+	      throws IOException {
+	    if (!buf.hasRemaining()) {
+	      return -1;
+	    }
+
+	    len = Math.min(len, buf.remaining());
+	    buf.get(bytes, off, len);
+	    return len;
+	  }
+	}	
+
+	private String toBase64(InputStream src, int estimatedSize) throws IOException {
+	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
+	  OutputStream encoder = Base64.getEncoder().wrap(result);
+	  IOUtils.copy(src, encoder);
+	  encoder.close();
+	  return result.toString(StandardCharsets.ISO_8859_1.name());
+	}
+
+	public IString toBase64(IString in) throws IOException {
+	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
+	  return values.string(toBase64(bytes, in.length() * 2));
+	}
+
+	public IString toCompressedBase64(IString in) throws IOException {
+	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
+	  return values.string(toBase64(new DeflaterInputStream(bytes, new Deflater(8)), in.length() * 2));
+	}
+
+	private void fromBase64(String src, OutputStream target) throws IOException {
+	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
+	  IOUtils.copy(Base64.getDecoder().wrap(bytes), target);
+	}
+
+	public IString fromBase64(IString in) throws IOException {
+	  ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
+	  fromBase64(in.getValue(), result);
+	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	}
+
+	public IString fromCompressedBase64(IString in) throws IOException {
+	  ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
+	  fromBase64(in.getValue(), new InflaterOutputStream(result));
+	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
 	}
 	
-	public IString fromBase64(IString in) throws UnsupportedEncodingException {
-		return values.string(new String(Base64.getDecoder().decode(in.getValue()), "UTF8"));
-	}
 
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
@@ -3243,7 +3303,7 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, "UTF8")) {
+		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
@@ -3276,7 +3336,7 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
-		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), "UTF8")) {
+		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
