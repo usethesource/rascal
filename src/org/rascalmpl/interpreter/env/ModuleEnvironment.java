@@ -375,7 +375,9 @@ public class ModuleEnvironment extends Environment {
 	public void unImport(String moduleName) {
 		if(importedModules.remove(moduleName)) {
 			ModuleEnvironment old = heap.getModule(moduleName);
-			typeStore.unimportStores(new TypeStore[] { old.getStore() });
+			if (old != null) {
+				typeStore.unimportStores(new TypeStore[] { old.getStore() });
+			}
 		}
 	}
 	
