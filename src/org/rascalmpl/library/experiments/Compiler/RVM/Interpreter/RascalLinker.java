@@ -17,11 +17,52 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.persistent.PDBPersistentHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import de.ruedigermoeller.serialization.FSTConfiguration;
 
 public class RascalLinker {
+	
+static FSTConfiguration conf;
+static FSTSerializableType serializableType;
+static FSTSerializableIValue serializableIValue;
+static FSTRVMExecutableSerializer rvmExecutableSerializer;
+static FSTFunctionSerializer functionSerializer;
+static FSTCodeBlockSerializer codeblockSerializer;
+	
+	static {
+		  
+		   conf = FSTConfiguration.createDefaultConfiguration();   
+		   
+		   // PDB Types
+		   serializableType = new FSTSerializableType();
+		   conf.registerSerializer(FSTSerializableType.class, serializableType, false);
+		   
+		   // PDB values
+		   serializableIValue =  new FSTSerializableIValue();
+		   conf.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
+		   
+		   // Specific serializers
+		   rvmExecutableSerializer = new FSTRVMExecutableSerializer();
+		   conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+		   
+		   functionSerializer = new FSTFunctionSerializer();
+		   conf.registerSerializer(Function.class, functionSerializer, false);
+		   
+		   codeblockSerializer = new FSTCodeBlockSerializer();
+		   conf.registerSerializer(CodeBlock.class, codeblockSerializer, false);
+		
+		   // For efficiency register some class that are known to occur in serialization
+		   conf.registerClass(OverloadedFunction.class);
+		   //conf.registerClass(FSTSerializableType.class);
+		   //conf.registerClass(FSTSerializableIValue.class);
+	}   
+		   
+	
 	private IValueFactory vf;
 	private TypeFactory tf;
 	
@@ -45,6 +86,11 @@ public class RascalLinker {
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
 		this.typeStore = typeStore;
+		FSTSerializableType.initSerialization(vf, typeStore);
+		FSTSerializableIValue.initSerialization(vf, typeStore);
+		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+		FSTFunctionSerializer.initSerialization(vf, typeStore);
+		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	}
 	
 	String moduleInit(String moduleName){
@@ -59,17 +105,17 @@ public class RascalLinker {
 		int nfs = functionStore.size();
 		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
 		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
 		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + "exceeds limit " + CodeBlock.maxArg);
+			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -110,6 +156,16 @@ public class RascalLinker {
 	
 	private void declareConstructor(String cname, IConstructor symbol) {
 		
+		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
+		// should be done earlier
+		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
+			System.out.println("declareConstructor: " + symbol);
+			IValue sort = symbol.get("sort");
+			IValue parameters = symbol.get("parameters");
+			IValue attributes = symbol.get("attributes");
+			//constr = tf.constructor(typeStore, Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
+			symbol = vf.constructor(RascalValueFactory.Production_Default, sort, parameters, attributes);
+		}	
 		Type constr = symbolToType(symbol);
 		Integer index = constructorMap.get(cname);
 		if(index == null) {
@@ -205,8 +261,20 @@ public class RascalLinker {
 	}
 	
 	private void finalizeInstructions(){
+		int i = 0;
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == null){
+				System.out.println("finalizeInstructions, null for function : " + fname);
+			}
+		}
 		for(Function f : functionStore) {
+			if(f == null){
+				System.out.println("finalizeInstructions, null at index: " + i);
+			} else {
+				//System.out.println("finalizeInstructions: " + f.name);
+			}
 			f.finalize(functionMap, constructorMap, resolver, false /*listing*/);
+			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
 			of.finalize(functionMap, functionStore);

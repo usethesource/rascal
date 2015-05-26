@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Replacement extends AbstractAST {
-  public Replacement(IConstructor node) {
-    super();
+  public Replacement(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Replacement extends AbstractAST {
   }
 
   static public class Conditional extends Replacement {
-    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
+    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression replacementExpression;
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
   
-    public Conditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
-      super(node);
+    public Conditional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+      super(src, node);
       
       this.replacementExpression = replacementExpression;
       this.conditions = conditions;
@@ -81,7 +82,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 173 * replacementExpression.hashCode() + 199 * conditions.hashCode() ; 
+      return 53 + 733 * replacementExpression.hashCode() + 883 * conditions.hashCode() ; 
     } 
   
     
@@ -103,19 +104,25 @@ public abstract class Replacement extends AbstractAST {
     public boolean hasConditions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(replacementExpression), clone(conditions));
+    }
+            
   }
   public boolean isUnconditional() {
     return false;
   }
 
   static public class Unconditional extends Replacement {
-    // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")])
+    // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression replacementExpression;
   
-    public Unconditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
-      super(node);
+    public Unconditional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
+      super(src, node);
       
       this.replacementExpression = replacementExpression;
     }
@@ -141,7 +148,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 613 * replacementExpression.hashCode() ; 
+      return 331 + 307 * replacementExpression.hashCode() ; 
     } 
   
     
@@ -154,5 +161,11 @@ public abstract class Replacement extends AbstractAST {
     public boolean hasReplacementExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(replacementExpression));
+    }
+            
   }
 }

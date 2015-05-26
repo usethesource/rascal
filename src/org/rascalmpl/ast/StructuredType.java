@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StructuredType extends AbstractAST {
-  public StructuredType(IConstructor node) {
-    super();
+  public StructuredType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class StructuredType extends AbstractAST {
   }
 
   static public class Default extends StructuredType {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.BasicType","basicType"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.BasicType","basicType"),arg("java.util.List\<org.rascalmpl.ast.TypeArg\>","arguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.BasicType basicType;
     private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
   
-    public Default(IConstructor node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+      super(src, node);
       
       this.basicType = basicType;
       this.arguments = arguments;
@@ -81,7 +82,7 @@ public abstract class StructuredType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 449 * basicType.hashCode() + 631 * arguments.hashCode() ; 
+      return 83 + 317 * basicType.hashCode() + 677 * arguments.hashCode() ; 
     } 
   
     
@@ -103,5 +104,11 @@ public abstract class StructuredType extends AbstractAST {
     public boolean hasArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(basicType), clone(arguments));
+    }
+            
   }
 }

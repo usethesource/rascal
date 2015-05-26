@@ -10,23 +10,10 @@
  */
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Failure;
-import org.rascalmpl.interpreter.control_exceptions.Filtered;
-import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -49,7 +36,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Note that RascalFunctionActionExecutors use functions visible from the call site of the parse
  * function.
  */
-public class RascalFunctionActionExecutor implements IActionExecutor<IConstructor> {
+public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final RascalExecutionContext rex;
 
@@ -88,7 +75,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 	public void exitedProduction(Object production, boolean filtered, Object environment) {
 	}
 
-	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment) {
+	public ITree filterAmbiguity(ITree ambCluster, Object environment) {
 		ISet alts = (ISet) ambCluster.get("alternatives");
 		
 		if (alts.size() == 0) {
@@ -136,23 +123,28 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 		return ambCluster;
 	}
 
-	public IConstructor filterCycle(IConstructor cycle, Object environment) {
+	@Override
+	public ITree filterCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 
-	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment) {
+	@Override
+	public ITree filterListAmbiguity(ITree ambCluster, Object environment) {
 		return filterAmbiguity(ambCluster, environment);
 	}
 
-	public IConstructor filterListCycle(IConstructor cycle, Object environment) {
+	@Override
+	public ITree filterListCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 
-	public IConstructor filterListProduction(IConstructor tree, Object environment) {
+	@Override
+	public ITree filterListProduction(ITree tree, Object environment) {
 		return tree;
 	}
 
-	public IConstructor filterProduction(IConstructor tree,
+	@Override
+	public ITree filterProduction(ITree tree,
 			Object environment) {
 		String cons = TreeAdapter.getConstructorName(tree);
 		

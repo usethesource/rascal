@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -18,6 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -30,6 +33,16 @@ public class ReifiedType extends RascalType {
 
 	public ReifiedType(Type arg) {
 		this.arg = arg;
+	}
+	
+	@Override
+	public Type asAbstractDataType() {
+		return RascalValueFactory.ADTforType;
+	}
+	
+	@Override
+	public boolean isReified() {
+		return true;
 	}
 	
 	@Override

@@ -349,8 +349,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
 @doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
 public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
   set[Symbol] failures = { };
-  
-  for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
+  for (hole(\one(Sym s, Name n)) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
     if(isFailType(rt)) { 
         failures += rt; 
@@ -3005,9 +3004,14 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = for (/(ConcreteHole)`\<<Sym sym> <Name n>\>` := concrete) {
+  println("extractPatternTree: <pat> <concrete.parts>");
+  if (!(concrete has parts)) {
+    throw "it seems concrete syntax has already been expanded";
+  }
+  psList = for (hole(\one(Sym sym, Name n)) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym.origin,c);
-    append typedNameNode(convertName(n), n.origin, rt, 0)[at=n.origin];
+   
+    append typedNameNode(convertName(n), n.origin, rt, 0)[at = n.origin];
   }
   
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol.origin, c);
@@ -7076,7 +7080,7 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header header> <Body body>`, Configuration c) {
+public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c) {
 	moduleName = getHeaderName(header);
 	importList = getHeaderImports(header);
 
@@ -7283,9 +7287,9 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 	return c;
 }
 
-loc cachedConfig(loc src, loc bindir) = (bindir + src.path)[extension="tc"];
-loc cachedHash(loc src, loc bindir) = (bindir + src.path)[extension="sig"];
-loc cachedHashMap(loc src, loc bindir) = (bindir + src.path)[extension="sigs"];
+loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
+loc cachedHash(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
+loc cachedHashMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
 
 str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(src,bindir));
 
@@ -7309,12 +7313,12 @@ void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
-public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkModule(md, (md.origin).top, c, bindir=bindir, forceCheck=forceCheck);
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	moduleName = getHeaderName(header);
 	importList = getHeaderImports(header);
 	set[RName] notImported = { };
@@ -8442,7 +8446,7 @@ public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|,
 
 public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false) {
     c = newConfiguration();
-	t = parseModule(l);    
+	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PathTail extends AbstractAST {
-  public PathTail(IConstructor node) {
-    super();
+  public PathTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class PathTail extends AbstractAST {
   }
 
   static public class Mid extends PathTail {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidPathChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidPathChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidPathChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.PathTail tail;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -97,7 +98,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 691 * mid.hashCode() + 569 * expression.hashCode() + 293 * tail.hashCode() ; 
+      return 53 + 487 * mid.hashCode() + 769 * expression.hashCode() + 631 * tail.hashCode() ; 
     } 
   
     
@@ -128,19 +129,25 @@ public abstract class PathTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends PathTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostPathChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostPathChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostPathChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostPathChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostPathChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -166,7 +173,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 73 * post.hashCode() ; 
+      return 563 + 241 * post.hashCode() ; 
     } 
   
     
@@ -179,5 +186,11 @@ public abstract class PathTail extends AbstractAST {
     public boolean hasPost() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
+    }
+            
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProdModifier extends AbstractAST {
-  public ProdModifier(IConstructor node) {
-    super();
+  public ProdModifier(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class ProdModifier extends AbstractAST {
   }
 
   static public class Associativity extends ProdModifier {
-    // Production: sig("Associativity",[arg("org.rascalmpl.ast.Assoc","associativity")])
+    // Production: sig("Associativity",[arg("org.rascalmpl.ast.Assoc","associativity")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assoc associativity;
   
-    public Associativity(IConstructor node , org.rascalmpl.ast.Assoc associativity) {
-      super(node);
+    public Associativity(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assoc associativity) {
+      super(src, node);
       
       this.associativity = associativity;
     }
@@ -79,7 +80,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 643 * associativity.hashCode() ; 
+      return 67 + 647 * associativity.hashCode() ; 
     } 
   
     
@@ -92,18 +93,24 @@ public abstract class ProdModifier extends AbstractAST {
     public boolean hasAssociativity() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(associativity));
+    }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends ProdModifier {
-    // Production: sig("Bracket",[])
+    // Production: sig("Bracket",[],breakable=false)
   
     
   
-    public Bracket(IConstructor node ) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -128,23 +135,29 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 ; 
+      return 401 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isTag() {
     return false;
   }
 
   static public class Tag extends ProdModifier {
-    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tag","tag")])
+    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tag","tag")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tag tag;
   
-    public Tag(IConstructor node , org.rascalmpl.ast.Tag tag) {
-      super(node);
+    public Tag(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tag tag) {
+      super(src, node);
       
       this.tag = tag;
     }
@@ -170,7 +183,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 661 * tag.hashCode() ; 
+      return 151 + 613 * tag.hashCode() ; 
     } 
   
     
@@ -183,5 +196,11 @@ public abstract class ProdModifier extends AbstractAST {
     public boolean hasTag() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tag));
+    }
+            
   }
 }

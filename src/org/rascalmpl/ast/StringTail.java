@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringTail extends AbstractAST {
-  public StringTail(IConstructor node) {
-    super();
+  public StringTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,15 +69,15 @@ public abstract class StringTail extends AbstractAST {
   }
 
   static public class MidInterpolated extends StringTail {
-    // Production: sig("MidInterpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("MidInterpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public MidInterpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public MidInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -104,7 +105,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 337 * mid.hashCode() + 991 * expression.hashCode() + 191 * tail.hashCode() ; 
+      return 73 + 641 * mid.hashCode() + 421 * expression.hashCode() + 67 * tail.hashCode() ; 
     } 
   
     
@@ -135,21 +136,27 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isMidTemplate() {
     return false;
   }
 
   static public class MidTemplate extends StringTail {
-    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.StringTemplate template;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public MidTemplate(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public MidTemplate(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.template = template;
@@ -177,7 +184,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 331 * mid.hashCode() + 919 * template.hashCode() + 139 * tail.hashCode() ; 
+      return 29 + 487 * mid.hashCode() + 683 * template.hashCode() + 953 * tail.hashCode() ; 
     } 
   
     
@@ -208,19 +215,25 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(template), clone(tail));
+    }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends StringTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostStringChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostStringChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostStringChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostStringChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostStringChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -246,7 +259,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 617 * post.hashCode() ; 
+      return 977 + 997 * post.hashCode() ; 
     } 
   
     
@@ -259,5 +272,11 @@ public abstract class StringTail extends AbstractAST {
     public boolean hasPost() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
+    }
+            
   }
 }

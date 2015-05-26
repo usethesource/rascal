@@ -75,7 +75,6 @@ F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
 delAnnotationsRec(F);
 </screen>
 }
-@javaClass{org.rascalmpl.library.Prelude}
 public &T delAnnotationsRec(&T v) {
   return visit(v) { case m: node n => delAnnotations(m) };
 }

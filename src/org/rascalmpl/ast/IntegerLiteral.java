@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class IntegerLiteral extends AbstractAST {
-  public IntegerLiteral(IConstructor node) {
-    super();
+  public IntegerLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,13 +55,13 @@ public abstract class IntegerLiteral extends AbstractAST {
   }
 
   static public class DecimalIntegerLiteral extends IntegerLiteral {
-    // Production: sig("DecimalIntegerLiteral",[arg("org.rascalmpl.ast.DecimalIntegerLiteral","decimal")])
+    // Production: sig("DecimalIntegerLiteral",[arg("org.rascalmpl.ast.DecimalIntegerLiteral","decimal")],breakable=false)
   
     
     private final org.rascalmpl.ast.DecimalIntegerLiteral decimal;
   
-    public DecimalIntegerLiteral(IConstructor node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
-      super(node);
+    public DecimalIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
+      super(src, node);
       
       this.decimal = decimal;
     }
@@ -86,7 +87,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 61 * decimal.hashCode() ; 
+      return 19 + 821 * decimal.hashCode() ; 
     } 
   
     
@@ -99,19 +100,25 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasDecimal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(decimal));
+    }
+            
   }
   public boolean isHexIntegerLiteral() {
     return false;
   }
 
   static public class HexIntegerLiteral extends IntegerLiteral {
-    // Production: sig("HexIntegerLiteral",[arg("org.rascalmpl.ast.HexIntegerLiteral","hex")])
+    // Production: sig("HexIntegerLiteral",[arg("org.rascalmpl.ast.HexIntegerLiteral","hex")],breakable=false)
   
     
     private final org.rascalmpl.ast.HexIntegerLiteral hex;
   
-    public HexIntegerLiteral(IConstructor node , org.rascalmpl.ast.HexIntegerLiteral hex) {
-      super(node);
+    public HexIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.HexIntegerLiteral hex) {
+      super(src, node);
       
       this.hex = hex;
     }
@@ -137,7 +144,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 337 * hex.hashCode() ; 
+      return 557 + 449 * hex.hashCode() ; 
     } 
   
     
@@ -150,19 +157,25 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasHex() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(hex));
+    }
+            
   }
   public boolean isOctalIntegerLiteral() {
     return false;
   }
 
   static public class OctalIntegerLiteral extends IntegerLiteral {
-    // Production: sig("OctalIntegerLiteral",[arg("org.rascalmpl.ast.OctalIntegerLiteral","octal")])
+    // Production: sig("OctalIntegerLiteral",[arg("org.rascalmpl.ast.OctalIntegerLiteral","octal")],breakable=false)
   
     
     private final org.rascalmpl.ast.OctalIntegerLiteral octal;
   
-    public OctalIntegerLiteral(IConstructor node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
-      super(node);
+    public OctalIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
+      super(src, node);
       
       this.octal = octal;
     }
@@ -188,7 +201,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 181 * octal.hashCode() ; 
+      return 431 + 7 * octal.hashCode() ; 
     } 
   
     
@@ -201,5 +214,11 @@ public abstract class IntegerLiteral extends AbstractAST {
     public boolean hasOctal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(octal));
+    }
+            
   }
 }

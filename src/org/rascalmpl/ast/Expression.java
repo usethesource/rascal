@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Expression extends AbstractAST {
-  public Expression(IConstructor node) {
-    super();
+  public Expression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -313,14 +314,14 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class Addition extends Expression {
-    // Production: sig("Addition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Addition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Addition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Addition(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -347,7 +348,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 577 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+      return 911 + 677 * lhs.hashCode() + 983 * rhs.hashCode() ; 
     } 
   
     
@@ -369,19 +370,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isAll() {
     return false;
   }
 
   static public class All extends Expression {
-    // Production: sig("All",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("All",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public All(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public All(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.generators = generators;
     }
@@ -407,7 +414,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 257 * generators.hashCode() ; 
+      return 503 + 271 * generators.hashCode() ; 
     } 
   
     
@@ -420,20 +427,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(generators));
+    }
+            
   }
   public boolean isAnd() {
     return false;
   }
 
   static public class And extends Expression {
-    // Production: sig("And",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("And",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public And(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public And(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -460,7 +473,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 97 * lhs.hashCode() + 821 * rhs.hashCode() ; 
+      return 311 + 347 * lhs.hashCode() + 557 * rhs.hashCode() ; 
     } 
   
     
@@ -482,19 +495,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isAnti() {
     return false;
   }
 
   static public class Anti extends Expression {
-    // Production: sig("Anti",[arg("org.rascalmpl.ast.Expression","pattern")])
+    // Production: sig("Anti",[arg("org.rascalmpl.ast.Expression","pattern")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
   
-    public Anti(IConstructor node , org.rascalmpl.ast.Expression pattern) {
-      super(node);
+    public Anti(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern) {
+      super(src, node);
       
       this.pattern = pattern;
     }
@@ -520,7 +539,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 19 * pattern.hashCode() ; 
+      return 751 + 769 * pattern.hashCode() ; 
     } 
   
     
@@ -533,19 +552,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern));
+    }
+            
   }
   public boolean isAny() {
     return false;
   }
 
   static public class Any extends Expression {
-    // Production: sig("Any",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Any",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Any(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Any(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.generators = generators;
     }
@@ -571,7 +596,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 179 + 613 * generators.hashCode() ; 
+      return 173 + 193 * generators.hashCode() ; 
     } 
   
     
@@ -584,20 +609,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(generators));
+    }
+            
   }
   public boolean isAppendAfter() {
     return false;
   }
 
   static public class AppendAfter extends Expression {
-    // Production: sig("AppendAfter",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("AppendAfter",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public AppendAfter(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public AppendAfter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -624,7 +655,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 677 * lhs.hashCode() + 641 * rhs.hashCode() ; 
+      return 631 + 509 * lhs.hashCode() + 109 * rhs.hashCode() ; 
     } 
   
     
@@ -646,20 +677,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isAsType() {
     return false;
   }
 
   static public class AsType extends Expression {
-    // Production: sig("AsType",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("AsType",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Expression argument;
   
-    public AsType(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public AsType(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.type = type;
       this.argument = argument;
@@ -686,7 +723,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 337 * type.hashCode() + 823 * argument.hashCode() ; 
+      return 17 + 797 * type.hashCode() + 263 * argument.hashCode() ; 
     } 
   
     
@@ -708,19 +745,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(argument));
+    }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends Expression {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Bracket(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -746,7 +789,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 277 * expression.hashCode() ; 
+      return 109 + 197 * expression.hashCode() ; 
     } 
   
     
@@ -759,21 +802,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
+    }
+            
   }
   public boolean isCallOrTree() {
     return false;
   }
 
   static public class CallOrTree extends Expression {
-    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")])
+    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Expression> arguments;
     private final org.rascalmpl.ast.KeywordArguments_Expression keywordArguments;
   
-    public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
-      super(node);
+    public CallOrTree(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
+      super(src, node);
       
       this.expression = expression;
       this.arguments = arguments;
@@ -801,7 +850,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 5 * expression.hashCode() + 733 * arguments.hashCode() + 547 * keywordArguments.hashCode() ; 
+      return 17 + 661 * expression.hashCode() + 641 * arguments.hashCode() + 491 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -832,21 +881,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasKeywordArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(arguments), clone(keywordArguments));
+    }
+            
   }
   public boolean isClosure() {
     return false;
   }
 
   static public class Closure extends Expression {
-    // Production: sig("Closure",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+    // Production: sig("Closure",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Parameters parameters;
     private final java.util.List<org.rascalmpl.ast.Statement> statements;
   
-    public Closure(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-      super(node);
+    public Closure(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+      super(src, node);
       
       this.type = type;
       this.parameters = parameters;
@@ -874,7 +929,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 61 * type.hashCode() + 223 * parameters.hashCode() + 293 * statements.hashCode() ; 
+      return 443 + 347 * type.hashCode() + 811 * parameters.hashCode() + 41 * statements.hashCode() ; 
     } 
   
     
@@ -905,20 +960,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(parameters), clone(statements));
+    }
+            
   }
   public boolean isComposition() {
     return false;
   }
 
   static public class Composition extends Expression {
-    // Production: sig("Composition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Composition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Composition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Composition(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -945,7 +1006,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 509 * lhs.hashCode() + 193 * rhs.hashCode() ; 
+      return 401 + 613 * lhs.hashCode() + 677 * rhs.hashCode() ; 
     } 
   
     
@@ -967,19 +1028,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isComprehension() {
     return false;
   }
 
   static public class Comprehension extends Expression {
-    // Production: sig("Comprehension",[arg("org.rascalmpl.ast.Comprehension","comprehension")])
+    // Production: sig("Comprehension",[arg("org.rascalmpl.ast.Comprehension","comprehension")],breakable=false)
   
     
     private final org.rascalmpl.ast.Comprehension comprehension;
   
-    public Comprehension(IConstructor node , org.rascalmpl.ast.Comprehension comprehension) {
-      super(node);
+    public Comprehension(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Comprehension comprehension) {
+      super(src, node);
       
       this.comprehension = comprehension;
     }
@@ -1005,7 +1072,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 + 809 * comprehension.hashCode() ; 
+      return 829 + 727 * comprehension.hashCode() ; 
     } 
   
     
@@ -1018,19 +1085,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasComprehension() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(comprehension));
+    }
+            
   }
   public boolean isConcrete() {
     return false;
   }
 
   static public class Concrete extends Expression {
-    // Production: sig("Concrete",[arg("org.rascalmpl.ast.Concrete","concrete")])
+    // Production: sig("Concrete",[arg("org.rascalmpl.ast.Concrete","concrete")],breakable=false)
   
     
     private final org.rascalmpl.ast.Concrete concrete;
   
-    public Concrete(IConstructor node , org.rascalmpl.ast.Concrete concrete) {
-      super(node);
+    public Concrete(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Concrete concrete) {
+      super(src, node);
       
       this.concrete = concrete;
     }
@@ -1056,7 +1129,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 337 * concrete.hashCode() ; 
+      return 389 + 787 * concrete.hashCode() ; 
     } 
   
     
@@ -1069,19 +1142,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasConcrete() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(concrete));
+    }
+            
   }
   public boolean isDescendant() {
     return false;
   }
 
   static public class Descendant extends Expression {
-    // Production: sig("Descendant",[arg("org.rascalmpl.ast.Expression","pattern")])
+    // Production: sig("Descendant",[arg("org.rascalmpl.ast.Expression","pattern")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
   
-    public Descendant(IConstructor node , org.rascalmpl.ast.Expression pattern) {
-      super(node);
+    public Descendant(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern) {
+      super(src, node);
       
       this.pattern = pattern;
     }
@@ -1107,7 +1186,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 163 * pattern.hashCode() ; 
+      return 541 + 311 * pattern.hashCode() ; 
     } 
   
     
@@ -1120,20 +1199,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern));
+    }
+            
   }
   public boolean isDivision() {
     return false;
   }
 
   static public class Division extends Expression {
-    // Production: sig("Division",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Division",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Division(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Division(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1160,7 +1245,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 971 * lhs.hashCode() + 449 * rhs.hashCode() ; 
+      return 59 + 233 * lhs.hashCode() + 709 * rhs.hashCode() ; 
     } 
   
     
@@ -1182,20 +1267,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isEnumerator() {
     return false;
   }
 
   static public class Enumerator extends Expression {
-    // Production: sig("Enumerator",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Enumerator",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Expression expression;
   
-    public Enumerator(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Enumerator(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.pattern = pattern;
       this.expression = expression;
@@ -1222,7 +1313,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 599 * pattern.hashCode() + 691 * expression.hashCode() ; 
+      return 509 + 773 * pattern.hashCode() + 757 * expression.hashCode() ; 
     } 
   
     
@@ -1244,20 +1335,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(expression));
+    }
+            
   }
   public boolean isEquals() {
     return false;
   }
 
   static public class Equals extends Expression {
-    // Production: sig("Equals",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Equals",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Equals(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Equals(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1284,7 +1381,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 859 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+      return 359 + 709 * lhs.hashCode() + 947 * rhs.hashCode() ; 
     } 
   
     
@@ -1306,20 +1403,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isEquivalence() {
     return false;
   }
 
   static public class Equivalence extends Expression {
-    // Production: sig("Equivalence",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Equivalence",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Equivalence(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Equivalence(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1346,7 +1449,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 811 * lhs.hashCode() + 599 * rhs.hashCode() ; 
+      return 317 + 269 * lhs.hashCode() + 821 * rhs.hashCode() ; 
     } 
   
     
@@ -1368,20 +1471,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isFieldAccess() {
     return false;
   }
 
   static public class FieldAccess extends Expression {
-    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","field")])
+    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","field")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name field;
   
-    public FieldAccess(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
-      super(node);
+    public FieldAccess(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
+      super(src, node);
       
       this.expression = expression;
       this.field = field;
@@ -1408,7 +1517,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 563 * expression.hashCode() + 787 * field.hashCode() ; 
+      return 271 + 409 * expression.hashCode() + 757 * field.hashCode() ; 
     } 
   
     
@@ -1430,20 +1539,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasField() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(field));
+    }
+            
   }
   public boolean isFieldProject() {
     return false;
   }
 
   static public class FieldProject extends Expression {
-    // Production: sig("FieldProject",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Field\>","fields")])
+    // Production: sig("FieldProject",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Field\>","fields")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Field> fields;
   
-    public FieldProject(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
-      super(node);
+    public FieldProject(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
+      super(src, node);
       
       this.expression = expression;
       this.fields = fields;
@@ -1470,7 +1585,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 547 * expression.hashCode() + 541 * fields.hashCode() ; 
+      return 547 + 449 * expression.hashCode() + 701 * fields.hashCode() ; 
     } 
   
     
@@ -1492,21 +1607,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasFields() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(fields));
+    }
+            
   }
   public boolean isFieldUpdate() {
     return false;
   }
 
   static public class FieldUpdate extends Expression {
-    // Production: sig("FieldUpdate",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","key"),arg("org.rascalmpl.ast.Expression","replacement")])
+    // Production: sig("FieldUpdate",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","key"),arg("org.rascalmpl.ast.Expression","replacement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name key;
     private final org.rascalmpl.ast.Expression replacement;
   
-    public FieldUpdate(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
-      super(node);
+    public FieldUpdate(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
+      super(src, node);
       
       this.expression = expression;
       this.key = key;
@@ -1534,7 +1655,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 3 * expression.hashCode() + 521 * key.hashCode() + 7 * replacement.hashCode() ; 
+      return 191 + 727 * expression.hashCode() + 241 * key.hashCode() + 167 * replacement.hashCode() ; 
     } 
   
     
@@ -1565,20 +1686,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasReplacement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(key), clone(replacement));
+    }
+            
   }
   public boolean isGetAnnotation() {
     return false;
   }
 
   static public class GetAnnotation extends Expression {
-    // Production: sig("GetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("GetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name name;
   
-    public GetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public GetAnnotation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.expression = expression;
       this.name = name;
@@ -1605,7 +1732,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 467 * expression.hashCode() + 149 * name.hashCode() ; 
+      return 563 + 107 * expression.hashCode() + 383 * name.hashCode() ; 
     } 
   
     
@@ -1627,20 +1754,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(name));
+    }
+            
   }
   public boolean isGreaterThan() {
     return false;
   }
 
   static public class GreaterThan extends Expression {
-    // Production: sig("GreaterThan",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("GreaterThan",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public GreaterThan(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public GreaterThan(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1667,7 +1800,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 859 * lhs.hashCode() + 263 * rhs.hashCode() ; 
+      return 877 + 787 * lhs.hashCode() + 337 * rhs.hashCode() ; 
     } 
   
     
@@ -1689,20 +1822,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isGreaterThanOrEq() {
     return false;
   }
 
   static public class GreaterThanOrEq extends Expression {
-    // Production: sig("GreaterThanOrEq",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("GreaterThanOrEq",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public GreaterThanOrEq(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public GreaterThanOrEq(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1729,7 +1868,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 677 * lhs.hashCode() + 313 * rhs.hashCode() ; 
+      return 863 + 41 * lhs.hashCode() + 701 * rhs.hashCode() ; 
     } 
   
     
@@ -1751,20 +1890,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isHas() {
     return false;
   }
 
   static public class Has extends Expression {
-    // Production: sig("Has",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Has",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name name;
   
-    public Has(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public Has(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.expression = expression;
       this.name = name;
@@ -1791,7 +1936,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 617 * expression.hashCode() + 709 * name.hashCode() ; 
+      return 937 + 317 * expression.hashCode() + 269 * name.hashCode() ; 
     } 
   
     
@@ -1813,20 +1958,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(name));
+    }
+            
   }
   public boolean isIfDefinedOtherwise() {
     return false;
   }
 
   static public class IfDefinedOtherwise extends Expression {
-    // Production: sig("IfDefinedOtherwise",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("IfDefinedOtherwise",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public IfDefinedOtherwise(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public IfDefinedOtherwise(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1853,7 +2004,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 281 * lhs.hashCode() + 701 * rhs.hashCode() ; 
+      return 743 + 683 * lhs.hashCode() + 157 * rhs.hashCode() ; 
     } 
   
     
@@ -1875,21 +2026,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isIfThenElse() {
     return false;
   }
 
   static public class IfThenElse extends Expression {
-    // Production: sig("IfThenElse",[arg("org.rascalmpl.ast.Expression","condition"),arg("org.rascalmpl.ast.Expression","thenExp"),arg("org.rascalmpl.ast.Expression","elseExp")])
+    // Production: sig("IfThenElse",[arg("org.rascalmpl.ast.Expression","condition"),arg("org.rascalmpl.ast.Expression","thenExp"),arg("org.rascalmpl.ast.Expression","elseExp")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression condition;
     private final org.rascalmpl.ast.Expression thenExp;
     private final org.rascalmpl.ast.Expression elseExp;
   
-    public IfThenElse(IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
-      super(node);
+    public IfThenElse(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
+      super(src, node);
       
       this.condition = condition;
       this.thenExp = thenExp;
@@ -1917,7 +2074,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 971 * condition.hashCode() + 883 * thenExp.hashCode() + 149 * elseExp.hashCode() ; 
+      return 641 + 167 * condition.hashCode() + 701 * thenExp.hashCode() + 307 * elseExp.hashCode() ; 
     } 
   
     
@@ -1948,20 +2105,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElseExp() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(condition), clone(thenExp), clone(elseExp));
+    }
+            
   }
   public boolean isImplication() {
     return false;
   }
 
   static public class Implication extends Expression {
-    // Production: sig("Implication",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Implication",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Implication(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Implication(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -1988,7 +2151,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 631 * lhs.hashCode() + 199 * rhs.hashCode() ; 
+      return 307 + 197 * lhs.hashCode() + 463 * rhs.hashCode() ; 
     } 
   
     
@@ -2010,20 +2173,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isIn() {
     return false;
   }
 
   static public class In extends Expression {
-    // Production: sig("In",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("In",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public In(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public In(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2050,7 +2219,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 967 * lhs.hashCode() + 271 * rhs.hashCode() ; 
+      return 73 + 971 * lhs.hashCode() + 877 * rhs.hashCode() ; 
     } 
   
     
@@ -2072,20 +2241,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isInsertBefore() {
     return false;
   }
 
   static public class InsertBefore extends Expression {
-    // Production: sig("InsertBefore",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("InsertBefore",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public InsertBefore(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public InsertBefore(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2112,7 +2287,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 23 * lhs.hashCode() + 223 * rhs.hashCode() ; 
+      return 401 + 659 * lhs.hashCode() + 23 * rhs.hashCode() ; 
     } 
   
     
@@ -2134,20 +2309,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isIntersection() {
     return false;
   }
 
   static public class Intersection extends Expression {
-    // Production: sig("Intersection",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Intersection",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Intersection(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Intersection(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2174,7 +2355,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 557 * lhs.hashCode() + 47 * rhs.hashCode() ; 
+      return 349 + 643 * lhs.hashCode() + 139 * rhs.hashCode() ; 
     } 
   
     
@@ -2196,20 +2377,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isIs() {
     return false;
   }
 
   static public class Is extends Expression {
-    // Production: sig("Is",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Is",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name name;
   
-    public Is(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public Is(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.expression = expression;
       this.name = name;
@@ -2236,7 +2423,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 139 * expression.hashCode() + 13 * name.hashCode() ; 
+      return 967 + 659 * expression.hashCode() + 643 * name.hashCode() ; 
     } 
   
     
@@ -2258,19 +2445,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(name));
+    }
+            
   }
   public boolean isIsDefined() {
     return false;
   }
 
   static public class IsDefined extends Expression {
-    // Production: sig("IsDefined",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("IsDefined",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public IsDefined(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public IsDefined(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -2296,7 +2489,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 859 * argument.hashCode() ; 
+      return 223 + 251 * argument.hashCode() ; 
     } 
   
     
@@ -2309,18 +2502,24 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isIt() {
     return false;
   }
 
   static public class It extends Expression {
-    // Production: sig("It",[])
+    // Production: sig("It",[],breakable=false)
   
     
   
-    public It(IConstructor node ) {
-      super(node);
+    public It(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -2345,24 +2544,30 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 ; 
+      return 199 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isJoin() {
     return false;
   }
 
   static public class Join extends Expression {
-    // Production: sig("Join",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Join",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Join(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Join(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2389,7 +2594,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 349 * lhs.hashCode() + 599 * rhs.hashCode() ; 
+      return 227 + 659 * lhs.hashCode() + 733 * rhs.hashCode() ; 
     } 
   
     
@@ -2411,20 +2616,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isLessThan() {
     return false;
   }
 
   static public class LessThan extends Expression {
-    // Production: sig("LessThan",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("LessThan",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public LessThan(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public LessThan(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2451,7 +2662,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 2 * lhs.hashCode() + 929 * rhs.hashCode() ; 
+      return 677 + 751 * lhs.hashCode() + 89 * rhs.hashCode() ; 
     } 
   
     
@@ -2473,20 +2684,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isLessThanOrEq() {
     return false;
   }
 
   static public class LessThanOrEq extends Expression {
-    // Production: sig("LessThanOrEq",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("LessThanOrEq",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public LessThanOrEq(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public LessThanOrEq(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2513,7 +2730,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 463 * lhs.hashCode() + 929 * rhs.hashCode() ; 
+      return 887 + 797 * lhs.hashCode() + 139 * rhs.hashCode() ; 
     } 
   
     
@@ -2535,19 +2752,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isList() {
     return false;
   }
 
   static public class List extends Expression {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")])
+    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> elements0;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
-      super(node);
+    public List(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
+      super(src, node);
       
       this.elements0 = elements0;
     }
@@ -2573,7 +2796,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 179 * elements0.hashCode() ; 
+      return 59 + 863 * elements0.hashCode() ; 
     } 
   
     
@@ -2586,19 +2809,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements0));
+    }
+            
   }
   public boolean isLiteral() {
     return false;
   }
 
   static public class Literal extends Expression {
-    // Production: sig("Literal",[arg("org.rascalmpl.ast.Literal","literal")])
+    // Production: sig("Literal",[arg("org.rascalmpl.ast.Literal","literal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Literal literal;
   
-    public Literal(IConstructor node , org.rascalmpl.ast.Literal literal) {
-      super(node);
+    public Literal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Literal literal) {
+      super(src, node);
       
       this.literal = literal;
     }
@@ -2624,7 +2853,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 + 31 * literal.hashCode() ; 
+      return 811 + 383 * literal.hashCode() ; 
     } 
   
     
@@ -2637,19 +2866,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLiteral() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(literal));
+    }
+            
   }
   public boolean isMap() {
     return false;
   }
 
   static public class Map extends Expression {
-    // Production: sig("Map",[arg("java.util.List\<org.rascalmpl.ast.Mapping_Expression\>","mappings")])
+    // Production: sig("Map",[arg("java.util.List\<org.rascalmpl.ast.Mapping_Expression\>","mappings")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings;
   
-    public Map(IConstructor node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
-      super(node);
+    public Map(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
+      super(src, node);
       
       this.mappings = mappings;
     }
@@ -2675,7 +2910,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 743 * mappings.hashCode() ; 
+      return 293 + 617 * mappings.hashCode() ; 
     } 
   
     
@@ -2688,20 +2923,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasMappings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mappings));
+    }
+            
   }
   public boolean isMatch() {
     return false;
   }
 
   static public class Match extends Expression {
-    // Production: sig("Match",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Match",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Expression expression;
   
-    public Match(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Match(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.pattern = pattern;
       this.expression = expression;
@@ -2728,7 +2969,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 103 * pattern.hashCode() + 653 * expression.hashCode() ; 
+      return 449 + 947 * pattern.hashCode() + 919 * expression.hashCode() ; 
     } 
   
     
@@ -2750,20 +2991,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(expression));
+    }
+            
   }
   public boolean isModulo() {
     return false;
   }
 
   static public class Modulo extends Expression {
-    // Production: sig("Modulo",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Modulo",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Modulo(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Modulo(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -2790,7 +3037,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 757 * lhs.hashCode() + 109 * rhs.hashCode() ; 
+      return 691 + 977 * lhs.hashCode() + 227 * rhs.hashCode() ; 
     } 
   
     
@@ -2812,19 +3059,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isMultiVariable() {
     return false;
   }
 
   static public class MultiVariable extends Expression {
-    // Production: sig("MultiVariable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+    // Production: sig("MultiVariable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName qualifiedName;
   
-    public MultiVariable(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-      super(node);
+    public MultiVariable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+      super(src, node);
       
       this.qualifiedName = qualifiedName;
     }
@@ -2850,7 +3103,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 619 * qualifiedName.hashCode() ; 
+      return 311 + 227 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -2863,19 +3116,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(qualifiedName));
+    }
+            
   }
   public boolean isNegation() {
     return false;
   }
 
   static public class Negation extends Expression {
-    // Production: sig("Negation",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("Negation",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public Negation(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public Negation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -2901,7 +3160,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 79 * argument.hashCode() ; 
+      return 41 + 751 * argument.hashCode() ; 
     } 
   
     
@@ -2914,19 +3173,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isNegative() {
     return false;
   }
 
   static public class Negative extends Expression {
-    // Production: sig("Negative",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("Negative",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public Negative(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public Negative(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -2952,7 +3217,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 + 157 * argument.hashCode() ; 
+      return 409 + 433 * argument.hashCode() ; 
     } 
   
     
@@ -2965,20 +3230,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isNoMatch() {
     return false;
   }
 
   static public class NoMatch extends Expression {
-    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Expression expression;
   
-    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public NoMatch(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.pattern = pattern;
       this.expression = expression;
@@ -3005,7 +3276,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 661 * pattern.hashCode() + 461 * expression.hashCode() ; 
+      return 947 + 173 * pattern.hashCode() + 827 * expression.hashCode() ; 
     } 
   
     
@@ -3027,19 +3298,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(expression));
+    }
+            
   }
   public boolean isNonEmptyBlock() {
     return false;
   }
 
   static public class NonEmptyBlock extends Expression {
-    // Production: sig("NonEmptyBlock",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+    // Production: sig("NonEmptyBlock",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Statement> statements;
   
-    public NonEmptyBlock(IConstructor node , java.util.List<org.rascalmpl.ast.Statement> statements) {
-      super(node);
+    public NonEmptyBlock(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+      super(src, node);
       
       this.statements = statements;
     }
@@ -3065,7 +3342,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 3 * statements.hashCode() ; 
+      return 433 + 839 * statements.hashCode() ; 
     } 
   
     
@@ -3078,20 +3355,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(statements));
+    }
+            
   }
   public boolean isNonEquals() {
     return false;
   }
 
   static public class NonEquals extends Expression {
-    // Production: sig("NonEquals",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("NonEquals",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public NonEquals(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public NonEquals(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -3118,7 +3401,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 883 * lhs.hashCode() + 397 * rhs.hashCode() ; 
+      return 277 + 2 * lhs.hashCode() + 167 * rhs.hashCode() ; 
     } 
   
     
@@ -3140,20 +3423,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isNotIn() {
     return false;
   }
 
   static public class NotIn extends Expression {
-    // Production: sig("NotIn",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("NotIn",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public NotIn(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public NotIn(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -3180,7 +3469,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 149 * lhs.hashCode() + 593 * rhs.hashCode() ; 
+      return 757 + 157 * lhs.hashCode() + 937 * rhs.hashCode() ; 
     } 
   
     
@@ -3202,20 +3491,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isOr() {
     return false;
   }
 
   static public class Or extends Expression {
-    // Production: sig("Or",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Or",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Or(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Or(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -3242,7 +3537,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 379 + 643 * lhs.hashCode() + 821 * rhs.hashCode() ; 
+      return 31 + 863 * lhs.hashCode() + 307 * rhs.hashCode() ; 
     } 
   
     
@@ -3264,20 +3559,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isProduct() {
     return false;
   }
 
   static public class Product extends Expression {
-    // Production: sig("Product",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Product",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Product(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Product(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -3304,7 +3605,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 953 * lhs.hashCode() + 443 * rhs.hashCode() ; 
+      return 991 + 97 * lhs.hashCode() + 563 * rhs.hashCode() ; 
     } 
   
     
@@ -3326,19 +3627,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isQualifiedName() {
     return false;
   }
 
   static public class QualifiedName extends Expression {
-    // Production: sig("QualifiedName",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+    // Production: sig("QualifiedName",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName qualifiedName;
   
-    public QualifiedName(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-      super(node);
+    public QualifiedName(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+      super(src, node);
       
       this.qualifiedName = qualifiedName;
     }
@@ -3364,7 +3671,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 619 * qualifiedName.hashCode() ; 
+      return 547 + 797 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -3377,20 +3684,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(qualifiedName));
+    }
+            
   }
   public boolean isRange() {
     return false;
   }
 
   static public class Range extends Expression {
-    // Production: sig("Range",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","last")])
+    // Production: sig("Range",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","last")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression first;
     private final org.rascalmpl.ast.Expression last;
   
-    public Range(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
-      super(node);
+    public Range(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
+      super(src, node);
       
       this.first = first;
       this.last = last;
@@ -3417,7 +3730,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 911 * first.hashCode() + 17 * last.hashCode() ; 
+      return 67 + 103 * first.hashCode() + 659 * last.hashCode() ; 
     } 
   
     
@@ -3439,21 +3752,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(last));
+    }
+            
   }
   public boolean isReducer() {
     return false;
   }
 
   static public class Reducer extends Expression {
-    // Production: sig("Reducer",[arg("org.rascalmpl.ast.Expression","init"),arg("org.rascalmpl.ast.Expression","result"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Reducer",[arg("org.rascalmpl.ast.Expression","init"),arg("org.rascalmpl.ast.Expression","result"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression init;
     private final org.rascalmpl.ast.Expression result;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Reducer(IConstructor node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Reducer(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.init = init;
       this.result = result;
@@ -3481,7 +3800,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 757 * init.hashCode() + 523 * result.hashCode() + 631 * generators.hashCode() ; 
+      return 683 + 293 * init.hashCode() + 953 * result.hashCode() + 173 * generators.hashCode() ; 
     } 
   
     
@@ -3512,20 +3831,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(init), clone(result), clone(generators));
+    }
+            
   }
   public boolean isReifiedType() {
     return false;
   }
 
   static public class ReifiedType extends Expression {
-    // Production: sig("ReifiedType",[arg("org.rascalmpl.ast.Expression","symbol"),arg("org.rascalmpl.ast.Expression","definitions")])
+    // Production: sig("ReifiedType",[arg("org.rascalmpl.ast.Expression","symbol"),arg("org.rascalmpl.ast.Expression","definitions")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression symbol;
     private final org.rascalmpl.ast.Expression definitions;
   
-    public ReifiedType(IConstructor node , org.rascalmpl.ast.Expression symbol,  org.rascalmpl.ast.Expression definitions) {
-      super(node);
+    public ReifiedType(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression symbol,  org.rascalmpl.ast.Expression definitions) {
+      super(src, node);
       
       this.symbol = symbol;
       this.definitions = definitions;
@@ -3552,7 +3877,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 859 * symbol.hashCode() + 719 * definitions.hashCode() ; 
+      return 587 + 967 * symbol.hashCode() + 787 * definitions.hashCode() ; 
     } 
   
     
@@ -3574,19 +3899,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasDefinitions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(definitions));
+    }
+            
   }
   public boolean isReifyType() {
     return false;
   }
 
   static public class ReifyType extends Expression {
-    // Production: sig("ReifyType",[arg("org.rascalmpl.ast.Type","type")])
+    // Production: sig("ReifyType",[arg("org.rascalmpl.ast.Type","type")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
   
-    public ReifyType(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
+    public ReifyType(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type) {
+      super(src, node);
       
       this.type = type;
     }
@@ -3612,7 +3943,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 839 * type.hashCode() ; 
+      return 83 + 971 * type.hashCode() ; 
     } 
   
     
@@ -3625,20 +3956,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type));
+    }
+            
   }
   public boolean isRemainder() {
     return false;
   }
 
   static public class Remainder extends Expression {
-    // Production: sig("Remainder",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Remainder",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Remainder(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Remainder(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -3665,7 +4002,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 811 * lhs.hashCode() + 229 * rhs.hashCode() ; 
+      return 53 + 313 * lhs.hashCode() + 179 * rhs.hashCode() ; 
     } 
   
     
@@ -3687,19 +4024,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isSet() {
     return false;
   }
 
   static public class Set extends Expression {
-    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")])
+    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> elements0;
   
-    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
-      super(node);
+    public Set(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
+      super(src, node);
       
       this.elements0 = elements0;
     }
@@ -3725,7 +4068,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 + 883 * elements0.hashCode() ; 
+      return 709 + 7 * elements0.hashCode() ; 
     } 
   
     
@@ -3738,21 +4081,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements0));
+    }
+            
   }
   public boolean isSetAnnotation() {
     return false;
   }
 
   static public class SetAnnotation extends Expression {
-    // Production: sig("SetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","value")])
+    // Production: sig("SetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","value")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression value;
   
-    public SetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
-      super(node);
+    public SetAnnotation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
+      super(src, node);
       
       this.expression = expression;
       this.name = name;
@@ -3780,7 +4129,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 59 * expression.hashCode() + 983 * name.hashCode() + 673 * value.hashCode() ; 
+      return 619 + 17 * expression.hashCode() + 193 * name.hashCode() + 401 * value.hashCode() ; 
     } 
   
     
@@ -3811,21 +4160,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasValue() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(name), clone(value));
+    }
+            
   }
   public boolean isSlice() {
     return false;
   }
 
   static public class Slice extends Expression {
-    // Production: sig("Slice",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("Slice",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.OptionalExpression optFirst;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public Slice(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public Slice(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.expression = expression;
       this.optFirst = optFirst;
@@ -3853,7 +4208,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 541 * expression.hashCode() + 443 * optFirst.hashCode() + 107 * optLast.hashCode() ; 
+      return 239 + 331 * expression.hashCode() + 463 * optFirst.hashCode() + 307 * optLast.hashCode() ; 
     } 
   
     
@@ -3884,13 +4239,19 @@ public abstract class Expression extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(optFirst), clone(optLast));
+    }
+            
   }
   public boolean isSliceStep() {
     return false;
   }
 
   static public class SliceStep extends Expression {
-    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
@@ -3898,8 +4259,8 @@ public abstract class Expression extends AbstractAST {
     private final org.rascalmpl.ast.Expression second;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public SliceStep(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public SliceStep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.expression = expression;
       this.optFirst = optFirst;
@@ -3928,7 +4289,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 883 * expression.hashCode() + 463 * optFirst.hashCode() + 163 * second.hashCode() + 809 * optLast.hashCode() ; 
+      return 631 + 757 * expression.hashCode() + 241 * optFirst.hashCode() + 709 * second.hashCode() + 769 * optLast.hashCode() ; 
     } 
   
     
@@ -3968,19 +4329,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(optFirst), clone(second), clone(optLast));
+    }
+            
   }
   public boolean isSplice() {
     return false;
   }
 
   static public class Splice extends Expression {
-    // Production: sig("Splice",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("Splice",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public Splice(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public Splice(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -4006,7 +4373,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 983 + 181 * argument.hashCode() ; 
+      return 751 + 733 * argument.hashCode() ; 
     } 
   
     
@@ -4019,19 +4386,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isSplicePlus() {
     return false;
   }
 
   static public class SplicePlus extends Expression {
-    // Production: sig("SplicePlus",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("SplicePlus",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public SplicePlus(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public SplicePlus(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -4057,7 +4430,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 47 * argument.hashCode() ; 
+      return 61 + 193 * argument.hashCode() ; 
     } 
   
     
@@ -4070,21 +4443,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isStepRange() {
     return false;
   }
 
   static public class StepRange extends Expression {
-    // Production: sig("StepRange",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.Expression","last")])
+    // Production: sig("StepRange",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.Expression","last")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression first;
     private final org.rascalmpl.ast.Expression second;
     private final org.rascalmpl.ast.Expression last;
   
-    public StepRange(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
-      super(node);
+    public StepRange(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
+      super(src, node);
       
       this.first = first;
       this.second = second;
@@ -4112,7 +4491,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 199 * first.hashCode() + 109 * second.hashCode() + 971 * last.hashCode() ; 
+      return 229 + 991 * first.hashCode() + 197 * second.hashCode() + 859 * last.hashCode() ; 
     } 
   
     
@@ -4143,20 +4522,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(second), clone(last));
+    }
+            
   }
   public boolean isSubscript() {
     return false;
   }
 
   static public class Subscript extends Expression {
-    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","subscripts")])
+    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","subscripts")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Expression> subscripts;
   
-    public Subscript(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
-      super(node);
+    public Subscript(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
+      super(src, node);
       
       this.expression = expression;
       this.subscripts = subscripts;
@@ -4183,7 +4568,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 823 * expression.hashCode() + 929 * subscripts.hashCode() ; 
+      return 709 + 683 * expression.hashCode() + 67 * subscripts.hashCode() ; 
     } 
   
     
@@ -4205,20 +4590,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasSubscripts() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression), clone(subscripts));
+    }
+            
   }
   public boolean isSubtraction() {
     return false;
   }
 
   static public class Subtraction extends Expression {
-    // Production: sig("Subtraction",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+    // Production: sig("Subtraction",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression lhs;
     private final org.rascalmpl.ast.Expression rhs;
   
-    public Subtraction(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-      super(node);
+    public Subtraction(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -4245,7 +4636,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 11 * lhs.hashCode() + 449 * rhs.hashCode() ; 
+      return 101 + 11 * lhs.hashCode() + 659 * rhs.hashCode() ; 
     } 
   
     
@@ -4267,19 +4658,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isTransitiveClosure() {
     return false;
   }
 
   static public class TransitiveClosure extends Expression {
-    // Production: sig("TransitiveClosure",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("TransitiveClosure",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public TransitiveClosure(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public TransitiveClosure(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -4305,7 +4702,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 163 * argument.hashCode() ; 
+      return 3 + 571 * argument.hashCode() ; 
     } 
   
     
@@ -4318,19 +4715,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isTransitiveReflexiveClosure() {
     return false;
   }
 
   static public class TransitiveReflexiveClosure extends Expression {
-    // Production: sig("TransitiveReflexiveClosure",[arg("org.rascalmpl.ast.Expression","argument")])
+    // Production: sig("TransitiveReflexiveClosure",[arg("org.rascalmpl.ast.Expression","argument")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public TransitiveReflexiveClosure(IConstructor node , org.rascalmpl.ast.Expression argument) {
-      super(node);
+    public TransitiveReflexiveClosure(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(src, node);
       
       this.argument = argument;
     }
@@ -4356,7 +4759,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 199 * argument.hashCode() ; 
+      return 191 + 673 * argument.hashCode() ; 
     } 
   
     
@@ -4369,19 +4772,25 @@ public abstract class Expression extends AbstractAST {
     public boolean hasArgument() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(argument));
+    }
+            
   }
   public boolean isTuple() {
     return false;
   }
 
   static public class Tuple extends Expression {
-    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")])
+    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> elements;
   
-    public Tuple(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-      super(node);
+    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+      super(src, node);
       
       this.elements = elements;
     }
@@ -4407,7 +4816,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 347 * elements.hashCode() ; 
+      return 373 + 463 * elements.hashCode() ; 
     } 
   
     
@@ -4420,20 +4829,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasElements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements));
+    }
+            
   }
   public boolean isTypedVariable() {
     return false;
   }
 
   static public class TypedVariable extends Expression {
-    // Production: sig("TypedVariable",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("TypedVariable",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Name name;
   
-    public TypedVariable(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public TypedVariable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.type = type;
       this.name = name;
@@ -4460,7 +4875,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 239 + 787 * type.hashCode() + 11 * name.hashCode() ; 
+      return 227 + 439 * type.hashCode() + 397 * name.hashCode() ; 
     } 
   
     
@@ -4482,21 +4897,27 @@ public abstract class Expression extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(name));
+    }
+            
   }
   public boolean isTypedVariableBecomes() {
     return false;
   }
 
   static public class TypedVariableBecomes extends Expression {
-    // Production: sig("TypedVariableBecomes",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","pattern")])
+    // Production: sig("TypedVariableBecomes",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","pattern")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression pattern;
   
-    public TypedVariableBecomes(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-      super(node);
+    public TypedVariableBecomes(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+      super(src, node);
       
       this.type = type;
       this.name = name;
@@ -4524,7 +4945,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 653 * type.hashCode() + 887 * name.hashCode() + 919 * pattern.hashCode() ; 
+      return 827 + 151 * type.hashCode() + 113 * name.hashCode() + 149 * pattern.hashCode() ; 
     } 
   
     
@@ -4555,20 +4976,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(name), clone(pattern));
+    }
+            
   }
   public boolean isVariableBecomes() {
     return false;
   }
 
   static public class VariableBecomes extends Expression {
-    // Production: sig("VariableBecomes",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","pattern")])
+    // Production: sig("VariableBecomes",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","pattern")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression pattern;
   
-    public VariableBecomes(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-      super(node);
+    public VariableBecomes(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+      super(src, node);
       
       this.name = name;
       this.pattern = pattern;
@@ -4595,7 +5022,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 677 + 631 * name.hashCode() + 449 * pattern.hashCode() ; 
+      return 479 + 281 * name.hashCode() + 197 * pattern.hashCode() ; 
     } 
   
     
@@ -4617,20 +5044,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasPattern() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(pattern));
+    }
+            
   }
   public boolean isVisit() {
     return false;
   }
 
   static public class Visit extends Expression {
-    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
+    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")],breakable=false)
   
     
     private final org.rascalmpl.ast.Label label;
     private final org.rascalmpl.ast.Visit visit;
   
-    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-      super(node);
+    public Visit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+      super(src, node);
       
       this.label = label;
       this.visit = visit;
@@ -4657,7 +5090,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 491 * label.hashCode() + 43 * visit.hashCode() ; 
+      return 599 + 977 * label.hashCode() + 137 * visit.hashCode() ; 
     } 
   
     
@@ -4679,20 +5112,26 @@ public abstract class Expression extends AbstractAST {
     public boolean hasVisit() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(label), clone(visit));
+    }
+            
   }
   public boolean isVoidClosure() {
     return false;
   }
 
   static public class VoidClosure extends Expression {
-    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements0")])
+    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements0")],breakable=false)
   
     
     private final org.rascalmpl.ast.Parameters parameters;
     private final java.util.List<org.rascalmpl.ast.Statement> statements0;
   
-    public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements0) {
-      super(node);
+    public VoidClosure(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements0) {
+      super(src, node);
       
       this.parameters = parameters;
       this.statements0 = statements0;
@@ -4719,7 +5158,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 521 * parameters.hashCode() + 751 * statements0.hashCode() ; 
+      return 113 + 661 * parameters.hashCode() + 263 * statements0.hashCode() ; 
     } 
   
     
@@ -4741,5 +5180,11 @@ public abstract class Expression extends AbstractAST {
     public boolean hasStatements0() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(parameters), clone(statements0));
+    }
+            
   }
 }

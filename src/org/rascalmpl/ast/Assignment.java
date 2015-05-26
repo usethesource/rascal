@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assignment extends AbstractAST {
-  public Assignment(IConstructor node) {
-    super();
+  public Assignment(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Assignment extends AbstractAST {
   }
 
   static public class Addition extends Assignment {
-    // Production: sig("Addition",[])
+    // Production: sig("Addition",[],breakable=false)
   
     
   
-    public Addition(IConstructor node ) {
-      super(node);
+    public Addition(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,22 +64,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 ; 
+      return 953 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isAppend() {
     return false;
   }
 
   static public class Append extends Assignment {
-    // Production: sig("Append",[])
+    // Production: sig("Append",[],breakable=false)
   
     
   
-    public Append(IConstructor node ) {
-      super(node);
+    public Append(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -103,22 +110,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 ; 
+      return 223 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends Assignment {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,22 +156,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 ; 
+      return 631 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isDivision() {
     return false;
   }
 
   static public class Division extends Assignment {
-    // Production: sig("Division",[])
+    // Production: sig("Division",[],breakable=false)
   
     
   
-    public Division(IConstructor node ) {
-      super(node);
+    public Division(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -183,22 +202,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 7 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isIfDefined() {
     return false;
   }
 
   static public class IfDefined extends Assignment {
-    // Production: sig("IfDefined",[])
+    // Production: sig("IfDefined",[],breakable=false)
   
     
   
-    public IfDefined(IConstructor node ) {
-      super(node);
+    public IfDefined(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -223,22 +248,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 ; 
+      return 79 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isIntersection() {
     return false;
   }
 
   static public class Intersection extends Assignment {
-    // Production: sig("Intersection",[])
+    // Production: sig("Intersection",[],breakable=false)
   
     
   
-    public Intersection(IConstructor node ) {
-      super(node);
+    public Intersection(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -263,22 +294,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 ; 
+      return 641 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isProduct() {
     return false;
   }
 
   static public class Product extends Assignment {
-    // Production: sig("Product",[])
+    // Production: sig("Product",[],breakable=false)
   
     
   
-    public Product(IConstructor node ) {
-      super(node);
+    public Product(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -303,22 +340,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 503 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isSubtraction() {
     return false;
   }
 
   static public class Subtraction extends Assignment {
-    // Production: sig("Subtraction",[])
+    // Production: sig("Subtraction",[],breakable=false)
   
     
   
-    public Subtraction(IConstructor node ) {
-      super(node);
+    public Subtraction(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -343,9 +386,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 ; 
+      return 331 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

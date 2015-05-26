@@ -1,11 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,22 +12,38 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
+import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
+import de.ruedigermoeller.serialization.FSTClazzInfo;
+import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
+import de.ruedigermoeller.serialization.FSTObjectInput;
+import de.ruedigermoeller.serialization.FSTObjectOutput;
+
+
+/**
+ * RVMExecutable contains all data needed for executing an RVM program.
+ *
+ * RVMExecutable is serialized by FSTRVMExecutableSerializer, make sure that
+ * all fields declared here are synced with the serializer.
+ */
 public class RVMExecutable implements Serializable{
 
 	private static final long serialVersionUID = -8966920880207428792L;
+   
 	
 	// transient fields
 	transient static IValueFactory vf;
 	transient static TypeStore store;
-	transient private static TypeSerializer typeserializer;
+	//transient static TypeSerializer typeserializer;
 	
 	// Serializable fields
 	
@@ -99,189 +113,92 @@ public class RVMExecutable implements Serializable{
 		
 		vf = vfactory;
 		store = ts;
-		typeserializer = new TypeSerializer(ts); //new TypeSerializer(TypeFactory.getInstance());	//
 	}
 	
+//	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
+//		String scheme = "compressed+" + exec.getScheme();
+//		String authority = exec.getAuthority();
+//		String path = exec.getPath() + ".gz";
+//		return vf.sourceLocation(scheme, authority, path);
+//	}
 	
-	private void writeObject(java.io.ObjectOutputStream stream)
-			throws IOException {
-		int n;
+	public void write(ISourceLocation rvmExecutable){		
+		OutputStream fileOut;
 		
-		// public String module_name;
+		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
-		stream.writeObject(module_name);
+		FSTSerializableType.initSerialization(vf, typeStore);
+		FSTSerializableIValue.initSerialization(vf, typeStore);
 		
-		// public IMap moduleTags;
-		
-		stream.writeObject(new SerializableRascalValue<IMap>(moduleTags));
-		
-		// public IMap symbol_definitions;
-		
-		stream.writeObject(new SerializableRascalValue<IMap>(symbol_definitions));
-		
-		// public ArrayList<Function> functionStore;
-		// public Map<String, Integer> functionMap;
-		
-		stream.writeObject(functionStore);
+		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+		FSTFunctionSerializer.initSerialization(vf, typeStore);
+		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 
-		// public ArrayList<Type> constructorStore;
-		
-		n = constructorStore.size();
-		stream.writeObject(n);
-		
-		for(int i = 0; i < n; i++){
-			typeserializer.writeType(stream, constructorStore.get(i));
-		}
-		
-		// public Map<String, Integer> constructorMap;
-		
-		stream.writeObject(constructorMap);
-		
-		// public ArrayList<OverloadedFunction> overloadedStore;
-		
-		stream.writeObject(overloadedStore);
-		
-		// public Map<String, Integer> resolver;
-		
-		stream.writeObject(resolver);
-		
-		// ArrayList<String> initializers;
-		
-		stream.writeObject(initializers);
-		
-		// ArrayList<String> testsuites;
-		
-		stream.writeObject(testsuites);
-		
-		// public String uid_module_init;
-		
-		stream.writeObject(uid_module_init);
-		
-		// public String uid_module_main;
-		
-		stream.writeObject(uid_module_main);
-		
-		// public String uid_module_main_testsuite;
-		
-		stream.writeObject(uid_module_main_testsuite);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void readObject(java.io.ObjectInputStream stream) throws ClassNotFoundException, IOException{
-		int n;
-		
-		// public String name;
-		
-		module_name = (String) stream.readObject();
-		
-		// public IMap moduleTags;
-		
-		moduleTags = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
-		
-		// public IMap symbol_definitions;
-		
-		symbol_definitions = ((SerializableRascalValue<IMap>) stream.readObject()).getValue();
-		
-		// public ArrayList<Function> functionStore;
-		// public  Map<String, Integer> functionMap;
-		
-		functionStore = (ArrayList<Function>) stream.readObject();
-		
-		n = functionStore.size();
-		functionMap = new HashMap<String, Integer>(n);
-		for(int i = 0; i < n; i++){
-			functionMap.put(functionStore.get(i).getName(), i);
-		}
-			
-		// public ArrayList<Type> constructorStore;
-
-		n = (Integer) stream.readObject();
-		constructorStore = new ArrayList<Type>(n);
-		
-		for(int i = 0; i < n; i++){
-			constructorStore.add(i, typeserializer.readType(stream));
-		}
-		
-		// public Map<String, Integer> constructorMap;
-		
-		constructorMap = (Map<String, Integer>) stream.readObject();
-		
-		// public ArrayList<OverloadedFunction> overloadedStore;
-		
-		overloadedStore = (ArrayList<OverloadedFunction>) stream.readObject();
-		
-		// public Map<String, Integer> resolver;
-		
-		resolver = (HashMap<String, Integer>) stream.readObject();
-		
-		// ArrayList<String> initializers;
-		
-		initializers = (ArrayList<String>) stream.readObject();
-		
-		// ArrayList<String> testsuites;
-		
-		testsuites = (ArrayList<String>) stream.readObject();
-		
-		// public String uid_module_init;
-		
-		uid_module_init = (String) stream.readObject();
-		
-		// public String uid_module_main;
-		
-		uid_module_main = (String) stream.readObject();
-		
-		// public String uid_module_main_testsuite;
-		
-		uid_module_main_testsuite = (String) stream.readObject();
-	}
-	
-	public void write(String path){		
-		FileOutputStream fileOut;
-		
-		TypeStore typeStore = new TypeStore(Factory.getStore());
-		SerializableRascalValue.initSerialization(vf, typeStore);
-		Function.initSerialization(vf, typeStore);
-		CodeBlock.initSerialization(vf, typeStore);
-		
 		try {
-			fileOut = new FileOutputStream(path);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			ISourceLocation compOut = rvmExecutable; //compressedLoc(rvmExecutable);
+			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
+			//fileOut = new GZIPOutputStream(fileOut, 8 * 1024);
+			FSTObjectOutput out = new FSTObjectOutput(fileOut, RascalLinker.conf);
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
-			fileOut.close();
-			System.out.println("Writing: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			out.close();
+			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
+//		catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
-	public static RVMExecutable read(String path) {
+	public static RVMExecutable read(ISourceLocation rvmExecutable) {
 		RVMExecutable executable = null;
 		
-		TypeStore typeStore = new TypeStore(Factory.getStore());
-		typeserializer = new TypeSerializer(typeStore);
-		SerializableRascalValue.initSerialization(vf, typeStore);
-		Function.initSerialization(vf, typeStore);
-		CodeBlock.initSerialization(vf, typeStore);
+		vf = ValueFactoryFactory.getValueFactory();
+		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
+		FSTSerializableType.initSerialization(vf, typeStore);
+		FSTSerializableIValue.initSerialization(vf, typeStore);
+	
+		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+		FSTFunctionSerializer.initSerialization(vf, typeStore);
+		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
+	
+		FSTObjectInput in = null;
 		try {
-			FileInputStream fileIn = new FileInputStream(path);
-			ObjectInputStream in = new ObjectInputStream(fileIn);
+			ISourceLocation compIn = rvmExecutable; //compressedLoc(rvmExecutable);
+			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
+			//fileIn = new GZIPInputStream(fileIn);
+			in = new FSTObjectInput(fileIn, RascalLinker.conf);
 			long before = Timing.getCpuTime();
-			executable = (RVMExecutable) in.readObject();
+			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();
-			fileIn.close();
-			System.out.println("Reading: " + path + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			in = null;
+			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 
 		} catch (ClassNotFoundException c) {
 			System.out.println("Class not found: " + c.getMessage());
 			c.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		finally {
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return executable;
 	}
@@ -384,6 +301,167 @@ public class RVMExecutable implements Serializable{
 		return functionMapOk && constructorStoreOk && constructorMapOk && 
 			   resolverOk && overloadedStoreOk && initializersOk && testsuitesOk && uidsOk;
 	}
+}
 	
+class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
+	private static IValueFactory vf;
+	private static TypeStore store;
+	//private static TypeReifier tr;
+	//private static TypeSerializer typeserializer;
+
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		vf = vfactory;
+		store = ts;
+		store.extendStore(RascalValueFactory.getStore());
+		//tr = new TypeReifier(vf);
+		//typeserializer = new TypeSerializer(ts);
+	}
+
+	@Override
+	public void writeObject(FSTObjectOutput out, Object toWrite,
+			FSTClazzInfo arg2, FSTFieldInfo arg3, int arg4)
+					throws IOException {
+
+		int n;
+		RVMExecutable ex = (RVMExecutable) toWrite;
+
+		// public String module_name;
+
+		out.writeObject(ex.module_name);
+
+		// public IMap moduleTags;
+	
+		out.writeObject(new FSTSerializableIValue(ex.moduleTags));
+
+		// public IMap symbol_definitions;
+
+		out.writeObject(new FSTSerializableIValue(ex.symbol_definitions));
+
+		// public ArrayList<Function> functionStore;
+		// public Map<String, Integer> functionMap;
+
+		out.writeObject(ex.functionStore);
+
+		// public ArrayList<Type> constructorStore;
+
+		n = ex.constructorStore.size();
+		out.writeObject(n);
+
+		for(int i = 0; i < n; i++){
+			out.writeObject(new FSTSerializableType(ex.constructorStore.get(i)));
+		}
+
+		// public Map<String, Integer> constructorMap;
+
+		out.writeObject(ex.constructorMap);
+
+		// public ArrayList<OverloadedFunction> overloadedStore;
+
+		out.writeObject(ex.overloadedStore);
+
+		// public Map<String, Integer> resolver;
+
+		out.writeObject(ex.resolver);
+
+		// ArrayList<String> initializers;
+
+		out.writeObject(ex.initializers);
+
+		// ArrayList<String> testsuites;
+
+		out.writeObject(ex.testsuites);
+
+		// public String uid_module_init;
+
+		out.writeObject(ex.uid_module_init);
+
+		// public String uid_module_main;
+
+		out.writeObject(ex.uid_module_main);
+
+		// public String uid_module_main_testsuite;
+
+		out.writeObject(ex.uid_module_main_testsuite);
+	}
+
+
+	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
+	{
+	}
+
+	@SuppressWarnings("unchecked")
+	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
+	{
+		int n;
+
+		// public String name;
+
+		String module_name = (String) in.readObject();
+
+		// public IMap moduleTags;
+
+		IMap moduleTags = (IMap) in.readObject();
+
+		// public IMap symbol_definitions;
+
+		IMap symbol_definitions = (IMap) in.readObject();
+
+		// public ArrayList<Function> functionStore;
+		// public  Map<String, Integer> functionMap;
+
+		ArrayList<Function> functionStore = (ArrayList<Function>) in.readObject();
+
+		n = functionStore.size();
+		HashMap<String, Integer> functionMap = new HashMap<String, Integer>(n);
+		for(int i = 0; i < n; i++){
+			functionMap.put(functionStore.get(i).getName(), i);
+		}
+
+		// public ArrayList<Type> constructorStore;
+
+		n = (Integer) in.readObject();
+		ArrayList<Type> constructorStore = new ArrayList<Type>(n);
+
+		for(int i = 0; i < n; i++){
+			constructorStore.add(i, (Type) in.readObject());
+		}
+
+		// public Map<String, Integer> constructorMap;
+
+		Map<String, Integer> constructorMap = (Map<String, Integer>) in.readObject();
+
+		// public ArrayList<OverloadedFunction> overloadedStore;
+
+		ArrayList<OverloadedFunction> overloadedStore = (ArrayList<OverloadedFunction>) in.readObject();
+
+		// public Map<String, Integer> resolver;
+
+		HashMap<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
+
+		// ArrayList<String> initializers;
+
+		ArrayList<String> initializers = (ArrayList<String>) in.readObject();
+
+		// ArrayList<String> testsuites;
+
+		ArrayList<String> testsuites = (ArrayList<String>) in.readObject();
+
+		// public String uid_module_init;
+
+		String uid_module_init = (String) in.readObject();
+
+		// public String uid_module_main;
+
+		String uid_module_main = (String) in.readObject();
+
+		// public String uid_module_main_testsuite;
+
+		String uid_module_main_testsuite = (String) in.readObject();
+
+		return new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
+								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
+								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf);
+	
+	}
 }

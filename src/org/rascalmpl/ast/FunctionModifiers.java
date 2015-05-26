@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionModifiers extends AbstractAST {
-  public FunctionModifiers(IConstructor node) {
-    super();
+  public FunctionModifiers(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class FunctionModifiers extends AbstractAST {
   }
 
   static public class Modifierlist extends FunctionModifiers {
-    // Production: sig("Modifierlist",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")])
+    // Production: sig("Modifierlist",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers;
   
-    public Modifierlist(IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
-      super(node);
+    public Modifierlist(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
+      super(src, node);
       
       this.modifiers = modifiers;
     }
@@ -72,7 +73,7 @@ public abstract class FunctionModifiers extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 191 * modifiers.hashCode() ; 
+      return 947 + 191 * modifiers.hashCode() ; 
     } 
   
     
@@ -85,5 +86,11 @@ public abstract class FunctionModifiers extends AbstractAST {
     public boolean hasModifiers() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers));
+    }
+            
   }
 }

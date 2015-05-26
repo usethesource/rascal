@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringLiteral extends AbstractAST {
-  public StringLiteral(IConstructor node) {
-    super();
+  public StringLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,15 +69,15 @@ public abstract class StringLiteral extends AbstractAST {
   }
 
   static public class Interpolated extends StringLiteral {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.PreStringChars pre;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.pre = pre;
       this.expression = expression;
@@ -104,7 +105,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 313 * pre.hashCode() + 457 * expression.hashCode() + 947 * tail.hashCode() ; 
+      return 503 + 677 * pre.hashCode() + 347 * expression.hashCode() + 199 * tail.hashCode() ; 
     } 
   
     
@@ -135,19 +136,25 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isNonInterpolated() {
     return false;
   }
 
   static public class NonInterpolated extends StringLiteral {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.StringConstant","constant")])
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.StringConstant","constant")],breakable=false)
   
     
     private final org.rascalmpl.ast.StringConstant constant;
   
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.StringConstant constant) {
-      super(node);
+    public NonInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringConstant constant) {
+      super(src, node);
       
       this.constant = constant;
     }
@@ -173,7 +180,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 307 * constant.hashCode() ; 
+      return 937 + 277 * constant.hashCode() ; 
     } 
   
     
@@ -186,21 +193,27 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasConstant() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(constant));
+    }
+            
   }
   public boolean isTemplate() {
     return false;
   }
 
   static public class Template extends StringLiteral {
-    // Production: sig("Template",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("Template",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.PreStringChars pre;
     private final org.rascalmpl.ast.StringTemplate template;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public Template(IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public Template(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.pre = pre;
       this.template = template;
@@ -228,7 +241,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 839 * pre.hashCode() + 373 * template.hashCode() + 191 * tail.hashCode() ; 
+      return 907 + 661 * pre.hashCode() + 587 * template.hashCode() + 773 * tail.hashCode() ; 
     } 
   
     
@@ -259,5 +272,11 @@ public abstract class StringLiteral extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(template), clone(tail));
+    }
+            
   }
 }

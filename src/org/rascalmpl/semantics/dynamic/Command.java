@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.ShellCommand;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -25,9 +26,9 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 	static public class Declaration extends
 			org.rascalmpl.ast.Command.Declaration {
 
-		public Declaration(IConstructor __param1,
+		public Declaration(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Declaration __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -45,8 +46,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Expression extends org.rascalmpl.ast.Command.Expression {
 
-		public Expression(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
-			super(__param1, __param2);
+		public Expression(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -67,8 +68,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Import extends org.rascalmpl.ast.Command.Import {
 
-		public Import(IConstructor __param1, org.rascalmpl.ast.Import __param2) {
-			super(__param1, __param2);
+		public Import(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Import __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -95,8 +96,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Shell extends org.rascalmpl.ast.Command.Shell {
 
-		public Shell(IConstructor __param1, ShellCommand __param2) {
-			super(__param1, __param2);
+		public Shell(ISourceLocation __param1, IConstructor tree, ShellCommand __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -111,8 +112,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Statement extends org.rascalmpl.ast.Command.Statement {
 
-		public Statement(IConstructor __param1, org.rascalmpl.ast.Statement __param2) {
-			super(__param1, __param2);
+		public Statement(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -129,7 +130,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	}
 
-	public Command(IConstructor __param1) {
-		super(__param1);
+	public Command(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

@@ -109,12 +109,21 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
 	public RascalFunction cloneInto(Environment env) {
-		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
+		AbstractAST clone = cloneAst();
+		List<Statement> clonedBody = cloneBody();
+		// TODO: accumulators are not cloned? @tvdstorm check this out:
+		RascalFunction rf = new RascalFunction(clone, getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), clonedBody, env, accumulators);
 		rf.setPublic(isPublic()); // TODO: should be in constructors
 		return rf;
 	}
-	
-	
+
+	private AbstractAST cloneAst() {
+		return (AbstractAST) getAst().clone();
+	}
+
+	private List<Statement> cloneBody() {
+		return getAst().clone(body);
+	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
 		return ast.accept(new NullASTVisitor<String>() {
@@ -240,6 +249,10 @@ public class RascalFunction extends NamedFunction {
 
     try {
     	  ctx.setCurrentAST(ast);
+    	if (callTracing) {
+    		printStartTrace(actuals);
+    	}
+    	
       String label = isAnonymous() ? "Anonymous Function" : name;
       Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
       ctx.setCurrentEnvt(environment);
@@ -266,8 +279,12 @@ public class RascalFunction extends NamedFunction {
       if (size == 0) {
         try {
           bindKeywordArgs(keyArgValues);
+          
           result = runBody();
           storeMemoizedResult(actuals,keyArgValues, result);
+          if (callTracing) {
+        	  printEndTrace(result.getValue());
+          }
           return result;
         }
         catch (Return e) {
@@ -326,12 +343,21 @@ public class RascalFunction extends NamedFunction {
     catch (Return e) {
       result = computeReturn(e);
       storeMemoizedResult(actuals,keyArgValues, result);
+      if (callTracing) {
+    	  printEndTrace(result.getValue());
+      }
       return result;
     } 
+    catch (Throwable e) {
+    	if (callTracing) {
+            printExcept(e);
+    	}
+    	throw e;
+    }
     finally {
-      if (callTracing) {
-        printFinally();
-      }
+    	if (callTracing) {
+    		callNesting--;
+    	}
       ctx.setCurrentEnvt(old);
       ctx.setAccumulators(oldAccus);
       ctx.setCurrentAST(oldAST);
@@ -341,19 +367,14 @@ public class RascalFunction extends NamedFunction {
 	
 
 	private Result<IValue> runBody() {
-		if (callTracing) {
-			printStartTrace();
-		}
+		
 
 		for (Statement stat: body) {
 			eval.setCurrentAST(stat);
 			stat.interpret(eval);
 		}
 
-		if (callTracing) {
-			printEndTrace();
-		}
-
+		
 		if(!isVoidFunction){
 			throw new MissingReturn(ast);
 		}

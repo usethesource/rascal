@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Toplevel extends AbstractAST {
-  public Toplevel(IConstructor node) {
-    super();
+  public Toplevel(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Toplevel extends AbstractAST {
   }
 
   static public class GivenVisibility extends Toplevel {
-    // Production: sig("GivenVisibility",[arg("org.rascalmpl.ast.Declaration","declaration")])
+    // Production: sig("GivenVisibility",[arg("org.rascalmpl.ast.Declaration","declaration")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declaration declaration;
   
-    public GivenVisibility(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
-      super(node);
+    public GivenVisibility(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(src, node);
       
       this.declaration = declaration;
     }
@@ -72,7 +73,7 @@ public abstract class Toplevel extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 293 * declaration.hashCode() ; 
+      return 37 + 7 * declaration.hashCode() ; 
     } 
   
     
@@ -85,5 +86,11 @@ public abstract class Toplevel extends AbstractAST {
     public boolean hasDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(declaration));
+    }
+            
   }
 }

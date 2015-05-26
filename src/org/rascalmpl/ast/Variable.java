@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Variable extends AbstractAST {
-  public Variable(IConstructor node) {
-    super();
+  public Variable(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Variable extends AbstractAST {
   }
 
   static public class Initialized extends Variable {
-    // Production: sig("Initialized",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","initial")])
+    // Production: sig("Initialized",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","initial")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression initial;
   
-    public Initialized(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
-      super(node);
+    public Initialized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
+      super(src, node);
       
       this.name = name;
       this.initial = initial;
@@ -81,7 +82,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 463 * name.hashCode() + 569 * initial.hashCode() ; 
+      return 151 + 523 * name.hashCode() + 823 * initial.hashCode() ; 
     } 
   
     
@@ -103,19 +104,25 @@ public abstract class Variable extends AbstractAST {
     public boolean hasInitial() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(initial));
+    }
+            
   }
   public boolean isUnInitialized() {
     return false;
   }
 
   static public class UnInitialized extends Variable {
-    // Production: sig("UnInitialized",[arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("UnInitialized",[arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
   
-    public UnInitialized(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
+    public UnInitialized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -141,7 +148,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 463 * name.hashCode() ; 
+      return 103 + 307 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +161,11 @@ public abstract class Variable extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PatternWithAction extends AbstractAST {
-  public PatternWithAction(IConstructor node) {
-    super();
+  public PatternWithAction(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   static public class Arbitrary extends PatternWithAction {
-    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Arbitrary(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.statement = statement;
@@ -88,7 +89,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 523 + 541 * pattern.hashCode() + 541 * statement.hashCode() ; 
+      return 541 + 367 * pattern.hashCode() + 383 * statement.hashCode() ; 
     } 
   
     
@@ -110,20 +111,26 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(statement));
+    }
+            
   }
   public boolean isReplacing() {
     return false;
   }
 
   static public class Replacing extends PatternWithAction {
-    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")])
+    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Replacement replacement;
   
-    public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
-      super(node);
+    public Replacing(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.replacement = replacement;
@@ -150,7 +157,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 337 * pattern.hashCode() + 647 * replacement.hashCode() ; 
+      return 313 + 433 * pattern.hashCode() + 139 * replacement.hashCode() ; 
     } 
   
     
@@ -172,5 +179,11 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasReplacement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(replacement));
+    }
+            
   }
 }

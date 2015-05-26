@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Visibility extends AbstractAST {
-  public Visibility(IConstructor node) {
-    super();
+  public Visibility(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Visibility extends AbstractAST {
   }
 
   static public class Default extends Visibility {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,22 +64,28 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 ; 
+      return 349 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isPrivate() {
     return false;
   }
 
   static public class Private extends Visibility {
-    // Production: sig("Private",[])
+    // Production: sig("Private",[],breakable=false)
   
     
   
-    public Private(IConstructor node ) {
-      super(node);
+    public Private(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -103,22 +110,28 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 ; 
+      return 439 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isPublic() {
     return false;
   }
 
   static public class Public extends Visibility {
-    // Production: sig("Public",[])
+    // Production: sig("Public",[],breakable=false)
   
     
   
-    public Public(IConstructor node ) {
-      super(node);
+    public Public(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,9 +156,15 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 ; 
+      return 823 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

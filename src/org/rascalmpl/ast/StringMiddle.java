@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringMiddle extends AbstractAST {
-  public StringMiddle(IConstructor node) {
-    super();
+  public StringMiddle(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class StringMiddle extends AbstractAST {
   }
 
   static public class Interpolated extends StringMiddle {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringMiddle","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringMiddle","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.StringMiddle tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -97,7 +98,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 229 * mid.hashCode() + 643 * expression.hashCode() + 547 * tail.hashCode() ; 
+      return 599 + 293 * mid.hashCode() + 607 * expression.hashCode() + 139 * tail.hashCode() ; 
     } 
   
     
@@ -128,19 +129,25 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isMid() {
     return false;
   }
 
   static public class Mid extends StringMiddle {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidStringChars","mid")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidStringChars","mid")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidStringChars mid) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid) {
+      super(src, node);
       
       this.mid = mid;
     }
@@ -166,7 +173,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 773 * mid.hashCode() ; 
+      return 577 + 773 * mid.hashCode() ; 
     } 
   
     
@@ -179,21 +186,27 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasMid() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid));
+    }
+            
   }
   public boolean isTemplate() {
     return false;
   }
 
   static public class Template extends StringMiddle {
-    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")])
+    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.StringTemplate template;
     private final org.rascalmpl.ast.StringMiddle tail;
   
-    public Template(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
-      super(node);
+    public Template(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
+      super(src, node);
       
       this.mid = mid;
       this.template = template;
@@ -221,7 +234,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 223 * mid.hashCode() + 617 * template.hashCode() + 11 * tail.hashCode() ; 
+      return 547 + 349 * mid.hashCode() + 73 * template.hashCode() + 89 * tail.hashCode() ; 
     } 
   
     
@@ -252,5 +265,11 @@ public abstract class StringMiddle extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(template), clone(tail));
+    }
+            
   }
 }

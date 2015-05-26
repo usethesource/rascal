@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ShellCommand extends AbstractAST {
-  public ShellCommand(IConstructor node) {
-    super();
+  public ShellCommand(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,12 +48,12 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Clear extends ShellCommand {
-    // Production: sig("Clear",[])
+    // Production: sig("Clear",[],breakable=false)
   
     
   
-    public Clear(IConstructor node ) {
-      super(node);
+    public Clear(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -77,23 +78,29 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 ; 
+      return 457 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isEdit() {
     return false;
   }
 
   static public class Edit extends ShellCommand {
-    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Edit(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Edit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -119,7 +126,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 983 * name.hashCode() ; 
+      return 71 + 659 * name.hashCode() ; 
     } 
   
     
@@ -132,18 +139,24 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
   public boolean isHelp() {
     return false;
   }
 
   static public class Help extends ShellCommand {
-    // Production: sig("Help",[])
+    // Production: sig("Help",[],breakable=false)
   
     
   
-    public Help(IConstructor node ) {
-      super(node);
+    public Help(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -168,22 +181,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 853 ; 
+      return 41 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isHistory() {
     return false;
   }
 
   static public class History extends ShellCommand {
-    // Production: sig("History",[])
+    // Production: sig("History",[],breakable=false)
   
     
   
-    public History(IConstructor node ) {
-      super(node);
+    public History(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -208,22 +227,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 ; 
+      return 599 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isListDeclarations() {
     return false;
   }
 
   static public class ListDeclarations extends ShellCommand {
-    // Production: sig("ListDeclarations",[])
+    // Production: sig("ListDeclarations",[],breakable=false)
   
     
   
-    public ListDeclarations(IConstructor node ) {
-      super(node);
+    public ListDeclarations(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -248,22 +273,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 ; 
+      return 467 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isListModules() {
     return false;
   }
 
   static public class ListModules extends ShellCommand {
-    // Production: sig("ListModules",[])
+    // Production: sig("ListModules",[],breakable=false)
   
     
   
-    public ListModules(IConstructor node ) {
-      super(node);
+    public ListModules(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -288,22 +319,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 ; 
+      return 317 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isQuit() {
     return false;
   }
 
   static public class Quit extends ShellCommand {
-    // Production: sig("Quit",[])
+    // Production: sig("Quit",[],breakable=false)
   
     
   
-    public Quit(IConstructor node ) {
-      super(node);
+    public Quit(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -328,24 +365,30 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 977 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isSetOption() {
     return false;
   }
 
   static public class SetOption extends ShellCommand {
-    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.Expression expression;
   
-    public SetOption(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public SetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.name = name;
       this.expression = expression;
@@ -372,7 +415,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 811 * name.hashCode() + 821 * expression.hashCode() ; 
+      return 659 + 421 * name.hashCode() + 631 * expression.hashCode() ; 
     } 
   
     
@@ -394,18 +437,24 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(expression));
+    }
+            
   }
   public boolean isTest() {
     return false;
   }
 
   static public class Test extends ShellCommand {
-    // Production: sig("Test",[])
+    // Production: sig("Test",[],breakable=false)
   
     
   
-    public Test(IConstructor node ) {
-      super(node);
+    public Test(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -430,23 +479,29 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 ; 
+      return 349 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isUndeclare() {
     return false;
   }
 
   static public class Undeclare extends ShellCommand {
-    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Undeclare(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Undeclare(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -472,7 +527,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 673 * name.hashCode() ; 
+      return 997 + 829 * name.hashCode() ; 
     } 
   
     
@@ -485,19 +540,25 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
   public boolean isUnimport() {
     return false;
   }
 
   static public class Unimport extends ShellCommand {
-    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Unimport(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Unimport(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -523,7 +584,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 631 * name.hashCode() ; 
+      return 317 + 109 * name.hashCode() ; 
     } 
   
     
@@ -536,5 +597,11 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionModifier extends AbstractAST {
-  public FunctionModifier(IConstructor node) {
-    super();
+  public FunctionModifier(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class FunctionModifier extends AbstractAST {
   }
 
   static public class Default extends FunctionModifier {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -63,22 +64,28 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 ; 
+      return 433 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isJava() {
     return false;
   }
 
   static public class Java extends FunctionModifier {
-    // Production: sig("Java",[])
+    // Production: sig("Java",[],breakable=false)
   
     
   
-    public Java(IConstructor node ) {
-      super(node);
+    public Java(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -103,22 +110,28 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 ; 
+      return 7 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isTest() {
     return false;
   }
 
   static public class Test extends FunctionModifier {
-    // Production: sig("Test",[])
+    // Production: sig("Test",[],breakable=false)
   
     
   
-    public Test(IConstructor node ) {
-      super(node);
+    public Test(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,9 +156,15 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 197 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

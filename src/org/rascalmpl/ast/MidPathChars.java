@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,18 +17,19 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class MidPathChars extends AbstractAST {
-  public MidPathChars(IConstructor node) {
-    super();
+  public MidPathChars(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
 
   static public class Lexical extends MidPathChars {
   private final java.lang.String string;
-  public Lexical(IConstructor node, java.lang.String string) {
-    super(node);
+  public Lexical(ISourceLocation src, IConstructor node, java.lang.String string) {
+    super(src, node);
     this.string = string;
   }
   public java.lang.String getString() {
@@ -43,6 +44,11 @@ public abstract class MidPathChars extends AbstractAST {
   @Override
   public boolean equals(Object o) {
     return o instanceof Lexical && ((Lexical) o).string.equals(string);  
+  }
+
+  @Override
+  public Object clone()  {
+    return newInstance(getClass(), src, (IConstructor) null, string);
   }
 
   @Override

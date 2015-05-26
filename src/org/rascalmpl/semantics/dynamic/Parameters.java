@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Formals;
@@ -25,8 +26,8 @@ import org.rascalmpl.interpreter.result.Result;
 public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	static public class Default extends org.rascalmpl.ast.Parameters.Default {
-		public Default(IConstructor __param1, Formals __param2, KeywordFormals __param3) {
-			super(__param1, __param2, __param3);
+		public Default(ISourceLocation __param1, IConstructor tree, Formals __param2, KeywordFormals __param3) {
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -43,8 +44,8 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	static public class VarArgs extends org.rascalmpl.ast.Parameters.VarArgs {
 
-		public VarArgs(IConstructor __param1, Formals __param2, KeywordFormals __param3) {
-			super(__param1, __param2, __param3);
+		public VarArgs(ISourceLocation __param1, IConstructor tree, Formals __param2, KeywordFormals __param3) {
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -70,7 +71,7 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	}
 
-	public Parameters(IConstructor __param1) {
-		super(__param1);
+	public Parameters(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

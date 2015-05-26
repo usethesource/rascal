@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Bound extends AbstractAST {
-  public Bound(IConstructor node) {
-    super();
+  public Bound(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Bound extends AbstractAST {
   }
 
   static public class Default extends Bound {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -72,7 +73,7 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 743 * expression.hashCode() ; 
+      return 601 + 151 * expression.hashCode() ; 
     } 
   
     
@@ -85,18 +86,24 @@ public abstract class Bound extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
+    }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Bound {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -121,9 +128,15 @@ public abstract class Bound extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 ; 
+      return 499 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

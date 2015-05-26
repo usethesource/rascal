@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class CommonKeywordParameters extends AbstractAST {
-  public CommonKeywordParameters(IConstructor node) {
-    super();
+  public CommonKeywordParameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,12 +41,12 @@ public abstract class CommonKeywordParameters extends AbstractAST {
   }
 
   static public class Absent extends CommonKeywordParameters {
-    // Production: sig("Absent",[])
+    // Production: sig("Absent",[],breakable=false)
   
     
   
-    public Absent(IConstructor node ) {
-      super(node);
+    public Absent(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -70,23 +71,29 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 ; 
+      return 313 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isPresent() {
     return false;
   }
 
   static public class Present extends CommonKeywordParameters {
-    // Production: sig("Present",[arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")])
+    // Production: sig("Present",[arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList;
   
-    public Present(IConstructor node , java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
-      super(node);
+    public Present(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
+      super(src, node);
       
       this.keywordFormalList = keywordFormalList;
     }
@@ -112,7 +119,7 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 727 * keywordFormalList.hashCode() ; 
+      return 743 + 919 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -125,5 +132,11 @@ public abstract class CommonKeywordParameters extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(keywordFormalList));
+    }
+            
   }
 }

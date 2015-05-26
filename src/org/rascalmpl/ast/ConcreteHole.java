@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ConcreteHole extends AbstractAST {
-  public ConcreteHole(IConstructor node) {
-    super();
+  public ConcreteHole(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class ConcreteHole extends AbstractAST {
   }
 
   static public class One extends ConcreteHole {
-    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Name name;
   
-    public One(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public One(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.symbol = symbol;
       this.name = name;
@@ -81,7 +82,7 @@ public abstract class ConcreteHole extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 571 * symbol.hashCode() + 239 * name.hashCode() ; 
+      return 23 + 499 * symbol.hashCode() + 911 * name.hashCode() ; 
     } 
   
     
@@ -103,5 +104,11 @@ public abstract class ConcreteHole extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(name));
+    }
+            
   }
 }

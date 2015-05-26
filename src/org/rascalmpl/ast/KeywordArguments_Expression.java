@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class KeywordArguments_Expression extends AbstractAST {
-  public KeywordArguments_Expression(IConstructor node) {
-    super();
+  public KeywordArguments_Expression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
   }
 
   static public class Default extends KeywordArguments_Expression {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument_Expression\>","keywordArgumentList")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument_Expression\>","keywordArgumentList")],breakable=false)
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
     private final java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> keywordArgumentList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> keywordArgumentList) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> keywordArgumentList) {
+      super(src, node);
       
       this.optionalComma = optionalComma;
       this.keywordArgumentList = keywordArgumentList;
@@ -81,7 +82,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 907 * optionalComma.hashCode() + 151 * keywordArgumentList.hashCode() ; 
+      return 467 + 823 * optionalComma.hashCode() + 727 * keywordArgumentList.hashCode() ; 
     } 
   
     
@@ -103,18 +104,24 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
     public boolean hasKeywordArgumentList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(optionalComma), clone(keywordArgumentList));
+    }
+            
   }
   public boolean isNone() {
     return false;
   }
 
   static public class None extends KeywordArguments_Expression {
-    // Production: sig("None",[])
+    // Production: sig("None",[],breakable=false)
   
     
   
-    public None(IConstructor node ) {
-      super(node);
+    public None(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -139,9 +146,15 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 47 ; 
+      return 691 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

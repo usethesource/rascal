@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -16,10 +15,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class Execute {
 
@@ -46,21 +43,16 @@ public class Execute {
 			 					 IBool coverage,
 			 					 IEvaluatorContext ctx) {
 		
-		try {
-			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
-			RVMExecutable executable = RVMExecutable.read(x.getPath());
-			
-			return executeProgram(executable,  
-					  			  argumentsAsList,
-					  			  debug, 
-					  			  testsuite, 
-					  			  profile, 
-					  			  trackCalls, 
-					  			  coverage,
-					  			  ctx);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
-		}
+		RVMExecutable executable = RVMExecutable.read(rvmExecutable);
+		
+		return executeProgram(executable,  
+				  			  argumentsAsList,
+				  			  debug, 
+				  			  testsuite, 
+				  			  profile, 
+				  			  trackCalls, 
+				  			  coverage,
+				  			  ctx);
 	}
 	
 	// Library function to execute a RVM program from Rascal
@@ -94,17 +86,11 @@ public class Execute {
 		/*** Serialization  */
 		
 		RVMExecutable executable2 = null;
-		
-		try {
-			ISourceLocation x = URIResolverRegistry.getInstance().logicalToPhysical(rvmExecutable);
-			executable.write(x.getPath());
-			executable2 = RVMExecutable.read(x.getPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
+		executable.write(rvmExecutable);
 				
-		/*** Consistency checking after read */
+		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
+		executable2 = RVMExecutable.read(rvmExecutable);
 		if(!executable.comparable(executable2)){
 			System.err.println("RVMExecutables differ");
 		}
@@ -205,7 +191,7 @@ public class Execute {
 				if(executable.uid_module_main.equals("")) {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
-				String moduleName = executable.module_name; //((IString) program.get("name")).getValue();
+				String moduleName = executable.module_name;
 				rvm.executeProgram(moduleName, executable.uid_module_init, arguments);
 				result = rvm.executeProgram(moduleName, executable.uid_module_main, arguments);
 			}

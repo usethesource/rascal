@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,9 +59,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
-		public Annotation(IConstructor __param1,
+		public Annotation(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -125,8 +126,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Bracket extends org.rascalmpl.ast.Assignable.Bracket {
 
-		public Bracket(IConstructor __param1, org.rascalmpl.ast.Assignable __param2) {
-			super(__param1, __param2);
+		public Bracket(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Assignable __param2) {
+			super(__param1, tree, __param2);
 		}
 
 	}
@@ -134,9 +135,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Constructor extends
 			org.rascalmpl.ast.Assignable.Constructor {
 
-		public Constructor(IConstructor __param1, Name __param2,
+		public Constructor(ISourceLocation __param1, IConstructor tree, Name __param2,
 				List<org.rascalmpl.ast.Assignable> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -235,9 +236,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class FieldAccess extends
 			org.rascalmpl.ast.Assignable.FieldAccess {
 
-		public FieldAccess(IConstructor __param1,
+		public FieldAccess(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -408,9 +409,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class IfDefinedOrDefault extends
 			org.rascalmpl.ast.Assignable.IfDefinedOrDefault {
 
-		public IfDefinedOrDefault(IConstructor __param1,
+		public IfDefinedOrDefault(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Assignable __param2, Expression __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -440,9 +441,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Subscript extends
 			org.rascalmpl.ast.Assignable.Subscript {
 
-		public Subscript(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+		public Subscript(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Assignable __param2,
 				Expression __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -644,9 +645,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Slice extends
 	org.rascalmpl.ast.Assignable.Slice {
 
-		public Slice(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+		public Slice(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Assignable __param2,
 				OptionalExpression __param3, OptionalExpression __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -778,9 +779,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class SliceStep extends
 	org.rascalmpl.ast.Assignable.SliceStep {
 
-		public SliceStep(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
+		public SliceStep(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Assignable __param2,
 				OptionalExpression __param3, Expression __param4, OptionalExpression __param5) {
-			super(__param1, __param2, __param3, __param4, __param5);
+			super(__param1, tree, __param2, __param3, __param4, __param5);
 		}
 
 		@Override
@@ -928,8 +929,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Tuple extends org.rascalmpl.ast.Assignable.Tuple {
 
-		public Tuple(IConstructor __param1, List<org.rascalmpl.ast.Assignable> __param2) {
-			super(__param1, __param2);
+		public Tuple(ISourceLocation __param1, IConstructor tree, List<org.rascalmpl.ast.Assignable> __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -982,8 +983,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Variable extends org.rascalmpl.ast.Assignable.Variable {
 
-		public Variable(IConstructor __param1, QualifiedName __param2) {
-			super(__param1, __param2);
+		public Variable(ISourceLocation __param1, IConstructor tree, QualifiedName __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -1022,7 +1023,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	}
 
-	public Assignable(IConstructor __param1) {
-		super(__param1);
+	public Assignable(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

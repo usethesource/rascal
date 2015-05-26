@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ImportedModule extends AbstractAST {
-  public ImportedModule(IConstructor node) {
-    super();
+  public ImportedModule(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class ImportedModule extends AbstractAST {
   }
 
   static public class Actuals extends ImportedModule {
-    // Production: sig("Actuals",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleActuals","actuals")])
+    // Production: sig("Actuals",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleActuals","actuals")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.ModuleActuals actuals;
   
-    public Actuals(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
-      super(node);
+    public Actuals(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
+      super(src, node);
       
       this.name = name;
       this.actuals = actuals;
@@ -88,7 +89,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 739 * name.hashCode() + 677 * actuals.hashCode() ; 
+      return 829 + 919 * name.hashCode() + 157 * actuals.hashCode() ; 
     } 
   
     
@@ -110,21 +111,27 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasActuals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(actuals));
+    }
+            
   }
   public boolean isActualsRenaming() {
     return false;
   }
 
   static public class ActualsRenaming extends ImportedModule {
-    // Production: sig("ActualsRenaming",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleActuals","actuals"),arg("org.rascalmpl.ast.Renamings","renamings")])
+    // Production: sig("ActualsRenaming",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.ModuleActuals","actuals"),arg("org.rascalmpl.ast.Renamings","renamings")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.ModuleActuals actuals;
     private final org.rascalmpl.ast.Renamings renamings;
   
-    public ActualsRenaming(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
-      super(node);
+    public ActualsRenaming(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
+      super(src, node);
       
       this.name = name;
       this.actuals = actuals;
@@ -152,7 +159,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 191 * name.hashCode() + 523 * actuals.hashCode() + 829 * renamings.hashCode() ; 
+      return 359 + 577 * name.hashCode() + 313 * actuals.hashCode() + 907 * renamings.hashCode() ; 
     } 
   
     
@@ -183,19 +190,25 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasRenamings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(actuals), clone(renamings));
+    }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends ImportedModule {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Default(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -221,7 +234,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 409 * name.hashCode() ; 
+      return 353 + 571 * name.hashCode() ; 
     } 
   
     
@@ -234,20 +247,26 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
   public boolean isRenamings() {
     return false;
   }
 
   static public class Renamings extends ImportedModule {
-    // Production: sig("Renamings",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Renamings","renamings")])
+    // Production: sig("Renamings",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Renamings","renamings")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.Renamings renamings;
   
-    public Renamings(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
-      super(node);
+    public Renamings(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
+      super(src, node);
       
       this.name = name;
       this.renamings = renamings;
@@ -274,7 +293,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 307 * name.hashCode() + 479 * renamings.hashCode() ; 
+      return 743 + 313 * name.hashCode() + 853 * renamings.hashCode() ; 
     } 
   
     
@@ -296,5 +315,11 @@ public abstract class ImportedModule extends AbstractAST {
     public boolean hasRenamings() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(renamings));
+    }
+            
   }
 }

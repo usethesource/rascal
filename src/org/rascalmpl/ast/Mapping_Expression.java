@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Mapping_Expression extends AbstractAST {
-  public Mapping_Expression(IConstructor node) {
-    super();
+  public Mapping_Expression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Mapping_Expression extends AbstractAST {
   }
 
   static public class Default extends Mapping_Expression {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression from;
     private final org.rascalmpl.ast.Expression to;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
+      super(src, node);
       
       this.from = from;
       this.to = to;
@@ -81,7 +82,7 @@ public abstract class Mapping_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 757 * from.hashCode() + 269 * to.hashCode() ; 
+      return 83 + 139 * from.hashCode() + 227 * to.hashCode() ; 
     } 
   
     
@@ -103,5 +104,11 @@ public abstract class Mapping_Expression extends AbstractAST {
     public boolean hasTo() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(from), clone(to));
+    }
+            
   }
 }

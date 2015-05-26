@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -30,8 +31,8 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
 	static public class Lexical extends org.rascalmpl.ast.JustDate.Lexical {
 
-		public Lexical(IConstructor __param1, String __param2) {
-			super(__param1, __param2);
+		public Lexical(ISourceLocation __param1, IConstructor tree, String __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -58,8 +59,8 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 		}
 	}
 
-	public JustDate(IConstructor __param1) {
-		super(__param1);
+	public JustDate(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 
 }

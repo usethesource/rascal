@@ -30,7 +30,7 @@ import lang::smtlib2::theory::ints::Ast;
 	when you call the solver using the keyword parameter 'pathToZ3'
 }
 PID startZ3(str pathToZ3 = getSystemProperty("solver.z3.path")) { 
-	pid = createProcess("<pathToZ3>/bin/z3", ["-smt2", "-in"]);
+	pid = createProcess("<pathToZ3>/bin/z3", args = ["-smt2", "-in"]);
 	// The print-success option is needed so that each entered statement returns a result. This way we have a predictable inputstream that we can read
 	\run(pid, script([setOption(printSuccess(true))]));
 	

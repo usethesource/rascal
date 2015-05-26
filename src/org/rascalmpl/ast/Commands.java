@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Commands extends AbstractAST {
-  public Commands(IConstructor node) {
-    super();
+  public Commands(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Commands extends AbstractAST {
   }
 
   static public class Commandlist extends Commands {
-    // Production: sig("Commandlist",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")])
+    // Production: sig("Commandlist",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.EvalCommand> commands;
   
-    public Commandlist(IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
-      super(node);
+    public Commandlist(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
+      super(src, node);
       
       this.commands = commands;
     }
@@ -72,7 +73,7 @@ public abstract class Commands extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 859 * commands.hashCode() ; 
+      return 461 + 673 * commands.hashCode() ; 
     } 
   
     
@@ -85,5 +86,11 @@ public abstract class Commands extends AbstractAST {
     public boolean hasCommands() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(commands));
+    }
+            
   }
 }

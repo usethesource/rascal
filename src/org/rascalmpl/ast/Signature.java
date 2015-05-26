@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Signature extends AbstractAST {
-  public Signature(IConstructor node) {
-    super();
+  public Signature(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,7 +69,7 @@ public abstract class Signature extends AbstractAST {
   }
 
   static public class NoThrows extends Signature {
-    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")])
+    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionModifiers modifiers;
@@ -76,8 +77,8 @@ public abstract class Signature extends AbstractAST {
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Parameters parameters;
   
-    public NoThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
-      super(node);
+    public NoThrows(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.type = type;
@@ -106,7 +107,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 + 577 * modifiers.hashCode() + 29 * type.hashCode() + 487 * name.hashCode() + 359 * parameters.hashCode() ; 
+      return 661 + 751 * modifiers.hashCode() + 983 * type.hashCode() + 859 * name.hashCode() + 971 * parameters.hashCode() ; 
     } 
   
     
@@ -146,13 +147,19 @@ public abstract class Signature extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters));
+    }
+            
   }
   public boolean isWithThrows() {
     return false;
   }
 
   static public class WithThrows extends Signature {
-    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")])
+    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionModifiers modifiers;
@@ -161,8 +168,8 @@ public abstract class Signature extends AbstractAST {
     private final org.rascalmpl.ast.Parameters parameters;
     private final java.util.List<org.rascalmpl.ast.Type> exceptions;
   
-    public WithThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
-      super(node);
+    public WithThrows(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.type = type;
@@ -192,7 +199,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 877 * modifiers.hashCode() + 233 * type.hashCode() + 641 * name.hashCode() + 379 * parameters.hashCode() + 631 * exceptions.hashCode() ; 
+      return 83 + 23 * modifiers.hashCode() + 173 * type.hashCode() + 821 * name.hashCode() + 389 * parameters.hashCode() + 29 * exceptions.hashCode() ; 
     } 
   
     
@@ -241,5 +248,11 @@ public abstract class Signature extends AbstractAST {
     public boolean hasExceptions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters), clone(exceptions));
+    }
+            
   }
 }

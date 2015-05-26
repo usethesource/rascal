@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.DateAndTime;
 import org.rascalmpl.ast.JustDate;
@@ -26,8 +27,8 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 	static public class DateAndTimeLiteral extends
 			org.rascalmpl.ast.DateTimeLiteral.DateAndTimeLiteral {
 
-		public DateAndTimeLiteral(IConstructor __param1, DateAndTime __param2) {
-			super(__param1, __param2);
+		public DateAndTimeLiteral(ISourceLocation __param1, IConstructor tree, DateAndTime __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -40,8 +41,8 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 	static public class DateLiteral extends
 			org.rascalmpl.ast.DateTimeLiteral.DateLiteral {
 
-		public DateLiteral(IConstructor __param1, JustDate __param2) {
-			super(__param1, __param2);
+		public DateLiteral(ISourceLocation __param1, IConstructor tree, JustDate __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -54,8 +55,8 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 	static public class TimeLiteral extends
 			org.rascalmpl.ast.DateTimeLiteral.TimeLiteral {
 
-		public TimeLiteral(IConstructor __param1, JustTime __param2) {
-			super(__param1, __param2);
+		public TimeLiteral(ISourceLocation __param1, IConstructor tree, JustTime __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -65,7 +66,7 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 
 	}
 
-	public DateTimeLiteral(IConstructor __param1) {
-		super(__param1);
+	public DateTimeLiteral(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

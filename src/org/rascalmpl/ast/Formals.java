@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Formals extends AbstractAST {
-  public Formals(IConstructor node) {
-    super();
+  public Formals(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Formals extends AbstractAST {
   }
 
   static public class Default extends Formals {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","formals")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","formals")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> formals;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> formals) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> formals) {
+      super(src, node);
       
       this.formals = formals;
     }
@@ -72,7 +73,7 @@ public abstract class Formals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 757 * formals.hashCode() ; 
+      return 421 + 223 * formals.hashCode() ; 
     } 
   
     
@@ -85,5 +86,11 @@ public abstract class Formals extends AbstractAST {
     public boolean hasFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals));
+    }
+            
   }
 }

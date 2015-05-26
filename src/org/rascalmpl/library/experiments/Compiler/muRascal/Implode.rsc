@@ -13,7 +13,7 @@ import Map;
 //import Ambiguity;
 
 import experiments::Compiler::muRascal::MuBoolExp;
-//import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 rel[str,str] global_functions = {};
 map[str,map[str,int]] vardefs = ();
@@ -36,7 +36,6 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    vardefs = ();
    functions_in_module = [];
    global_functions = { <f.name, getUID(pmod.name,f.funNames,f.name,size(f.formals))> | f <- pmod.functions };
-   println(global_functions);
    for(f <- pmod.functions) {
        uid = getUID(pmod.name,f.funNames,f.name,size(f.formals));
        /*
@@ -91,18 +90,18 @@ str getUidOfGlobalNonOverloadedFunction(str name) {
 	throw "The function <name> does not exist!";
 }
 
-@doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
-/*
- * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
- *       on the number of formal parameters has been removed 
- */
-str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
-	// Due to the current semantics of the implode
-	modName = replaceAll(modName, "::", "");
-	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
-}
-str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
-	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
+//@doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+///*
+// * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+// *       on the number of formal parameters has been removed 
+// */
+//str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
+//	// Due to the current semantics of the implode
+//	modName = replaceAll(modName, "::", "");
+//	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
+//}
+//str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
+//	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
 MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modName) {
    uid = getUID(modName,f.funNames,f.name,size(f.formals));
@@ -145,7 +144,7 @@ str fuid = "";
 
 private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
-   println("Pre-processing a function: <uid>");
+   println("Pre-processing function: <uid>");
    return
       for(exp <- body_exps){
         try {
@@ -167,8 +166,8 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames1, Identifier id)        						=> muVar(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
      	       // Specific to delimited continuations (experimental)
-     	       case preContLoc()                                                                => muContVar(uid)
-     	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
+ //    	       case preContLoc()                                                                => muContVar(uid)
+ //    	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
      	       //case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
      	       case preAssignLoc(Identifier id, MuExp exp1) 									=> muAssign(id.var,uid,vardefs[uid][id.var], exp1)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Parameters extends AbstractAST {
-  public Parameters(IConstructor node) {
-    super();
+  public Parameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Parameters extends AbstractAST {
   }
 
   static public class Default extends Parameters {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -81,7 +82,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 43 * formals.hashCode() + 241 * keywordFormals.hashCode() ; 
+      return 331 + 613 * formals.hashCode() + 977 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -103,20 +104,26 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
+            
   }
   public boolean isVarArgs() {
     return false;
   }
 
   static public class VarArgs extends Parameters {
-    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public VarArgs(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -143,7 +150,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 929 * formals.hashCode() + 353 * keywordFormals.hashCode() ; 
+      return 773 + 859 * formals.hashCode() + 619 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -165,5 +172,11 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
+            
   }
 }

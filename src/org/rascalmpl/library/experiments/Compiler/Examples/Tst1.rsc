@@ -1,10 +1,7 @@
-
-@bootstrapParser
 module experiments::Compiler::Examples::Tst1
-import lang::rascal::\syntax::Rascal;
 
-// Sanity check on the testing utilities themselves
+import Node;
 
-Expression exp(str  s) = [Expression] s;
+value main(list[value] args) = delAnnotations("f"(1,2,3));
 
-value main(list[value] args) = exp("1 + 2");
+test bool f() = main([]) == "f"(1,2,3);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class LocationLiteral extends AbstractAST {
-  public LocationLiteral(IConstructor node) {
-    super();
+  public LocationLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class LocationLiteral extends AbstractAST {
   }
 
   static public class Default extends LocationLiteral {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.ProtocolPart","protocolPart"),arg("org.rascalmpl.ast.PathPart","pathPart")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.ProtocolPart","protocolPart"),arg("org.rascalmpl.ast.PathPart","pathPart")],breakable=false)
   
     
     private final org.rascalmpl.ast.ProtocolPart protocolPart;
     private final org.rascalmpl.ast.PathPart pathPart;
   
-    public Default(IConstructor node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
+      super(src, node);
       
       this.protocolPart = protocolPart;
       this.pathPart = pathPart;
@@ -81,7 +82,7 @@ public abstract class LocationLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 811 * protocolPart.hashCode() + 677 * pathPart.hashCode() ; 
+      return 673 + 269 * protocolPart.hashCode() + 997 * pathPart.hashCode() ; 
     } 
   
     
@@ -103,5 +104,11 @@ public abstract class LocationLiteral extends AbstractAST {
     public boolean hasPathPart() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(protocolPart), clone(pathPart));
+    }
+            
   }
 }

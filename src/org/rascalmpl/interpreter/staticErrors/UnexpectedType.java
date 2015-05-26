@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,11 +22,9 @@ public class UnexpectedType extends StaticError {
 	
 	public UnexpectedType(Type expected, Type got, AbstractAST ast) {
 		super("Expected " + expected + ", but got " + got, ast);
-//		printStackTrace();
 	}
 	
 	public UnexpectedType(Type expected, Type got, ISourceLocation loc) {
 		super("Expected " + expected + ", but got " + got, loc);
-//		printStackTrace();
 	}
 }

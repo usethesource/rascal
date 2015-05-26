@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Import extends AbstractAST {
-  public Import(IConstructor node) {
-    super();
+  public Import(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,13 +62,13 @@ public abstract class Import extends AbstractAST {
   }
 
   static public class Default extends Import {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")],breakable=false)
   
     
     private final org.rascalmpl.ast.ImportedModule module;
   
-    public Default(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(src, node);
       
       this.module = module;
     }
@@ -93,7 +94,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 461 * module.hashCode() ; 
+      return 853 + 431 * module.hashCode() ; 
     } 
   
     
@@ -106,19 +107,25 @@ public abstract class Import extends AbstractAST {
     public boolean hasModule() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(module));
+    }
+            
   }
   public boolean isExtend() {
     return false;
   }
 
   static public class Extend extends Import {
-    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")])
+    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")],breakable=false)
   
     
     private final org.rascalmpl.ast.ImportedModule module;
   
-    public Extend(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
+    public Extend(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(src, node);
       
       this.module = module;
     }
@@ -144,7 +151,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 241 * module.hashCode() ; 
+      return 317 + 127 * module.hashCode() ; 
     } 
   
     
@@ -157,20 +164,26 @@ public abstract class Import extends AbstractAST {
     public boolean hasModule() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(module));
+    }
+            
   }
   public boolean isExternal() {
     return false;
   }
 
   static public class External extends Import {
-    // Production: sig("External",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.LocationLiteral","at")])
+    // Production: sig("External",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.LocationLiteral","at")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.LocationLiteral at;
   
-    public External(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.LocationLiteral at) {
-      super(node);
+    public External(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.LocationLiteral at) {
+      super(src, node);
       
       this.name = name;
       this.at = at;
@@ -197,7 +210,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 997 * name.hashCode() + 929 * at.hashCode() ; 
+      return 461 + 829 * name.hashCode() + 587 * at.hashCode() ; 
     } 
   
     
@@ -219,19 +232,25 @@ public abstract class Import extends AbstractAST {
     public boolean hasAt() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(at));
+    }
+            
   }
   public boolean isSyntax() {
     return false;
   }
 
   static public class Syntax extends Import {
-    // Production: sig("Syntax",[arg("org.rascalmpl.ast.SyntaxDefinition","syntax")])
+    // Production: sig("Syntax",[arg("org.rascalmpl.ast.SyntaxDefinition","syntax")],breakable=false)
   
     
     private final org.rascalmpl.ast.SyntaxDefinition syntax;
   
-    public Syntax(IConstructor node , org.rascalmpl.ast.SyntaxDefinition syntax) {
-      super(node);
+    public Syntax(ISourceLocation src, IConstructor node , org.rascalmpl.ast.SyntaxDefinition syntax) {
+      super(src, node);
       
       this.syntax = syntax;
     }
@@ -257,7 +276,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 733 * syntax.hashCode() ; 
+      return 743 + 223 * syntax.hashCode() ; 
     } 
   
     
@@ -270,5 +289,11 @@ public abstract class Import extends AbstractAST {
     public boolean hasSyntax() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(syntax));
+    }
+            
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Module extends AbstractAST {
-  public Module(IConstructor node) {
-    super();
+  public Module(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Module extends AbstractAST {
   }
 
   static public class Default extends Module {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("org.rascalmpl.ast.Body","body")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("org.rascalmpl.ast.Body","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Header header;
     private final org.rascalmpl.ast.Body body;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
+      super(src, node);
       
       this.header = header;
       this.body = body;
@@ -81,7 +82,7 @@ public abstract class Module extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 773 * header.hashCode() + 643 * body.hashCode() ; 
+      return 19 + 7 * header.hashCode() + 23 * body.hashCode() ; 
     } 
   
     
@@ -103,5 +104,11 @@ public abstract class Module extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(header), clone(body));
+    }
+            
   }
 }

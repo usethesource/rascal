@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -36,8 +37,8 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 	
 	static public class Lexical extends org.rascalmpl.ast.RegExpLiteral.Lexical {
 
-		public Lexical(IConstructor __param1, String __param2) {
-			super(__param1, __param2);
+		public Lexical(ISourceLocation __param1, IConstructor tree, String __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		/*
@@ -177,8 +178,8 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		}
 	}
 
-	public RegExpLiteral(IConstructor __param1) {
-		super(__param1);
+	public RegExpLiteral(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 	
 	static public interface InterpolationElement {

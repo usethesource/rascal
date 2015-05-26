@@ -1,19 +1,8 @@
-@bootstrapParser
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
-import util::Benchmark;
-import IO;
+extend experiments::Compiler::Tests::TestUtils;
 
-value main(list[value] args) {
-	t1 = cpuTime();
-	res = checkOK("size([1,2,3]);",
-			importedModules = ["List"]);
-	//res = checkOK("Program program := t1;",
-	//		initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
-	//		importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
-	t2 = cpuTime();		
-	println("Time for checking: <(t2 - t1)/1000000>");
-	return res;
-}			
-			
+//test bool tst() = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(0);
+
+
+value main(list[value] args) = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") ;

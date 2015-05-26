@@ -12,24 +12,31 @@ import ParseTree;
 import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
+
+import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::MuBoolExp;
+
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::types::TypeExceptions;
+import lang::rascal::types::CheckerConfig;
+
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
-import experiments::Compiler::Rascal2muRascal::RascalModule;
-import experiments::Compiler::Rascal2muRascal::RascalPattern;
-import experiments::Compiler::Rascal2muRascal::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::ModuleInfo;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import experiments::Compiler::RVM::Interpreter::ParsingTools;
-import experiments::Compiler::muRascal::MuBoolExp;
-
 import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
+
+import experiments::Compiler::Rascal2muRascal::RascalDeclaration;
+import experiments::Compiler::Rascal2muRascal::RascalPattern;
+import experiments::Compiler::Rascal2muRascal::RascalStatement;
+import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
+
+import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
 /*
  * Translate a Rascal expression to muRascal using the function: 
@@ -41,7 +48,7 @@ import experiments::Compiler::Rascal2muRascal::RascalConstantCall;
 /*********************************************************************/
 
 int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
-    (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
+    (keywordArguments is \default) ? size([kw | /*KeywordArgument[Expression]*/ kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produce a multi-valued or backtrack-free Boolean expression
 MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
@@ -78,7 +85,7 @@ private str reduceContainerType("rel") = "set";
 private default str reduceContainerType(str c) = c;
 
 public str typedBinaryOp(str lot, str op, str rot) {
-  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
+  if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter" || lot == "void" || rot == "void"){
      return op;
   }
   if(isContainerType(lot))
@@ -161,7 +168,7 @@ private MuExp translateComposeFunction(Expression e){
   leaveFunctionScope();
   fun = muFunction(comp_fuid, comp_name, comp_ftype, scopeId, nargs, 2, false, false, \e.origin, [], (), false, 0, 0, muBlock(body_exps));
  
-  int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
+  int uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
   addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [uid]>);
  
@@ -233,7 +240,7 @@ MuExp comparison(str op, Expression e) {
   lot = reduceContainerType(getOuterType(e.lhs));
   rot = reduceContainerType(getOuterType(e.rhs));
   
-  if(lot == "value" || rot == "value"){
+  if(lot == "value" || rot == "value" || lot == "void" || rot == "void" || lot == "parameter" || rot == "parameter"){
      lot = ""; rot = "";
   } else {
     if(lot in numeric) lot += "_"; else lot = "";
@@ -614,7 +621,7 @@ private MuExp translateConcreteParsed(Tree e, loc src){
         } else {
            translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
            if(allConstant(translated_args)){
-        	  return muCon(appl(prod, [ce | muCon(ce) <- translated_args])[origin=my_src]);
+        	  return muCon(appl(prod, [ce | muCon(Tree ce) <- translated_args])[origin=my_src]);
            }
            translated_elems = muCallPrim3("list_create", translated_args, my_src);
         }
@@ -704,7 +711,7 @@ private MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, false, false, e.origin, [], (), false, 0, 0, body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, false, e.origin, [], (), false, 0, 0, body));
   	
   	leaveFunctionScope();								  
   	
@@ -716,14 +723,16 @@ private MuExp translateBoolClosure(Expression e){
 
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
     kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat), translate(first), translate(last)]));
+    elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
+    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat, elmType), translate(first), translate(last)]));
  }
 
 // -- enumerator with range and step expression ---------------------
     
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
      kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+     elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
+     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
 }
 
 // -- range expression ----------------------------------------------
@@ -1144,10 +1153,10 @@ private MuExp translatePatInVisit(Pattern pattern, str fuid, Symbol subjectType)
         
       	case p:(Pattern) `<Literal lit>`: 
       		return muApply(mkCallToLibFun("Library","MATCH_SUBSTRING"), [translate(lit), muVar("begin", fuid, beginPos), muVar("end", fuid, endPos)]);
-      	default: return translatePat(pattern);
+      	default: return translatePat(pattern, \str());
       }
    }
-   return translatePat(pattern);
+   return translatePat(pattern, Symbol::\value());
 }
 
 // -- reducer expression --------------------------------------------
@@ -1217,6 +1226,20 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        bool isVarArgs(Symbol ftype) = ftype.isVarArgs? ? ftype.isVarArgs : false;
        
+       // match void in defining functions
+       bool match_void([Symbol::\list(_), *Symbol tps1], [Symbol::\list(Symbol::\void()), *Symbol tps2]) = match_void(tps1, tps2);
+       bool match_void([Symbol::\set(_), *Symbol tps1], [Symbol::\set(Symbol::\void()), *Symbol tps2]) = match_void(tps1, tps2);
+       
+ 
+       bool match_void([\map(symk1, symv1), *Symbol tps1], [\map(symk2, symv2), *Symbol tps2])
+       															= (symk2 == Symbol::\void() || subtype(symk1, symk2)) && 
+       															  (symv2 == Symbol::\void() || subtype(symv1, symv2)) &&
+       															  match_void(tps1, tps2);
+       
+       bool match_void([], []) = true;
+       default bool match_void(list[Symbol] _, list[Symbol] _) = false;
+       
+       
        // match function use and def, taking varargs into account
        bool function_subtype(Symbol fuse, Symbol fdef){
        	list[Symbol] upar = fuse.parameters;
@@ -1224,7 +1247,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		var_elm_type = dpar[-1][0];
+       		Symbol var_elm_type = dpar[-1].symbol;
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
@@ -1235,8 +1258,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		}
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
-       
-       	return subtype(upar, dpar);
+       	//println("function_subtype(<fuse>, <fdef>) =\> <subtype(upar, dpar) || match_void(upar, dpar)>");
+       	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        
        bool matches(Symbol t) {
@@ -1257,8 +1280,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            return instantiate(t.\adt,bindings) == ftype_selected.\adt;
                        }
                        if(isFunctionType(t) && isFunctionType(ftype_selected)) {
-                           //println("t:              <t>");
-                           //println("ftype_selected: <ftype_selected>");
+                          // println("t:              <t>");
+                          // println("ftype_selected: <ftype_selected>");
                  
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype_selected),());
                            
@@ -1321,9 +1344,14 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            throw "Ups, unexpected type of the call receiver expression!";
        }
        
-     
-       //println("ftype = <ftype>, of.alts = <of.alts>");
-       for(int alt <- of.alts) {
+  //     println("e = <expression@\loc>");
+  //     println("of = <of>");
+  //     println("ftype = <ftype>, of.alts = <of.alts>");
+  //
+       
+       accessible = accessibleScopes(expression@\loc) + {0};
+       //println("accessible = <accessible>");
+       for(int alt <- of.alts, declaredScope(alt) in accessible) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
@@ -1331,6 +1359,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
+       resolved = sortOverloadedFunctions(toSet(resolved));
+       
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
@@ -1342,9 +1372,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
-       		name = unescape("<expression>");
+       		str fname = unescape("<expression>");
        		try {
-       			res = translateConstantCall(name, args);
+       			res = translateConstantCall(fname, args);
        			//println("REPLACED <name>, <args> BY CONSTANT");
        			return res;
        		} 
@@ -1486,8 +1516,12 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `# <Type tp>`) =
-	muCon(symbolToValue(translateType(tp)));
+MuExp translate (e:(Expression) `# <Type tp>`) {
+	//println("#<tp>, translateType:");
+	//iprintln("<translateType(tp)>");
+	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
+	return muCon(symbolToValue(translateType(tp)));
+}	
 
 // -- tuple expression ----------------------------------------------
 
@@ -1901,9 +1935,10 @@ MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
-MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat), translate(exp)]));
-
+MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
+    elmType = getElementType(getType(exp@\loc));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat, elmType), translate(exp)]));
+}
 // -- implies expression --------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) =

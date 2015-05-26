@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionDeclaration extends AbstractAST {
-  public FunctionDeclaration(IConstructor node) {
-    super();
+  public FunctionDeclaration(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -75,15 +76,15 @@ public abstract class FunctionDeclaration extends AbstractAST {
   }
 
   static public class Abstract extends FunctionDeclaration {
-    // Production: sig("Abstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature")])
+    // Production: sig("Abstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
     private final org.rascalmpl.ast.Visibility visibility;
     private final org.rascalmpl.ast.Signature signature;
   
-    public Abstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
-      super(node);
+    public Abstract(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -111,7 +112,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 571 * tags.hashCode() + 547 * visibility.hashCode() + 487 * signature.hashCode() ; 
+      return 239 + 577 * tags.hashCode() + 443 * visibility.hashCode() + 257 * signature.hashCode() ; 
     } 
   
     
@@ -142,13 +143,19 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasSignature() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(signature));
+    }
+            
   }
   public boolean isConditional() {
     return false;
   }
 
   static public class Conditional extends FunctionDeclaration {
-    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
+    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -157,8 +164,8 @@ public abstract class FunctionDeclaration extends AbstractAST {
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
   
-    public Conditional(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
-      super(node);
+    public Conditional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -188,7 +195,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 + 983 * tags.hashCode() + 709 * visibility.hashCode() + 211 * signature.hashCode() + 673 * expression.hashCode() + 353 * conditions.hashCode() ; 
+      return 947 + 911 * tags.hashCode() + 103 * visibility.hashCode() + 491 * signature.hashCode() + 751 * expression.hashCode() + 827 * conditions.hashCode() ; 
     } 
   
     
@@ -237,13 +244,19 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasConditions() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(expression), clone(conditions));
+    }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends FunctionDeclaration {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.FunctionBody","body")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.FunctionBody","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -251,8 +264,8 @@ public abstract class FunctionDeclaration extends AbstractAST {
     private final org.rascalmpl.ast.Signature signature;
     private final org.rascalmpl.ast.FunctionBody body;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -281,7 +294,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 991 * tags.hashCode() + 23 * visibility.hashCode() + 787 * signature.hashCode() + 181 * body.hashCode() ; 
+      return 223 + 349 * tags.hashCode() + 739 * visibility.hashCode() + 607 * signature.hashCode() + 3 * body.hashCode() ; 
     } 
   
     
@@ -321,13 +334,19 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(body));
+    }
+            
   }
   public boolean isExpression() {
     return false;
   }
 
   static public class Expression extends FunctionDeclaration {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -335,8 +354,8 @@ public abstract class FunctionDeclaration extends AbstractAST {
     private final org.rascalmpl.ast.Signature signature;
     private final org.rascalmpl.ast.Expression expression;
   
-    public Expression(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Expression(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -365,7 +384,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 167 * tags.hashCode() + 331 * visibility.hashCode() + 103 * signature.hashCode() + 607 * expression.hashCode() ; 
+      return 757 + 157 * tags.hashCode() + 157 * visibility.hashCode() + 263 * signature.hashCode() + 773 * expression.hashCode() ; 
     } 
   
     
@@ -405,5 +424,11 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public boolean hasExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(signature), clone(expression));
+    }
+            
   }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Declaration extends AbstractAST {
-  public Declaration(IConstructor node) {
-    super();
+  public Declaration(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -131,7 +132,7 @@ public abstract class Declaration extends AbstractAST {
   }
 
   static public class Alias extends Declaration {
-    // Production: sig("Alias",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.Type","base")])
+    // Production: sig("Alias",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.Type","base")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -139,8 +140,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.UserType user;
     private final org.rascalmpl.ast.Type base;
   
-    public Alias(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
-      super(node);
+    public Alias(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -169,7 +170,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 401 * tags.hashCode() + 313 * visibility.hashCode() + 829 * user.hashCode() + 641 * base.hashCode() ; 
+      return 131 + 809 * tags.hashCode() + 199 * visibility.hashCode() + 673 * user.hashCode() + 953 * base.hashCode() ; 
     } 
   
     
@@ -209,13 +210,19 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasBase() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(base));
+    }
+            
   }
   public boolean isAnnotation() {
     return false;
   }
 
   static public class Annotation extends Declaration {
-    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","annoType"),arg("org.rascalmpl.ast.Type","onType"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","annoType"),arg("org.rascalmpl.ast.Type","onType"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -224,8 +231,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.Type onType;
     private final org.rascalmpl.ast.Name name;
   
-    public Annotation(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public Annotation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -255,7 +262,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 47 * tags.hashCode() + 653 * visibility.hashCode() + 193 * annoType.hashCode() + 811 * onType.hashCode() + 541 * name.hashCode() ; 
+      return 479 + 173 * tags.hashCode() + 449 * visibility.hashCode() + 293 * annoType.hashCode() + 929 * onType.hashCode() + 229 * name.hashCode() ; 
     } 
   
     
@@ -304,13 +311,19 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(annoType), clone(onType), clone(name));
+    }
+            
   }
   public boolean isData() {
     return false;
   }
 
   static public class Data extends Declaration {
-    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")])
+    // Production: sig("Data",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters"),arg("java.util.List\<org.rascalmpl.ast.Variant\>","variants")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -319,8 +332,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters;
     private final java.util.List<org.rascalmpl.ast.Variant> variants;
   
-    public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters,  java.util.List<org.rascalmpl.ast.Variant> variants) {
-      super(node);
+    public Data(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters,  java.util.List<org.rascalmpl.ast.Variant> variants) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -350,7 +363,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 223 * tags.hashCode() + 457 * visibility.hashCode() + 719 * user.hashCode() + 409 * commonKeywordParameters.hashCode() + 109 * variants.hashCode() ; 
+      return 911 + 457 * tags.hashCode() + 67 * visibility.hashCode() + 73 * user.hashCode() + 821 * commonKeywordParameters.hashCode() + 433 * variants.hashCode() ; 
     } 
   
     
@@ -399,13 +412,19 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasVariants() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(commonKeywordParameters), clone(variants));
+    }
+            
   }
   public boolean isDataAbstract() {
     return false;
   }
 
   static public class DataAbstract extends Declaration {
-    // Production: sig("DataAbstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters")])
+    // Production: sig("DataAbstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -413,8 +432,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.UserType user;
     private final org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters;
   
-    public DataAbstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters) {
-      super(node);
+    public DataAbstract(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -443,7 +462,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 419 * tags.hashCode() + 83 * visibility.hashCode() + 773 * user.hashCode() + 839 * commonKeywordParameters.hashCode() ; 
+      return 593 + 421 * tags.hashCode() + 167 * visibility.hashCode() + 71 * user.hashCode() + 449 * commonKeywordParameters.hashCode() ; 
     } 
   
     
@@ -483,19 +502,25 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasCommonKeywordParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(user), clone(commonKeywordParameters));
+    }
+            
   }
   public boolean isFunction() {
     return false;
   }
 
   static public class Function extends Declaration {
-    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")])
+    // Production: sig("Function",[arg("org.rascalmpl.ast.FunctionDeclaration","functionDeclaration")],breakable=false)
   
     
     private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
   
-    public Function(IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
-      super(node);
+    public Function(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+      super(src, node);
       
       this.functionDeclaration = functionDeclaration;
     }
@@ -521,7 +546,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 823 * functionDeclaration.hashCode() ; 
+      return 647 + 311 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -534,13 +559,19 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasFunctionDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(functionDeclaration));
+    }
+            
   }
   public boolean isTag() {
     return false;
   }
 
   static public class Tag extends Declaration {
-    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Kind","kind"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","types")])
+    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Kind","kind"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","types")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -549,8 +580,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.Type> types;
   
-    public Tag(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
-      super(node);
+    public Tag(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -580,7 +611,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 379 * tags.hashCode() + 809 * visibility.hashCode() + 277 * kind.hashCode() + 821 * name.hashCode() + 101 * types.hashCode() ; 
+      return 499 + 331 * tags.hashCode() + 109 * visibility.hashCode() + 379 * kind.hashCode() + 233 * name.hashCode() + 617 * types.hashCode() ; 
     } 
   
     
@@ -629,13 +660,19 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasTypes() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(kind), clone(name), clone(types));
+    }
+            
   }
   public boolean isVariable() {
     return false;
   }
 
   static public class Variable extends Declaration {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")])
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Type","type"),arg("java.util.List\<org.rascalmpl.ast.Variable\>","variables")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tags tags;
@@ -643,8 +680,8 @@ public abstract class Declaration extends AbstractAST {
     private final org.rascalmpl.ast.Type type;
     private final java.util.List<org.rascalmpl.ast.Variable> variables;
   
-    public Variable(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
-      super(node);
+    public Variable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+      super(src, node);
       
       this.tags = tags;
       this.visibility = visibility;
@@ -673,7 +710,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 83 * tags.hashCode() + 191 * visibility.hashCode() + 409 * type.hashCode() + 241 * variables.hashCode() ; 
+      return 457 + 97 * tags.hashCode() + 419 * visibility.hashCode() + 23 * type.hashCode() + 613 * variables.hashCode() ; 
     } 
   
     
@@ -713,5 +750,11 @@ public abstract class Declaration extends AbstractAST {
     public boolean hasVariables() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags), clone(visibility), clone(type), clone(variables));
+    }
+            
   }
 }

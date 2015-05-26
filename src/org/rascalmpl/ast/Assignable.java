@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assignable extends AbstractAST {
-  public Assignable(IConstructor node) {
-    super();
+  public Assignable(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -124,14 +125,14 @@ public abstract class Assignable extends AbstractAST {
   }
 
   static public class Annotation extends Assignable {
-    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","annotation")])
+    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","annotation")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Name annotation;
   
-    public Annotation(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
-      super(node);
+    public Annotation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
+      super(src, node);
       
       this.receiver = receiver;
       this.annotation = annotation;
@@ -158,7 +159,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 113 * receiver.hashCode() + 211 * annotation.hashCode() ; 
+      return 577 + 577 * receiver.hashCode() + 199 * annotation.hashCode() ; 
     } 
   
     
@@ -180,19 +181,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasAnnotation() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(annotation));
+    }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends Assignable {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Assignable","arg")])
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Assignable","arg")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable arg;
   
-    public Bracket(IConstructor node , org.rascalmpl.ast.Assignable arg) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable arg) {
+      super(src, node);
       
       this.arg = arg;
     }
@@ -218,7 +225,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 103 * arg.hashCode() ; 
+      return 2 + 641 * arg.hashCode() ; 
     } 
   
     
@@ -231,20 +238,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArg() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(arg));
+    }
+            
   }
   public boolean isConstructor() {
     return false;
   }
 
   static public class Constructor extends Assignable {
-    // Production: sig("Constructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Assignable\>","arguments")])
+    // Production: sig("Constructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Assignable\>","arguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.Assignable> arguments;
   
-    public Constructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
-      super(node);
+    public Constructor(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
+      super(src, node);
       
       this.name = name;
       this.arguments = arguments;
@@ -271,7 +284,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 823 * name.hashCode() + 7 * arguments.hashCode() ; 
+      return 337 + 739 * name.hashCode() + 23 * arguments.hashCode() ; 
     } 
   
     
@@ -293,20 +306,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(arguments));
+    }
+            
   }
   public boolean isFieldAccess() {
     return false;
   }
 
   static public class FieldAccess extends Assignable {
-    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","field")])
+    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","field")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Name field;
   
-    public FieldAccess(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
-      super(node);
+    public FieldAccess(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
+      super(src, node);
       
       this.receiver = receiver;
       this.field = field;
@@ -333,7 +352,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 269 * receiver.hashCode() + 401 * field.hashCode() ; 
+      return 983 + 751 * receiver.hashCode() + 331 * field.hashCode() ; 
     } 
   
     
@@ -355,20 +374,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasField() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(field));
+    }
+            
   }
   public boolean isIfDefinedOrDefault() {
     return false;
   }
 
   static public class IfDefinedOrDefault extends Assignable {
-    // Production: sig("IfDefinedOrDefault",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","defaultExpression")])
+    // Production: sig("IfDefinedOrDefault",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","defaultExpression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Expression defaultExpression;
   
-    public IfDefinedOrDefault(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
-      super(node);
+    public IfDefinedOrDefault(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
+      super(src, node);
       
       this.receiver = receiver;
       this.defaultExpression = defaultExpression;
@@ -395,7 +420,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 + 151 * receiver.hashCode() + 107 * defaultExpression.hashCode() ; 
+      return 127 + 487 * receiver.hashCode() + 881 * defaultExpression.hashCode() ; 
     } 
   
     
@@ -417,21 +442,27 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasDefaultExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(defaultExpression));
+    }
+            
   }
   public boolean isSlice() {
     return false;
   }
 
   static public class Slice extends Assignable {
-    // Production: sig("Slice",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("Slice",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.OptionalExpression optFirst;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public Slice(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public Slice(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.receiver = receiver;
       this.optFirst = optFirst;
@@ -459,7 +490,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 31 * receiver.hashCode() + 467 * optFirst.hashCode() + 499 * optLast.hashCode() ; 
+      return 239 + 359 * receiver.hashCode() + 2 * optFirst.hashCode() + 827 * optLast.hashCode() ; 
     } 
   
     
@@ -490,13 +521,19 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(optFirst), clone(optLast));
+    }
+            
   }
   public boolean isSliceStep() {
     return false;
   }
 
   static public class SliceStep extends Assignable {
-    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
@@ -504,8 +541,8 @@ public abstract class Assignable extends AbstractAST {
     private final org.rascalmpl.ast.Expression second;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public SliceStep(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public SliceStep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.receiver = receiver;
       this.optFirst = optFirst;
@@ -534,7 +571,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 + 79 * receiver.hashCode() + 397 * optFirst.hashCode() + 367 * second.hashCode() + 2 * optLast.hashCode() ; 
+      return 991 + 233 * receiver.hashCode() + 907 * optFirst.hashCode() + 227 * second.hashCode() + 509 * optLast.hashCode() ; 
     } 
   
     
@@ -574,20 +611,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(optFirst), clone(second), clone(optLast));
+    }
+            
   }
   public boolean isSubscript() {
     return false;
   }
 
   static public class Subscript extends Assignable {
-    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","subscript")])
+    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","subscript")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Expression subscript;
   
-    public Subscript(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
-      super(node);
+    public Subscript(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
+      super(src, node);
       
       this.receiver = receiver;
       this.subscript = subscript;
@@ -614,7 +657,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 659 * receiver.hashCode() + 383 * subscript.hashCode() ; 
+      return 257 + 557 * receiver.hashCode() + 137 * subscript.hashCode() ; 
     } 
   
     
@@ -636,19 +679,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasSubscript() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(subscript));
+    }
+            
   }
   public boolean isTuple() {
     return false;
   }
 
   static public class Tuple extends Assignable {
-    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Assignable\>","elements")])
+    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Assignable\>","elements")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Assignable> elements;
   
-    public Tuple(IConstructor node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
-      super(node);
+    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
+      super(src, node);
       
       this.elements = elements;
     }
@@ -674,7 +723,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 487 * elements.hashCode() ; 
+      return 719 + 101 * elements.hashCode() ; 
     } 
   
     
@@ -687,19 +736,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasElements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements));
+    }
+            
   }
   public boolean isVariable() {
     return false;
   }
 
   static public class Variable extends Assignable {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName qualifiedName;
   
-    public Variable(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-      super(node);
+    public Variable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+      super(src, node);
       
       this.qualifiedName = qualifiedName;
     }
@@ -725,7 +780,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 877 * qualifiedName.hashCode() ; 
+      return 229 + 251 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -738,5 +793,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(qualifiedName));
+    }
+            
   }
 }

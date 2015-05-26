@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Case extends AbstractAST {
-  public Case(IConstructor node) {
-    super();
+  public Case(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class Case extends AbstractAST {
   }
 
   static public class Default extends Case {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -79,7 +80,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 647 * statement.hashCode() ; 
+      return 29 + 23 * statement.hashCode() ; 
     } 
   
     
@@ -92,19 +93,25 @@ public abstract class Case extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
+    }
+            
   }
   public boolean isPatternWithAction() {
     return false;
   }
 
   static public class PatternWithAction extends Case {
-    // Production: sig("PatternWithAction",[arg("org.rascalmpl.ast.PatternWithAction","patternWithAction")])
+    // Production: sig("PatternWithAction",[arg("org.rascalmpl.ast.PatternWithAction","patternWithAction")],breakable=false)
   
     
     private final org.rascalmpl.ast.PatternWithAction patternWithAction;
   
-    public PatternWithAction(IConstructor node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
-      super(node);
+    public PatternWithAction(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
+      super(src, node);
       
       this.patternWithAction = patternWithAction;
     }
@@ -130,7 +137,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 881 * patternWithAction.hashCode() ; 
+      return 293 + 571 * patternWithAction.hashCode() ; 
     } 
   
     
@@ -143,5 +150,11 @@ public abstract class Case extends AbstractAST {
     public boolean hasPatternWithAction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(patternWithAction));
+    }
+            
   }
 }

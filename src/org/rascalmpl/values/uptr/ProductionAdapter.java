@@ -50,7 +50,7 @@ public class ProductionAdapter {
 	
 	public static IConstructor getDefined(IConstructor tree) {
 		if (isSkipped(tree)) {
-			return ValueFactoryFactory.getValueFactory().constructor(Factory.Symbol_Empty);
+			return ValueFactoryFactory.getValueFactory().constructor(RascalValueFactory.Symbol_Empty);
 		}
 		return (IConstructor) tree.get("def");
 	}
@@ -60,11 +60,11 @@ public class ProductionAdapter {
   }
 	
 	public static boolean isSkipped(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Skipped;
+		return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
 	}
 	
 	public static boolean isError(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Error;
+		return tree.getConstructorType() == RascalValueFactory.Production_Error;
 	}
 
 	public static IList getSymbols(IConstructor tree) {
@@ -121,7 +121,7 @@ public class ProductionAdapter {
 			return (ISet) tree.get("attributes");
 		}
 		
-		return ValueFactoryFactory.getValueFactory().set(Factory.Attr);
+		return ValueFactoryFactory.getValueFactory().set(RascalValueFactory.Attr);
 	}
 
 	public static boolean isLiteral(IConstructor tree) {
@@ -133,21 +133,21 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isList(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Regular
+		return tree.getConstructorType() == RascalValueFactory.Production_Regular
 		    && SymbolAdapter.isAnyList(getType(tree)); 
 	}
 	
 	public static boolean isOpt(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Regular
+		return tree.getConstructorType() == RascalValueFactory.Production_Regular
 			&& SymbolAdapter.isOpt(getType(tree));
 	}
 	
 	public static boolean isDefault(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Default;
+		return tree.getConstructorType() == RascalValueFactory.Production_Default;
 	}
 	
 	public static boolean isRegular(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_Regular;
+		return tree.getConstructorType() == RascalValueFactory.Production_Regular;
 	}
 
 	public static boolean isSeparatedList(IConstructor tree) {
@@ -170,7 +170,7 @@ public class ProductionAdapter {
 	public static String getCategory(IConstructor tree) {
 		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
-				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
 					IValue value = ((IConstructor)attr).get("tag");
 					if (value.getType().isNode() && ((INode) value).getName().equals("category")) {
 						return ((IString) ((INode) value).get(0)).getValue();

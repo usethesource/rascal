@@ -110,15 +110,16 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.ValueFactoryFactory;
-           'import org.rascalmpl.values.uptr.Factory;
+           'import org.rascalmpl.values.uptr.RascalValueFactory;
+           'import org.rascalmpl.values.uptr.ITree;
            '
            '@SuppressWarnings(\"all\")
-           'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, IConstructor, ISourceLocation\> {
+           'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
            '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
            '
            '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
            '    try {
-           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
+           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
            '    }
            '    catch (FactTypeUseException e) {
            '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
@@ -160,7 +161,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    IntegerKeyedHashMap\<IntegerList\> result = new IntegerKeyedHashMap\<IntegerList\>(); 
            '    
            '    <if (true) { int i = 0;>
-           '    <for (<f,c> <- sort(dontNest)) { i += 1;>
+           '    <for (<f,c> <- (dontNest)) { i += 1;>
            '    <if (i % 2000 == 0) {>
            '    _initDontNest<i>(result);
            '    <if (i == 2000) {>return result;<}>
@@ -174,9 +175,9 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    IntegerMap result = new IntegerMap();
            '    int resultStoreId = result.size();
            '    
-           '    <for (<childrenIds, parentIds> <- sort(dontNestGroups)) {>
+           '    <for (<childrenIds, parentIds> <- (dontNestGroups)) {>
            '    ++resultStoreId;
-           '    <for (pid <- sort(parentIds)) {>
+           '    <for (pid <- (parentIds)) {>
            '    result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
@@ -197,11 +198,11 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '    
            '  // Production declarations
-           '	<for (p <- sort(uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
+           '	<for (p <- (uniqueProductions)) {>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
-           '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
+           '	<for (Symbol s <- (newItems<0>), isNonterminal(s)) {
 	           items = newItems[unsetRec(s)];
 	           map[Production prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
@@ -220,7 +221,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
-           '    <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
@@ -228,14 +229,14 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
-           '      <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
            '  }<}>
            '	
            '  // Parse methods    
-           '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
    endJob(true);
@@ -585,12 +586,16 @@ public str sym2name(Symbol s){
     }
 }
 
+@Memo
 public str value2id(value v) {
   return v2i(v);
 }
 
-str v2i(value v) {	
+str uu(value s) = escape(toBase64("<unsetRec(s)>"),("=":"00","+":"11","/":"22"));
+
+default str v2i(value v) {
     switch (v) {
+        case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
@@ -598,17 +603,17 @@ str v2i(value v) {
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
-        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
-        case \parameterized-lex(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
+        case \parameterized-sort(str s, list[Symbol] args) : return "<s>_<uu(args)>";
+        case \parameterized-lex(str s, list[Symbol] args) : return "<s>_<uu(args)>";
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
-	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
+	        case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
-        case str s()       : return escId(s);
-        case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
-        case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
-        case set[value] s  : return ("" | it + "_" + v2i(e) | e <- sort(s));
-        default            : throw "value not supported <v>";
+        //case str s()       : return escId(s);
+        //case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
+        //case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
+        //case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
+        default            : return uu(v);
     }
 }
 

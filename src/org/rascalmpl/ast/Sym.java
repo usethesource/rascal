@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Sym extends AbstractAST {
-  public Sym(IConstructor node) {
-    super();
+  public Sym(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -124,14 +125,14 @@ public abstract class Sym extends AbstractAST {
   }
 
   static public class Alternative extends Sym {
-    // Production: sig("Alternative",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","alternatives")])
+    // Production: sig("Alternative",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","alternatives")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym first;
     private final java.util.List<org.rascalmpl.ast.Sym> alternatives;
   
-    public Alternative(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
-      super(node);
+    public Alternative(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
+      super(src, node);
       
       this.first = first;
       this.alternatives = alternatives;
@@ -158,7 +159,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 499 * first.hashCode() + 601 * alternatives.hashCode() ; 
+      return 283 + 991 * first.hashCode() + 401 * alternatives.hashCode() ; 
     } 
   
     
@@ -180,19 +181,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasAlternatives() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(alternatives));
+    }
+            
   }
   public boolean isCaseInsensitiveLiteral() {
     return false;
   }
 
   static public class CaseInsensitiveLiteral extends Sym {
-    // Production: sig("CaseInsensitiveLiteral",[arg("org.rascalmpl.ast.CaseInsensitiveStringConstant","cistring")])
+    // Production: sig("CaseInsensitiveLiteral",[arg("org.rascalmpl.ast.CaseInsensitiveStringConstant","cistring")],breakable=false)
   
     
     private final org.rascalmpl.ast.CaseInsensitiveStringConstant cistring;
   
-    public CaseInsensitiveLiteral(IConstructor node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
-      super(node);
+    public CaseInsensitiveLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
+      super(src, node);
       
       this.cistring = cistring;
     }
@@ -218,7 +225,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 883 * cistring.hashCode() ; 
+      return 911 + 173 * cistring.hashCode() ; 
     } 
   
     
@@ -231,19 +238,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasCistring() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(cistring));
+    }
+            
   }
   public boolean isCharacterClass() {
     return false;
   }
 
   static public class CharacterClass extends Sym {
-    // Production: sig("CharacterClass",[arg("org.rascalmpl.ast.Class","charClass")])
+    // Production: sig("CharacterClass",[arg("org.rascalmpl.ast.Class","charClass")],breakable=false)
   
     
     private final org.rascalmpl.ast.Class charClass;
   
-    public CharacterClass(IConstructor node , org.rascalmpl.ast.Class charClass) {
-      super(node);
+    public CharacterClass(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Class charClass) {
+      super(src, node);
       
       this.charClass = charClass;
     }
@@ -269,7 +282,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 997 * charClass.hashCode() ; 
+      return 317 + 397 * charClass.hashCode() ; 
     } 
   
     
@@ -282,20 +295,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasCharClass() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(charClass));
+    }
+            
   }
   public boolean isColumn() {
     return false;
   }
 
   static public class Column extends Sym {
-    // Production: sig("Column",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.IntegerLiteral","column")])
+    // Production: sig("Column",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.IntegerLiteral","column")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.IntegerLiteral column;
   
-    public Column(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.IntegerLiteral column) {
-      super(node);
+    public Column(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.IntegerLiteral column) {
+      super(src, node);
       
       this.symbol = symbol;
       this.column = column;
@@ -322,7 +341,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 227 * symbol.hashCode() + 631 * column.hashCode() ; 
+      return 29 + 953 * symbol.hashCode() + 379 * column.hashCode() ; 
     } 
   
     
@@ -344,18 +363,24 @@ public abstract class Sym extends AbstractAST {
     public boolean hasColumn() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(column));
+    }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Sym {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -380,23 +405,29 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 ; 
+      return 367 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isEndOfLine() {
     return false;
   }
 
   static public class EndOfLine extends Sym {
-    // Production: sig("EndOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("EndOfLine",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public EndOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public EndOfLine(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -422,7 +453,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 43 * symbol.hashCode() ; 
+      return 947 + 557 * symbol.hashCode() ; 
     } 
   
     
@@ -435,20 +466,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
   }
   public boolean isExcept() {
     return false;
   }
 
   static public class Except extends Sym {
-    // Production: sig("Except",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")])
+    // Production: sig("Except",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.NonterminalLabel label;
   
-    public Except(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
-      super(node);
+    public Except(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+      super(src, node);
       
       this.symbol = symbol;
       this.label = label;
@@ -475,7 +512,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 439 + 163 * symbol.hashCode() + 61 * label.hashCode() ; 
+      return 937 + 607 * symbol.hashCode() + 353 * label.hashCode() ; 
     } 
   
     
@@ -497,20 +534,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasLabel() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(label));
+    }
+            
   }
   public boolean isFollow() {
     return false;
   }
 
   static public class Follow extends Sym {
-    // Production: sig("Follow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("Follow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public Follow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public Follow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -537,7 +580,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 761 + 719 * symbol.hashCode() + 151 * match.hashCode() ; 
+      return 593 + 199 * symbol.hashCode() + 257 * match.hashCode() ; 
     } 
   
     
@@ -559,19 +602,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
+    }
+            
   }
   public boolean isIter() {
     return false;
   }
 
   static public class Iter extends Sym {
-    // Production: sig("Iter",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Iter",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Iter(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Iter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -597,7 +646,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 3 * symbol.hashCode() ; 
+      return 463 + 79 * symbol.hashCode() ; 
     } 
   
     
@@ -610,20 +659,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
   }
   public boolean isIterSep() {
     return false;
   }
 
   static public class IterSep extends Sym {
-    // Production: sig("IterSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")])
+    // Production: sig("IterSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym sep;
   
-    public IterSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
-      super(node);
+    public IterSep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
+      super(src, node);
       
       this.symbol = symbol;
       this.sep = sep;
@@ -650,7 +705,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 557 * symbol.hashCode() + 853 * sep.hashCode() ; 
+      return 491 + 787 * symbol.hashCode() + 421 * sep.hashCode() ; 
     } 
   
     
@@ -672,19 +727,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSep() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(sep));
+    }
+            
   }
   public boolean isIterStar() {
     return false;
   }
 
   static public class IterStar extends Sym {
-    // Production: sig("IterStar",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("IterStar",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public IterStar(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public IterStar(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -710,7 +771,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 103 * symbol.hashCode() ; 
+      return 79 + 383 * symbol.hashCode() ; 
     } 
   
     
@@ -723,20 +784,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
   }
   public boolean isIterStarSep() {
     return false;
   }
 
   static public class IterStarSep extends Sym {
-    // Production: sig("IterStarSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")])
+    // Production: sig("IterStarSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym sep;
   
-    public IterStarSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
-      super(node);
+    public IterStarSep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
+      super(src, node);
       
       this.symbol = symbol;
       this.sep = sep;
@@ -763,7 +830,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 709 * symbol.hashCode() + 2 * sep.hashCode() ; 
+      return 947 + 857 * symbol.hashCode() + 197 * sep.hashCode() ; 
     } 
   
     
@@ -785,20 +852,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSep() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(sep));
+    }
+            
   }
   public boolean isLabeled() {
     return false;
   }
 
   static public class Labeled extends Sym {
-    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")])
+    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.NonterminalLabel label;
   
-    public Labeled(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
-      super(node);
+    public Labeled(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+      super(src, node);
       
       this.symbol = symbol;
       this.label = label;
@@ -825,7 +898,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 173 * symbol.hashCode() + 587 * label.hashCode() ; 
+      return 823 + 751 * symbol.hashCode() + 7 * label.hashCode() ; 
     } 
   
     
@@ -847,19 +920,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasLabel() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(label));
+    }
+            
   }
   public boolean isLiteral() {
     return false;
   }
 
   static public class Literal extends Sym {
-    // Production: sig("Literal",[arg("org.rascalmpl.ast.StringConstant","string")])
+    // Production: sig("Literal",[arg("org.rascalmpl.ast.StringConstant","string")],breakable=false)
   
     
     private final org.rascalmpl.ast.StringConstant string;
   
-    public Literal(IConstructor node , org.rascalmpl.ast.StringConstant string) {
-      super(node);
+    public Literal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringConstant string) {
+      super(src, node);
       
       this.string = string;
     }
@@ -885,7 +964,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 229 * string.hashCode() ; 
+      return 163 + 967 * string.hashCode() ; 
     } 
   
     
@@ -898,19 +977,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasString() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(string));
+    }
+            
   }
   public boolean isNonterminal() {
     return false;
   }
 
   static public class Nonterminal extends Sym {
-    // Production: sig("Nonterminal",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Nonterminal",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Nonterminal(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Nonterminal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -936,7 +1021,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 19 * nonterminal.hashCode() ; 
+      return 163 + 937 * nonterminal.hashCode() ; 
     } 
   
     
@@ -949,20 +1034,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
+    }
+            
   }
   public boolean isNotFollow() {
     return false;
   }
 
   static public class NotFollow extends Sym {
-    // Production: sig("NotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("NotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public NotFollow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public NotFollow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -989,7 +1080,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 701 * symbol.hashCode() + 643 * match.hashCode() ; 
+      return 829 + 127 * symbol.hashCode() + 31 * match.hashCode() ; 
     } 
   
     
@@ -1011,20 +1102,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
+    }
+            
   }
   public boolean isNotPrecede() {
     return false;
   }
 
   static public class NotPrecede extends Sym {
-    // Production: sig("NotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("NotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym match;
     private final org.rascalmpl.ast.Sym symbol;
   
-    public NotPrecede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public NotPrecede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.match = match;
       this.symbol = symbol;
@@ -1051,7 +1148,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 757 * match.hashCode() + 971 * symbol.hashCode() ; 
+      return 29 + 683 * match.hashCode() + 857 * symbol.hashCode() ; 
     } 
   
     
@@ -1073,19 +1170,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
+    }
+            
   }
   public boolean isOptional() {
     return false;
   }
 
   static public class Optional extends Sym {
-    // Production: sig("Optional",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Optional",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Optional(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Optional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -1111,7 +1214,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 227 * symbol.hashCode() ; 
+      return 827 + 149 * symbol.hashCode() ; 
     } 
   
     
@@ -1124,19 +1227,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
   }
   public boolean isParameter() {
     return false;
   }
 
   static public class Parameter extends Sym {
-    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Parameter(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Parameter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -1162,7 +1271,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 821 * nonterminal.hashCode() ; 
+      return 911 + 271 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1175,20 +1284,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
+    }
+            
   }
   public boolean isParametrized() {
     return false;
   }
 
   static public class Parametrized extends Sym {
-    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")])
+    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
     private final java.util.List<org.rascalmpl.ast.Sym> parameters;
   
-    public Parametrized(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
-      super(node);
+    public Parametrized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
       this.parameters = parameters;
@@ -1215,7 +1330,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 821 + 991 * nonterminal.hashCode() + 941 * parameters.hashCode() ; 
+      return 251 + 887 * nonterminal.hashCode() + 883 * parameters.hashCode() ; 
     } 
   
     
@@ -1237,20 +1352,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal), clone(parameters));
+    }
+            
   }
   public boolean isPrecede() {
     return false;
   }
 
   static public class Precede extends Sym {
-    // Production: sig("Precede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Precede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym match;
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Precede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Precede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.match = match;
       this.symbol = symbol;
@@ -1277,7 +1398,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 967 * match.hashCode() + 487 * symbol.hashCode() ; 
+      return 569 + 433 * match.hashCode() + 5 * symbol.hashCode() ; 
     } 
   
     
@@ -1299,20 +1420,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
+    }
+            
   }
   public boolean isSequence() {
     return false;
   }
 
   static public class Sequence extends Sym {
-    // Production: sig("Sequence",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","sequence")])
+    // Production: sig("Sequence",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","sequence")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym first;
     private final java.util.List<org.rascalmpl.ast.Sym> sequence;
   
-    public Sequence(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
-      super(node);
+    public Sequence(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
+      super(src, node);
       
       this.first = first;
       this.sequence = sequence;
@@ -1339,7 +1466,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 743 * first.hashCode() + 431 * sequence.hashCode() ; 
+      return 17 + 353 * first.hashCode() + 103 * sequence.hashCode() ; 
     } 
   
     
@@ -1361,19 +1488,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSequence() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(sequence));
+    }
+            
   }
   public boolean isStart() {
     return false;
   }
 
   static public class Start extends Sym {
-    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Start(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Start(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -1399,7 +1532,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 61 * nonterminal.hashCode() ; 
+      return 907 + 313 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1412,19 +1545,25 @@ public abstract class Sym extends AbstractAST {
     public boolean hasNonterminal() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
+    }
+            
   }
   public boolean isStartOfLine() {
     return false;
   }
 
   static public class StartOfLine extends Sym {
-    // Production: sig("StartOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("StartOfLine",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public StartOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public StartOfLine(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -1450,7 +1589,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 37 * symbol.hashCode() ; 
+      return 71 + 307 * symbol.hashCode() ; 
     } 
   
     
@@ -1463,20 +1602,26 @@ public abstract class Sym extends AbstractAST {
     public boolean hasSymbol() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
   }
   public boolean isUnequal() {
     return false;
   }
 
   static public class Unequal extends Sym {
-    // Production: sig("Unequal",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("Unequal",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public Unequal(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public Unequal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -1503,7 +1648,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 379 * symbol.hashCode() + 53 * match.hashCode() ; 
+      return 853 + 223 * symbol.hashCode() + 947 * match.hashCode() ; 
     } 
   
     
@@ -1525,5 +1670,11 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
+    }
+            
   }
 }

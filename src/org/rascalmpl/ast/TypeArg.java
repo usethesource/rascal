@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class TypeArg extends AbstractAST {
-  public TypeArg(IConstructor node) {
-    super();
+  public TypeArg(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class TypeArg extends AbstractAST {
   }
 
   static public class Default extends TypeArg {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type) {
+      super(src, node);
       
       this.type = type;
     }
@@ -79,7 +80,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 347 * type.hashCode() ; 
+      return 619 + 467 * type.hashCode() ; 
     } 
   
     
@@ -92,20 +93,26 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type));
+    }
+            
   }
   public boolean isNamed() {
     return false;
   }
 
   static public class Named extends TypeArg {
-    // Production: sig("Named",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Named",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Name name;
   
-    public Named(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public Named(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.type = type;
       this.name = name;
@@ -132,7 +139,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 829 * type.hashCode() + 389 * name.hashCode() ; 
+      return 211 + 751 * type.hashCode() + 31 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +161,11 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(name));
+    }
+            
   }
 }

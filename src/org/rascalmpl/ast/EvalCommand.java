@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class EvalCommand extends AbstractAST {
-  public EvalCommand(IConstructor node) {
-    super();
+  public EvalCommand(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,13 +55,13 @@ public abstract class EvalCommand extends AbstractAST {
   }
 
   static public class Declaration extends EvalCommand {
-    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
+    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declaration declaration;
   
-    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
-      super(node);
+    public Declaration(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(src, node);
       
       this.declaration = declaration;
     }
@@ -86,7 +87,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 631 * declaration.hashCode() ; 
+      return 953 + 907 * declaration.hashCode() ; 
     } 
   
     
@@ -99,19 +100,25 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(declaration));
+    }
+            
   }
   public boolean isImport() {
     return false;
   }
 
   static public class Import extends EvalCommand {
-    // Production: sig("Import",[arg("org.rascalmpl.ast.Import","imported")])
+    // Production: sig("Import",[arg("org.rascalmpl.ast.Import","imported")],breakable=false)
   
     
     private final org.rascalmpl.ast.Import imported;
   
-    public Import(IConstructor node , org.rascalmpl.ast.Import imported) {
-      super(node);
+    public Import(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Import imported) {
+      super(src, node);
       
       this.imported = imported;
     }
@@ -137,7 +144,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 103 * imported.hashCode() ; 
+      return 971 + 937 * imported.hashCode() ; 
     } 
   
     
@@ -150,19 +157,25 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasImported() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(imported));
+    }
+            
   }
   public boolean isStatement() {
     return false;
   }
 
   static public class Statement extends EvalCommand {
-    // Production: sig("Statement",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Statement",[arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Statement(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Statement(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -188,7 +201,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 571 * statement.hashCode() ; 
+      return 859 + 829 * statement.hashCode() ; 
     } 
   
     
@@ -201,5 +214,11 @@ public abstract class EvalCommand extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
+    }
+            
   }
 }

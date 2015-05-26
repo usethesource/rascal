@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class KeywordFormals extends AbstractAST {
-  public KeywordFormals(IConstructor node) {
-    super();
+  public KeywordFormals(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   static public class Default extends KeywordFormals {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")],breakable=false)
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
     private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
+      super(src, node);
       
       this.optionalComma = optionalComma;
       this.keywordFormalList = keywordFormalList;
@@ -81,7 +82,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 929 * optionalComma.hashCode() + 131 * keywordFormalList.hashCode() ; 
+      return 271 + 67 * optionalComma.hashCode() + 397 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -103,18 +104,24 @@ public abstract class KeywordFormals extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(optionalComma), clone(keywordFormalList));
+    }
+            
   }
   public boolean isNone() {
     return false;
   }
 
   static public class None extends KeywordFormals {
-    // Production: sig("None",[])
+    // Production: sig("None",[],breakable=false)
   
     
   
-    public None(IConstructor node ) {
-      super(node);
+    public None(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -139,9 +146,15 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 ; 
+      return 71 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

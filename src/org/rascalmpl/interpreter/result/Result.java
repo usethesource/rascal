@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
@@ -90,7 +90,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
-		if (value != null && !value.getType().isSubtypeOf(type) && !(type instanceof NonTerminalType && value.getType() == Factory.Tree)) {
+		if (value != null && !value.getType().isSubtypeOf(type)) {
 			//System.err.println(value.getType());
 			//System.err.println(type); 
 			//System.err.println(value.getType().isSubtypeOf(type));

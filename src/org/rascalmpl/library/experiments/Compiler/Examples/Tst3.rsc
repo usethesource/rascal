@@ -1,6 +1,7 @@
-@bootstrapParser
 module experiments::Compiler::Examples::Tst3
 
-syntax A = "a";
 
-value main(list[value] args) =[A] "a";
+test bool tst1() = 42 == 21 + 21;
+ 
+int main(list[value] args) = 42;
+  

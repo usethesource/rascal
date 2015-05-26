@@ -20,15 +20,16 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 @SuppressWarnings("all")
-public class GEMPTYParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IConstructor, ISourceLocation> {
+public class GEMPTYParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ITree, ISourceLocation> {
   protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
     try {
-      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
+      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
     }
     catch (FactTypeUseException e) {
       throw new RuntimeException("unexpected exception in generated parser", e);  

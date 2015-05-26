@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2014 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Visit extends AbstractAST {
-  public Visit(IConstructor node) {
-    super();
+  public Visit(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class Visit extends AbstractAST {
   }
 
   static public class DefaultStrategy extends Visit {
-    // Production: sig("DefaultStrategy",[arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")])
+    // Production: sig("DefaultStrategy",[arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression subject;
     private final java.util.List<org.rascalmpl.ast.Case> cases;
   
-    public DefaultStrategy(IConstructor node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
-      super(node);
+    public DefaultStrategy(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+      super(src, node);
       
       this.subject = subject;
       this.cases = cases;
@@ -88,7 +89,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 359 + 769 * subject.hashCode() + 47 * cases.hashCode() ; 
+      return 653 + 71 * subject.hashCode() + 167 * cases.hashCode() ; 
     } 
   
     
@@ -110,21 +111,27 @@ public abstract class Visit extends AbstractAST {
     public boolean hasCases() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(subject), clone(cases));
+    }
+            
   }
   public boolean isGivenStrategy() {
     return false;
   }
 
   static public class GivenStrategy extends Visit {
-    // Production: sig("GivenStrategy",[arg("org.rascalmpl.ast.Strategy","strategy"),arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")])
+    // Production: sig("GivenStrategy",[arg("org.rascalmpl.ast.Strategy","strategy"),arg("org.rascalmpl.ast.Expression","subject"),arg("java.util.List\<org.rascalmpl.ast.Case\>","cases")],breakable=false)
   
     
     private final org.rascalmpl.ast.Strategy strategy;
     private final org.rascalmpl.ast.Expression subject;
     private final java.util.List<org.rascalmpl.ast.Case> cases;
   
-    public GivenStrategy(IConstructor node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
-      super(node);
+    public GivenStrategy(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+      super(src, node);
       
       this.strategy = strategy;
       this.subject = subject;
@@ -152,7 +159,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 3 * strategy.hashCode() + 643 * subject.hashCode() + 661 * cases.hashCode() ; 
+      return 977 + 83 * strategy.hashCode() + 709 * subject.hashCode() + 487 * cases.hashCode() ; 
     } 
   
     
@@ -183,5 +190,11 @@ public abstract class Visit extends AbstractAST {
     public boolean hasCases() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(strategy), clone(subject), clone(cases));
+    }
+            
   }
 }

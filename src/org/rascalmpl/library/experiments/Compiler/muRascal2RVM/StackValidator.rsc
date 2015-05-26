@@ -138,7 +138,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	}
 
 	blocks = makeBlocks(instructions);
-	label2block = (label : blk | blk <- blocks, LABEL(label) := blocks[blk][0]);
+	label2block = (lbl : blk | blk <- blocks, LABEL(lbl) := blocks[blk][0]);
 
 	targets = toSet(exceptions.target);
 	
@@ -200,7 +200,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 1, exceptions>;  // + 1: to turn an index into a length;
+	return <maxStack + 1 + 1, exceptions>;  // + 1: to turn an index into a length; 
+										    // + 1 to cater for some imprecision
 }
 
 value main(list[value] args) =
@@ -444,8 +445,8 @@ int simulate(CALLJAVA(str name, str class,
 		           Symbol parameterTypes,
 		           Symbol keywordTypes,
 		           int reflect), int sp) {
-	if(\tuple(list[value] params) := parameterTypes	&&
-	   \tuple(list[value] keywordParams) := keywordTypes){
+	if(\tuple(list[Symbol] params) := parameterTypes	&&
+	   \tuple(list[Symbol] keywordParams) := keywordTypes){
 		sp =  sp - size(params) + 1;      
 		if(size(keywordParams) > 0){
 			sp -= 2;
