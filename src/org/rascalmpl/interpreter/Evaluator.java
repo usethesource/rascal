@@ -1269,7 +1269,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 
 			try {
-				monitor.event("Reconnecting extenders of affected modules");
+				monitor.startJob("Reconnecting extenders of affected modules");
 				for (String mod : dependingExtends) {
 					ModuleEnvironment env = heap.getModule(mod);
 					Set<String> todo = new HashSet<>(env.getExtends());
