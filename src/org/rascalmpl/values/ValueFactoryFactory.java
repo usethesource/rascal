@@ -16,12 +16,14 @@
 package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{
-	//private final static IValueFactory valueFactory =org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
-	private final static IValueFactory valueFactory = org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory.getInstance();
+	private static class InstanceHolder {
+		private final static IRascalValueFactory valueFactory = IRascalValueFactory.getInstance();
+	}
 	
 	public static IValueFactory getValueFactory(){
-		return valueFactory;
+		return InstanceHolder.valueFactory;
 	}
 }

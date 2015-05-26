@@ -27,8 +27,8 @@ alias Y = int;
 /*TODO: cleanup generated files as in Java version */
 
 private bool  binaryWriteRead(type[&T] typ, value exp) {
-   writeBinaryValueFile(|file:///tmp/xxx|,exp);
-   if (&T N := readBinaryValueFile(|file:///tmp/xxx|) && N == exp) return true;
+   writeBinaryValueFile(|tmp:///xxx|,exp);
+   if (&T N := readBinaryValueFile(|tmp:///xxx|) && N == exp) return true;
    return false;
    }
    
@@ -63,14 +63,14 @@ test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
 test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
  
 private bool textWriteRead(type[&T] typ, value exp) {
-   writeTextValueFile(|file:///tmp/xxx|,exp);
-   if (&T N := readTextValueFile(|file:///tmp/xxx|) && N == exp) return true;
+   writeTextValueFile(|tmp:///xxx|,exp);
+   if (&T N := readTextValueFile(|tmp:///xxx|) && N == exp) return true;
    return false;
    }
    
 private bool textWriteRead1(type[&T] typ, value exp) {
-   writeTextValueFile(|file:///tmp/xxx|,exp);
-   if (&T N := readTextValueFile(typ, |file:///tmp/xxx|) && N == exp) return true;
+   writeTextValueFile(|tmp:///xxx|,exp);
+   if (&T N := readTextValueFile(typ, |tmp:///xxx|) && N == exp) return true;
    return false;
    }
    
@@ -117,6 +117,6 @@ test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
 test bool compressionWorks(value v) {
-   writeBinaryValueFile(|file:///tmp/xxx|,v, compression=false);
-   return readBinaryValueFile(|file:///tmp/xxx|) == v;
+   writeBinaryValueFile(|tmp:///xxx|,v, compression=false);
+   return readBinaryValueFile(|tmp:///xxx|) == v;
 }

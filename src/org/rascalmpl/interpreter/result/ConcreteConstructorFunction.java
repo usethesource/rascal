@@ -29,15 +29,16 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
 
 	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl, Collections.<KeywordFormal>emptyList());
+		super(ast, eval, env, RascalValueFactory.Tree_Appl, Collections.<KeywordFormal>emptyList());
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			actuals[1] = flatten(prod, args);
 		}
 
-		IConstructor newAppl = getValueFactory().constructor(Factory.Tree_Appl, actuals);
+		IConstructor newAppl = getValueFactory().constructor(RascalValueFactory.Tree_Appl, actuals);
 
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
@@ -57,11 +58,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
-		IListWriter result = vf.listWriter(Factory.Args.getElementType());
+		IListWriter result = vf.listWriter(RascalValueFactory.Args.getElementType());
 		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i+=(delta + 1)) {
-			IConstructor tree = (IConstructor) args.get(i);
+			ITree tree = (ITree) args.get(i);
 			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
 				if (ProductionAdapter.shouldFlatten(prod, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);

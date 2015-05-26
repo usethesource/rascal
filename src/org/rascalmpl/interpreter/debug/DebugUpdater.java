@@ -24,8 +24,9 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -38,8 +39,8 @@ public class DebugUpdater {
 	 * @param tree a parse tree
 	 * @return tree with pushed-down attributes, unmodified tree in case of error
 	 */
-	public static IConstructor pushDownAttributes(IConstructor tree) {
-		return ((IConstructor) tree.accept(new PushDownTreeVisitor<RuntimeException>(false)));
+	public static ITree pushDownAttributes(ITree tree) {
+		return ((ITree) tree.accept(new PushDownTreeVisitor<RuntimeException>(false)));
 	}
 		
 	private static class PushDownTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
@@ -53,23 +54,23 @@ public class DebugUpdater {
 		}
 		
 		@Override
-		public IConstructor visitTreeCycle(IConstructor arg)
+		public ITree visitTreeCycle(ITree arg)
 				throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg) throws E {
+		public ITree visitTreeChar(ITree arg) throws E {
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg) throws E {
+		public ITree visitTreeAmb(ITree arg) throws E {
 			return arg;
 		}
 		
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg) throws E {
+		public ITree visitTreeAppl(ITree arg) throws E {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			
 			if (TreeAdapter.isAppl(arg) 
@@ -82,14 +83,14 @@ public class DebugUpdater {
 
 				// 1: does current production application need an annotation?
 				if (hasBreakableAttributeTag(prod) || addBreakable && !isList) {
-					arg = arg.asAnnotatable().setAnnotation("breakable", VF.bool(true));
+					arg = (ITree) arg.asAnnotatable().setAnnotation("breakable", VF.bool(true));
 				}
 				
 				// 2: push-down deferred production names.
 				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
 											
 				// update children by recursively applying this visitor.
-				IListWriter writer = VF.listWriter(Factory.Args.getElementType());
+				IListWriter writer = VF.listWriter(RascalValueFactory.Args.getElementType());
 
 				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
 				for (Integer pos = 0; iter.hasNext(); pos++) {
@@ -117,7 +118,7 @@ public class DebugUpdater {
 		private static boolean hasBreakableAttributeTag(IConstructor production) {
 			ISet attributes = ProductionAdapter.getAttributes(production);
 			return attributes != null
-					&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
+					&& attributes.contains(VF.constructor(RascalValueFactory.Attr_Tag,VF.node("breakable")));
 		}		
 			
 		private static String[] getChildProductionNamesForPushDown(IConstructor production) {

@@ -13,13 +13,14 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 
-public interface ICallableValue extends IValue {
+public interface ICallableValue extends IExternalValue {
 	public int getArity();
 	public boolean hasVarArgs();
 	public boolean hasKeywordArguments();

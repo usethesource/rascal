@@ -26,24 +26,24 @@ import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 /*
 S ::= ci(bla)
 
 NOTE: ci(*) means whatever * represents is Case Insensitive.
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class CILiteral extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_bla = VF.constructor(Factory.Symbol_CiLit, VF.string("bla"));
-	private final static IConstructor SYMBOL_char_b = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(98))));
-	private final static IConstructor SYMBOL_char_l = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(108))));
-	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
+public class CILiteral extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_bla = VF.constructor(RascalValueFactory.Symbol_CiLit, VF.string("bla"));
+	private final static IConstructor SYMBOL_char_b = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(98))));
+	private final static IConstructor SYMBOL_char_l = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(108))));
+	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
 	
-	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A), VF.set());
-	private final static IConstructor PROD_bla_bla = VF.constructor(Factory.Production_Default,  SYMBOL_bla, VF.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), VF.set());
+	private final static IConstructor PROD_S_A = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A), VF.set());
+	private final static IConstructor PROD_bla_bla = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_bla, VF.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> LITERAL_bla0 = new CaseInsensitiveLiteralStackNode<IConstructor>(0, 0, PROD_bla_bla, new int[]{'b','l','a'});
@@ -63,13 +63,13 @@ public class CILiteral extends SGTDBF<IConstructor, IConstructor, ISourceLocatio
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
-	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"A\")],{}),[appl(prod(cilit(\"bla\"),[\\char-class([single(98)]),\\char-class([single(108)]),\\char-class([single(97)])],{}),[char(66),char(108),char(97)])])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

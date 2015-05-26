@@ -34,13 +34,16 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 /**
@@ -61,22 +64,22 @@ public class TypeReifier {
 	
 	public Result<IValue> typeToValue(Type t, IEvaluatorContext ctx) {
 		Environment env = ctx.getCurrentEnvt();
-		env.getStore().declareAbstractDataType(Factory.Type);
-		env.getStore().declareConstructor(Factory.Type_Reified);
+		env.getStore().declareAbstractDataType(RascalValueFactory.Type);
+		env.getStore().declareConstructor(RascalValueFactory.Type_Reified);
 		TypeStore store = constructCompleteTypeStore(env);
 		
 		Map<IConstructor, IConstructor> definitions = new HashMap<IConstructor, IConstructor>();
 		IConstructor symbol = reify(t, definitions, ctx, store);
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		bindings.put(Factory.TypeParam, t);
-		Type typeType = Factory.Type.instantiate(bindings);
+		bindings.put(RascalValueFactory.TypeParam, t);
+		Type typeType = RascalValueFactory.Type.instantiate(bindings);
 		
 		IMapWriter defs = vf.mapWriter();
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
-		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, defs.done());
+		IValue result = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, defs.done());
 		
 		return ResultFactory.makeResult(typeType, result, ctx);
 	}
@@ -128,10 +131,10 @@ public class TypeReifier {
 			
 			
 			
-			if (def.getConstructorType() == Factory.Production_Choice) {
+			if (def.getConstructorType() == RascalValueFactory.Production_Choice) {
 				IConstructor defined = (IConstructor) def.get("def");
 				
-				if (defined.getConstructorType() == Factory.Symbol_Adt) {
+				if (defined.getConstructorType() == RascalValueFactory.Symbol_Adt) {
 					Type adt = adtToType(defined, store);
 				
 					for (IValue alt : (ISet) def.get("alternatives")) {
@@ -157,82 +160,82 @@ public class TypeReifier {
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
 		Type cons = symbol.getConstructorType();
 		
-		if (cons == Factory.Symbol_Int) {
+		if (cons == RascalValueFactory.Symbol_Int) {
 			return tf.integerType();
 		}
-		else if (cons == Factory.Symbol_Real) {
+		else if (cons == RascalValueFactory.Symbol_Real) {
 			return tf.realType();
 		}
-		else if (cons == Factory.Symbol_Rat) {
+		else if (cons == RascalValueFactory.Symbol_Rat) {
 			return tf.rationalType();
 		}
-		else if (cons == Factory.Symbol_Bool) {
+		else if (cons == RascalValueFactory.Symbol_Bool) {
 			return tf.boolType();
 		}
-		else if (cons == Factory.Symbol_Datetime) {
+		else if (cons == RascalValueFactory.Symbol_Datetime) {
 			return tf.dateTimeType();
 		}
-		else if (cons == Factory.Symbol_Num) {
+		else if (cons == RascalValueFactory.Symbol_Num) {
 			return tf.numberType();
 		}
-		else if (cons == Factory.Symbol_Loc) {
+		else if (cons == RascalValueFactory.Symbol_Loc) {
 			return tf.sourceLocationType();
 		}
-		else if (cons == Factory.Symbol_Adt) {
+		else if (cons == RascalValueFactory.Symbol_Adt) {
 			return adtToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Alias){
+		else if (cons == RascalValueFactory.Symbol_Alias){
 			return aliasToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Bag) {
+		else if (cons == RascalValueFactory.Symbol_Bag) {
 			throw new NotYetImplemented("bags are not implemented yet");
 		}
-		else if (cons == Factory.Symbol_Cons) {
+		else if (cons == RascalValueFactory.Symbol_Cons) {
 			return consToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Func) {
+		else if (cons == RascalValueFactory.Symbol_Func) {
 			return funcToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Label) {
+		else if (cons == RascalValueFactory.Symbol_Label) {
 			return symbolToType((IConstructor) symbol.get("symbol"), store);
 		}
-		else if (cons == Factory.Symbol_Map) {
+		else if (cons == RascalValueFactory.Symbol_Map) {
 			return mapToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Node) {
+		else if (cons == RascalValueFactory.Symbol_Node) {
 			return tf.nodeType();
 		}
-		else if (cons == Factory.Symbol_Parameter) {
+		else if (cons == RascalValueFactory.Symbol_Parameter) {
 			return tf.parameterType(((IString) symbol.get("name")).getValue());
 		}
-		else if (cons == Factory.Symbol_BoundParameter) {
+		else if (cons == RascalValueFactory.Symbol_BoundParameter) {
 			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
 		}
-		else if (cons == Factory.Symbol_ReifiedType) {
+		else if (cons == RascalValueFactory.Symbol_ReifiedType) {
 			return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
-		else if (cons == Factory.Symbol_Rel) {
+		else if (cons == RascalValueFactory.Symbol_Rel) {
 			return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
 		}
-		else if (cons == Factory.Symbol_ListRel) {
+		else if (cons == RascalValueFactory.Symbol_ListRel) {
 			return tf.lrelTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
 		}
-		else if (cons == Factory.Symbol_Set) {
+		else if (cons == RascalValueFactory.Symbol_Set) {
 			return tf.setType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
-		else if (cons == Factory.Symbol_List) {
+		else if (cons == RascalValueFactory.Symbol_List) {
 			return tf.listType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
-		else if (cons == Factory.Symbol_Str) {
+		else if (cons == RascalValueFactory.Symbol_Str) {
 			return tf.stringType();
 		}
-		else if (cons == Factory.Symbol_Tuple) {
+		else if (cons == RascalValueFactory.Symbol_Tuple) {
 			return tupleToType(symbol, store);
 		}
-		else if (cons == Factory.Symbol_Void) {
+		else if (cons == RascalValueFactory.Symbol_Void) {
 			return tf.voidType();
 		}
-		else if (cons == Factory.Symbol_Value) {
+		else if (cons == RascalValueFactory.Symbol_Value) {
 			return tf.valueType();
 		}
 		else {
@@ -252,7 +255,7 @@ public class TypeReifier {
 		
 		for (int i = 0; i < symbols.length(); i++) {
 			IConstructor elem = (IConstructor) symbols.get(i);
-			if (elem.getConstructorType() == Factory.Symbol_Label) {
+			if (elem.getConstructorType() == RascalValueFactory.Symbol_Label) {
 				labels[i] = ((IString) elem.get("name")).getValue();
 				elem = (IConstructor) elem.get("symbol");
 			}
@@ -299,6 +302,49 @@ public class TypeReifier {
 	
                 // TODO: while merging the other branch had tf.voidType()... 	
 		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
+	}
+	
+	public IConstructor funcToProduction(AbstractFunction funcDef, IEvaluatorContext ctx, boolean def) {
+		FunctionType func = funcDef.getFunctionType();
+		IValue ret = ((IConstructor) typeToValue(func.getReturnType(), ctx).getValue()).get("symbol");
+		
+		IListWriter w = vf.listWriter();
+		for (Type arg : func.getArgumentTypes()) {
+			w.append(((IConstructor) typeToValue(arg, ctx).getValue()).get("symbol"));
+		}
+		
+		IListWriter m = vf.listWriter();
+		Type kws = func.getKeywordParameterTypes();
+		if (!kws.isBottom()) {
+			for (Type kw : kws.getFieldTypes()) {
+				m.append(((IConstructor) typeToValue(kw, ctx).getValue()).get("symbol"));
+			}
+		}
+		
+		IConstructor res = vf.constructor(RascalValueFactory.Production_Func, ret, w.done(), m.done(), vf.set());
+		if (def) {
+			res = res.asWithKeywordParameters().setParameter("default", vf.bool(true));
+		}
+		res = res.asWithKeywordParameters().setParameter("origin", funcDef.getAst().getLocation());
+		return res;
+	}
+	
+	public IConstructor overloadedToProduction(OverloadedFunction func, IEvaluatorContext ctx) {
+		ISetWriter alts = vf.setWriter();
+		Type returnType = tf.voidType();
+		
+		for (AbstractFunction c : func.getPrimaryCandidates()) {
+			alts.insert(funcToProduction(c, ctx, false));
+			returnType = returnType.lub(c.getReturnType());
+		}
+		
+		for (AbstractFunction c : func.getDefaultCandidates()) {
+			alts.insert(funcToProduction(c, ctx, true));
+			returnType = returnType.lub(c.getReturnType());
+		}
+		
+		IValue ret = ((IConstructor) typeToValue(returnType, ctx).getValue()).get("symbol");
+		return vf.constructor(RascalValueFactory.Production_Choice, ret, alts.done());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
@@ -347,17 +393,17 @@ public class TypeReifier {
 			
 			@Override
 			public IValue visitReal(Type type) {
-				return vf.constructor(Factory.Symbol_Real);
+				return vf.constructor(RascalValueFactory.Symbol_Real);
 			}
 
 			@Override
 			public IValue visitInteger(Type type) {
-				return vf.constructor(Factory.Symbol_Int);
+				return vf.constructor(RascalValueFactory.Symbol_Int);
 			}
 
 			@Override
 			public IValue visitRational(Type type) {
-				return vf.constructor(Factory.Symbol_Rat);
+				return vf.constructor(RascalValueFactory.Symbol_Rat);
 			}
 
 			@Override
@@ -367,12 +413,12 @@ public class TypeReifier {
 
 					if (type.hasFieldNames()) {
 						for (int i = 0; i < type.getArity(); i++) {
-							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+							w.append(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 						}
 					}
 					else {
 						if (type.getFieldTypes().isBottom()) {
-							return vf.constructor(Factory.Symbol_List, vf.constructor(Factory.Symbol_Void));
+							return vf.constructor(RascalValueFactory.Symbol_List, vf.constructor(RascalValueFactory.Symbol_Void));
 						}
 				  
 						for (Type f : type.getFieldTypes()) {
@@ -380,24 +426,24 @@ public class TypeReifier {
 						}
 					}
 				
-					return vf.constructor(Factory.Symbol_ListRel, w.done());
+					return vf.constructor(RascalValueFactory.Symbol_ListRel, w.done());
 				}
-				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_List, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IValue visitMap(Type type) {
 				if (type.hasFieldNames()) {
-					return vf.constructor(Factory.Symbol_Map, vf.constructor(Factory.Symbol_Label, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), vf.constructor(Factory.Symbol_Label, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
+					return vf.constructor(RascalValueFactory.Symbol_Map, vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
 				}
 				else {
-					return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
+					return vf.constructor(RascalValueFactory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
 				}
 			}
 
 			@Override
 			public IValue visitNumber(Type type) {
-				return vf.constructor(Factory.Symbol_Num);
+				return vf.constructor(RascalValueFactory.Symbol_Num);
 			}
 
 			@Override
@@ -411,7 +457,7 @@ public class TypeReifier {
 					}
 				}
 				
-				return vf.constructor(Factory.Symbol_Alias, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_Alias, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
 			}
 
 			@Override
@@ -421,36 +467,36 @@ public class TypeReifier {
 
 					if (type.hasFieldNames()) {
 						for (int i = 0; i < type.getArity(); i++) {
-							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+							w.append(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 						}
 					}
 					else {
 						if (type.getFieldTypes().isBottom()) {
-							return vf.constructor(Factory.Symbol_Set, vf.constructor(Factory.Symbol_Void));
+							return vf.constructor(RascalValueFactory.Symbol_Set, vf.constructor(RascalValueFactory.Symbol_Void));
 						}
 						for (Type f : type.getFieldTypes()) {
 							w.append(f.accept(this));
 						}
 					}
 				
-					return vf.constructor(Factory.Symbol_Rel, w.done());
+					return vf.constructor(RascalValueFactory.Symbol_Rel, w.done());
 				}
-				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_Set, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IValue visitSourceLocation(Type type) {
-				return vf.constructor(Factory.Symbol_Loc);
+				return vf.constructor(RascalValueFactory.Symbol_Loc);
 			}
 
 			@Override
 			public IValue visitString(Type type) {
-				return vf.constructor(Factory.Symbol_Str);
+				return vf.constructor(RascalValueFactory.Symbol_Str);
 			}
 
 			@Override
 			public IValue visitNode(Type type) {
-				return vf.constructor(Factory.Symbol_Node);
+				return vf.constructor(RascalValueFactory.Symbol_Node);
 			}
 
 			@Override
@@ -468,7 +514,7 @@ public class TypeReifier {
 
 					if (type.hasFieldNames()) {
 						for (int i = 0; i < type.getArity(); i++) {
-							w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+							w.append(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 						}
 					}
 					else {
@@ -477,7 +523,7 @@ public class TypeReifier {
 						}
 					}
 					
-					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
+					result = vf.constructor(RascalValueFactory.Symbol_Cons, vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
 					addConstructorDefinition((IConstructor) result, type);
@@ -499,7 +545,7 @@ public class TypeReifier {
 				IListWriter w = vf.listWriter();
 				if (type.hasFieldNames()) {
 					for(int i = 0; i < type.getArity(); i++) {
-						w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						w.append(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -512,11 +558,11 @@ public class TypeReifier {
 				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
 						
 				for (String label : keywordParameters.keySet()) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
+					kwTypes.insert(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), vf.set()));
-				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
+				alts.insert(vf.constructor(RascalValueFactory.Production_Cons, vf.constructor(RascalValueFactory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), vf.set()));
+				choice = vf.constructor(RascalValueFactory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
 			
@@ -533,7 +579,7 @@ public class TypeReifier {
 						}
 					}
 					
-					sym = vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), w.done());
+					sym = vf.constructor(RascalValueFactory.Symbol_Adt, vf.string(type.getName()), w.done());
 					cache.put(type, sym);
 				
 
@@ -559,7 +605,7 @@ public class TypeReifier {
 				
 				if (type.hasFieldNames()) {
 					for (int i = 0; i < type.getArity(); i++) {
-						w.append(vf.constructor(Factory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						w.append(vf.constructor(RascalValueFactory.Symbol_Label, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -568,27 +614,27 @@ public class TypeReifier {
 					}
 				}
 
-				return vf.constructor(Factory.Symbol_Tuple, w.done());
+				return vf.constructor(RascalValueFactory.Symbol_Tuple, w.done());
 			}
 
 			@Override
 			public IValue visitValue(Type type) {
-				return vf.constructor(Factory.Symbol_Value);
+				return vf.constructor(RascalValueFactory.Symbol_Value);
 			}
 
 			@Override
 			public IValue visitVoid(Type type) {
-				return vf.constructor(Factory.Symbol_Void);
+				return vf.constructor(RascalValueFactory.Symbol_Void);
 			}
 
 			@Override
 			public IValue visitBool(Type boolType) {
-				return vf.constructor(Factory.Symbol_Bool);
+				return vf.constructor(RascalValueFactory.Symbol_Bool);
 			}
 
 			@Override
 			public IValue visitParameter(Type parameterType) {
-				return vf.constructor(Factory.Symbol_BoundParameter, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_BoundParameter, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
 			}
 
 			@Override
@@ -612,11 +658,11 @@ public class TypeReifier {
 					w.append(arg.accept(this));
 				}
 				
-				return vf.constructor(Factory.Symbol_Func, externalType.getReturnType().accept(this), w.done());
+				return vf.constructor(RascalValueFactory.Symbol_Func, externalType.getReturnType().accept(this), w.done());
 			}
 
 			private IValue visitReifiedType(ReifiedType externalType) {
-				return vf.constructor(Factory.Symbol_ReifiedType, externalType.getTypeParameters().getFieldType(0).accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_ReifiedType, externalType.getTypeParameters().getFieldType(0).accept(this));
 			}
 
 			private IValue visitNonTerminalType(NonTerminalType externalType) {
@@ -630,7 +676,7 @@ public class TypeReifier {
 
 			@Override
 			public IValue visitDateTime(Type type) {
-				return vf.constructor(Factory.Symbol_Datetime);
+				return vf.constructor(RascalValueFactory.Symbol_Datetime);
 			}
 		}); 
 	}

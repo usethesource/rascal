@@ -82,6 +82,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
 }
 
 public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
+  arbSeed(42);
   model = grammarToASTModel(pkg, g);
   grammarToVisitor(outdir, pkg, model);
   grammarToASTClasses(outdir, pkg, model);

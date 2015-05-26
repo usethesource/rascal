@@ -16,6 +16,9 @@ module lang::rascal::\syntax::tests::KnownIssues
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 
+
 public bool isAmb(Tree t) = /amb(_) := t;
 
 public test bool literalAmb() = isAmb(parse(#Command,"\"a\"+ b;"));
+
+public test bool basicAmb() = amb(_) := amb({});

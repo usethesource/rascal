@@ -9,16 +9,14 @@
 
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.xml;
+package org.rascalmpl.library.lang.xml;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class Factory {
-	public static final TypeStore xml = new TypeStore(
-			org.rascalmpl.values.errors.Factory.getStore(), 
-			org.rascalmpl.values.locations.Factory.getStore());
+	public static final TypeStore xml = new TypeStore();
 	
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	
