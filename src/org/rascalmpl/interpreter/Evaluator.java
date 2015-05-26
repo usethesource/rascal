@@ -1313,7 +1313,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
 		}
 		catch (Throwable e) {
-			// warnings should have been emitted, but we don't fail here
+			// warnings should have been reported about this already 
 		}
 	}
 
