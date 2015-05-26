@@ -59,6 +59,7 @@ import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Modules;
@@ -256,7 +257,7 @@ public abstract class Import {
 
 	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
-		ModuleEnvironment other = heap.getModule(name);;
+		ModuleEnvironment other = heap.getModule(name);
 
 		try {
 			if (other == null) {
@@ -312,11 +313,17 @@ public abstract class Import {
         
         return env;
       }
-    } catch (StaticError | Throw  e) {
+    }
+    catch (SyntaxError e) {
+    	heap.removeModule(env);
+        eval.getEvaluator().warning("Could not load " + name, x);
+        throw e;
+    }
+    catch (StaticError | Throw  e) {
       heap.removeModule(env);
       eval.getEvaluator().warning("Could not load " + name, x);
       throw e;
-    } catch (IOException e) {
+    } catch (Throwable e) {
       heap.removeModule(env);
       eval.getEvaluator().warning("Could not load " + name, x);
       throw new ModuleImport(name, e.getMessage(), x);
@@ -450,7 +457,8 @@ public abstract class Import {
 	  try {
 		  imp.interpret(eval);
 	  }
-	  catch (StaticError e) {
+	  catch (Throwable e) {
+		  eval.getEvaluator().warning(e.getMessage(), imp.getLocation());
 		  // parsing the current module should be robust wrt errors in modules it depends on.
 		  if (eval.isInterrupted()) {
 			  throw e;
