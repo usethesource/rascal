@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -187,7 +188,7 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 130);
 		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
 
@@ -223,7 +224,7 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
 		monitor.startJob("Generating parser:" + name, 100, 60);
 
 		try {
@@ -249,7 +250,7 @@ public class ParserGenerator {
    * @param outStream An output stream
    * @throws IOException on IO error
    */
-  public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
+  public void saveToJar(Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
 	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
   }
 

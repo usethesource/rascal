@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
@@ -38,12 +37,12 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	protected static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected static final IRascalValueFactory VF = IRascalValueFactory.getInstance();
 	protected ISourceLocation src;
 	
 	AbstractAST(ISourceLocation src) {

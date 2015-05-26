@@ -18,23 +18,24 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
 	@Override
 	public INode visitConstructor(IConstructor o) throws E {
-		if (o.getType() == Factory.Tree) {
+		if (o.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			Type alt = o.getConstructorType();
 			
-			if(alt == Factory.Tree_Appl){
-				return visitTreeAppl(o);
-			}else if (alt == Factory.Tree_Amb){
-				return visitTreeAmb(o);
-			}else if (alt == Factory.Tree_Char){
-				return visitTreeChar(o);
-			}else if (alt == Factory.Tree_Cycle){
-				return visitTreeCycle(o);
+			if(alt == RascalValueFactory.Tree_Appl){
+				return visitTreeAppl((ITree) o);
+			}else if (alt == RascalValueFactory.Tree_Amb){
+				return visitTreeAmb((ITree)o);
+			}else if (alt == RascalValueFactory.Tree_Char){
+				return visitTreeChar((ITree)o);
+			}else if (alt == RascalValueFactory.Tree_Cycle){
+				return visitTreeCycle((ITree)o);
 			}else{
 				throw new ImplementationError("TreeVisitor does not implement: " + alt);
 			}
@@ -43,8 +44,8 @@ public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E
 		return o;
 	}
 	
-	public abstract IConstructor visitTreeAppl(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeAmb(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeChar(IConstructor arg) throws E;
-	public abstract IConstructor visitTreeCycle(IConstructor arg) throws E;
+	public abstract ITree visitTreeAppl(ITree arg) throws E;
+	public abstract ITree visitTreeAmb(ITree arg) throws E;
+	public abstract ITree visitTreeChar(ITree arg) throws E;
+	public abstract ITree visitTreeCycle(ITree arg) throws E;
 }

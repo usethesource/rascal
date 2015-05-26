@@ -2,10 +2,9 @@ package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class RascalType extends ExternalType {
-
+  protected final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
   public abstract <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E;
 
   @Override
@@ -78,4 +77,22 @@ public abstract class RascalType extends ExternalType {
   protected Type glbWithReified(RascalType type) {
 	return TF.voidType();
   }
+  
+  public boolean isNonterminal() {
+	  return false;
+  }
+  
+  public boolean isFunction() {
+	  return false;
+  }
+  
+  public boolean isOverloadedFunction() {
+	  return false;
+  }
+  
+  public boolean isReified() {
+	  return false;
+  }
+  
+  
 }

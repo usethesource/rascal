@@ -1041,7 +1041,9 @@ guard {
     var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
+    
     //println("MATCH_APPL_IN_LIST", iProd, iElem)
+    // TODO: this appl can be checked faster!
     if(iElem is appl && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
@@ -1060,6 +1062,7 @@ guard {
     var iElem = get_list(iList, start), 
         children = get_children(iElem)
     //println("MATCH_LIT_IN_LIST", iProd, iElem)
+     // TODO: this appl can be checked faster!    
     if(iElem is appl && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
     }
@@ -1073,6 +1076,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
         //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
+         // TODO: this appl can be checked faster!
         if(iElem is node && iElem is appl) {
             children = get_children(iElem)
             prod = children[0]

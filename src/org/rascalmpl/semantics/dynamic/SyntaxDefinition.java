@@ -21,7 +21,7 @@ import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * This class dispatches over different kinds of syntax definitions to make sure non-terminals are declared in the right class
@@ -60,7 +60,7 @@ public abstract class SyntaxDefinition extends
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -94,7 +94,7 @@ public abstract class SyntaxDefinition extends
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
+        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
       }
       
       eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -128,7 +128,7 @@ public abstract class SyntaxDefinition extends
       
       if (type.isNonterminal()) {
         String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
+        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
       }
       
       eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -161,7 +161,7 @@ public abstract class SyntaxDefinition extends
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Keyword, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Keyword, vf.string(nt)));
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());

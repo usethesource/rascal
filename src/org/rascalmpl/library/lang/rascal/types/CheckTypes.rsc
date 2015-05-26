@@ -349,8 +349,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
 @doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
 public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
   set[Symbol] failures = { };
-  
-  for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
+  for (hole(\one(Sym s, Name n)) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
     if(isFailType(rt)) { 
         failures += rt; 
@@ -3004,8 +3003,13 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = for (/(ConcreteHole)`\<<Sym sym> <Name n>\>` := concrete) {
+  println("extractPatternTree: <pat> <concrete.parts>");
+  if (!(concrete has parts)) {
+    throw "it seems concrete syntax has already been expanded";
+  }
+  psList = for (hole(\one(Sym sym, Name n)) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
+   
     append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
   }
   
@@ -8453,7 +8457,7 @@ public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|,
 
 public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false) {
     c = newConfiguration();
-	t = parseModule(l);    
+	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck);

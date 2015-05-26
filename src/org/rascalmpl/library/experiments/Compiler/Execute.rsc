@@ -293,7 +293,7 @@ tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool
 
 value executeTests(loc rascalSource){
    mainProgram = compile(rascalSource);
-   return execute(mainProgram, [], testsuite=true);
+   return execute(mainProgram, [], testsuite=true, listing=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";

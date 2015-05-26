@@ -27,8 +27,9 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class DescendantReader implements Iterator<IValue> {
@@ -78,8 +79,8 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && (type.isConstructor() || type.isAbstractData()) && type == Factory.Tree) {
-				pushConcreteSyntaxNode((IConstructor) v);
+			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
+				pushConcreteSyntaxNode((ITree) v);
 				return;
 			}
 			INode node = (INode) v;
@@ -111,7 +112,7 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 	}
 
-	private void pushConcreteSyntaxNode(IConstructor tree){
+	private void pushConcreteSyntaxNode(ITree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		String name = tree.getName();
 		
@@ -126,7 +127,7 @@ public class DescendantReader implements Iterator<IValue> {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				pushConcreteSyntaxNode((IConstructor) alt);
+				pushConcreteSyntaxNode((ITree) alt);
 			}
 			return;
 //			throw new ImplementationError("Cannot handle ambiguous subject");
@@ -137,19 +138,12 @@ public class DescendantReader implements Iterator<IValue> {
 		IConstructor sym = ctype.getSymbol();
 		
         if (SymbolAdapter.isAnyList(sym)) {
-        	sym = SymbolAdapter.getSymbol(sym);
+        	spine.push(tree);
         	
-        	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
+        	int delta = SymbolAdapter.getListSkipDelta(sym);
+        	sym = SymbolAdapter.getSymbol(sym);
+
         	IList listElems = (IList) tree.get(1);
-			if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
-				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
-				delta = 1; // new iters never have layout separators
-			} 
-			else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
-				if (debug) System.err.println("pushConcreteSyntaxChildren: isIterPlusSeps or isIterStarSeps");
-				delta = SymbolAdapter.getSeparators(sym).length() + 1;
-			}
-			
 			if (debug) {
 				for (int i = 0; i < listElems.length(); i++){
 					System.err.println("#" + i + ": " + listElems.get(i));
@@ -158,7 +152,7 @@ public class DescendantReader implements Iterator<IValue> {
         	
 			for (int i = listElems.length() - 1; i >= 0 ; i -= delta){
 				if (debug) System.err.println("adding: " + listElems.get(i));
-				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
+				pushConcreteSyntaxNode((ITree)listElems.get(i));
 			}
 		} 
         else {
@@ -172,7 +166,7 @@ public class DescendantReader implements Iterator<IValue> {
 			
 			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
 				//spine.push(applArgs.get(i));
-				pushConcreteSyntaxNode((IConstructor) applArgs.get(i));
+				pushConcreteSyntaxNode((ITree) applArgs.get(i));
 			}
 		}
 	}

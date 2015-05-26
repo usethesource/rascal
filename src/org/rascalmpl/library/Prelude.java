@@ -86,7 +86,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -110,9 +109,10 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -859,10 +859,10 @@ public class Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue().toString());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -932,10 +932,10 @@ public class Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -1173,7 +1173,7 @@ public class Prelude {
 			for(IValue elem : V){
 				if (elem.getType().isString()) {
 					out.append(((IString) elem).getValue());
-				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
+				}else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					out.append(TreeAdapter.yield((IConstructor) elem));
 				}else{
 					out.append(elem.toString());
@@ -2052,18 +2052,10 @@ public class Prelude {
 	}
 	
 	public IValue parse(IValue start, IMap robust, IString input, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
-
-//			if (TreeAdapter.isAppl(pt)) {
-//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-//				}
-//			}
-
-			return pt;
+			Type reified = start.getType();
+			IConstructor startSort = checkPreconditions(start, reified);
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2103,8 +2095,8 @@ public class Prelude {
 	
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
 		
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
-		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
+		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
+		Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
 		
 		
 		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
@@ -2129,7 +2121,7 @@ public class Prelude {
 		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
 	}
 	
-	protected java.lang.String unescapedConsName(IConstructor tree) {
+	protected java.lang.String unescapedConsName(ITree tree) {
 		java.lang.String x = TreeAdapter.getConstructorName(tree);
 		if (x != null) {
 			x = x.replaceAll("\\\\", "");
@@ -2161,7 +2153,9 @@ public class Prelude {
 //	}
 
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
+	public IValue implode(IValue reifiedType, IConstructor arg, IEvaluatorContext ctx) {
+		ITree tree = (ITree) arg;
+		
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
@@ -2195,14 +2189,14 @@ public class Prelude {
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
 			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
-			implodedArgs[i] = implode(store, argType, (IConstructor)args.get(i), false, ctx);
+			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false, ctx);
 		}
 		return implodedArgs;
 	}
 	
 	
-	protected IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
-
+	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, IEvaluatorContext ctx) {
+		ITree tree = (ITree) arg0;
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
@@ -2210,9 +2204,9 @@ public class Prelude {
 
 		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
 			IList args = TreeAdapter.getArgs(tree);
-			IConstructor before = (IConstructor) args.get(0);
-			IConstructor ast = (IConstructor) args.get(1);
-			IConstructor after = (IConstructor) args.get(2);
+			ITree before = (ITree) args.get(0);
+			ITree ast = (ITree) args.get(1);
+			ITree after = (ITree) args.get(2);
 			IValue result = implode(store, type, ast, splicing, ctx);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
@@ -2296,7 +2290,7 @@ public class Prelude {
 				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
+					w.append(implode(store, elementType, (ITree) arg, false, ctx));
 				}
 				return w.done();
 			}
@@ -2304,7 +2298,7 @@ public class Prelude {
 				Type elementType = splicing ? type : type.getElementType();
 				ISetWriter w = values.setWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.insert(implode(store, elementType, (IConstructor) arg, false, ctx));
+					w.insert(implode(store, elementType, (ITree) arg, false, ctx));
 				}
 				return w.done();
 			}
@@ -2329,7 +2323,7 @@ public class Prelude {
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
-				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
+				IValue implodedArg = implode(store, elementType, (ITree) arg, true, ctx);
 				if (implodedArg instanceof IList) {
 					// splicing
 					for (IValue nextArg: (IList)implodedArg) {
@@ -2352,13 +2346,13 @@ public class Prelude {
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
-				w.insert(implode(store, elementType, (IConstructor) arg, false, ctx));
+				w.insert(implode(store, elementType, (ITree) arg, false, ctx));
 			}
 			return w.done();
 		}
 		
-		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), Factory.Attribute_Bracket)) {
-			return implode(store, type, (IConstructor) TreeAdapter.getASTArgs(tree).get(0), false, ctx);
+		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
+			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false, ctx);
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -2368,16 +2362,16 @@ public class Prelude {
 			IMapWriter cw = values.mapWriter();
 			IListWriter aw = values.listWriter();
 			for (IValue kid : TreeAdapter.getArgs(tree)) {
-				if (TreeAdapter.isLayout((IConstructor) kid)) {
-					IList cts = extractComments((IConstructor) kid);
+				if (TreeAdapter.isLayout((ITree) kid)) {
+					IList cts = extractComments((ITree) kid);
 					if (!cts.isEmpty()) {
 					  cw.put(values.integer(j), cts);
 					}
 					j++;
 				}
-				else if (!TreeAdapter.isLiteral((IConstructor) kid) && 
-						!TreeAdapter.isCILiteral((IConstructor) kid) && 
-						!TreeAdapter.isEmpty((IConstructor) kid)) {
+				else if (!TreeAdapter.isLiteral((ITree) kid) && 
+						!TreeAdapter.isCILiteral((ITree) kid) && 
+						!TreeAdapter.isEmpty((ITree) kid)) {
 					aw.append(kid);
 				}
 			}
@@ -2404,7 +2398,7 @@ public class Prelude {
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
-					return implode(store, type, (IConstructor) args.get(0), splicing, ctx);
+					return implode(store, type, (ITree) args.get(0), splicing, ctx);
 				}
 				
 				
@@ -2461,7 +2455,7 @@ public class Prelude {
 		TreeVisitor<RuntimeException> visitor = new TreeVisitor<RuntimeException>() {
 
 			@Override
-			public IConstructor visitTreeAppl(IConstructor arg)
+			public ITree visitTreeAppl(ITree arg)
 					 {
 				if (TreeAdapter.isComment(arg)) {
 					comments.append(values.string(TreeAdapter.yield(arg)));
@@ -2475,19 +2469,19 @@ public class Prelude {
 			}
 
 			@Override
-			public IConstructor visitTreeAmb(IConstructor arg)
+			public ITree visitTreeAmb(ITree arg)
 					 {
 				return arg;
 			}
 
 			@Override
-			public IConstructor visitTreeChar(IConstructor arg)
+			public ITree visitTreeChar(ITree arg)
 					 {
 				return arg;
 			}
 
 			@Override
-			public IConstructor visitTreeCycle(IConstructor arg)
+			public ITree visitTreeCycle(ITree arg)
 					 {
 				return arg;
 			}
@@ -3305,56 +3299,12 @@ public class Prelude {
 		}
 	}
 	
-	class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
-		public RascalValuesValueFactory() {
-			super(values);
-		}
-		
-		@Override
-		public INode node(String name, IValue... children) {
-			IConstructor res = specializeType(name, children);
-			
-			return res != null ? res: values.node(name, children);
-		}
-
-		private IConstructor specializeType(String name, IValue... children) {
-			if ("type".equals(name) 
-					&& children.length == 2
-					&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
-					&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
-				java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-				bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
-				
-				return values.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
-			}
-			
-			return null;
-		}
-		
-		@Override
-		public INode node(String name, Map<String, IValue> annotations,
-				IValue... children) throws FactTypeUseException {
-			IConstructor res = specializeType(name, children);
-			
-			return res != null ? res: values.node(name, annotations, children);
-		}
-		
-		@Override
-		public INode node(String name, IValue[] children,
-				Map<String, IValue> keyArgValues) throws FactTypeUseException {
-			IConstructor res = specializeType(name, children);
-			
-			return res != null ? res: values.node(name, children, keyArgValues);
-		}
-		
-	}
-	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
-			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, in);
+			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -3366,7 +3316,7 @@ public class Prelude {
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (StringReader in = new StringReader(input.getValue())) {
-			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, in);
+			return new StandardTextReader().read(values, store, start, in);
 		} 
 		catch (FactTypeUseException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
