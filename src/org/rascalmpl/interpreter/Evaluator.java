@@ -1258,6 +1258,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 							if (imported != null) {
 								env.addImport(imp, imported);
 							}
+							else {
+								warning("could not reimport " + imp, errorLocation);
+							}
 						}
 
 					}
@@ -1279,6 +1282,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 							ModuleEnvironment extended = heap.getModule(ext);
 							if (extended != null) {
 								env.addExtend(ext);
+							}
+							else {
+								warning("could not re-extend " + ext, errorLocation);
 							}
 						}
 					}
@@ -1303,18 +1309,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	private void reloadModule(String name, ISourceLocation errorLocation) {	
-		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
-		heap.addModule(env);
-
-		try {
-			org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
-		} catch (StaticError e) {
-			heap.removeModule(env);
-			throw e;
-		} catch (Throw e) {
-			heap.removeModule(env);
-			throw e;
-		} 
+		org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
 	}
 
 	/**

@@ -253,25 +253,33 @@ public abstract class Import {
 		
 		return;
 	}
-	
+
 	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
-    GlobalEnvironment heap = eval.__getHeap();
-    ModuleEnvironment other = heap.getModule(name);;
-    
-    if (other == null) {
-      // deal with a fresh module that needs initialization
-      heap.addModule(new ModuleEnvironment(name, heap));
-      other = loadModule(x, name, eval);
-    } 
-    else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
-      // in the root scope we treat an extend as a "reload"
-      heap.resetModule(name);
-      other = loadModule(x, name, eval);
-    } 
-    
-    // now simply extend the current module
-    eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
-  }
+		GlobalEnvironment heap = eval.__getHeap();
+		ModuleEnvironment other = heap.getModule(name);;
+
+		try {
+			if (other == null) {
+				// deal with a fresh module that needs initialization
+				heap.addModule(new ModuleEnvironment(name, heap));
+				other = loadModule(x, name, eval);
+			} 
+			else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
+				// in the root scope we treat an extend as a "reload"
+				heap.resetModule(name);
+				other = loadModule(x, name, eval);
+			} 
+
+			// now simply extend the current module
+			eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
+		}
+		catch (Throwable e) {
+			// extending a module is robust against broken modules
+			if (eval.isInterrupted()) {
+				throw e;
+			}
+		}
+	}
 	
   public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
     GlobalEnvironment heap = eval.getHeap();
@@ -304,14 +312,13 @@ public abstract class Import {
         
         return env;
       }
-    } catch (StaticError e) {
+    } catch (StaticError | Throw e) {
       heap.removeModule(env);
-      throw e;
-    } catch (Throw e) {
-      heap.removeModule(env);
+      eval.getEvaluator().warning("Could not load " + name, x);
       throw e;
     } catch (IOException e) {
       heap.removeModule(env);
+      eval.getEvaluator().warning("Could not load " + name, x);
       throw new ModuleImport(name, e.getMessage(), x);
     } 
 
@@ -445,9 +452,7 @@ public abstract class Import {
 	  }
 	  catch (StaticError e) {
 		  // parsing the current module should be robust wrt errors in modules it depends on.
-		  eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
-		  if(eval.isInterrupted()) {
-			  e.printStackTrace();
+		  if (eval.isInterrupted()) {
 			  throw e;
 		  }
 	  }
