@@ -307,7 +307,7 @@ public class RuntimeExceptionFactory {
 //		return new Throw(LocationNotFound.make(VF, loc), ast, trace);
 //	}
 	
-	public static Throw malformedURI(String uri, Default x, StackTrace trace) {
+	public static Throw malformedURI(String uri, AbstractAST x, StackTrace trace) {
 		return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), x, trace);
 	}
 	
