@@ -214,13 +214,25 @@ public class GlobalEnvironment {
 	
 	public Set<String> getExtendingModules(String mod) {
 		Set<String> result = new HashSet<String>();
+		List<String> todo = new LinkedList<String>();
+		todo.add(mod);
 		
-		for (ModuleEnvironment env : moduleEnvironment.values()) {
-			if (env.getExtends().contains(mod)) {
-				result.add(env.getName());
+		while (!todo.isEmpty()) {
+			String next = todo.remove(0);
+			
+			for (ModuleEnvironment env : moduleEnvironment.values()) {
+				if (env.getExtends().contains(next)) {
+					if (!result.contains(next)) {
+						todo.add(env.getName());
+						result.add(next);
+						todo.removeAll(result);
+					}
+				}
 			}
+			result.add(next);
 		}
-
+		
+		result.remove(mod);
 		return result;
 	}
 	
