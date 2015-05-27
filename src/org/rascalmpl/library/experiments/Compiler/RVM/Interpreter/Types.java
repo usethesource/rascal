@@ -98,7 +98,7 @@ public class Types {
 			return tf.nodeType();
 		}
 		else if (cons == RascalValueFactory.Symbol_Parameter) {
-			return tf.parameterType(((IString) symbol.get("name")).getValue());
+			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
 		}
 		else if (cons == RascalValueFactory.Symbol_BoundParameter) {
 			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
