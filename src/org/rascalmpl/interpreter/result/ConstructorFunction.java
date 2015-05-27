@@ -69,7 +69,7 @@ public class ConstructorFunction extends NamedFunction {
 	// TODO: refactor and make small. For now this does the job.
 	public Result<IValue> computeDefaultKeywordParameter(String label, IConstructor value, Environment callerEnvironment) {
 		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
-		IWithKeywordParameters<IConstructor> wkw = value.asWithKeywordParameters();
+		IWithKeywordParameters<? extends IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
 		Environment resultEnv = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
 		
