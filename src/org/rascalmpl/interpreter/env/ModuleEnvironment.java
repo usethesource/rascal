@@ -208,6 +208,12 @@ public class ModuleEnvironment extends Environment {
 	  productions.add(sd);
 	}
 	
+	public void clearProductions() {
+		if (productions != null) {
+			productions.clear();
+		}
+	}
+	
 	public boolean definesSyntax() {
 		if (!productions.isEmpty()) {
 			return true;

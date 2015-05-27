@@ -407,6 +407,7 @@ public abstract class Import {
         env.setInitialized(true);
 
         eval.event("defining syntax");
+        eval.getCurrentModuleEnvironment().clearProductions();
         ISet rules = Modules.getSyntax(top);
         for (IValue rule : rules) {
           evalImport(eval, (IConstructor) rule);
