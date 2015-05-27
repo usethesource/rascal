@@ -279,7 +279,7 @@ public class TraversalEvaluator {
 			int len = list.length();
 
 			if (len > 0) {
-				IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
+				IListWriter w = eval.getValueFactory().listWriter();
 				boolean hasChanged = false;
 				boolean hasMatched = false;
 				boolean isTop = TreeAdapter.isTop(tree);
@@ -354,10 +354,11 @@ public class TraversalEvaluator {
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
 		    // defined in the current scope. For example, when data was serialized and the format
-		    // has changed in the meantime. We issue a warning, because it is indicative of a bug
+		    // has changed in the meantime, or when a generic function from a library calls visit.
+			//
+			// We issue a warning, because it is indicative of a bug
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
-		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
 		    if (kwParams != null) {
 		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, kwParams);
 		    }
@@ -381,7 +382,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IMap map = (IMap) subject;
 		if(!map.isEmpty()){
-			IMapWriter w = eval.getValueFactory().mapWriter(map.getType());
+			IMapWriter w = eval.getValueFactory().mapWriter();
 			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
@@ -412,7 +413,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		ISet set = (ISet) subject;
 		if(!set.isEmpty()){
-			ISetWriter w = eval.getValueFactory().setWriter(set.getType().getElementType());
+			ISetWriter w = eval.getValueFactory().setWriter();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -437,7 +438,7 @@ public class TraversalEvaluator {
 		IList list = (IList) subject;
 		int len = list.length();
 		if (len > 0){
-			IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
+			IListWriter w = eval.getValueFactory().listWriter();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
