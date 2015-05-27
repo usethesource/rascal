@@ -3062,10 +3062,16 @@ public class Prelude {
 	  return values.string(toBase64(bytes, in.length() * 2));
 	}
 
-	public IString toCompressedBase64(IString in) throws IOException {
-	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	  return values.string(toBase64(new DeflaterInputStream(bytes, new Deflater(8)), in.length() * 2));
+	public IString toBase64(ISourceLocation file) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
+		  return values.string(toBase64(in, 1024));
+		}
+    catch (IOException e) {
+      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
 	}
+	
+	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
@@ -3077,13 +3083,6 @@ public class Prelude {
 	  fromBase64(in.getValue(), result);
 	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
 	}
-
-	public IString fromCompressedBase64(IString in) throws IOException {
-	  ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
-	  fromBase64(in.getValue(), new InflaterOutputStream(result));
-	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
-	}
-	
 
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
