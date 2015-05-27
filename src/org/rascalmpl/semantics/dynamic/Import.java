@@ -58,6 +58,7 @@ import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Modules;
@@ -252,25 +253,33 @@ public abstract class Import {
 		
 		return;
 	}
-	
+
 	public static void extendCurrentModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
-    GlobalEnvironment heap = eval.__getHeap();
-    ModuleEnvironment other = heap.getModule(name);;
-    
-    if (other == null) {
-      // deal with a fresh module that needs initialization
-      heap.addModule(new ModuleEnvironment(name, heap));
-      other = loadModule(x, name, eval);
-    } 
-    else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
-      // in the root scope we treat an extend as a "reload"
-      heap.resetModule(name);
-      other = loadModule(x, name, eval);
-    } 
-    
-    // now simply extend the current module
-    eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
-  }
+		GlobalEnvironment heap = eval.__getHeap();
+		ModuleEnvironment other = heap.getModule(name);
+
+		try {
+			if (other == null) {
+				// deal with a fresh module that needs initialization
+				heap.addModule(new ModuleEnvironment(name, heap));
+				other = loadModule(x, name, eval);
+			} 
+			else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
+				// in the root scope we treat an extend as a "reload"
+				heap.resetModule(name);
+				other = loadModule(x, name, eval);
+			} 
+
+			// now simply extend the current module
+			eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
+		}
+		catch (Throwable e) {
+			// extending a module is robust against broken modules
+			if (eval.isInterrupted()) {
+				throw e;
+			}
+		}
+	}
 	
   public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
     GlobalEnvironment heap = eval.getHeap();
@@ -303,14 +312,19 @@ public abstract class Import {
         
         return env;
       }
-    } catch (StaticError e) {
+    }
+    catch (SyntaxError e) {
+    	heap.removeModule(env);
+        eval.getEvaluator().warning("Could not load " + name, x);
+        throw e;
+    }
+    catch (StaticError | Throw  e) {
       heap.removeModule(env);
+      eval.getEvaluator().warning("Could not load " + name, x);
       throw e;
-    } catch (Throw e) {
+    } catch (Throwable e) {
       heap.removeModule(env);
-      throw e;
-    } catch (IOException e) {
-      heap.removeModule(env);
+      eval.getEvaluator().warning("Could not load " + name, x);
       throw new ModuleImport(name, e.getMessage(), x);
     } 
 
@@ -392,6 +406,7 @@ public abstract class Import {
         env.setInitialized(true);
 
         eval.event("defining syntax");
+        eval.getCurrentModuleEnvironment().clearProductions();
         ISet rules = Modules.getSyntax(top);
         for (IValue rule : rules) {
           evalImport(eval, (IConstructor) rule);
@@ -438,11 +453,10 @@ public abstract class Import {
 	  try {
 		  imp.interpret(eval);
 	  }
-	  catch (StaticError e) {
+	  catch (Throwable e) {
+		  eval.getEvaluator().warning(e.getMessage(), imp.getLocation());
 		  // parsing the current module should be robust wrt errors in modules it depends on.
-		  eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
-		  if(eval.isInterrupted()) {
-			  e.printStackTrace();
+		  if (eval.isInterrupted()) {
 			  throw e;
 		  }
 	  }
@@ -654,6 +668,11 @@ public abstract class Import {
       args = w.done();
       
       return TreeAdapter.setLocation(TreeAdapter.setArgs(tree, args), loc);
+    }
+    
+    @Override
+    public ITree visitTreeAmb(ITree arg) throws ImplementationError {
+    	return (ITree) TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
     }
   }
   

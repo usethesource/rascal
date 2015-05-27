@@ -222,10 +222,12 @@ public class GlobalEnvironment {
 			
 			for (ModuleEnvironment env : moduleEnvironment.values()) {
 				if (env.getExtends().contains(next)) {
-					if (!result.contains(next)) {
-						todo.add(env.getName());
-						result.add(next);
-						todo.removeAll(result);
+					String extending = env.getName();
+					
+					if (!todo.contains(extending) /*cuts infinite extend loops*/) {
+						// add transitive depending modules
+						todo.add(0, extending); 
+						result.add(extending);
 					}
 				}
 			}

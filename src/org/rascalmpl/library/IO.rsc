@@ -601,6 +601,10 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
+public java str toBase64(loc file)
+throws PathNotFound(loc file), IO(str msg);
+
+@javaClass{org.rascalmpl.library.Prelude}
 java bool copyFile(loc source, loc target);
 
 bool copyDirectory(loc source, loc target) {

@@ -62,11 +62,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterInputStream;
-import java.util.zip.InflaterOutputStream;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.CharSetUtils;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -1099,11 +1095,7 @@ public class Prelude {
 	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
 			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
-				byte[] buf = new byte[FILE_BUFFER_SIZE];
-				int read;
-				while ((read = in.read(buf, 0, buf.length)) != -1) {
-					out.write(buf, 0, read);
-				}
+			  copy(in,out);
 				return values.bool(true);
 			}
 		} catch (IOException e) {
@@ -3081,11 +3073,19 @@ public class Prelude {
 	    return len;
 	  }
 	}	
+	
+	private static void copy(InputStream from, OutputStream to) throws IOException {
+	  final byte[] buffer = new byte[FILE_BUFFER_SIZE];
+		int read;
+		while ((read = from.read(buffer, 0, buffer.length)) != -1) {
+		  to.write(buffer, 0, read);
+		}
+	}
 
 	private String toBase64(InputStream src, int estimatedSize) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
 	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  IOUtils.copy(src, encoder);
+	  copy(src, encoder);
 	  encoder.close();
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
@@ -3095,14 +3095,20 @@ public class Prelude {
 	  return values.string(toBase64(bytes, in.length() * 2));
 	}
 
-	public IString toCompressedBase64(IString in) throws IOException {
-	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	  return values.string(toBase64(new DeflaterInputStream(bytes, new Deflater(8)), in.length() * 2));
+	public IString toBase64(ISourceLocation file) {
+		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
+		  return values.string(toBase64(in, 1024));
+		}
+    catch (IOException e) {
+      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
 	}
+	
+	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
-	  IOUtils.copy(Base64.getDecoder().wrap(bytes), target);
+	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
 	public IString fromBase64(IString in) throws IOException {
@@ -3110,13 +3116,6 @@ public class Prelude {
 	  fromBase64(in.getValue(), result);
 	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
 	}
-
-	public IString fromCompressedBase64(IString in) throws IOException {
-	  ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
-	  fromBase64(in.getValue(), new InflaterOutputStream(result));
-	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
-	}
-	
 
 	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}

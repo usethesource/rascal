@@ -64,7 +64,6 @@ import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.Return;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
@@ -79,13 +78,11 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.CommandlineError;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsert;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturn;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
@@ -113,9 +110,8 @@ import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private static final class CourseResolver extends FileURIResolver {
@@ -1201,23 +1197,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	public void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation) {
-		reloadModules(monitor, names, errorLocation, true);
+	public Set<String> reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation) {
+		Set<String> reloaded = new HashSet<>();
+		reloadModules(monitor, names, errorLocation, true, reloaded);
+		return Collections.unmodifiableSet(reloaded);
 	}
 	
-	// TODO Update for extends; extends need to be cleared and reinterpreted.
-	private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending) {
+	private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			Set<String> onHeap = new HashSet<String>();
-			Set<String> extendingModules = new HashSet<String>();
+			Set<String> onHeap = new HashSet<>();
+			Set<String> extendingModules = new HashSet<>();
 
-			
 			try {
 				monitor.startJob("Cleaning modules", names.size());
 				for (String mod : names) {
 					if (heap.existsModule(mod)) {
-						//System.err.println("NOTE: will reload " + mod + " + all its dependents");
 						onHeap.add(mod);
 						if (recurseToExtending) {
 							extendingModules.addAll(heap.getExtendingModules(mod));
@@ -1236,7 +1231,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				for (String mod : onHeap) {
 					if (!heap.existsModule(mod)) {
 						defStderr.println("Reloading module " + mod);
-						reloadModule(mod, errorLocation);
+						reloadModule(mod, errorLocation, affectedModules);
 					}
 					monitor.event("loaded " + mod, 1);
 				}
@@ -1244,46 +1239,63 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				monitor.endJob(true);
 			}
 			
-			Set<String> dependingImports = new HashSet<String>();
-			Set<String> dependingExtends = new HashSet<String>();
+			Set<String> dependingImports = new HashSet<>();
+			Set<String> dependingExtends = new HashSet<>();
 			dependingImports.addAll(getImportingModules(names));
 			dependingExtends.addAll(getExtendingModules(names));
 
-			monitor.startJob("Reconnecting importers of affected modules");
-			for (String mod : dependingImports) {
-			  ModuleEnvironment env = heap.getModule(mod);
-			  Set<String> todo = new HashSet<String>(env.getImports());
-			  for (String imp : todo) {
-			    if (names.contains(imp)) {
-			      env.unImport(imp);
-			      ModuleEnvironment imported = heap.getModule(imp);
-			      if (imported != null) {
-			        env.addImport(imp, imported);
-			      }
-			    }
+			try {
+				monitor.startJob("Reconnecting importers of affected modules");
+				for (String mod : dependingImports) {
+					ModuleEnvironment env = heap.getModule(mod);
+					Set<String> todo = new HashSet<>(env.getImports());
+					for (String imp : todo) {
+						if (names.contains(imp)) {
+							env.unImport(imp);
+							ModuleEnvironment imported = heap.getModule(imp);
+							if (imported != null) {
+								env.addImport(imp, imported);
+								affectedModules.add(mod);
+							}
+							else {
+								warning("could not reimport " + imp, errorLocation);
+							}
+						}
 
-			  }
-			  monitor.event("Reconnected " + mod, 1);
+					}
+					monitor.event("Reconnected " + mod, 1);
+				}
+			}
+			finally {
+				monitor.endJob(true);
 			}
 
-			monitor.event("Reconnecting extenders of affected modules");
-			for (String mod : dependingExtends) {
-			  ModuleEnvironment env = heap.getModule(mod);
-			  Set<String> todo = new HashSet<String>(env.getExtends());
-			  for (String ext : todo) {
-			    if (names.contains(ext)) {
-			      env.unExtend(ext);
-			      ModuleEnvironment extended = heap.getModule(ext);
-			      if (extended != null) {
-			        env.addExtend(ext);
-			      }
-			    }
-			  }
-			  monitor.event("Reconnected " + mod, 1);
+			try {
+				monitor.startJob("Reconnecting extenders of affected modules");
+				for (String mod : dependingExtends) {
+					ModuleEnvironment env = heap.getModule(mod);
+					Set<String> todo = new HashSet<>(env.getExtends());
+					for (String ext : todo) {
+						if (names.contains(ext)) {
+							env.unExtend(ext);
+							ModuleEnvironment extended = heap.getModule(ext);
+							if (extended != null) {
+								env.addExtend(ext);
+							}
+							else {
+								warning("could not re-extend " + ext, errorLocation);
+							}
+						}
+					}
+					monitor.event("Reconnected " + mod, 1);
+				}
+			}
+			finally {
+				monitor.endJob(true);
 			}
 			
 			if (recurseToExtending && !extendingModules.isEmpty()) {
-				reloadModules(monitor, extendingModules, errorLocation, false);
+				reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
 			}
 			
 			if (!names.isEmpty()) {
@@ -1295,19 +1307,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 
-	private void reloadModule(String name, ISourceLocation errorLocation) {	
-		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
-		heap.addModule(env);
-
+	private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded) {
 		try {
 			org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
-		} catch (StaticError e) {
-			heap.removeModule(env);
-			throw e;
-		} catch (Throw e) {
-			heap.removeModule(env);
-			throw e;
-		} 
+			reloaded.add(name);
+		}
+		catch (Throwable e) {
+			// warnings should have been reported about this already 
+		}
 	}
 
 	/**
