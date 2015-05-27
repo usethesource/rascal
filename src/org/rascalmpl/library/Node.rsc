@@ -59,9 +59,9 @@ F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
 delAnnotationsRec(F);
 </screen>
 }
-public &T delAnnotationsRec(&T v) {
-  return visit(v) { case m: node n => delAnnotations(m) };
-}
+public &T delAnnotationsRec(&T v) = visit(v) { 
+     case m: node n => delAnnotations(m) 
+  };
 
 @doc{
 Synopsis: Retrieve the annotations of a node value as a map.
