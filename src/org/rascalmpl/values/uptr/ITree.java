@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {
@@ -38,6 +39,9 @@ public interface ITree extends IConstructor {
 	default IInteger getCharacter() {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public IWithKeywordParameters<ITree> asWithKeywordParameters();
 	
 	<E extends Throwable> ITree accept(TreeVisitor<E> v) throws E;
 }

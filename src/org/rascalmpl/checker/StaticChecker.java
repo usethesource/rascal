@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 public class StaticChecker {
 	private final Evaluator eval;
@@ -95,10 +96,12 @@ public class StaticChecker {
 		return (IConstructor) eval.call(monitor, "linkImportedModules", moduleParseTree, mw.done());
 	}
 	
-	public synchronized IConstructor checkModule(IRascalMonitor monitor, IConstructor moduleParseTree) {
-		IConstructor res = moduleParseTree;
+	public synchronized ITree checkModule(IRascalMonitor monitor, ITree moduleParseTree) {
+		ITree res = moduleParseTree;
 //		res = resolveImports(monitor, res);
-		if (checkerEnabled) res = (IConstructor) eval.call(monitor, "check", res);
+		if (checkerEnabled) {
+			res = (ITree) eval.call(monitor, "check", res);
+		}
 		return res;
 	}
 

@@ -10,20 +10,20 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public class WithKeywordParametersCursor extends Cursor implements IWithKeywordParameters<IConstructor> {
 
-	private IWithKeywordParameters<IConstructor> kwp;
+	private IWithKeywordParameters<? extends IConstructor> kwp;
 
-	public WithKeywordParametersCursor(IWithKeywordParameters<IConstructor> kwp) {
+	public WithKeywordParametersCursor(IWithKeywordParameters<? extends IConstructor> kwp) {
 		super(null);
 		this.kwp = kwp;
 	}
 
-	public WithKeywordParametersCursor(IWithKeywordParameters<IConstructor> kwp, Context ctx) {
+	public WithKeywordParametersCursor(IWithKeywordParameters<? extends IConstructor> kwp, Context ctx) {
 		super(null, ctx);
 		this.kwp = kwp;
 	}
 	
 
-	private IWithKeywordParameters<IConstructor> getKWP() {
+	private IWithKeywordParameters<? extends IConstructor> getKWP() {
 		return kwp;
 	}
 
