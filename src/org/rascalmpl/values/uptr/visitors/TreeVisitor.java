@@ -18,8 +18,8 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
