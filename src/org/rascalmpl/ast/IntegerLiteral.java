@@ -77,6 +77,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = decimal.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        decimal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DecimalIntegerLiteral)) {
         return false;
@@ -87,7 +104,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 821 * decimal.hashCode() ; 
+      return 271 + 331 * decimal.hashCode() ; 
     } 
   
     
@@ -134,6 +151,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = hex.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        hex.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof HexIntegerLiteral)) {
         return false;
@@ -144,7 +178,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 557 + 449 * hex.hashCode() ; 
+      return 17 + 401 * hex.hashCode() ; 
     } 
   
     
@@ -191,6 +225,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = octal.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        octal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof OctalIntegerLiteral)) {
         return false;
@@ -201,7 +252,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 7 * octal.hashCode() ; 
+      return 313 + 449 * octal.hashCode() ; 
     } 
   
     

@@ -79,6 +79,31 @@ public abstract class PatternWithAction extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = statement.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        statement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Arbitrary)) {
         return false;
@@ -89,7 +114,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 367 * pattern.hashCode() + 383 * statement.hashCode() ; 
+      return 557 + 257 * pattern.hashCode() + 941 * statement.hashCode() ; 
     } 
   
     
@@ -147,6 +172,31 @@ public abstract class PatternWithAction extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = replacement.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Replacing)) {
         return false;
@@ -157,7 +207,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 433 * pattern.hashCode() + 139 * replacement.hashCode() ; 
+      return 601 + 239 * pattern.hashCode() + 241 * replacement.hashCode() ; 
     } 
   
     

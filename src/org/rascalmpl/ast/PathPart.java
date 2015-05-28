@@ -88,6 +88,39 @@ public abstract class PathPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pre.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pre.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -98,7 +131,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 461 * pre.hashCode() + 439 * expression.hashCode() + 709 * tail.hashCode() ; 
+      return 857 + 383 * pre.hashCode() + 853 * expression.hashCode() + 743 * tail.hashCode() ; 
     } 
   
     
@@ -163,6 +196,23 @@ public abstract class PathPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pathChars.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pathChars.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonInterpolated)) {
         return false;
@@ -173,7 +223,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 293 * pathChars.hashCode() ; 
+      return 331 + 967 * pathChars.hashCode() ; 
     } 
   
     

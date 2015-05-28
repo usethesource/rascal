@@ -70,6 +70,23 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = associativity.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        associativity.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Associativity)) {
         return false;
@@ -80,7 +97,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 647 * associativity.hashCode() ; 
+      return 157 + 139 * associativity.hashCode() ; 
     } 
   
     
@@ -125,6 +142,15 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bracket)) {
         return false;
@@ -135,7 +161,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 ; 
+      return 193 ; 
     } 
   
     	
@@ -173,6 +199,23 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tag.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tag.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tag)) {
         return false;
@@ -183,7 +226,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 613 * tag.hashCode() ; 
+      return 859 + 3 * tag.hashCode() ; 
     } 
   
     

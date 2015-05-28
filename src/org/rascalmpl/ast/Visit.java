@@ -79,6 +79,33 @@ public abstract class Visit extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = subject.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        subject.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : cases) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DefaultStrategy)) {
         return false;
@@ -89,7 +116,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 71 * subject.hashCode() + 167 * cases.hashCode() ; 
+      return 293 + 421 * subject.hashCode() + 467 * cases.hashCode() ; 
     } 
   
     
@@ -149,6 +176,41 @@ public abstract class Visit extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = strategy.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        strategy.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = subject.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        subject.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : cases) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof GivenStrategy)) {
         return false;
@@ -159,7 +221,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 83 * strategy.hashCode() + 709 * subject.hashCode() + 487 * cases.hashCode() ; 
+      return 181 + 383 * strategy.hashCode() + 263 * subject.hashCode() + 463 * cases.hashCode() ; 
     } 
   
     

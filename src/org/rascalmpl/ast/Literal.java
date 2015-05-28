@@ -112,6 +112,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = booleanLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        booleanLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Boolean)) {
         return false;
@@ -122,7 +139,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 443 * booleanLiteral.hashCode() ; 
+      return 233 + 577 * booleanLiteral.hashCode() ; 
     } 
   
     
@@ -169,6 +186,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = dateTimeLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        dateTimeLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateTime)) {
         return false;
@@ -179,7 +213,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 409 * dateTimeLiteral.hashCode() ; 
+      return 643 + 631 * dateTimeLiteral.hashCode() ; 
     } 
   
     
@@ -226,6 +260,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = integerLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        integerLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Integer)) {
         return false;
@@ -236,7 +287,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 + 43 * integerLiteral.hashCode() ; 
+      return 173 + 103 * integerLiteral.hashCode() ; 
     } 
   
     
@@ -283,6 +334,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = locationLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        locationLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Location)) {
         return false;
@@ -293,7 +361,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 197 * locationLiteral.hashCode() ; 
+      return 257 + 283 * locationLiteral.hashCode() ; 
     } 
   
     
@@ -340,6 +408,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = rationalLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rationalLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Rational)) {
         return false;
@@ -350,7 +435,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 349 * rationalLiteral.hashCode() ; 
+      return 521 + 127 * rationalLiteral.hashCode() ; 
     } 
   
     
@@ -397,6 +482,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = realLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        realLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Real)) {
         return false;
@@ -407,7 +509,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 79 * realLiteral.hashCode() ; 
+      return 89 + 739 * realLiteral.hashCode() ; 
     } 
   
     
@@ -454,6 +556,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = regExpLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        regExpLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof RegExp)) {
         return false;
@@ -464,7 +583,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 541 * regExpLiteral.hashCode() ; 
+      return 547 + 3 * regExpLiteral.hashCode() ; 
     } 
   
     
@@ -511,6 +630,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = stringLiteral.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        stringLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof String)) {
         return false;
@@ -521,7 +657,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 19 * stringLiteral.hashCode() ; 
+      return 373 + 31 * stringLiteral.hashCode() ; 
     } 
   
     

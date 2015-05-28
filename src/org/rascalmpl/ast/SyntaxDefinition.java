@@ -86,6 +86,31 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = defined.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Keyword)) {
         return false;
@@ -96,7 +121,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 13 * defined.hashCode() + 569 * production.hashCode() ; 
+      return 443 + 11 * defined.hashCode() + 389 * production.hashCode() ; 
     } 
   
     
@@ -156,6 +181,39 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = start.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        start.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = defined.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Language)) {
         return false;
@@ -166,7 +224,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 947 * start.hashCode() + 971 * defined.hashCode() + 37 * production.hashCode() ; 
+      return 229 + 193 * start.hashCode() + 617 * defined.hashCode() + 521 * production.hashCode() ; 
     } 
   
     
@@ -235,6 +293,39 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = vis.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        vis.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = defined.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Layout)) {
         return false;
@@ -245,7 +336,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 617 * vis.hashCode() + 89 * defined.hashCode() + 311 * production.hashCode() ; 
+      return 269 + 839 * vis.hashCode() + 743 * defined.hashCode() + 751 * production.hashCode() ; 
     } 
   
     
@@ -312,6 +403,31 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = defined.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Lexical)) {
         return false;
@@ -322,7 +438,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 227 + 751 * defined.hashCode() + 73 * production.hashCode() ; 
+      return 241 + 911 * defined.hashCode() + 827 * production.hashCode() ; 
     } 
   
     

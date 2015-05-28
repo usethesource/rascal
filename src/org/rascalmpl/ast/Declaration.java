@@ -160,6 +160,47 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = user.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        user.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = base.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        base.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Alias)) {
         return false;
@@ -170,7 +211,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 809 * tags.hashCode() + 199 * visibility.hashCode() + 673 * user.hashCode() + 953 * base.hashCode() ; 
+      return 313 + 73 * tags.hashCode() + 499 * visibility.hashCode() + 691 * user.hashCode() + 227 * base.hashCode() ; 
     } 
   
     
@@ -252,6 +293,55 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = annoType.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        annoType.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = onType.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        onType.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Annotation)) {
         return false;
@@ -262,7 +352,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 173 * tags.hashCode() + 449 * visibility.hashCode() + 293 * annoType.hashCode() + 929 * onType.hashCode() + 229 * name.hashCode() ; 
+      return 137 + 983 * tags.hashCode() + 677 * visibility.hashCode() + 433 * annoType.hashCode() + 673 * onType.hashCode() + 13 * name.hashCode() ; 
     } 
   
     
@@ -353,6 +443,57 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = user.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        user.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = commonKeywordParameters.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        commonKeywordParameters.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : variants) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Data)) {
         return false;
@@ -363,7 +504,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 457 * tags.hashCode() + 67 * visibility.hashCode() + 73 * user.hashCode() + 821 * commonKeywordParameters.hashCode() + 433 * variants.hashCode() ; 
+      return 281 + 101 * tags.hashCode() + 433 * visibility.hashCode() + 419 * user.hashCode() + 911 * commonKeywordParameters.hashCode() + 191 * variants.hashCode() ; 
     } 
   
     
@@ -452,6 +593,47 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = user.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        user.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = commonKeywordParameters.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        commonKeywordParameters.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DataAbstract)) {
         return false;
@@ -462,7 +644,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 + 421 * tags.hashCode() + 167 * visibility.hashCode() + 71 * user.hashCode() + 449 * commonKeywordParameters.hashCode() ; 
+      return 397 + 131 * tags.hashCode() + 863 * visibility.hashCode() + 211 * user.hashCode() + 593 * commonKeywordParameters.hashCode() ; 
     } 
   
     
@@ -536,6 +718,23 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = functionDeclaration.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        functionDeclaration.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Function)) {
         return false;
@@ -546,7 +745,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 311 * functionDeclaration.hashCode() ; 
+      return 13 + 7 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -601,6 +800,57 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = kind.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        kind.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : types) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tag)) {
         return false;
@@ -611,7 +861,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 331 * tags.hashCode() + 109 * visibility.hashCode() + 379 * kind.hashCode() + 233 * name.hashCode() + 617 * types.hashCode() ; 
+      return 101 + 479 * tags.hashCode() + 137 * visibility.hashCode() + 223 * kind.hashCode() + 307 * name.hashCode() + 733 * types.hashCode() ; 
     } 
   
     
@@ -700,6 +950,49 @@ public abstract class Declaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tags.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tags.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = visibility.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        visibility.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = type.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : variables) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Variable)) {
         return false;
@@ -710,7 +1003,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 97 * tags.hashCode() + 419 * visibility.hashCode() + 23 * type.hashCode() + 613 * variables.hashCode() ; 
+      return 859 + 599 * tags.hashCode() + 643 * visibility.hashCode() + 853 * type.hashCode() + 3 * variables.hashCode() ; 
     } 
   
     

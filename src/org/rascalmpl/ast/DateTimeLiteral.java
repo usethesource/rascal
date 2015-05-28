@@ -77,6 +77,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = dateAndTime.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        dateAndTime.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateAndTimeLiteral)) {
         return false;
@@ -87,7 +104,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 227 * dateAndTime.hashCode() ; 
+      return 643 + 751 * dateAndTime.hashCode() ; 
     } 
   
     
@@ -134,6 +151,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = date.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        date.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateLiteral)) {
         return false;
@@ -144,7 +178,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 463 * date.hashCode() ; 
+      return 907 + 857 * date.hashCode() ; 
     } 
   
     
@@ -191,6 +225,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = time.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        time.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof TimeLiteral)) {
         return false;
@@ -201,7 +252,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 31 + 643 * time.hashCode() ; 
+      return 373 + 149 * time.hashCode() ; 
     } 
   
     

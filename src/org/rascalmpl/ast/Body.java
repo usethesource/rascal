@@ -63,6 +63,25 @@ public abstract class Body extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : toplevels) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Toplevels)) {
         return false;
@@ -73,7 +92,7 @@ public abstract class Body extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 61 * toplevels.hashCode() ; 
+      return 743 + 137 * toplevels.hashCode() ; 
     } 
   
     

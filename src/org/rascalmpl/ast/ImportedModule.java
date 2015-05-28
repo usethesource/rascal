@@ -79,6 +79,31 @@ public abstract class ImportedModule extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = actuals.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        actuals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Actuals)) {
         return false;
@@ -89,7 +114,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 919 * name.hashCode() + 157 * actuals.hashCode() ; 
+      return 151 + 397 * name.hashCode() + 137 * actuals.hashCode() ; 
     } 
   
     
@@ -149,6 +174,39 @@ public abstract class ImportedModule extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = actuals.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        actuals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = renamings.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        renamings.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof ActualsRenaming)) {
         return false;
@@ -159,7 +217,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 359 + 577 * name.hashCode() + 313 * actuals.hashCode() + 907 * renamings.hashCode() ; 
+      return 811 + 709 * name.hashCode() + 167 * actuals.hashCode() + 53 * renamings.hashCode() ; 
     } 
   
     
@@ -224,6 +282,23 @@ public abstract class ImportedModule extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -234,7 +309,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 571 * name.hashCode() ; 
+      return 463 + 127 * name.hashCode() ; 
     } 
   
     
@@ -283,6 +358,31 @@ public abstract class ImportedModule extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = renamings.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        renamings.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Renamings)) {
         return false;
@@ -293,7 +393,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 313 * name.hashCode() + 853 * renamings.hashCode() ; 
+      return 67 + 643 * name.hashCode() + 229 * renamings.hashCode() ; 
     } 
   
     
