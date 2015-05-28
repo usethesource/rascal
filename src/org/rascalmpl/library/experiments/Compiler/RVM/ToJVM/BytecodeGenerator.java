@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 

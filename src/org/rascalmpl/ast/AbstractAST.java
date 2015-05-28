@@ -19,6 +19,9 @@ package org.rascalmpl.ast;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -176,6 +179,16 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 			return buildMatcher(eval);
 	}
 
+	protected void addForLineNumber(int line, java.util.List<AbstractAST> result) {
+		return;
+	}
+	
+	public List<AbstractAST> breakpoints(int line) {
+		List<AbstractAST> candidates = new LinkedList<>();
+		addForLineNumber(line, candidates);
+		return candidates.stream().filter(p -> p.isBreakable()).collect(Collectors.toList());
+	}
+	
 	/**
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */
