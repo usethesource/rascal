@@ -84,6 +84,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = module.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        module.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -94,7 +111,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 853 + 431 * module.hashCode() ; 
+      return 367 + 401 * module.hashCode() ; 
     } 
   
     
@@ -141,6 +158,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = module.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        module.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Extend)) {
         return false;
@@ -151,7 +185,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 + 127 * module.hashCode() ; 
+      return 139 + 937 * module.hashCode() ; 
     } 
   
     
@@ -200,6 +234,31 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = at.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        at.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof External)) {
         return false;
@@ -210,7 +269,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 + 829 * name.hashCode() + 587 * at.hashCode() ; 
+      return 521 + 719 * name.hashCode() + 773 * at.hashCode() ; 
     } 
   
     
@@ -266,6 +325,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = syntax.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        syntax.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Syntax)) {
         return false;
@@ -276,7 +352,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 223 * syntax.hashCode() ; 
+      return 277 + 239 * syntax.hashCode() ; 
     } 
   
     

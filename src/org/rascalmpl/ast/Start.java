@@ -54,6 +54,15 @@ public abstract class Start extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Absent)) {
         return false;
@@ -64,7 +73,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 ; 
+      return 313 ; 
     } 
   
     	
@@ -100,6 +109,15 @@ public abstract class Start extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Present)) {
         return false;
@@ -110,7 +128,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 ; 
+      return 127 ; 
     } 
   
     	

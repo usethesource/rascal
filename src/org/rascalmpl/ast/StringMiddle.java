@@ -88,6 +88,39 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -98,7 +131,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 293 * mid.hashCode() + 607 * expression.hashCode() + 139 * tail.hashCode() ; 
+      return 653 + 13 * mid.hashCode() + 787 * expression.hashCode() + 37 * tail.hashCode() ; 
     } 
   
     
@@ -163,6 +196,23 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Mid)) {
         return false;
@@ -173,7 +223,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 773 * mid.hashCode() ; 
+      return 131 + 331 * mid.hashCode() ; 
     } 
   
     
@@ -224,6 +274,39 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = template.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        template.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Template)) {
         return false;
@@ -234,7 +317,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 349 * mid.hashCode() + 73 * template.hashCode() + 89 * tail.hashCode() ; 
+      return 521 + 839 * mid.hashCode() + 191 * template.hashCode() + 599 * tail.hashCode() ; 
     } 
   
     

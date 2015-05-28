@@ -54,6 +54,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bag)) {
         return false;
@@ -64,7 +73,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 ; 
+      return 659 ; 
     } 
   
     	
@@ -100,6 +109,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bool)) {
         return false;
@@ -110,7 +128,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 ; 
+      return 229 ; 
     } 
   
     	
@@ -146,6 +164,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateTime)) {
         return false;
@@ -156,7 +183,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 827 ; 
     } 
   
     	
@@ -192,6 +219,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Int)) {
         return false;
@@ -202,7 +238,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 ; 
+      return 709 ; 
     } 
   
     	
@@ -238,6 +274,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof List)) {
         return false;
@@ -248,7 +293,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 ; 
+      return 263 ; 
     } 
   
     	
@@ -284,6 +329,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof ListRelation)) {
         return false;
@@ -294,7 +348,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 ; 
+      return 89 ; 
     } 
   
     	
@@ -330,6 +384,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Loc)) {
         return false;
@@ -340,7 +403,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 ; 
+      return 43 ; 
     } 
   
     	
@@ -376,6 +439,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Map)) {
         return false;
@@ -386,7 +458,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 ; 
+      return 641 ; 
     } 
   
     	
@@ -422,6 +494,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Node)) {
         return false;
@@ -432,7 +513,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 ; 
+      return 839 ; 
     } 
   
     	
@@ -468,6 +549,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Num)) {
         return false;
@@ -478,7 +568,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 ; 
+      return 269 ; 
     } 
   
     	
@@ -514,6 +604,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Rational)) {
         return false;
@@ -524,7 +623,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 449 ; 
     } 
   
     	
@@ -560,6 +659,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Real)) {
         return false;
@@ -570,7 +678,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 ; 
+      return 859 ; 
     } 
   
     	
@@ -606,6 +714,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Relation)) {
         return false;
@@ -616,7 +733,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 ; 
+      return 727 ; 
     } 
   
     	
@@ -652,6 +769,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Set)) {
         return false;
@@ -662,7 +788,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 ; 
+      return 907 ; 
     } 
   
     	
@@ -698,6 +824,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof String)) {
         return false;
@@ -708,7 +843,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 ; 
+      return 229 ; 
     } 
   
     	
@@ -744,6 +879,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tuple)) {
         return false;
@@ -754,7 +898,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 ; 
+      return 479 ; 
     } 
   
     	
@@ -790,6 +934,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Type)) {
         return false;
@@ -800,7 +953,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 ; 
+      return 821 ; 
     } 
   
     	
@@ -836,6 +989,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Value)) {
         return false;
@@ -846,7 +1008,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 ; 
+      return 7 ; 
     } 
   
     	
@@ -882,6 +1044,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Void)) {
         return false;
@@ -892,7 +1063,7 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 ; 
+      return 229 ; 
     } 
   
     	

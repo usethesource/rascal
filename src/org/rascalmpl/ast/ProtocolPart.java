@@ -88,6 +88,39 @@ public abstract class ProtocolPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pre.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pre.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -98,7 +131,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 263 * pre.hashCode() + 593 * expression.hashCode() + 7 * tail.hashCode() ; 
+      return 701 + 283 * pre.hashCode() + 349 * expression.hashCode() + 139 * tail.hashCode() ; 
     } 
   
     
@@ -163,6 +196,23 @@ public abstract class ProtocolPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = protocolChars.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        protocolChars.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonInterpolated)) {
         return false;
@@ -173,7 +223,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 73 * protocolChars.hashCode() ; 
+      return 73 + 439 * protocolChars.hashCode() ; 
     } 
   
     

@@ -72,6 +72,33 @@ public abstract class Replacement extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = replacementExpression.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacementExpression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : conditions) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Conditional)) {
         return false;
@@ -82,7 +109,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 733 * replacementExpression.hashCode() + 883 * conditions.hashCode() ; 
+      return 881 + 3 * replacementExpression.hashCode() + 293 * conditions.hashCode() ; 
     } 
   
     
@@ -138,6 +165,23 @@ public abstract class Replacement extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = replacementExpression.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacementExpression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unconditional)) {
         return false;
@@ -148,7 +192,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 307 * replacementExpression.hashCode() ; 
+      return 281 + 433 * replacementExpression.hashCode() ; 
     } 
   
     

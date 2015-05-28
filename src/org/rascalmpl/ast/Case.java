@@ -70,6 +70,23 @@ public abstract class Case extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = statement.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        statement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -80,7 +97,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 23 * statement.hashCode() ; 
+      return 307 + 881 * statement.hashCode() ; 
     } 
   
     
@@ -127,6 +144,23 @@ public abstract class Case extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = patternWithAction.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        patternWithAction.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof PatternWithAction)) {
         return false;
@@ -137,7 +171,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 571 * patternWithAction.hashCode() ; 
+      return 613 + 383 * patternWithAction.hashCode() ; 
     } 
   
     

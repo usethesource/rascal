@@ -72,6 +72,31 @@ public abstract class DataTypeSelector extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = sort.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        sort.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Selector)) {
         return false;
@@ -82,7 +107,7 @@ public abstract class DataTypeSelector extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 + 563 * sort.hashCode() + 229 * production.hashCode() ; 
+      return 41 + 761 * sort.hashCode() + 971 * production.hashCode() ; 
     } 
   
     

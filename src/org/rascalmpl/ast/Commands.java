@@ -63,6 +63,25 @@ public abstract class Commands extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : commands) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Commandlist)) {
         return false;
@@ -73,7 +92,7 @@ public abstract class Commands extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 + 673 * commands.hashCode() ; 
+      return 127 + 389 * commands.hashCode() ; 
     } 
   
     

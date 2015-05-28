@@ -63,6 +63,25 @@ public abstract class ModuleActuals extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : types) {
+        $l = $elem.getLocation();
+        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -73,7 +92,7 @@ public abstract class ModuleActuals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 907 * types.hashCode() ; 
+      return 281 + 229 * types.hashCode() ; 
     } 
   
     
