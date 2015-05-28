@@ -1,7 +1,6 @@
 module experiments::Compiler::Examples::Tst1
 
-import Node;
+import experiments::Compiler::Execute;
 
-value main(list[value] args) = delAnnotations("f"(1,2,3));
-
-test bool f() = main([]) == "f"(1,2,3);
+value main(list[value] args) =
+ execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|, [], recompile=true);
