@@ -246,7 +246,7 @@ public str newGenerate(str package, str name, Grammar gr) {
 rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
   iprintln(items);
-  prodItems = (p:items[unsetRec(getType(rhs))][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
+  prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
   // or except filter. They can be the fathers though. 
@@ -255,7 +255,7 @@ rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGramma
   dnn = doNotNest(grammar);
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[unsetRec(getType(father.def))][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
+  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
        + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /Symbol t := uniqueGrammar, unsetRec(t) == s};
 }
 
@@ -293,12 +293,12 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   
   visit (g) {
     case Production p:prod(Symbol s,[],_) : 
-       items[unsetRec(getType(s))]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
+       items[getType(s)]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       println("itemizing <p>");
       for (int i <- index(lhs)) { 
-        items[unsetRec(getType(s))]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
-        println("size: <size(items[unsetRec(getType(s))])>, items for <unsetRec(getType(s))> are now < items[unsetRec(getType(s))]>");
+        items[getType(s)]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
+        println("size: <size(items[getType(s)])>, items for <getType(s)> are now < items[getType(s)]>");
       }  
     }
     case Production p:regular(Symbol s) : {
