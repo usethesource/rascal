@@ -560,7 +560,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public boolean mayHaveKeywordParameters() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -749,7 +749,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public boolean mayHaveKeywordParameters() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -1112,12 +1112,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public boolean isAnnotatable() {
-			return true;
+			return false;
 		}
 
 		@Override
 		public boolean mayHaveKeywordParameters() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -1446,12 +1446,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public boolean isAnnotatable() {
-			return true;
+			return false;
 		}
 
 		@Override
 		public boolean mayHaveKeywordParameters() {
-			return false;
+			return true;
 		}
 
 		@Override
