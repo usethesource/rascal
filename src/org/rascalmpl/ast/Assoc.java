@@ -54,6 +54,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Associative)) {
         return false;
@@ -64,7 +73,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 ; 
+      return 229 ; 
     } 
   
     	
@@ -100,6 +109,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Left)) {
         return false;
@@ -110,7 +128,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 ; 
+      return 751 ; 
     } 
   
     	
@@ -146,6 +164,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonAssociative)) {
         return false;
@@ -156,7 +183,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 433 ; 
     } 
   
     	
@@ -192,6 +219,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Right)) {
         return false;
@@ -202,7 +238,7 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 ; 
+      return 839 ; 
     } 
   
     	

@@ -61,6 +61,15 @@ public abstract class Target extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Empty)) {
         return false;
@@ -71,7 +80,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 263 ; 
     } 
   
     	
@@ -109,6 +118,23 @@ public abstract class Target extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Labeled)) {
         return false;
@@ -119,7 +145,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 257 * name.hashCode() ; 
+      return 163 + 683 * name.hashCode() ; 
     } 
   
     
