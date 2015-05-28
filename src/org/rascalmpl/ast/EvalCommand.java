@@ -84,7 +84,7 @@ public abstract class EvalCommand extends AbstractAST {
       ISourceLocation $l;
       
       $l = declaration.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         declaration.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -158,7 +158,7 @@ public abstract class EvalCommand extends AbstractAST {
       ISourceLocation $l;
       
       $l = imported.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         imported.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -232,7 +232,7 @@ public abstract class EvalCommand extends AbstractAST {
       ISourceLocation $l;
       
       $l = statement.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         statement.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

@@ -71,7 +71,7 @@ public abstract class Formals extends AbstractAST {
       
       for (AbstractAST $elem : formals) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

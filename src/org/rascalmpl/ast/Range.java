@@ -84,7 +84,7 @@ public abstract class Range extends AbstractAST {
       ISourceLocation $l;
       
       $l = character.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         character.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -160,7 +160,7 @@ public abstract class Range extends AbstractAST {
       ISourceLocation $l;
       
       $l = start.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         start.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -168,7 +168,7 @@ public abstract class Range extends AbstractAST {
       }
       
       $l = end.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         end.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

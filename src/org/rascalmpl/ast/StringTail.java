@@ -102,7 +102,7 @@ public abstract class StringTail extends AbstractAST {
       ISourceLocation $l;
       
       $l = mid.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         mid.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -110,7 +110,7 @@ public abstract class StringTail extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -118,7 +118,7 @@ public abstract class StringTail extends AbstractAST {
       }
       
       $l = tail.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tail.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -214,7 +214,7 @@ public abstract class StringTail extends AbstractAST {
       ISourceLocation $l;
       
       $l = mid.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         mid.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -222,7 +222,7 @@ public abstract class StringTail extends AbstractAST {
       }
       
       $l = template.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         template.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -230,7 +230,7 @@ public abstract class StringTail extends AbstractAST {
       }
       
       $l = tail.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tail.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -322,7 +322,7 @@ public abstract class StringTail extends AbstractAST {
       ISourceLocation $l;
       
       $l = post.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         post.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

@@ -86,7 +86,7 @@ public abstract class Visit extends AbstractAST {
       ISourceLocation $l;
       
       $l = subject.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         subject.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -95,7 +95,7 @@ public abstract class Visit extends AbstractAST {
       
       for (AbstractAST $elem : cases) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -183,7 +183,7 @@ public abstract class Visit extends AbstractAST {
       ISourceLocation $l;
       
       $l = strategy.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         strategy.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -191,7 +191,7 @@ public abstract class Visit extends AbstractAST {
       }
       
       $l = subject.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         subject.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -200,7 +200,7 @@ public abstract class Visit extends AbstractAST {
       
       for (AbstractAST $elem : cases) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

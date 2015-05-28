@@ -79,7 +79,7 @@ public abstract class Replacement extends AbstractAST {
       ISourceLocation $l;
       
       $l = replacementExpression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         replacementExpression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -88,7 +88,7 @@ public abstract class Replacement extends AbstractAST {
       
       for (AbstractAST $elem : conditions) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -172,7 +172,7 @@ public abstract class Replacement extends AbstractAST {
       ISourceLocation $l;
       
       $l = replacementExpression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         replacementExpression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

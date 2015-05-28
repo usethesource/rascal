@@ -345,7 +345,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -353,7 +353,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -437,7 +437,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -514,7 +514,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -522,7 +522,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -605,7 +605,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -680,7 +680,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -757,7 +757,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -765,7 +765,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -850,7 +850,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -858,7 +858,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -941,7 +941,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1019,7 +1019,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1028,7 +1028,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : arguments) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -1037,7 +1037,7 @@ public abstract class Expression extends AbstractAST {
   
       }
       $l = keywordArguments.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         keywordArguments.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1133,7 +1133,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1141,7 +1141,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = parameters.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         parameters.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1150,7 +1150,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : statements) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -1245,7 +1245,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1253,7 +1253,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1336,7 +1336,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = comprehension.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         comprehension.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1410,7 +1410,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = concrete.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         concrete.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1484,7 +1484,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1560,7 +1560,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1568,7 +1568,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1653,7 +1653,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1661,7 +1661,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1746,7 +1746,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1754,7 +1754,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1839,7 +1839,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1847,7 +1847,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1932,7 +1932,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1940,7 +1940,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = field.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         field.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2025,7 +2025,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2034,7 +2034,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : fields) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -2122,7 +2122,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2130,7 +2130,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = key.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         key.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2138,7 +2138,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = replacement.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         replacement.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2232,7 +2232,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2240,7 +2240,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2325,7 +2325,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2333,7 +2333,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2418,7 +2418,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2426,7 +2426,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2511,7 +2511,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2519,7 +2519,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2604,7 +2604,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2612,7 +2612,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2699,7 +2699,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = condition.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         condition.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2707,7 +2707,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = thenExp.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         thenExp.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2715,7 +2715,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = elseExp.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         elseExp.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2809,7 +2809,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2817,7 +2817,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2902,7 +2902,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2910,7 +2910,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2995,7 +2995,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3003,7 +3003,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3088,7 +3088,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3096,7 +3096,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3181,7 +3181,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3189,7 +3189,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3272,7 +3272,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3403,7 +3403,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3411,7 +3411,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3496,7 +3496,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3504,7 +3504,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3589,7 +3589,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3597,7 +3597,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3681,7 +3681,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : elements0) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -3756,7 +3756,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = literal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         literal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3831,7 +3831,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : mappings) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -3908,7 +3908,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -3916,7 +3916,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4001,7 +4001,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4009,7 +4009,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4092,7 +4092,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = qualifiedName.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         qualifiedName.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4166,7 +4166,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4240,7 +4240,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4316,7 +4316,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4324,7 +4324,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4408,7 +4408,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : statements) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -4485,7 +4485,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4493,7 +4493,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4578,7 +4578,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4586,7 +4586,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4671,7 +4671,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4679,7 +4679,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4764,7 +4764,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4772,7 +4772,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4855,7 +4855,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = qualifiedName.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         qualifiedName.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4931,7 +4931,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = first.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         first.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -4939,7 +4939,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = last.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         last.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5026,7 +5026,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = init.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         init.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5034,7 +5034,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = result.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         result.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5043,7 +5043,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -5138,7 +5138,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5146,7 +5146,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = definitions.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         definitions.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5229,7 +5229,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5305,7 +5305,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5313,7 +5313,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5397,7 +5397,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : elements0) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -5476,7 +5476,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5484,7 +5484,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5492,7 +5492,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = value.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         value.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5588,7 +5588,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5596,7 +5596,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = optFirst.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optFirst.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5604,7 +5604,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = optLast.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optLast.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5702,7 +5702,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5710,7 +5710,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = optFirst.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optFirst.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5718,7 +5718,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = second.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         second.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5726,7 +5726,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = optLast.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optLast.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5827,7 +5827,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5901,7 +5901,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5979,7 +5979,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = first.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         first.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5987,7 +5987,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = second.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         second.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -5995,7 +5995,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = last.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         last.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6089,7 +6089,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6098,7 +6098,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : subscripts) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -6184,7 +6184,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = lhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         lhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6192,7 +6192,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = rhs.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rhs.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6275,7 +6275,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6349,7 +6349,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = argument.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         argument.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6424,7 +6424,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : elements) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -6501,7 +6501,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6509,7 +6509,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6596,7 +6596,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6604,7 +6604,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6612,7 +6612,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6706,7 +6706,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6714,7 +6714,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6799,7 +6799,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = label.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         label.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6807,7 +6807,7 @@ public abstract class Expression extends AbstractAST {
       }
       
       $l = visit.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         visit.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6892,7 +6892,7 @@ public abstract class Expression extends AbstractAST {
       ISourceLocation $l;
       
       $l = parameters.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         parameters.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -6901,7 +6901,7 @@ public abstract class Expression extends AbstractAST {
       
       for (AbstractAST $elem : statements0) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

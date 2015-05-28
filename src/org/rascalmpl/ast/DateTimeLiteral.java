@@ -84,7 +84,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = dateAndTime.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         dateAndTime.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -158,7 +158,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = date.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         date.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -232,7 +232,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = time.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         time.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

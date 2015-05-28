@@ -77,7 +77,7 @@ public abstract class Field extends AbstractAST {
       ISourceLocation $l;
       
       $l = fieldIndex.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         fieldIndex.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -151,7 +151,7 @@ public abstract class Field extends AbstractAST {
       ISourceLocation $l;
       
       $l = fieldName.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         fieldName.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

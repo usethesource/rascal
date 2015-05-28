@@ -86,7 +86,7 @@ public abstract class ImportedModule extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -94,7 +94,7 @@ public abstract class ImportedModule extends AbstractAST {
       }
       
       $l = actuals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         actuals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -181,7 +181,7 @@ public abstract class ImportedModule extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -189,7 +189,7 @@ public abstract class ImportedModule extends AbstractAST {
       }
       
       $l = actuals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         actuals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -197,7 +197,7 @@ public abstract class ImportedModule extends AbstractAST {
       }
       
       $l = renamings.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         renamings.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -289,7 +289,7 @@ public abstract class ImportedModule extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -365,7 +365,7 @@ public abstract class ImportedModule extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -373,7 +373,7 @@ public abstract class ImportedModule extends AbstractAST {
       }
       
       $l = renamings.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         renamings.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

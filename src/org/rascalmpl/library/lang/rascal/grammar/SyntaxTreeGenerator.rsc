@@ -187,7 +187,7 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    <for (arg(typ, name) <- sig.args) {><if (/java.util.List/ := typ) {>
          '    for (AbstractAST $elem : <name>) {
          '      $l = $elem.getLocation();
-         '      if ($l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '      if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
          '        $elem.addForLineNumber($line, $result);
          '      }
          '      if ($l.getBeginLine() \> $line) {
@@ -196,7 +196,7 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '
          '    }<} else {>
          '    $l = <name>.getLocation();
-         '    if ($l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '    if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
          '      <name>.addForLineNumber($line, $result);
          '    }
          '    if ($l.getBeginLine() \> $line) {

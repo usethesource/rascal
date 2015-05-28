@@ -93,7 +93,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       ISourceLocation $l;
       
       $l = defined.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         defined.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -101,7 +101,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = production.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         production.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -188,7 +188,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       ISourceLocation $l;
       
       $l = start.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         start.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -196,7 +196,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = defined.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         defined.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -204,7 +204,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = production.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         production.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -300,7 +300,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       ISourceLocation $l;
       
       $l = vis.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         vis.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -308,7 +308,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = defined.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         defined.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -316,7 +316,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = production.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         production.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -410,7 +410,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       ISourceLocation $l;
       
       $l = defined.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         defined.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -418,7 +418,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       }
       
       $l = production.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         production.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

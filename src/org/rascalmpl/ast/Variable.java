@@ -79,7 +79,7 @@ public abstract class Variable extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class Variable extends AbstractAST {
       }
       
       $l = initial.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         initial.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -170,7 +170,7 @@ public abstract class Variable extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

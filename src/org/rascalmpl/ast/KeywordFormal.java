@@ -88,7 +88,7 @@ public abstract class KeywordFormal extends AbstractAST {
       ISourceLocation $l;
       
       $l = type.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         type.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -96,7 +96,7 @@ public abstract class KeywordFormal extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -104,7 +104,7 @@ public abstract class KeywordFormal extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

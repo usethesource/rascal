@@ -79,7 +79,7 @@ public abstract class Module extends AbstractAST {
       ISourceLocation $l;
       
       $l = header.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         header.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class Module extends AbstractAST {
       }
       
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

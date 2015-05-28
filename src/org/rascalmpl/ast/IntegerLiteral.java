@@ -84,7 +84,7 @@ public abstract class IntegerLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = decimal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         decimal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -158,7 +158,7 @@ public abstract class IntegerLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = hex.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         hex.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -232,7 +232,7 @@ public abstract class IntegerLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = octal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         octal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

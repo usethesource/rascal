@@ -156,7 +156,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = first.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         first.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -165,7 +165,7 @@ public abstract class Sym extends AbstractAST {
       
       for (AbstractAST $elem : alternatives) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -249,7 +249,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = cistring.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         cistring.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -323,7 +323,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = charClass.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         charClass.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -399,7 +399,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -407,7 +407,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = column.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         column.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -545,7 +545,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -621,7 +621,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -629,7 +629,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = label.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         label.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -714,7 +714,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -722,7 +722,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = match.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         match.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -805,7 +805,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -881,7 +881,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -889,7 +889,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = sep.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         sep.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -972,7 +972,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1048,7 +1048,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1056,7 +1056,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = sep.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         sep.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1141,7 +1141,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1149,7 +1149,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = label.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         label.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1232,7 +1232,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = string.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         string.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1306,7 +1306,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = nonterminal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         nonterminal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1382,7 +1382,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1390,7 +1390,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = match.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         match.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1475,7 +1475,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = match.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         match.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1483,7 +1483,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1566,7 +1566,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1640,7 +1640,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = nonterminal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         nonterminal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1716,7 +1716,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = nonterminal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         nonterminal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1725,7 +1725,7 @@ public abstract class Sym extends AbstractAST {
       
       for (AbstractAST $elem : parameters) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -1811,7 +1811,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = match.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         match.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1819,7 +1819,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1904,7 +1904,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = first.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         first.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -1913,7 +1913,7 @@ public abstract class Sym extends AbstractAST {
       
       for (AbstractAST $elem : sequence) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -1997,7 +1997,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = nonterminal.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         nonterminal.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2071,7 +2071,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2147,7 +2147,7 @@ public abstract class Sym extends AbstractAST {
       ISourceLocation $l;
       
       $l = symbol.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         symbol.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -2155,7 +2155,7 @@ public abstract class Sym extends AbstractAST {
       }
       
       $l = match.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         match.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

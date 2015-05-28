@@ -79,7 +79,7 @@ public abstract class Parameters extends AbstractAST {
       ISourceLocation $l;
       
       $l = formals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         formals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class Parameters extends AbstractAST {
       }
       
       $l = keywordFormals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         keywordFormals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -172,7 +172,7 @@ public abstract class Parameters extends AbstractAST {
       ISourceLocation $l;
       
       $l = formals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         formals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -180,7 +180,7 @@ public abstract class Parameters extends AbstractAST {
       }
       
       $l = keywordFormals.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         keywordFormals.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
