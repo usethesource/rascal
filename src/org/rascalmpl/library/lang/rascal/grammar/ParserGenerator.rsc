@@ -245,6 +245,7 @@ public str newGenerate(str package, str name, Grammar gr) {
 
 rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
+  iprintln(items);
   prodItems = (p:items[unsetRec(getType(rhs))][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
@@ -294,8 +295,11 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
     case Production p:prod(Symbol s,[],_) : 
        items[unsetRec(getType(s))]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
-      for (int i <- index(lhs)) 
+      println("itemizing <p>");
+      for (int i <- index(lhs)) { 
         items[unsetRec(getType(s))]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
+        println("size: <size(items[unsetRec(getType(s))])>, items for <unsetRec(getType(s))> are now < items[unsetRec(getType(s))]>");
+      }  
     }
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
@@ -337,6 +341,8 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
     }
   }
   
+  println("Full ITEMS map:");
+  iprintln(items);
   return items;
 }
 
