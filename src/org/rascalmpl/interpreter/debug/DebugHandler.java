@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,34 +18,23 @@ package org.rascalmpl.interpreter.debug;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Module;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.uptr.ITree;
 
 public final class DebugHandler implements IDebugHandler {
 
 	private AbstractInterpreterEventTrigger eventTrigger;
 
 	private final Set<String> breakpoints = new java.util.HashSet<String>();
-	
-	/**
-	 * An evaluator heap isto query the loaded modules for proper break point locations
-	 */
-	private final Evaluator evaluator;
-	
+			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
 	 */
@@ -79,13 +68,10 @@ public final class DebugHandler implements IDebugHandler {
 	 */
 	private Runnable terminateAction = null;
 
-	
-
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
 	 */
-	public DebugHandler(Evaluator evaluator) {
-		this.evaluator = evaluator;
+	public DebugHandler() {
 		setEventTrigger(newNullEventTrigger());
 	}
 	
@@ -94,32 +80,11 @@ public final class DebugHandler implements IDebugHandler {
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.addAll(getBreakpointsForLocation(breakpointLocation));
-	}
-
-	private Module getModuleAST(ISourceLocation breakpointLocation) {
-		try {
-			ITree parseModule = evaluator.parseModule(null, evaluator.getValueFactory().sourceLocation(breakpointLocation.getURI()));
-			Module buildModule = new ASTBuilder().buildModule(parseModule);
-			return buildModule;
-		}
-		catch (Throwable e) {
-			return null;
-		}
-	}
-	
-	private List<String> getBreakpointsForLocation(ISourceLocation breakpointLocation) {
-		Module mod = getModuleAST(breakpointLocation);
-		if (mod != null) {
-			return mod.breakpoints(breakpointLocation.getBeginLine()).stream().map(
-					p -> p.getLocation().toString()
-					).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
+		breakpoints.add(breakpointLocation.toString());
 	}
 
 	private void removeBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.removeAll(getBreakpointsForLocation(breakpointLocation));
+		breakpoints.remove(breakpointLocation.toString());
 	}
 	
 	protected void clearSuspensionState() {
@@ -258,6 +223,7 @@ public final class DebugHandler implements IDebugHandler {
 	@Override
 	public void processMessage(IDebugMessage message) {
 	  switch (message.getSubject()) {
+
 	  case BREAKPOINT:
 	    ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
 

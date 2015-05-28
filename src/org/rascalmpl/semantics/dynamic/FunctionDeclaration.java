@@ -104,17 +104,7 @@ public abstract class FunctionDeclaration extends
 
 			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
-		}
-		
-		@Override
-		protected void addForLineNumber(int $line, List<AbstractAST> $result) {
-			// propagate breakpoint to first statement
-			if (getLocation().hasLineColumn() && $line == getLocation().getBeginLine()) {
-				if (getBody().getStatements().size() > 0) {
-					$result.add(getBody().getStatements().get(0));
-				}
-			}
-			super.addForLineNumber($line, $result);
+
 		}
 
 		@Override
