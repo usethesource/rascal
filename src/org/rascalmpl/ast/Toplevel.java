@@ -70,7 +70,7 @@ public abstract class Toplevel extends AbstractAST {
       ISourceLocation $l;
       
       $l = declaration.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         declaration.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

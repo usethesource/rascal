@@ -79,7 +79,7 @@ public abstract class TypeVar extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class TypeVar extends AbstractAST {
       }
       
       $l = bound.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         bound.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -170,7 +170,7 @@ public abstract class TypeVar extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

@@ -94,7 +94,7 @@ public abstract class Comprehension extends AbstractAST {
       
       for (AbstractAST $elem : results) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -104,7 +104,7 @@ public abstract class Comprehension extends AbstractAST {
       }
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -192,7 +192,7 @@ public abstract class Comprehension extends AbstractAST {
       ISourceLocation $l;
       
       $l = from.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         from.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -200,7 +200,7 @@ public abstract class Comprehension extends AbstractAST {
       }
       
       $l = to.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         to.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -209,7 +209,7 @@ public abstract class Comprehension extends AbstractAST {
       
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -305,7 +305,7 @@ public abstract class Comprehension extends AbstractAST {
       
       for (AbstractAST $elem : results) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -315,7 +315,7 @@ public abstract class Comprehension extends AbstractAST {
       }
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

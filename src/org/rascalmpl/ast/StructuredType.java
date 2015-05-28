@@ -79,7 +79,7 @@ public abstract class StructuredType extends AbstractAST {
       ISourceLocation $l;
       
       $l = basicType.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         basicType.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -88,7 +88,7 @@ public abstract class StructuredType extends AbstractAST {
       
       for (AbstractAST $elem : arguments) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

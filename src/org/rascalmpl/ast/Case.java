@@ -77,7 +77,7 @@ public abstract class Case extends AbstractAST {
       ISourceLocation $l;
       
       $l = statement.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         statement.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -151,7 +151,7 @@ public abstract class Case extends AbstractAST {
       ISourceLocation $l;
       
       $l = patternWithAction.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         patternWithAction.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

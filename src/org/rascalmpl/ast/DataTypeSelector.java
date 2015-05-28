@@ -79,7 +79,7 @@ public abstract class DataTypeSelector extends AbstractAST {
       ISourceLocation $l;
       
       $l = sort.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         sort.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class DataTypeSelector extends AbstractAST {
       }
       
       $l = production.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         production.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

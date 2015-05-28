@@ -79,7 +79,7 @@ public abstract class LocationLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = protocolPart.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         protocolPart.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class LocationLiteral extends AbstractAST {
       }
       
       $l = pathPart.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pathPart.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

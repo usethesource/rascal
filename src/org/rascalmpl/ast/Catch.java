@@ -79,7 +79,7 @@ public abstract class Catch extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class Catch extends AbstractAST {
       }
       
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -170,7 +170,7 @@ public abstract class Catch extends AbstractAST {
       ISourceLocation $l;
       
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

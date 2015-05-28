@@ -70,7 +70,7 @@ public abstract class OptionalExpression extends AbstractAST {
       ISourceLocation $l;
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

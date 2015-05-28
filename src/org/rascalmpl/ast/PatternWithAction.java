@@ -86,7 +86,7 @@ public abstract class PatternWithAction extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -94,7 +94,7 @@ public abstract class PatternWithAction extends AbstractAST {
       }
       
       $l = statement.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         statement.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -179,7 +179,7 @@ public abstract class PatternWithAction extends AbstractAST {
       ISourceLocation $l;
       
       $l = pattern.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pattern.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -187,7 +187,7 @@ public abstract class PatternWithAction extends AbstractAST {
       }
       
       $l = replacement.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         replacement.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

@@ -70,7 +70,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
       ISourceLocation $l;
       
       $l = declarator.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         declarator.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -144,7 +144,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
       ISourceLocation $l;
       
       $l = declarator.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         declarator.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

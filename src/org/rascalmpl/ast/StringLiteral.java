@@ -102,7 +102,7 @@ public abstract class StringLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = pre.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pre.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -110,7 +110,7 @@ public abstract class StringLiteral extends AbstractAST {
       }
       
       $l = expression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -118,7 +118,7 @@ public abstract class StringLiteral extends AbstractAST {
       }
       
       $l = tail.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tail.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -210,7 +210,7 @@ public abstract class StringLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = constant.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         constant.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -288,7 +288,7 @@ public abstract class StringLiteral extends AbstractAST {
       ISourceLocation $l;
       
       $l = pre.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         pre.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -296,7 +296,7 @@ public abstract class StringLiteral extends AbstractAST {
       }
       
       $l = template.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         template.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -304,7 +304,7 @@ public abstract class StringLiteral extends AbstractAST {
       }
       
       $l = tail.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tail.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

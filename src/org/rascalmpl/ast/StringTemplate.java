@@ -154,7 +154,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : preStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -163,7 +163,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -172,7 +172,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -181,7 +181,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = condition.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         condition.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -289,7 +289,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : generators) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -299,7 +299,7 @@ public abstract class StringTemplate extends AbstractAST {
       }
       for (AbstractAST $elem : preStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -308,7 +308,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -317,7 +317,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -426,7 +426,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : conditions) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -436,7 +436,7 @@ public abstract class StringTemplate extends AbstractAST {
       }
       for (AbstractAST $elem : preStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -445,7 +445,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -454,7 +454,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -569,7 +569,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : conditions) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -579,7 +579,7 @@ public abstract class StringTemplate extends AbstractAST {
       }
       for (AbstractAST $elem : preStatsThen) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -588,7 +588,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = thenString.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         thenString.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -597,7 +597,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStatsThen) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -607,7 +607,7 @@ public abstract class StringTemplate extends AbstractAST {
       }
       for (AbstractAST $elem : preStatsElse) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -616,7 +616,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = elseString.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         elseString.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -625,7 +625,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStatsElse) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -760,7 +760,7 @@ public abstract class StringTemplate extends AbstractAST {
       ISourceLocation $l;
       
       $l = condition.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         condition.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -769,7 +769,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : preStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -778,7 +778,7 @@ public abstract class StringTemplate extends AbstractAST {
   
       }
       $l = body.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         body.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -787,7 +787,7 @@ public abstract class StringTemplate extends AbstractAST {
       
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

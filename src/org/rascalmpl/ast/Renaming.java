@@ -79,7 +79,7 @@ public abstract class Renaming extends AbstractAST {
       ISourceLocation $l;
       
       $l = from.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         from.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -87,7 +87,7 @@ public abstract class Renaming extends AbstractAST {
       }
       
       $l = to.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         to.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

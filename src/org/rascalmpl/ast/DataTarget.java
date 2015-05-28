@@ -125,7 +125,7 @@ public abstract class DataTarget extends AbstractAST {
       ISourceLocation $l;
       
       $l = label.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         label.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

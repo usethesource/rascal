@@ -95,7 +95,7 @@ public abstract class Header extends AbstractAST {
       ISourceLocation $l;
       
       $l = tags.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tags.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -103,7 +103,7 @@ public abstract class Header extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -112,7 +112,7 @@ public abstract class Header extends AbstractAST {
       
       for (AbstractAST $elem : imports) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -211,7 +211,7 @@ public abstract class Header extends AbstractAST {
       ISourceLocation $l;
       
       $l = tags.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tags.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -219,7 +219,7 @@ public abstract class Header extends AbstractAST {
       }
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -227,7 +227,7 @@ public abstract class Header extends AbstractAST {
       }
       
       $l = params.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         params.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -236,7 +236,7 @@ public abstract class Header extends AbstractAST {
       
       for (AbstractAST $elem : imports) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {

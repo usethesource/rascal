@@ -119,7 +119,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = booleanLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         booleanLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -193,7 +193,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = dateTimeLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         dateTimeLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -267,7 +267,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = integerLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         integerLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -341,7 +341,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = locationLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         locationLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -415,7 +415,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = rationalLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         rationalLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -489,7 +489,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = realLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         realLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -563,7 +563,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = regExpLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         regExpLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -637,7 +637,7 @@ public abstract class Literal extends AbstractAST {
       ISourceLocation $l;
       
       $l = stringLiteral.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         stringLiteral.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

@@ -77,7 +77,7 @@ public abstract class ProdModifier extends AbstractAST {
       ISourceLocation $l;
       
       $l = associativity.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         associativity.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -206,7 +206,7 @@ public abstract class ProdModifier extends AbstractAST {
       ISourceLocation $l;
       
       $l = tag.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         tag.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

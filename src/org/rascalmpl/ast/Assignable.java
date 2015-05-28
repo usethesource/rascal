@@ -156,7 +156,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -164,7 +164,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = annotation.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         annotation.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -247,7 +247,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = arg.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         arg.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -323,7 +323,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = name.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         name.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -332,7 +332,7 @@ public abstract class Assignable extends AbstractAST {
       
       for (AbstractAST $elem : arguments) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -418,7 +418,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -426,7 +426,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = field.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         field.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -511,7 +511,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -519,7 +519,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = defaultExpression.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         defaultExpression.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -606,7 +606,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -614,7 +614,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = optFirst.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optFirst.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -622,7 +622,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = optLast.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optLast.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -720,7 +720,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -728,7 +728,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = optFirst.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optFirst.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -736,7 +736,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = second.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         second.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -744,7 +744,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = optLast.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optLast.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -847,7 +847,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = receiver.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         receiver.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -855,7 +855,7 @@ public abstract class Assignable extends AbstractAST {
       }
       
       $l = subscript.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         subscript.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -939,7 +939,7 @@ public abstract class Assignable extends AbstractAST {
       
       for (AbstractAST $elem : elements) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
@@ -1014,7 +1014,7 @@ public abstract class Assignable extends AbstractAST {
       ISourceLocation $l;
       
       $l = qualifiedName.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         qualifiedName.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {

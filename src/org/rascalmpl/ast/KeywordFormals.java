@@ -79,7 +79,7 @@ public abstract class KeywordFormals extends AbstractAST {
       ISourceLocation $l;
       
       $l = optionalComma.getLocation();
-      if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         optionalComma.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
@@ -88,7 +88,7 @@ public abstract class KeywordFormals extends AbstractAST {
       
       for (AbstractAST $elem : keywordFormalList) {
         $l = $elem.getLocation();
-        if ($l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
         }
         if ($l.getBeginLine() > $line) {
