@@ -179,6 +179,33 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  }
          '
          '  @Override
+         '  protected void addForLineNumber(int $line, java.util.List\<AbstractAST\> $result) {
+         '    if (getLocation().getBeginLine() == $line) {
+         '      $result.add(this);
+         '    }
+         '    ISourceLocation $l;
+         '    <for (arg(typ, name) <- sig.args) {><if (/java.util.List/ := typ) {>
+         '    for (AbstractAST $elem : <name>) {
+         '      $l = $elem.getLocation();
+         '      if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '        $elem.addForLineNumber($line, $result);
+         '      }
+         '      if ($l.getBeginLine() \> $line) {
+         '        return;
+         '      }
+         '
+         '    }<} else {>
+         '    $l = <name>.getLocation();
+         '    if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '      <name>.addForLineNumber($line, $result);
+         '    }
+         '    if ($l.getBeginLine() \> $line) {
+         '      return;
+         '    }
+         '    <}><}>
+         '  }
+         '
+         '  @Override
          '  public boolean equals(Object o) {
          '    if (!(o instanceof <sig.name>)) {
          '      return false;

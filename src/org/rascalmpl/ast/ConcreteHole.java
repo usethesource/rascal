@@ -72,6 +72,31 @@ public abstract class ConcreteHole extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof One)) {
         return false;
@@ -82,7 +107,7 @@ public abstract class ConcreteHole extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 499 * symbol.hashCode() + 911 * name.hashCode() ; 
+      return 257 + 83 * symbol.hashCode() + 71 * name.hashCode() ; 
     } 
   
     

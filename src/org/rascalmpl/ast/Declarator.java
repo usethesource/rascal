@@ -72,6 +72,33 @@ public abstract class Declarator extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : variables) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -82,7 +109,7 @@ public abstract class Declarator extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 257 * type.hashCode() + 983 * variables.hashCode() ; 
+      return 257 + 307 * type.hashCode() + 577 * variables.hashCode() ; 
     } 
   
     

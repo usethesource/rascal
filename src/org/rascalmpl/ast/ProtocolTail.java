@@ -88,6 +88,39 @@ public abstract class ProtocolTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Mid)) {
         return false;
@@ -98,7 +131,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 491 + 53 * mid.hashCode() + 157 * expression.hashCode() + 307 * tail.hashCode() ; 
+      return 191 + 89 * mid.hashCode() + 787 * expression.hashCode() + 73 * tail.hashCode() ; 
     } 
   
     
@@ -163,6 +196,23 @@ public abstract class ProtocolTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = post.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        post.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Post)) {
         return false;
@@ -173,7 +223,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 181 * post.hashCode() ; 
+      return 673 + 233 * post.hashCode() ; 
     } 
   
     

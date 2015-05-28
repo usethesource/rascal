@@ -112,6 +112,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = basic.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        basic.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Basic)) {
         return false;
@@ -122,7 +139,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 83 * basic.hashCode() ; 
+      return 769 + 163 * basic.hashCode() ; 
     } 
   
     
@@ -169,6 +186,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bracket)) {
         return false;
@@ -179,7 +213,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 659 * type.hashCode() ; 
+      return 641 + 313 * type.hashCode() ; 
     } 
   
     
@@ -226,6 +260,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = function.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        function.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Function)) {
         return false;
@@ -236,7 +287,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 719 * function.hashCode() ; 
+      return 509 + 563 * function.hashCode() ; 
     } 
   
     
@@ -283,6 +334,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = selector.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        selector.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Selector)) {
         return false;
@@ -293,7 +361,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 811 * selector.hashCode() ; 
+      return 149 + 431 * selector.hashCode() ; 
     } 
   
     
@@ -340,6 +408,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = structured.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        structured.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Structured)) {
         return false;
@@ -350,7 +435,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 193 * structured.hashCode() ; 
+      return 67 + 19 * structured.hashCode() ; 
     } 
   
     
@@ -397,6 +482,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Symbol)) {
         return false;
@@ -407,7 +509,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 193 * symbol.hashCode() ; 
+      return 181 + 599 * symbol.hashCode() ; 
     } 
   
     
@@ -454,6 +556,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = user.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        user.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof User)) {
         return false;
@@ -464,7 +583,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 421 * user.hashCode() ; 
+      return 101 + 421 * user.hashCode() ; 
     } 
   
     
@@ -511,6 +630,23 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = typeVar.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        typeVar.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Variable)) {
         return false;
@@ -521,7 +657,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 103 * typeVar.hashCode() ; 
+      return 277 + 487 * typeVar.hashCode() ; 
     } 
   
     
