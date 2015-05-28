@@ -225,7 +225,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
-           '      tmp[<ii>] = <items[i].new>;<}>
+           '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
@@ -245,7 +245,7 @@ public str newGenerate(str package, str name, Grammar gr) {
 
 rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
-  prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
+  prodItems = (p:items[unsetRec(getType(rhs))][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
   // or except filter. They can be the fathers though. 
@@ -254,7 +254,7 @@ rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGramma
   dnn = doNotNest(grammar);
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
+  return {<items[unsetRec(getType(father.def))][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
        + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /Symbol t := uniqueGrammar, unsetRec(t) == s};
 }
 
@@ -292,10 +292,10 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   
   visit (g) {
     case Production p:prod(Symbol s,[],_) : 
-       items[getType(s)]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
+       items[unsetRec(getType(s))]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       for (int i <- index(lhs)) 
-        items[getType(s)]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
+        items[unsetRec(getType(s))]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
     }
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
