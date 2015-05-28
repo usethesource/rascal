@@ -1006,8 +1006,7 @@ private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp
  * Therefore, we have to distinguish two kinds of returns:
  * - a replacementReturn that returns a replacement value to the calling traversal function
  * - a leaveVisitReturn that should return to the calling traversal function and directly return from it.
- * This is implemented by wrapping all return values in a tuple of the form <isExitReturn, return value>
- * The isExitReturn has to be checked by the traversal function after each call to the phi function
+ * This is implemented by setting a leaveVisit flag that has to be checked by the traversal function after each call to the phi function
  */
 private MuExp replacementReturn(MuExp e) = muReturn1(e);
  
@@ -1038,12 +1037,10 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
 		replacementType = getType(pwa.replacement.replacementExpression@\loc);
-		tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
-		                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
 		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 		                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
 		                      replacement ];
-    	table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond,tcond,*conditions ], pwa.pattern@\loc), 
+    	table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
     				          [ replacementReturn(muBlock(cbody)) ], 
     				          [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
     	leaveBacktrackingScope();
@@ -1053,13 +1050,12 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		\case = translateStatementInVisitCase(fuid, case_statement);
 		insertType = topCaseType();
 		clearCaseType();
-		tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], pwa@\loc) ], pwa@\loc);
 		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
 		if(!(muBlock([]) := \case)) {
 			cbody += \case;
 		}
 		cbody += replacementReturn(muVar("iSubject", fuid, iSubjectPos));
-		table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond,tcond ], pwa.pattern@\loc), cbody, 
+		table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, 
 		                      [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
     	leaveBacktrackingScope();
 	}
