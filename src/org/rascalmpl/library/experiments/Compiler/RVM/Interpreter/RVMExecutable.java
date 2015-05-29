@@ -94,7 +94,7 @@ public class RVMExecutable implements Serializable{
 			String uid_module_main_testsuite,
 			TypeStore ts,
 			IValueFactory vfactory, 
-			boolean generateByteCode
+			boolean useJVM
 			){
 		
 		this.module_name = module_name;
@@ -119,7 +119,7 @@ public class RVMExecutable implements Serializable{
 		
 		vf = vfactory;
 		store = ts;
-		if(generateByteCode){
+		if(useJVM){
 			buildRunnerByteCode(false, false);
 		}
 	}
