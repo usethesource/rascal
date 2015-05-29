@@ -14,6 +14,20 @@ syntax D = d: "d" | e: "e" D d;
 
 syntax Ds = ds: {D ","}+ dlist;
 
+syntax X = "plus" {A ","}+ l1 | "star" {A ","}* l2;
+
+layout W = [\ ]*;
+
+int f({A ","}* l) = size([x | A x <- l]);
+
+test bool plusToStar() = f(([X] "plus a,a").l1) == 2;
+
+test bool plusToStarIndirect() {
+  {A ","}+ x = ([X] "plus a,a").l1;
+  
+  return f(x) == 2;
+}
+
 test bool testIs(){
     pt = parse(#A, "a");
     return a() := pt && pt is a;

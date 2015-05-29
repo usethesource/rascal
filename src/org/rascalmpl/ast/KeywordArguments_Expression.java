@@ -72,6 +72,33 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = optionalComma.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optionalComma.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : keywordArgumentList) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -82,7 +109,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 823 * optionalComma.hashCode() + 727 * keywordArgumentList.hashCode() ; 
+      return 229 + 823 * optionalComma.hashCode() + 43 * keywordArgumentList.hashCode() ; 
     } 
   
     
@@ -136,6 +163,15 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof None)) {
         return false;
@@ -146,7 +182,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 ; 
+      return 733 ; 
     } 
   
     	

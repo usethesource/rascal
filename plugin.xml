@@ -2,5 +2,6 @@
   <!-- WARNING, YOU ARE NOT SUPPOSED TO ADD OTHER DEPENDENCIES ON ECLIPSE HERE -->
    <extension
           point="rascal_eclipse.rascalLibrary">
+
     </extension>
 </plugin>

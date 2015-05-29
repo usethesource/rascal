@@ -82,6 +82,7 @@ public class Environment {
 	protected final String name;
 	private Environment myRoot;
 
+	
 	@Override
 	public boolean equals(Object obj) {
 	  if (obj instanceof Environment) {

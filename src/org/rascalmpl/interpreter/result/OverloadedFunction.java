@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -69,7 +70,21 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 		isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
+	
+	@Override
+	public IConstructor encodeAsConstructor() {
+		TypeReifier tr = new TypeReifier(getValueFactory());
+		return tr.overloadedToProduction(this, ctx);
+	}
 
+	public List<AbstractFunction> getPrimaryCandidates() {
+		return primaryCandidates;
+	}
+	
+	public List<AbstractFunction> getDefaultCandidates() {
+		return defaultCandidates;
+	}
+	
 	@Override
 	public Type getKeywordArgumentTypes(Environment scope) {
 	  ArrayList<String> labels = new ArrayList<>();

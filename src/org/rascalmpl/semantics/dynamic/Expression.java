@@ -100,7 +100,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
@@ -683,7 +683,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     @Override
     public Type typeOf(Environment env, boolean instantiateTypeParameters,
     		IEvaluator<Result<IValue>> eval) {
-       return Factory.Tree;
+       return RascalValueFactory.Tree;
     }
 
     @Override
@@ -2230,7 +2230,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class ReifiedType extends
 			org.rascalmpl.ast.Expression.ReifiedType {
-		private static final Type defType = TypeFactory.getInstance().mapType(Factory.Symbol, Factory.Production);
+		private static final Type defType = TypeFactory.getInstance().mapType(RascalValueFactory.Symbol, RascalValueFactory.Production);
 		
 		public ReifiedType(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Expression __param2,
@@ -2253,8 +2253,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> symbol = getSymbol().interpret(__eval);
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
 			
-			if (!symbol.getType().isSubtypeOf(Factory.Symbol)) {
-				throw new UnexpectedType(Factory.Symbol, symbol.getType(), getSymbol());
+			if (!symbol.getType().isSubtypeOf(RascalValueFactory.Symbol)) {
+				throw new UnexpectedType(RascalValueFactory.Symbol, symbol.getType(), getSymbol());
 			}
 			
 			if (!declarations.getType().isSubtypeOf(defType)) {
@@ -2262,12 +2262,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 			
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(Factory.TypeParam, new TypeReifier(VF).symbolToType((IConstructor) symbol.getValue(), (IMap) declarations.getValue()));
+			bindings.put(RascalValueFactory.TypeParam, new TypeReifier(VF).symbolToType((IConstructor) symbol.getValue(), (IMap) declarations.getValue()));
 			
-			IValue val = VF.constructor(Factory.Type_Reified.instantiate(bindings), symbol.getValue(), declarations.getValue());
+			IValue val = VF.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol.getValue(), declarations.getValue());
 			
-			bindings.put(Factory.TypeParam, TF.valueType());
-			Type typ = Factory.Type.instantiate(bindings);
+			bindings.put(RascalValueFactory.TypeParam, TF.valueType());
+			Type typ = RascalValueFactory.Type.instantiate(bindings);
 			
 			return ResultFactory.makeResult(typ, val, __eval);
 		}

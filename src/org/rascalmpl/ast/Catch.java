@@ -72,6 +72,31 @@ public abstract class Catch extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = body.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        body.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Binding)) {
         return false;
@@ -82,7 +107,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 719 * pattern.hashCode() + 233 * body.hashCode() ; 
+      return 499 + 113 * pattern.hashCode() + 601 * body.hashCode() ; 
     } 
   
     
@@ -138,6 +163,23 @@ public abstract class Catch extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = body.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        body.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -148,7 +190,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 271 * body.hashCode() ; 
+      return 757 + 443 * body.hashCode() ; 
     } 
   
     

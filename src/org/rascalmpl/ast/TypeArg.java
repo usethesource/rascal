@@ -70,6 +70,23 @@ public abstract class TypeArg extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -80,7 +97,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 467 * type.hashCode() ; 
+      return 797 + 787 * type.hashCode() ; 
     } 
   
     
@@ -129,6 +146,31 @@ public abstract class TypeArg extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Named)) {
         return false;
@@ -139,7 +181,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 211 + 751 * type.hashCode() + 31 * name.hashCode() ; 
+      return 397 + 191 * type.hashCode() + 977 * name.hashCode() ; 
     } 
   
     

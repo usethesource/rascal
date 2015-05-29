@@ -82,6 +82,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
 }
 
 public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
+  arbSeed(42);
   model = grammarToASTModel(pkg, g);
   grammarToVisitor(outdir, pkg, model);
   grammarToASTClasses(outdir, pkg, model);
@@ -175,6 +176,33 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  @Override
          '  public \<T\> T accept(IASTVisitor\<T\> visitor) {
          '    return visitor.visit<super><sig.name>(this);
+         '  }
+         '
+         '  @Override
+         '  protected void addForLineNumber(int $line, java.util.List\<AbstractAST\> $result) {
+         '    if (getLocation().getBeginLine() == $line) {
+         '      $result.add(this);
+         '    }
+         '    ISourceLocation $l;
+         '    <for (arg(typ, name) <- sig.args) {><if (/java.util.List/ := typ) {>
+         '    for (AbstractAST $elem : <name>) {
+         '      $l = $elem.getLocation();
+         '      if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '        $elem.addForLineNumber($line, $result);
+         '      }
+         '      if ($l.getBeginLine() \> $line) {
+         '        return;
+         '      }
+         '
+         '    }<} else {>
+         '    $l = <name>.getLocation();
+         '    if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '      <name>.addForLineNumber($line, $result);
+         '    }
+         '    if ($l.getBeginLine() \> $line) {
+         '      return;
+         '    }
+         '    <}><}>
          '  }
          '
          '  @Override

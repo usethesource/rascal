@@ -19,11 +19,13 @@ package org.rascalmpl.ast;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
@@ -38,12 +40,12 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	protected static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected static final IRascalValueFactory VF = IRascalValueFactory.getInstance();
 	protected ISourceLocation src;
 	
 	AbstractAST(ISourceLocation src) {
@@ -176,6 +178,16 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 			return buildMatcher(eval);
 	}
 
+	protected void addForLineNumber(int line, java.util.List<AbstractAST> result) {
+		return;
+	}
+	
+	public List<AbstractAST> breakpoints(int line) {
+		List<AbstractAST> candidates = new LinkedList<>();
+		addForLineNumber(line, candidates);
+		return candidates.stream().filter(p -> p.isBreakable()).collect(Collectors.toList());
+	}
+	
 	/**
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */

@@ -72,6 +72,31 @@ public abstract class Parameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = formals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        formals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = keywordFormals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordFormals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -82,7 +107,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 613 * formals.hashCode() + 977 * keywordFormals.hashCode() ; 
+      return 19 + 829 * formals.hashCode() + 809 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -140,6 +165,31 @@ public abstract class Parameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = formals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        formals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = keywordFormals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordFormals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof VarArgs)) {
         return false;
@@ -150,7 +200,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 859 * formals.hashCode() + 619 * keywordFormals.hashCode() ; 
+      return 157 + 31 * formals.hashCode() + 13 * keywordFormals.hashCode() ; 
     } 
   
     

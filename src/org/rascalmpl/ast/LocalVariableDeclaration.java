@@ -63,6 +63,23 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = declarator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        declarator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -73,7 +90,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 439 * declarator.hashCode() ; 
+      return 283 + 461 * declarator.hashCode() ; 
     } 
   
     
@@ -120,6 +137,23 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = declarator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        declarator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Dynamic)) {
         return false;
@@ -130,7 +164,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 487 * declarator.hashCode() ; 
+      return 7 + 463 * declarator.hashCode() ; 
     } 
   
     

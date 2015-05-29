@@ -29,7 +29,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -490,35 +492,23 @@ public enum MuPrimitive {
 	 * 
 	 * [ ..., IValue, IString label ] => [ ..., mbool ]
 	 */
+	// TODO rename to more parse tree specific?
 	has_label {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			IValue v = (IValue) stack[sp - 2];;
-			if(v.getType().isAbstractData()){
-				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){
-					IConstructor prod = (IConstructor) cons.get(0);
-					IConstructor symbol = (IConstructor) prod.get(0);
-					
-					if(symbol.getName().equals("label")){
-						IString label_name = (IString) stack[sp - 1];
-						if(((IString) symbol.get(0)).equals(label_name)){
-							stack[sp - 2] = Rascal_TRUE;
-							return sp - 1;
-						}
-					}
-					
+			IValue v = (IValue) stack[sp - 2];
+			Type vt = v.getType();
+			String label_name = ((IString) stack[sp - 1]).getValue();
+			
+			if (isNonTerminalType(vt)) {
+				ITree cons = (ITree) v;
+				if (TreeAdapter.isAppl(cons)) {
+					String treeLabel = TreeAdapter.getConstructorName(cons);
+					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? Rascal_TRUE : Rascal_FALSE;
+					return sp - 1;
 				}
 			}
-//			if(v instanceof IConstructor && TreeAdapter.isAppl((IConstructor)v)){
-//				IConstructor prod = (IConstructor) ((IConstructor) v).get(0);
-//				IConstructor def = (IConstructor) prod.get(0);
-//				if(((IString) stack[sp - 1]).getValue().equals(SymbolAdapter.getLabelName(def))){
-//					stack[sp - 2] = Rascal_TRUE;
-//					return sp - 1;
-//				}
-//			}
 			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 		}
@@ -596,9 +586,13 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isAbstractData());	// TODO is this ok?
+			Type t = ((IValue) stack[sp - 1]).getType();
+			// TODO: review if is_constructor still needs true on parse trees
+			stack[sp - 1] = vf.bool(t.isAbstractData() || isNonTerminalType(t));
 			return sp;
-		};
+		}
+
+		
 	},
 	
 	/**
@@ -992,10 +986,10 @@ public enum MuPrimitive {
 					if(cons.getName().equals("prod")){
 						mset.add(cons);							// Add the production itself to the set
 					//} else if(cons.getName().equals("regular")){
-					} else if(consType == Factory.Symbol_IterPlus || 
-							  consType == Factory.Symbol_IterStar ||
-							  consType == Factory.Symbol_IterSepX || 
-							  consType == Factory.Symbol_IterStarSepX){
+					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
+							  consType == RascalValueFactory.Symbol_IterStar ||
+							  consType == RascalValueFactory.Symbol_IterSepX || 
+							  consType == RascalValueFactory.Symbol_IterStarSepX){
 						mset.add(cons);							// Add as SYMBOL to the set
 					} else {
 						Type tp = reifier.symbolToType(cons, definitions);
@@ -2228,6 +2222,10 @@ public enum MuPrimitive {
 		return values[muprim];
 	}
 
+	private static boolean isNonTerminalType(Type t) {
+		return t.isExternalType() && ((RascalType) t).isNonterminal();
+	}
+	
 	public int execute(final Object[] stack, final int sp, final int arity) {
 		System.err.println("Not implemented mufunction");
 		return 0;
@@ -2254,33 +2252,15 @@ public enum MuPrimitive {
 	 * @return true if v is a 'lit' or 'cilit'.
 	 */
 	private static boolean $is_literal(final IValue v){
-
-		if(v.getType().isAbstractData()){
-			IConstructor appl = (IConstructor) v;
-			if(appl.getName().equals("appl")){
-				IConstructor prod = (IConstructor) appl.get(0);
-				IConstructor symbol = (IConstructor) prod.get(0);
-				return symbol.getName().equals("lit")|| symbol.getName().equals("cilit");
-			}
+		if(isNonTerminalType(v.getType())) {
+			return TreeAdapter.isLiteral((ITree) v);
 		}
 		return false;
 	}
-	//		if(v instanceof IConstructor){
-	//			IConstructor cons = (IConstructor) v;
-	//			return TreeAdapter.isLiteral(cons) || TreeAdapter.isCILiteral(cons);
-	//		}
-	//		return false;
-// }
 	
 	private static boolean $is_layout(final IValue v){
-
-		if(v.getType().isAbstractData()){
-			IConstructor appl = (IConstructor) v;
-			if(appl.getName().equals("appl")){
-				IConstructor prod = (IConstructor) appl.get(0);
-				IConstructor symbol = (IConstructor) prod.get(0);
-				return symbol.getName().equals("layouts");
-			}
+		if (isNonTerminalType(v.getType())) {
+			return TreeAdapter.isLayout((ITree) v);
 		}
 		return false;
 	}
@@ -2310,6 +2290,7 @@ public enum MuPrimitive {
 		return (IBool) descendantDescriptor[2];
 	}
 	 
+	
 }
 
 class ArrayIterator<T> implements Iterator<T> {

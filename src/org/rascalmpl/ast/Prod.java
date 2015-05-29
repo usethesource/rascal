@@ -114,6 +114,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof All)) {
         return false;
@@ -124,7 +149,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 317 * lhs.hashCode() + 467 * rhs.hashCode() ; 
+      return 673 + 757 * lhs.hashCode() + 449 * rhs.hashCode() ; 
     } 
   
     
@@ -182,6 +207,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = associativity.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        associativity.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = group.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        group.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof AssociativityGroup)) {
         return false;
@@ -192,7 +242,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 761 * associativity.hashCode() + 449 * group.hashCode() ; 
+      return 167 + 191 * associativity.hashCode() + 191 * group.hashCode() ; 
     } 
   
     
@@ -250,6 +300,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof First)) {
         return false;
@@ -260,7 +335,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 383 * lhs.hashCode() + 419 * rhs.hashCode() ; 
+      return 409 + 487 * lhs.hashCode() + 29 * rhs.hashCode() ; 
     } 
   
     
@@ -320,6 +395,43 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : modifiers) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : syms) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Labeled)) {
         return false;
@@ -330,7 +442,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 + 107 * modifiers.hashCode() + 967 * name.hashCode() + 953 * syms.hashCode() ; 
+      return 23 + 23 * modifiers.hashCode() + 491 * name.hashCode() + 617 * syms.hashCode() ; 
     } 
   
     
@@ -393,6 +505,15 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Others)) {
         return false;
@@ -403,7 +524,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 ; 
+      return 761 ; 
     } 
   
     	
@@ -441,6 +562,23 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = referenced.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        referenced.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Reference)) {
         return false;
@@ -451,7 +589,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 277 * referenced.hashCode() ; 
+      return 197 + 5 * referenced.hashCode() ; 
     } 
   
     
@@ -500,6 +638,35 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : modifiers) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      for (AbstractAST $elem : syms) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unlabeled)) {
         return false;
@@ -510,7 +677,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 + 401 * modifiers.hashCode() + 239 * syms.hashCode() ; 
+      return 19 + 19 * modifiers.hashCode() + 19 * syms.hashCode() ; 
     } 
   
     
