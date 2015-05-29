@@ -83,7 +83,7 @@ public class RVMRun extends RVM {
 	// Function overloading
 //	private final Map<String, Integer> resolver;
 //	protected ArrayList<OverloadedFunction> overloadedStore;
-	protected OverloadedFunction[] overloadedStoreV2;
+	protected OverloadedFunction[] overloadedStore;
 
 	private TypeStore typeStore = new TypeStore();
 	private final Types types;
@@ -190,9 +190,6 @@ public class RVMRun extends RVM {
 
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
-
-//		resolver = new HashMap<String, Integer>();
-//		overloadedStore = new ArrayList<OverloadedFunction>();
 
 		moduleVariables = new HashMap<IValue, IValue>();
 
@@ -331,24 +328,6 @@ public class RVMRun extends RVM {
 		}
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
-
-//	public String $getConstructorName(int n) {
-//		for (String cname : constructorMap.keySet()) {
-//			if (constructorMap.get(cname) == n) {
-//				return cname;
-//			}
-//		}
-//		throw new RuntimeException("PANIC: undefined constructor index " + n);
-//	}
-
-//	public String $getOverloadedFunctionName(int n) {
-//		for (String ofname : resolver.keySet()) {
-//			if (resolver.get(ofname) == n) {
-//				return ofname;
-//			}
-//		}
-//		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
-//	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
 		ArrayList<Frame> oldstacktrace = stacktrace;
@@ -819,7 +798,7 @@ public class RVMRun extends RVM {
 	}
 
 	public int insnLOADOFUN(Object[] stack, int sp, Frame cf, int ofun) {
-		OverloadedFunction of = overloadedStoreV2[ofun];
+		OverloadedFunction of = overloadedStore[ofun];
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
 				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
 		return sp;
@@ -1382,7 +1361,7 @@ public class RVMRun extends RVM {
 		cf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
-		OverloadedFunction of = overloadedStoreV2[ofun];
+		OverloadedFunction of = overloadedStore[ofun];
 	    
 		Object arg0 = stack[sp - arity];
 		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
