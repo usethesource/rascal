@@ -288,7 +288,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
 				 IMap imported_overloading_resolvers,
-				 IList argumentsAsList) {
+				 IList argumentsAsList, 
+				 boolean generateByteCode) {
 		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
@@ -410,7 +411,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMExecutable(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
@@ -425,7 +426,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								 uid_module_main, 
 								 uid_module_main_testsuite,
 								 typeStore,
-								 vf);
+								 vf,
+								 generateByteCode);
 	}
 	
 	/*

@@ -42,10 +42,10 @@ public class RVMJVM extends RVM {
 	 */
 	public RVMJVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		super(rrs, rex);
-		if (rrs instanceof RVMJVMExecutable) {
-			generatedRunner = ((RVMJVMExecutable) rrs).jvmByteCode;
-			generatedName = ((RVMJVMExecutable) rrs).fullyQualifiedDottedName;
-		}
+		//if (rrs instanceof RVMJVMExecutable) {
+			generatedRunner = rrs.jvmByteCode;
+			generatedName = rrs.fullyQualifiedDottedName;
+		//}
 		this.rrs = rrs;
 		this.rex = rex;
 		try {

@@ -41,6 +41,7 @@ public class Execute {
 			 					 IBool profile, 
 			 					 IBool trackCalls, 
 			 					 IBool coverage,
+			 					 IBool useByteCode,
 			 					 IEvaluatorContext ctx) {
 		
 		RVMExecutable executable = RVMExecutable.read(rvmExecutable);
@@ -52,6 +53,7 @@ public class Execute {
 				  			  profile, 
 				  			  trackCalls, 
 				  			  coverage,
+				  			  useByteCode,
 				  			  ctx);
 	}
 	
@@ -70,6 +72,7 @@ public class Execute {
 								 IBool profile, 
 								 IBool trackCalls, 
 								 IBool coverage,
+								 IBool useByteCode,
 								 IEvaluatorContext ctx) {
 		
 		TypeStore typeStore = new TypeStore(); // new TypeStore(Factory.getStore());
@@ -82,18 +85,19 @@ public class Execute {
 								 imported_functions,
 								 imported_overloaded_functions,
 								 imported_overloading_resolvers,
-								 argumentsAsList);
+								 argumentsAsList, 
+								 useByteCode.getValue());
 		/*** Serialization  */
 		
-//		RVMExecutable executable2 = null;
-//	
-//		executable.write(rvmExecutable);
-//				
-//		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-//		executable2 = RVMExecutable.read(rvmExecutable);
-//		if(!executable.comparable(executable2)){
-//			System.err.println("RVMExecutables differ");
-//		}
+		RVMExecutable executable2 = null;
+	
+		executable.write(rvmExecutable);
+				
+		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
+		executable2 = RVMExecutable.read(rvmExecutable);
+		if(!executable.comparable(executable2)){
+			System.err.println("RVMExecutables differ");
+		}
 		
 		/*** Start execution */
 		
@@ -107,6 +111,7 @@ public class Execute {
 							  profile, 
 							  trackCalls, 
 							  coverage,
+							  useByteCode,
 							  ctx);
 	}
 		
@@ -117,6 +122,7 @@ public class Execute {
 								 IBool profile, 
 								 IBool trackCalls, 
 								 IBool coverage,
+								 IBool useByteCode,
 								 IEvaluatorContext ctx){
 		
 		PrintWriter stdout = ctx.getStdOut();
@@ -135,10 +141,10 @@ public class Execute {
 										   profile.getValue(), 
 										   trackCalls.getValue(), 
 										   coverage.getValue(), 
-										   ctx, 
-										   testResultListener);
+										   useByteCode.getValue(), 
+										   ctx, testResultListener);
 		
-		RVM rvm = new RVMJVM(executable, rex);
+		RVM rvm = useByteCode.getValue() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
