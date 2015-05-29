@@ -81,7 +81,7 @@ public class RVMRun extends RVM {
 	protected Map<String, Integer> functionMap;
 
 	// Function overloading
-	private final Map<String, Integer> resolver;
+//	private final Map<String, Integer> resolver;
 //	protected ArrayList<OverloadedFunction> overloadedStore;
 	protected OverloadedFunction[] overloadedStoreV2;
 
@@ -191,7 +191,7 @@ public class RVMRun extends RVM {
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
 
-		resolver = new HashMap<String, Integer>();
+//		resolver = new HashMap<String, Integer>();
 //		overloadedStore = new ArrayList<OverloadedFunction>();
 
 		moduleVariables = new HashMap<IValue, IValue>();
@@ -332,23 +332,23 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 
-	public String $getConstructorName(int n) {
-		for (String cname : constructorMap.keySet()) {
-			if (constructorMap.get(cname) == n) {
-				return cname;
-			}
-		}
-		throw new RuntimeException("PANIC: undefined constructor index " + n);
-	}
+//	public String $getConstructorName(int n) {
+//		for (String cname : constructorMap.keySet()) {
+//			if (constructorMap.get(cname) == n) {
+//				return cname;
+//			}
+//		}
+//		throw new RuntimeException("PANIC: undefined constructor index " + n);
+//	}
 
-	public String $getOverloadedFunctionName(int n) {
-		for (String ofname : resolver.keySet()) {
-			if (resolver.get(ofname) == n) {
-				return ofname;
-			}
-		}
-		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
-	}
+//	public String $getOverloadedFunctionName(int n) {
+//		for (String ofname : resolver.keySet()) {
+//			if (resolver.get(ofname) == n) {
+//				return ofname;
+//			}
+//		}
+//		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+//	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
 		ArrayList<Frame> oldstacktrace = stacktrace;
