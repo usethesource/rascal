@@ -98,6 +98,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -437,8 +439,8 @@ public class CodeBlock implements Serializable {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String fuid, int arity){
-		return add(new Call(this, fuid, arity));
+	public CodeBlock CALL(String fuid, int arity,int ctpt){
+		return add(new Call(this, fuid, arity, ctpt));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -500,8 +502,8 @@ public class CodeBlock implements Serializable {
 		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(int arity){
-		return add(new CallDyn(this, arity));
+	public CodeBlock CALLDYN(int arity, int ctpt){
+		return add(new CallDyn(this, arity, ctpt));
 	}
 	
 	public CodeBlock CREATE(String fuid, int arity) {
@@ -520,12 +522,12 @@ public class CodeBlock implements Serializable {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock YIELD0() {
-		return add(new Yield0(this));
+	public CodeBlock YIELD0(int ctpt) {
+		return add(new Yield0(this, ctpt));
 	}
 	
-	public CodeBlock YIELD1(int arity) {
-		return add(new Yield1(this, arity));
+	public CodeBlock YIELD1(int arity, int ctpt) {
+		return add(new Yield1(this, arity, ctpt));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -616,8 +618,8 @@ public class CodeBlock implements Serializable {
 		return add(new Exhaust(this));
 	}
 	
-	public CodeBlock GUARD() {
-		return add(new Guard(this));
+	public CodeBlock GUARD(int ctpt) {
+		return add(new Guard(this,ctpt));
 	}
 	
 	public CodeBlock SUBSCRIPTARRAY() {
@@ -768,11 +770,22 @@ public class CodeBlock implements Serializable {
     
     public String toString(){
     	StringBuilder sb = new StringBuilder();
-    	int pc = 0;
-    	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
-    		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
-    		pc += opc.getPcIncrement();
+    	sb.append("\n") ;
+    	boolean prevLabel = false ;
+    	for (Instruction ins : insList ) {
+    		if ( ins instanceof Label ) {
+    			sb.append(ins).append(": ");
+    			prevLabel = true ;
+    		}
+    		else {
+    			if ( prevLabel ) {
+    				sb.append("\t").append(ins).append("\n") ;
+    				prevLabel = false ;
+    			}
+    			else {
+    				sb.append("\t\t").append(ins).append("\n") ;    				
+    			}
+    		}
     	}
     	return sb.toString();
     }
@@ -782,6 +795,17 @@ public class CodeBlock implements Serializable {
     	return Opcode.toString(this, opc, n);
     }
 
+	public void genByteCode(BytecodeGenerator gen, boolean debug) {
+		for(Instruction ins : insList){
+			ins.generateByteCode(gen, debug);
+		}
+		if (insList.get(insList.size() - 1) instanceof Label) {
+			// The mu2rvm code generator emits faulty code and jumps outside existing space
+			// put in a panic return, code is also generated on a not used label.
+			// Activate the peephole optimizer :).
+			gen.emitPanicReturn();
+		}
+	}
 }
 
 class LabelInfo {
