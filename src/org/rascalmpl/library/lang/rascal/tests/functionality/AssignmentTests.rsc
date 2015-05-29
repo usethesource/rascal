@@ -127,3 +127,10 @@ test bool testKwParams2() {
   X.kw1 = 2;
   return X.kw1 == 2;
 }
+
+test bool isKeyDefined1(value key, int val) {
+  m = ();
+  m[key]?val += 1;
+  m[key]?val += 1;
+  return m[key] == val + 2;
+}

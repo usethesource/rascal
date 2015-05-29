@@ -639,6 +639,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					receiver.getType(), this);
 
 		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> subscript = this.getSubscript().interpret(__eval);
+			return getReceiver().interpret(__eval.getEvaluator()).isKeyDefined(new Result<?>[] { subscript });
+		}
 
 	}
 	
