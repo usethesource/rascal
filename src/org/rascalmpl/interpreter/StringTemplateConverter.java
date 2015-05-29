@@ -47,7 +47,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
   
 public class StringTemplateConverter {
@@ -129,10 +129,10 @@ public class StringTemplateConverter {
 			}
 			
 			private void appendToString(IValue value, StringBuilder b) {
-				if (value.getType() == Factory.Tree) {
+				if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
-				else if (value.getType().isSubtypeOf(Factory.Type)) {
+				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
 					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
 				}
 				else if (value.getType().isString()) {

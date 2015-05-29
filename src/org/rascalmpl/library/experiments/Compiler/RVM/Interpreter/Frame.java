@@ -194,7 +194,7 @@ public class Frame {
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		if(src != null){
-			s.append("\uE007[](").append(src);
+			s.append("\uE007[](").append(src).append(":");
 	    }
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals; i++){

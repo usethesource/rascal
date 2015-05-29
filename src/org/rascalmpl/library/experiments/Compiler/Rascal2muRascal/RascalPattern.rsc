@@ -298,6 +298,10 @@ tuple[bool, Symbol] isIterHoleWithSeparator(Tree pat){
   return <false, \lit("NONE")>;
 }
 
+// TODO: Jurgen; better introduce _ variables instead (would simplify downstream)
+// Also this precludes pattern matching _inside_ the separators which is needed
+// if you want to analyze them or the comments around the separators.
+
 // Remove separators before and after multivariables in concrete patterns
 
 list[Tree] removeSeparators(list[Tree] pats){
@@ -364,6 +368,7 @@ int nIter(\iter-star-seps(Symbol symbol, list[Symbol] separators)) = 0;
 default int nIter(Symbol s) { throw "Cannot determine iteration count: <s>"; }
 
 // Get the separator of an iterator type
+// TODO: this does not work if the layout is there already...
 Symbol getSeparator(\iter-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
 Symbol getSeparator(\iter-star-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
 default Symbol getSeparator(Symbol sym) { throw "Cannot determine separator: <sym>"; }

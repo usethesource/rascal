@@ -1,10 +1,15 @@
 module lang::rascal::tests::basic::Functions
 
 import List;
+import Node;
 
 data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 
 B and(B b1, and(B b2, B b3)) = and(and(b1,b2),b3);
+
+value callDelAnnotations() = delAnnotations("f"(1,2,3));
+
+test bool testCallWithTypeParameterBound() = callDelAnnotations() == "f"(1,2,3);
 
 test bool normalizedCall(B b1, B b2, B b3) = and(b1, and(b2, b3)) == and(and(b1, b2),b3);
 

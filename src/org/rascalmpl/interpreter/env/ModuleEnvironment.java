@@ -52,7 +52,7 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -206,6 +206,12 @@ public class ModuleEnvironment extends Environment {
 	
 	public void declareProduction(IConstructor sd) {
 	  productions.add(sd);
+	}
+	
+	public void clearProductions() {
+		if (productions != null) {
+			productions.clear();
+		}
 	}
 	
 	public boolean definesSyntax() {
@@ -375,7 +381,9 @@ public class ModuleEnvironment extends Environment {
 	public void unImport(String moduleName) {
 		if(importedModules.remove(moduleName)) {
 			ModuleEnvironment old = heap.getModule(moduleName);
-			typeStore.unimportStores(new TypeStore[] { old.getStore() });
+			if (old != null) {
+				typeStore.unimportStores(new TypeStore[] { old.getStore() });
+			}
 		}
 	}
 	
@@ -699,7 +707,7 @@ public class ModuleEnvironment extends Environment {
 	public Type getAnnotationType(Type type, String label) {
 		Type anno = typeStore.getAnnotationType(type, label);
 		if (anno == null && type instanceof NonTerminalType) {
-			return typeStore.getAnnotationType(Factory.Tree, label);
+			return typeStore.getAnnotationType(RascalValueFactory.Tree, label);
 		}
 		return anno;
 	}

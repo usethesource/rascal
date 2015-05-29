@@ -17,11 +17,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -126,7 +125,7 @@ public class RVMExecutable implements Serializable{
 	public void write(ISourceLocation rvmExecutable){		
 		OutputStream fileOut;
 		
-		TypeStore typeStore = new TypeStore(Factory.getStore());
+		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
@@ -161,7 +160,7 @@ public class RVMExecutable implements Serializable{
 		RVMExecutable executable = null;
 		
 		vf = ValueFactoryFactory.getValueFactory();
-		TypeStore typeStore = new TypeStore(Factory.getStore());
+		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
@@ -314,7 +313,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
 		store = ts;
-		store.extendStore(Factory.getStore());
+		store.extendStore(RascalValueFactory.getStore());
 		//tr = new TypeReifier(vf);
 		//typeserializer = new TypeSerializer(ts);
 	}

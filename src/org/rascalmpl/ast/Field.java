@@ -70,6 +70,23 @@ public abstract class Field extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = fieldIndex.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        fieldIndex.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Index)) {
         return false;
@@ -80,7 +97,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 379 * fieldIndex.hashCode() ; 
+      return 97 + 101 * fieldIndex.hashCode() ; 
     } 
   
     
@@ -127,6 +144,23 @@ public abstract class Field extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = fieldName.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        fieldName.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Name)) {
         return false;
@@ -137,7 +171,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 353 * fieldName.hashCode() ; 
+      return 467 + 89 * fieldName.hashCode() ; 
     } 
   
     

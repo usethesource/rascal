@@ -45,6 +45,7 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
@@ -91,6 +92,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
+	@Override
+	public IConstructor encodeAsConstructor() {
+		TypeReifier tr = new TypeReifier(vf);
+		return tr.funcToProduction(this, eval, false);
+	}
+	
 	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {
 		KeywordFormals keywordFormals = func.getSignature().getParameters().getKeywordFormals();
 		return keywordFormals.hasKeywordFormalList() ? keywordFormals.getKeywordFormalList() : Collections.<KeywordFormal>emptyList();

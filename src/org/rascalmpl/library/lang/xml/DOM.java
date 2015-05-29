@@ -38,7 +38,6 @@ import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import org.rascalmpl.values.xml.Factory;
 
 public class DOM {
 	private final IValueFactory vf;

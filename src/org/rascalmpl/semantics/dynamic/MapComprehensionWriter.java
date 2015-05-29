@@ -32,7 +32,7 @@ public class MapComprehensionWriter extends ComprehensionWriter {
 	@Override
 	public Result<IValue> done() {
 		return (this.writer == null) ? Comprehension.makeResult(TF.mapType(TF.voidType(),
-				TF.voidType()), VF.map(TF.voidType(), TF.voidType()), this
+				TF.voidType()), VF.mapWriter().done(), this
 				.getContext(this.resultExprs.get(0))) : Comprehension.makeResult(TF
 				.mapType(this.elementType1, this.elementType2), this.writer
 				.done(), this.getContext(this.resultExprs.get(0)));

@@ -28,8 +28,8 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.semantics.dynamic.Tree;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -69,13 +69,13 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
 		
-		if (!subject.getType().isSubtypeOf(Factory.Tree)) {
+		if (!subject.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			hasNext = false;
 			return;
 		}
-		IConstructor tree = (IConstructor) subject.getValue();
+		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
 		
-		if (tree.getConstructorType() != Factory.Tree_Appl) {
+		if (tree.getConstructorType() != RascalValueFactory.Tree_Appl) {
 			hasNext = false;
 			return;
 		}

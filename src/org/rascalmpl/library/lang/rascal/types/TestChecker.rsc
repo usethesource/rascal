@@ -34,18 +34,17 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		'<for (id <- initialDecls) {>
 		'<id><}>
 		";
-println("moduleToCheck:");
-println(moduleToCheck);
 	c = newConfiguration();
 	try {
 		pt = parseModuleWithSpaces(moduleToCheck);
+
 		if (pt has top && Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
-			c = addScopeError(c, "Unexpected parse result for module to check", |file:///tmp/CheckStatementsString.rsc|); 
+			c = addScopeError(c, "Unexpected parse result for module to check <pt>", |unknown:///|); 
 		}
 	} catch perror : {
-		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", |file:///tmp/CheckStatementsString.rsc|);
+		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", |unknown:///|);
 	}
 			
 //	// Convert the string representations of the module name into
@@ -63,7 +62,7 @@ println(moduleToCheck);
 //    // with a new type checking configuration to provide the checking context.
 //	c = newConfiguration();
 //	moduleName = RSimpleName("CheckStatementsString");
-//	c = addModule(c, moduleName, |file:///tmp/CheckStatementsString.rsc|);
+//	c = addModule(c, moduleName, |unknown:///|);
 //	currentModuleId = head(c.stack);
 //            
 //	// Retrieve the module signature for each of the modules we are importing
@@ -82,7 +81,7 @@ println(moduleToCheck);
 //			c = popModule(c);
 //			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 //		} catch perror : {
-//			c = addScopeError(c, "Cannot calculate signature for imported module <prettyPrintName(modName)>", |file:///tmp/CheckStatementsString.rsc|);
+//			c = addScopeError(c, "Cannot calculate signature for imported module <prettyPrintName(modName)>", |unknown:///|);
 //		}
 //	}
 //    
@@ -153,7 +152,7 @@ println(moduleToCheck);
 //		try {
 //			sdecls += parseSyntaxDeclaration(d);
 //		} catch perror : {
-//			c = addScopeError(c, "Cannot parse syntax declaration <d>", |file:///tmp/CheckStatementsString.rsc|);
+//			c = addScopeError(c, "Cannot parse syntax declaration <d>", |unknown:///|);
 //		}
 //	}
 //
@@ -176,7 +175,7 @@ println(moduleToCheck);
 //		try {
 //			decls += parseDeclaration(d);
 //		} catch perror : {
-//			c = addScopeError(c, "Cannot parse declaration <d>", |file:///tmp/CheckStatementsString.rsc|);
+//			c = addScopeError(c, "Cannot parse declaration <d>", |unknown:///|);
 //		}
 //	}
 //		
@@ -192,7 +191,7 @@ println(moduleToCheck);
 			if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
 				stmts = [ s | s <- sl ];			
 		} catch perror : {
-			c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
+			c = addScopeError(c, "Cannot parse statement <statementsString>",  |unknown:///|);
 		}
 		
 		// Re-enter module scope

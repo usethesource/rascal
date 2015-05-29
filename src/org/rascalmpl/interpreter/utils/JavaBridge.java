@@ -56,7 +56,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -76,6 +75,9 @@ import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.values.uptr.ITree;
 
 
 public class JavaBridge {
@@ -204,7 +206,11 @@ public class JavaBridge {
 		return formal.typeOf(env, true, null);
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
+
+		public JavaClasses() {
+			super(IValue.class);
+		}
 
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
@@ -297,16 +303,15 @@ public class JavaBridge {
 		}
 
 		@Override
-		public Class<?> visitExternal(
-				org.eclipse.imp.pdb.facts.type.Type externalType) {
-			return IValue.class;
-		}
-
-		@Override
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
 		}
-
+		
+		@Override
+		public Class<?> visitNonTerminal(RascalType type)
+				throws RuntimeException {
+			return ITree.class;
+		}
 	}
 	
 	public synchronized Object getJavaClassInstance(Class<?> clazz){

@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -66,17 +66,17 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		if (!subject.getType().isSubtypeOf(Factory.Tree)) {
+		if (!subject.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			hasNext = false;
 			return;
 		}
-		IConstructor tree = (IConstructor) subject.getValue();
+		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
 		
-		if (tree.getConstructorType() != Factory.Tree_Appl) {
+		if (!tree.isAppl()) {
 			hasNext = false;
 			return;
 		}
-		pat.initMatch(ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx));
+		pat.initMatch(ResultFactory.makeResult(RascalValueFactory.Args, TreeAdapter.getArgs(tree), ctx));
 		hasNext = true;
 	}
 	

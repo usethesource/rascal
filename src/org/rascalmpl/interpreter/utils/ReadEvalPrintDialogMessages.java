@@ -29,7 +29,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
@@ -44,7 +44,7 @@ public class ReadEvalPrintDialogMessages {
 		if (value != null) {
 			Type type = result.getType();
 			
-			if (type.isAbstractData() && type.isSubtypeOf(Factory.Tree)) {
+			if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
 				content = type.toString() + ": `" + TreeAdapter.yield((IConstructor) value, 1000) + "`\n";
 				
 				StandardTextWriter stw = new StandardTextWriter(false);

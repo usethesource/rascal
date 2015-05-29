@@ -91,6 +91,23 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = charclass.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        charclass.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bracket)) {
         return false;
@@ -101,7 +118,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 619 * charclass.hashCode() ; 
+      return 13 + 103 * charclass.hashCode() ; 
     } 
   
     
@@ -148,6 +165,23 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = charClass.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        charClass.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Complement)) {
         return false;
@@ -158,7 +192,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 607 * charClass.hashCode() ; 
+      return 109 + 61 * charClass.hashCode() ; 
     } 
   
     
@@ -207,6 +241,31 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Difference)) {
         return false;
@@ -217,7 +276,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 11 * lhs.hashCode() + 467 * rhs.hashCode() ; 
+      return 79 + 367 * lhs.hashCode() + 587 * rhs.hashCode() ; 
     } 
   
     
@@ -275,6 +334,31 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Intersection)) {
         return false;
@@ -285,7 +369,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 887 * lhs.hashCode() + 19 * rhs.hashCode() ; 
+      return 433 + 47 * lhs.hashCode() + 131 * rhs.hashCode() ; 
     } 
   
     
@@ -341,6 +425,25 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : ranges) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof SimpleCharclass)) {
         return false;
@@ -351,7 +454,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 509 * ranges.hashCode() ; 
+      return 733 + 491 * ranges.hashCode() ; 
     } 
   
     
@@ -400,6 +503,31 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Union)) {
         return false;
@@ -410,7 +538,7 @@ public abstract class Class extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 13 * lhs.hashCode() + 389 * rhs.hashCode() ; 
+      return 829 + 937 * lhs.hashCode() + 409 * rhs.hashCode() ; 
     } 
   
     

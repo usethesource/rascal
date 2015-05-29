@@ -69,7 +69,7 @@ public class ConstructorCursor extends NodeCursor implements IConstructor {
 	}
 	
 	@Override
-	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
 		return new WithKeywordParametersCursor(getConstructor().asWithKeywordParameters(), getCtx());
 	}
 }

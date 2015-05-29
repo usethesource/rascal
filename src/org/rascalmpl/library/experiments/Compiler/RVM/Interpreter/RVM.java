@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
@@ -41,6 +40,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -1236,7 +1237,7 @@ public class RVM implements java.io.Serializable {
 						//int sp1 = sp;
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					    //assert sp == sp1 - arity + 1;
-					} catch(Throw e) {
+					} catch (Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
@@ -1244,10 +1245,9 @@ public class RVM implements java.io.Serializable {
 						stacktrace.add(cf);
 						thrown = e;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-					} catch (Exception e){
-						e.printStackTrace(stderr);
-						stderr.flush();
-						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
+					} catch (Throwable e){
+						thrown = Thrown.getInstance(e, cf.src, cf);
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} 
 					
 					continue NEXT_INSTRUCTION;
@@ -1425,14 +1425,12 @@ public class RVM implements java.io.Serializable {
 						//sp1 = sp;
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 						//assert sp == sp1 - arity + 1;
-					} catch(Exception exception) {
-						if(!(exception instanceof Thrown)){
-							throw exception;
-						}
-						thrown = (Thrown) exception;
+					} catch (Thrown exception) {
+						thrown = exception;
 						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
-						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
 					}
 					
 					continue NEXT_INSTRUCTION;
@@ -1649,10 +1647,13 @@ public class RVM implements java.io.Serializable {
 				}
 				
 			}
-		} catch (Exception e) {
-			if(e instanceof Thrown){
-				throw e;
-			}
+		}
+		catch (Thrown e) {
+			throw e; 
+			// this is a normal Rascal exception, but we want to handle the next case here exceptionally, which 
+			// should not happen normally and hints at a compiler or run-time bug:
+		}
+		catch (Exception e) {
 			stdout.println("EXCEPTION " + e + " at: " + cf.src);
 			for(Frame f = cf; f != null; f = f.previousCallFrame) {
 				stdout.println("\t" + f.toString());
@@ -1662,10 +1663,6 @@ public class RVM implements java.io.Serializable {
 			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
 			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
-			
-			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
-			//e.printStackTrace();
-			//stderr.println(e.getStackTrace());
 		}
 	}
 	
@@ -1696,69 +1693,22 @@ public class RVM implements java.io.Serializable {
 	
 	public Object getJavaClassInstance(Class<?> clazz){
 		Object instance = instanceCache.get(clazz);
-		if(instance != null){
+		if (instance != null){
 			return instance;
 		}
-//		Class<?> clazz = null;
-//		try {
-//			clazz = this.getClass().getClassLoader().loadClass(className);
-//		} catch(ClassNotFoundException e1) {
-//			// If the class is not found, try other class loaders
-//			for(ClassLoader loader : this.classLoaders) {
-//				//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//				try {
-//					clazz = loader.loadClass(className);
-//					break;
-//				} catch(ClassNotFoundException e2) {
-//					;
-//				}
-//			}
-//		}
-		try{
+		try {
 			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		} 
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
 		Class<?> clazz = null;
 		try {
-//			try {
-//				clazz = this.getClass().getClassLoader().loadClass(className);
-//			} catch(ClassNotFoundException e1) {
-//				// If the class is not found, try other class loaders
-//				for(ClassLoader loader : this.classLoaders) {
-//					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//					try {
-//						clazz = loader.loadClass(className);
-//						break;
-//					} catch(ClassNotFoundException e2) {
-//						;
-//					}
-//				}
-//			}
-//			
-//			if(clazz == null) {
-//				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
-//			}
-			
-//			Constructor<?> cons;
-//			cons = clazz.getConstructor(IValueFactory.class);
-//			Object instance = cons.newInstance(vf);
 			clazz = getJavaClass(className);
 			Object instance = getJavaClassInstance(clazz);
 			
@@ -1795,28 +1745,24 @@ public class RVM implements java.io.Serializable {
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+			throw new CompilerError("could not call Java method", e);
+		} 
+		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
 				throw (Throw) e.getTargetException();
 			}
 			if(e.getTargetException() instanceof Thrown){
 				throw (Thrown) e.getTargetException();
 			}
-			e.printStackTrace();
+			
+			throw e.getTargetException();
+//			e.printStackTrace();
 		}
-		return sp;
+//		return sp;
 	}
 	
-	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
@@ -1939,8 +1885,18 @@ public class RVM implements java.io.Serializable {
 		return jtypes;
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
 
+		public JavaClasses() {
+			super(IValue.class);
+		}
+
+		@Override
+		public Class<?> visitNonTerminal(RascalType type)
+				throws RuntimeException {
+			return IConstructor.class;
+		}
+		
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
@@ -2029,12 +1985,6 @@ public class RVM implements java.io.Serializable {
 		@Override
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
-		}
-
-		@Override
-		public Class<?> visitExternal(
-				org.eclipse.imp.pdb.facts.type.Type externalType) {
-			return IValue.class;
 		}
 
 		@Override

@@ -54,6 +54,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Alias)) {
         return false;
@@ -64,7 +73,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 631 ; 
     } 
   
     	
@@ -100,6 +109,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof All)) {
         return false;
@@ -110,7 +128,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 269 ; 
     } 
   
     	
@@ -146,6 +164,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Anno)) {
         return false;
@@ -156,7 +183,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 ; 
+      return 293 ; 
     } 
   
     	
@@ -192,6 +219,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Data)) {
         return false;
@@ -202,7 +238,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 ; 
+      return 757 ; 
     } 
   
     	
@@ -238,6 +274,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Function)) {
         return false;
@@ -248,7 +293,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 ; 
+      return 829 ; 
     } 
   
     	
@@ -284,6 +329,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Module)) {
         return false;
@@ -294,7 +348,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 ; 
+      return 47 ; 
     } 
   
     	
@@ -330,6 +384,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tag)) {
         return false;
@@ -340,7 +403,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 ; 
+      return 257 ; 
     } 
   
     	
@@ -376,6 +439,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Variable)) {
         return false;
@@ -386,7 +458,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 ; 
+      return 367 ; 
     } 
   
     	
@@ -422,6 +494,15 @@ public abstract class Kind extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof View)) {
         return false;
@@ -432,7 +513,7 @@ public abstract class Kind extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 ; 
+      return 421 ; 
     } 
   
     	
