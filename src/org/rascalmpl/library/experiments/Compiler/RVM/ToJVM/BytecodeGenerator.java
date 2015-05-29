@@ -196,7 +196,7 @@ public class BytecodeGenerator implements Opcodes {
 			
 			mv.visitMethodInsn(INVOKESTATIC, fullClassName, "anyDeserialize", "(Ljava/lang/String;)Ljava/lang/Object;",false);
 			mv.visitTypeInsn(CHECKCAST, "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
-			mv.visitFieldInsn(PUTFIELD, fullClassName, "overloadedStoreV2", "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
+			mv.visitFieldInsn(PUTFIELD, fullClassName, "overloadedStore", "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
