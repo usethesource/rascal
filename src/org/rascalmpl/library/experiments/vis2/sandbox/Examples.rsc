@@ -407,7 +407,7 @@ void tellipse1(){ ex("ellipse1", ellipse1); }
 
 void tfellipse1(loc l)  = writeFile(l, toHtmlString(ellipse1));
 
-public Figure ellipse2 = box(lineWidth = 2, fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
+public Figure ellipse2 = box(lineWidth = 2,  fig=ellipse(rx=100, lineWidth = 10, lineColor = "antiquewhite", ry=75, 
       fillColor="lightgrey"));
 void tellipse2(){ ex("ellipse2", ellipse2); }
 
@@ -652,11 +652,11 @@ void ngons(){
 
 Figure plotg(num(num) g, list[num] d) {
      Figure f = shape( [move(d[0], g(d[0]))]+[line(x, g(x))|x<-tail(d)]
-         scaleX=<<-1,1>,<0,300>>,  scaleY=<<0,1>,<100,300>>,
+         scaleX=<<-1,1>,<20,320>>,  scaleY=<<0,1>,<100,300>>,
          size=<400, 400>,shapeCurved=  true, lineColor = "red"
          , startMarker = box(width=10, height = 10,  fillColor = "blue", lineWidth = 0)
-         , midMarker = circle(r=10, fillColor = "red", lineWidth = 0)
-         , endMarker = ngon(n= 3, r=10, fillColor = "green", lineWidth = 0)
+         , midMarker = ngon(n=3, r=4, fillColor = "purple", lineWidth = 0)
+         , endMarker = ngon(n=3, r=10, fillColor = "green", lineWidth = 0)
          );
      return f;
      }
@@ -665,7 +665,7 @@ num(num) gg(num a) = num(num x) {return a*x*x;};
 
 num g1(num x) = x*x;
 
-Figure shape0 = plotg(gg(0.5), [-1+0.2,-0.8+0.2..1.1]);
+Figure shape0 = plotg(gg(0.5), [-1,-0.9..1.1]);
 
 void tshape0() {render(shape0);}
 
@@ -785,18 +785,82 @@ public Figure hflex5 = hcat(size = <400,400>,
 				                   ]);
 void thflex5(){ ex("hflex5", hflex5); }						               
 
+// vcat flex
+
+public Figure vflex1 = vcat(size = <200,200>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+
+void tvflex1(){ ex("vflex1", vflex1); }
+
+public Figure vflex2 = vcat(size = <200,200>,
+					        figs = [ box(fillColor="red", height=10), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+void tvflex2(){ ex("vflex2", vflex2); }
+
+public Figure vflex3 = vcat(size = <200,200>,
+					        figs = [ box(fillColor="red", width=10), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue", size=<50,50>)
+				                   ]);
+void tvflex3(){	ex("vflex3",vflex3); }	
+
+public Figure vflex4 = vcat(size = <200,200>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<100,100>), 
+				                     box(fillColor="blue")
+				                   ]);
+void tvflex4(){ ex("vflex4", vflex4); }
+
+public Figure vflex5 = vcat(size = <400,400>,
+					        figs = [ box(fillColor="red"), 
+				                     box(fillColor="green", size=<200,100>), 
+				                     box(fillColor="blue")
+				                   ]);
+void tvflex5(){	ex("vflex5", vflex5);
+}	
+
+
+// hvcat flex
+Figure hvf0() = hcat(size=<400,600>, hgap = 5, 
+					   figs= [ 
+					          vcat(width=250, height=400, vgap= 10, 
+	                                figs= [ 
+	                                       box(fillColor="red"), 
+				                           box(fillColor="green", width=100), 
+				                           box(fillColor="blue")
+				                          ]),
+				               vcat(// size = <400,400>,
+					               figs = [ box(fillColor="yellow", height=50), 
+				                            box(fillColor="purple"), 
+				                            box(fillColor="orange")
+				                          ])
+				            ]);
+
+void hvflex1(){
+	render(hvf0(), size=<800, 800>, align = topLeft);
+}
+
+void hvf()	= writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(hvf0()));
 	
 
  
 
 // grid flex
-
-void gflex1(){
-	ex("gflex1", grid(size=<600,600>,
+Figure gfl0() = grid(size=<600,600>,
 					  figArray= [ [box(fillColor="red"),               box(fillColor="green", width=50), box(fillColor="blue")],
 				                  [box(fillColor="yellow", height=50), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
-				                ]));
+				                ]);
+
+void gflex1(){
+	ex("gflex1", gfl0());
 }
+
+void gfl(loc l )	= writeFile(l, toHtmlString(gfl0()));
 
 void gflex2(){
 	ex("gflex2", grid(size=<600,600>,
