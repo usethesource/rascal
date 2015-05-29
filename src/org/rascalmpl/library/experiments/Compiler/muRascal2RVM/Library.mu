@@ -1041,7 +1041,9 @@ guard {
     var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
+    
     //println("MATCH_APPL_IN_LIST", iProd, iElem)
+    // TODO: this appl can be checked faster!
     if(iElem is appl && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
@@ -1060,6 +1062,7 @@ guard {
     var iElem = get_list(iList, start), 
         children = get_children(iElem)
     //println("MATCH_LIT_IN_LIST", iProd, iElem)
+     // TODO: this appl can be checked faster!    
     if(iElem is appl && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
     }
@@ -1073,6 +1076,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
         //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
+         // TODO: this appl can be checked faster!
         if(iElem is node && iElem is appl) {
             children = get_children(iElem)
             prod = children[0]
@@ -1882,7 +1886,7 @@ function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rL
 	                return VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor, rebuild)
 	            }
 	        case constructor: {
-	                return  VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor, rebuild)
+	                return VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor, rebuild)
 	            }
 	        case map: {
 	                return VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor, rebuild) 
@@ -2012,7 +2016,7 @@ function VISIT_NODE(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rLeave
 
     if(deref rBeenChanged){
     	iVal = prim("rebuild", iSubject, iChildren, kwMap);
-    	//println("VISIT_NODE returns", iSubject, iVal);
+    	//println("VISIT_NODE returns (rebuild):", iSubject, iVal);
     	return iVal;
     }
     //println("VISIT_NODE returns", iSubject);

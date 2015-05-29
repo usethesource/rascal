@@ -44,9 +44,9 @@ public abstract class FunctionDeclaration extends
 	static public class Abstract extends
 			org.rascalmpl.ast.FunctionDeclaration.Abstract {
 
-		public Abstract(IConstructor __param1, Tags __param2, Visibility __param3,
+		public Abstract(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				Signature __param4) {
-			super(__param1, __param2, __param3, __param4);
+			super(__param1, tree, __param2, __param3, __param4);
 		}
 
 		@Override
@@ -77,9 +77,9 @@ public abstract class FunctionDeclaration extends
 	static public class Default extends
 			org.rascalmpl.ast.FunctionDeclaration.Default {
 
-		public Default(IConstructor __param1, Tags __param2, Visibility __param3,
+		public Default(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				Signature __param4, FunctionBody __param5) {
-			super(__param1, __param2, __param3, __param4, __param5);
+			super(__param1, tree, __param2, __param3, __param4, __param5);
 		}
 
 		@Override
@@ -116,9 +116,9 @@ public abstract class FunctionDeclaration extends
 	static public class Expression extends
 			org.rascalmpl.ast.FunctionDeclaration.Expression {
 
-		public Expression(IConstructor node, Tags tags, Visibility visibility,
+		public Expression(ISourceLocation src, IConstructor node, Tags tags, Visibility visibility,
 				Signature signature, org.rascalmpl.ast.Expression expression) {
-			super(node, tags, visibility, signature, expression);
+			super(src, node, tags, visibility, signature, expression);
 		}
 
 		@Override
@@ -152,9 +152,9 @@ public abstract class FunctionDeclaration extends
 	static public class Conditional extends
 	org.rascalmpl.ast.FunctionDeclaration.Conditional {
 
-		public Conditional(IConstructor node, Tags tags, Visibility visibility,
+		public Conditional(ISourceLocation src, IConstructor node, Tags tags, Visibility visibility,
 				Signature signature, org.rascalmpl.ast.Expression expression, java.util.List<org.rascalmpl.ast.Expression> conditions) {
-			super(node, tags, visibility, signature, expression, conditions);
+			super(src, node, tags, visibility, signature, expression, conditions);
 		}
 
 		@Override
@@ -217,7 +217,7 @@ public abstract class FunctionDeclaration extends
 		return false;
 	}
 
-	public FunctionDeclaration(IConstructor __param1) {
-		super(__param1);
+	public FunctionDeclaration(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

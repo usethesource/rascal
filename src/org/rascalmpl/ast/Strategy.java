@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Strategy extends AbstractAST {
-  public Strategy(IConstructor node) {
-    super();
+  public Strategy(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Strategy extends AbstractAST {
   }
 
   static public class BottomUp extends Strategy {
-    // Production: sig("BottomUp",[])
+    // Production: sig("BottomUp",[],breakable=false)
   
     
   
-    public BottomUp(IConstructor node ) {
-      super(node);
+    public BottomUp(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof BottomUp)) {
         return false;
@@ -63,27 +73,28 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 ; 
+      return 593 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isBottomUpBreak() {
     return false;
   }
 
   static public class BottomUpBreak extends Strategy {
-    // Production: sig("BottomUpBreak",[])
+    // Production: sig("BottomUpBreak",[],breakable=false)
   
     
   
-    public BottomUpBreak(IConstructor node ) {
-      super(node);
+    public BottomUpBreak(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -98,6 +109,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof BottomUpBreak)) {
         return false;
@@ -108,27 +128,28 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 ; 
+      return 109 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isInnermost() {
     return false;
   }
 
   static public class Innermost extends Strategy {
-    // Production: sig("Innermost",[])
+    // Production: sig("Innermost",[],breakable=false)
   
     
   
-    public Innermost(IConstructor node ) {
-      super(node);
+    public Innermost(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,6 +164,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Innermost)) {
         return false;
@@ -153,27 +183,28 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 ; 
+      return 53 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isOutermost() {
     return false;
   }
 
   static public class Outermost extends Strategy {
-    // Production: sig("Outermost",[])
+    // Production: sig("Outermost",[],breakable=false)
   
     
   
-    public Outermost(IConstructor node ) {
-      super(node);
+    public Outermost(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -188,6 +219,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Outermost)) {
         return false;
@@ -198,27 +238,28 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 ; 
+      return 839 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTopDown() {
     return false;
   }
 
   static public class TopDown extends Strategy {
-    // Production: sig("TopDown",[])
+    // Production: sig("TopDown",[],breakable=false)
   
     
   
-    public TopDown(IConstructor node ) {
-      super(node);
+    public TopDown(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -233,6 +274,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof TopDown)) {
         return false;
@@ -243,27 +293,28 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 ; 
+      return 389 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTopDownBreak() {
     return false;
   }
 
   static public class TopDownBreak extends Strategy {
-    // Production: sig("TopDownBreak",[])
+    // Production: sig("TopDownBreak",[],breakable=false)
   
     
   
-    public TopDownBreak(IConstructor node ) {
-      super(node);
+    public TopDownBreak(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -278,6 +329,15 @@ public abstract class Strategy extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof TopDownBreak)) {
         return false;
@@ -288,14 +348,15 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 ; 
+      return 229 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

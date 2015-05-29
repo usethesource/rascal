@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -52,6 +53,7 @@ public class ParserGenerator {
 		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
+		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
 		this.evaluator.setBootstrapperProperty(true);
 		this.bridge = new JavaBridge(loaders, factory, config);
@@ -73,6 +75,10 @@ public class ParserGenerator {
 		finally {
 			monitor.endJob(true);
 		}
+	}
+	
+	public void setGeneratorProfiling(boolean f) {
+		evaluator.getConfiguration().setGeneratorProfiling(f);
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {
@@ -182,13 +188,15 @@ public class ParserGenerator {
    * @param definition a map of syntax definitions (which are imports in the Rascal grammar)
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 130);
-//		Profiler profiler = new Profiler(evaluator);
+		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
 
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
-//			profiler.start();
+			if (profiler != null) {
+				profiler.start();
+			}
 			IConstructor grammar = getGrammar(monitor, name, definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
@@ -198,12 +206,12 @@ public class ParserGenerator {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
 		} finally {
 			monitor.endJob(true);
-//			if (profiler != null) {
-//				profiler.pleaseStop();
-//				evaluator.getStdOut().println("PROFILE:");
-//				profiler.report();
-//				profiler = null;
-//			}
+			if (profiler != null) {
+				profiler.pleaseStop();
+				evaluator.getStdOut().println("PROFILE:");
+				profiler.report();
+				profiler = null;
+			}
 		}
 	}
 
@@ -216,7 +224,7 @@ public class ParserGenerator {
    * @param grammar a grammar
    * @return A parser class, ready for instantiation
    */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
 		monitor.startJob("Generating parser:" + name, 100, 60);
 
 		try {
@@ -242,7 +250,7 @@ public class ParserGenerator {
    * @param outStream An output stream
    * @throws IOException on IO error
    */
-  public void saveToJar(Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
+  public void saveToJar(Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
 	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
   }
 

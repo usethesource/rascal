@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Variable extends AbstractAST {
-  public Variable(IConstructor node) {
-    super();
+  public Variable(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Variable extends AbstractAST {
   }
 
   static public class Initialized extends Variable {
-    // Production: sig("Initialized",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","initial")])
+    // Production: sig("Initialized",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","initial")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Expression initial;
   
-    public Initialized(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
-      super(node);
+    public Initialized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
+      super(src, node);
       
       this.name = name;
       this.initial = initial;
@@ -71,6 +72,31 @@ public abstract class Variable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = initial.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        initial.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Initialized)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 + 911 * name.hashCode() + 587 * initial.hashCode() ; 
+      return 467 + 691 * name.hashCode() + 701 * initial.hashCode() ; 
     } 
   
     
@@ -106,21 +132,22 @@ public abstract class Variable extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(initial));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(initial));
     }
+            
   }
   public boolean isUnInitialized() {
     return false;
   }
 
   static public class UnInitialized extends Variable {
-    // Production: sig("UnInitialized",[arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("UnInitialized",[arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
   
-    public UnInitialized(IConstructor node , org.rascalmpl.ast.Name name) {
-      super(node);
+    public UnInitialized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -136,6 +163,23 @@ public abstract class Variable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof UnInitialized)) {
         return false;
@@ -146,7 +190,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 691 * name.hashCode() ; 
+      return 19 + 137 * name.hashCode() ; 
     } 
   
     
@@ -162,7 +206,8 @@ public abstract class Variable extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
 }

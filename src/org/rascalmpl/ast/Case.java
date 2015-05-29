@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Case extends AbstractAST {
-  public Case(IConstructor node) {
-    super();
+  public Case(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class Case extends AbstractAST {
   }
 
   static public class Default extends Case {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement statement;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.statement = statement;
     }
@@ -69,6 +70,23 @@ public abstract class Case extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = statement.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        statement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -79,7 +97,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 + 293 * statement.hashCode() ; 
+      return 307 + 881 * statement.hashCode() ; 
     } 
   
     
@@ -95,21 +113,22 @@ public abstract class Case extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(statement));
+      return newInstance(getClass(), src, (IConstructor) null , clone(statement));
     }
+            
   }
   public boolean isPatternWithAction() {
     return false;
   }
 
   static public class PatternWithAction extends Case {
-    // Production: sig("PatternWithAction",[arg("org.rascalmpl.ast.PatternWithAction","patternWithAction")])
+    // Production: sig("PatternWithAction",[arg("org.rascalmpl.ast.PatternWithAction","patternWithAction")],breakable=false)
   
     
     private final org.rascalmpl.ast.PatternWithAction patternWithAction;
   
-    public PatternWithAction(IConstructor node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
-      super(node);
+    public PatternWithAction(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
+      super(src, node);
       
       this.patternWithAction = patternWithAction;
     }
@@ -125,6 +144,23 @@ public abstract class Case extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = patternWithAction.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        patternWithAction.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof PatternWithAction)) {
         return false;
@@ -135,7 +171,7 @@ public abstract class Case extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 983 * patternWithAction.hashCode() ; 
+      return 613 + 383 * patternWithAction.hashCode() ; 
     } 
   
     
@@ -151,7 +187,8 @@ public abstract class Case extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(patternWithAction));
+      return newInstance(getClass(), src, (IConstructor) null , clone(patternWithAction));
     }
+            
   }
 }

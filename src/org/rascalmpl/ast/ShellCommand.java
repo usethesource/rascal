@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ShellCommand extends AbstractAST {
-  public ShellCommand(IConstructor node) {
-    super();
+  public ShellCommand(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,12 +48,12 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Clear extends ShellCommand {
-    // Production: sig("Clear",[])
+    // Production: sig("Clear",[],breakable=false)
   
     
   
-    public Clear(IConstructor node ) {
-      super(node);
+    public Clear(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -67,6 +68,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Clear)) {
         return false;
@@ -77,28 +87,29 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 ; 
+      return 283 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isEdit() {
     return false;
   }
 
   static public class Edit extends ShellCommand {
-    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Edit(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Edit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -114,6 +125,23 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Edit)) {
         return false;
@@ -124,7 +152,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 911 * name.hashCode() ; 
+      return 727 + 449 * name.hashCode() ; 
     } 
   
     
@@ -140,20 +168,21 @@ public abstract class ShellCommand extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
   public boolean isHelp() {
     return false;
   }
 
   static public class Help extends ShellCommand {
-    // Production: sig("Help",[])
+    // Production: sig("Help",[],breakable=false)
   
     
   
-    public Help(IConstructor node ) {
-      super(node);
+    public Help(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -168,6 +197,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Help)) {
         return false;
@@ -178,27 +216,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 ; 
+      return 983 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isHistory() {
     return false;
   }
 
   static public class History extends ShellCommand {
-    // Production: sig("History",[])
+    // Production: sig("History",[],breakable=false)
   
     
   
-    public History(IConstructor node ) {
-      super(node);
+    public History(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -213,6 +252,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof History)) {
         return false;
@@ -223,27 +271,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 523 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isListDeclarations() {
     return false;
   }
 
   static public class ListDeclarations extends ShellCommand {
-    // Production: sig("ListDeclarations",[])
+    // Production: sig("ListDeclarations",[],breakable=false)
   
     
   
-    public ListDeclarations(IConstructor node ) {
-      super(node);
+    public ListDeclarations(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -258,6 +307,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof ListDeclarations)) {
         return false;
@@ -268,27 +326,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 ; 
+      return 271 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isListModules() {
     return false;
   }
 
   static public class ListModules extends ShellCommand {
-    // Production: sig("ListModules",[])
+    // Production: sig("ListModules",[],breakable=false)
   
     
   
-    public ListModules(IConstructor node ) {
-      super(node);
+    public ListModules(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -303,6 +362,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof ListModules)) {
         return false;
@@ -313,27 +381,28 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 ; 
+      return 907 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isQuit() {
     return false;
   }
 
   static public class Quit extends ShellCommand {
-    // Production: sig("Quit",[])
+    // Production: sig("Quit",[],breakable=false)
   
     
   
-    public Quit(IConstructor node ) {
-      super(node);
+    public Quit(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -348,6 +417,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Quit)) {
         return false;
@@ -358,29 +436,30 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 ; 
+      return 479 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isSetOption() {
     return false;
   }
 
   static public class SetOption extends ShellCommand {
-    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.Expression expression;
   
-    public SetOption(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public SetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.name = name;
       this.expression = expression;
@@ -397,6 +476,31 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof SetOption)) {
         return false;
@@ -407,7 +511,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 523 + 677 * name.hashCode() + 607 * expression.hashCode() ; 
+      return 383 + 397 * name.hashCode() + 929 * expression.hashCode() ; 
     } 
   
     
@@ -432,20 +536,21 @@ public abstract class ShellCommand extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(expression));
     }
+            
   }
   public boolean isTest() {
     return false;
   }
 
   static public class Test extends ShellCommand {
-    // Production: sig("Test",[])
+    // Production: sig("Test",[],breakable=false)
   
     
   
-    public Test(IConstructor node ) {
-      super(node);
+    public Test(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -460,6 +565,15 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Test)) {
         return false;
@@ -470,28 +584,29 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 ; 
+      return 997 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isUndeclare() {
     return false;
   }
 
   static public class Undeclare extends ShellCommand {
-    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Undeclare(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Undeclare(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -507,6 +622,23 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Undeclare)) {
         return false;
@@ -517,7 +649,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 13 * name.hashCode() ; 
+      return 857 + 127 * name.hashCode() ; 
     } 
   
     
@@ -533,21 +665,22 @@ public abstract class ShellCommand extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
   public boolean isUnimport() {
     return false;
   }
 
   static public class Unimport extends ShellCommand {
-    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Unimport(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Unimport(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -563,6 +696,23 @@ public abstract class ShellCommand extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unimport)) {
         return false;
@@ -573,7 +723,7 @@ public abstract class ShellCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 761 * name.hashCode() ; 
+      return 607 + 631 * name.hashCode() ; 
     } 
   
     
@@ -589,7 +739,8 @@ public abstract class ShellCommand extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
     }
+            
   }
 }

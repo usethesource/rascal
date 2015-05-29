@@ -71,7 +71,8 @@ test bool  transitiveAliasAcrossTuples() {
     return aBlock == {<"a", "b", "c">};
 }	
 
-test bool reifiedAlias1() = 
+@ignoreCompiler{since aliases are fully expanded in compiled code}
+test bool reifiedAlias1a() = 
   #partition == 
   type(
   \alias(
@@ -86,12 +87,26 @@ test bool reifiedAlias1() =
             \str()
           ])))),
   ());
+
+@ignoreInterpreter{since aliases are preserved in interpreted code}
+test bool reifiedAlias1b() = 
+  #partition ==  
+  type(
+  \alias(
+    "partition",
+    [],
+    \set(\rel([
+          \str(),
+          \str(),
+          \str()
+        ]))),
+  ());
 	
 
 alias STRING = str;
 
 data DATA1 = d1(STRING s);
-@ignoreCompiler{Incorrect type here}
+
 test bool reifiedAlias2() = #DATA1 ==
 type(
   adt(
@@ -111,17 +126,15 @@ type(
               [])),
           [label(
               "s",
-              \alias(
-                "STRING",
-                [],
-                \str()))],
+              \str())],
           [],
           {})})));
+          
 
 data DATA2 = d2(DATA1(STRING) fun);
 
-@ignoreCompiler{Incorrect type here}
-test bool reifiedAlias3() = #DATA2 ==
+@ignoreCompiler{since aliases are fully expanded in compiled code}
+test bool reifiedAlias3a() = #DATA2 ==
 type(
   adt(
     "DATA2",
@@ -165,10 +178,54 @@ type(
               [])),
           [label(
               "s",
-              \alias(
-                "STRING",
-                [],
-                \str()))],
+              \str())],
+          [],
+          {})})
+  ));
+
+@ignoreInterpreter{since aliases are preserved in interpreted code}
+test bool reifiedAlias3b() = #DATA2 ==
+type(
+  adt(
+    "DATA2",
+    []),
+  (
+    adt(
+      "DATA2",
+      []):choice(
+      adt(
+        "DATA2",
+        []),
+      {cons(
+          label(
+            "d2",
+            adt(
+              "DATA2",
+              [])),
+          [label(
+              "fun",
+              func(
+                adt(
+                  "DATA1",
+                  []),
+                [\str()]))],
+          [],
+          {})}),
+    adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \str())],
           [],
           {})})
   ));

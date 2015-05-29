@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Switch extends Instruction {
 	IMap caseLabels;
@@ -41,5 +42,17 @@ public class Switch extends Instruction {
 							codeblock.getConstantIndex(w.done()), 
 							codeblock.getLabelPC(caseDefault));
 		codeblock.addCode(useConcreteFingerprint ? 1 : 0);
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+//		IMapWriter w = codeblock.vf.mapWriter();
+//		for(IValue key : caseLabels){
+//			String label = ((IString)caseLabels.get(key)).getValue();
+//			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
+//		}
+		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint, debug) ;
 	}
 }

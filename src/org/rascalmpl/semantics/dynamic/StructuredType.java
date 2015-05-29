@@ -15,6 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BasicType;
@@ -30,9 +31,9 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 	static public class Default extends
 			org.rascalmpl.ast.StructuredType.Default {
 
-		public Default(IConstructor __param1, BasicType __param2,
+		public Default(ISourceLocation __param1, IConstructor tree, BasicType __param2,
 				List<TypeArg> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -44,7 +45,7 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 
 	}
 
-	public StructuredType(IConstructor __param1) {
-		super(__param1);
+	public StructuredType(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class IntegerLiteral extends AbstractAST {
-  public IntegerLiteral(IConstructor node) {
-    super();
+  public IntegerLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,13 +55,13 @@ public abstract class IntegerLiteral extends AbstractAST {
   }
 
   static public class DecimalIntegerLiteral extends IntegerLiteral {
-    // Production: sig("DecimalIntegerLiteral",[arg("org.rascalmpl.ast.DecimalIntegerLiteral","decimal")])
+    // Production: sig("DecimalIntegerLiteral",[arg("org.rascalmpl.ast.DecimalIntegerLiteral","decimal")],breakable=false)
   
     
     private final org.rascalmpl.ast.DecimalIntegerLiteral decimal;
   
-    public DecimalIntegerLiteral(IConstructor node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
-      super(node);
+    public DecimalIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
+      super(src, node);
       
       this.decimal = decimal;
     }
@@ -76,6 +77,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = decimal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        decimal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DecimalIntegerLiteral)) {
         return false;
@@ -86,7 +104,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 977 * decimal.hashCode() ; 
+      return 271 + 331 * decimal.hashCode() ; 
     } 
   
     
@@ -102,21 +120,22 @@ public abstract class IntegerLiteral extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(decimal));
+      return newInstance(getClass(), src, (IConstructor) null , clone(decimal));
     }
+            
   }
   public boolean isHexIntegerLiteral() {
     return false;
   }
 
   static public class HexIntegerLiteral extends IntegerLiteral {
-    // Production: sig("HexIntegerLiteral",[arg("org.rascalmpl.ast.HexIntegerLiteral","hex")])
+    // Production: sig("HexIntegerLiteral",[arg("org.rascalmpl.ast.HexIntegerLiteral","hex")],breakable=false)
   
     
     private final org.rascalmpl.ast.HexIntegerLiteral hex;
   
-    public HexIntegerLiteral(IConstructor node , org.rascalmpl.ast.HexIntegerLiteral hex) {
-      super(node);
+    public HexIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.HexIntegerLiteral hex) {
+      super(src, node);
       
       this.hex = hex;
     }
@@ -132,6 +151,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = hex.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        hex.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof HexIntegerLiteral)) {
         return false;
@@ -142,7 +178,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 443 * hex.hashCode() ; 
+      return 17 + 401 * hex.hashCode() ; 
     } 
   
     
@@ -158,21 +194,22 @@ public abstract class IntegerLiteral extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(hex));
+      return newInstance(getClass(), src, (IConstructor) null , clone(hex));
     }
+            
   }
   public boolean isOctalIntegerLiteral() {
     return false;
   }
 
   static public class OctalIntegerLiteral extends IntegerLiteral {
-    // Production: sig("OctalIntegerLiteral",[arg("org.rascalmpl.ast.OctalIntegerLiteral","octal")])
+    // Production: sig("OctalIntegerLiteral",[arg("org.rascalmpl.ast.OctalIntegerLiteral","octal")],breakable=false)
   
     
     private final org.rascalmpl.ast.OctalIntegerLiteral octal;
   
-    public OctalIntegerLiteral(IConstructor node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
-      super(node);
+    public OctalIntegerLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
+      super(src, node);
       
       this.octal = octal;
     }
@@ -188,6 +225,23 @@ public abstract class IntegerLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = octal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        octal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof OctalIntegerLiteral)) {
         return false;
@@ -198,7 +252,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 659 + 773 * octal.hashCode() ; 
+      return 313 + 449 * octal.hashCode() ; 
     } 
   
     
@@ -214,7 +268,8 @@ public abstract class IntegerLiteral extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(octal));
+      return newInstance(getClass(), src, (IConstructor) null , clone(octal));
     }
+            
   }
 }

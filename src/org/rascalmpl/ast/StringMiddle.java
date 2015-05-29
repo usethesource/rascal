@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringMiddle extends AbstractAST {
-  public StringMiddle(IConstructor node) {
-    super();
+  public StringMiddle(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class StringMiddle extends AbstractAST {
   }
 
   static public class Interpolated extends StringMiddle {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringMiddle","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringMiddle","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.StringMiddle tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -87,6 +88,39 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -97,7 +131,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 11 * mid.hashCode() + 727 * expression.hashCode() + 443 * tail.hashCode() ; 
+      return 653 + 13 * mid.hashCode() + 787 * expression.hashCode() + 37 * tail.hashCode() ; 
     } 
   
     
@@ -131,21 +165,22 @@ public abstract class StringMiddle extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
     }
+            
   }
   public boolean isMid() {
     return false;
   }
 
   static public class Mid extends StringMiddle {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidStringChars","mid")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidStringChars","mid")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidStringChars mid) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid) {
+      super(src, node);
       
       this.mid = mid;
     }
@@ -161,6 +196,23 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Mid)) {
         return false;
@@ -171,7 +223,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 137 * mid.hashCode() ; 
+      return 131 + 331 * mid.hashCode() ; 
     } 
   
     
@@ -187,23 +239,24 @@ public abstract class StringMiddle extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid));
     }
+            
   }
   public boolean isTemplate() {
     return false;
   }
 
   static public class Template extends StringMiddle {
-    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")])
+    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.StringTemplate template;
     private final org.rascalmpl.ast.StringMiddle tail;
   
-    public Template(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
-      super(node);
+    public Template(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
+      super(src, node);
       
       this.mid = mid;
       this.template = template;
@@ -221,6 +274,39 @@ public abstract class StringMiddle extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = template.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        template.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Template)) {
         return false;
@@ -231,7 +317,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 829 * mid.hashCode() + 269 * template.hashCode() + 313 * tail.hashCode() ; 
+      return 521 + 839 * mid.hashCode() + 191 * template.hashCode() + 599 * tail.hashCode() ; 
     } 
   
     
@@ -265,7 +351,8 @@ public abstract class StringMiddle extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(template), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(template), clone(tail));
     }
+            
   }
 }

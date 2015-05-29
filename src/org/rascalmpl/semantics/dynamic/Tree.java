@@ -41,8 +41,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -51,8 +51,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
-	public Tree(IConstructor node) {
-		super(node);
+	public Tree(ISourceLocation src, IConstructor node) {
+		super(src, node);
 	}
 
 	public boolean isLayout() {
@@ -63,8 +63,8 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		private final String name;
 		private final Type type;
 
-		public MetaVariable(IConstructor node, IConstructor symbol, String name) {
-			super(node);
+		public MetaVariable(ISourceLocation src, IConstructor node, IConstructor symbol, String name) {
+			super(src, node);
 			this.name = name;
 			this.type = RTF.nonTerminalType(symbol);
 		}
@@ -76,7 +76,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Object clone() {
-			return new MetaVariable(null, ((NonTerminalType) type).getSymbol(), name);
+			return new MetaVariable(src, null, ((NonTerminalType) type).getSymbol(), name);
 		}
 
 		public boolean equals(Object o) {
@@ -124,26 +124,17 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		protected final IConstructor production;
 		protected final java.util.List<org.rascalmpl.ast.Expression> args;
 		protected final Type type;
-		protected final boolean constant;
-		protected final IConstructor node;
 
-		public Appl(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
-			super(node);
-			this.production = TreeAdapter.getProduction(node);
+		public Appl(IConstructor prod, ISourceLocation src, java.util.List<org.rascalmpl.ast.Expression> args) {
+			super(src, null);
+			this.production = prod;
 			this.type = RascalTypeFactory.getInstance().nonTerminalType(production);
 			this.args = args;
-			this.constant = false; // TODO! isConstant(args);
-			this.node = this.constant ? node : null;
-			ISourceLocation src = TreeAdapter.getLocation(node);
-
-			if (src != null) {
-				this.setSourceLocation(src);
-			}
 		}
 
 		@Override
 		public Object clone() {
-			return new Amb(node, clone(args));
+			return new Appl(production, src, clone(args));
 		}
 
 		@Override
@@ -169,7 +160,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type _getType() {
+		public Type getConcreteSyntaxType() {
 			return type;
 		}
 
@@ -180,12 +171,8 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			if (constant) {
-				return makeResult(type, node, eval);
-			}
-
 			// TODO add function calling
-			IListWriter w = eval.getValueFactory().listWriter(Factory.Tree);
+			IListWriter w = eval.getValueFactory().listWriter();
 			for (org.rascalmpl.ast.Expression arg : args) {
 				w.append(arg.interpret(eval).getValue());
 			}
@@ -195,10 +182,10 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			if (location != null) {
 				java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
 				annos.put("loc", location);
-				return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, w.done()), eval);
+				return makeResult(type, VF.appl(annos, production, w.done()), eval);
 			}
 			else {
-				return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, w.done()), eval);
+				return makeResult(type, VF.appl(production, w.done()), eval);
 			}
 		}
 
@@ -209,10 +196,6 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			if (constant) {
-				return new LiteralPattern(eval, this,  node);
-			}
-
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (Expression kid : args) { 
 				if (!((Tree) kid).isLayout()) {
@@ -224,13 +207,13 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 	}
 
 	static public class Optional extends Appl {
-		public Optional(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
-			super(node, args);
+		public Optional(IConstructor production, ISourceLocation src, java.util.List<org.rascalmpl.ast.Expression> args) {
+			super(production, src, args);
 		}
 
 		@Override
 		public Object clone() {
-			return new Optional(node, clone(args));
+			return new Optional(production, src, clone(args));
 		}
 
 		@Override
@@ -246,22 +229,18 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 	static public class List extends Appl {
 		private final int delta;
 
-		public List(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
-			super(node, args);
+		public List(IConstructor prod, ISourceLocation src, java.util.List<org.rascalmpl.ast.Expression> args) {
+			super(prod, src, args);
 			this.delta = getDelta(production);
 		}
 
 		@Override
 		public Object clone() {
-			return new List(node, clone(args));
+			return new List(production, src, clone(args));
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			if (constant) {
-				return new LiteralPattern(eval, this,  node);
-			}
-
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (org.rascalmpl.ast.Expression arg : args) {
 				kids.add(arg.buildMatcher(eval));
@@ -270,12 +249,8 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			if (constant) {
-				return makeResult(type, node, eval);
-			}
-
 			// TODO add function calling
-			IListWriter w = eval.getValueFactory().listWriter(Factory.Tree);
+			IListWriter w = eval.getValueFactory().listWriter();
 			for (org.rascalmpl.ast.Expression arg : args) {
 				w.append(arg.interpret(eval).getValue());
 			}
@@ -285,10 +260,10 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			if (location != null) {
 				java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
 				annos.put("loc", location);
-				return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, annos, production, flatten(w.done())), eval);
+				return makeResult(type, VF.appl(annos, production, flatten(w.done())), eval);
 			}
 			else {
-				return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Appl, production, flatten(w.done())), eval);
+				return makeResult(type, VF.appl(production, flatten(w.done())), eval);
 			}
 		}
 
@@ -301,11 +276,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		private IList flatten(IList args) {
-			IListWriter result = VF.listWriter(Factory.Args.getElementType());
+			IListWriter result = VF.listWriter();
 			boolean previousWasEmpty = false;
 
 			for (int i = 0; i < args.length(); i+=(delta+1)) {
-				IConstructor tree = (IConstructor) args.get(i);
+				org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) args.get(i);
 
 				if (TreeAdapter.isList(tree) && ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);
@@ -341,20 +316,16 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 	static public class Amb extends Tree {
 		private final Type type;
 		private final java.util.List<org.rascalmpl.ast.Expression> alts;
-		private final boolean constant;
-		protected final IConstructor node;
 
-		public Amb(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
-			super(node);
+		public Amb(ISourceLocation src, IConstructor node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
+			super(src, node);
 			this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 			this.alts = alternatives;
-			this.constant = false; // TODO! isConstant(alternatives);
-			this.node = this.constant ? node : null;
 		}
 
 		@Override
 		public Object clone() {
-			return new Amb(node, clone(alts));
+			return new Amb(src, null, clone(alts));
 		}
 
 		public boolean equals(Object o) {
@@ -363,25 +334,21 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			}
 			Amb other = (Amb) o;
 
-			return node.equals(other.node);
+			return alts.equals(other.alts);
 		}
 
 		public int hashCode() {
-			return node.hashCode();
+			return alts.hashCode();
 		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			if (constant) {
-				return makeResult(type, node, eval);
-			}
-
 			// TODO: add filtering semantics, function calling
-			ISetWriter w = eval.getValueFactory().setWriter(Factory.Tree);
+			ISetWriter w = eval.getValueFactory().setWriter();
 			for (org.rascalmpl.ast.Expression a : alts) {
 				w.insert(a.interpret(eval).getValue());
 			}
-			return makeResult(type, eval.getValueFactory().constructor(Factory.Tree_Amb, (IValue) w.done()), eval);
+			return makeResult(type, VF.amb(w.done()), eval);
 		}
 
 		@Override
@@ -396,10 +363,6 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			if (constant) {
-				return new LiteralPattern(eval, this,  node);
-			}
-
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
 			for (org.rascalmpl.ast.Expression arg : alts) {
 				kids.add(arg.buildMatcher(eval));
@@ -410,21 +373,21 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			wrap.add(setMatcher);
 
 			Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-			return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
+			return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, RascalValueFactory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 		} 
 	}
 
 	static public class Char extends  Tree {
 		private final IConstructor node;
 
-		public Char(IConstructor node) {
-			super(node);
+		public Char(ISourceLocation src, IConstructor node) {
+			super(src, node);
 			this.node = node;
 		}
 
 		@Override
 		public Object clone() {
-			return new Char(node);
+			return new Char(src, node);
 		}
 
 		public boolean equals(Object o) {
@@ -442,8 +405,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			// TODO allow override
-			return makeResult(Factory.Tree, node, eval);
+			return makeResult(RascalValueFactory.Tree, node, eval);
 		}
 
 		@Override
@@ -453,7 +415,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return Factory.Tree;
+			return RascalValueFactory.Tree;
 		}
 	}
 
@@ -461,15 +423,15 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		private final int length;
 		private final IConstructor node;
 
-		public Cycle(IConstructor node, int length) {
-			super(node);
+		public Cycle(ISourceLocation src, IConstructor node, int length) {
+			super(src, node);
 			this.length = length;
 			this.node = node;
 		}
 
 		@Override
 		public Object clone() {
-			return new Cycle(node, length);
+			return new Cycle(src, node, length);
 		}
 
 		public boolean equals(Object o) {
@@ -487,17 +449,17 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			return makeResult(Factory.Tree, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)), eval);
+			return makeResult(RascalValueFactory.Tree, VF.cycle(node, length), eval);
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new LiteralPattern(eval, this, VF.constructor(Factory.Tree_Cycle, node, VF.integer(length)));
+			return new LiteralPattern(eval, this, VF.cycle(node,length));
 		}
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return Factory.Tree;
+			return RascalValueFactory.Tree;
 		}
 	}
 }

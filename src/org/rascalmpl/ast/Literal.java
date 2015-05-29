@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Literal extends AbstractAST {
-  public Literal(IConstructor node) {
-    super();
+  public Literal(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -89,13 +90,13 @@ public abstract class Literal extends AbstractAST {
   }
 
   static public class Boolean extends Literal {
-    // Production: sig("Boolean",[arg("org.rascalmpl.ast.BooleanLiteral","booleanLiteral")])
+    // Production: sig("Boolean",[arg("org.rascalmpl.ast.BooleanLiteral","booleanLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.BooleanLiteral booleanLiteral;
   
-    public Boolean(IConstructor node , org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
-      super(node);
+    public Boolean(ISourceLocation src, IConstructor node , org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
+      super(src, node);
       
       this.booleanLiteral = booleanLiteral;
     }
@@ -111,6 +112,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = booleanLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        booleanLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Boolean)) {
         return false;
@@ -121,7 +139,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 443 * booleanLiteral.hashCode() ; 
+      return 233 + 577 * booleanLiteral.hashCode() ; 
     } 
   
     
@@ -137,21 +155,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(booleanLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(booleanLiteral));
     }
+            
   }
   public boolean isDateTime() {
     return false;
   }
 
   static public class DateTime extends Literal {
-    // Production: sig("DateTime",[arg("org.rascalmpl.ast.DateTimeLiteral","dateTimeLiteral")])
+    // Production: sig("DateTime",[arg("org.rascalmpl.ast.DateTimeLiteral","dateTimeLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral;
   
-    public DateTime(IConstructor node , org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
-      super(node);
+    public DateTime(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
+      super(src, node);
       
       this.dateTimeLiteral = dateTimeLiteral;
     }
@@ -167,6 +186,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = dateTimeLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        dateTimeLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateTime)) {
         return false;
@@ -177,7 +213,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 257 + 349 * dateTimeLiteral.hashCode() ; 
+      return 643 + 631 * dateTimeLiteral.hashCode() ; 
     } 
   
     
@@ -193,21 +229,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(dateTimeLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(dateTimeLiteral));
     }
+            
   }
   public boolean isInteger() {
     return false;
   }
 
   static public class Integer extends Literal {
-    // Production: sig("Integer",[arg("org.rascalmpl.ast.IntegerLiteral","integerLiteral")])
+    // Production: sig("Integer",[arg("org.rascalmpl.ast.IntegerLiteral","integerLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.IntegerLiteral integerLiteral;
   
-    public Integer(IConstructor node , org.rascalmpl.ast.IntegerLiteral integerLiteral) {
-      super(node);
+    public Integer(ISourceLocation src, IConstructor node , org.rascalmpl.ast.IntegerLiteral integerLiteral) {
+      super(src, node);
       
       this.integerLiteral = integerLiteral;
     }
@@ -223,6 +260,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = integerLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        integerLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Integer)) {
         return false;
@@ -233,7 +287,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 257 + 19 * integerLiteral.hashCode() ; 
+      return 173 + 103 * integerLiteral.hashCode() ; 
     } 
   
     
@@ -249,21 +303,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(integerLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(integerLiteral));
     }
+            
   }
   public boolean isLocation() {
     return false;
   }
 
   static public class Location extends Literal {
-    // Production: sig("Location",[arg("org.rascalmpl.ast.LocationLiteral","locationLiteral")])
+    // Production: sig("Location",[arg("org.rascalmpl.ast.LocationLiteral","locationLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.LocationLiteral locationLiteral;
   
-    public Location(IConstructor node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
-      super(node);
+    public Location(ISourceLocation src, IConstructor node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
+      super(src, node);
       
       this.locationLiteral = locationLiteral;
     }
@@ -279,6 +334,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = locationLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        locationLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Location)) {
         return false;
@@ -289,7 +361,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 43 + 19 * locationLiteral.hashCode() ; 
+      return 257 + 283 * locationLiteral.hashCode() ; 
     } 
   
     
@@ -305,21 +377,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(locationLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(locationLiteral));
     }
+            
   }
   public boolean isRational() {
     return false;
   }
 
   static public class Rational extends Literal {
-    // Production: sig("Rational",[arg("org.rascalmpl.ast.RationalLiteral","rationalLiteral")])
+    // Production: sig("Rational",[arg("org.rascalmpl.ast.RationalLiteral","rationalLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.RationalLiteral rationalLiteral;
   
-    public Rational(IConstructor node , org.rascalmpl.ast.RationalLiteral rationalLiteral) {
-      super(node);
+    public Rational(ISourceLocation src, IConstructor node , org.rascalmpl.ast.RationalLiteral rationalLiteral) {
+      super(src, node);
       
       this.rationalLiteral = rationalLiteral;
     }
@@ -335,6 +408,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = rationalLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rationalLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Rational)) {
         return false;
@@ -345,7 +435,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 397 * rationalLiteral.hashCode() ; 
+      return 521 + 127 * rationalLiteral.hashCode() ; 
     } 
   
     
@@ -361,21 +451,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(rationalLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(rationalLiteral));
     }
+            
   }
   public boolean isReal() {
     return false;
   }
 
   static public class Real extends Literal {
-    // Production: sig("Real",[arg("org.rascalmpl.ast.RealLiteral","realLiteral")])
+    // Production: sig("Real",[arg("org.rascalmpl.ast.RealLiteral","realLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.RealLiteral realLiteral;
   
-    public Real(IConstructor node , org.rascalmpl.ast.RealLiteral realLiteral) {
-      super(node);
+    public Real(ISourceLocation src, IConstructor node , org.rascalmpl.ast.RealLiteral realLiteral) {
+      super(src, node);
       
       this.realLiteral = realLiteral;
     }
@@ -391,6 +482,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = realLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        realLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Real)) {
         return false;
@@ -401,7 +509,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 569 * realLiteral.hashCode() ; 
+      return 89 + 739 * realLiteral.hashCode() ; 
     } 
   
     
@@ -417,21 +525,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(realLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(realLiteral));
     }
+            
   }
   public boolean isRegExp() {
     return false;
   }
 
   static public class RegExp extends Literal {
-    // Production: sig("RegExp",[arg("org.rascalmpl.ast.RegExpLiteral","regExpLiteral")])
+    // Production: sig("RegExp",[arg("org.rascalmpl.ast.RegExpLiteral","regExpLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.RegExpLiteral regExpLiteral;
   
-    public RegExp(IConstructor node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
-      super(node);
+    public RegExp(ISourceLocation src, IConstructor node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
+      super(src, node);
       
       this.regExpLiteral = regExpLiteral;
     }
@@ -447,6 +556,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = regExpLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        regExpLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof RegExp)) {
         return false;
@@ -457,7 +583,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 829 * regExpLiteral.hashCode() ; 
+      return 547 + 3 * regExpLiteral.hashCode() ; 
     } 
   
     
@@ -473,21 +599,22 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(regExpLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(regExpLiteral));
     }
+            
   }
   public boolean isString() {
     return false;
   }
 
   static public class String extends Literal {
-    // Production: sig("String",[arg("org.rascalmpl.ast.StringLiteral","stringLiteral")])
+    // Production: sig("String",[arg("org.rascalmpl.ast.StringLiteral","stringLiteral")],breakable=false)
   
     
     private final org.rascalmpl.ast.StringLiteral stringLiteral;
   
-    public String(IConstructor node , org.rascalmpl.ast.StringLiteral stringLiteral) {
-      super(node);
+    public String(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringLiteral stringLiteral) {
+      super(src, node);
       
       this.stringLiteral = stringLiteral;
     }
@@ -503,6 +630,23 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = stringLiteral.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        stringLiteral.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof String)) {
         return false;
@@ -513,7 +657,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 983 * stringLiteral.hashCode() ; 
+      return 373 + 31 * stringLiteral.hashCode() ; 
     } 
   
     
@@ -529,7 +673,8 @@ public abstract class Literal extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(stringLiteral));
+      return newInstance(getClass(), src, (IConstructor) null , clone(stringLiteral));
     }
+            
   }
 }

@@ -282,7 +282,7 @@ value executeBinary(loc executable, list[value] arguments, bool debug=false, boo
 }
 
 //value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
-//   mainProgram = compile(rascalSource, listing=listing, recompile=recompile);
+//   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
 //   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 //}
 
@@ -293,7 +293,7 @@ tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool
 
 value executeTests(loc rascalSource){
    mainProgram = compile(rascalSource);
-   return execute(mainProgram, [], testsuite=true);
+   return execute(mainProgram, [], testsuite=true, listing=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";

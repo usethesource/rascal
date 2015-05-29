@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Commands extends AbstractAST {
-  public Commands(IConstructor node) {
-    super();
+  public Commands(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Commands extends AbstractAST {
   }
 
   static public class Commandlist extends Commands {
-    // Production: sig("Commandlist",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")])
+    // Production: sig("Commandlist",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.EvalCommand> commands;
   
-    public Commandlist(IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
-      super(node);
+    public Commandlist(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
+      super(src, node);
       
       this.commands = commands;
     }
@@ -62,6 +63,25 @@ public abstract class Commands extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : commands) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Commandlist)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class Commands extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 523 * commands.hashCode() ; 
+      return 127 + 389 * commands.hashCode() ; 
     } 
   
     
@@ -88,7 +108,8 @@ public abstract class Commands extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(commands));
+      return newInstance(getClass(), src, (IConstructor) null , clone(commands));
     }
+            
   }
 }

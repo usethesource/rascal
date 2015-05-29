@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.QualifiedName;
@@ -29,8 +30,8 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 	static public class Name extends org.rascalmpl.ast.UserType.Name {
 
-		public Name(IConstructor __param1, QualifiedName __param2) {
-			super(__param1, __param2);
+		public Name(ISourceLocation __param1, IConstructor tree, QualifiedName __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -69,9 +70,9 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 	static public class Parametric extends
 			org.rascalmpl.ast.UserType.Parametric {
 
-		public Parametric(IConstructor __param1, QualifiedName __param2,
+		public Parametric(ISourceLocation __param1, IConstructor tree, QualifiedName __param2,
 				List<org.rascalmpl.ast.Type> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -118,7 +119,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 	}
 
-	public UserType(IConstructor __param1) {
-		super(__param1);
+	public UserType(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -42,20 +42,29 @@ public class Function implements Serializable {
 	int nlocals;
 	boolean isDefault;
 	int maxstack;
-	CodeBlock codeblock;
-	IValue[] constantStore;			
-	Type[] typeConstantStore;
+	public CodeBlock codeblock;
+	public IValue[] constantStore;			
+	public Type[] typeConstantStore;
 	boolean concreteArg = false;
 	int abstractFingerprint = 0;
 	int concreteFingerprint = 0;
 
 	int[] froms;
 	int[] tos;
-	int[] types;
+	public int[] types;
 	int[] handlers;
 	int[] fromSPs;
 	int lastHandler = -1;
 
+	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
+
+	public String[] fromLabels;
+	public String[] toLabels;
+    public String[] handlerLabels;
+    public int[] fromSPsCorrected;
+	
+	public int continuationPoints = 0;
+	
 	boolean isCoroutine = false;
 	int[] refs;
 
@@ -73,7 +82,7 @@ public class Function implements Serializable {
 	
 	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src){
+			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -87,13 +96,14 @@ public class Function implements Serializable {
 		this.concreteFingerprint = concreteFingerprint;
 		this.codeblock = codeblock;
 		this.src = src;
+		this.continuationPoints = ctpt ;
 	}
 	
 	Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
 			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
 			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
-			boolean isCoroutine, int[] refs, boolean isVarArgs){
+			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -120,6 +130,7 @@ public class Function implements Serializable {
 		this.isCoroutine = isCoroutine;
 		this.refs = refs;
 		this.isVarArgs = isVarArgs;
+		this.continuationPoints = ctpt ;
 	}
 	
 	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
@@ -136,28 +147,38 @@ public class Function implements Serializable {
 	}
 	
 	public void attachExceptionTable(final IList exceptions, final RascalLinker rascalLinker) {
-		froms = new int[exceptions.length()];
-		tos = new int[exceptions.length()];
-		types = new int[exceptions.length()];
-		handlers = new int[exceptions.length()];
-		fromSPs = new int[exceptions.length()];
-		
-		int i = 0;
-		for(IValue entry : exceptions) {
-			ITuple tuple = (ITuple) entry;
-			String from = ((IString) tuple.get(0)).getValue();
-			String to = ((IString) tuple.get(1)).getValue();
-			Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
-			String handler = ((IString) tuple.get(3)).getValue();
-			int fromSP =  ((IInteger) tuple.get(4)).intValue();
-			
-			froms[i] = codeblock.getLabelPC(from);
-			tos[i] = codeblock.getLabelPC(to);
-			types[i] = codeblock.getTypeConstantIndex(type);
-			handlers[i] = codeblock.getLabelPC(handler);	
-			fromSPs[i] = fromSP;
-			i++;
-		}
+			froms = new int[exceptions.length()];
+			tos = new int[exceptions.length()];
+			types = new int[exceptions.length()];
+			handlers = new int[exceptions.length()];
+			fromSPs = new int[exceptions.length()];
+			fromSPsCorrected = new int[exceptions.length()];
+
+			fromLabels = new String[exceptions.length()];
+			toLabels = new String[exceptions.length()];
+			handlerLabels = new String[exceptions.length()];
+					
+			int i = 0;
+			for(IValue entry : exceptions) {
+				ITuple tuple = (ITuple) entry;
+				String from = ((IString) tuple.get(0)).getValue();
+				String to = ((IString) tuple.get(1)).getValue();
+				Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
+				String handler = ((IString) tuple.get(3)).getValue();
+				int fromSP =  ((IInteger) tuple.get(4)).intValue();
+				
+				froms[i] = codeblock.getLabelPC(from);
+				tos[i] = codeblock.getLabelPC(to);
+				types[i] = codeblock.getTypeConstantIndex(type);
+				handlers[i] = codeblock.getLabelPC(handler);	
+				fromSPs[i] = fromSP;
+				fromSPsCorrected[i] = fromSP + nlocals;
+				fromLabels[i] = from;
+				toLabels[i] = to;
+				handlerLabels[i] = handler;			
+
+				i++;
+			}
 	}
 	
 	public int getHandler(final int pc, final Type type) {
@@ -201,14 +222,15 @@ public class Function implements Serializable {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("FUNCTION ").append(name).append(" ").append(ftype);
+		sb.append("FUNCTION ").append(name).append(" ->> ").append(ftype).append("\n");
 		for(int i = 0; i < constantStore.length; i++){
-			sb.append("constant "). append(i).append(": "). append(constantStore[i]);
+			sb.append("\t constant "). append(i).append(": "). append(constantStore[i]).append("\n");
 		}
 		for(int i = 0; i < typeConstantStore.length; i++){
-			sb.append("type constant "). append(i).append(": "). append(typeConstantStore[i]);
+			sb.append("\t type constant "). append(i).append(": "). append(typeConstantStore[i]).append("\n");
 		}
-		sb.append(codeblock);
+//		codeblock.toString() ;
+		sb.append(codeblock.toString());
 		return sb.toString();
 	}
 	
@@ -226,7 +248,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		//vf = vfactory;
 		store = ts;
-		store.extendStore(Factory.getStore());
+		store.extendStore(RascalValueFactory.getStore());
 	}
 
 	@Override
@@ -323,6 +345,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// IMap localNames;
 		out.writeObject(new FSTSerializableIValue(fun.localNames));
+
+		// int continuationPoints
+		out.writeObject(fun.continuationPoints);
 	}
 	
 
@@ -422,10 +447,13 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// IMap localNames;
 		IMap localNames = (IMap) in.readObject();
 		
+		// int continuationPoints
+		Integer continuationPoints = (Integer) in.readObject();
+		
 		return new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
 				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
-				isCoroutine, refs, isVarArgs);
+				isCoroutine, refs, isVarArgs, continuationPoints);
 	
 	}
 }

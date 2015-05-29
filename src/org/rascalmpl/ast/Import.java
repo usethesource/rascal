@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Import extends AbstractAST {
-  public Import(IConstructor node) {
-    super();
+  public Import(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,13 +62,13 @@ public abstract class Import extends AbstractAST {
   }
 
   static public class Default extends Import {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.ImportedModule","module")],breakable=false)
   
     
     private final org.rascalmpl.ast.ImportedModule module;
   
-    public Default(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(src, node);
       
       this.module = module;
     }
@@ -83,6 +84,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = module.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        module.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -93,7 +111,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 223 + 631 * module.hashCode() ; 
+      return 367 + 401 * module.hashCode() ; 
     } 
   
     
@@ -109,21 +127,22 @@ public abstract class Import extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(module));
+      return newInstance(getClass(), src, (IConstructor) null , clone(module));
     }
+            
   }
   public boolean isExtend() {
     return false;
   }
 
   static public class Extend extends Import {
-    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")])
+    // Production: sig("Extend",[arg("org.rascalmpl.ast.ImportedModule","module")],breakable=false)
   
     
     private final org.rascalmpl.ast.ImportedModule module;
   
-    public Extend(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
-      super(node);
+    public Extend(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ImportedModule module) {
+      super(src, node);
       
       this.module = module;
     }
@@ -139,6 +158,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = module.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        module.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Extend)) {
         return false;
@@ -149,7 +185,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 311 * module.hashCode() ; 
+      return 139 + 937 * module.hashCode() ; 
     } 
   
     
@@ -165,22 +201,23 @@ public abstract class Import extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(module));
+      return newInstance(getClass(), src, (IConstructor) null , clone(module));
     }
+            
   }
   public boolean isExternal() {
     return false;
   }
 
   static public class External extends Import {
-    // Production: sig("External",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.LocationLiteral","at")])
+    // Production: sig("External",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.LocationLiteral","at")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final org.rascalmpl.ast.LocationLiteral at;
   
-    public External(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.LocationLiteral at) {
-      super(node);
+    public External(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.LocationLiteral at) {
+      super(src, node);
       
       this.name = name;
       this.at = at;
@@ -197,6 +234,31 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = at.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        at.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof External)) {
         return false;
@@ -207,7 +269,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 139 * name.hashCode() + 13 * at.hashCode() ; 
+      return 521 + 719 * name.hashCode() + 773 * at.hashCode() ; 
     } 
   
     
@@ -232,21 +294,22 @@ public abstract class Import extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(name), clone(at));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(at));
     }
+            
   }
   public boolean isSyntax() {
     return false;
   }
 
   static public class Syntax extends Import {
-    // Production: sig("Syntax",[arg("org.rascalmpl.ast.SyntaxDefinition","syntax")])
+    // Production: sig("Syntax",[arg("org.rascalmpl.ast.SyntaxDefinition","syntax")],breakable=false)
   
     
     private final org.rascalmpl.ast.SyntaxDefinition syntax;
   
-    public Syntax(IConstructor node , org.rascalmpl.ast.SyntaxDefinition syntax) {
-      super(node);
+    public Syntax(ISourceLocation src, IConstructor node , org.rascalmpl.ast.SyntaxDefinition syntax) {
+      super(src, node);
       
       this.syntax = syntax;
     }
@@ -262,6 +325,23 @@ public abstract class Import extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = syntax.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        syntax.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Syntax)) {
         return false;
@@ -272,7 +352,7 @@ public abstract class Import extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 127 * syntax.hashCode() ; 
+      return 277 + 239 * syntax.hashCode() ; 
     } 
   
     
@@ -288,7 +368,8 @@ public abstract class Import extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(syntax));
+      return newInstance(getClass(), src, (IConstructor) null , clone(syntax));
     }
+            
   }
 }

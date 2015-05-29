@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Visibility extends AbstractAST {
-  public Visibility(IConstructor node) {
-    super();
+  public Visibility(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Visibility extends AbstractAST {
   }
 
   static public class Default extends Visibility {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class Visibility extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -63,27 +73,28 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 ; 
+      return 139 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isPrivate() {
     return false;
   }
 
   static public class Private extends Visibility {
-    // Production: sig("Private",[])
+    // Production: sig("Private",[],breakable=false)
   
     
   
-    public Private(IConstructor node ) {
-      super(node);
+    public Private(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -98,6 +109,15 @@ public abstract class Visibility extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Private)) {
         return false;
@@ -108,27 +128,28 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 ; 
+      return 293 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isPublic() {
     return false;
   }
 
   static public class Public extends Visibility {
-    // Production: sig("Public",[])
+    // Production: sig("Public",[],breakable=false)
   
     
   
-    public Public(IConstructor node ) {
-      super(node);
+    public Public(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,6 +164,15 @@ public abstract class Visibility extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Public)) {
         return false;
@@ -153,14 +183,15 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 ; 
+      return 773 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

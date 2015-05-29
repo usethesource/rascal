@@ -1,20 +1,22 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class Thrown extends RuntimeException {
 	
 	private static final long serialVersionUID = 5789848344801944419L;
 	
+	// TODO: this is not thread safe
 	private static Thrown instance = new Thrown();
 	
-	IValue value;
+	public IValue value;
 	ISourceLocation loc;
+	Throwable cause;
 	
 	Frame currentFrame;
 	
@@ -22,6 +24,7 @@ public class Thrown extends RuntimeException {
 		super();
 		this.value = null;
 		this.currentFrame = null;
+		this.cause = null;
 	}
 	
 	public static Thrown getInstance(IValue value, ISourceLocation loc, Frame currentFrame) {
@@ -29,6 +32,12 @@ public class Thrown extends RuntimeException {
 		instance.loc = loc;
 		instance.currentFrame = currentFrame;
 		return instance;
+	}
+	
+	public static Thrown getInstance(Throwable cause, ISourceLocation loc, Frame currentFrame) {
+		instance.cause = cause;
+		IRascalValueFactory vf = IRascalValueFactory.getInstance();
+		return getInstance(vf.node(cause.getClass().getCanonicalName(), vf.string(cause.getMessage())), loc, currentFrame);
 	}
 	
 	public static Thrown getInstance(IValue value, Frame currentFrame) {
@@ -49,8 +58,19 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		
 		stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
+		
+		while (cause != null) {
+			stdout.println("Caused by (most recent first):");
+			for (StackTraceElement e : cause.getStackTrace()) {
+				if (e.getMethodName().equals("invoke0")) {
+					break;
+				}
+				stdout.println("\t\uE007[](|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>:" + e.getClassName() + "." + e.getMethodName() + "()");
+			}
+			
+			cause = cause.getCause() != cause ? getCause() : null;
+		}
 		
 		if(currentFrame != null){
 			stdout.println("Call stack (most recent first):");

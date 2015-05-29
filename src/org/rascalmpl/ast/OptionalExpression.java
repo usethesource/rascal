@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class OptionalExpression extends AbstractAST {
-  public OptionalExpression(IConstructor node) {
-    super();
+  public OptionalExpression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class OptionalExpression extends AbstractAST {
   }
 
   static public class Expression extends OptionalExpression {
-    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")])
+    // Production: sig("Expression",[arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression expression;
   
-    public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
-      super(node);
+    public Expression(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression expression) {
+      super(src, node);
       
       this.expression = expression;
     }
@@ -62,6 +63,23 @@ public abstract class OptionalExpression extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Expression)) {
         return false;
@@ -72,7 +90,7 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 229 * expression.hashCode() ; 
+      return 673 + 557 * expression.hashCode() ; 
     } 
   
     
@@ -88,20 +106,21 @@ public abstract class OptionalExpression extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(expression));
     }
+            
   }
   public boolean isNoExpression() {
     return false;
   }
 
   static public class NoExpression extends OptionalExpression {
-    // Production: sig("NoExpression",[])
+    // Production: sig("NoExpression",[],breakable=false)
   
     
   
-    public NoExpression(IConstructor node ) {
-      super(node);
+    public NoExpression(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -116,6 +135,15 @@ public abstract class OptionalExpression extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NoExpression)) {
         return false;
@@ -126,14 +154,15 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 ; 
+      return 601 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }
