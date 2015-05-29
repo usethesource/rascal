@@ -123,7 +123,7 @@ public data Figure(
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
-   
+        bool sizeFromParent = false,
     	// Line properties
     
 		int lineWidth = -1,			
@@ -169,6 +169,8 @@ public data Figure(
 // Graphical elements
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
+   
+   | frame(Figure fig=emptyFigure())
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
