@@ -364,7 +364,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 	@Override
 	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
-		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
+		return (ITree) appl(prod, args).asWithKeywordParameters().setParameters(annos);
 	}
 
 	/**
