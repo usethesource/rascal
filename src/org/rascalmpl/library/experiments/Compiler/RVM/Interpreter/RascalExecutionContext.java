@@ -56,7 +56,7 @@ public class RascalExecutionContext {
 	//private ILocationCollector locationReporter;
 	private RVM rvm;
 	private boolean coverage;
-	private boolean useByteCode;
+	private boolean useJVM;
 	private final IMap moduleTags;
 	
 	RascalExecutionContext(IValueFactory vf, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, boolean useByteCode, IEvaluatorContext ctx, ITestResultListener testResultListener){
@@ -68,7 +68,7 @@ public class RascalExecutionContext {
 		this.debug = debug;
 		this.profile = profile;
 		this.coverage = coverage;
-		this.useByteCode = useByteCode;
+		this.useJVM = useByteCode;
 		this.trackCalls = trackCalls;
 		
 		currentModuleName = "UNDEFINED";
@@ -147,7 +147,7 @@ public class RascalExecutionContext {
 	
 	boolean getCoverage(){ return coverage; }
 	
-	boolean getUseByteCode() { return useByteCode; }
+	boolean getUseByteCode() { return useJVM; }
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
