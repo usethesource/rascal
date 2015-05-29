@@ -85,20 +85,20 @@ public class Execute {
 								 argumentsAsList);
 		/*** Serialization  */
 		
-		RVMExecutable executable2 = null;
-	
-		executable.write(rvmExecutable);
-				
-		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-		executable2 = RVMExecutable.read(rvmExecutable);
-		if(!executable.comparable(executable2)){
-			System.err.println("RVMExecutables differ");
-		}
+//		RVMExecutable executable2 = null;
+//	
+//		executable.write(rvmExecutable);
+//				
+//		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
+//		executable2 = RVMExecutable.read(rvmExecutable);
+//		if(!executable.comparable(executable2)){
+//			System.err.println("RVMExecutables differ");
+//		}
 		
 		/*** Start execution */
 		
-		// TODO: Decide here to use the orignal executable or the serialized version.
-		executable = executable2;
+//		 TODO: Decide here to use the orignal executable or the serialized version.
+//		executable = executable2;
 		
 		return executeProgram(executable,  
 							  argumentsAsList,
@@ -138,7 +138,7 @@ public class Execute {
 										   ctx, 
 										   testResultListener);
 		
-		RVM rvm = new RVM(executable, rex);
+		RVM rvm = new RVMJVM(executable, rex);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){

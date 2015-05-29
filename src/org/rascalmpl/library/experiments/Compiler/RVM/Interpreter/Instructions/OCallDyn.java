@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class OCallDyn extends Instruction {
 	
@@ -21,5 +22,12 @@ public class OCallDyn extends Instruction {
 	public void generate(){
 		codeblock.addCode2(opcode.getOpcode(), types, arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		// TODO add source line.
+		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);
 	}
 }

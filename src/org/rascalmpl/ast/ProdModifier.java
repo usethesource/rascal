@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProdModifier extends AbstractAST {
-  public ProdModifier(IConstructor node) {
-    super();
+  public ProdModifier(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class ProdModifier extends AbstractAST {
   }
 
   static public class Associativity extends ProdModifier {
-    // Production: sig("Associativity",[arg("org.rascalmpl.ast.Assoc","associativity")])
+    // Production: sig("Associativity",[arg("org.rascalmpl.ast.Assoc","associativity")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assoc associativity;
   
-    public Associativity(IConstructor node , org.rascalmpl.ast.Assoc associativity) {
-      super(node);
+    public Associativity(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assoc associativity) {
+      super(src, node);
       
       this.associativity = associativity;
     }
@@ -69,6 +70,23 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = associativity.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        associativity.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Associativity)) {
         return false;
@@ -79,7 +97,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 457 + 887 * associativity.hashCode() ; 
+      return 157 + 139 * associativity.hashCode() ; 
     } 
   
     
@@ -95,20 +113,21 @@ public abstract class ProdModifier extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(associativity));
+      return newInstance(getClass(), src, (IConstructor) null , clone(associativity));
     }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends ProdModifier {
-    // Production: sig("Bracket",[])
+    // Production: sig("Bracket",[],breakable=false)
   
     
   
-    public Bracket(IConstructor node ) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -123,6 +142,15 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bracket)) {
         return false;
@@ -133,28 +161,29 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 677 ; 
+      return 193 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTag() {
     return false;
   }
 
   static public class Tag extends ProdModifier {
-    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tag","tag")])
+    // Production: sig("Tag",[arg("org.rascalmpl.ast.Tag","tag")],breakable=false)
   
     
     private final org.rascalmpl.ast.Tag tag;
   
-    public Tag(IConstructor node , org.rascalmpl.ast.Tag tag) {
-      super(node);
+    public Tag(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Tag tag) {
+      super(src, node);
       
       this.tag = tag;
     }
@@ -170,6 +199,23 @@ public abstract class ProdModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = tag.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tag.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tag)) {
         return false;
@@ -180,7 +226,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 857 * tag.hashCode() ; 
+      return 859 + 3 * tag.hashCode() ; 
     } 
   
     
@@ -196,7 +242,8 @@ public abstract class ProdModifier extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(tag));
+      return newInstance(getClass(), src, (IConstructor) null , clone(tag));
     }
+            
   }
 }

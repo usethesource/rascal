@@ -20,15 +20,16 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 @SuppressWarnings("all")
-public class G0Parser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IConstructor, ISourceLocation> {
+public class G0Parser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ITree, ISourceLocation> {
   protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
     try {
-      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
+      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
     }
     catch (FactTypeUseException e) {
       throw new RuntimeException("unexpected exception in generated parser", e);  
@@ -99,12 +100,12 @@ public class G0Parser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ICon
     
   // Production declarations
 	
-  private static final IConstructor prod__$MetaHole_S__char_class___range__0_0_lit___115_111_114_116_40_34_83_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__S = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"S\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"S\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"S\")))})", Factory.Production);
-  private static final IConstructor prod__lit_0__char_class___range__48_48_ = (IConstructor) _read("prod(lit(\"0\"),[\\char-class([range(48,48)])],{})", Factory.Production);
-  private static final IConstructor prod__lit___58__char_class___range__58_58_ = (IConstructor) _read("prod(lit(\":\"),[\\char-class([range(58,58)])],{})", Factory.Production);
-  private static final IConstructor prod__lit___115_111_114_116_40_34_83_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__34_34_char_class___range__41_41_ = (IConstructor) _read("prod(lit(\"sort(\\\"S\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(83,83)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", Factory.Production);
-  private static final IConstructor prod__S__lit_0_ = (IConstructor) _read("prod(sort(\"S\"),[lit(\"0\")],{})", Factory.Production);
-  private static final IConstructor regular__iter__char_class___range__48_57 = (IConstructor) _read("regular(iter(\\char-class([range(48,57)])))", Factory.Production);
+  private static final IConstructor cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"0\"),[\\char-class([range(48,48)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChzb3J0KCJTIiksW2xpdCgiMCIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"S\"),[lit(\"0\")],{})", RascalValueFactory.Production);
+  private static final IConstructor cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp = (IConstructor) _read("regular(iter(\\char-class([range(48,57)])))", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJTIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlNcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlMiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"S\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"S\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"S\")))})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\":\"),[\\char-class([range(58,58)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJTXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDgzLDgzKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000 = (IConstructor) _read("prod(lit(\"sort(\\\"S\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(83,83)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
     
   // Item declarations
 	
@@ -117,27 +118,27 @@ public class G0Parser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ICon
       EXPECTS = builder.buildExpectArray();
     }
     
-    protected static final void _init_prod__$MetaHole_S__char_class___range__0_0_lit___115_111_114_116_40_34_83_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__S(ExpectBuilder<IConstructor> builder) {
-      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
-      
-      tmp[2] = new LiteralStackNode<IConstructor>(17, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(20, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15, 0, new int[][]{{0,0}}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(16, 1, prod__lit___115_111_114_116_40_34_83_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__83_83_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,83,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(19, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(18, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      builder.addAlternative(G0Parser.prod__$MetaHole_S__char_class___range__0_0_lit___115_111_114_116_40_34_83_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__S, tmp);
-	}
-    protected static final void _init_prod__S__lit_0_(ExpectBuilder<IConstructor> builder) {
+    protected static final void _init_cHJvZChzb3J0KCJTIiksW2xpdCgiMCIpXSx7fSk00(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(12, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null);
-      builder.addAlternative(G0Parser.prod__S__lit_0_, tmp);
+      tmp[0] = new LiteralStackNode<IConstructor>(12, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null);
+      builder.addAlternative(G0Parser.cHJvZChzb3J0KCJTIiksW2xpdCgiMCIpXSx7fSk00, tmp);
+	}
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJTIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlNcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlMiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[2] = new LiteralStackNode<IConstructor>(17, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(20, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(15, 0, new int[][]{{0,0}}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(16, 1, cHJvZChsaXQoInNvcnQoXCJTXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDgzLDgzKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000, new int[] {115,111,114,116,40,34,83,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(19, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(18, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(G0Parser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJTIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlNcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlMiKSkpfSk00, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
-        _init_prod__$MetaHole_S__char_class___range__0_0_lit___115_111_114_116_40_34_83_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__S(builder);
+        _init_cHJvZChzb3J0KCJTIiksW2xpdCgiMCIpXSx7fSk00(builder);
       
-        _init_prod__S__lit_0_(builder);
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJTIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlNcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlMiKSkpfSk00(builder);
       
     }
   }

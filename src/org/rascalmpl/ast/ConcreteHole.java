@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ConcreteHole extends AbstractAST {
-  public ConcreteHole(IConstructor node) {
-    super();
+  public ConcreteHole(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class ConcreteHole extends AbstractAST {
   }
 
   static public class One extends ConcreteHole {
-    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("One",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Name name;
   
-    public One(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public One(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.symbol = symbol;
       this.name = name;
@@ -71,6 +72,31 @@ public abstract class ConcreteHole extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof One)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class ConcreteHole extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 977 * symbol.hashCode() + 433 * name.hashCode() ; 
+      return 257 + 83 * symbol.hashCode() + 71 * name.hashCode() ; 
     } 
   
     
@@ -106,7 +132,8 @@ public abstract class ConcreteHole extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(name));
     }
+            
   }
 }

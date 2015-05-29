@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
-public class ArrayList<E>{
+public class ArrayList<E> {
 	private final static int DEFAULT_SIZE = 8;
 	
 	private E[] data;

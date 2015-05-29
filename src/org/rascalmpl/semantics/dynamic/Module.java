@@ -17,6 +17,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
@@ -35,8 +36,8 @@ public abstract class Module {
 
 	static public class Default extends org.rascalmpl.ast.Module.Default {
 
-		public Default(IConstructor __param1, Header __param2, Body __param3) {
-			super(__param1, __param2, __param3);
+		public Default(ISourceLocation __param1, IConstructor tree, Header __param2, Body __param3) {
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override

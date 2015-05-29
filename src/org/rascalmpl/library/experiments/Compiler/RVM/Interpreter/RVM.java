@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
@@ -41,6 +40,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -62,7 +63,7 @@ public class RVM implements java.io.Serializable {
 //	private boolean finalized = false;
 	
 	final ArrayList<Function> functionStore;
-	private final Map<String, Integer> functionMap;
+	protected final Map<String, Integer> functionMap;
 	
 	// Function overloading
 	private final Map<String, Integer> resolver;
@@ -198,7 +199,7 @@ public class RVM implements java.io.Serializable {
 	 * @param result to be returned
 	 * @return converted result or an exception
 	 */
-	private IValue narrow(Object result){
+	protected IValue narrow(Object result){
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}
@@ -384,6 +385,31 @@ public class RVM implements java.io.Serializable {
 			cf.stack[i] = args[i]; 
 		}
 		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
+	}
+	
+	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){
+		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		int arity = args.length;
+		int scopeId = func.env.scopeId;
+		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+		root.sp = arity;
+		
+		OverloadedFunctionInstanceCall c_ofun_call_next = 
+				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity)  // changed root to cf
+        					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity);
+				
+		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		// Pass the program arguments to func
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		cf.sp = args.length;
+		cf.previousCallFrame = null;		// ensure that func will retrun here
+		Object o = executeProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
@@ -681,8 +707,12 @@ public class RVM implements java.io.Serializable {
 		return sp;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
+		return executeProgram(root, cf, /*cf.function.nlocals,*/ /*cf.function.codeblock.getInstructions(),*/ null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Object executeProgram(final Frame root, Frame cf, /*final int nlocals,*/ /*long[] instructions, */OverloadedFunctionInstanceCall c_ofun_call) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -698,7 +728,10 @@ public class RVM implements java.io.Serializable {
 		
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
-		OverloadedFunctionInstanceCall c_ofun_call = null;
+		if(c_ofun_call != null){
+			ocalls.push(c_ofun_call);
+		}
+		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
 		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
 		
@@ -874,7 +907,7 @@ public class RVM implements java.io.Serializable {
 					IInteger x = (IInteger) caseLabels.get(fp);
 					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
-							stack[sp++] = vf.bool(false);
+							//stack[sp++] = vf.bool(false);
 							pc = caseDefault;
 					} else {
 						pc = x.intValue();
@@ -977,25 +1010,6 @@ public class RVM implements java.io.Serializable {
 						stack[sp++] = vf.constructor(constr, args);
 						continue NEXT_INSTRUCTION;
 					}
-					
-//					// Specific to delimited continuations (experimental)
-//					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Coroutine) {
-//						arity = CodeBlock.fetchArg1(instruction);
-//						Coroutine coroutine = (Coroutine) stack[--sp];
-//						// Merged the hasNext and next semantics
-//						activeCoroutines.push(coroutine);
-//						ccf = coroutine.start;
-//						coroutine.next(cf);
-//						instructions = coroutine.frame.function.codeblock.getInstructions();
-//						coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ? stack[--sp] : null;
-//						cf.pc = pc;
-//						cf.sp = sp;
-//						cf = coroutine.frame;
-//						stack = cf.stack;
-//						sp = cf.sp;
-//						pc = cf.pc;
-//						continue NEXT_INSTRUCTION;
-//					}
 					
 					cf.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
@@ -1223,7 +1237,7 @@ public class RVM implements java.io.Serializable {
 						//int sp1 = sp;
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					    //assert sp == sp1 - arity + 1;
-					} catch(Throw e) {
+					} catch (Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
@@ -1231,10 +1245,9 @@ public class RVM implements java.io.Serializable {
 						stacktrace.add(cf);
 						thrown = e;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
-					} catch (Exception e){
-						e.printStackTrace(stderr);
-						stderr.flush();
-						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
+					} catch (Throwable e){
+						thrown = Thrown.getInstance(e, cf.src, cf);
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} 
 					
 					continue NEXT_INSTRUCTION;
@@ -1412,14 +1425,12 @@ public class RVM implements java.io.Serializable {
 						//sp1 = sp;
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 						//assert sp == sp1 - arity + 1;
-					} catch(Exception exception) {
-						if(!(exception instanceof Thrown)){
-							throw exception;
-						}
-						thrown = (Thrown) exception;
+					} catch (Thrown exception) {
+						thrown = exception;
 						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
-						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
 					}
 					
 					continue NEXT_INSTRUCTION;
@@ -1636,10 +1647,13 @@ public class RVM implements java.io.Serializable {
 				}
 				
 			}
-		} catch (Exception e) {
-			if(e instanceof Thrown){
-				throw e;
-			}
+		}
+		catch (Thrown e) {
+			throw e; 
+			// this is a normal Rascal exception, but we want to handle the next case here exceptionally, which 
+			// should not happen normally and hints at a compiler or run-time bug:
+		}
+		catch (Exception e) {
 			stdout.println("EXCEPTION " + e + " at: " + cf.src);
 			for(Frame f = cf; f != null; f = f.previousCallFrame) {
 				stdout.println("\t" + f.toString());
@@ -1649,10 +1663,6 @@ public class RVM implements java.io.Serializable {
 			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
 			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
-			
-			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
-			//e.printStackTrace();
-			//stderr.println(e.getStackTrace());
 		}
 	}
 	
@@ -1683,69 +1693,22 @@ public class RVM implements java.io.Serializable {
 	
 	public Object getJavaClassInstance(Class<?> clazz){
 		Object instance = instanceCache.get(clazz);
-		if(instance != null){
+		if (instance != null){
 			return instance;
 		}
-//		Class<?> clazz = null;
-//		try {
-//			clazz = this.getClass().getClassLoader().loadClass(className);
-//		} catch(ClassNotFoundException e1) {
-//			// If the class is not found, try other class loaders
-//			for(ClassLoader loader : this.classLoaders) {
-//				//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//				try {
-//					clazz = loader.loadClass(className);
-//					break;
-//				} catch(ClassNotFoundException e2) {
-//					;
-//				}
-//			}
-//		}
-		try{
+		try {
 			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		} 
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
 		Class<?> clazz = null;
 		try {
-//			try {
-//				clazz = this.getClass().getClassLoader().loadClass(className);
-//			} catch(ClassNotFoundException e1) {
-//				// If the class is not found, try other class loaders
-//				for(ClassLoader loader : this.classLoaders) {
-//					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-//					try {
-//						clazz = loader.loadClass(className);
-//						break;
-//					} catch(ClassNotFoundException e2) {
-//						;
-//					}
-//				}
-//			}
-//			
-//			if(clazz == null) {
-//				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
-//			}
-			
-//			Constructor<?> cons;
-//			cons = clazz.getConstructor(IValueFactory.class);
-//			Object instance = cons.newInstance(vf);
 			clazz = getJavaClass(className);
 			Object instance = getJavaClassInstance(clazz);
 			
@@ -1782,28 +1745,24 @@ public class RVM implements java.io.Serializable {
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+			throw new CompilerError("could not call Java method", e);
+		} 
+		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
 				throw (Throw) e.getTargetException();
 			}
 			if(e.getTargetException() instanceof Thrown){
 				throw (Thrown) e.getTargetException();
 			}
-			e.printStackTrace();
+			
+			throw e.getTargetException();
+//			e.printStackTrace();
 		}
-		return sp;
+//		return sp;
 	}
 	
-	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
@@ -1825,6 +1784,7 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.PreludeCompiled.iprintln",
 			"org.rascalmpl.library.PreludeCompiled.rprint",
 			"org.rascalmpl.library.PreludeCompiled.rprintln",
+			"org.rascalmpl.library.PreludeCompiled.sort",
 			"org.rascalmpl.library.util.MonitorCompiled.startJob",
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
@@ -1925,8 +1885,18 @@ public class RVM implements java.io.Serializable {
 		return jtypes;
 	}
 	
-	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
 
+		public JavaClasses() {
+			super(IValue.class);
+		}
+
+		@Override
+		public Class<?> visitNonTerminal(RascalType type)
+				throws RuntimeException {
+			return IConstructor.class;
+		}
+		
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
@@ -2015,12 +1985,6 @@ public class RVM implements java.io.Serializable {
 		@Override
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
-		}
-
-		@Override
-		public Class<?> visitExternal(
-				org.eclipse.imp.pdb.facts.type.Type externalType) {
-			return IValue.class;
 		}
 
 		@Override

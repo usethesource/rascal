@@ -43,7 +43,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {
 	private final Type constructorType;
@@ -69,7 +69,7 @@ public class ConstructorFunction extends NamedFunction {
 	// TODO: refactor and make small. For now this does the job.
 	public Result<IValue> computeDefaultKeywordParameter(String label, IConstructor value, Environment callerEnvironment) {
 		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
-		IWithKeywordParameters<IConstructor> wkw = value.asWithKeywordParameters();
+		IWithKeywordParameters<? extends IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
 		Environment resultEnv = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
 		
@@ -203,7 +203,7 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-		if (constructorType == Factory.Tree_Appl) {
+		if (constructorType == RascalValueFactory.Tree_Appl) {
 			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
@@ -223,7 +223,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
+		return makeResult(instantiated.getAbstractDataType(), ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	
 	@Override

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Mapping_Expression extends AbstractAST {
-  public Mapping_Expression(IConstructor node) {
-    super();
+  public Mapping_Expression(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Mapping_Expression extends AbstractAST {
   }
 
   static public class Default extends Mapping_Expression {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression from;
     private final org.rascalmpl.ast.Expression to;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
+      super(src, node);
       
       this.from = from;
       this.to = to;
@@ -71,6 +72,31 @@ public abstract class Mapping_Expression extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = from.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        from.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = to.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        to.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class Mapping_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 491 * from.hashCode() + 317 * to.hashCode() ; 
+      return 937 + 631 * from.hashCode() + 797 * to.hashCode() ; 
     } 
   
     
@@ -106,7 +132,8 @@ public abstract class Mapping_Expression extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(from), clone(to));
+      return newInstance(getClass(), src, (IConstructor) null , clone(from), clone(to));
     }
+            
   }
 }

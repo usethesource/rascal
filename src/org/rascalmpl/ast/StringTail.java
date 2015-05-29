@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class StringTail extends AbstractAST {
-  public StringTail(IConstructor node) {
-    super();
+  public StringTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -68,15 +69,15 @@ public abstract class StringTail extends AbstractAST {
   }
 
   static public class MidInterpolated extends StringTail {
-    // Production: sig("MidInterpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("MidInterpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public MidInterpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public MidInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -94,6 +95,39 @@ public abstract class StringTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof MidInterpolated)) {
         return false;
@@ -104,7 +138,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 197 + 79 * mid.hashCode() + 941 * expression.hashCode() + 11 * tail.hashCode() ; 
+      return 109 + 977 * mid.hashCode() + 2 * expression.hashCode() + 947 * tail.hashCode() ; 
     } 
   
     
@@ -138,23 +172,24 @@ public abstract class StringTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(expression), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
     }
+            
   }
   public boolean isMidTemplate() {
     return false;
   }
 
   static public class MidTemplate extends StringTail {
-    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
+    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidStringChars mid;
     private final org.rascalmpl.ast.StringTemplate template;
     private final org.rascalmpl.ast.StringTail tail;
   
-    public MidTemplate(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
+    public MidTemplate(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.template = template;
@@ -172,6 +207,39 @@ public abstract class StringTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = template.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        template.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof MidTemplate)) {
         return false;
@@ -182,7 +250,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 113 * mid.hashCode() + 797 * template.hashCode() + 379 * tail.hashCode() ; 
+      return 281 + 409 * mid.hashCode() + 97 * template.hashCode() + 607 * tail.hashCode() ; 
     } 
   
     
@@ -216,21 +284,22 @@ public abstract class StringTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(mid), clone(template), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(template), clone(tail));
     }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends StringTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostStringChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostStringChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostStringChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostStringChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostStringChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -246,6 +315,23 @@ public abstract class StringTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = post.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        post.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Post)) {
         return false;
@@ -256,7 +342,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 883 * post.hashCode() ; 
+      return 547 + 283 * post.hashCode() ; 
     } 
   
     
@@ -272,7 +358,8 @@ public abstract class StringTail extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(post));
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
     }
+            
   }
 }

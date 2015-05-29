@@ -38,6 +38,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.ITree;
 
 public class ReflectiveCompiled extends Reflective {
 	
@@ -75,10 +76,10 @@ public class ReflectiveCompiled extends Reflective {
 	}
 	
 	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-		 IActionExecutor<IConstructor> actions = new NoActionExecutor();	
+		 IActionExecutor<ITree> actions = new NoActionExecutor();	
 		
 	     try {
-			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 		} catch (IOException e) {
 			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
 		}

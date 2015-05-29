@@ -17,9 +17,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class YAMLTypeFactory {
-	public static final TypeStore yaml = new TypeStore(
-			org.rascalmpl.values.errors.Factory.getStore(), 
-			org.rascalmpl.values.locations.Factory.getStore());
+	public static final TypeStore yaml = new TypeStore();
 	
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	

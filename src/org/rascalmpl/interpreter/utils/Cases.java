@@ -43,7 +43,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Cases  {
@@ -104,8 +104,7 @@ public class Cases  {
 			pattern = pattern.getPattern();
 		}
 		
-		if (pattern._getType() != null
-				&& pattern._getType() instanceof NonTerminalType) {
+		if (pattern.getConcreteSyntaxType() != null && pattern.getConcreteSyntaxType() instanceof NonTerminalType) {
 			return true;
 		}
 
@@ -173,7 +172,7 @@ public class Cases  {
 				Expression pattern = c.getPatternWithAction().getPattern();
 				hasRegExp |= pattern.isLiteral() && pattern.getLiteral().isRegExp();
 
-				Type type = pattern._getType();
+				Type type = pattern.getConcreteSyntaxType();
 				allConcrete &= isNonTerminalType(type);
 			}
 		}
@@ -208,9 +207,8 @@ public class Cases  {
 			org.eclipse.imp.pdb.facts.type.Type subjectType = value
 					.getType();
 
-			
-			if (subjectType.isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) value)) {
-				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((IConstructor) value));
+			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.uptr.ITree) value)) {
+				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.uptr.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
 						if (c.matchAndEval(eval, subject)) {
@@ -362,11 +360,11 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				boolean isTree = subjectType.isSubtypeOf(Factory.Tree) 
-				    && ((IConstructor) subject.getValue()).getConstructorType() == Factory.Tree_Appl;
+				boolean isTree = subjectType.isSubtypeOf(RascalValueFactory.Tree) 
+				    && ((org.rascalmpl.values.uptr.ITree) subject.getValue()).isAppl();
 
 				if (isTree) { // matching abstract with concrete
-					TreeAsNode wrap = new TreeAsNode((IConstructor) subject.getValue());
+					TreeAsNode wrap = new TreeAsNode((org.rascalmpl.values.uptr.ITree) subject.getValue());
 					Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
 
 					if (tryCases(eval, asTree)) {

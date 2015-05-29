@@ -1,9 +1,9 @@
 package org.rascalmpl.parser.uptr.action;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.values.uptr.ITree;
 
-public class NoActionExecutor implements IActionExecutor<IConstructor> {
+public class NoActionExecutor implements IActionExecutor<ITree> {
 
 	@Override
 	public Object createRootEnvironment() {
@@ -45,35 +45,35 @@ public class NoActionExecutor implements IActionExecutor<IConstructor> {
 	}
 
 	@Override
-	public IConstructor filterProduction(IConstructor tree, Object environment) {
+	public ITree filterProduction(ITree tree, Object environment) {
 		return tree;
 	}
 
 	@Override
-	public IConstructor filterListProduction(IConstructor tree,
+	public ITree filterListProduction(ITree tree,
 			Object environment) {
 		return tree;
 	}
 
 	@Override
-	public IConstructor filterAmbiguity(IConstructor ambCluster,
+	public ITree filterAmbiguity(ITree ambCluster,
 			Object environment) {
 		return ambCluster;
 	}
 
 	@Override
-	public IConstructor filterListAmbiguity(IConstructor ambCluster,
+	public ITree filterListAmbiguity(ITree ambCluster,
 			Object environment) {
 		return ambCluster;
 	}
 
 	@Override
-	public IConstructor filterCycle(IConstructor cycle, Object environment) {
+	public ITree filterCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 
 	@Override
-	public IConstructor filterListCycle(IConstructor cycle, Object environment) {
+	public ITree filterListCycle(ITree cycle, Object environment) {
 		return cycle;
 	}
 

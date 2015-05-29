@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Renamings extends AbstractAST {
-  public Renamings(IConstructor node) {
-    super();
+  public Renamings(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Renamings extends AbstractAST {
   }
 
   static public class Default extends Renamings {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Renaming\>","renamings")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Renaming\>","renamings")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Renaming> renamings;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Renaming> renamings) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Renaming> renamings) {
+      super(src, node);
       
       this.renamings = renamings;
     }
@@ -62,6 +63,25 @@ public abstract class Renamings extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : renamings) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class Renamings extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 163 * renamings.hashCode() ; 
+      return 881 + 739 * renamings.hashCode() ; 
     } 
   
     
@@ -88,7 +108,8 @@ public abstract class Renamings extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(renamings));
+      return newInstance(getClass(), src, (IConstructor) null , clone(renamings));
     }
+            
   }
 }

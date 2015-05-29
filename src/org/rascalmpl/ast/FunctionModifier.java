@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionModifier extends AbstractAST {
-  public FunctionModifier(IConstructor node) {
-    super();
+  public FunctionModifier(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class FunctionModifier extends AbstractAST {
   }
 
   static public class Default extends FunctionModifier {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class FunctionModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -63,27 +73,28 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 ; 
+      return 179 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isJava() {
     return false;
   }
 
   static public class Java extends FunctionModifier {
-    // Production: sig("Java",[])
+    // Production: sig("Java",[],breakable=false)
   
     
   
-    public Java(IConstructor node ) {
-      super(node);
+    public Java(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -98,6 +109,15 @@ public abstract class FunctionModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Java)) {
         return false;
@@ -108,27 +128,28 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 457 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isTest() {
     return false;
   }
 
   static public class Test extends FunctionModifier {
-    // Production: sig("Test",[])
+    // Production: sig("Test",[],breakable=false)
   
     
   
-    public Test(IConstructor node ) {
-      super(node);
+    public Test(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -143,6 +164,15 @@ public abstract class FunctionModifier extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Test)) {
         return false;
@@ -153,14 +183,15 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 ; 
+      return 839 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class FunctionModifiers extends AbstractAST {
-  public FunctionModifiers(IConstructor node) {
-    super();
+  public FunctionModifiers(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class FunctionModifiers extends AbstractAST {
   }
 
   static public class Modifierlist extends FunctionModifiers {
-    // Production: sig("Modifierlist",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")])
+    // Production: sig("Modifierlist",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers;
   
-    public Modifierlist(IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
-      super(node);
+    public Modifierlist(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
+      super(src, node);
       
       this.modifiers = modifiers;
     }
@@ -62,6 +63,25 @@ public abstract class FunctionModifiers extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : modifiers) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Modifierlist)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class FunctionModifiers extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 499 * modifiers.hashCode() ; 
+      return 2 + 461 * modifiers.hashCode() ; 
     } 
   
     
@@ -88,7 +108,8 @@ public abstract class FunctionModifiers extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(modifiers));
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers));
     }
+            
   }
 }

@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class GuardedPattern extends AbstractMatchingResult {
@@ -57,7 +57,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 	public boolean mayMatch(Type subjectType, Environment env) {
 	  return super.mayMatch(subjectType, env) 
 	      && (pat.mayMatch(subjectType, env) // the pattern can match immediately
-	          || (subjectType.isSubtypeOf(Factory.Tree) // or the type is a non-terminal type, 
+	          || (subjectType.isSubtypeOf(RascalValueFactory.Tree) // or the type is a non-terminal type, 
 	              && pat.mayMatch(TypeFactory.getInstance().stringType(), env))); // in which case strings are also allowed
 	}
 	
@@ -67,7 +67,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 		
 		Environment env = ctx.getCurrentEnvt();
 		
-		if (type instanceof NonTerminalType && pat.getType(env, null).isSubtypeOf(tf.stringType()) && subject.getValue().getType().isSubtypeOf(Factory.Tree)) {
+		if (type instanceof NonTerminalType && pat.getType(env, null).isSubtypeOf(tf.stringType()) && subject.getValue().getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			if (subject.getValue().getType().isSubtypeOf(type)) {
 				subject = ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(TreeAdapter.yield((IConstructor) subject.getValue())), ctx);
 				pat.initMatch(subject);

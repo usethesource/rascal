@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Replacement extends AbstractAST {
-  public Replacement(IConstructor node) {
-    super();
+  public Replacement(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Replacement extends AbstractAST {
   }
 
   static public class Conditional extends Replacement {
-    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
+    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression replacementExpression;
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
   
-    public Conditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
-      super(node);
+    public Conditional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+      super(src, node);
       
       this.replacementExpression = replacementExpression;
       this.conditions = conditions;
@@ -71,6 +72,33 @@ public abstract class Replacement extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = replacementExpression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacementExpression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : conditions) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Conditional)) {
         return false;
@@ -81,7 +109,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 337 * replacementExpression.hashCode() + 467 * conditions.hashCode() ; 
+      return 881 + 3 * replacementExpression.hashCode() + 293 * conditions.hashCode() ; 
     } 
   
     
@@ -106,21 +134,22 @@ public abstract class Replacement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(replacementExpression), clone(conditions));
+      return newInstance(getClass(), src, (IConstructor) null , clone(replacementExpression), clone(conditions));
     }
+            
   }
   public boolean isUnconditional() {
     return false;
   }
 
   static public class Unconditional extends Replacement {
-    // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")])
+    // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression replacementExpression;
   
-    public Unconditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
-      super(node);
+    public Unconditional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
+      super(src, node);
       
       this.replacementExpression = replacementExpression;
     }
@@ -136,6 +165,23 @@ public abstract class Replacement extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = replacementExpression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacementExpression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unconditional)) {
         return false;
@@ -146,7 +192,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 419 + 599 * replacementExpression.hashCode() ; 
+      return 281 + 433 * replacementExpression.hashCode() ; 
     } 
   
     
@@ -162,7 +208,8 @@ public abstract class Replacement extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(replacementExpression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(replacementExpression));
     }
+            
   }
 }

@@ -105,17 +105,44 @@ public M3 createM3FromJar(loc jarFile) {
     jarName = substring(jarName, findLast(jarName, "/")+1);
     loc jarLoc = |jar:///|;
     jarLoc.authority = jarName;
-    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- find(jarFile, "class") });
+
+    map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
+    
+    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (m3@implements + m3@extends),
+        c.path in m3Map && i.path in m3Map } | m3 <- range(m3Map) }+;
+    
+    map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c]@methodOverrides | c <- m3Map );
+    for(<c, sc> <- inheritsFrom) {
+	        // this is not	100% correct, since java method overriden allows be on a subtype in the signatures since java6
+	        methodSC = { <m.file, m> | <m, p> <- m3Map[sc]@modifiers, (p == \public() || p == \protected()) && m.scheme == "java+method"  };	
+	        ownMethods = { <m, m.file> |  m <- methods(m3Map[c]) - constructors(m3Map[c])};
+	        methodOverrides[c] += ownMethods o methodSC;
+    }
+    
+    return composeJavaM3(jarLoc, {m3Map[c][@methodOverrides = methodOverrides[c]] | c <- m3Map });
+}
+private str classPathToStr(loc jarClass) {
+    return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
+}
+
+public M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
+  set[M3] rels = jarRels;
+  if (isEmpty(rels))
+    rels = createM3FromProjectJars(project.id);
+  
+  return composeJavaM3(project.id, rels);
 }
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 public bool isPackage(loc entity) = entity.scheme == "java+package";
 public bool isClass(loc entity) = entity.scheme == "java+class";
+public bool isConstructor(loc entity) = entity.scheme == "java+constructor";
 public bool isMethod(loc entity) = entity.scheme == "java+method" || entity.scheme == "java+constructor";
 public bool isParameter(loc entity) = entity.scheme == "java+parameter";
 public bool isVariable(loc entity) = entity.scheme == "java+variable";
 public bool isField(loc entity) = entity.scheme == "java+field";
 public bool isInterface(loc entity) = entity.scheme == "java+interface";
+public bool isEnum(loc entity) = entity.scheme == "java+enum";
 
 public set[loc] files(rel[loc, loc] containment) 
   = {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
@@ -154,9 +181,12 @@ public rel[loc, loc] declaredSubTypes(M3 m)
 @memo public set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
 @memo public set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
 @memo public set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
+@memo public set[loc] constructors(M3 m) = {e | e <- m@declarations<name>, isConstructor(e)};
+@memo public set[loc] enums(M3 m) = {e | e <- m@declarations<name>, isEnum(e)};
 
 public set[loc] elements(M3 m, loc parent) = m@containment[parent];
 
 @memo public set[loc] fields(M3 m, loc class) = { e | e <- elements(m, class), isField(e) };
 @memo public set[loc] methods(M3 m, loc class) = { e | e <- elements(m, class), isMethod(e) };
+@memo public set[loc] constructors(M3 m, loc class) = { e | e <- elements(m, class), isConstructor(e) };
 @memo public set[loc] nestedClasses(M3 m, loc class) = { e | e <- elements(m, class), isClass(e) };

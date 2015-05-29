@@ -10,9 +10,9 @@ import org.rascalmpl.library.util.Cursor;
 public class WithKeywordParametersContext extends Context {
 	private Context ctx;
 	private String label;
-	private IWithKeywordParameters<IConstructor> kwp;
+	private IWithKeywordParameters<? extends IConstructor> kwp;
 
-	public WithKeywordParametersContext(Context ctx, String label, IWithKeywordParameters<IConstructor> kwp) {
+	public WithKeywordParametersContext(Context ctx, String label, IWithKeywordParameters<? extends IConstructor> kwp) {
 		this.ctx = ctx;
 		this.label = label;
 		this.kwp = kwp;

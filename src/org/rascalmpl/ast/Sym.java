@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Sym extends AbstractAST {
-  public Sym(IConstructor node) {
-    super();
+  public Sym(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -124,14 +125,14 @@ public abstract class Sym extends AbstractAST {
   }
 
   static public class Alternative extends Sym {
-    // Production: sig("Alternative",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","alternatives")])
+    // Production: sig("Alternative",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","alternatives")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym first;
     private final java.util.List<org.rascalmpl.ast.Sym> alternatives;
   
-    public Alternative(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
-      super(node);
+    public Alternative(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
+      super(src, node);
       
       this.first = first;
       this.alternatives = alternatives;
@@ -148,6 +149,33 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = first.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        first.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : alternatives) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Alternative)) {
         return false;
@@ -158,7 +186,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 739 * first.hashCode() + 409 * alternatives.hashCode() ; 
+      return 911 + 379 * first.hashCode() + 811 * alternatives.hashCode() ; 
     } 
   
     
@@ -183,21 +211,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(first), clone(alternatives));
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(alternatives));
     }
+            
   }
   public boolean isCaseInsensitiveLiteral() {
     return false;
   }
 
   static public class CaseInsensitiveLiteral extends Sym {
-    // Production: sig("CaseInsensitiveLiteral",[arg("org.rascalmpl.ast.CaseInsensitiveStringConstant","cistring")])
+    // Production: sig("CaseInsensitiveLiteral",[arg("org.rascalmpl.ast.CaseInsensitiveStringConstant","cistring")],breakable=false)
   
     
     private final org.rascalmpl.ast.CaseInsensitiveStringConstant cistring;
   
-    public CaseInsensitiveLiteral(IConstructor node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
-      super(node);
+    public CaseInsensitiveLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
+      super(src, node);
       
       this.cistring = cistring;
     }
@@ -213,6 +242,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = cistring.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        cistring.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof CaseInsensitiveLiteral)) {
         return false;
@@ -223,7 +269,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 139 * cistring.hashCode() ; 
+      return 373 + 83 * cistring.hashCode() ; 
     } 
   
     
@@ -239,21 +285,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(cistring));
+      return newInstance(getClass(), src, (IConstructor) null , clone(cistring));
     }
+            
   }
   public boolean isCharacterClass() {
     return false;
   }
 
   static public class CharacterClass extends Sym {
-    // Production: sig("CharacterClass",[arg("org.rascalmpl.ast.Class","charClass")])
+    // Production: sig("CharacterClass",[arg("org.rascalmpl.ast.Class","charClass")],breakable=false)
   
     
     private final org.rascalmpl.ast.Class charClass;
   
-    public CharacterClass(IConstructor node , org.rascalmpl.ast.Class charClass) {
-      super(node);
+    public CharacterClass(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Class charClass) {
+      super(src, node);
       
       this.charClass = charClass;
     }
@@ -269,6 +316,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = charClass.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        charClass.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof CharacterClass)) {
         return false;
@@ -279,7 +343,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 61 * charClass.hashCode() ; 
+      return 71 + 683 * charClass.hashCode() ; 
     } 
   
     
@@ -295,22 +359,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(charClass));
+      return newInstance(getClass(), src, (IConstructor) null , clone(charClass));
     }
+            
   }
   public boolean isColumn() {
     return false;
   }
 
   static public class Column extends Sym {
-    // Production: sig("Column",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.IntegerLiteral","column")])
+    // Production: sig("Column",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.IntegerLiteral","column")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.IntegerLiteral column;
   
-    public Column(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.IntegerLiteral column) {
-      super(node);
+    public Column(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.IntegerLiteral column) {
+      super(src, node);
       
       this.symbol = symbol;
       this.column = column;
@@ -327,6 +392,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = column.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        column.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Column)) {
         return false;
@@ -337,7 +427,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 + 577 * symbol.hashCode() + 541 * column.hashCode() ; 
+      return 839 + 577 * symbol.hashCode() + 41 * column.hashCode() ; 
     } 
   
     
@@ -362,20 +452,21 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(column));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(column));
     }
+            
   }
   public boolean isEmpty() {
     return false;
   }
 
   static public class Empty extends Sym {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -390,6 +481,15 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Empty)) {
         return false;
@@ -400,28 +500,29 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 367 ; 
+      return 809 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isEndOfLine() {
     return false;
   }
 
   static public class EndOfLine extends Sym {
-    // Production: sig("EndOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("EndOfLine",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public EndOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public EndOfLine(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -437,6 +538,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof EndOfLine)) {
         return false;
@@ -447,7 +565,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 487 * symbol.hashCode() ; 
+      return 821 + 821 * symbol.hashCode() ; 
     } 
   
     
@@ -463,22 +581,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isExcept() {
     return false;
   }
 
   static public class Except extends Sym {
-    // Production: sig("Except",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")])
+    // Production: sig("Except",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.NonterminalLabel label;
   
-    public Except(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
-      super(node);
+    public Except(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+      super(src, node);
       
       this.symbol = symbol;
       this.label = label;
@@ -495,6 +614,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = label.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        label.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Except)) {
         return false;
@@ -505,7 +649,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 + 937 * symbol.hashCode() + 773 * label.hashCode() ; 
+      return 59 + 139 * symbol.hashCode() + 233 * label.hashCode() ; 
     } 
   
     
@@ -530,22 +674,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(label));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(label));
     }
+            
   }
   public boolean isFollow() {
     return false;
   }
 
   static public class Follow extends Sym {
-    // Production: sig("Follow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("Follow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public Follow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public Follow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -562,6 +707,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Follow)) {
         return false;
@@ -572,7 +742,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 683 * symbol.hashCode() + 433 * match.hashCode() ; 
+      return 331 + 359 * symbol.hashCode() + 151 * match.hashCode() ; 
     } 
   
     
@@ -597,21 +767,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
     }
+            
   }
   public boolean isIter() {
     return false;
   }
 
   static public class Iter extends Sym {
-    // Production: sig("Iter",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Iter",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Iter(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Iter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -627,6 +798,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Iter)) {
         return false;
@@ -637,7 +825,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 563 * symbol.hashCode() ; 
+      return 311 + 73 * symbol.hashCode() ; 
     } 
   
     
@@ -653,22 +841,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isIterSep() {
     return false;
   }
 
   static public class IterSep extends Sym {
-    // Production: sig("IterSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")])
+    // Production: sig("IterSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym sep;
   
-    public IterSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
-      super(node);
+    public IterSep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
+      super(src, node);
       
       this.symbol = symbol;
       this.sep = sep;
@@ -685,6 +874,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = sep.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        sep.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof IterSep)) {
         return false;
@@ -695,7 +909,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 + 199 * symbol.hashCode() + 137 * sep.hashCode() ; 
+      return 619 + 5 * symbol.hashCode() + 191 * sep.hashCode() ; 
     } 
   
     
@@ -720,21 +934,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(sep));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(sep));
     }
+            
   }
   public boolean isIterStar() {
     return false;
   }
 
   static public class IterStar extends Sym {
-    // Production: sig("IterStar",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("IterStar",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public IterStar(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public IterStar(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -750,6 +965,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof IterStar)) {
         return false;
@@ -760,7 +992,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 + 419 * symbol.hashCode() ; 
+      return 467 + 149 * symbol.hashCode() ; 
     } 
   
     
@@ -776,22 +1008,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isIterStarSep() {
     return false;
   }
 
   static public class IterStarSep extends Sym {
-    // Production: sig("IterStarSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")])
+    // Production: sig("IterStarSep",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","sep")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym sep;
   
-    public IterStarSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
-      super(node);
+    public IterStarSep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym sep) {
+      super(src, node);
       
       this.symbol = symbol;
       this.sep = sep;
@@ -808,6 +1041,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = sep.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        sep.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof IterStarSep)) {
         return false;
@@ -818,7 +1076,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 149 * symbol.hashCode() + 853 * sep.hashCode() ; 
+      return 19 + 761 * symbol.hashCode() + 89 * sep.hashCode() ; 
     } 
   
     
@@ -843,22 +1101,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(sep));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(sep));
     }
+            
   }
   public boolean isLabeled() {
     return false;
   }
 
   static public class Labeled extends Sym {
-    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")])
+    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.NonterminalLabel label;
   
-    public Labeled(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
-      super(node);
+    public Labeled(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+      super(src, node);
       
       this.symbol = symbol;
       this.label = label;
@@ -875,6 +1134,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = label.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        label.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Labeled)) {
         return false;
@@ -885,7 +1169,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 673 * symbol.hashCode() + 479 * label.hashCode() ; 
+      return 587 + 67 * symbol.hashCode() + 191 * label.hashCode() ; 
     } 
   
     
@@ -910,21 +1194,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(label));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(label));
     }
+            
   }
   public boolean isLiteral() {
     return false;
   }
 
   static public class Literal extends Sym {
-    // Production: sig("Literal",[arg("org.rascalmpl.ast.StringConstant","string")])
+    // Production: sig("Literal",[arg("org.rascalmpl.ast.StringConstant","string")],breakable=false)
   
     
     private final org.rascalmpl.ast.StringConstant string;
   
-    public Literal(IConstructor node , org.rascalmpl.ast.StringConstant string) {
-      super(node);
+    public Literal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringConstant string) {
+      super(src, node);
       
       this.string = string;
     }
@@ -940,6 +1225,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = string.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        string.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Literal)) {
         return false;
@@ -950,7 +1252,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 + 619 * string.hashCode() ; 
+      return 577 + 263 * string.hashCode() ; 
     } 
   
     
@@ -966,21 +1268,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(string));
+      return newInstance(getClass(), src, (IConstructor) null , clone(string));
     }
+            
   }
   public boolean isNonterminal() {
     return false;
   }
 
   static public class Nonterminal extends Sym {
-    // Production: sig("Nonterminal",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Nonterminal",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Nonterminal(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Nonterminal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -996,6 +1299,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Nonterminal)) {
         return false;
@@ -1006,7 +1326,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 503 + 241 * nonterminal.hashCode() ; 
+      return 647 + 991 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1022,22 +1342,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
     }
+            
   }
   public boolean isNotFollow() {
     return false;
   }
 
   static public class NotFollow extends Sym {
-    // Production: sig("NotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("NotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public NotFollow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public NotFollow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -1054,6 +1375,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NotFollow)) {
         return false;
@@ -1064,7 +1410,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 401 * symbol.hashCode() + 523 * match.hashCode() ; 
+      return 409 + 907 * symbol.hashCode() + 89 * match.hashCode() ; 
     } 
   
     
@@ -1089,22 +1435,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
     }
+            
   }
   public boolean isNotPrecede() {
     return false;
   }
 
   static public class NotPrecede extends Sym {
-    // Production: sig("NotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("NotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym match;
     private final org.rascalmpl.ast.Sym symbol;
   
-    public NotPrecede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public NotPrecede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.match = match;
       this.symbol = symbol;
@@ -1121,6 +1468,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NotPrecede)) {
         return false;
@@ -1131,7 +1503,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 599 * match.hashCode() + 53 * symbol.hashCode() ; 
+      return 347 + 509 * match.hashCode() + 151 * symbol.hashCode() ; 
     } 
   
     
@@ -1156,21 +1528,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(match), clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
     }
+            
   }
   public boolean isOptional() {
     return false;
   }
 
   static public class Optional extends Sym {
-    // Production: sig("Optional",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Optional",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Optional(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Optional(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -1186,6 +1559,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Optional)) {
         return false;
@@ -1196,7 +1586,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 491 * symbol.hashCode() ; 
+      return 599 + 29 * symbol.hashCode() ; 
     } 
   
     
@@ -1212,21 +1602,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isParameter() {
     return false;
   }
 
   static public class Parameter extends Sym {
-    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Parameter(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Parameter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -1242,6 +1633,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Parameter)) {
         return false;
@@ -1252,7 +1660,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 61 * nonterminal.hashCode() ; 
+      return 941 + 103 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1268,22 +1676,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
     }
+            
   }
   public boolean isParametrized() {
     return false;
   }
 
   static public class Parametrized extends Sym {
-    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")])
+    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
     private final java.util.List<org.rascalmpl.ast.Sym> parameters;
   
-    public Parametrized(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
-      super(node);
+    public Parametrized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
       this.parameters = parameters;
@@ -1300,6 +1709,33 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : parameters) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Parametrized)) {
         return false;
@@ -1310,7 +1746,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 223 * nonterminal.hashCode() + 389 * parameters.hashCode() ; 
+      return 67 + 769 * nonterminal.hashCode() + 149 * parameters.hashCode() ; 
     } 
   
     
@@ -1335,22 +1771,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(nonterminal), clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal), clone(parameters));
     }
+            
   }
   public boolean isPrecede() {
     return false;
   }
 
   static public class Precede extends Sym {
-    // Production: sig("Precede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("Precede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym match;
     private final org.rascalmpl.ast.Sym symbol;
   
-    public Precede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public Precede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.match = match;
       this.symbol = symbol;
@@ -1367,6 +1804,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Precede)) {
         return false;
@@ -1377,7 +1839,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 211 + 907 * match.hashCode() + 569 * symbol.hashCode() ; 
+      return 541 + 353 * match.hashCode() + 23 * symbol.hashCode() ; 
     } 
   
     
@@ -1402,22 +1864,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(match), clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
     }
+            
   }
   public boolean isSequence() {
     return false;
   }
 
   static public class Sequence extends Sym {
-    // Production: sig("Sequence",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","sequence")])
+    // Production: sig("Sequence",[arg("org.rascalmpl.ast.Sym","first"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","sequence")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym first;
     private final java.util.List<org.rascalmpl.ast.Sym> sequence;
   
-    public Sequence(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
-      super(node);
+    public Sequence(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
+      super(src, node);
       
       this.first = first;
       this.sequence = sequence;
@@ -1434,6 +1897,33 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = first.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        first.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : sequence) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Sequence)) {
         return false;
@@ -1444,7 +1934,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 + 509 * first.hashCode() + 311 * sequence.hashCode() ; 
+      return 787 + 863 * first.hashCode() + 557 * sequence.hashCode() ; 
     } 
   
     
@@ -1469,21 +1959,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(first), clone(sequence));
+      return newInstance(getClass(), src, (IConstructor) null , clone(first), clone(sequence));
     }
+            
   }
   public boolean isStart() {
     return false;
   }
 
   static public class Start extends Sym {
-    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")],breakable=false)
   
     
     private final org.rascalmpl.ast.Nonterminal nonterminal;
   
-    public Start(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
+    public Start(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(src, node);
       
       this.nonterminal = nonterminal;
     }
@@ -1499,6 +1990,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Start)) {
         return false;
@@ -1509,7 +2017,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 359 * nonterminal.hashCode() ; 
+      return 61 + 281 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1525,21 +2033,22 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(nonterminal));
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal));
     }
+            
   }
   public boolean isStartOfLine() {
     return false;
   }
 
   static public class StartOfLine extends Sym {
-    // Production: sig("StartOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+    // Production: sig("StartOfLine",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
   
-    public StartOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
-      super(node);
+    public StartOfLine(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
       
       this.symbol = symbol;
     }
@@ -1555,6 +2064,23 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof StartOfLine)) {
         return false;
@@ -1565,7 +2091,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 659 * symbol.hashCode() ; 
+      return 263 + 19 * symbol.hashCode() ; 
     } 
   
     
@@ -1581,22 +2107,23 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
     }
+            
   }
   public boolean isUnequal() {
     return false;
   }
 
   static public class Unequal extends Sym {
-    // Production: sig("Unequal",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")])
+    // Production: sig("Unequal",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym symbol;
     private final org.rascalmpl.ast.Sym match;
   
-    public Unequal(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
-      super(node);
+    public Unequal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
       
       this.symbol = symbol;
       this.match = match;
@@ -1613,6 +2140,31 @@ public abstract class Sym extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unequal)) {
         return false;
@@ -1623,7 +2175,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 211 * symbol.hashCode() + 307 * match.hashCode() ; 
+      return 61 + 241 * symbol.hashCode() + 409 * match.hashCode() ; 
     } 
   
     
@@ -1648,7 +2200,8 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(symbol), clone(match));
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
     }
+            
   }
 }

@@ -31,7 +31,7 @@ import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
@@ -43,10 +43,10 @@ public class Symbols {
 	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {
 			if (lex) {
-				return factory.constructor(Factory.Symbol_Lex, factory.string(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) type.getUser().getName()).lastName()));
+				return factory.constructor(RascalValueFactory.Symbol_Lex, factory.string(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) type.getUser().getName()).lastName()));
 			}
 			else {
-				return factory.constructor(Factory.Symbol_Sort, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+				return factory.constructor(RascalValueFactory.Symbol_Sort, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
 			}
 		}
 		
@@ -61,7 +61,7 @@ public class Symbols {
 	private static IValue symbolAST2SymbolConstructor(Sym symbol, boolean lex, String layout) {
 		
 		if (symbol.isCaseInsensitiveLiteral()) {
-			return factory.constructor(Factory.Symbol_CiLit, ciliteral2Symbol(symbol.getCistring()));
+			return factory.constructor(RascalValueFactory.Symbol_CiLit, ciliteral2Symbol(symbol.getCistring()));
 		}
 		if (symbol.isCharacterClass()) {
 			Class cc = symbol.getCharClass();
@@ -69,28 +69,28 @@ public class Symbols {
 		}
 		if (symbol.isIter()) {
 			if (lex) {
-				return factory.constructor(Factory.Symbol_IterPlus, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+				return factory.constructor(RascalValueFactory.Symbol_IterPlus, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
-				IValue layoutSymbol = factory.constructor(Factory.Symbol_LayoutX, factory.string(layout));
+				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
 				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 				IValue seps = factory.list(layoutSymbol);
-				return factory.constructor(Factory.Symbol_IterSepX, elementSym, seps);
+				return factory.constructor(RascalValueFactory.Symbol_IterSepX, elementSym, seps);
 			}
 		}
 		if (symbol.isIterStar()) {
 			if (lex) {
-				return factory.constructor(Factory.Symbol_IterStar, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+				return factory.constructor(RascalValueFactory.Symbol_IterStar, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
-				IValue layoutSymbol = factory.constructor(Factory.Symbol_LayoutX, factory.string(layout));
+				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
 				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 				IValue seps = factory.list(layoutSymbol);
-				return factory.constructor(Factory.Symbol_IterStarSepX, elementSym, seps);
+				return factory.constructor(RascalValueFactory.Symbol_IterStarSepX, elementSym, seps);
 			}
 		}
 		if (symbol.isIterSep()) {
-			IValue layoutSymbol = factory.constructor(Factory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
@@ -102,11 +102,11 @@ public class Symbols {
 				seps = factory.list(layoutSymbol, sepSym, layoutSymbol);
 			}
 			
-			return factory.constructor(Factory.Symbol_IterSepX, elementSym, seps);
+			return factory.constructor(RascalValueFactory.Symbol_IterSepX, elementSym, seps);
 		}
 		
 		if (symbol.isIterStarSep()) {
-			IValue layoutSymbol = factory.constructor(Factory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
@@ -116,34 +116,34 @@ public class Symbols {
 			else {
 				seps = factory.list(layoutSymbol, sepSym, layoutSymbol);
 			}
-			return factory.constructor(Factory.Symbol_IterStarSepX, elementSym, seps);
+			return factory.constructor(RascalValueFactory.Symbol_IterStarSepX, elementSym, seps);
 		}
 		
 		if (symbol.isLiteral()) {
 			return literal2Symbol(symbol.getString());
 		}
 		if (symbol.isOptional()) {
-			return factory.constructor(Factory.Symbol_Opt, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+			return factory.constructor(RascalValueFactory.Symbol_Opt, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 		}
 		
 		if (symbol.isStart()) {
 			Nonterminal nonterminal = symbol.getNonterminal();
-			return factory.constructor(Factory.Symbol_Start_Sort, factory.constructor(Factory.Symbol_Sort, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
+			return factory.constructor(RascalValueFactory.Symbol_Start_Sort, factory.constructor(RascalValueFactory.Symbol_Sort, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
 		}
 		if (symbol.isNonterminal()) {
 			Nonterminal nonterminal = symbol.getNonterminal();
 			IString name = factory.string(((Nonterminal.Lexical) nonterminal).getString());
 			if (lex) {
-				return factory.constructor(Factory.Symbol_Lex, name);
+				return factory.constructor(RascalValueFactory.Symbol_Lex, name);
 			}
 			else {
-				return factory.constructor(Factory.Symbol_Sort, name);
+				return factory.constructor(RascalValueFactory.Symbol_Sort, name);
 			}
 		}
 		
 		if(symbol.isSequence()){
 			List<Sym> symbols = symbol.getSequence();
-			IValue layoutSymbol = factory.constructor(Factory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
 			IValue[] symValues = new IValue[lex ? symbols.size() : symbols.size() * 2 - 1];
 			for(int i = symbols.size() - 1; i >= 0; i -= lex ? 1 : 2) {
 				symValues[lex ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
@@ -152,7 +152,7 @@ public class Symbols {
 				}
 			}
 			IValue syms = factory.list(symValues);
-			return factory.constructor(Factory.Symbol_Seq, syms);
+			return factory.constructor(RascalValueFactory.Symbol_Seq, syms);
 		}
 		if(symbol.isAlternative()){
 			List<Sym> symbols = symbol.getSequence();
@@ -161,7 +161,7 @@ public class Symbols {
 				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
 			}
 			IValue syms = factory.list(symValues);
-			return factory.constructor(Factory.Symbol_Alt, syms);
+			return factory.constructor(RascalValueFactory.Symbol_Alt, syms);
 		}
 		if (symbol.isParametrized()) {
 			List<Sym> symbols = symbol.getParameters();
@@ -170,7 +170,7 @@ public class Symbols {
 				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
 			}
 			IValue syms = factory.list(symValues);
-			return factory.constructor(Factory.Symbol_ParameterizedSort, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), syms);
+			return factory.constructor(RascalValueFactory.Symbol_ParameterizedSort, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), syms);
 		}
 		
 		if (symbol.isPrecede() || symbol.isNotPrecede() || symbol.isFollow() || symbol.isNotFollow() || symbol.isColumn() || symbol.isStartOfLine() || symbol.isEndOfLine() || symbol.isExcept()) {
@@ -237,7 +237,7 @@ public class Symbols {
 			}
 		}
 		
-		return factory.constructor(Factory.Symbol_Lit, factory.string(builder.toString()));
+		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
 	}
 	
 	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
@@ -275,28 +275,28 @@ public class Symbols {
 			}
 		}
 		
-		return factory.constructor(Factory.Symbol_Lit, factory.string(builder.toString()));
+		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
 	}
 
 	private static IValue charclass2Symbol(Class cc) {
 		if (cc.isSimpleCharclass()) {
-			return factory.constructor(Factory.Symbol_CharClass, ranges2Ranges(cc.getRanges()));
+			return factory.constructor(RascalValueFactory.Symbol_CharClass, ranges2Ranges(cc.getRanges()));
 		}
 		throw new NotYetImplemented(cc);
 	}
 	
 	private static IList ranges2Ranges(List<Range> ranges) {
-		IListWriter result = factory.listWriter(Factory.CharRanges.getElementType());
+		IListWriter result = factory.listWriter(RascalValueFactory.CharRanges.getElementType());
 		
 		for (Range range : ranges) {
 			if (range.isCharacter()) {
 				IValue ch = char2int(range.getCharacter());
-				result.append(factory.constructor(Factory.CharRange_Single, ch));
+				result.append(factory.constructor(RascalValueFactory.CharRange_Single, ch));
 			}
 			else if (range.isFromTo()) {
 				IValue from = char2int(range.getStart());
 				IValue to = char2int(range.getEnd());
-				result.append(factory.constructor(Factory.CharRange_Range, from, to));
+				result.append(factory.constructor(RascalValueFactory.CharRange_Range, from, to));
 			}
 		}
 		

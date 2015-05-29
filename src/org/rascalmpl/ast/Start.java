@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Start extends AbstractAST {
-  public Start(IConstructor node) {
-    super();
+  public Start(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Start extends AbstractAST {
   }
 
   static public class Absent extends Start {
-    // Production: sig("Absent",[])
+    // Production: sig("Absent",[],breakable=false)
   
     
   
-    public Absent(IConstructor node ) {
-      super(node);
+    public Absent(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class Start extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Absent)) {
         return false;
@@ -63,27 +73,28 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 313 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
   public boolean isPresent() {
     return false;
   }
 
   static public class Present extends Start {
-    // Production: sig("Present",[])
+    // Production: sig("Present",[],breakable=false)
   
     
   
-    public Present(IConstructor node ) {
-      super(node);
+    public Present(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -98,6 +109,15 @@ public abstract class Start extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Present)) {
         return false;
@@ -108,14 +128,15 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 199 ; 
+      return 127 ; 
     } 
   
     	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null );
     }
+            
   }
 }

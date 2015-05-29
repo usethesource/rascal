@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class LocationLiteral extends AbstractAST {
-  public LocationLiteral(IConstructor node) {
-    super();
+  public LocationLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class LocationLiteral extends AbstractAST {
   }
 
   static public class Default extends LocationLiteral {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.ProtocolPart","protocolPart"),arg("org.rascalmpl.ast.PathPart","pathPart")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.ProtocolPart","protocolPart"),arg("org.rascalmpl.ast.PathPart","pathPart")],breakable=false)
   
     
     private final org.rascalmpl.ast.ProtocolPart protocolPart;
     private final org.rascalmpl.ast.PathPart pathPart;
   
-    public Default(IConstructor node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
+      super(src, node);
       
       this.protocolPart = protocolPart;
       this.pathPart = pathPart;
@@ -71,6 +72,31 @@ public abstract class LocationLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = protocolPart.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        protocolPart.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = pathPart.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pathPart.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class LocationLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 433 * protocolPart.hashCode() + 359 * pathPart.hashCode() ; 
+      return 691 + 479 * protocolPart.hashCode() + 89 * pathPart.hashCode() ; 
     } 
   
     
@@ -106,7 +132,8 @@ public abstract class LocationLiteral extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), (IConstructor) null , clone(protocolPart), clone(pathPart));
+      return newInstance(getClass(), src, (IConstructor) null , clone(protocolPart), clone(pathPart));
     }
+            
   }
 }

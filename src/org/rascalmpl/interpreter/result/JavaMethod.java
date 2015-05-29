@@ -148,15 +148,13 @@ public class JavaMethod extends NamedFunction {
 		}
 
 		if (callTracing) {
-			printStartTrace();
+			printStartTrace(actuals);
 		}
 
 		Environment old = ctx.getCurrentEnvt();
 
 		try {
 			ctx.pushEnv(getName());
-
-			
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
@@ -167,14 +165,16 @@ public class JavaMethod extends NamedFunction {
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
 			storeMemoizedResult(actuals, keyArgValues, resultValue);
+			printEndTrace(resultValue.value);
 			return resultValue;
 		}
-		catch (Throw t) {
-			throw t;
+		catch (Throwable e) {
+			printExcept(e);
+			throw e;
 		}
 		finally {
 			if (callTracing) {
-				printEndTrace();
+				callNesting--;
 			}
 			ctx.unwind(old);
 		}

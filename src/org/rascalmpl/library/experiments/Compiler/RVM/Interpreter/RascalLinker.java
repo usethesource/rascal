@@ -17,11 +17,10 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.persistent.PDBPersistentHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTConfiguration;
 
@@ -137,6 +136,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
 			functionStore.add(f);
+			f.funId = index ;
 		} else {
 			functionStore.set(index, f);
 		}
@@ -158,13 +158,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		
 		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
 		// should be done earlier
-		if(symbol.getConstructorType() == Factory.Symbol_Prod){
-			//System.out.println("declareConstructor: " + symbol);
+		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
+			System.out.println("declareConstructor: " + symbol);
 			IValue sort = symbol.get("sort");
 			IValue parameters = symbol.get("parameters");
 			IValue attributes = symbol.get("attributes");
 			//constr = tf.constructor(typeStore, Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
-			symbol = vf.constructor(Factory.Production_Default, sort, parameters, attributes);
+			symbol = vf.constructor(RascalValueFactory.Production_Default, sort, parameters, attributes);
 		}	
 		Type constr = symbolToType(symbol);
 		Integer index = constructorMap.get(cname);
@@ -410,7 +410,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		return new RVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
@@ -468,6 +468,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
 	
+		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -544,11 +545,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoints);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"), ++continuationPoints);
 				break;
 				
 			case "APPLY":
@@ -610,11 +611,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoints);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoints);
 				break;
 				
 			case "SHIFT":
@@ -730,7 +731,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoints);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -833,7 +834,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 										 isConcreteArg,
 										 abstractFingerprint,
 										 concreteFingerprint, 
-										 codeblock, src);
+										 codeblock, src, continuationPoints);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);
