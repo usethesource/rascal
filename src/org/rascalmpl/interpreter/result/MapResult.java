@@ -274,7 +274,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public Result<IValue> fieldSelect(int[] selectedFields) {
-		ISetWriter w = getValueFactory().relationWriter();
+		ISetWriter w = getValueFactory().setWriter();
 		
 		// TODO: poor mans implementation can be made much faster without intermediate relation building
 		Iterator<Entry<IValue,IValue>> it = value.entryIterator();
