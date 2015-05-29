@@ -65,7 +65,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
 	  	       rvmProgram = readBinaryValueFile(#RVMProgram, rvmProgramLoc);
 	  	       
 	  	       // Temporary work around related to issue #343
-	  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
+	  	       //rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
 	  	       
 	  	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
 	  	       rvmModules[moduleLoc] = rvmProgram;
@@ -99,7 +99,7 @@ RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home
     			rvmProgram = readBinaryValueFile(#RVMProgram, rvmProgramLoc);
 	  	       
 	  	       // Temporary work around related to issue #343
-	  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
+	  	       //rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
 	  	       
 	  	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
 	  	       rvmModules[moduleLoc] = rvmProgram;
