@@ -408,7 +408,6 @@ public class BytecodeGenerator implements Opcodes {
 		Label target = getNamedLabel(targetLabel);
 
 		mv.visitIincInsn(SP, -1);
-		; // pop part of jmp...
 		mv.visitVarInsn(ALOAD, 3);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitInsn(AALOAD);
