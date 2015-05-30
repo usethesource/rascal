@@ -812,6 +812,8 @@ private int endPos = 5;
 private int iDescDescriptorPos = 6;
 
 private int NumberOfPhiFormals = 7;
+private int replacementPos = 7;
+private int NumberOfPhiLocals = 8;
 
 // Generated PHI_FIXPOINT functions
 // iSubjectPos, matchedPos, hasInsert, begin, end, descriptor (as for PHI)
@@ -891,8 +893,8 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	//	println(tup);
 	//}
 	
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor)
-	int pos_in_phi = NumberOfPhiFormals;
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor) and local replacementPos
+	int pos_in_phi = NumberOfPhiLocals;
 	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
 	map[tuple[str,int],tuple[str,int]] mapping = ();
@@ -1020,8 +1022,19 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 	code = translate(stat);
 	code = visit(code) { case muReturn0()  => leaveVisitReturn(fuid, muCon(false))
 						 case muReturn1(e) => leaveVisitReturn(fuid, e)
-						 case muInsert(e)  => muBlock([ muAssignVarDeref("hasInsert",fuid,hasInsertPos,muBool(true)), 
-				  									    muReturn1(e) ])
+						 case muInsert(e): { 
+						 	ifname = nextLabel();
+						    replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
+		                                                        muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+						    insert muBlock([ muAssign("replacement", fuid, replacementPos, e),
+    				                         muIfelse(ifname, replcond,
+    				                                  [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                                                muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
+    				                                    muReturn1(muVar("replacement", fuid, replacementPos)) ],
+    				                                  [ muCon(666) ])
+    				                       ]);
+    				     }
+					
 	 					};
 	return code;
 }
@@ -1029,6 +1042,7 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, PatternWithAction pwa, map[int, MuExp] table, int key){
 	cond = muMulti(muApply(translatePatInVisit(pwa.pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
 	ifname = nextLabel();
+	ifname2 = nextLabel();
 	enterBacktrackingScope(ifname);
 	if(pwa is replacing) {
 		replacement = translate(pwa.replacement.replacementExpression);
@@ -1036,27 +1050,36 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		if(pwa.replacement is conditional) {
 			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
-		replacementType = getType(pwa.replacement.replacementExpression@\loc);
-		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-		                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
-		                      replacement ];
-    	table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
-    				          [ replacementReturn(muBlock(cbody)) ], 
-    				          [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
+		
+		// TODO: We use the run-time type of the current subject here but this should become the static type
+		
+		replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
+		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		                      
+    	table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
+    				                    [ muAssign("replacement", fuid, replacementPos, replacement),
+    				                      muIfelse(ifname2, replcond,
+    				                               [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                                             muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
+    				                                 replacementReturn(muVar("replacement", fuid, replacementPos)) ],
+    				                               [ muCon(666) ])
+    				                     ], 
+    				                     [ muCon(777) ]),  
+    				            table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
+    				          ]);
     	leaveBacktrackingScope();
 	} else {
 		// Arbitrary
 		case_statement = pwa.statement;
 		\case = translateStatementInVisitCase(fuid, case_statement);
-		insertType = topCaseType();
 		clearCaseType();
-		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
+		list[MuExp] cbody = [];
 		if(!(muBlock([]) := \case)) {
 			cbody += \case;
 		}
-		cbody += replacementReturn(muVar("iSubject", fuid, iSubjectPos));
-		table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, 
-		                      [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
+		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ muCon(666) ]),
+		                       table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
+		                     ]);
     	leaveBacktrackingScope();
 	}
 	return table;
