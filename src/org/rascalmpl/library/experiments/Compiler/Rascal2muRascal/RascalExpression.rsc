@@ -830,23 +830,23 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	MuExp traverse_fun;
 	bool fixpoint = false;
 	
-	if(\visit is defaultStrategy) {
-		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
-	} else {
-		switch("<\visit.strategy>") {
-			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
-			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN");
-			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK");
-			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK");
-			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP"); fixpoint = true; }
-			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN"); fixpoint = true; }
-		}
-	}
-	
-	bool rebuild = false;
+	str rebuild = "";
 	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
 									|| hasTopLevelInsert(c)) ) {
-		rebuild = true;
+		rebuild = "_REBUILD";
+	}
+	
+	if(\visit is defaultStrategy) {
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
+	} else {
+		switch("<\visit.strategy>") {
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>");
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK<rebuild>");
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK<rebuild>");
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>"); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>"); fixpoint = true; }
+		}
 	}
 	
 	// Unique 'id' of a visit in the function body
@@ -971,14 +971,14 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 		
 		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, false, \visit@\loc, [], (), false, 0, 0, muBlock(body_exps)));
 	
-		return traversalCall(traverse_fun, scopeId, phi_fixpoint_fuid, descriptor, translate(\visit.subject), rebuild);
+		return traversalCall(traverse_fun, scopeId, phi_fixpoint_fuid, descriptor, translate(\visit.subject));
 	}
 	
-	return traversalCall(traverse_fun, scopeId, phi_fuid, descriptor, translate(\visit.subject), rebuild);
+	return traversalCall(traverse_fun, scopeId, phi_fuid, descriptor, translate(\visit.subject));
 }
 
 
-private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp descriptor, MuExp subject, bool rebuild){
+private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp descriptor, MuExp subject){
 	// Local variables of the surrounding function
 	str hasMatch = asTmp(nextLabel());
 	str beenChanged = asTmp(nextLabel());
@@ -996,8 +996,8 @@ private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp
 					                        			muTmpRef(leaveVisit,scopeId),
 					                        			muTmpRef(begin,scopeId), 
 					 	 								muTmpRef(end,scopeId),
-					 	 								descriptor,
-					                        			muBool(rebuild) ])),
+					 	 								descriptor
+					                        			])),
 					 muIfelse(nextLabel(), muTmp(leaveVisit, scopeId), 
 						                   [ muReturn1(muTmp(val, scopeId)) ],
 						                   [ muTmp(val, scopeId) ])
