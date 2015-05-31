@@ -1,14 +1,10 @@
 module experiments::Compiler::Examples::Tst5
 
-int twice (int n) = 2 * n;
-int triple (int n) = 3 * n;
+import lang::rascal::tests::types::StaticTestingUtils;
 
-int dup (int n) = n + n;
-str dup (str s) = s + s;
+import ParseTree;
 
-int trip(int n) = n + n + n;
-str trip(str s) = s + s + s;
 
-test bool twiceTriple1(){
-    return (twice o triple)(5) == twice(triple(5));
-}
+value main(list[value] args) = 
+	checkOK("Program p;", //"(Program) `begin declare x: natural; x := 10 end`;", 
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
