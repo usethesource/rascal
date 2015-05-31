@@ -3003,11 +3003,10 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  println("extractPatternTree: <pat> <concrete.parts>");
   if (!(concrete has parts)) {
     throw "it seems concrete syntax has already been expanded";
   }
-  psList = for (hole(\one(Sym sym, Name n)) <- concrete.parts) {
+  psList = for (/hole(\one(Sym sym, Name n)) := concrete) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
    
     append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
@@ -7131,7 +7130,7 @@ public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::M
 		
 		try {
 			dt1 = now();
-			modTree = getModuleParseTree(prettyPrintName(modName));
+			modTree = parse(#start[Module], getModuleLocation(prettyPrintName(modName))).top;
 			sigMap[modName] = getModuleSignature(modTree);
 			moduleLocs[modName] = modTree@\loc;
 			c = addModule(c,modName,modTree@\loc);
