@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -873,7 +873,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> expr = this.getExpression().interpret(__eval);
-			return expr.has(this.getField());
+			return expr.isDefined(this.getField());
 		}
 	}
 
@@ -2123,6 +2123,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			return variable;
 
+		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
+			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
+			__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
+			return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
 		}
 
 		@Override

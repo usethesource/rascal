@@ -47,7 +47,7 @@ Synopsis: Set all keyword parameters back to default.
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
-public &T <: node unsetRec(&T <: node x) = visit(x) { 
+public &T unsetRec(&T x) = visit(x) { 
   case node n => unset(n) 
 };
 

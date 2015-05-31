@@ -18,10 +18,12 @@ import org.rascalmpl.ast.AbstractAST;
 public class ModuleImport extends StaticError {
 	public ModuleImport(String name, String cause, AbstractAST ast) {
 		super("Could not import module " + name + (cause != null ? (": " + cause) : ""), ast);
+		System.err.println("hello");
 	}
 
 	public ModuleImport(String name, String cause, ISourceLocation errorLocation) {
 		super("Could not import module " + name + (cause != null ? (": " + cause) : ""), errorLocation);
+		System.err.println("hello");
 	}
 
 	private static final long serialVersionUID = -2382848293435609203L;

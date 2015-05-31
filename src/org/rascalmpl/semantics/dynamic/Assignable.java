@@ -243,12 +243,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
 			Result<IValue> receiver = this.getReceiver().interpret(
 					(Evaluator) __eval.__getEval());
 			String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
-			if (receiver == null || receiver.getValue() == null) {
+			if ((receiver == null || receiver.getValue() == null)) {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
@@ -347,7 +346,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getField()).getValue(), __eval.getEvaluator());
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).isDefined(getField()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override

@@ -50,14 +50,12 @@ test bool compositeAndOr() {
     return n == 20;
 }
 
-data AnotherAndData = a();
-
-anno list[int] AnotherAndData@l;
+data AnotherAndData = a(list[int] l = []);
 
 test bool anotherAnd() {
-    v = a()[@l = [1,2,3]];
+    v = a()[l = [1,2,3]];
     list[list[int]] res = [];
-    if(v@l? && [*int x,*int y] := v@l) {
+    if(v.l? && [*int x,*int y] := v.l) {
        res = res + [ x, y ];
        fail;
     }

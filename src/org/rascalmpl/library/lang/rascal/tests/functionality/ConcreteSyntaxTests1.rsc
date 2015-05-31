@@ -1,6 +1,7 @@
 module lang::rascal::tests::functionality::ConcreteSyntaxTests1
 
 import ParseTree;
+import Node;
 
 layout Whitespace = [\ \t\n]*;
 
@@ -34,9 +35,11 @@ test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>
 
 test bool sortsInGrammar() {A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E ","}+ vES2; return true;}
 
-test bool asType1() = < [As] "aaaa", [Bs] "bbb" > == < (As) `aaaa`, (Bs) `bbb` >;
+test bool asType1() = unsetRec(<[As] "aaaa", [Bs] "bbb">) == unsetRec(<(As) `aaaa`, (Bs) `bbb`>);
 
-test bool asType2() = < [As] "aaAA", [Bs] "bbBB" > == < (As) `aaAA`, (Bs) `bbBB` >;
+test bool asType2() = unsetRec(<[As] "aaAA", [Bs] "bbBB">) == unsetRec(<(As) `aaAA`, (Bs) `bbBB`>);
+
+test bool nestedTreeEqual() = unsetRec([[Bs] "bbb"]) ==  unsetRec([(Bs) `bbb`]);
 
 /*
 
