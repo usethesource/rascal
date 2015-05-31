@@ -1,8 +1,19 @@
 module experiments::Compiler::Examples::Tst4
 
-extend experiments::Compiler::Tests::TestUtils;
+import Node;
 
-//test bool tst() = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(0);
+public &T delAnnotationsRec1(&T v) = visit(v) { 
+     case node n => delAnnotations(n) 
+  };
 
+data ANODE = leaf(int n) | a(ANODE left, ANODE right);
+anno int ANODE @ pos;
+anno str ANODE @ label;
 
-value main(list[value] args) = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") ;
+public ANODE A1 = leaf(3);
+public ANODE A2 = leaf(3)[@pos = 1][@label="a"];
+
+//test bool delAnnotationsRec3() = !delAnnotationsRec(A2)@pos?;
+//test bool delAnnotationsRec4() = !delAnnotationsRec(A2)@label?;
+
+value main(list[value] args) = !delAnnotationsRec1(A2)@pos?;
