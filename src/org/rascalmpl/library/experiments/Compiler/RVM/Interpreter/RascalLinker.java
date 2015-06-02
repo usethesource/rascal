@@ -159,7 +159,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
 		// should be done earlier
 		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
-			System.out.println("declareConstructor: " + symbol);
+			//System.out.println("declareConstructor: " + symbol);
 			IValue sort = symbol.get("sort");
 			IValue parameters = symbol.get("parameters");
 			IValue attributes = symbol.get("attributes");
