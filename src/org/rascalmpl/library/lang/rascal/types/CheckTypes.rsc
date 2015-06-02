@@ -4410,76 +4410,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
         return markLocationType(c, stmt@\loc, \list(loopElementType)); 
 }
 
-@doc{Check the type of Rascal statements: DoWhile}
-public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statement bdy> while (<Expression cond>);`, Configuration c) {
-    set[Symbol] failures = { };
-
-    // Treat this construct as a block, since the label has a defined scope from the start to
-    // the end of the construct, but not outside of it.
-    cDoWhile = enterBlock(c,stmt@\loc);
-
-    // Add the appropriate label into the label stack and label environment. If we have a blank
-    // label we still add it to the stack, but not to the environment, since we cannot access it
-    // using a name.
-    if ((Label)`<Name n> :` := lbl) {
-        labelName = convertName(n);
-        if (labelExists(cDoWhile,labelName)) cDoWhile = addMessage(cDoWhile,error("Cannot reuse label names: <n>", lbl@\loc));
-        cDoWhile = addLabel(cDoWhile,labelName,lbl@\loc,doWhileLabel());
-        cDoWhile.labelStack = labelStackItem(labelName, doWhileLabel(), Symbol::\void()) + cDoWhile.labelStack;
-    } else {
-        cDoWhile.labelStack = labelStackItem(RSimpleName(""), doWhileLabel(), Symbol::\void()) + cDoWhile.labelStack;
-    }
-
-    // Check the body of the loop               
-    cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
-    < cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
-
-    // See if the loop changed the type of any vars declared outside of the loop.
-    modifiedVars = { vl | vl <- (cDoWhileBody.fcvEnv<1> & cDoWhile.fcvEnv<1>), variable(_,rt1,true,_,_) := cDoWhileBody.store[vl], variable(_,rt2,true,_,_) := cDoWhile.store[vl], !equivalent(rt1,rt2) };
-    modifiedVarValues = ( vl : cDoWhileBody.store[vl].rtype | vl <- modifiedVars );
-
-    cDoWhile = exitBlock(cDoWhileBody, cDoWhile);
-    if (isFailType(t2)) failures += t2;
-
-    // If the loop did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
-    // the loop does not cause the type to stabilize, in which case we want to issue a warning and set the type of
-    // the var in question to value.
-    if (size(modifiedVars) > 0) {
-        cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
-        < cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
-        modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cDoWhileBody.store[vl].rtype,modifiedVarValues[vl]) };
-        cDoWhile = exitBlock(cDoWhileBody, cDoWhile);
-        if (isFailType(t2)) failures += t2;
-        
-        for (vl <- modifiedVars2) {
-            cDoWhile.store[vl].rtype = Symbol::\value();
-            cDoWhile = addMessage(cDoWhile, error("Type of variable <prettyPrintName(cDoWhile.store[vl].name)> does not stabilize in loop", bdy@\loc));
-        }               
-    }
-
-    // Check the loop condition 
-    cDoWhileBool = enterBooleanScope(cDoWhile,cond@\loc);
-    < cDoWhileBool, t1 > = checkExp(cond, cDoWhileBool);
-    cDoWhile = exitBooleanScope(cDoWhileBool, cDoWhile);
-    
-    if (isFailType(t1)) 
-        failures += t1;
-    else if (!isBoolType(t1))
-        failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-
-    // Get out any append info, which is used to calculate the loop type, and then
-    // pop the label stack.         
-    loopElementType = head(cDoWhile.labelStack).labelType;
-    cDoWhile.labelStack = tail(cDoWhile.labelStack);
-
-    // Now, return to the scope on entry, removing the label
-    c = exitBlock(cDoWhile, c);
-    
-    if (size(failures) > 0)
-        return markLocationFailed(c, stmt@\loc, failures);
-    else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
-}
+   
 
 @doc{Check the type of Rascal statements: For}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expression ","}+ gens> ) <Statement bdy>`, Configuration c) {
@@ -7147,7 +7078,7 @@ public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::M
 			}
 			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 		} catch perror : {
-			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>", md@\loc);
+			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>: <perror>", md@\loc);
 			notImported = notImported + modName;
 		}
 	}
@@ -7436,18 +7367,18 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		if (rebuildNeeded) {
 			try {
 				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
-			} catch : {
+			} catch cfgerror: {
 				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>", md@\loc);
+				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: : <cfgerror>", md@\loc);
 			}
 			dirty = true;
 		} else {
 			try {
 				importLoc = getModuleLocation(prettyPrintName(wl));
 				checkedModules[wl] = getCachedConfig(importLoc, bindir);
-			} catch : {
+			} catch cherror: {
 				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>", md@\loc);
+				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: <cherror>", md@\loc);
 			}
 		}
 	}
