@@ -15,8 +15,8 @@ label alternatives.
   }
   // first check for direct prefers / avoids
   direct = { t | t:appl(prod(_,_,{\tag("prefer"()),*_}),_) <- alternatives};
-  if (size(direct) == 1) {
-  	return ParseTree::amb(direct);
+  if ({oneTree} := direct) {
+  	return oneTree;
   }
   if (size(direct) != 0) {
   	// some were filtered
