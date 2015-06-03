@@ -32,7 +32,6 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::types::CheckModule;
 import lang::rascal::meta::ModuleInfo;
 import lang::rascal::types::Util;
 
@@ -7285,6 +7284,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 	// Get the transitive modules that will be imported
 	< ig, infomap > = getImportGraphAndInfo(md, extraImports=defaultModules);
+	c.importGraph = ig;
 	map[RName,str] currentHashes = ( );
 	for (imn <- carrier(ig)) {
 		try {
@@ -7322,17 +7322,16 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// Before checking the module, see if any of the imports need to be recomputed. If so, we need
 	// to recompute those imports, and we need to recompute the checker results for the current
 	// module as well. 
+	dirtyModules = { };
 	for (wl <- allImports) {
 		reachable = igTrans[wl];
-		rebuildNeeded = false;
 		for (r <- reachable) {
 			try {
 				dependencyLoc = getModuleLocation(prettyPrintName(r));
 				if (!exists(cachedHash(dependencyLoc, bindir))) {
 					// If we import this module, but the saved cache doesn't exist, we need
 					// to rebuild this import. 
-					rebuildNeeded = true;
-					break;
+					dirtyModules = dirtyModules + wl;
 				} else {
 					existingHash = getCachedHash(dependencyLoc, bindir);
 					if (r in currentHashes) {
@@ -7341,14 +7340,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 							// If we import this module, and the saved cache exists, but it
 							// either differs from the current hash or the saved hash, we need
 							// to rebuild this import. 
-							rebuildNeeded = true;
-							break;
+							dirtyModules = dirtyModules + wl;
 						}
 					} else {
 						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
 						// will generate the hash for r eventually, since it is a dependency.
-						rebuildNeeded = true;
-						break;
+						dirtyModules = dirtyModules + wl;
 					}
 				}
 
@@ -7356,15 +7353,16 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// reason, we need to rebuild this import. We will rebuild rl, since this will
 				// then eventually rebuild r (which is a dependency).
 				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					rebuildNeeded = true;
-					break;
+					dirtyModules = dirtyModules + wl;
 				}
 			} catch : {
 				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
 		}
 		
-		if (rebuildNeeded) {
+		c.dirtyModules = dirtyModules;
+		
+		if (size(dirtyModules) > 0) {
 			try {
 				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
 			} catch cfgerror: {
