@@ -7468,6 +7468,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// since these appear as local declarations. So, for each import, this computes the modules that provide
 	// importable names, based on this rule.		
 	importFrom = { < m2i, m2i > | m2i <- ( modulesToImport<0> + defaultModules<0> ) };
+	importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[moduleName].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
 	solve(importFrom) {
 		importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
 	}	
