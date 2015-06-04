@@ -46,7 +46,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {
-	private final Type constructorType;
+	protected final Type constructorType;
 	private final List<KeywordFormal> initializers;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
@@ -203,8 +203,9 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-		if (constructorType == RascalValueFactory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
+		// TODO: when characters get proper types we need to add them here.
+		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle) {
+			return new ConcreteConstructorFunction(ast, constructorType, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
