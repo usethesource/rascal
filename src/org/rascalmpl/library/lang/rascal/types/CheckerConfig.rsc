@@ -131,7 +131,7 @@ data Configuration = config(set[Message] messages,
                             map[int,value] deferredSignatures,
                             set[RName] unimportedNames,
                             bool importing,
-                            ImportGraph importGraph,
+                            rel[RName,RName] importGraph,
                             set[RName] dirtyModules
                            );
 
