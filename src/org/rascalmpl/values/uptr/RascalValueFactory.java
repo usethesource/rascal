@@ -444,6 +444,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public ITree amb(ISet alternatives) {
+		if (alternatives.size() == 1) {
+			// fast builtin canonicalization of singleton ambiguity clusters is
+			// necessary when client code filters ambiguity clusters. This may
+			// happen during visits and during parse tree construction using the
+			// `filter` statement or by constructing a singleton set accidentally.
+			//
+			// &T <: Tree amb({&T <: Tree t}) = t;
+			//
+			// Note that without this canonicalization pattern matches are bound
+			// to fail because of the extra indirection of the amb cluster.
+			return (ITree) alternatives.iterator().next();
+		}
+		
 		return new Amb(alternatives);
 	}
 	
