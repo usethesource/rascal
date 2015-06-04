@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,20 +37,22 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
 
-	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env) {
-		super(ast, eval, env, RascalValueFactory.Tree_Appl, Collections.<KeywordFormal>emptyList());
+	public ConcreteConstructorFunction(AbstractAST ast, Type constructorType, IEvaluator<Result<IValue>> eval, Environment env) {
+		super(ast, eval, env, constructorType, Collections.<KeywordFormal>emptyList());
 	}
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-		IConstructor prod = (IConstructor) actuals[0];
-		IList args = (IList) actuals[1];
+		if (constructorType == RascalValueFactory.Tree_Appl) {
+			IConstructor prod = (IConstructor) actuals[0];
+			IList args = (IList) actuals[1];
 
-		if (ProductionAdapter.isList(prod)) {
-			actuals[1] = flatten(prod, args);
+			if (ProductionAdapter.isList(prod)) {
+				actuals[1] = flatten(prod, args);
+			}
 		}
 
-		IConstructor newAppl = getValueFactory().constructor(RascalValueFactory.Tree_Appl, actuals);
+		IConstructor newAppl = getValueFactory().constructor(constructorType, actuals);
 
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
@@ -58,7 +60,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
-		IListWriter result = vf.listWriter(RascalValueFactory.Args.getElementType());
+		IListWriter result = vf.listWriter();
 		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i+=(delta + 1)) {
