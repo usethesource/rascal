@@ -125,3 +125,79 @@ test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	writeFileEnc(targetFile, encodingNames[enc], a);
 	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }
+
+@expected{PathNotFound}
+test bool writeFileOffsetNonExistingFile() {
+	writeFile(aFile[file=aFile.file + "invald"][offset=0][length=10], "Foobar");
+	return false;
+}
+
+
+@expected{PathNotFound}
+test bool writeFileOffsetNonExistingFile2() {
+	writeFile(aFile[file=aFile.file + "invald"][offset=200][length=10], "Foobar");
+	return false;
+}
+
+test bool writeFileOffsetEnd(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a);
+	l2 = aFile[offset=size(a)][length=0];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == a + b;
+}
+test bool writeFileOffsetEndInvalidLength(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a);
+	l2 = aFile[offset=size(a)][length=10];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == a + b;
+}
+
+test bool writeFileOffsetEnd2(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a + b);
+	l2 = aFile[offset=size(a)][length=size(b)];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == a + b;
+}
+
+test bool writeFileOffsetMiddle(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a+a);
+	l2 = aFile[offset=size(a)][length=size(a)];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == a + b;
+}
+
+test bool writeFileOffsetMiddle2(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a+a);
+	l2 = aFile[offset=size(a)][length=0];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == a + b + a;
+}
+
+
+test bool writeFileOffsetStart(str a, str b) {
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, "UTF8", a+a);
+	l2 = aFile[offset=0][length=size(a)];
+	writeFileEnc(l2, "UTF8", b);
+	return readFileEnc(aFile, "UTF8") == b + a;
+}
+
+
+
