@@ -209,7 +209,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			break;
 
 		case "top":
-			return makeResult(tf.sourceLocationType(), vf.sourceLocation(value.getURI()), ctx);
+			return makeResult(tf.sourceLocationType(), value.top(), ctx);
 
 		// now the calculated fields
 		case "parent": {
@@ -668,7 +668,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
     ISourceLocation left = that.getValue();
     ISourceLocation right = this.getValue();
     
-    int compare = left.getURI().toString().compareTo(right.getURI().toString());
+    int compare = left.top().toString().compareTo(right.top().toString());
     if (compare < 0) {
       return new LessThanOrEqualResult(true, false, ctx);
     }
@@ -728,7 +728,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		
 		// they are not the same
-		int compare = left.getURI().toString().compareTo(right.getURI().toString());
+		int compare = left.top().toString().compareTo(right.top().toString());
 		if (compare != 0) {
 			return compare;
 		}

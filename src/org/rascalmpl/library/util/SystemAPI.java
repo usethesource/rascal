@@ -142,7 +142,7 @@ public class SystemAPI {
 	public IValue getRascalFileContent(ISourceLocation g) {
 		FileReader a = null;
 		try {
-			a = new FileReader(g.getURI().getPath());
+			a = new FileReader(g.getPath());
 			IList r = readLines(a, "`", "\"", "\"", "\\\\\"", "<", "\\\\<",
 					">", "\\\\>");
 			// System.out.println(((IString) r.get(0)).getValue());

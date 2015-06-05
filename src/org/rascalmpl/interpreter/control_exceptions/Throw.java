@@ -139,9 +139,7 @@ public final class Throw extends ControlException {
 	@Override
 	public String getMessage() {
 		if (loc != null) {
-			URI url = loc.getURI();
-			
-			return (url.getScheme().equals("file") ? (url.getAuthority() + url.getPath()) : url) 
+			return (loc.getScheme().equals("file") ? (loc.getAuthority() + loc.getPath()) : loc.top()) 
 					+ ":" + loc.getBeginLine() 
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();
