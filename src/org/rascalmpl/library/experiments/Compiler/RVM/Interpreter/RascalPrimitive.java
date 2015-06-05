@@ -6520,7 +6520,44 @@ public enum RascalPrimitive {
 			}
 			return sp;
 		}
-	};
+	}
+//	,
+//	traverse_bottom_up {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 8;
+//			OverloadedFunctionInstance phi = (OverloadedFunctionInstance) stack[sp - 8];
+//			IValue iSubject = (IValue) stack[sp - 7];
+//			Reference rHasMatch = (Reference) stack[sp - 6];
+//			Reference rBeenChanged = (Reference) stack[sp - 5];
+//			Reference rLeaveVisit = (Reference) stack[sp - 4];
+//			Reference rBegin = (Reference) stack[sp - 3];
+//			Reference rEnd = (Reference) stack[sp - 2];
+//			IValue descendantDescriptor = (IValue) stack[sp - 1];
+//			
+//			Object[] localStack = new Object[2];
+//			Reference rMatched = new Reference(localStack, 0);
+//			Reference rChanged = new Reference(localStack, 1);
+//			
+//			localStack[0] = vf.bool(false);
+//			localStack[1] = vf.bool(false);
+//			
+//			iSubject = VISIT_CHILDREN(iSubject, traverse_bottom_up, rHasMatch, phi, rBegin, rEnd, descendantDescriptor);
+//			iSubject = 
+//			rBeenChanged.setValue(((IBool)rChanged).or((IBool) rBeenChanged));
+//			return sp - 7;
+//		}
+//
+//		private IValue VISIT_CHILDREN(IValue iSubject,
+//				RascalPrimitive traverseBottomUp, Reference rHasMatch,
+//				OverloadedFunctionInstance phi, Reference rBegin,
+//				Reference rEnd, IValue descendantDescriptor) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//	}
+	
+	;
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
 

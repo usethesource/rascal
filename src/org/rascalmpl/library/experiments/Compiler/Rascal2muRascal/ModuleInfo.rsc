@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::ModuleInfo
 import List;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import IO;
 
  // Global state maintained when translating a Rascal module
 
@@ -64,7 +65,7 @@ public list[MuFunction] getFunctionsInModule() {
 }
 
 public void addFunctionToModule(MuFunction fun) {
-   //println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
+   println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
    functions_in_module += [fun];
    
    //for(f <- functions_in_module){ println("\t<f.qname>, \"<f.scopeIn>\""); }
