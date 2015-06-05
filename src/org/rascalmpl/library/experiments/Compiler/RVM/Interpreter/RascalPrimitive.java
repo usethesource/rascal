@@ -3715,7 +3715,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) stack[sp - 2];
 			ISourceLocation right = (ISourceLocation) stack[sp - 1];
 
-			int compare = left.getURI().toString().compareTo(right.getURI().toString());
+			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
 				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
@@ -4185,7 +4185,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) stack[sp - 2];
 			ISourceLocation right = (ISourceLocation) stack[sp - 1];
 
-			int compare = left.getURI().toString().compareTo(right.getURI().toString());
+			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
 				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
@@ -6873,7 +6873,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getURI().getScheme() + " does not support the port field, use authority instead.", currentFrame);
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
