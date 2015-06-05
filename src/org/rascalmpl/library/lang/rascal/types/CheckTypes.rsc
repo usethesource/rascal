@@ -7326,6 +7326,19 @@ void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
+void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
+	Configuration c = getCachedConfig(src, bindir);
+	c.dirtyModules = { };
+	writeCachedConfig(src, bindir, c);
+	
+	if (transitive) {
+		reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
+		for (l <- reachableModuleLocations) {
+			writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+		}
+	}
+}
+
 public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
 }
@@ -7400,7 +7413,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				if (!exists(cachedHash(dependencyLoc, bindir))) {
 					// If we import this module, but the saved cache doesn't exist, we need
 					// to rebuild this import. 
-					dirtyModules = dirtyModules + wl;
+					dirtyModules = dirtyModules + r;
 				} else {
 					existingHash = getCachedHash(dependencyLoc, bindir);
 					if (r in currentHashes) {
@@ -7409,12 +7422,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 							// If we import this module, and the saved cache exists, but it
 							// either differs from the current hash or the saved hash, we need
 							// to rebuild this import. 
-							dirtyModules = dirtyModules + wl;
+							dirtyModules = dirtyModules + r;
 						}
 					} else {
 						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
 						// will generate the hash for r eventually, since it is a dependency.
-						dirtyModules = dirtyModules + wl;
+						dirtyModules = dirtyModules + r;
 					}
 				}
 
@@ -7422,14 +7435,14 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// reason, we need to rebuild this import. We will rebuild rl, since this will
 				// then eventually rebuild r (which is a dependency).
 				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					dirtyModules = dirtyModules + wl;
+					dirtyModules = dirtyModules + r;
 				}
 			} catch : {
 				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
 		}
 		
-		c.dirtyModules = dirtyModules;
+		c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
 		
 		if (size(dirtyModules) > 0) {
 			try {
