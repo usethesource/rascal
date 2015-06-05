@@ -11,8 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public interface ISourceLocationInputOutput extends 
         ISourceLocationInput,
 		ISourceLocationOutput {
 
+	@Override
+	default Charset getCharset(ISourceLocation uri) throws IOException {
+		return ISourceLocationOutput.super.getCharset(uri);
+	}
 }
