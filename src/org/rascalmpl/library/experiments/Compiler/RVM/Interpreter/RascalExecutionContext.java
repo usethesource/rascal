@@ -242,7 +242,7 @@ public class RascalExecutionContext {
 	}
 	
 	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
+		String scheme = loc.getScheme();
 		int pos;
 		
 		ICallableValue resolver = sourceResolvers.get(scheme);

@@ -396,7 +396,7 @@ public class BindingsResolver {
   }
 
   private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
-    if (decl.getURI().getPath().equals("/java/lang/Object")) {
+    if (decl.getPath().equals("/java/lang/Object")) {
       org.eclipse.imp.pdb.facts.type.Type obj = store.lookupConstructor(getTypeSymbol(), "object", tf.voidType());
       return values.constructor(obj);
     }
