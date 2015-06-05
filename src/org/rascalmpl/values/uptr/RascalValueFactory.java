@@ -1167,7 +1167,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
 			}
 			else {
-				return Tree;
+				return RascalTypeFactory.getInstance().nonTerminalType(IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty));
 			}
 		}
 

@@ -15,9 +15,11 @@ package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -39,8 +41,15 @@ public class NonTerminalType extends RascalType {
 			this.symbol = TreeAdapter.getType((ITree) cons);
 		}
 		else if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
-			ITree first = (ITree) TreeAdapter.getAlternatives((ITree) cons).iterator().next();
-			this.symbol = TreeAdapter.getType(first);
+			ISet alts = TreeAdapter.getAlternatives((ITree) cons);
+			
+			if (!alts.isEmpty()) {
+				ITree first = (ITree) alts.iterator().next();
+				this.symbol = TreeAdapter.getType(first);
+			}
+			else {
+				this.symbol = IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty);
+			}
 		}
 		else if (cons.getType() == RascalValueFactory.Symbol) {
 			this.symbol = cons;
