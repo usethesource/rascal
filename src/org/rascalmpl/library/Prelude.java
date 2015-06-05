@@ -101,6 +101,7 @@ import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
+import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -1102,6 +1103,7 @@ public class Prelude {
 			return values.bool(false);
 		}
 	}
+	
 
 	public void writeFile(ISourceLocation sloc, IList V) {
 		writeFile(sloc, V, false);
@@ -1151,61 +1153,87 @@ public class Prelude {
 	}
 	
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append){
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
 		if (!Charset.forName(charset.getValue()).canEncode()) {
 		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
 		}
 		
-		IList newV = computeOutputString(sloc, charset, V, append);
-		if (append && newV.length() != V.length()) { // append has been interpreted
-			append = false;
-		}
-		V = newV;
+		Reader prefix = null;
+		Reader postfix = null;
 		
-		try (OutputStreamWriter out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(sloc, append), charset.getValue(), append)) {
-			for(IValue elem : V){
-				if (elem.getType().isString()) {
-					out.append(((IString) elem).getValue());
-				}else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-					out.append(TreeAdapter.yield((IConstructor) elem));
-				}else{
-					out.append(elem.toString());
+		try {
+			sloc = reg.logicalToPhysical(sloc);
+
+			if (reg.supportsInputScheme(sloc.getScheme())) {
+				if (sloc.hasOffsetLength()) {
+					prefix = new UnicodeOffsetLengthReader(reg.getCharacterReader(sloc.top(), charset.getValue()), 0, sloc.getOffset() + ( append ? sloc.getLength()  : 0 ));
+					postfix = new UnicodeOffsetLengthReader(reg.getCharacterReader(sloc.top(), charset.getValue()),  sloc.getOffset() + sloc.getLength(), -1);
 				}
 			}
-		}catch(FileNotFoundException fnfex){
+
+			OutputStream outStream;
+			
+			if (prefix != null) {
+				outStream = new ByteArrayOutputStream(FILE_BUFFER_SIZE);
+			}
+			else {
+				outStream = reg.getOutputStream(sloc, append);
+			}
+			
+			try (OutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), prefix != null || append)) {
+				if (prefix != null) {
+					copy(prefix, out);
+				}
+				for(IValue elem : V){
+					if (elem.getType().isString()) {
+						out.append(((IString) elem).getValue());
+					}
+					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+						out.append(TreeAdapter.yield((IConstructor) elem));
+					}
+					else{
+						out.append(elem.toString());
+					}
+				}
+				if (postfix != null) {
+					copy(postfix, out);
+				}
+			}
+			
+			if (prefix != null) {
+				// we wrote to a buffer instead of the file
+				try (OutputStream out = reg.getOutputStream(sloc, false)) {
+					((ByteArrayOutputStream) outStream).writeTo(out);
+				}
+			}
+		} 
+		catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		}
+		} 
+		catch (UnsupportedOperationException e) {
+			assert false; // we tested for offset length above
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		} 
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
-
+		finally {
+			try {
+				if (prefix != null) {
+					prefix.close();
+				}
+				if (postfix != null) {
+					postfix.close();
+				}
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			}
+		}
+		
 		return;
 	}
 	
-	private IList computeOutputString(ISourceLocation sloc, IString charset, IList toWrite, boolean append) {
-		try {
-			URIResolverRegistry reg = URIResolverRegistry.getInstance();
-			
-			sloc = reg.logicalToPhysical(sloc);
-			
-			if (!reg.supportsInputScheme(sloc.getScheme())) {
-				return toWrite;
-			}
-			
-			if (!sloc.hasOffsetLength()) {
-				return toWrite;
-			}
-
-			IString prefix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc),  0, sloc.getOffset() + (append ? sloc.getLength() : 0)), charset);
-			toWrite = toWrite.insert(prefix);
-			IString postfix = readFileEnc(values.sourceLocation(URIUtil.removeOffset(sloc), sloc.getOffset() + sloc.getLength(), 0), charset);
-			toWrite = toWrite.append(postfix);
-			
-			return toWrite;
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
-
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
@@ -3048,6 +3076,14 @@ public class Prelude {
 		  to.write(buffer, 0, read);
 		}
 	}
+	private void copy(Reader from, Writer to) throws IOException {
+		final char[] buffer = new char[FILE_BUFFER_SIZE / 2];
+		int read;
+		while ((read = from.read(buffer, 0, buffer.length)) != -1) {
+		  to.write(buffer, 0, read);
+		}
+	}
+
 
 	private String toBase64(InputStream src, int estimatedSize) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
