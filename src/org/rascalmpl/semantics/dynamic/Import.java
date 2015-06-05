@@ -105,18 +105,16 @@ public abstract class Import {
 			// jdbctable and a standard URI scheme of mysql. If we do not have a separate
 			// resource scheme, we just use the specified scheme, e.g., sdf would give
 			// a resource scheme of sdf and a URI scheme of sdf.
-			URI uri = sl.getURI();
-			String resourceScheme = uri.getScheme();
+			String resourceScheme = sl.getScheme();
 			
 			if (resourceScheme.contains("+")) {
 				String uriScheme = resourceScheme.substring(resourceScheme.indexOf("+")+1); 
 				resourceScheme = resourceScheme.substring(0,resourceScheme.indexOf("+"));
 				try {
-					uri = URIUtil.changeScheme(uri, uriScheme);
+					sl = URIUtil.changeScheme(sl, uriScheme);
 				} catch (URISyntaxException e) {
-					throw RuntimeExceptionFactory.malformedURI(uri.toString().substring(uri.toString().indexOf("+")+1), null, null);
+					throw RuntimeExceptionFactory.malformedURI(sl.toString().substring(sl.toString().indexOf("+")+1), null, null);
 				}
-				sl = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
 			}
 			
 			String moduleName = Names.fullName(this.getName());
@@ -592,19 +590,19 @@ public abstract class Import {
     }
     catch (ParseError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), e.getLocation());
       return (ITree) tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(eval.getValueFactory().sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), src);
       return (ITree) tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }

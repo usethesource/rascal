@@ -40,13 +40,12 @@ class StackTraceEntry {
 				b.append("*** somewhere ***");
 			}
 			b.append("(");
-			URI uri = loc.getURI();
 			if(withLink) {
 				// b.append("\uE007[");
 				b.append(loc.toString());
 			}
 			else {
-				b.append(uri.getRawPath());
+				b.append(loc.getPath());
 				// if(withLink) {
 				//	b.append("](");
 				//	b.append(uri);
