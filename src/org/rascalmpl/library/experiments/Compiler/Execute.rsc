@@ -99,6 +99,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
        compiledDef = RVMProgramLocation(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           rvm_def = compile(def, bindir = bindir);
+          //<cfg, rvm_def> = compile(def, bindir = bindir);
           messages += rvm_def.messages;
        }
    }
@@ -268,7 +269,8 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
       }
    }
    
-   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+   //mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+   <cfg, mainProgram> = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
    return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM);
 }
 
