@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>rascal</artifactId>
-	<version>0.7.2.qualifier</version>
+	<version>0.7.3.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -91,7 +91,7 @@
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>
 			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.2.qualifier</version>
+			<version>0.4.3.qualifier</version>
 		</dependency>
 
 		<!-- Rascal MANIFEST.MF Dependencies -->
