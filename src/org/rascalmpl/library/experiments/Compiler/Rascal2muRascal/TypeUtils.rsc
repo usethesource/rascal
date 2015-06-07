@@ -7,6 +7,7 @@ import Map;
 import Node;
 import Relation;
 import String;
+import util::Reflective;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
@@ -71,7 +72,25 @@ private Configuration getConfiguration() { return config; }
 
 public map[UID uid, tuple[FUID fuid, int pos] fuid2pos] uid2addr = ();	
 													// map uids to FUIDs and positions
-public map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
+private map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
+
+public int getLoc2uid(loc l){
+    if(loc2uid[l]?){
+    	return loc2uid[l];
+    }
+    l = normalize(l);
+    println("getLoc2uid: <l>");
+    iprintln(loc2uid);
+    assert loc2uid[l]? : "getLoc2uid <l>";
+    return loc2uid[l];
+}
+
+public loc normalize(loc l) {
+    if(l.scheme == "std"){
+  	   return getSearchPathLocation(l.path)(l.offset, l.length, l.begin,l.end);
+    }
+    return l;
+}
 
 private set[UID] modules = {};
 
@@ -249,6 +268,7 @@ void extractScopes(Configuration c){
              for(l <- config.uses[uid]) {
                  loc2uid[l] = uid;
              }
+             //println("loc2uid: <src> : <loc2uid[src]>");
              // Fill in uid2name
              
              fname = getSimpleName(rname);
@@ -550,7 +570,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
-	//println("declareGeneratedFunction: <name>, <rtype>");
+	println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
@@ -577,6 +597,7 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
+    l = normalize(l);
 	assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
@@ -604,9 +625,8 @@ str getOuterType(Tree e) {
  * Additionally, it does not allow getting types of functions that are part of an overloaded function;
  * Alternatively, the type of a function can be looked up by its @loc;   
  */
-Symbol getFunctionType(loc l) { 
-   assert loc2uid[l]? : "getFunctionType <l>";
-   UID uid = loc2uid[l];
+Symbol getFunctionType(loc l) {  
+   UID uid = getLoc2uid(l);
    fun = config.store[uid];
    if(function(_,Symbol rtype,_,_,_,_,_,_) := fun) {
        return rtype;
@@ -616,8 +636,7 @@ Symbol getFunctionType(loc l) {
 }
 
 Symbol getClosureType(loc l) {
-   assert loc2uid[l]? : "getClosureType <l>";
-   UID uid = loc2uid[l];
+   UID uid = getLoc2uid(l);
    cls = config.store[uid];
    if(closure(Symbol rtype,_,_,_) := cls) {
        return rtype;
@@ -632,7 +651,7 @@ AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
 	return config.store[config.typeEnv[rn]];
 }
 					
-KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
+KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].keywordParams;
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //println("getVariableScope: <name>, <l>)");
@@ -642,8 +661,7 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //          	if(l1 == l) println("EQUAL");
   //          }
   //println(	loc2uid[l] );
-  assert loc2uid[l]? : "getVariableScope <l>";
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   //println(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
   return addr;
@@ -772,6 +790,7 @@ public int getTupleFieldIndex(Symbol s, str fieldName) =
     indexOf(getTupleFieldNames(s), fieldName);
 
 public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
+     l = normalize(l);
      containmentPlus = containment+;
      set[UID] decls = {};
      if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
@@ -821,6 +840,7 @@ public list[UID] sortFunctionsByRecentScope(list[UID] funs){
 }
 
 public set[UID] accessibleScopes(loc luse) {
+  luse = normalize(luse);
 //println("containmentPlus = <containmentPlus>");
 	 return {0, 1} +
      { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
@@ -847,9 +867,10 @@ public UID declaredScope(UID uid) {
 }
 
 MuExp mkVar(str name, loc l) {
+  l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   //println("uid = <uid>");
   //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -885,6 +906,7 @@ MuExp mkVar(str name, loc l) {
 // Generate a MuExp to reference a variable
 
 MuExp mkVarRef(str name, loc l){
+  l = normalize(l);
   <fuid, pos> = getVariableScope("<name>", l);
   return muVarRef("<name>", fuid, pos);
 }
@@ -892,7 +914,7 @@ MuExp mkVarRef(str name, loc l){
 // Generate a MuExp for an assignment
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   tuple[str fuid, int pos] addr = uid2addr[uid];
   if(uid in keywordParameters) {
       return muAssignKwp(addr.fuid,name,exp);
