@@ -8,12 +8,14 @@ import Message;
 import ParseTree;
 import util::Reflective;
 import Map;
+import Relation;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 import lang::rascal::types::TestChecker;
@@ -38,7 +40,7 @@ loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir =
 //    configLoc = ConfigLocation(moduleLoc, bindir);
 //    return exists(configLoc) ==> lastModified(configLoc) > lastModified(moduleLoc);
 //}
-//
+
 //bool validDerived(loc orgLoc, loc derivedLoc, loc bindir){
 //   //println("exists(<derivedLoc>): <exists(derivedLoc)>");
 //   
@@ -51,12 +53,17 @@ loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir =
 //bool needsRecompilation(loc src, loc bindir = |home:///bin|){
 //	configLoc = ConfigLocation(src, bindir);
 //	rvmLoc = RVMProgramLocation(src, bindir);
-//	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
-//	//println("validDerived(<src>, <configLoc>, bindir): <validDerived(src, configLoc, bindir)>");
-//	//println("validDerived(<configLoc>, <rvmLoc>, bindir): <validDerived(configLoc, rvmLoc, bindir)>");
+//	println("exists(<rvmLoc>): <exists(rvmLoc)>");
+//	println("validDerived(<src>, <configLoc>, bindir): <validDerived(src, configLoc, bindir)>");
+//	println("validDerived(<configLoc>, <rvmLoc>, bindir): <validDerived(configLoc, rvmLoc, bindir)>");
 //	
 //	return !(validDerived(src, configLoc, bindir) && validDerived(configLoc, rvmLoc, bindir) && validDerived(src, rvmLoc, bindir));
 //}
+
+bool validRVM(loc src, loc bindir = |home:///bin|){
+	rvmLoc = RVMProgramLocation(src, bindir);
+	return exists(rvmLoc) && lastModified(rvmLoc) >= lastModified(src);
+}
 //
 //RVMProgram getRVMProgram(loc moduleLoc, bool recompile=false, loc bindir = |home:///bin|){
 //	rvmProgramLoc = RVMProgramLocation(moduleLoc, bindir);
@@ -172,7 +179,7 @@ loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir =
 //    return rvmModules[moduleLoc];
 //} 
 
-tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///bin|){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
@@ -194,7 +201,7 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool listing=false, boo
    	
    	rvmProgramLoc = RVMProgramLocation(moduleLoc, bindir);
    	
-    println("rascal2rvm: Recompiling <moduleLoc>");
+    println("rascal2rvm: Compiling <moduleLoc>");
    	muMod = r2mu(M, config);
    	
     rvmProgram = mu2rvm(muMod); 
@@ -208,26 +215,39 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool listing=false, boo
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-tuple[Configuration, RVMProgram] compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
 
-	<cfg, rvmProgram> = compile1(moduleLoc, listing=listing, recompile=recompile, bindir=bindir);
+   // moduleLoc = getSearchPathLocation(moduleLoc.path);
+    println("moduleLoc = <moduleLoc>");
+	<cfg, rvmProgram> = compile1(moduleLoc, bindir=bindir);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
    	warnings = [ w | w:warning(_,_) <- cfg.messages ];
    
    	if(size(errors) > 0) {
-   		rvmProgram = errorRVMProgram("<M.header.name>", cfg.messages, moduleLoc);
-   	    rvmModules[moduleLoc] = rvmProgram;
    	    return rvmProgram;
    	}
    	
-   	for(dirty <- cfg.dirtyModules){
-   		println("\tdirty: <prettyPrintName(dirty)>");
+   	dirtyModulesLoc = { getModuleLocation(prettyPrintName(dirty)) | dirty <- cfg.dirtyModules };
+   	for(dirtyLoc <- dirtyModulesLoc){
+   		println("\tdirty: <dirtyLoc>");
    	}
-   	for(dirty <- cfg.dirtyModules){
-   		dirtyLoc = getModuleLocation(prettyPrintName(dirty));
-   		compile1(dirtyLoc, listing=listing, recompile=recompile, bindir=bindir);
-   	}
+   	
+   	dependencies = { getModuleLocation(prettyPrintName(rname)) | rname <- carrier(cfg.importGraph) } - moduleLoc;
+   	
+   	println("dependencies: <dependencies>");
+   	
+    for(dependency <- dependencies){
+    	//println("dependency = <dependency>");
+    	//println("dependency in dirtyModulesLoc = <dependency in dirtyModulesLoc>");
+    	//
+    	//println("validRVM(dependency) = <validRVM(dependency)>");
+    	
+        if(dependency in dirtyModulesLoc || !validRVM(dependency)){
+    	   compile1(dependency, bindir=bindir);
+        }
+    }
+   
    	clearDirtyModules(moduleLoc, bindir);
-   	return <cfg, rvmProgram> ;
+   	return rvmProgram ;
 }	

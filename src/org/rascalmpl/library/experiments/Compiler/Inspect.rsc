@@ -393,5 +393,6 @@ void config(loc src,                // location of Rascal source file
            
            if(hasMatches(c.deferredSignatures, select)) { println("deferredSignatures:"); for(uid <- sort(domain(c.deferredSignatures))) printSelected(uid, c.deferredSignatures[uid], select); }
            if(hasMatches(c.unimportedNames, select)) { println("unimportedNames:"); for(uid <- sort(c.unimportedNames)) printSelected(uid, select); }
-           
+           if(c.importGraph != {}) { println("importGraph:"); for(<nm1, nm2> <- c.importGraph) println("\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"); }
+           if(c.dirtyModules != {}) { println("dirtyModules:"); for(dirty <- c.dirtyModules) println("\t<prettyPrintName(dirty)>"); }
 }
