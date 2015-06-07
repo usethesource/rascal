@@ -247,6 +247,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    return <v, t>;
 }
 
+
 value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, bindir=bindir);
 	//if(testsuite){

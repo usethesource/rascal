@@ -195,7 +195,6 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
    
    	if(size(errors) > 0) {
    		rvmProgram = errorRVMProgram("<M.header.name>", config.messages, moduleLoc);
-   	    rvmModules[moduleLoc] = rvmProgram;
    	    return <config, rvmProgram>;
    	}
    	
