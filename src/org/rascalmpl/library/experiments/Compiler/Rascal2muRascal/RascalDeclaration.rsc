@@ -75,7 +75,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
-  println("r2mu: Compiling \uE007[](<fd@\loc><fd.signature.name>");
+  println("r2mu: Compiling \uE007[](<fd@\loc><fd.signature.name>, <fd@\loc>");
   //setFunctionUID(fd@\loc);
 
   try {
@@ -87,7 +87,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
-  uid = loc2uid[fd@\loc];
+  uid = getLoc2uid(fd@\loc);
   fuid = convert2fuid(uid);
  
   enterFunctionScope(fuid);

@@ -673,7 +673,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 // Translate a closure   
  
  private MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
- 	uid = loc2uid[e@\loc];
+ 	uid = getLoc2uid(e@\loc);
 	fuid = convert2fuid(uid);
 	
 	enterFunctionScope(fuid);
