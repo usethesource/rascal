@@ -7327,14 +7327,16 @@ void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
 }
 
 void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
-	Configuration c = getCachedConfig(src, bindir);
-	c.dirtyModules = { };
-	writeCachedConfig(src, bindir, c);
-	
-	if (transitive) {
-		reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
-		for (l <- reachableModuleLocations) {
-			writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+    if(exists(cachedConfig(src,bindir))){
+		Configuration c = getCachedConfig(src, bindir);
+		c.dirtyModules = { };
+		writeCachedConfig(src, bindir, c);
+		
+		if (transitive) {
+			reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
+			for (l <- reachableModuleLocations) {
+				writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+			}
 		}
 	}
 }
