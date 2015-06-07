@@ -65,7 +65,7 @@ public list[MuFunction] getFunctionsInModule() {
 }
 
 public void addFunctionToModule(MuFunction fun) {
-   println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
+   //println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
    functions_in_module += [fun];
    
    //for(f <- functions_in_module){ println("\t<f.qname>, \"<f.scopeIn>\""); }
