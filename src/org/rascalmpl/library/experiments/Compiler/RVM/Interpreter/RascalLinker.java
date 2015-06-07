@@ -126,7 +126,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionMap.put(fname, index);
 			functionStore.add(null);
 		}
-		System.out.println("useFunctionName: " + index + "  => " + fname);
+		//System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
 	}
 	
@@ -140,7 +140,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		} else {
 			functionStore.set(index, f);
 		}
-		System.out.println("declareFunction: " + index + "  => " + f.getName());
+		//System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
 	private Integer useConstructorName(String cname) {
@@ -369,7 +369,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 					
-				System.out.println("FUNCTION: " + name);
+				//System.out.println("FUNCTION: " + name);
 				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					uid_module_main = name;					// Get main's uid in current module

@@ -56,7 +56,7 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
@@ -373,6 +373,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -388,6 +389,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -413,6 +415,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 			
