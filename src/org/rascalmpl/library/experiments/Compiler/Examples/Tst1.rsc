@@ -1,6 +1,6 @@
 module experiments::Compiler::Examples::Tst1
 
-import experiments::Compiler::Compile;
+import experiments::Compiler::Execute;
 
 value main(list[value] args) =
- compile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|);
+ execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|, [], recompile=true);
