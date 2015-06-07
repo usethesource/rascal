@@ -6621,6 +6621,13 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();
 	}
+	
+	public static void restoreRVMAndContext(RVM usedRvm, RascalExecutionContext usedRex){
+		if(rvm != usedRvm || rex != usedRex){
+			rvm = usedRvm;
+			rex = usedRex;
+		}
+	}
 
 	public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 		System.err.println("Not implemented mufunction");
