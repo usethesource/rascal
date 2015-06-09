@@ -17,7 +17,6 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -178,36 +177,36 @@ public class RuntimeExceptionFactory {
      * Robust version of sourceLocation, to be called only from error situations to avoid nested
      * error traces.
      */
-    private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-    	if (path == null) {
-    		path = "UNKNOWN_FILENAME";
-    	}
-    	if (!path.startsWith("/")) {
-			path = "/" + path;
-		}
-    	URI uri = null;
-		try {
-			uri = new URI("unknown", "", path, null);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-		}
-    	
-    	if (offset < 0) 
-    		offset = 0;
-		if (length < 0) 
-			length = 0;
-		if (beginLine < 0) 
-			beginLine = 0;
-		if (beginCol < 0) 
-			beginCol = 0;
-		if (endCol < 0) 
-			endCol = 0;
-		if (endLine < beginLine) 
-			endLine = beginLine;
-		if (endLine == beginLine && endCol < beginCol) 
-			endCol = beginCol;
-		return VF.sourceLocation(VF.sourceLocation(uri), offset, length, beginLine, endLine, beginCol, endCol);
-    }
+	private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+	  if (path == null) {
+	    path = "UNKNOWN_FILENAME";
+	  }
+	  if (!path.startsWith("/")) {
+	    path = "/" + path;
+	  }
+	  ISourceLocation locRoot;
+	  try {
+	    locRoot = VF.sourceLocation("unknown", "", path);
+	  } catch (URISyntaxException e) {
+	    locRoot = VF.sourceLocation(path); // fall back, shouldn't happen.
+	  }
+
+	  if (offset < 0) 
+	    offset = 0;
+	  if (length < 0) 
+	    length = 0;
+	  if (beginLine < 0) 
+	    beginLine = 0;
+	  if (beginCol < 0) 
+	    beginCol = 0;
+	  if (endCol < 0) 
+	    endCol = 0;
+	  if (endLine < beginLine) 
+	    endLine = beginLine;
+	  if (endLine == beginLine && endCol < beginCol) 
+	    endCol = beginCol;
+	  return VF.sourceLocation(locRoot, offset, length, beginLine, endLine, beginCol, endCol);
+	}
 
 	private static StackTrace buildTrace(Throwable targetException, StackTrace rascalTrace) throws IOException {
 		StackTraceElement[] stackTrace = targetException.getStackTrace();
