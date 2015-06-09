@@ -1181,7 +1181,7 @@ public class Prelude {
 				outStream = reg.getOutputStream(sloc, append);
 			}
 			
-			try (OutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), prefix != null || append)) {
+			try (OutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), append)) {
 				if (prefix != null) {
 					copy(prefix, out);
 				}
