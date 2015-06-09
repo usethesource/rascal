@@ -46,7 +46,7 @@ public class Webserver {
         URI uri = url.getURI();
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
-    host = host.equals("localhost") ? null : host; // NanoHttp tries to resolve localhost, which isn't what we want!
+    host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
     final ICallableValue callee = (ICallableValue) callback; 
     
     NanoHTTPD server = new NanoHTTPD(host, port) {
