@@ -78,7 +78,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 
 public abstract class Figure implements Comparable<Figure> {
-	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	public static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public static enum ResizeMode{
 		RESIZE, ZOOM;
