@@ -206,7 +206,7 @@ public class RuntimeExceptionFactory {
 			endLine = beginLine;
 		if (endLine == beginLine && endCol < beginCol) 
 			endCol = beginCol;
-		return VF.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return VF.sourceLocation(VF.sourceLocation(uri), offset, length, beginLine, endLine, beginCol, endCol);
     }
 
 	private static StackTrace buildTrace(Throwable targetException, StackTrace rascalTrace) throws IOException {
