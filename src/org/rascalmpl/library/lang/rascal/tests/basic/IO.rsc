@@ -139,64 +139,77 @@ test bool writeFileOffsetNonExistingFile2() {
 	return false;
 }
 
-test bool writeFileOffsetEnd(str a, str b) {
+
+test bool writeFileOffsetEnd(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a);
+	writeFileEnc(aFile, encodingNames[enc], a);
 	l2 = aFile[offset=size(a)][length=0];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == a + b;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
 }
-test bool writeFileOffsetEndInvalidLength(str a, str b) {
+test bool writeFileOffsetEndInvalidLength(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a);
+	writeFileEnc(aFile, encodingNames[enc], a);
 	l2 = aFile[offset=size(a)][length=10];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == a + b;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
 }
 
-test bool writeFileOffsetEnd2(str a, str b) {
+test bool writeFileOffsetEnd2(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a + b);
+	writeFileEnc(aFile, encodingNames[enc], a + b);
 	l2 = aFile[offset=size(a)][length=size(b)];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == a + b;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
 }
 
-test bool writeFileOffsetMiddle(str a, str b) {
+test bool writeFileOffsetMiddle(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a+a);
+	writeFileEnc(aFile, encodingNames[enc], a+a);
 	l2 = aFile[offset=size(a)][length=size(a)];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == a + b;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
 }
 
-test bool writeFileOffsetMiddle2(str a, str b) {
+test bool writeFileOffsetMiddle2(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a+a);
+	writeFileEnc(aFile, encodingNames[enc], a+a);
 	l2 = aFile[offset=size(a)][length=0];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == a + b + a;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b + a;
 }
 
 
-test bool writeFileOffsetStart(str a, str b) {
+test bool writeFileOffsetStart(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	if (a == "" || b == "") {
 		return true;
 	}
-	writeFileEnc(aFile, "UTF8", a+a);
+	writeFileEnc(aFile, encodingNames[enc], a+a);
 	l2 = aFile[offset=0][length=size(a)];
-	writeFileEnc(l2, "UTF8", b);
-	return readFileEnc(aFile, "UTF8") == b + a;
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == b + a;
 }
 
 
