@@ -28,7 +28,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.jgll.grammar.Grammar;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -61,7 +60,6 @@ public class GlobalEnvironment {
 	/** Keeping track of generated parsers */
 	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
 	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
-    private final Map<String,IguanaParserTuple> iguanaGrammarForModules  = new HashMap<>();
     
     private boolean bootstrapper;
 	
@@ -72,7 +70,6 @@ public class GlobalEnvironment {
 		sourceResolvers.clear();
 		objectParsersForModules.clear();
 		rascalParsersForModules.clear();
-		iguanaGrammarForModules.clear();
 	}
 	
 	/**
@@ -255,24 +252,6 @@ public class GlobalEnvironment {
 		}
 		
 		public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser() {
-			return parser;
-		}
-	}
-	
-	private static class IguanaParserTuple {
-		private final IMap production;
-		private final Grammar parser;
-
-		public IguanaParserTuple(IMap productions, Grammar parser) {
-			this.production = productions;
-			this.parser = parser;
-		}
-		
-		public IMap getProductions() {
-			return production;
-		}
-		
-		public Grammar getParser() {
 			return parser;
 		}
 	}

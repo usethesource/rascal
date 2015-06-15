@@ -5,9 +5,9 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.traversal.NodeListener;
-import org.jgll.traversal.PositionInfo;
-import org.jgll.traversal.Result;
+import org.iguana.traversal.NodeListener;
+import org.iguana.traversal.PositionInfo;
+import org.iguana.traversal.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 

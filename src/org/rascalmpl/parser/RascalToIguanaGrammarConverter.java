@@ -34,46 +34,46 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
-import static org.jgll.datadependent.ast.AST.*;
+import static org.iguana.datadependent.ast.AST.*;
 
-import org.jgll.datadependent.ast.AbstractAST;
-import org.jgll.grammar.Grammar;
-import org.jgll.grammar.condition.Condition;
-import org.jgll.grammar.condition.ConditionType;
-import org.jgll.grammar.condition.PositionalCondition;
-import org.jgll.grammar.condition.RegularExpressionCondition;
-import org.jgll.grammar.patterns.ExceptPattern;
-import org.jgll.grammar.patterns.PrecedencePattern;
-import org.jgll.grammar.symbol.Align;
-import org.jgll.grammar.symbol.Associativity;
-import org.jgll.grammar.symbol.AssociativityGroup;
-import org.jgll.grammar.symbol.Block;
-import org.jgll.grammar.symbol.Character;
-import org.jgll.grammar.symbol.CharacterRange;
-import org.jgll.grammar.symbol.Code;
-import org.jgll.grammar.symbol.Conditional;
-import org.jgll.grammar.symbol.EOF;
-import org.jgll.grammar.symbol.Epsilon;
-import org.jgll.grammar.symbol.IfThen;
-import org.jgll.grammar.symbol.IfThenElse;
-import org.jgll.grammar.symbol.Ignore;
-import org.jgll.grammar.symbol.LayoutStrategy;
-import org.jgll.grammar.symbol.Nonterminal;
-import org.jgll.grammar.symbol.Offside;
-import org.jgll.grammar.symbol.PrecedenceLevel;
-import org.jgll.grammar.symbol.Recursion;
-import org.jgll.grammar.symbol.Rule;
-import org.jgll.grammar.symbol.Symbol;
-import org.jgll.grammar.symbol.Terminal;
-import org.jgll.grammar.symbol.While;
-import org.jgll.regex.Alt;
-import org.jgll.regex.Opt;
-import org.jgll.regex.Plus;
-import org.jgll.regex.RegularExpression;
-import org.jgll.regex.Sequence;
-import org.jgll.regex.Star;
-import org.jgll.traversal.ISymbolVisitor;
-import org.jgll.util.CollectionsUtil;
+import org.iguana.datadependent.ast.AbstractAST;
+import org.iguana.grammar.Grammar;
+import org.iguana.grammar.condition.Condition;
+import org.iguana.grammar.condition.ConditionType;
+import org.iguana.grammar.condition.PositionalCondition;
+import org.iguana.grammar.condition.RegularExpressionCondition;
+import org.iguana.grammar.patterns.ExceptPattern;
+import org.iguana.grammar.patterns.PrecedencePattern;
+import org.iguana.grammar.symbol.Align;
+import org.iguana.grammar.symbol.Associativity;
+import org.iguana.grammar.symbol.AssociativityGroup;
+import org.iguana.grammar.symbol.Block;
+import org.iguana.grammar.symbol.Character;
+import org.iguana.grammar.symbol.CharacterRange;
+import org.iguana.grammar.symbol.Code;
+import org.iguana.grammar.symbol.Conditional;
+import org.iguana.grammar.symbol.EOF;
+import org.iguana.grammar.symbol.Epsilon;
+import org.iguana.grammar.symbol.IfThen;
+import org.iguana.grammar.symbol.IfThenElse;
+import org.iguana.grammar.symbol.Ignore;
+import org.iguana.grammar.symbol.LayoutStrategy;
+import org.iguana.grammar.symbol.Nonterminal;
+import org.iguana.grammar.symbol.Offside;
+import org.iguana.grammar.symbol.PrecedenceLevel;
+import org.iguana.grammar.symbol.Recursion;
+import org.iguana.grammar.symbol.Rule;
+import org.iguana.grammar.symbol.Symbol;
+import org.iguana.grammar.symbol.Terminal;
+import org.iguana.grammar.symbol.While;
+import org.iguana.regex.Alt;
+import org.iguana.regex.Opt;
+import org.iguana.regex.Plus;
+import org.iguana.regex.RegularExpression;
+import org.iguana.regex.Sequence;
+import org.iguana.regex.Star;
+import org.iguana.traversal.ISymbolVisitor;
+import org.iguana.util.CollectionsUtil;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.LessThanOrEq;
 import org.rascalmpl.ast.IntegerLiteral;
@@ -547,23 +547,23 @@ public class RascalToIguanaGrammarConverter {
 				
 			case "if":
 				Expression condition = buildExpression(getCondition(symbol));
-				return IfThen.ifThen((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
+				return IfThen.ifThen((org.iguana.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
 				
 			case "ifElse":
 				condition = buildExpression(getCondition(symbol));
-				return IfThenElse.ifThenElse((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
+				return IfThenElse.ifThenElse((org.iguana.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getThenPart(symbol)), getSymbol(getElsePart(symbol)));
 				
 			case "when":
 				condition = buildExpression(getCondition(symbol));
-				return Conditional.when(getSymbol(getSymbolCons(symbol)), (org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()));
+				return Conditional.when(getSymbol(getSymbolCons(symbol)), (org.iguana.datadependent.ast.Expression) condition.accept(new Visitor()));
 			
 			case "do":
 				Statement block = buildStatement(getBlock(symbol));
-				return Code.code(getSymbol(getSymbolCons(symbol)), (org.jgll.datadependent.ast.Statement) block.accept(new Visitor()));
+				return Code.code(getSymbol(getSymbolCons(symbol)), (org.iguana.datadependent.ast.Statement) block.accept(new Visitor()));
 			
 			case "while":
 				condition = buildExpression(getCondition(symbol));
-				return While.whileLoop((org.jgll.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
+				return While.whileLoop((org.iguana.datadependent.ast.Expression) condition.accept(new Visitor()), getSymbol(getSymbolCons(symbol)));
 				
 			case "align":
 				return Align.align(getSymbol(getSymbolCons(symbol)));
@@ -821,7 +821,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitStatementAssignment(Assignment x) {
-			return stat(assign(x.getAssignable().accept(this).toString(), (org.jgll.datadependent.ast.Expression) x.getStatement().getExpression().accept(this)));
+			return stat(assign(x.getAssignable().accept(this).toString(), (org.iguana.datadependent.ast.Expression) x.getStatement().getExpression().accept(this)));
 		}
 		
 		@Override
@@ -831,7 +831,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitStatementVariableDeclaration(VariableDeclaration x) {
-			return varDeclStat((org.jgll.datadependent.ast.VariableDeclaration) x.getDeclaration().accept(this));
+			return varDeclStat((org.iguana.datadependent.ast.VariableDeclaration) x.getDeclaration().accept(this));
 		}
 		
 		@Override
@@ -850,7 +850,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitVariableInitialized(Initialized x) {
-			return varDecl(Names.name(x.getName()), (org.jgll.datadependent.ast.Expression) x.getInitial().accept(this));
+			return varDecl(Names.name(x.getName()), (org.iguana.datadependent.ast.Expression) x.getInitial().accept(this));
 		}
 		
 		@Override
@@ -860,7 +860,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitStatementExpression(org.rascalmpl.ast.Statement.Expression x) {
-			return stat((org.jgll.datadependent.ast.Expression) x.getExpression().accept(this));
+			return stat((org.iguana.datadependent.ast.Expression) x.getExpression().accept(this));
 		}
 		
 		@Override
@@ -868,10 +868,10 @@ public class RascalToIguanaGrammarConverter {
 			
 			AbstractAST fun = x.getExpression().accept(this);
 			
-			if (!(fun instanceof org.jgll.datadependent.ast.Expression.Name)) {
+			if (!(fun instanceof org.iguana.datadependent.ast.Expression.Name)) {
 				throw new RuntimeException("Unsupported Rascal expression: " + fun);
 			}
-			String id = ((org.jgll.datadependent.ast.Expression.Name) fun).getName();
+			String id = ((org.iguana.datadependent.ast.Expression.Name) fun).getName();
 			
 			if (!(id.equals("indent") ||
 				  id.equals("len") ||
@@ -885,11 +885,11 @@ public class RascalToIguanaGrammarConverter {
 			}
 			
 			List<Expression> arguments = x.getArguments();
-			org.jgll.datadependent.ast.Expression[] args = new org.jgll.datadependent.ast.Expression[arguments.size()];
+			org.iguana.datadependent.ast.Expression[] args = new org.iguana.datadependent.ast.Expression[arguments.size()];
 			
 			int j = 0;
 			for (Expression argument : arguments) {
-				args[j] = (org.jgll.datadependent.ast.Expression) argument.accept(this);
+				args[j] = (org.iguana.datadependent.ast.Expression) argument.accept(this);
 				j++;
 			}
 			
@@ -913,43 +913,43 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitExpressionNegation(Negation x) {
-			return not((org.jgll.datadependent.ast.Expression) x.getArgument().accept(this));
+			return not((org.iguana.datadependent.ast.Expression) x.getArgument().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionOr(Or x) {
-			return or((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this), 
-					  (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return or((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this), 
+					  (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionLessThan(LessThan x) {
-			return less((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
-				        (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return less((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this),
+				        (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionLessThanOrEq(LessThanOrEq x) {
-			return lessEq((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
-				          (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return lessEq((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this),
+				          (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionGreaterThan(GreaterThan x) {
-			return greater((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
-				           (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return greater((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this),
+				           (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-			return greaterEq((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
-				             (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return greaterEq((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this),
+				             (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
 		public AbstractAST visitExpressionEquals(Equals x) {
-			return equal((org.jgll.datadependent.ast.Expression) x.getLhs().accept(this),
-					     (org.jgll.datadependent.ast.Expression) x.getRhs().accept(this));
+			return equal((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this),
+					     (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
 		@Override
