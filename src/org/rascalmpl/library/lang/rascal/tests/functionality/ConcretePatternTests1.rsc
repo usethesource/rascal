@@ -135,15 +135,15 @@ test bool concreteMatchVisit() {
 
 test bool concreteMatchVisitLayout() {
   result = false;
-  visit ([XorY]" x ") {
+  visit ([start[XorY]] ".x.") {
     case (Layout)`.`: result = true;
   }
   return result;
 }
 test bool concreteReplaceInLayout() 
-  = visit([XorY]",x;") {
+  = visit([start[XorY]] ".x;") {
     case (Layout)`.` => (Layout)`;`
-  } == [XorY]";x;";
+  } == [start[XorY]] ";x;";
 
 test bool concreteMatchWithStart()
   = /XorY _ := [start[XorY]]";x;";
