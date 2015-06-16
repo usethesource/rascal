@@ -8435,7 +8435,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
     cCatch = enterBlock(c, ctch@\loc);
     tp = Symbol::\void();
     if ((Pattern)`<QualifiedName qn>` := p) {
-        < cCatch, tp > = calculatePatternType(p, cCatch, \adt("RuntimeException",[]));
+        < cCatch, tp > = calculatePatternType(p, cCatch, makeValueType());
     } else {
         < cCatch, tp > = calculatePatternType(p, cCatch);
     }
