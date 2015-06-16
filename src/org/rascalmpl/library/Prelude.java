@@ -1190,7 +1190,7 @@ public class Prelude {
 						out.append(((IString) elem).getValue());
 					}
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-						out.append(TreeAdapter.yield((IConstructor) elem));
+					  TreeAdapter.yield((IConstructor) elem, out);
 					}
 					else{
 						out.append(elem.toString());
