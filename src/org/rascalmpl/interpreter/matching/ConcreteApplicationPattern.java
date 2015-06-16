@@ -179,7 +179,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractData() && subject instanceof ITree) {
+		if(subjectType.isAbstractData() && subject.getValue() instanceof ITree) {
 			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {
