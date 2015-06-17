@@ -1,48 +1,218 @@
 module experiments::Compiler::Examples::Tst4
+import Type;
 
-map[loc,int] M =
-(
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(532,5,<16,7>,<16,12>):65,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(567,53,<21,0>,<21,53>):61,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(475,1,<13,28>,<13,29>):63,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(447,118,<13,0>,<19,1>):60,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(598,21,<21,31>,<21,52>):71,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(598,12,<21,31>,<21,43>):60,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1625,10,<55,7>,<55,17>):37,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1745,27,<59,7>,<59,34>):17,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2142,15,<71,7>,<71,22>):36,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2018,22,<67,7>,<67,29>):9,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1527,17,<51,7>,<51,24>):23,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1899,24,<63,7>,<63,31>):34,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2453,18,<83,7>,<83,25>):5,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1990,20,<66,7>,<66,27>):39,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2547,9,<86,7>,<86,16>):41,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2423,22,<82,7>,<82,29>):3,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1700,37,<58,7>,<58,44>):10,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2107,27,<70,7>,<70,34>):18,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1487,32,<50,7>,<50,39>):16,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1839,52,<62,7>,<62,59>):28,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1606,10,<54,7>,<54,17>):40,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(521,1,<15,25>,<15,26>):63,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(523,24,<15,27>,<17,3>):69,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(498,49,<15,2>,<17,3>):67,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(622,81,<23,0>,<23,81>):62,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(653,49,<23,31>,<23,80>):73,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(653,12,<23,31>,<23,43>):60,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1966,16,<65,7>,<65,23>):33,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1668,24,<57,7>,<57,31>):15,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1587,11,<53,7>,<53,18>):38,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1803,28,<61,7>,<61,35>):29,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2080,19,<69,7>,<69,26>):19,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(485,5,<14,6>,<14,11>):65,
-  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(557,5,<18,9>,<18,14>):65,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1553,26,<52,7>,<52,33>):24,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2362,25,<80,7>,<80,32>):43,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2479,29,<84,7>,<84,36>):4,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1780,15,<60,7>,<60,22>):35,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1931,27,<64,7>,<64,34>):44,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1643,17,<56,7>,<56,24>):11,
-  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2048,24,<68,7>,<68,31>):42
-);
+alias INTEGER0 = int;
+		
+test bool  usingAliases1() { INTEGER0 I = 3; return I == 3; }
+test bool  usingAliases2() { INTEGER0 I = 3; INTEGER0 J = I ; return J == 3; }
+test bool  usingAliases3() { list[INTEGER0] LI = [1,2,3]; return LI == [1,2,3]; }
+test bool  usingAliases4() { set[INTEGER0] SI = {1,2,3}; return SI == {1,2,3}; }
+test bool  usingAliases5() { map[INTEGER0,INTEGER0] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingAliases6() { rel[INTEGER0,INTEGER0] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
+ 
+alias INTEGER1 = INTEGER0;
 
-value main(list[value] args) { assert M[|project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(447,118,<13,0>,<19,1>)]?; return true; }
+test bool  usingIndirectAliases1() { INTEGER1 I = 3; return I == 3; }       
+test bool  usingIndirectAliases2() { INTEGER1 I = 3; INTEGER1 J = I ; return J == 3; }        
+test bool  usingIndirectAliases3() { list[INTEGER1] LI = [1,2,3]; return LI == [1,2,3]; }      
+test bool  usingIndirectAliases4() { set[INTEGER1] SI = {1,2,3}; return SI == {1,2,3}; }      
+test bool  usingIndirectAliases5() { map[INTEGER1,INTEGER1] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingIndirectAliases6() { rel[INTEGER1,INTEGER1] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
+
+alias INTEGER2 = INTEGER1;
+test bool  usingVeryIndirectAliases1() { INTEGER2 I = 3; return I == 3; }       
+test bool  usingVeryIndirectAliases2() { INTEGER2 I = 3; INTEGER2 J = I ; return J == 3; }        
+test bool  usingVeryIndirectAliases3() { list[INTEGER2] LI = [1,2,3]; return LI == [1,2,3]; }      
+test bool  usingVeryIndirectAliases4() { set[INTEGER2] SI = {1,2,3}; return SI == {1,2,3}; }      
+test bool  usingVeryIndirectAliases5() { map[INTEGER2,INTEGER2] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingVeryIndirectAliases6() { rel[INTEGER2,INTEGER2] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
+
+alias INTEGER4 = INTEGER3;
+alias INTEGER3 = int;
+
+test bool outofOrderDeclaration() { INTEGER4 x = 0; return x == 0; }
+
+alias ADT0 = ADT1;
+data ADT1 = f(int);
+
+test bool  aliasAndADT1() { ADT0 x = f(0); return x == f(0); }
+	
+alias StateId = int;
+alias Permutation = list[int];
+alias StatedId = int;
+alias Sym = int;
+             	
+test bool aliasAndADT2() {
+    map[list[Permutation], StateId] allStates = ();
+    rel[StateId from,StateId to,Sym symbol] Transitions = {};  
+    Transitions = {<1,2,3>}; 
+    return true;
+}
+		  
+alias trans = tuple[str, str, str]; 
+alias block = set[trans];
+alias partition = set[block];
+                 
+test bool  transitiveAliasAcrossTuples() {
+    block aBlock = {<"a", "b", "c">};
+    return aBlock == {<"a", "b", "c">};
+}	
+
+@ignoreCompiler{since aliases are fully expanded in compiled code}
+test bool reifiedAlias1a() = 
+  #partition == 
+  type(
+  \alias(
+    "partition",
+    [],
+    \set(\alias(
+        "block",
+        [],
+        \rel([
+            \str(),
+            \str(),
+            \str()
+          ])))),
+  ());
+
+@ignoreInterpreter{since aliases are preserved in interpreted code}
+test bool reifiedAlias1b() = 
+  #partition ==  
+  type(
+  \alias(
+    "partition",
+    [],
+    \set(\rel([
+          \str(),
+          \str(),
+          \str()
+        ]))),
+  ());
+	
+
+alias STRING = str;
+
+data DATA1 = d1(STRING s);
+
+test bool reifiedAlias2() = #DATA1 ==
+type(
+  adt(
+    "DATA1",
+    []),
+  (adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \str())],
+          [],
+          {})})));
+          
+
+data DATA2 = d2(DATA1(STRING) fun);
+
+@ignoreCompiler{since aliases are fully expanded in compiled code}
+test bool reifiedAlias3a() = #DATA2 ==
+type(
+  adt(
+    "DATA2",
+    []),
+  (
+    adt(
+      "DATA2",
+      []):choice(
+      adt(
+        "DATA2",
+        []),
+      {cons(
+          label(
+            "d2",
+            adt(
+              "DATA2",
+              [])),
+          [label(
+              "fun",
+              func(
+                adt(
+                  "DATA1",
+                  []),
+                [\alias(
+                    "STRING",
+                    [],
+                    \str())]))],
+          [],
+          {})}),
+    adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \str())],
+          [],
+          {})})
+  ));
+
+@ignoreInterpreter{since aliases are preserved in interpreted code}
+test bool reifiedAlias3b() = #DATA2 ==
+type(
+  adt(
+    "DATA2",
+    []),
+  (
+    adt(
+      "DATA2",
+      []):choice(
+      adt(
+        "DATA2",
+        []),
+      {cons(
+          label(
+            "d2",
+            adt(
+              "DATA2",
+              [])),
+          [label(
+              "fun",
+              func(
+                adt(
+                  "DATA1",
+                  []),
+                [\str()]))],
+          [],
+          {})}),
+    adt(
+      "DATA1",
+      []):choice(
+      adt(
+        "DATA1",
+        []),
+      {cons(
+          label(
+            "d1",
+            adt(
+              "DATA1",
+              [])),
+          [label(
+              "s",
+              \str())],
+          [],
+          {})})
+  ));
