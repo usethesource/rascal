@@ -18,6 +18,7 @@ package org.rascalmpl.values.uptr;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
 
@@ -512,6 +513,10 @@ public class TreeAdapter {
 		}
 	}
 
+  public static void yield(IConstructor tree, OutputStreamWriter out) throws IOException {
+    unparse(tree, out);
+  }
+
 	public static boolean isInjectionOrSingleton(ITree tree) {
 		IConstructor prod = getProduction(tree);
 		if (isAppl(tree)) {
@@ -697,4 +702,5 @@ public class TreeAdapter {
 		}
 		return w.done();
 	}
+
 }

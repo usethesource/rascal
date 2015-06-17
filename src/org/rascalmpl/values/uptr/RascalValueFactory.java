@@ -257,10 +257,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	private final static ITree byteChars[];
 	private final static Type byteCharTypes[];
 	static {
-		byteChars = new ITree[256];
-		byteCharTypes = new Type[256];
-		for (int i = 0; i < 256; i++) {
-			byteChars[i] = new CharByte((byte) i);
+		byteChars = new ITree[Byte.MAX_VALUE];
+		byteCharTypes = new Type[Byte.MAX_VALUE];
+		for (byte i = 0; i < Byte.MAX_VALUE; i++) {
+			byteChars[i] = new CharByte(i);
 			byteCharTypes[i] = RascalTypeFactory.getInstance().nonTerminalType(bootFactory.constructor(Symbol_CharClass, bootFactory.list(bootFactory.constructor(CharRange_Range, bootFactory.integer(i), bootFactory.integer(i)))));
 		}
 	}

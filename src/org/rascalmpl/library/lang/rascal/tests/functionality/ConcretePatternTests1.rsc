@@ -22,7 +22,10 @@ lexical Es = {E ","}* es;
 lexical F = "f";
 lexical Fs = F* fs;
 
-syntax XorY = x : "x" | y : "y";
+start syntax XorY = x : "x" | y : "y";
+
+lexical Layout = [.;];
+layout L = Layout* !>> [.;];
 
 lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
 lexical Mies = ([ab] [cd]);
@@ -113,6 +116,38 @@ test bool lexicalListEnum2() = ["<x>" | F x <- ((Fs) `ffffff`).fs] == ["f", "f",
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
+
+
+test bool concreteMatchVisit() {
+  result = false;
+  visit ([A]"a") {
+    case (A)`<A _>`: result = true;
+  }
+  return result;
+}
+test bool concreteMatchVisit() {
+  result = 0;
+  visit ([As]"aaa") {
+    case (A)`<A _>`: result += 1;
+  }
+  return result == 3;
+}
+
+@ignoreInterpreter{While this should work, the fix is to large, and there are workarounds}
+test bool concreteMatchVisitLayout() {
+  result = false;
+  visit ([start[XorY]] ".x.") {
+    case (Layout)`.`: result = true;
+  }
+  return result;
+}
+test bool concreteReplaceInLayout() 
+  = visit([start[XorY]] ".x;") {
+    case (Layout)`.` => (Layout)`;`
+  } == [start[XorY]] ";x;";
+
+test bool concreteMatchWithStart()
+  = /XorY _ := [start[XorY]]";x;";
 
 test bool concreteSwitch1(){
 	switch([XorY] "x"){
