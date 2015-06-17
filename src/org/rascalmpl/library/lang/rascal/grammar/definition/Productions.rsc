@@ -46,7 +46,7 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
 	| dependFormals: Sym symbol Type typ Parameters formals  \ "()" // only used in the head 
 */
     switch (sd) {
-      case \layout(_, nonterminal(Nonterminal n), Prod p) : 
+      case \layout(_, \default(nonterminal(Nonterminal n)), Prod p) : 
         return <{prod2prod(\layouts("<n>"), p)},nothing()>;
       case \language(present() /*start*/, LeftSym s, Prod p) : 
         return < {prod(\start(sym2symbol(s)),[label("top", sym2symbol(s))],{})
