@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -178,7 +179,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractData()){
+		if(subjectType.isAbstractData() && subject.getValue() instanceof ITree) {
 			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {

@@ -15,6 +15,7 @@ module lang::rascal::tests::library::ValueIOTests
 *******************************************************************************/
 import ValueIO;
 import IO;
+import util::Reflective;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
@@ -116,7 +117,32 @@ test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
 test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
-test bool compressionWorks(value v) {
+test bool disablingCompressionWorks(value v) {
    writeBinaryValueFile(|tmp:///xxx|,v, compression=false);
    return readBinaryValueFile(|tmp:///xxx|) == v;
+}
+
+data NestedValue
+	= inAList(list[value] lvs)
+	| inASet(set[value] svs)
+	| inItself(NestedValue nv)
+	;
+
+@maxDepth{20}
+test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
+	lab = [a,b];
+	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
+   writeBinaryValueFile(|tmp:///xxx|, joined, compression=false);
+   return readBinaryValueFile(|tmp:///xxx|) == joined;
+}
+
+test bool writingParseTreeWorks() {
+	t = getModuleParseTree("lang::rascal::syntax::Rascal");
+	writeBinaryValueFile(|tmp:///xxx|, t);
+	return readBinaryValueFile(|tmp:///xxx|) == t;
+}
+test bool writingParseTreeWorksWithoutCompression() {
+	t = getModuleParseTree("lang::rascal::syntax::Rascal");
+	writeBinaryValueFile(|tmp:///xxx|, t, compression=false);
+	return readBinaryValueFile(|tmp:///xxx|) == t;
 }

@@ -6704,7 +6704,8 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
-					c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]]);
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+					c = addConstructor(c, name, at, rtype, [], kpList);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6747,7 +6748,8 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	void loadTransConstructor(int itemId) {
 		AbstractValue av = d.store[itemId];
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
-			c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
+			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+			c = addConstructor(c, name, at, rtype, [], [<kp,kt,kpList> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -8433,7 +8435,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
     cCatch = enterBlock(c, ctch@\loc);
     tp = Symbol::\void();
     if ((Pattern)`<QualifiedName qn>` := p) {
-        < cCatch, tp > = calculatePatternType(p, cCatch, \adt("RuntimeException",[]));
+        < cCatch, tp > = calculatePatternType(p, cCatch, makeValueType());
     } else {
         < cCatch, tp > = calculatePatternType(p, cCatch);
     }
