@@ -1,6 +1,7 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
+
 import IO;
 import Set;
 import Map;
@@ -85,10 +86,23 @@ public int getLoc2uid(loc l){
     return loc2uid[l];
 }
 
+
+
+
+
+
 public loc normalize(loc l) {
     if(l.scheme == "std"){
-  	   return getSearchPathLocation(l.path)(l.offset, l.length, l.begin,l.end);
+      
+  	   res = getSearchPathLocation(l.path);
+  	   try {
+  	   		res = res(l.offset, l.length, l.begin,l.end);
+  	   } catch: ;
+  	   
+  	   println("normalize: <l> =\> <res>");
+  	   return res;
     }
+    //println("normalize: unchanged: <l>");
     return l;
 }
 
@@ -254,7 +268,7 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   config = c;	
+   config = visit (c) { case loc l => normalize(l) };
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
@@ -398,6 +412,11 @@ void extractScopes(Configuration c){
         }
         default: ;//println("extractScopes: skipping <uid>: <item>");
       }
+    }
+    
+    // Make sure that the original and the normalized location is present.
+    for(l <- config.locationTypes){
+    	config.locationTypes[l] = config.locationTypes[l];
     }
     
     // Precompute some derived values for efficiency:
@@ -580,7 +599,7 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
      
     // Fill in uid2name
     uid2name[uid] = fuid;
-    loc2uid[src] = uid;
+    loc2uid[normalize(src)] = uid;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
     if(!uid2str[uid]?){
@@ -597,8 +616,13 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
+   
+    if(config.locationTypes[l]?){
+    	return config.locationTypes[l];
+    }
     l = normalize(l);
-	assert config.locationTypes[l]? : "getType for <l>";
+    iprintln(config.locationTypes);
+    assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
@@ -790,7 +814,7 @@ public int getTupleFieldIndex(Symbol s, str fieldName) =
     indexOf(getTupleFieldNames(s), fieldName);
 
 public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
-     l = normalize(l);
+     //l1 = normalize(l);
      containmentPlus = containment+;
      set[UID] decls = {};
      if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
@@ -865,7 +889,7 @@ public UID declaredScope(UID uid) {
 	println("declaredScope[<uid>] = 0 (generated)");
 	return 0;
 }
-
+ 
 MuExp mkVar(str name, loc l) {
   l = normalize(l);
   //name = unescape(name);
