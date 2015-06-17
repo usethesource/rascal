@@ -125,6 +125,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			index = functionStore.size();
 			functionMap.put(fname, index);
 			functionStore.add(null);
+			System.out.println("useFunctionName (undef): " + index + "  => " + fname);
 		}
 		//System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
@@ -269,7 +270,14 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 		for(Function f : functionStore) {
 			if(f == null){
-				System.out.println("finalizeInstructions, null at index: " + i);
+				String nameAtIndex = "**unknown**";
+				for(String fname : functionMap.keySet()){
+					if(functionMap.get(fname) == i){
+						nameAtIndex = fname;
+						break;
+					}
+				}
+				System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
 			} else {
 				//System.out.println("finalizeInstructions: " + f.name);
 			}
