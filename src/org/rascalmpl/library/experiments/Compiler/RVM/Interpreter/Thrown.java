@@ -66,7 +66,8 @@ public class Thrown extends RuntimeException {
 				if (e.getMethodName().equals("invoke0")) {
 					break;
 				}
-				stdout.println("\t\uE007[](|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>:" + e.getClassName() + "." + e.getMethodName() + "()");
+				String location = "|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>)";
+				stdout.println("\t"+location +":" + e.getClassName() + "." + e.getMethodName() + "()");
 			}
 			
 			cause = cause.getCause() != cause ? getCause() : null;
