@@ -331,8 +331,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, STACK);
 
 		if (f.constantStore.length != 0) {
-			mv.visitFieldInsn(GETSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
+			mv.visitVarInsn(ALOAD, CF);
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function",
+					"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/eclipse/imp/pdb/facts/IValue;");
 			mv.visitVarInsn(ASTORE, CS);
+
 		}
 
 		if (f.typeConstantStore.length != 0) {
@@ -372,7 +376,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 
-		emitStoreInitializer(f);
+		//emitStoreInitializer(f);
 
 	}
 
@@ -1450,7 +1454,7 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(pos1);
 
 		mv.visitInsn(AALOAD);
-		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IValue");
+//		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IValue");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValue", "getType", "()Lorg/eclipse/imp/pdb/facts/type/Type;",true);
 		mv.visitVarInsn(ALOAD, TS);
 

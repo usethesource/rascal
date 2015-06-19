@@ -58,7 +58,8 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
 }
 
 tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, 
-									bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage = false, loc bindir = |home:///bin|){
+									bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
+									bool coverage = false, bool useJVM = false, loc bindir = |home:///bin|){
 									
    start_loading = cpuTime();
    map[str,Symbol] imported_types = ();
@@ -98,6 +99,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
        compiledDef = RVMProgramLocation(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           rvm_def = compile(def, bindir = bindir);
+          //<cfg, rvm_def> = compile(def, bindir = bindir);
           messages += rvm_def.messages;
        }
    }
@@ -237,28 +239,30 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    						   testsuite, 
    						   profile, 
    						   trackCalls, 
-   						   coverage);
+   						   coverage,
+   						   useJVM);
    if(!testsuite){
    		println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
    }	
    return <v, t>;
 }
 
-value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, loc bindir = |home:///bin|){
-	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, bindir=bindir);
+
+value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
+	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, bindir=bindir);
 	//if(testsuite){
  //  	   return printTestReport(v);
  //   }
    return v;
 }
 
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
       if(exists(compressed)){
          println("Using <compressed>");
-      	 <v, t> = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage);
+      	 <v, t> = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
       	 if(!testsuite){
       	 	println("Result = <v>, [execute: <t> msec]");
       	 }	
@@ -267,13 +271,14 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
    }
    
    mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
-   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+   //<cfg, mainProgram> = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM);
 }
 
-value executeBinary(loc executable, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, loc bindir = |home:///bin|){
+value executeBinary(loc executable, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, loc bindir = |home:///bin|){
   if(exists(executable)){
      println("Using <executable>");
-  	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage);
+  	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
   	 if(!testsuite){
   	 	println("Result = <v>, [execute: <t> msec]");
   	 }	
@@ -286,9 +291,9 @@ value executeBinary(loc executable, list[value] arguments, bool debug=false, boo
 //   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 //}
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
    mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
-   return execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+   return execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM);
 }
 
 value executeTests(loc rascalSource){

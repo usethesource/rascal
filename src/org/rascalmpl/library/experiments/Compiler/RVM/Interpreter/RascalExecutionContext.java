@@ -56,9 +56,10 @@ public class RascalExecutionContext {
 	//private ILocationCollector locationReporter;
 	private RVM rvm;
 	private boolean coverage;
+	private boolean useJVM;
 	private final IMap moduleTags;
 	
-	RascalExecutionContext(IValueFactory vf, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, boolean useByteCode, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.moduleTags = moduleTags;
@@ -67,6 +68,7 @@ public class RascalExecutionContext {
 		this.debug = debug;
 		this.profile = profile;
 		this.coverage = coverage;
+		this.useJVM = useByteCode;
 		this.trackCalls = trackCalls;
 		
 		currentModuleName = "UNDEFINED";
@@ -144,6 +146,8 @@ public class RascalExecutionContext {
 	boolean getProfile(){ return profile; }
 	
 	boolean getCoverage(){ return coverage; }
+	
+	boolean getUseByteCode() { return useJVM; }
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
@@ -238,7 +242,7 @@ public class RascalExecutionContext {
 	}
 	
 	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getURI().getScheme();
+		String scheme = loc.getScheme();
 		int pos;
 		
 		ICallableValue resolver = sourceResolvers.get(scheme);

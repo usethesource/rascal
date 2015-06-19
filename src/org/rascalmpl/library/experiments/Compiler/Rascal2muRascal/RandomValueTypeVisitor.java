@@ -338,31 +338,36 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitSourceLocation(Type type) {
-	  if (maxDepth <= 0) {
-	    return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
+	  try {
+	    if (maxDepth <= 0) {
+	      return vf.sourceLocation("tmp","","");
+	    }
+	    else {
+
+	      String path = stRandom.nextDouble() < 0.9 ? RandomUtil.stringAlphaNumeric(stRandom, stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
+	      String nested = "";
+
+	      if (stRandom.nextBoolean()) {
+	        RandomValueTypeVisitor visitor = descend();
+	        ISourceLocation loc = (ISourceLocation) visitor.generate(type);
+	        nested = loc.getPath();
+	      }
+
+	      path = path.startsWith("/") ? path : "/" + path;
+	      if (nested.length() > 0 && !nested.equals("/")) {
+	        path = nested + path;
+	      }
+	      return vf.sourceLocation("tmp","",path);
+	    }
+	  } catch (URISyntaxException e) {
+	    // generated illegal URI?
+	    try {
+	      return vf.sourceLocation("tmp","","");
+	    } catch (URISyntaxException e1) {
+	      throw new RuntimeException(e1); // this sloc should never throw.
+	    }
 	  }
-	  else {
-      try {
-        String path = stRandom.nextDouble() < 0.9 ? RandomUtil.stringAlphaNumeric(stRandom, stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
-        String nested = "";
-        URI uri = URIUtil.assumeCorrect("tmp:///");
-        
-        if (stRandom.nextBoolean()) {
-          RandomValueTypeVisitor visitor = descend();
-          ISourceLocation loc = (ISourceLocation) visitor.generate(type);
-          uri = loc.getURI();
-          nested = uri.getPath();
-        }
-        
-        path = path.startsWith("/") ? path : "/" + path;
-        uri = URIUtil.changePath(uri, nested.length() > 0 && !nested.equals("/") ? nested + path : path);
-        
-        return vf.sourceLocation(uri);
-      } catch (URISyntaxException e) {
-        // generated illegal URI?
-        return vf.sourceLocation(URIUtil.assumeCorrect("tmp:///"));
-      }
-	  }
+
 	}
 
 	@Override

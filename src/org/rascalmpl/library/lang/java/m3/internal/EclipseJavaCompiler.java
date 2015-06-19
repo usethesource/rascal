@@ -59,15 +59,13 @@ public class EclipseJavaCompiler {
     classPathEntries.clear();
     sourcePathEntries.clear();
     for (IValue path : classPaths) {
-        URI uri = ((ISourceLocation) path).getURI();
-        assert uri.getScheme().equals("file");
-        classPathEntries.add(uri.getPath());
+        assert ((ISourceLocation) path).getScheme().equals("file");
+        classPathEntries.add(((ISourceLocation) path).getPath());
     }
 
     for (IValue path : sourcePaths) {
-        URI uri = ((ISourceLocation) path).getURI();
-        assert uri.getScheme().equals("file");
-		sourcePathEntries.add(uri.getPath());
+        assert ((ISourceLocation) path).getScheme().equals("file");
+		sourcePathEntries.add(((ISourceLocation) path).getPath());
     }
   }
   

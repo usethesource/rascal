@@ -32,7 +32,6 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::types::CheckModule;
 import lang::rascal::meta::ModuleInfo;
 import lang::rascal::types::Util;
 
@@ -3003,11 +3002,10 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  println("extractPatternTree: <pat> <concrete.parts>");
   if (!(concrete has parts)) {
     throw "it seems concrete syntax has already been expanded";
   }
-  psList = for (hole(\one(Sym sym, Name n)) <- concrete.parts) {
+  psList = for (/hole(\one(Sym sym, Name n)) := concrete) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
    
     append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
@@ -4480,7 +4478,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
         return markLocationFailed(c, stmt@\loc, failures);
     else
         return markLocationType(c, stmt@\loc, \list(loopElementType)); 
-}
+}   
 
 @doc{Check the type of Rascal statements: For}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expression ","}+ gens> ) <Statement bdy>`, Configuration c) {
@@ -6706,7 +6704,8 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
-					c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]]);
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+					c = addConstructor(c, name, at, rtype, [], kpList);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6749,7 +6748,8 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	void loadTransConstructor(int itemId) {
 		AbstractValue av = d.store[itemId];
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
-			c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
+			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+			c = addConstructor(c, name, at, rtype, [], [<kp,kt,kpList> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -7131,7 +7131,7 @@ public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::M
 		
 		try {
 			dt1 = now();
-			modTree = getModuleParseTree(prettyPrintName(modName));
+			modTree = parse(#start[Module], getModuleLocation(prettyPrintName(modName))).top;
 			sigMap[modName] = getModuleSignature(modTree);
 			moduleLocs[modName] = modTree@\loc;
 			c = addModule(c,modName,modTree@\loc);
@@ -7148,7 +7148,7 @@ public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::M
 			}
 			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 		} catch perror : {
-			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>", md@\loc);
+			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>: <perror>", md@\loc);
 			notImported = notImported + modName;
 		}
 	}
@@ -7328,6 +7328,21 @@ void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
+void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
+    if(exists(cachedConfig(src,bindir))){
+		Configuration c = getCachedConfig(src, bindir);
+		c.dirtyModules = { };
+		writeCachedConfig(src, bindir, c);
+		
+		if (transitive) {
+			reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
+			for (l <- reachableModuleLocations) {
+				writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+			}
+		}
+	}
+}
+
 public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
 }
@@ -7355,6 +7370,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 	// Get the transitive modules that will be imported
 	< ig, infomap > = getImportGraphAndInfo(md, extraImports=defaultModules);
+	c.importGraph = ig;
 	map[RName,str] currentHashes = ( );
 	for (imn <- carrier(ig)) {
 		try {
@@ -7392,17 +7408,16 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// Before checking the module, see if any of the imports need to be recomputed. If so, we need
 	// to recompute those imports, and we need to recompute the checker results for the current
 	// module as well. 
+	dirtyModules = { };
 	for (wl <- allImports) {
 		reachable = igTrans[wl];
-		rebuildNeeded = false;
 		for (r <- reachable) {
 			try {
 				dependencyLoc = getModuleLocation(prettyPrintName(r));
 				if (!exists(cachedHash(dependencyLoc, bindir))) {
 					// If we import this module, but the saved cache doesn't exist, we need
 					// to rebuild this import. 
-					rebuildNeeded = true;
-					break;
+					dirtyModules = dirtyModules + r;
 				} else {
 					existingHash = getCachedHash(dependencyLoc, bindir);
 					if (r in currentHashes) {
@@ -7411,14 +7426,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 							// If we import this module, and the saved cache exists, but it
 							// either differs from the current hash or the saved hash, we need
 							// to rebuild this import. 
-							rebuildNeeded = true;
-							break;
+							dirtyModules = dirtyModules + r;
 						}
 					} else {
 						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
 						// will generate the hash for r eventually, since it is a dependency.
-						rebuildNeeded = true;
-						break;
+						dirtyModules = dirtyModules + r;
 					}
 				}
 
@@ -7426,29 +7439,30 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// reason, we need to rebuild this import. We will rebuild rl, since this will
 				// then eventually rebuild r (which is a dependency).
 				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					rebuildNeeded = true;
-					break;
+					dirtyModules = dirtyModules + r;
 				}
 			} catch : {
 				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
 		}
 		
-		if (rebuildNeeded) {
+		c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
+		
+		if (size(dirtyModules) > 0) {
 			try {
 				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
-			} catch : {
+			} catch cfgerror: {
 				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>", md@\loc);
+				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: : <cfgerror>", md@\loc);
 			}
 			dirty = true;
 		} else {
 			try {
 				importLoc = getModuleLocation(prettyPrintName(wl));
 				checkedModules[wl] = getCachedConfig(importLoc, bindir);
-			} catch : {
+			} catch cherror: {
 				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>", md@\loc);
+				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: <cherror>", md@\loc);
 			}
 		}
 	}
@@ -7471,6 +7485,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// since these appear as local declarations. So, for each import, this computes the modules that provide
 	// importable names, based on this rule.		
 	importFrom = { < m2i, m2i > | m2i <- ( modulesToImport<0> + defaultModules<0> ) };
+	importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[moduleName].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
 	solve(importFrom) {
 		importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
 	}	
@@ -8420,7 +8435,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
     cCatch = enterBlock(c, ctch@\loc);
     tp = Symbol::\void();
     if ((Pattern)`<QualifiedName qn>` := p) {
-        < cCatch, tp > = calculatePatternType(p, cCatch, \adt("RuntimeException",[]));
+        < cCatch, tp > = calculatePatternType(p, cCatch, makeValueType());
     } else {
         < cCatch, tp > = calculatePatternType(p, cCatch);
     }
@@ -8450,6 +8465,13 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
 
 public anno map[loc,str] Tree@docStrings;
 public anno map[loc,set[loc]] Tree@docLinks;
+
+public anno map[loc,str] start[Module]@docStrings;
+public anno map[loc,set[loc]] start[Module]@docLinks;
+
+public anno map[loc,str] Module@docStrings;
+public anno map[loc,set[loc]] Module@docLinks;
+
 
 public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck);
@@ -8506,6 +8528,14 @@ public default Module check(Tree t) {
 	else
 		throw "Cannot check arbitrary trees";
 }
+
+public default start[Module] check(loc l) {
+  m = parse(#start[Module], l);
+  m.top = check(m.top);
+  m@docLinks = m.top@docLinks;
+  m@docStrings = m.top@docStrings;
+  return m;
+} 
 
 CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
 	sym = visit(sym) {

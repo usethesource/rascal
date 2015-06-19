@@ -52,9 +52,22 @@ public abstract class JarTreeHierachy {
     if (result.equals(path)) {
       return true;
     }
+    
     // it might be a directory
     if (!path.endsWith("/")) {
-      path += "/";
+      if (result.startsWith(path)) {
+        char separator = result.charAt(path.length());
+        if (separator == '/') {
+          return true;
+        }
+        // If there is a file named a.class and a directory called a.
+        // The a.class is "higher" than the files in the directory.
+        // so ceilingKey returns the "a.class", in that case we have to test if path/ might have a different ceilingKey
+        if (separator < '/') {
+          return exists(path + "/");
+          
+        }
+      }
     }
     return result.startsWith(path);
   }
@@ -63,19 +76,15 @@ public abstract class JarTreeHierachy {
     if (throwMe != null) {
       return false;
     }
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
-    // or the actual file itself
+    // or the first file greater than the directory
     String result = fs.ceilingKey(path);
     if (result == null) {
       return false;
-    }
-    if (result.equals(path)) {
-      // it's a file
-      return false;
-    }
-    if (!path.endsWith("/")) {
-      path += "/";
     }
     return result.startsWith(path);
   }
@@ -104,7 +113,9 @@ public abstract class JarTreeHierachy {
     if (throwMe != null) {
       throw throwMe;
     }
-    assert path.endsWith("/");
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
 
     NavigableMap<String, FSEntry> contents = fs.tailMap(path, true);
     String end = fs.higherKey(path + biggestChar); // the last key
@@ -121,8 +132,7 @@ public abstract class JarTreeHierachy {
         if (!subPath.startsWith(previousDir, offset)) {
           previousDir = subPath.substring(offset, nextSlash);
           result.add(previousDir);
-          previousDir = previousDir + "/"; // to make sure the starts with doesn't match same prefix
-                                           // dirs
+          previousDir = previousDir + "/"; // to make sure the starts with doesn't match same prefix dirs
         }
       }
       else {

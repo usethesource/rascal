@@ -103,6 +103,9 @@ public class ClassResourceInput implements ISourceLocationInput {
 			if(res == null) {
 				throw new FileNotFoundException(getPath(uri));
 			}
+			if (res.getProtocol().equals("jar") && res.getPath().startsWith("file:/")) {
+			  return ValueFactoryFactory.getValueFactory().sourceLocation("jar", null, res.getPath().substring("file:".length()));
+			}
 			return ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI());
 		} catch (URISyntaxException e) {
 			assert false;
