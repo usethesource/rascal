@@ -1,8 +1,48 @@
 module experiments::Compiler::Examples::Tst4
 
-extend experiments::Compiler::Tests::TestUtils;
+map[loc,int] M =
+(
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(532,5,<16,7>,<16,12>):65,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(567,53,<21,0>,<21,53>):61,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(475,1,<13,28>,<13,29>):63,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(447,118,<13,0>,<19,1>):60,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(598,21,<21,31>,<21,52>):71,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(598,12,<21,31>,<21,43>):60,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1625,10,<55,7>,<55,17>):37,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1745,27,<59,7>,<59,34>):17,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2142,15,<71,7>,<71,22>):36,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2018,22,<67,7>,<67,29>):9,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1527,17,<51,7>,<51,24>):23,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1899,24,<63,7>,<63,31>):34,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2453,18,<83,7>,<83,25>):5,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1990,20,<66,7>,<66,27>):39,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2547,9,<86,7>,<86,16>):41,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2423,22,<82,7>,<82,29>):3,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1700,37,<58,7>,<58,44>):10,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2107,27,<70,7>,<70,34>):18,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1487,32,<50,7>,<50,39>):16,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1839,52,<62,7>,<62,59>):28,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1606,10,<54,7>,<54,17>):40,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(521,1,<15,25>,<15,26>):63,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(523,24,<15,27>,<17,3>):69,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(498,49,<15,2>,<17,3>):67,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(622,81,<23,0>,<23,81>):62,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(653,49,<23,31>,<23,80>):73,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(653,12,<23,31>,<23,43>):60,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1966,16,<65,7>,<65,23>):33,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1668,24,<57,7>,<57,31>):15,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1587,11,<53,7>,<53,18>):38,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1803,28,<61,7>,<61,35>):29,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2080,19,<69,7>,<69,26>):19,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(485,5,<14,6>,<14,11>):65,
+  |project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(557,5,<18,9>,<18,14>):65,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1553,26,<52,7>,<52,33>):24,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2362,25,<80,7>,<80,32>):43,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2479,29,<84,7>,<84,36>):4,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1780,15,<60,7>,<60,22>):35,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1931,27,<64,7>,<64,34>):44,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(1643,17,<56,7>,<56,24>):11,
+  |project://rascal/src/org/rascalmpl/library/Exception.rsc|(2048,24,<68,7>,<68,31>):42
+);
 
-//test bool tst() = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") == sw(0);
-
-
-value main(list[value] args) = run("x = 7" , "switch(0){case 0: x = 0; case 1: x = 1; default: x = 2;}") ;
+value main(list[value] args) { assert M[|project://rascal/src/org/rascalmpl/library/demo/common/WordCount/CountInLine1.rsc|(447,118,<13,0>,<19,1>)]?; return true; }

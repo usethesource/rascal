@@ -14,7 +14,7 @@ public class Thrown extends RuntimeException {
 	// TODO: this is not thread safe
 	private static Thrown instance = new Thrown();
 	
-	IValue value;
+	public IValue value;
 	ISourceLocation loc;
 	Throwable cause;
 	
@@ -66,7 +66,8 @@ public class Thrown extends RuntimeException {
 				if (e.getMethodName().equals("invoke0")) {
 					break;
 				}
-				stdout.println("\t\uE007[](|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>:" + e.getClassName() + "." + e.getMethodName() + "()");
+				String location = "|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>)";
+				stdout.println("\t"+location +":" + e.getClassName() + "." + e.getMethodName() + "()");
 			}
 			
 			cause = cause.getCause() != cause ? getCause() : null;

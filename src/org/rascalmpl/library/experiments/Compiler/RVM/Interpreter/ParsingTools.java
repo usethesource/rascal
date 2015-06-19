@@ -360,7 +360,7 @@ public class ParsingTools {
 	  // Rascal library function (interpreter version)
 	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, ctx, null);
+			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, false, ctx, null);
 		  }
 		  return parseFragment(name, start, tree, loc, grammar);
 	  }

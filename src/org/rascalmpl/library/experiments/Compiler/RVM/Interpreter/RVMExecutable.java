@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -68,6 +69,10 @@ public class RVMExecutable implements Serializable{
 	public String uid_module_main;
 	public String uid_module_main_testsuite;
 	
+	public byte[] jvmByteCode;
+	public String fullyQualifiedName ;
+	public String fullyQualifiedDottedName;
+	
 	public RVMExecutable(
 			final String module_name,
 			final IMap moduleTags,
@@ -88,7 +93,8 @@ public class RVMExecutable implements Serializable{
 			String uid_module_main,
 			String uid_module_main_testsuite,
 			TypeStore ts,
-			IValueFactory vfactory
+			IValueFactory vfactory, 
+			boolean useJVM
 			){
 		
 		this.module_name = module_name;
@@ -113,7 +119,31 @@ public class RVMExecutable implements Serializable{
 		
 		vf = vfactory;
 		store = ts;
+		if(useJVM){
+			buildRunnerByteCode(false, false);
+		}
 	}
+	
+	public void buildRunnerByteCode(boolean profile, boolean debug) {
+		try {
+			// TODO; in the future create multiple classes with the same name as a Rascal module
+			String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
+			String className = "RVMRunner";
+
+			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
+	
+			codeEmittor.buildClass(packageName,className,debug) ;
+
+			jvmByteCode = codeEmittor.finalizeCode();
+			fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
+			
+			// TODO: REMOVE for debug purposes only
+			codeEmittor.dump("/tmp/RVMRunner.class");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+}
 	
 //	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
 //		String scheme = "compressed+" + exec.getScheme();
@@ -383,6 +413,18 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public String uid_module_main_testsuite;
 
 		out.writeObject(ex.uid_module_main_testsuite);
+		
+		// public byte[] jvmByteCode;
+		
+		out.writeObject(ex.jvmByteCode);
+		
+		// public String fullyQualifiedName ;
+		
+		out.writeObject(ex.fullyQualifiedName);
+		
+		// public String fullyQualifiedDottedName;
+		
+		out.writeObject(ex.fullyQualifiedDottedName);
 	}
 
 
@@ -458,10 +500,27 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public String uid_module_main_testsuite;
 
 		String uid_module_main_testsuite = (String) in.readObject();
+		
+		// public byte[] jvmByteCode;
+		
+		byte[] jvmByteCode = (byte[]) in.readObject();
+				
+		// public String fullyQualifiedName ;
+		
+		String fullyQualifiedName  = (String) in.readObject();
+				
+		// public String fullyQualifiedDottedName;
+	
+		String fullyQualifiedDottedName = (String) in.readObject();
 
-		return new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
+		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
-								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf);
+								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
+		ex.jvmByteCode = jvmByteCode;
+		ex.fullyQualifiedName = fullyQualifiedName;
+		ex.fullyQualifiedDottedName = fullyQualifiedDottedName;
+		
+		return ex;
 	
 	}
 }

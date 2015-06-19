@@ -11,14 +11,14 @@ import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
-	final int scopeId;
-    Frame previousCallFrame;
-    final Frame previousScope;
-	final Object[] stack;
-	int sp;
+	public final int scopeId;
+    public Frame previousCallFrame;
+    public final Frame previousScope;
+	public final Object[] stack;
+	public int sp;
 	int pc;
-	ISourceLocation src;
-	final Function function;
+	public ISourceLocation src;
+	public final Function function;
 	
 	final boolean isCoroutine;
 		
@@ -183,7 +183,9 @@ public class Frame {
 		return newFrame;
 	}
 	
-	private int MAXLEN = 40;
+	private int MAXLEN = 80;
+	public int hotEntryPoint;
+	public Frame nextFrame;
 	
 	private String abbrev(String repr) {
 		return (repr.length() < MAXLEN) ? repr : repr.substring(0, 40) + "...";
@@ -192,7 +194,7 @@ public class Frame {
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		if(src != null){
-			s.append("\uE007[](").append(src).append(":");
+			s.append("\uE007[");
 	    }
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals; i++){
@@ -211,6 +213,9 @@ public class Frame {
 			}
 			
 			s.append(abbrev(repr));
+			if(src != null){
+			  s.append("](").append(src).append(")");
+			}
 		}
 	
 //		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){

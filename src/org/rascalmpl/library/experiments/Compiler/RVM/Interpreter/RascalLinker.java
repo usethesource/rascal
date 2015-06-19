@@ -136,6 +136,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
 			functionStore.add(f);
+			f.funId = index ;
 		} else {
 			functionStore.set(index, f);
 		}
@@ -158,7 +159,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
 		// should be done earlier
 		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
-			System.out.println("declareConstructor: " + symbol);
+			//System.out.println("declareConstructor: " + symbol);
 			IValue sort = symbol.get("sort");
 			IValue parameters = symbol.get("parameters");
 			IValue attributes = symbol.get("attributes");
@@ -287,7 +288,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
 				 IMap imported_overloading_resolvers,
-				 IList argumentsAsList) {
+				 IList argumentsAsList, 
+				 boolean useJVM) {
 		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
@@ -362,10 +364,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IMap declarations = (IMap) program.get("declarations");
 		for (IValue dname : declarations) {
 			IConstructor declaration = (IConstructor) declarations.get(dname);
+			
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 					
+				//System.out.println("FUNCTION: " + name);
+				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					uid_module_main = name;					// Get main's uid in current module
 				}
@@ -424,7 +429,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								 uid_module_main, 
 								 uid_module_main_testsuite,
 								 typeStore,
-								 vf);
+								 vf,
+								 useJVM);
 	}
 	
 	/*
@@ -467,6 +473,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
 	
+		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -543,11 +550,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoints);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"), ++continuationPoints);
 				break;
 				
 			case "APPLY":
@@ -609,11 +616,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoints);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoints);
 				break;
 				
 			case "SHIFT":
@@ -729,7 +736,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoints);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -832,7 +839,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 										 isConcreteArg,
 										 abstractFingerprint,
 										 concreteFingerprint, 
-										 codeblock, src);
+										 codeblock, src, continuationPoints);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);

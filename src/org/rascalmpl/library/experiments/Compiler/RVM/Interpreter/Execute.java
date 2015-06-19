@@ -41,6 +41,7 @@ public class Execute {
 			 					 IBool profile, 
 			 					 IBool trackCalls, 
 			 					 IBool coverage,
+			 					 IBool useByteCode,
 			 					 IEvaluatorContext ctx) {
 		
 		RVMExecutable executable = RVMExecutable.read(rvmExecutable);
@@ -52,6 +53,7 @@ public class Execute {
 				  			  profile, 
 				  			  trackCalls, 
 				  			  coverage,
+				  			  useByteCode,
 				  			  ctx);
 	}
 	
@@ -70,6 +72,7 @@ public class Execute {
 								 IBool profile, 
 								 IBool trackCalls, 
 								 IBool coverage,
+								 IBool useByteCode,
 								 IEvaluatorContext ctx) {
 		
 		TypeStore typeStore = new TypeStore(); // new TypeStore(Factory.getStore());
@@ -82,7 +85,8 @@ public class Execute {
 								 imported_functions,
 								 imported_overloaded_functions,
 								 imported_overloading_resolvers,
-								 argumentsAsList);
+								 argumentsAsList, 
+								 useByteCode.getValue());
 		/*** Serialization  */
 		
 		RVMExecutable executable2 = null;
@@ -97,7 +101,7 @@ public class Execute {
 		
 		/*** Start execution */
 		
-		// TODO: Decide here to use the orignal executable or the serialized version.
+//		 TODO: Decide here to use the orignal executable or the serialized version.
 		executable = executable2;
 		
 		return executeProgram(executable,  
@@ -107,6 +111,7 @@ public class Execute {
 							  profile, 
 							  trackCalls, 
 							  coverage,
+							  useByteCode,
 							  ctx);
 	}
 		
@@ -117,6 +122,7 @@ public class Execute {
 								 IBool profile, 
 								 IBool trackCalls, 
 								 IBool coverage,
+								 IBool useByteCode,
 								 IEvaluatorContext ctx){
 		
 		PrintWriter stdout = ctx.getStdOut();
@@ -135,10 +141,10 @@ public class Execute {
 										   profile.getValue(), 
 										   trackCalls.getValue(), 
 										   coverage.getValue(), 
-										   ctx, 
-										   testResultListener);
+										   useByteCode.getValue(), 
+										   ctx, testResultListener);
 		
-		RVM rvm = new RVM(executable, rex);
+		RVM rvm = useByteCode.getValue() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){

@@ -23,7 +23,7 @@ public class LineStreamResult extends ResourceResult {
 
 	public LineStreamResult(Type type, IValue value, IEvaluatorContext ctx, ISourceLocation fullURI, String displayURI) {
 		super(type, value, ctx, fullURI, displayURI);
-		String str = fullURI.getURI().getPath();
+		String str = fullURI.getPath();
 		String newHost = str.substring(1,str.indexOf("/",1));
 		String newPath = str.substring(str.indexOf("/",1)+1);
 		URI uri = URIUtil.assumeCorrect(newHost, "", newPath);

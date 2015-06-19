@@ -21,7 +21,7 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionInstance implements ICallableCompiledValue, IExternalValue {
 	
-	private final int[] functions;
+	final int[] functions;
 	private final int[] constructors;
 	final Frame env;
 	

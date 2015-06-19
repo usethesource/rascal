@@ -243,10 +243,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	private final static ITree byteChars[];
 	private final static Type byteCharTypes[];
 	static {
-		byteChars = new ITree[256];
-		byteCharTypes = new Type[256];
-		for (int i = 0; i < 256; i++) {
-			byteChars[i] = new CharByte((byte) i);
+		byteChars = new ITree[Byte.MAX_VALUE];
+		byteCharTypes = new Type[Byte.MAX_VALUE];
+		for (byte i = 0; i < Byte.MAX_VALUE; i++) {
+			byteChars[i] = new CharByte(i);
 			byteCharTypes[i] = RascalTypeFactory.getInstance().nonTerminalType(bootFactory.constructor(Symbol_CharClass, bootFactory.list(bootFactory.constructor(CharRange_Range, bootFactory.integer(i), bootFactory.integer(i)))));
 		}
 	}
@@ -430,6 +430,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public ITree amb(ISet alternatives) {
+		if (alternatives.size() == 1) {
+			// fast builtin canonicalization of singleton ambiguity clusters is
+			// necessary when client code filters ambiguity clusters. This may
+			// happen during visits and during parse tree construction using the
+			// `filter` statement or by constructing a singleton set accidentally.
+			//
+			// &T <: Tree amb({&T <: Tree t}) = t;
+			//
+			// Note that without this canonicalization pattern matches are bound
+			// to fail because of the extra indirection of the amb cluster.
+			return (ITree) alternatives.iterator().next();
+		}
+		
 		return new Amb(alternatives);
 	}
 	
@@ -1126,7 +1139,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				return RascalTypeFactory.getInstance().nonTerminalType((IConstructor) alternatives.iterator().next());
 			}
 			else {
-				return Tree;
+				return RascalTypeFactory.getInstance().nonTerminalType(IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty));
 			}
 		}
 

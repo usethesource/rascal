@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CallConstr extends Instruction {
 	
@@ -15,11 +16,17 @@ public class CallConstr extends Instruction {
 		//this.src = src;
 	}
 	
-	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]" /*+ ", " + src*/; }
+	public String toString() { return "CALLCONSTRUCTOR " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
 	
 	public void generate(){
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getConstructorIndex(fuid), arity);
-		//codeblock.addCode(codeblock.getConstantIndex(src));
+	}
+
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSII("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity,debug);
 	}
 
 }

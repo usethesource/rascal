@@ -23,7 +23,8 @@ public java tuple[value,int] executeProgram(loc executable,
 										    bool testsuite,
 										    bool profile,
 										    bool trackCalls,
-										    bool coverage);	
+										    bool coverage,
+										    bool useJVM);	
 										    
 										    
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Execute}
@@ -34,7 +35,9 @@ public java tuple[value,int] executeProgram(loc program,
 										    bool testsuite,
 										    bool profile,
 										    bool trackCalls,
-										    bool coverage);						    
+										    bool coverage,
+										    bool useJVM
+										   );						    
 										    
 
 //public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {

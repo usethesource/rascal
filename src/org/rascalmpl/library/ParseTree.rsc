@@ -232,7 +232,7 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(rhs,
 
 Production associativity(Symbol rhs, Associativity a, set[Production] rest)
   = associativity(rhs, a, withAssoc + withNewAssocs)
-  when  withoutAssoc := {p | p <- rest, !(\assoc(_) <- p.attributes)},
+  when  withoutAssoc := {p | p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
         withoutAssoc != {},
         withAssoc := rest - withoutAssoc,
         withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | p <- withoutAssoc}

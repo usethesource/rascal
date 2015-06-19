@@ -55,8 +55,8 @@ public abstract class StaticError extends RuntimeException {
 	}
 	
 	public void setLocation(ISourceLocation loc) {
-		String mod = loc.getURI().getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
-		getStackTrace()[0] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());
+		String mod = loc.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+		getStackTrace()[0] = new StackTraceElement(mod, "?", loc.getPath(), loc.getBeginLine());
 
 		this.loc = loc;
 	}
@@ -66,20 +66,19 @@ public abstract class StaticError extends RuntimeException {
 		StackTraceElement[] stackTrace = new StackTraceElement[oldStackTrace.length+1];
 		int i = 0;
 		
-		URI uri = loc.getURI();
 		String mod;
-		if(uri.getScheme().equals("rascal"))
-			mod = uri.getAuthority();
+		if(loc.getScheme().equals("rascal"))
+			mod = loc.getAuthority();
 		else
-			mod = uri.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+			mod = loc.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
 		if(mod == null)
 			mod = "<empty>";
 		
 		if (loc.hasLineColumn()) {
-			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());
+			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getPath(), loc.getBeginLine());
 		}
 		else {
-			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getURI().getPath(), 1);
+			stackTrace[i++] = new StackTraceElement(mod, "?", loc.getPath(), 1);
 		}
 
 		for (StackTraceElement elt : oldStackTrace) {

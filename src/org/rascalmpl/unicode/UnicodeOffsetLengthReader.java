@@ -7,7 +7,7 @@ import java.io.Reader;
 /**
  * Wraps a reader counting first a number (offset) of unicode characters before it starts reading
  * and then only reads a number of unicode characters (length) before it returns end-of-stream.
- * When length is 0, the reader reads until the end of the stream. 
+ * When length is -1, the reader reads until the end of the stream. 
  * 
  * Counting unicode characters is
  * interesting because of the utf16 encoding Java has in memory for unicode.
@@ -49,7 +49,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	@Override
 	public int read() throws IOException {
 		offset();
-		if (length != 0 && charsRead >= length) {
+		if (length != -1 && charsRead >= length) {
 			return -1;
 		}
 		
@@ -66,7 +66,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 	public int read(char[] cbuf, int off, int len) throws IOException {
 		offset();
 		
-		if (length != 0 && charsRead >= length) {
+		if (length != -1 && charsRead >= length) {
 			// we are at the end already
 			return -1;
 		}
@@ -87,7 +87,7 @@ public class UnicodeOffsetLengthReader extends FilterReader {
 				if (!Character.isHighSurrogate(cbuf[i])) {
 					charsRead++;
 					
-					if (length != 0   && charsRead >= length) {
+					if (length != -1   && charsRead >= length) {
 						// done
 						return count;
 					}

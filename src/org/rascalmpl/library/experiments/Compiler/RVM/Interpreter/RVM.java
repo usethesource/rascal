@@ -56,14 +56,14 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
 //	private boolean finalized = false;
 	
 	final ArrayList<Function> functionStore;
-	private final Map<String, Integer> functionMap;
+	protected final Map<String, Integer> functionMap;
 	
 	// Function overloading
 	private final Map<String, Integer> resolver;
@@ -199,7 +199,7 @@ public class RVM implements java.io.Serializable {
 	 * @param result to be returned
 	 * @return converted result or an exception
 	 */
-	private IValue narrow(Object result){
+	protected IValue narrow(Object result){
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}
@@ -373,6 +373,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -388,6 +389,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -413,6 +415,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 			
