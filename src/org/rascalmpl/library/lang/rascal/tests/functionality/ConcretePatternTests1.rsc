@@ -12,8 +12,8 @@ syntax Bs = B* bs;
 
 syntax AB = (A | B)*;
 syntax ABs = (As | Bs)*;
-syntax A2 = [A]* !>> [A];
-syntax B2 = [B]* !>> [B];
+syntax A2 = [A]+ !>> [A];
+syntax B2 = [B]+ !>> [B];
 syntax AB2 = (A2 | B2)*;
 
 syntax C = "c";
@@ -205,17 +205,18 @@ test bool concreteSwitch6(){
 	throw "fail due to missing match";
 }
 
-test bool matchInsideLexicalCyclicGrammar() 
+test bool matchInsideLexicalCyclicGrammar1() 
     = /E _ := [EFs]"eefef";
 
 test bool matchInsideLexical() 
     = /E _ := [EF]"eefef";
 
-test bool matchInsideSyntaxCyclicGrammar()
+test bool matchInsideSyntaxCyclicGrammar2()
     = /A _ := [ABs]"bbaab";
 
 test bool matchInsideSyntax()
     = /A _ := [AB]"bbaab";
+    
 test bool matchInsideSyntax2()
     = /A2 _ := [AB2]"AABBAA";
 
