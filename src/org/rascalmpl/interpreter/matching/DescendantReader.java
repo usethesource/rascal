@@ -114,7 +114,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void pushConcreteSyntaxNode(ITree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		
-		if (TreeAdapter.isLexical(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
+		if (TreeAdapter.isChar(tree) || TreeAdapter.isLexical(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
 			/*
 			 * Don't recurse
 			 */
