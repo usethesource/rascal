@@ -114,7 +114,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void pushConcreteSyntaxNode(ITree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		
-		if (TreeAdapter.isChar(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
+		if (TreeAdapter.isChar(tree) || TreeAdapter.isCycle(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
 			spine.push(tree);
 			return; // do not recurse
 		}
@@ -126,7 +126,7 @@ public class DescendantReader implements Iterator<IValue> {
 			}
 			return;
 		}
-			
+		
 		NonTerminalType ctype = (NonTerminalType) tree.getType();
 		if (debug) System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		IConstructor sym = ctype.getSymbol();
