@@ -673,7 +673,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 // Translate a closure   
  
  private MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
- 	uid = loc2uid[e@\loc];
+ 	uid = getLoc2uid(e@\loc);
 	fuid = convert2fuid(uid);
 	
 	enterFunctionScope(fuid);
@@ -812,6 +812,8 @@ private int endPos = 5;
 private int iDescDescriptorPos = 6;
 
 private int NumberOfPhiFormals = 7;
+private int replacementPos = 7;
+private int NumberOfPhiLocals = 8;
 
 // Generated PHI_FIXPOINT functions
 // iSubjectPos, matchedPos, hasInsert, begin, end, descriptor (as for PHI)
@@ -828,23 +830,23 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	MuExp traverse_fun;
 	bool fixpoint = false;
 	
-	if(\visit is defaultStrategy) {
-		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
-	} else {
-		switch("<\visit.strategy>") {
-			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
-			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN");
-			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK");
-			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK");
-			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP"); fixpoint = true; }
-			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN"); fixpoint = true; }
-		}
-	}
-	
-	bool rebuild = false;
+	str rebuild = "";
 	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
 									|| hasTopLevelInsert(c)) ) {
-		rebuild = true;
+		rebuild = "_REBUILD";
+	}
+	
+	if(\visit is defaultStrategy) {
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
+	} else {
+		switch("<\visit.strategy>") {
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>");
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK<rebuild>");
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK<rebuild>");
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>"); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>"); fixpoint = true; }
+		}
 	}
 	
 	// Unique 'id' of a visit in the function body
@@ -891,8 +893,8 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	//	println(tup);
 	//}
 	
-	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor)
-	int pos_in_phi = NumberOfPhiFormals;
+	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end, descriptor) and local replacementPos
+	int pos_in_phi = NumberOfPhiLocals;
 	
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
 	map[tuple[str,int],tuple[str,int]] mapping = ();
@@ -969,14 +971,14 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 		
 		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, NumberOfPhiFixFormals, NumberOfPhiFixLocals, false, false, \visit@\loc, [], (), false, 0, 0, muBlock(body_exps)));
 	
-		return traversalCall(traverse_fun, scopeId, phi_fixpoint_fuid, descriptor, translate(\visit.subject), rebuild);
+		return traversalCall(traverse_fun, scopeId, phi_fixpoint_fuid, descriptor, translate(\visit.subject));
 	}
 	
-	return traversalCall(traverse_fun, scopeId, phi_fuid, descriptor, translate(\visit.subject), rebuild);
+	return traversalCall(traverse_fun, scopeId, phi_fuid, descriptor, translate(\visit.subject));
 }
 
 
-private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp descriptor, MuExp subject, bool rebuild){
+private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp descriptor, MuExp subject){
 	// Local variables of the surrounding function
 	str hasMatch = asTmp(nextLabel());
 	str beenChanged = asTmp(nextLabel());
@@ -994,8 +996,8 @@ private MuExp traversalCall(MuExp traverse_fun, str scopeId, str phi_fuid, MuExp
 					                        			muTmpRef(leaveVisit,scopeId),
 					                        			muTmpRef(begin,scopeId), 
 					 	 								muTmpRef(end,scopeId),
-					 	 								descriptor,
-					                        			muBool(rebuild) ])),
+					 	 								descriptor
+					                        			])),
 					 muIfelse(nextLabel(), muTmp(leaveVisit, scopeId), 
 						                   [ muReturn1(muTmp(val, scopeId)) ],
 						                   [ muTmp(val, scopeId) ])
@@ -1020,8 +1022,19 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 	code = translate(stat);
 	code = visit(code) { case muReturn0()  => leaveVisitReturn(fuid, muCon(false))
 						 case muReturn1(e) => leaveVisitReturn(fuid, e)
-						 case muInsert(e)  => muBlock([ muAssignVarDeref("hasInsert",fuid,hasInsertPos,muBool(true)), 
-				  									    muReturn1(e) ])
+						 case muInsert(e): { 
+						 	ifname = nextLabel();
+						    replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
+		                                                        muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+						    insert muBlock([ muAssign("replacement", fuid, replacementPos, e),
+    				                         muIfelse(ifname, replcond,
+    				                                  [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                                                muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
+    				                                    muReturn1(muVar("replacement", fuid, replacementPos)) ],
+    				                                  [ muCon(666) ])
+    				                       ]);
+    				     }
+					
 	 					};
 	return code;
 }
@@ -1029,6 +1042,7 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, PatternWithAction pwa, map[int, MuExp] table, int key){
 	cond = muMulti(muApply(translatePatInVisit(pwa.pattern, fuid, subjectType), [ muVar("iSubject", fuid, iSubjectPos) ]));
 	ifname = nextLabel();
+	ifname2 = nextLabel();
 	enterBacktrackingScope(ifname);
 	if(pwa is replacing) {
 		replacement = translate(pwa.replacement.replacementExpression);
@@ -1036,27 +1050,36 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		if(pwa.replacement is conditional) {
 			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
-		replacementType = getType(pwa.replacement.replacementExpression@\loc);
-		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
-		                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
-		                      replacement ];
-    	table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
-    				          [ replacementReturn(muBlock(cbody)) ], 
-    				          [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
+		
+		// TODO: We use the run-time type of the current subject here but this should become the static type
+		
+		replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
+		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		                      
+    	table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
+    				                    [ muAssign("replacement", fuid, replacementPos, replacement),
+    				                      muIfelse(ifname2, replcond,
+    				                               [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
+		                                             muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
+    				                                 replacementReturn(muVar("replacement", fuid, replacementPos)) ],
+    				                               [ muCon(666) ])
+    				                     ], 
+    				                     [ muCon(777) ]),  
+    				            table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
+    				          ]);
     	leaveBacktrackingScope();
 	} else {
 		// Arbitrary
 		case_statement = pwa.statement;
 		\case = translateStatementInVisitCase(fuid, case_statement);
-		insertType = topCaseType();
 		clearCaseType();
-		list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
+		list[MuExp] cbody = [];
 		if(!(muBlock([]) := \case)) {
 			cbody += \case;
 		}
-		cbody += replacementReturn(muVar("iSubject", fuid, iSubjectPos));
-		table[key] = muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, 
-		                      [ table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos)) ]);
+		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ muCon(666) ]),
+		                       table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
+		                     ]);
     	leaveBacktrackingScope();
 	}
 	return table;

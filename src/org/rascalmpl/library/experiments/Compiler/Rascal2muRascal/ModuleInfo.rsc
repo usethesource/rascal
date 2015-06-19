@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::ModuleInfo
 import List;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import IO;
 
  // Global state maintained when translating a Rascal module
 

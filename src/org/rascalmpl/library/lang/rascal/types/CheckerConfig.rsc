@@ -31,6 +31,7 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::types::CheckModule;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -129,10 +130,12 @@ data Configuration = config(set[Message] messages,
                             map[RName,int] globalSortMap,
                             map[int,value] deferredSignatures,
                             set[RName] unimportedNames,
-                            bool importing
+                            bool importing,
+                            rel[RName,RName] importGraph,
+                            set[RName] dirtyModules
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{});
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 

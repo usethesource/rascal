@@ -15,6 +15,8 @@ module lang::rascal::tests::functionality::VisitTests
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 
+import Node;
+
 test bool visit1a() {
 	return visit([1,2,3]) {
 				case list[int] l => [ ( 0 | it + i | int i <- l) ]
@@ -334,7 +336,29 @@ test bool visit20() {
 		   [ lst([999,666]) ];
 }
 
-test bool visit21() {
+
+
+data X = weird1(list[void] x);
+
+@ignoreInterpreter{Interpreter crashes on this test}
+test bool visit21() = visit (weird1([])) { case list[int] _ => [1] } == weird1([]);
+
+data Y = weird2(list[int] y);
+
+/* TODO: fails in compiler: because we require that the dynamic type of the replacement is a subtype of the dynamic type of the subject, however list[int] !<: list[void] */
+/* Should become: require that the dynamic type of the replacement is a subtype of the static type of the subject */
+test bool visit22() = 
+	visit (weird2([])) { case list[int] _ => [1] } == weird2([1]);
+
+data Z = z(int n);
+
+test bool visit23() = visit (z(2)) { case node nd => z(3) } == z(3);
+
+@ignoreInterpreter{Interpreter crashes on this test}
+test bool visit24() = visit([]) { case _ => [1] } == [];
+
+
+test bool visit27() {
 	return visit({ [ a(1,1) ], [ b(2,2) ], [ c(3,3) ] }) {
 			  		case a(x,y) => a(x + 1000, y + 2000)
 			    }
@@ -344,14 +368,13 @@ test bool visit21() {
 				};
 }
 
-test bool visit22() {
+test bool visit28() {
 	return visit([1,2]) {
     		case list[int] l => l when [1,2] := l 
 		   }
 		   ==
 		  [1, 2];
 }
-
 
 data NODE1 = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2)|h(value V1, value V2, value V3);
 
@@ -612,6 +635,23 @@ test bool visitWithAnno4() {
 	==
 	nd(leaf(10), leaf(0));
 }
+
+public &T delAnnotationsRec1(&T v) = visit(v) { 
+     case node n => delAnnotations(n) 
+  };
+  
+public &T delAnnotationsRec2(&T v) = visit(v) { 
+     case node n: { insert delAnnotations(n); }
+  };
+
+anno int NODE @ pos;
+
+public NODE A1 = leaf(3);
+public NODE A2 = leaf(3)[@pos = 1];
+
+test bool visitWithAnno5() = !delAnnotationsRec1(A2)@pos?;
+
+test bool visitWithAnno6() = !delAnnotationsRec2(A2)@pos?;
 
 
 // StringVisit1a

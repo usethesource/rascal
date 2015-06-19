@@ -183,7 +183,7 @@ public class Frame {
 		return newFrame;
 	}
 	
-	private int MAXLEN = 40;
+	private int MAXLEN = 80;
 	public int hotEntryPoint;
 	public Frame nextFrame;
 	
@@ -194,7 +194,7 @@ public class Frame {
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		if(src != null){
-			s.append("\uE007[](").append(src).append(":");
+			s.append("\uE007[");
 	    }
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals; i++){
@@ -213,6 +213,9 @@ public class Frame {
 			}
 			
 			s.append(abbrev(repr));
+			if(src != null){
+			  s.append("](").append(src).append(")");
+			}
 		}
 	
 //		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){

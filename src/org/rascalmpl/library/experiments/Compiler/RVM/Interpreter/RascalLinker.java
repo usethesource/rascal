@@ -159,7 +159,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
 		// should be done earlier
 		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
-			System.out.println("declareConstructor: " + symbol);
+			//System.out.println("declareConstructor: " + symbol);
 			IValue sort = symbol.get("sort");
 			IValue parameters = symbol.get("parameters");
 			IValue attributes = symbol.get("attributes");
@@ -288,7 +288,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
 				 IMap imported_overloading_resolvers,
-				 IList argumentsAsList) {
+				 IList argumentsAsList, 
+				 boolean useJVM) {
 		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
@@ -363,10 +364,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IMap declarations = (IMap) program.get("declarations");
 		for (IValue dname : declarations) {
 			IConstructor declaration = (IConstructor) declarations.get(dname);
+			
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 					
+				//System.out.println("FUNCTION: " + name);
+				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					uid_module_main = name;					// Get main's uid in current module
 				}
@@ -410,7 +414,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		return new RVMJVMExecutable(((IString) program.get("name")).getValue(),
+		return new RVMExecutable(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 
@@ -425,7 +429,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								 uid_module_main, 
 								 uid_module_main_testsuite,
 								 typeStore,
-								 vf);
+								 vf,
+								 useJVM);
 	}
 	
 	/*

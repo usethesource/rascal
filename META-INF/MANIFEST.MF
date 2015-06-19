@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.2.qualifier
+Bundle-Version: 0.7.3.qualifier
 Export-Package: 
  com.github.benmanes.caffeine,
  com.github.benmanes.caffeine.base,
@@ -12,6 +12,10 @@ Export-Package:
  com.github.benmanes.caffeine.cache.stats,
  com.github.benmanes.caffeine.cache.tracing,
  com.github.benmanes.caffeine.locks,
+ de.ruedigermoeller.serialization,
+ de.ruedigermoeller.serialization.annotations,
+ de.ruedigermoeller.serialization.serializers,
+ de.ruedigermoeller.serialization.util,
  org.apache.commons.compress.compressors,
  org.apache.commons.compress.compressors.bzip2,
  org.apache.commons.compress.compressors.deflate,

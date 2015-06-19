@@ -125,3 +125,92 @@ test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	writeFileEnc(targetFile, encodingNames[enc], a);
 	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }
+
+@expected{PathNotFound}
+test bool writeFileOffsetNonExistingFile() {
+	writeFile(aFile[file=aFile.file + "invald"][offset=0][length=10], "Foobar");
+	return false;
+}
+
+
+@expected{PathNotFound}
+test bool writeFileOffsetNonExistingFile2() {
+	writeFile(aFile[file=aFile.file + "invald"][offset=200][length=10], "Foobar");
+	return false;
+}
+
+
+test bool writeFileOffsetEnd(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a);
+	l2 = aFile[offset=size(a)][length=0];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
+}
+test bool writeFileOffsetEndInvalidLength(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a);
+	l2 = aFile[offset=size(a)][length=10];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
+}
+
+test bool writeFileOffsetEnd2(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a + b);
+	l2 = aFile[offset=size(a)][length=size(b)];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
+}
+
+test bool writeFileOffsetMiddle(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a+a);
+	l2 = aFile[offset=size(a)][length=size(a)];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b;
+}
+
+test bool writeFileOffsetMiddle2(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a+a);
+	l2 = aFile[offset=size(a)][length=0];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == a + b + a;
+}
+
+
+test bool writeFileOffsetStart(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
+	if (a == "" || b == "") {
+		return true;
+	}
+	writeFileEnc(aFile, encodingNames[enc], a+a);
+	l2 = aFile[offset=0][length=size(a)];
+	writeFileEnc(l2, encodingNames[enc], b);
+	return readFileEnc(aFile, encodingNames[enc]) == b + a;
+}
+
+
+

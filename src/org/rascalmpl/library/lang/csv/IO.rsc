@@ -37,6 +37,8 @@ import lang::csv::ast::Implode;
 import Type;
 import Map;
 import ParseTree;
+import List;
+import String;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -154,7 +156,7 @@ public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l))
 @resource{csv}
 public str generate(str moduleName, loc uri) {
     map[str,str] options = uri.params;
-
+	
     // We can pass the name of the function to generate. If we did, grab it then remove
     // it from the params.
     str funname = "resourceValue";
@@ -165,13 +167,24 @@ public str generate(str moduleName, loc uri) {
         
     type[value] csvType = getCSVType(uri, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
     
+    optionParams = [];
+    if ("header" in options) {
+    	optionParams = optionParams + "header=<options["header"]>";
+    }
+    if ("separator" in options) {
+    	optionParams = optionParams + "separator=\"<options["separator"]>\"";
+    }
+    if ("encoding" in options) {
+    	optionParams = optionParams + "encoding=\"<options["encoding"]>\"";
+    }
+    
     mbody = "module <moduleName>
             'import lang::csv::IO;
             '
             'alias <funname>Type = <csvType>;
             '
             'public <funname>Type <funname>() {
-            '   return readCSV(#<csvType>, <uri>, <options>);
+            '   return readCSV(#<csvType>, <uri><if(size(optionParams)>0){>, <intercalate(",",optionParams)><}>);
             '}
             '";
             

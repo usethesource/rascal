@@ -15,7 +15,9 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
+import org.apache.commons.compress.utils.Charsets;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public interface ISourceLocationOutput {
@@ -24,4 +26,7 @@ public interface ISourceLocationOutput {
 	boolean supportsHost();
 	void mkDirectory(ISourceLocation uri) throws IOException;
 	void remove(ISourceLocation uri) throws IOException;
+	default Charset getCharset(ISourceLocation uri) throws IOException {
+		return Charsets.UTF_8;
+	}
 }

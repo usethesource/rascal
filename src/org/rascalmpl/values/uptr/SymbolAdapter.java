@@ -229,6 +229,9 @@ public class SymbolAdapter {
 		if (isSort(symbol) || isLex(symbol) || isKeyword(symbol)) {
 			return getName(symbol);
 		}
+		if (isEmpty(symbol)) {
+			return "()";
+		}
 		if (isCharClass(symbol)) {
 		  IList ranges = getRanges(symbol);
 		  StringBuilder b = new StringBuilder();

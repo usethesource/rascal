@@ -256,7 +256,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		b.append(getName());
 		b.append('(');
 		Type formals = getFormals();
-		for (int i = 0; i < formals.getArity(); i++) {
+		int n = Math.min(formals.getArity(), actuals.length);
+		for (int i = 0; i < n; i++) {
 		    b.append(strval(actuals[i]));
 		    
 		    if (i < formals.getArity() - 1) {

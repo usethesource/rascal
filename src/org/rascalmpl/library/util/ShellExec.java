@@ -93,7 +93,7 @@ public class ShellExec {
 			
 			File cwd = null;
 			if (workingDir != null && workingDir.getScheme().equals("file")) {
-				cwd = new File(workingDir.getURI().getPath());
+				cwd = new File(workingDir.getPath());
 				pb.directory(cwd);
 			}
 			
