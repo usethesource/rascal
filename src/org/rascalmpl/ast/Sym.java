@@ -678,6 +678,378 @@ public abstract class Sym extends AbstractAST {
     }
             
   }
+  public boolean isFarFollow() {
+    return false;
+  }
+
+  static public class FarFollow extends Sym {
+    // Production: sig("FarFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.Sym match;
+  
+    public FarFollow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
+      
+      this.symbol = symbol;
+      this.match = match;
+    }
+  
+    @Override
+    public boolean isFarFollow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarFollow(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FarFollow)) {
+        return false;
+      }        
+      FarFollow tmp = (FarFollow) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.match.equals(this.match) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 331 + 359 * symbol.hashCode() + 151 * match.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
+    }
+            
+  }
+  public boolean isFarNotFollow() {
+    return false;
+  }
+
+  static public class FarNotFollow extends Sym {
+    // Production: sig("FarNotFollow",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Sym","match")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.Sym match;
+  
+    public FarNotFollow(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+      super(src, node);
+      
+      this.symbol = symbol;
+      this.match = match;
+    }
+  
+    @Override
+    public boolean isFarNotFollow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarNotFollow(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FarNotFollow)) {
+        return false;
+      }        
+      FarNotFollow tmp = (FarNotFollow) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.match.equals(this.match) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 311 + 73 * symbol.hashCode() + 619 * match.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(match));
+    }
+            
+  }
+  public boolean isFarNotPrecede() {
+    return false;
+  }
+
+  static public class FarNotPrecede extends Sym {
+    // Production: sig("FarNotPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym match;
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public FarNotPrecede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
+      
+      this.match = match;
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isFarNotPrecede() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarNotPrecede(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FarNotPrecede)) {
+        return false;
+      }        
+      FarNotPrecede tmp = (FarNotPrecede) o;
+      return true && tmp.match.equals(this.match) && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 5 + 191 * match.hashCode() + 467 * symbol.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
+    }
+            
+  }
+  public boolean isFarPrecede() {
+    return false;
+  }
+
+  static public class FarPrecede extends Sym {
+    // Production: sig("FarPrecede",[arg("org.rascalmpl.ast.Sym","match"),arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym match;
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public FarPrecede(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
+      
+      this.match = match;
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isFarPrecede() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymFarPrecede(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = match.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        match.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FarPrecede)) {
+        return false;
+      }        
+      FarPrecede tmp = (FarPrecede) o;
+      return true && tmp.match.equals(this.match) && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 149 + 19 * match.hashCode() + 761 * symbol.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getMatch() {
+      return this.match;
+    }
+  
+    @Override
+    public boolean hasMatch() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(match), clone(symbol));
+    }
+            
+  }
   public boolean isFollow() {
     return false;
   }
@@ -742,7 +1114,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 359 * symbol.hashCode() + 151 * match.hashCode() ; 
+      return 89 + 587 * symbol.hashCode() + 67 * match.hashCode() ; 
     } 
   
     
@@ -825,7 +1197,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 73 * symbol.hashCode() ; 
+      return 191 + 577 * symbol.hashCode() ; 
     } 
   
     
@@ -909,7 +1281,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 5 * symbol.hashCode() + 191 * sep.hashCode() ; 
+      return 263 + 647 * symbol.hashCode() + 991 * sep.hashCode() ; 
     } 
   
     
@@ -992,7 +1364,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 149 * symbol.hashCode() ; 
+      return 409 + 907 * symbol.hashCode() ; 
     } 
   
     
@@ -1076,7 +1448,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 761 * symbol.hashCode() + 89 * sep.hashCode() ; 
+      return 89 + 347 * symbol.hashCode() + 509 * sep.hashCode() ; 
     } 
   
     
@@ -1169,7 +1541,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 587 + 67 * symbol.hashCode() + 191 * label.hashCode() ; 
+      return 151 + 599 * symbol.hashCode() + 29 * label.hashCode() ; 
     } 
   
     
@@ -1252,7 +1624,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 263 * string.hashCode() ; 
+      return 941 + 103 * string.hashCode() ; 
     } 
   
     
@@ -1326,7 +1698,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 991 * nonterminal.hashCode() ; 
+      return 67 + 769 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1410,7 +1782,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 907 * symbol.hashCode() + 89 * match.hashCode() ; 
+      return 149 + 541 * symbol.hashCode() + 353 * match.hashCode() ; 
     } 
   
     
@@ -1503,7 +1875,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 509 * match.hashCode() + 151 * symbol.hashCode() ; 
+      return 23 + 787 * match.hashCode() + 863 * symbol.hashCode() ; 
     } 
   
     
@@ -1586,7 +1958,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 29 * symbol.hashCode() ; 
+      return 557 + 61 * symbol.hashCode() ; 
     } 
   
     
@@ -1660,7 +2032,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 103 * nonterminal.hashCode() ; 
+      return 281 + 263 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1746,7 +2118,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 769 * nonterminal.hashCode() + 149 * parameters.hashCode() ; 
+      return 19 + 61 * nonterminal.hashCode() + 241 * parameters.hashCode() ; 
     } 
   
     
@@ -1839,7 +2211,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 353 * match.hashCode() + 23 * symbol.hashCode() ; 
+      return 409 + 443 * match.hashCode() + 11 * symbol.hashCode() ; 
     } 
   
     
@@ -1934,7 +2306,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 863 * first.hashCode() + 557 * sequence.hashCode() ; 
+      return 389 + 229 * first.hashCode() + 193 * sequence.hashCode() ; 
     } 
   
     
@@ -2017,7 +2389,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 281 * nonterminal.hashCode() ; 
+      return 617 + 521 * nonterminal.hashCode() ; 
     } 
   
     
@@ -2091,7 +2463,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 19 * symbol.hashCode() ; 
+      return 269 + 839 * symbol.hashCode() ; 
     } 
   
     
@@ -2175,7 +2547,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 241 * symbol.hashCode() + 409 * match.hashCode() ; 
+      return 743 + 751 * symbol.hashCode() + 241 * match.hashCode() ; 
     } 
   
     

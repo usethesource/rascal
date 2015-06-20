@@ -1281,21 +1281,21 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-//  public T visitSymFarFollow(Sym.FarFollow x) { 
-//    return null; 
-//  }
-//
-//  public T visitSymFarNotFollow(Sym.FarNotFollow x) { 
-//    return null; 
-//  }
-//
-//  public T visitSymFarNotPrecede(Sym.FarNotPrecede x) { 
-//    return null; 
-//  }
+  public T visitSymFarFollow(Sym.FarFollow x) { 
+    return null; 
+  }
 
-//  public T visitSymFarPrecede(Sym.FarPrecede x) { 
-//    return null; 
-//  }
+  public T visitSymFarNotFollow(Sym.FarNotFollow x) { 
+    return null; 
+  }
+
+  public T visitSymFarNotPrecede(Sym.FarNotPrecede x) { 
+    return null; 
+  }
+
+  public T visitSymFarPrecede(Sym.FarPrecede x) { 
+    return null; 
+  }
 
   public T visitSymFollow(Sym.Follow x) { 
     return null; 
@@ -1385,10 +1385,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  // TODO
-//  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x) { 
-//    return null; 
-//  }
+  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x) { 
+    return null; 
+  }
 
   public T visitTagDefault(Tag.Default x) { 
     return null; 
