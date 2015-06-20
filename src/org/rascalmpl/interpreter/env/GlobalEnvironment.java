@@ -183,7 +183,7 @@ public class GlobalEnvironment {
 	}
 	
 
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
+	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getRascalParser(String module, IMap productions) {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
@@ -212,6 +212,9 @@ public class GlobalEnvironment {
 		return null;
 	}
 	
+	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
+		storeParser(objectParsersForModules, module, productions, parser);
+	}
 	
 	public void storeIguanaParser(String module, IMap productions, Grammar grammar ) {
 		iguanaGrammarForModules.put(module, new IguanaParserTuple(productions, grammar));

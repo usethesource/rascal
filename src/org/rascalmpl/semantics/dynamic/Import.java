@@ -543,7 +543,8 @@ public abstract class Import {
     if (parser == null || force) {
       String parserName = currentModule.getName(); // .replaceAll("::", ".");
       parser = pg.getNewParser(eval, loc, parserName, definitions);
-      eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
+// TODO?!      
+//      eval.getHeap().storeParser(currentModule.getName(), definitions, parser);
     }
 
     try {
