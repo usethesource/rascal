@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class SyntaxDefinition extends AbstractAST {
-  public SyntaxDefinition(IConstructor node) {
-    super();
+  public SyntaxDefinition(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,14 +62,14 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Keyword extends SyntaxDefinition {
-    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Keyword(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.defined = defined;
       this.production = production;
@@ -85,6 +86,31 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = defined.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Keyword)) {
         return false;
@@ -95,7 +121,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 + 719 * defined.hashCode() + 149 * production.hashCode() ; 
+      return 443 + 11 * defined.hashCode() + 389 * production.hashCode() ; 
     } 
   
     
@@ -117,21 +143,27 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(defined), clone(production));
+    }
+            
   }
   public boolean isLanguage() {
     return false;
   }
 
   static public class Language extends SyntaxDefinition {
-    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Start start;
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Language(IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Language(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.start = start;
       this.defined = defined;
@@ -149,6 +181,39 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = start.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        start.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = defined.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Language)) {
         return false;
@@ -159,7 +224,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 359 * start.hashCode() + 193 * defined.hashCode() + 421 * production.hashCode() ; 
+      return 229 + 193 * start.hashCode() + 617 * defined.hashCode() + 521 * production.hashCode() ; 
     } 
   
     
@@ -190,21 +255,27 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(start), clone(defined), clone(production));
+    }
+            
   }
   public boolean isLayout() {
     return false;
   }
 
   static public class Layout extends SyntaxDefinition {
-    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Visibility vis;
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Layout(IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.vis = vis;
       this.defined = defined;
@@ -222,6 +293,39 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = vis.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        vis.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = defined.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Layout)) {
         return false;
@@ -232,7 +336,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 23 + 911 * vis.hashCode() + 809 * defined.hashCode() + 293 * production.hashCode() ; 
+      return 269 + 839 * vis.hashCode() + 743 * defined.hashCode() + 751 * production.hashCode() ; 
     } 
   
     
@@ -263,20 +367,26 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(vis), clone(defined), clone(production));
+    }
+            
   }
   public boolean isLexical() {
     return false;
   }
 
   static public class Lexical extends SyntaxDefinition {
-    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Sym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Lexical(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
+    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
       
       this.defined = defined;
       this.production = production;
@@ -293,6 +403,31 @@ public abstract class SyntaxDefinition extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = defined.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Lexical)) {
         return false;
@@ -303,7 +438,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 107 * defined.hashCode() + 719 * production.hashCode() ; 
+      return 241 + 911 * defined.hashCode() + 827 * production.hashCode() ; 
     } 
   
     
@@ -325,67 +460,11 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
-  }
-  public boolean isToken() {
-    return false;
-  }
-
-  static public class Token extends SyntaxDefinition {
-    // Production: sig("Token",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
   
-    
-    private final org.rascalmpl.ast.Sym defined;
-    private final org.rascalmpl.ast.Prod production;
-  
-    public Token(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
-      
-      this.defined = defined;
-      this.production = production;
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(defined), clone(production));
     }
-  
-    @Override
-    public boolean isToken() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSyntaxDefinitionToken(this);
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof Token)) {
-        return false;
-      }        
-      Token tmp = (Token) o;
-      return true && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 757 + 739 * defined.hashCode() + 281 * production.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.Sym getDefined() {
-      return this.defined;
-    }
-  
-    @Override
-    public boolean hasDefined() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Prod getProduction() {
-      return this.production;
-    }
-  
-    @Override
-    public boolean hasProduction() {
-      return true;
-    }	
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assoc extends AbstractAST {
-  public Assoc(IConstructor node) {
-    super();
+  public Assoc(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Assoc extends AbstractAST {
   }
 
   static public class Associative extends Assoc {
-    // Production: sig("Associative",[])
+    // Production: sig("Associative",[],breakable=false)
   
     
   
-    public Associative(IConstructor node ) {
-      super(node);
+    public Associative(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Associative)) {
         return false;
@@ -63,22 +73,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 ; 
+      return 229 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isLeft() {
     return false;
   }
 
   static public class Left extends Assoc {
-    // Production: sig("Left",[])
+    // Production: sig("Left",[],breakable=false)
   
     
   
-    public Left(IConstructor node ) {
-      super(node);
+    public Left(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -93,6 +109,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Left)) {
         return false;
@@ -103,22 +128,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 ; 
+      return 751 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isNonAssociative() {
     return false;
   }
 
   static public class NonAssociative extends Assoc {
-    // Production: sig("NonAssociative",[])
+    // Production: sig("NonAssociative",[],breakable=false)
   
     
   
-    public NonAssociative(IConstructor node ) {
-      super(node);
+    public NonAssociative(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -133,6 +164,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonAssociative)) {
         return false;
@@ -143,22 +183,28 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 ; 
+      return 433 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isRight() {
     return false;
   }
 
   static public class Right extends Assoc {
-    // Production: sig("Right",[])
+    // Production: sig("Right",[],breakable=false)
   
     
   
-    public Right(IConstructor node ) {
-      super(node);
+    public Right(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -173,6 +219,15 @@ public abstract class Assoc extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Right)) {
         return false;
@@ -183,9 +238,15 @@ public abstract class Assoc extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 ; 
+      return 839 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

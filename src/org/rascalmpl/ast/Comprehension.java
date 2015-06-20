@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Comprehension extends AbstractAST {
-  public Comprehension(IConstructor node) {
-    super();
+  public Comprehension(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,14 +62,14 @@ public abstract class Comprehension extends AbstractAST {
   }
 
   static public class List extends Comprehension {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> results;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public List(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.results = results;
       this.generators = generators;
@@ -85,6 +86,35 @@ public abstract class Comprehension extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : results) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      for (AbstractAST $elem : generators) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof List)) {
         return false;
@@ -95,7 +125,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 103 + 743 * results.hashCode() + 181 * generators.hashCode() ; 
+      return 881 + 349 * results.hashCode() + 449 * generators.hashCode() ; 
     } 
   
     
@@ -117,21 +147,27 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(results), clone(generators));
+    }
+            
   }
   public boolean isMap() {
     return false;
   }
 
   static public class Map extends Comprehension {
-    // Production: sig("Map",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Map",[arg("org.rascalmpl.ast.Expression","from"),arg("org.rascalmpl.ast.Expression","to"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression from;
     private final org.rascalmpl.ast.Expression to;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Map(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Map(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.from = from;
       this.to = to;
@@ -149,6 +185,41 @@ public abstract class Comprehension extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = from.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        from.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = to.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        to.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : generators) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Map)) {
         return false;
@@ -159,7 +230,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 401 + 37 * from.hashCode() + 73 * to.hashCode() + 641 * generators.hashCode() ; 
+      return 71 + 523 * from.hashCode() + 937 * to.hashCode() + 617 * generators.hashCode() ; 
     } 
   
     
@@ -190,20 +261,26 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(from), clone(to), clone(generators));
+    }
+            
   }
   public boolean isSet() {
     return false;
   }
 
   static public class Set extends Comprehension {
-    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")])
+    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","results"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> results;
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
   
-    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-      super(node);
+    public Set(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+      super(src, node);
       
       this.results = results;
       this.generators = generators;
@@ -220,6 +297,35 @@ public abstract class Comprehension extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : results) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      for (AbstractAST $elem : generators) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Set)) {
         return false;
@@ -230,7 +336,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 + 521 * results.hashCode() + 773 * generators.hashCode() ; 
+      return 821 + 971 * results.hashCode() + 173 * generators.hashCode() ; 
     } 
   
     
@@ -252,5 +358,11 @@ public abstract class Comprehension extends AbstractAST {
     public boolean hasGenerators() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(results), clone(generators));
+    }
+            
   }
 }

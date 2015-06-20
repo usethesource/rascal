@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -27,9 +28,9 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 
 	static public class Default extends org.rascalmpl.ast.Formals.Default {
 
-		public Default(IConstructor __param1,
+		public Default(ISourceLocation __param1, IConstructor tree,
 				List<org.rascalmpl.ast.Expression> __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -46,7 +47,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 
 	}
 
-	public Formals(IConstructor __param1) {
-		super(__param1);
+	public Formals(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

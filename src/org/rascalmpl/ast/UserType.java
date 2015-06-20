@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class UserType extends AbstractAST {
-  public UserType(IConstructor node) {
-    super();
+  public UserType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class UserType extends AbstractAST {
   }
 
   static public class Name extends UserType {
-    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")])
+    // Production: sig("Name",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
   
-    public Name(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
-      super(node);
+    public Name(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+      super(src, node);
       
       this.name = name;
     }
@@ -69,6 +70,23 @@ public abstract class UserType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Name)) {
         return false;
@@ -79,7 +97,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 929 * name.hashCode() ; 
+      return 809 + 109 * name.hashCode() ; 
     } 
   
     
@@ -92,20 +110,26 @@ public abstract class UserType extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+    }
+            
   }
   public boolean isParametric() {
     return false;
   }
 
   static public class Parametric extends UserType {
-    // Production: sig("Parametric",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","parameters")])
+    // Production: sig("Parametric",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("java.util.List\<org.rascalmpl.ast.Type\>","parameters")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
     private final java.util.List<org.rascalmpl.ast.Type> parameters;
   
-    public Parametric(IConstructor node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
-      super(node);
+    public Parametric(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
+      super(src, node);
       
       this.name = name;
       this.parameters = parameters;
@@ -122,6 +146,33 @@ public abstract class UserType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : parameters) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Parametric)) {
         return false;
@@ -132,7 +183,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 359 * name.hashCode() + 313 * parameters.hashCode() ; 
+      return 373 + 449 * name.hashCode() + 571 * parameters.hashCode() ; 
     } 
   
     
@@ -154,5 +205,11 @@ public abstract class UserType extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(parameters));
+    }
+            
   }
 }

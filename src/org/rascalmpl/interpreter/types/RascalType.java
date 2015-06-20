@@ -4,9 +4,9 @@ import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public abstract class RascalType extends ExternalType {
-
+  protected final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
   public abstract <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E;
-  
+
   @Override
   protected Type lubWithExternal(Type type) {
     assert type instanceof RascalType;
@@ -77,4 +77,22 @@ public abstract class RascalType extends ExternalType {
   protected Type glbWithReified(RascalType type) {
 	return TF.voidType();
   }
+  
+  public boolean isNonterminal() {
+	  return false;
+  }
+  
+  public boolean isFunction() {
+	  return false;
+  }
+  
+  public boolean isOverloadedFunction() {
+	  return false;
+  }
+  
+  public boolean isReified() {
+	  return false;
+  }
+  
+  
 }

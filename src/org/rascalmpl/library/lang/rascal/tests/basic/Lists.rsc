@@ -187,6 +187,9 @@ test bool sliceFirstSecond(list[int] L) {
   return L[f, f + incr..] == makeSlice(L, f, f + incr, size(L));
 }
 
+test bool sliceEmpty(int from, int to) = [][from..to] == [];
+
+test bool sliceOverEnd() = [0][1..] == [];
 
 test bool sliceEnd(list[int] L) {
   if(isEmpty(L)) return true;

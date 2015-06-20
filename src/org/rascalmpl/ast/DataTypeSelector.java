@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class DataTypeSelector extends AbstractAST {
-  public DataTypeSelector(IConstructor node) {
-    super();
+  public DataTypeSelector(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class DataTypeSelector extends AbstractAST {
   }
 
   static public class Selector extends DataTypeSelector {
-    // Production: sig("Selector",[arg("org.rascalmpl.ast.QualifiedName","sort"),arg("org.rascalmpl.ast.Name","production")])
+    // Production: sig("Selector",[arg("org.rascalmpl.ast.QualifiedName","sort"),arg("org.rascalmpl.ast.Name","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName sort;
     private final org.rascalmpl.ast.Name production;
   
-    public Selector(IConstructor node , org.rascalmpl.ast.QualifiedName sort,  org.rascalmpl.ast.Name production) {
-      super(node);
+    public Selector(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName sort,  org.rascalmpl.ast.Name production) {
+      super(src, node);
       
       this.sort = sort;
       this.production = production;
@@ -71,6 +72,31 @@ public abstract class DataTypeSelector extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = sort.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        sort.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Selector)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class DataTypeSelector extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 613 * sort.hashCode() + 683 * production.hashCode() ; 
+      return 41 + 761 * sort.hashCode() + 971 * production.hashCode() ; 
     } 
   
     
@@ -103,5 +129,11 @@ public abstract class DataTypeSelector extends AbstractAST {
     public boolean hasProduction() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(sort), clone(production));
+    }
+            
   }
 }

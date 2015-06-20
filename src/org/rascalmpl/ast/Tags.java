@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Tags extends AbstractAST {
-  public Tags(IConstructor node) {
-    super();
+  public Tags(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Tags extends AbstractAST {
   }
 
   static public class Default extends Tags {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Tag\>","tags")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Tag\>","tags")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Tag> tags;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Tag> tags) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Tag> tags) {
+      super(src, node);
       
       this.tags = tags;
     }
@@ -62,6 +63,25 @@ public abstract class Tags extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : tags) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class Tags extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 953 + 73 * tags.hashCode() ; 
+      return 617 + 233 * tags.hashCode() ; 
     } 
   
     
@@ -85,5 +105,11 @@ public abstract class Tags extends AbstractAST {
     public boolean hasTags() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(tags));
+    }
+            
   }
 }

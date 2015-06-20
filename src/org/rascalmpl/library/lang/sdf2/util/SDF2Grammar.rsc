@@ -109,11 +109,11 @@ private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
 	set[Symbol] lSorts = { s | /Grammar::Grammar g := def, s <- g.rules, !(s is \sort || s is \parameterized-sort)};
 	overlap = {s.name | s <- sSorts} & {s.name | s <- lSorts};
 	if (overlap != {}) {
-		// first replace the lexicals l with LEX[l]
+		// first replace the lexicals l with LEX_l
 		def = visit(def) {
 			case Grammar::Grammar g : {
 				for (s <- g.rules, !(s is \sort || s is \parameterized-sort), s.name in overlap, p := g.rules[s]) {
-					newSymbol = \parameterized-lex("LEX",[\lex(s.name)]);
+					newSymbol = \lex("LEX_<s.name>");
 					g.rules[newSymbol] = visit(p) {
 						case \priority(_, l) => \priority(newSymbol, l)
 						case \associativity(_, a, l) => \associativity(newSymbol, a, l)
@@ -127,7 +127,7 @@ private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
 			}
 		};
 		// now add the chain rules to one of the grammars
-		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\parameterized-lex("LEX",[\lex(n)])], {}) | n <- overlap), ());
+		chains = grammar({}, (\sort(n) : \prod(\sort(n), [\lex("LEX_<n>")], {}) | n <- overlap), ());
 		def = top-down-break visit(def) {
 			case Grammar::Grammar g => compose(g, chains)
 		};

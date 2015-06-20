@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class KeywordFormals extends AbstractAST {
-  public KeywordFormals(IConstructor node) {
-    super();
+  public KeywordFormals(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   static public class Default extends KeywordFormals {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")],breakable=false)
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
     private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
+      super(src, node);
       
       this.optionalComma = optionalComma;
       this.keywordFormalList = keywordFormalList;
@@ -71,6 +72,33 @@ public abstract class KeywordFormals extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = optionalComma.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optionalComma.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : keywordFormalList) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -81,7 +109,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 491 + 293 * optionalComma.hashCode() + 521 * keywordFormalList.hashCode() ; 
+      return 421 + 941 * optionalComma.hashCode() + 307 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -103,18 +131,24 @@ public abstract class KeywordFormals extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(optionalComma), clone(keywordFormalList));
+    }
+            
   }
   public boolean isNone() {
     return false;
   }
 
   static public class None extends KeywordFormals {
-    // Production: sig("None",[])
+    // Production: sig("None",[],breakable=false)
   
     
   
-    public None(IConstructor node ) {
-      super(node);
+    public None(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -129,6 +163,15 @@ public abstract class KeywordFormals extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof None)) {
         return false;
@@ -139,9 +182,15 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 ; 
+      return 941 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

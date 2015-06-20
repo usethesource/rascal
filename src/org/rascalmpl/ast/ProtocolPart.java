@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProtocolPart extends AbstractAST {
-  public ProtocolPart(IConstructor node) {
-    super();
+  public ProtocolPart(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class ProtocolPart extends AbstractAST {
   }
 
   static public class Interpolated extends ProtocolPart {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreProtocolChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreProtocolChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.PreProtocolChars pre;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.ProtocolTail tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+      super(src, node);
       
       this.pre = pre;
       this.expression = expression;
@@ -87,6 +88,39 @@ public abstract class ProtocolPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pre.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pre.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -97,7 +131,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 + 919 * pre.hashCode() + 431 * expression.hashCode() + 419 * tail.hashCode() ; 
+      return 701 + 283 * pre.hashCode() + 349 * expression.hashCode() + 139 * tail.hashCode() ; 
     } 
   
     
@@ -128,19 +162,25 @@ public abstract class ProtocolPart extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isNonInterpolated() {
     return false;
   }
 
   static public class NonInterpolated extends ProtocolPart {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")])
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.ProtocolChars","protocolChars")],breakable=false)
   
     
     private final org.rascalmpl.ast.ProtocolChars protocolChars;
   
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
-      super(node);
+    public NonInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
+      super(src, node);
       
       this.protocolChars = protocolChars;
     }
@@ -156,6 +196,23 @@ public abstract class ProtocolPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = protocolChars.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        protocolChars.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonInterpolated)) {
         return false;
@@ -166,7 +223,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 157 * protocolChars.hashCode() ; 
+      return 73 + 439 * protocolChars.hashCode() ; 
     } 
   
     
@@ -179,5 +236,11 @@ public abstract class ProtocolPart extends AbstractAST {
     public boolean hasProtocolChars() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(protocolChars));
+    }
+            
   }
 }

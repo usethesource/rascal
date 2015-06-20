@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assignment extends AbstractAST {
-  public Assignment(IConstructor node) {
-    super();
+  public Assignment(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class Assignment extends AbstractAST {
   }
 
   static public class Addition extends Assignment {
-    // Production: sig("Addition",[])
+    // Production: sig("Addition",[],breakable=false)
   
     
   
-    public Addition(IConstructor node ) {
-      super(node);
+    public Addition(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Addition)) {
         return false;
@@ -63,22 +73,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 431 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isAppend() {
     return false;
   }
 
   static public class Append extends Assignment {
-    // Production: sig("Append",[])
+    // Production: sig("Append",[],breakable=false)
   
     
   
-    public Append(IConstructor node ) {
-      super(node);
+    public Append(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -93,6 +109,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Append)) {
         return false;
@@ -103,22 +128,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 ; 
+      return 751 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends Assignment {
-    // Production: sig("Default",[])
+    // Production: sig("Default",[],breakable=false)
   
     
   
-    public Default(IConstructor node ) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -133,6 +164,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -143,22 +183,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 ; 
+      return 449 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isDivision() {
     return false;
   }
 
   static public class Division extends Assignment {
-    // Production: sig("Division",[])
+    // Production: sig("Division",[],breakable=false)
   
     
   
-    public Division(IConstructor node ) {
-      super(node);
+    public Division(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -173,6 +219,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Division)) {
         return false;
@@ -183,22 +238,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 ; 
+      return 557 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isIfDefined() {
     return false;
   }
 
   static public class IfDefined extends Assignment {
-    // Production: sig("IfDefined",[])
+    // Production: sig("IfDefined",[],breakable=false)
   
     
   
-    public IfDefined(IConstructor node ) {
-      super(node);
+    public IfDefined(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -213,6 +274,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof IfDefined)) {
         return false;
@@ -223,22 +293,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 ; 
+      return 61 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isIntersection() {
     return false;
   }
 
   static public class Intersection extends Assignment {
-    // Production: sig("Intersection",[])
+    // Production: sig("Intersection",[],breakable=false)
   
     
   
-    public Intersection(IConstructor node ) {
-      super(node);
+    public Intersection(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -253,6 +329,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Intersection)) {
         return false;
@@ -263,22 +348,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 ; 
+      return 503 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isProduct() {
     return false;
   }
 
   static public class Product extends Assignment {
-    // Production: sig("Product",[])
+    // Production: sig("Product",[],breakable=false)
   
     
   
-    public Product(IConstructor node ) {
-      super(node);
+    public Product(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -293,6 +384,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Product)) {
         return false;
@@ -303,22 +403,28 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 ; 
+      return 41 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isSubtraction() {
     return false;
   }
 
   static public class Subtraction extends Assignment {
-    // Production: sig("Subtraction",[])
+    // Production: sig("Subtraction",[],breakable=false)
   
     
   
-    public Subtraction(IConstructor node ) {
-      super(node);
+    public Subtraction(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -333,6 +439,15 @@ public abstract class Assignment extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Subtraction)) {
         return false;
@@ -343,9 +458,15 @@ public abstract class Assignment extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 ; 
+      return 293 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

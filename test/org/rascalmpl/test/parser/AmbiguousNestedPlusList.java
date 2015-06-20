@@ -27,24 +27,24 @@ import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 /*
 S ::= A+
 A ::= [a]+
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_PLUS_LIST_A = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
-	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
-	private final static IConstructor SYMBOL_PLUS_LIST_a = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a);
+public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_PLUS_LIST_A = VF.constructor(RascalValueFactory.Symbol_IterPlus, SYMBOL_A);
+	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
+	private final static IConstructor SYMBOL_PLUS_LIST_a = VF.constructor(RascalValueFactory.Symbol_IterPlus, SYMBOL_char_a);
 	
-	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_A), VF.set());
-	private final static IConstructor PROD_PLUSLISTA = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_A);
-	private final static IConstructor PROD_A_PLUSLISTa = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_PLUS_LIST_a), VF.set());
-	private final static IConstructor PROD_PLUSLISTa = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a);
+	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_A), VF.set());
+	private final static IConstructor PROD_PLUSLISTA = VF.constructor(RascalValueFactory.Production_Regular, SYMBOL_PLUS_LIST_A);
+	private final static IConstructor PROD_A_PLUSLISTa = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_PLUS_LIST_a), VF.set());
+	private final static IConstructor PROD_PLUSLISTa = VF.constructor(RascalValueFactory.Production_Regular, SYMBOL_PLUS_LIST_a);
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
@@ -78,18 +78,18 @@ public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, IConstructor, 
 		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0]};
 	}
 	
-	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return (ITree) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[iter(sort(\"A\"))],{}),[amb({appl(regular(iter(sort(\"A\"))),[appl(prod(sort(\"A\"),[iter(\\char-class([single(97)]))],{}),[appl(regular(iter(\\char-class([single(97)]))),[char(97)])]),appl(prod(sort(\"A\"),[iter(\\char-class([single(97)]))],{}),[appl(regular(iter(\\char-class([single(97)]))),[char(97)])])]),appl(regular(iter(sort(\"A\"))),[appl(prod(sort(\"A\"),[iter(\\char-class([single(97)]))],{}),[appl(regular(iter(\\char-class([single(97)]))),[char(97),char(97)])])])})])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		IConstructor result = anpl.executeParser();
+		ITree result = anpl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([A+(A([a]+([a](a))),A([a]+([a](a)))),A+(A([a]+([a](a),[a](a))))]) <- good");

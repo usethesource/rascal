@@ -867,5 +867,9 @@ public bool subtype(Symbol::deferred(Symbol t), Symbol s) = subtype(t,s);
 public bool subtype(Symbol t, Symbol::deferred(Symbol s)) = subtype(t,s); 
 public bool subtype(Symbol t, Symbol::\adt("Tree",[])) = true when isNonTerminalType(t);
 public bool subtype(Symbol t, Symbol::\node()) = true when isNonTerminalType(t);
-// TODO: Do we also want to consider the separator?
-public bool subtype(Symbol::\iter-seps(Symbol s, _), Symbol::\iter-star-seps(Symbol t, _)) = subtype(s,t);
+public bool subtype(Symbol::\iter-seps(Symbol s, list[Symbol] seps), Symbol::\iter-star-seps(Symbol t, list[Symbol] seps2)) = subtype(s,t) && subtype(seps, seps2);
+public bool subtype(Symbol::\iter(Symbol s), Symbol::\iter-star(Symbol t)) = subtype(s, t);
+// TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
+// bool subtype(Symbol s, \opt(Symbol t)) = subtype(s,t);
+// bool subtype(Symbol s, \alt({Symbol t, *_}) = true when subtype(s, t); // backtracks over the alternatives
+

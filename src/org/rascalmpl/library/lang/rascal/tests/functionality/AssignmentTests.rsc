@@ -88,19 +88,19 @@ anno int F @ pos;
   
 // testAnnotations
  
-test bool testAnnotations1() {	 		F X = f(); X @ pos = 1; return X @ pos == 1; }
+test bool testAnnotations1() { F X = f(); X @ pos = 1; return X @ pos == 1; }
   
-test bool testAnnotations2() {	 	X = f(); X @ pos = 2; X @ pos += 3; return X @ pos == 5; }
+test bool testAnnotations2() { X = f(); X @ pos = 2; X @ pos += 3; return X @ pos == 5; }
 
-test bool testAnnotations3() { 		X = f(); X @ pos = 3; X @ pos -= 2;  return X @ pos == 1; }
+test bool testAnnotations3() { X = f(); X @ pos = 3; X @ pos -= 2;  return X @ pos == 1; }
 
 test bool testAnnotations4() { X = f(); X @ pos = 2; X @ pos *= 3; return X @ pos == 6; }
 
-test bool testAnnotations5() { 		X = f(); 		X @ pos = 6; X @ pos /= 3;  return X @ pos == 2; }
+test bool testAnnotations5() { X = f(); X @ pos = 6; X @ pos /= 3;  return X @ pos == 2; }
 
-test bool testAnnotations6() { 		X = f(); X @ pos = 6; X @ pos ?= 3;  return X @ pos == 6; }
+test bool testAnnotations6() { X = f(); X @ pos = 6; X @ pos ?= 3;  return X @ pos == 6; }
 
-test bool testAnnotations7() { 		X = f(); X @ pos ?= 3; return X @ pos == 3; }
+test bool testAnnotations7() { X = f(); X @ pos ?= 3; return X @ pos == 3; }
   	
 // assigningClosureToVariableBug877
   

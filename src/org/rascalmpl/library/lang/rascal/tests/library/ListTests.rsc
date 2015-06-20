@@ -237,22 +237,39 @@ test bool slice10() = slice([1,2,3,4], 3, 1) == [4];
 
 // sort/1
 test bool sort1a() = sort([]) == [];
-test bool sort2a() = sort([1]) == [1];
-test bool sort3a() = sort([1, 2]) == [1,2];
-test bool sort4a() = sort([2, 1]) == [1,2];
-test bool sort5a() = sort([2,-1,4,-2,3]) == [-2,-1,2,3,4];
-test bool sort6a() = sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
-test bool sort7a() = sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
-test bool sort8a() = sort([1,1,0,1,1]) == [0,1,1,1,1];
-test bool sort9a() = sort(["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"]) == ["banana","grape","kiwi","mango","pear","pineapple","strawberry"];
+test bool sort1b() = sort([1]) == [1];
+test bool sort1c() = sort([1, 2]) == [1,2];
+test bool sort1d() = sort([2, 1]) == [1,2];
+test bool sort1e() = sort([2,-1,4,-2,3]) == [-2,-1,2,3,4];
+test bool sort1f() = sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
+test bool sort1g() = sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
+test bool sort1h() = sort([1,1,0,1,1]) == [0,1,1,1,1];
+test bool sort1i() = sort(["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"]) == ["banana","grape","kiwi","mango","pear","pineapple","strawberry"];
 
 // sort/2
-test bool sort1b() = sort([1,2,3], bool(int a, int b){return a < b;}) == [1,2,3];
-test bool sort1b() = sort([1,3,2], bool(int a, int b){return a < b;}) == [1,2,3];
-test bool sort1b() = sort([1,3,2], bool(int a, int b){return a > b;}) == [3,2,1];
-test bool sort1b() = sort([3,2,1], bool(int a, int b){return a > b;}) == [3,2,1];
-@expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
-@expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
+test bool sort2a() = sort([1,2,3], bool(int a, int b){return a < b;}) == [1,2,3];
+test bool sort2b() = sort([1,3,2], bool(int a, int b){return a < b;}) == [1,2,3];
+test bool sort2c() = sort([1,3,2], bool(int a, int b){return a > b;}) == [3,2,1];
+test bool sort2d() = sort([3,2,1], bool(int a, int b){return a > b;}) == [3,2,1];
+@expected{IllegalArgument} test bool sort2e() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
+@expected{IllegalArgument} test bool sort2f() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
+
+bool less(int a, int b) = a < b;
+bool lesseq(int a, int b) = a <= b;
+bool greater(int a, int b) = a > b;
+bool greatereq(int a, int b) = a  >= b;
+
+test bool sort2g() = sort([1,2,3], less) == [1,2,3];
+test bool sort2h() = sort([1,3,2], less) == [1,2,3];
+test bool sort2i() = sort([1,3,2], greater) == [3,2,1];
+test bool sort2j() = sort([3,2,1], greater) == [3,2,1];
+@expected{IllegalArgument} test bool sort2k() {sort([1,2,3], lesseq); return false;}
+@expected{IllegalArgument} test bool sort2l() {sort([1,2,3], greatereq); return false;}
+
+
+test bool shuffleFirstIndex(list[value] v) = v == [] || ({ shuffle(v)[0] | i <- [0..50 * size(v)]} == {*v});
+test bool shuffleLastIndex(list[value] v) = v == [] || ({ shuffle(v)[size(v) - 1] | i <- [0..50 * size(v)]} == {*v});
+test bool shuffleStable(list[value] v, int x) = v == [] || shuffle(v, x) == shuffle(v, x);
 
 // split
 test bool split1() = split([]) == <[],[]>;

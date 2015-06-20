@@ -1,0 +1,8 @@
+package org.rascalmpl.test.data.patterns.micro;
+
+public class Joiner2 implements Designator, Designator2  {
+
+	public Joiner2() {
+	}
+
+}

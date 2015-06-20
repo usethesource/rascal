@@ -20,7 +20,7 @@ public class CharStreamResult extends ResourceResult {
 
 	public CharStreamResult(Type type, IValue value, IEvaluatorContext ctx, ISourceLocation fullURI, String displayURI) {
 		super(type, value, ctx, fullURI, displayURI);
-		ISourceLocation uri = FileURIResolver.constructFileURI(fullURI.getURI().getPath());
+		ISourceLocation uri = FileURIResolver.constructFileURI(fullURI.getPath());
 		this.value = new LazyList(80, new CharStreamFiller(uri, ctx), type.getElementType());
 	}
 

@@ -1,0 +1,6 @@
+|project://rascal/src/org/rascalmpl/library/analysis/flow/ObjectFlow.rsc|
+|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Benchmarks/BExceptionsFinally.rsc|
+|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Inspect.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/java/patterns/JavaToMicroPatterns.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/basic/Exceptions.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/sdf2/filters/Reject.rsc|

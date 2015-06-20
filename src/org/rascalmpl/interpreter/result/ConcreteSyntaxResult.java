@@ -32,8 +32,9 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -46,8 +47,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public Result<IBool> is(Name name) {
-		if (TreeAdapter.isAppl(getValue())) {
-			String consName = TreeAdapter.getConstructorName(getValue());
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			String consName = TreeAdapter.getConstructorName((ITree) getValue());
 			if (consName != null) {
 				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
 			}
@@ -57,7 +58,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		IConstructor tree = getValue();
+		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
 			int found = -1;
@@ -100,7 +101,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
-		IConstructor tree = getValue();
+		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
 			int found = -1;
@@ -129,8 +130,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				throw new UnexpectedType(nont, repl.getType(), ctx.getCurrentAST());
 			}
 			
-			if (Factory.Tree_Appl.hasField(name)) {
-				Type fieldType = Factory.Tree_Appl.getFieldType(name);
+			if (RascalValueFactory.Tree_Appl.hasField(name)) {
+				Type fieldType = RascalValueFactory.Tree_Appl.getFieldType(name);
 				if (repl.getType().isSubtypeOf(fieldType)) {
 					throw new UnsupportedOperation("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
@@ -143,9 +144,14 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
+	public ITree getValue() {
+		return (ITree) super.getValue();
+	}
+	
+	@Override
 	public Result<IBool> has(Name name) {
-		if (TreeAdapter.isAppl(getValue())) {
-			IConstructor prod = TreeAdapter.getProduction(getValue());
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
 			IList syms = ProductionAdapter.getSymbols(prod);
 			String tmp = Names.name(name);
 			
@@ -179,8 +185,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
-		IConstructor left = this.getValue();
-		IConstructor right = that.getValue();
+		ITree left = this.getValue();
+		ITree right = that.getValue();
 		
 		if (TreeAdapter.isLayout(left) && TreeAdapter.isLayout(right)) {
 			return bool(true, ctx);

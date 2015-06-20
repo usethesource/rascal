@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Prod extends AbstractAST {
-  public Prod(IConstructor node) {
-    super();
+  public Prod(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -89,14 +90,14 @@ public abstract class Prod extends AbstractAST {
   }
 
   static public class All extends Prod {
-    // Production: sig("All",[arg("org.rascalmpl.ast.Prod","lhs"),arg("org.rascalmpl.ast.Prod","rhs")])
+    // Production: sig("All",[arg("org.rascalmpl.ast.Prod","lhs"),arg("org.rascalmpl.ast.Prod","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Prod lhs;
     private final org.rascalmpl.ast.Prod rhs;
   
-    public All(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-      super(node);
+    public All(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -113,6 +114,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof All)) {
         return false;
@@ -123,7 +149,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 43 + 733 * lhs.hashCode() + 887 * rhs.hashCode() ; 
+      return 673 + 757 * lhs.hashCode() + 449 * rhs.hashCode() ; 
     } 
   
     
@@ -145,20 +171,26 @@ public abstract class Prod extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isAssociativityGroup() {
     return false;
   }
 
   static public class AssociativityGroup extends Prod {
-    // Production: sig("AssociativityGroup",[arg("org.rascalmpl.ast.Assoc","associativity"),arg("org.rascalmpl.ast.Prod","group")])
+    // Production: sig("AssociativityGroup",[arg("org.rascalmpl.ast.Assoc","associativity"),arg("org.rascalmpl.ast.Prod","group")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assoc associativity;
     private final org.rascalmpl.ast.Prod group;
   
-    public AssociativityGroup(IConstructor node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
-      super(node);
+    public AssociativityGroup(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
+      super(src, node);
       
       this.associativity = associativity;
       this.group = group;
@@ -175,6 +207,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = associativity.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        associativity.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = group.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        group.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof AssociativityGroup)) {
         return false;
@@ -185,7 +242,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 997 * associativity.hashCode() + 67 * group.hashCode() ; 
+      return 167 + 191 * associativity.hashCode() + 191 * group.hashCode() ; 
     } 
   
     
@@ -207,20 +264,26 @@ public abstract class Prod extends AbstractAST {
     public boolean hasGroup() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(associativity), clone(group));
+    }
+            
   }
   public boolean isFirst() {
     return false;
   }
 
   static public class First extends Prod {
-    // Production: sig("First",[arg("org.rascalmpl.ast.Prod","lhs"),arg("org.rascalmpl.ast.Prod","rhs")])
+    // Production: sig("First",[arg("org.rascalmpl.ast.Prod","lhs"),arg("org.rascalmpl.ast.Prod","rhs")],breakable=false)
   
     
     private final org.rascalmpl.ast.Prod lhs;
     private final org.rascalmpl.ast.Prod rhs;
   
-    public First(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-      super(node);
+    public First(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+      super(src, node);
       
       this.lhs = lhs;
       this.rhs = rhs;
@@ -237,6 +300,31 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = lhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        lhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = rhs.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        rhs.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof First)) {
         return false;
@@ -247,7 +335,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 457 * lhs.hashCode() + 439 * rhs.hashCode() ; 
+      return 409 + 487 * lhs.hashCode() + 29 * rhs.hashCode() ; 
     } 
   
     
@@ -269,21 +357,27 @@ public abstract class Prod extends AbstractAST {
     public boolean hasRhs() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(lhs), clone(rhs));
+    }
+            
   }
   public boolean isLabeled() {
     return false;
   }
 
   static public class Labeled extends Prod {
-    // Production: sig("Labeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")])
+    // Production: sig("Labeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.Sym> syms;
   
-    public Labeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> syms) {
-      super(node);
+    public Labeled(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> syms) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.name = name;
@@ -301,6 +395,43 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : modifiers) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : syms) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Labeled)) {
         return false;
@@ -311,7 +442,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 401 * modifiers.hashCode() + 293 * name.hashCode() + 547 * syms.hashCode() ; 
+      return 23 + 23 * modifiers.hashCode() + 491 * name.hashCode() + 617 * syms.hashCode() ; 
     } 
   
     
@@ -342,18 +473,24 @@ public abstract class Prod extends AbstractAST {
     public boolean hasSyms() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(name), clone(syms));
+    }
+            
   }
   public boolean isOthers() {
     return false;
   }
 
   static public class Others extends Prod {
-    // Production: sig("Others",[])
+    // Production: sig("Others",[],breakable=false)
   
     
   
-    public Others(IConstructor node ) {
-      super(node);
+    public Others(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -368,6 +505,15 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Others)) {
         return false;
@@ -378,23 +524,29 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 ; 
+      return 761 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isReference() {
     return false;
   }
 
   static public class Reference extends Prod {
-    // Production: sig("Reference",[arg("org.rascalmpl.ast.Name","referenced")])
+    // Production: sig("Reference",[arg("org.rascalmpl.ast.Name","referenced")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name referenced;
   
-    public Reference(IConstructor node , org.rascalmpl.ast.Name referenced) {
-      super(node);
+    public Reference(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name referenced) {
+      super(src, node);
       
       this.referenced = referenced;
     }
@@ -410,6 +562,23 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = referenced.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        referenced.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Reference)) {
         return false;
@@ -420,7 +589,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 359 * referenced.hashCode() ; 
+      return 197 + 5 * referenced.hashCode() ; 
     } 
   
     
@@ -433,20 +602,26 @@ public abstract class Prod extends AbstractAST {
     public boolean hasReferenced() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(referenced));
+    }
+            
   }
   public boolean isUnlabeled() {
     return false;
   }
 
   static public class Unlabeled extends Prod {
-    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")])
+    // Production: sig("Unlabeled",[arg("java.util.List\<org.rascalmpl.ast.ProdModifier\>","modifiers"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","syms")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
     private final java.util.List<org.rascalmpl.ast.Sym> syms;
   
-    public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> syms) {
-      super(node);
+    public Unlabeled(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> syms) {
+      super(src, node);
       
       this.modifiers = modifiers;
       this.syms = syms;
@@ -463,6 +638,35 @@ public abstract class Prod extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : modifiers) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      for (AbstractAST $elem : syms) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Unlabeled)) {
         return false;
@@ -473,7 +677,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 431 * modifiers.hashCode() + 53 * syms.hashCode() ; 
+      return 19 + 19 * modifiers.hashCode() + 19 * syms.hashCode() ; 
     } 
   
     
@@ -495,5 +699,11 @@ public abstract class Prod extends AbstractAST {
     public boolean hasSyms() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(syms));
+    }
+            
   }
 }

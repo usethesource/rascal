@@ -105,14 +105,13 @@ default DoNotNest except(Production _, Grammar _) = {};
 
 public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {
-    case prod(s, [*Symbol \o, t],{_*,\assoc(left())}) :
-      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
-    case prod(s,[*Symbol \o, t],{_*,\assoc(\assoc())}) :
-      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
-    case prod(s,[t,_*],{_*,\assoc(\right())}) :
-      if (match(t, lefties)) return <{},{<p, 0, p>}>; 
-      
-	case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[t, *Symbol \o, u],{_*,\assoc(left())}) :
+      if (match(t, lefties), match(u,righties)) return <{},{<p, size(\o) + 1, p>}>;
+    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\assoc())}) :
+      if (match(t, lefties), match(u, righties)) return <{},{<p, size(\o) + 1, p>}>;
+    case prod(s,[t,_*,u],{_*,\assoc(\right())}) :
+      if (match(t, lefties), match(u, righties)) return <{},{<p, 0, p>}>; 
+    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
       if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
       
     //case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) : {

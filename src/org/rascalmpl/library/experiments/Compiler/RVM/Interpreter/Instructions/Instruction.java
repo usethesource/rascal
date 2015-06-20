@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public abstract class Instruction {
 	
@@ -23,5 +24,7 @@ public abstract class Instruction {
 	public void generate(){
 		 codeblock.addCode0(opcode.getOpcode());
 	}
-   
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){
+		codeEmittor.emitDebugCall(opcode.name());
+	}   
 }

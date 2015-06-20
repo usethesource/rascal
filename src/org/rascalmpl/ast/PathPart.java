@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PathPart extends AbstractAST {
-  public PathPart(IConstructor node) {
-    super();
+  public PathPart(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class PathPart extends AbstractAST {
   }
 
   static public class Interpolated extends PathPart {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PrePathChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")])
+    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PrePathChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.PathTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.PrePathChars pre;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.PathTail tail;
   
-    public Interpolated(IConstructor node , org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
-      super(node);
+    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+      super(src, node);
       
       this.pre = pre;
       this.expression = expression;
@@ -87,6 +88,39 @@ public abstract class PathPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pre.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pre.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Interpolated)) {
         return false;
@@ -97,7 +131,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 139 * pre.hashCode() + 137 * expression.hashCode() + 601 * tail.hashCode() ; 
+      return 857 + 383 * pre.hashCode() + 853 * expression.hashCode() + 743 * tail.hashCode() ; 
     } 
   
     
@@ -128,19 +162,25 @@ public abstract class PathPart extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isNonInterpolated() {
     return false;
   }
 
   static public class NonInterpolated extends PathPart {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.PathChars","pathChars")])
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.PathChars","pathChars")],breakable=false)
   
     
     private final org.rascalmpl.ast.PathChars pathChars;
   
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.PathChars pathChars) {
-      super(node);
+    public NonInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PathChars pathChars) {
+      super(src, node);
       
       this.pathChars = pathChars;
     }
@@ -156,6 +196,23 @@ public abstract class PathPart extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pathChars.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pathChars.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof NonInterpolated)) {
         return false;
@@ -166,7 +223,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 239 * pathChars.hashCode() ; 
+      return 331 + 967 * pathChars.hashCode() ; 
     } 
   
     
@@ -179,5 +236,11 @@ public abstract class PathPart extends AbstractAST {
     public boolean hasPathChars() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pathChars));
+    }
+            
   }
 }

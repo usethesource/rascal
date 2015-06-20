@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class BasicType extends AbstractAST {
-  public BasicType(IConstructor node) {
-    super();
+  public BasicType(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -33,12 +34,12 @@ public abstract class BasicType extends AbstractAST {
   }
 
   static public class Bag extends BasicType {
-    // Production: sig("Bag",[])
+    // Production: sig("Bag",[],breakable=false)
   
     
   
-    public Bag(IConstructor node ) {
-      super(node);
+    public Bag(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -53,6 +54,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bag)) {
         return false;
@@ -63,22 +73,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 733 ; 
+      return 659 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isBool() {
     return false;
   }
 
   static public class Bool extends BasicType {
-    // Production: sig("Bool",[])
+    // Production: sig("Bool",[],breakable=false)
   
     
   
-    public Bool(IConstructor node ) {
-      super(node);
+    public Bool(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -93,6 +109,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bool)) {
         return false;
@@ -103,22 +128,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 ; 
+      return 229 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isDateTime() {
     return false;
   }
 
   static public class DateTime extends BasicType {
-    // Production: sig("DateTime",[])
+    // Production: sig("DateTime",[],breakable=false)
   
     
   
-    public DateTime(IConstructor node ) {
-      super(node);
+    public DateTime(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -133,6 +164,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateTime)) {
         return false;
@@ -143,22 +183,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 ; 
+      return 827 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isInt() {
     return false;
   }
 
   static public class Int extends BasicType {
-    // Production: sig("Int",[])
+    // Production: sig("Int",[],breakable=false)
   
     
   
-    public Int(IConstructor node ) {
-      super(node);
+    public Int(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -173,6 +219,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Int)) {
         return false;
@@ -183,22 +238,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 ; 
+      return 709 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isList() {
     return false;
   }
 
   static public class List extends BasicType {
-    // Production: sig("List",[])
+    // Production: sig("List",[],breakable=false)
   
     
   
-    public List(IConstructor node ) {
-      super(node);
+    public List(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -213,6 +274,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof List)) {
         return false;
@@ -223,22 +293,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 83 ; 
+      return 263 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isListRelation() {
     return false;
   }
 
   static public class ListRelation extends BasicType {
-    // Production: sig("ListRelation",[])
+    // Production: sig("ListRelation",[],breakable=false)
   
     
   
-    public ListRelation(IConstructor node ) {
-      super(node);
+    public ListRelation(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -253,6 +329,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof ListRelation)) {
         return false;
@@ -263,22 +348,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 ; 
+      return 89 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isLoc() {
     return false;
   }
 
   static public class Loc extends BasicType {
-    // Production: sig("Loc",[])
+    // Production: sig("Loc",[],breakable=false)
   
     
   
-    public Loc(IConstructor node ) {
-      super(node);
+    public Loc(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -293,6 +384,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Loc)) {
         return false;
@@ -303,22 +403,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 ; 
+      return 43 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isMap() {
     return false;
   }
 
   static public class Map extends BasicType {
-    // Production: sig("Map",[])
+    // Production: sig("Map",[],breakable=false)
   
     
   
-    public Map(IConstructor node ) {
-      super(node);
+    public Map(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -333,6 +439,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Map)) {
         return false;
@@ -343,22 +458,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 ; 
+      return 641 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isNode() {
     return false;
   }
 
   static public class Node extends BasicType {
-    // Production: sig("Node",[])
+    // Production: sig("Node",[],breakable=false)
   
     
   
-    public Node(IConstructor node ) {
-      super(node);
+    public Node(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -373,6 +494,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Node)) {
         return false;
@@ -383,22 +513,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 ; 
+      return 839 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isNum() {
     return false;
   }
 
   static public class Num extends BasicType {
-    // Production: sig("Num",[])
+    // Production: sig("Num",[],breakable=false)
   
     
   
-    public Num(IConstructor node ) {
-      super(node);
+    public Num(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -413,6 +549,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Num)) {
         return false;
@@ -423,22 +568,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 ; 
+      return 269 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isRational() {
     return false;
   }
 
   static public class Rational extends BasicType {
-    // Production: sig("Rational",[])
+    // Production: sig("Rational",[],breakable=false)
   
     
   
-    public Rational(IConstructor node ) {
-      super(node);
+    public Rational(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -453,6 +604,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Rational)) {
         return false;
@@ -463,22 +623,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 ; 
+      return 449 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isReal() {
     return false;
   }
 
   static public class Real extends BasicType {
-    // Production: sig("Real",[])
+    // Production: sig("Real",[],breakable=false)
   
     
   
-    public Real(IConstructor node ) {
-      super(node);
+    public Real(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -493,6 +659,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Real)) {
         return false;
@@ -503,22 +678,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 751 ; 
+      return 859 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isRelation() {
     return false;
   }
 
   static public class Relation extends BasicType {
-    // Production: sig("Relation",[])
+    // Production: sig("Relation",[],breakable=false)
   
     
   
-    public Relation(IConstructor node ) {
-      super(node);
+    public Relation(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -533,6 +714,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Relation)) {
         return false;
@@ -543,22 +733,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 ; 
+      return 727 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isSet() {
     return false;
   }
 
   static public class Set extends BasicType {
-    // Production: sig("Set",[])
+    // Production: sig("Set",[],breakable=false)
   
     
   
-    public Set(IConstructor node ) {
-      super(node);
+    public Set(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -573,6 +769,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Set)) {
         return false;
@@ -583,22 +788,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 239 ; 
+      return 907 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isString() {
     return false;
   }
 
   static public class String extends BasicType {
-    // Production: sig("String",[])
+    // Production: sig("String",[],breakable=false)
   
     
   
-    public String(IConstructor node ) {
-      super(node);
+    public String(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -613,6 +824,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof String)) {
         return false;
@@ -623,22 +843,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 ; 
+      return 229 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isTuple() {
     return false;
   }
 
   static public class Tuple extends BasicType {
-    // Production: sig("Tuple",[])
+    // Production: sig("Tuple",[],breakable=false)
   
     
   
-    public Tuple(IConstructor node ) {
-      super(node);
+    public Tuple(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -653,6 +879,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tuple)) {
         return false;
@@ -663,22 +898,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 ; 
+      return 479 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isType() {
     return false;
   }
 
   static public class Type extends BasicType {
-    // Production: sig("Type",[])
+    // Production: sig("Type",[],breakable=false)
   
     
   
-    public Type(IConstructor node ) {
-      super(node);
+    public Type(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -693,6 +934,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Type)) {
         return false;
@@ -703,22 +953,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 ; 
+      return 821 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isValue() {
     return false;
   }
 
   static public class Value extends BasicType {
-    // Production: sig("Value",[])
+    // Production: sig("Value",[],breakable=false)
   
     
   
-    public Value(IConstructor node ) {
-      super(node);
+    public Value(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -733,6 +989,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Value)) {
         return false;
@@ -743,22 +1008,28 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 ; 
+      return 7 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isVoid() {
     return false;
   }
 
   static public class Void extends BasicType {
-    // Production: sig("Void",[])
+    // Production: sig("Void",[],breakable=false)
   
     
   
-    public Void(IConstructor node ) {
-      super(node);
+    public Void(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -773,6 +1044,15 @@ public abstract class BasicType extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Void)) {
         return false;
@@ -783,9 +1063,15 @@ public abstract class BasicType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 ; 
+      return 229 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
 }

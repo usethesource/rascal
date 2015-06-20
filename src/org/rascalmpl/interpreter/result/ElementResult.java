@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
@@ -251,8 +250,9 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			secondIndex = firstIndex + ((firstIndex <= endIndex) ? 1 : -1);
 		} else {
 			secondIndex = getInt(second);
-			if(secondIndex < 0)
+			if(secondIndex < 0) {
 				secondIndex += len;
+			}
 			if(!(first == null && end == null)){
 				if(first == null && secondIndex > endIndex)
 					firstIndex = len - 1;
@@ -261,14 +261,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			}
 		}
 		
-		if (len == 0) {
-			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
-		}
-		if (firstIndex >= len) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(getValueFactory().integer(firstIndex), ctx.getCurrentAST(), ctx.getStackTrace());
+		if (len == 0 || firstIndex >= len) {
+			return (Result<U>) makeSlice(0, 1, 0);
 		}
 		if (endIndex > len ) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(getValueFactory().integer(endIndex), ctx.getCurrentAST(), ctx.getStackTrace());
+			return makeSlice(firstIndex, secondIndex, len);
 		}
 		return (Result<U>) makeSlice(firstIndex, secondIndex, endIndex);
 	}

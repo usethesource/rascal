@@ -94,7 +94,8 @@ public enum Opcode {
 	LOADCONT            (76,    1),
 	RESET               (77,    1),
 	SHIFT               (78,    1),
-	SWITCH   			(79,	1)
+	SWITCH   			(79,	2),
+	RESETLOCS			(80,	1)
 	;
 	
 	
@@ -103,8 +104,8 @@ public enum Opcode {
 	
 	public final static Opcode[] values = Opcode.values();
 	
-	public static Opcode fromInteger(int n){
-		return values[n];
+	public static Opcode fromInteger(int finalCode){
+		return values[finalCode];
 	}
 	
 	// TODO: compiler does not like Opcode.LOADCON.getOpcode() in case expressions
@@ -190,6 +191,7 @@ public enum Opcode {
 	static public final int OP_RESET = 77;
 	static public final int OP_SHIFT = 78;
 	static public final int OP_SWITCH = 79;
+	static public final int OP_RESETLOCS = 80;
 	
 	
 	/*
@@ -247,7 +249,7 @@ public enum Opcode {
 	}
 	
 	public static String toString(CodeBlock cb, Opcode opc, int pc){
-		int instruction = cb.finalCode[pc];
+		long instruction = cb.finalCode[pc];
 		Opcode opc1 = Opcode.fromInteger(CodeBlock.fetchOp(instruction));
 		int arg1 = CodeBlock.fetchArg1(instruction);
 		int arg2 = CodeBlock.fetchArg2(instruction);
@@ -389,13 +391,13 @@ public enum Opcode {
 		case OCALLDYN:
 			return "OCALLDYN " + cb.getConstantType(arg1) + ", " 
 							   + arg2 + ", "
-							   + cb.getConstantValue(cb.finalCode[pc + 1]);
+							   + cb.getConstantValue((int) cb.finalCode[pc + 1]);
 			
 		case CALLJAVA:	
-			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " 
-							   + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " 
-							   + cb.getConstantType(cb.finalCode[pc + 3]) + ","
-							   + cb.getConstantType(cb.finalCode[pc + 4]) + ","
+			return "CALLJAVA " + cb.getConstantValue((int) cb.finalCode[pc + 1]) + ", " 
+							   + cb.getConstantValue((int) cb.finalCode[pc + 2]) + ", " 
+							   + cb.getConstantType((int) cb.finalCode[pc + 3]) + ","
+							   + cb.getConstantType((int) cb.finalCode[pc + 4]) + ","
 							   + cb.finalCode[pc + 5] ;
 			
 		case THROW:
@@ -472,14 +474,16 @@ public enum Opcode {
 			return "JMPINDEXED " + cb.getConstantValue(arg1);
 			
 		case LOADLOCKWP:
-			return "LOADLOCKWP " + cb.getConstantValue(arg1);		
+			return "LOADLOCKWP " + cb.getConstantValue(arg1);
+			
 		case LOADVARKWP:
 			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " 
 								 + cb.getConstantValue(arg2);
 		case STORELOCKWP:
 			return "STORELOCKWP " + cb.getConstantValue(arg1);
+			
 		case STOREVARKWP:
-			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " 
+			return "STOREVARKWP " + cb.getFunctionName(arg1) + ", " 
 								  + cb.getConstantValue(arg2);
 			
 		case UNWRAPTHROWNVAR:
@@ -503,7 +507,12 @@ public enum Opcode {
 			return "SHIFT";
 			
 		case SWITCH:
-			return "SWITCH " + cb.getConstantValue(arg1) + ", " + arg2;
+			return "SWITCH " + cb.getConstantValue(arg1) + ", " 
+							 + arg2 + ", "
+							 + cb.finalCode[pc + 1];
+		
+		case RESETLOCS:
+			return "RESETLOCS " + cb.getConstantValue(arg1);
 		
 		default:
 			break;

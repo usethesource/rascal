@@ -11,14 +11,10 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import: NOT YET
 import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import: NOT YET
-import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import: NOT YET
-import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import: NOT YET
-import org.rascalmpl.interpreter.result.Result;				// TODO: remove import: NOT YET
-import org.rascalmpl.interpreter.result.ResultFactory;		// TODO: remove import: NOT YET
 
-public class FunctionInstance implements ICallableValue, IExternalValue {
+
+public class FunctionInstance implements ICallableCompiledValue, IExternalValue {
 	
 	final Function function;
 	final Frame env;
@@ -30,7 +26,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	Object[] args;
 	int next = 0;
 	
-	public FunctionInstance(Function function, Frame env, RVM rvm) {
+	public FunctionInstance(final Function function, final Frame env, final RVM rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -39,7 +35,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
+	public static FunctionInstance computeFunctionInstance(final Function function, final Frame cf, final int scopeIn, final RVM rvm) {
 		assert scopeIn != -1;
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
@@ -56,10 +52,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 	
 	/**
-	 * Assumption: arity < function.nformals 
+	 * Assumption: arity <= function.nformals 
 	 */
-	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
-		assert arity < function.nformals;
+	public static FunctionInstance applyPartial(final Function function, final Frame env, final RVM rvm, final int arity, final Object[] stack, final int sp) {
+		assert arity <= function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
 			return fun_instance;
@@ -73,10 +69,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 	
 	/**
-	 * Assumption: next + arity < function.nformals 
+	 * Assumption: next + arity <= function.nformals 
 	 */
-	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
-		assert next + arity < function.nformals;
+	public FunctionInstance applyPartial(final int arity, final Object[] stack, final int sp) {
+		assert next + arity <= function.nformals;
 		if(arity == 0) {
 			return this;
 		}
@@ -126,22 +122,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 
 	@Override
-	public int getArity() {
-		return function.nformals;
-	}
-
-	@Override
-	public boolean hasVarArgs() {
-		return function.isVarArgs;
-	}
-
-	@Override
-	public boolean hasKeywordArguments() {
-		return true;
-	}
-
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+	public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		IValue[] args = new IValue[argValues.length + 1];
 		int i = 0;
 		for(IValue argValue : argValues) {
@@ -155,29 +136,12 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 		}
 		args[i] = kwargs.done();
 		IValue rval = rvm.executeFunction(this, args);
-		return ResultFactory.makeResult(rval.getType(), rval, rvm.getEvaluatorContext());	// TODO: remove CTX
+		return rval;
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		return this.call(null, argTypes, argValues, keyArgValues);
-	}
-
-	@Override
-	public ICallableValue cloneInto(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isStatic() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.getEvaluatorContext().getEvaluator();	// TODO: remove CTX
+	public IValue call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+		return this.call(rvm.getMonitor(), argTypes, argValues, keyArgValues);
 	}
 	
 	@Override

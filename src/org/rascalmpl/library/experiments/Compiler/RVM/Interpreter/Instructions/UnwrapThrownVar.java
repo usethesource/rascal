@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class UnwrapThrownVar extends Instruction {
 	
@@ -21,4 +22,10 @@ public class UnwrapThrownVar extends Instruction {
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
 	}
 
+	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
+		if (debug)
+			codeEmittor.emitDebugCall(opcode.name());
+		
+		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,debug); 
+	}
 }

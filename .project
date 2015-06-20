@@ -3,8 +3,6 @@
 	<name>rascal</name>
 	<comment></comment>
 	<projects>
-		<project>Java-Eclipse Project</project>
-		<project>Math</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -6,12 +6,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -23,10 +25,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -49,10 +53,10 @@ public class PreludeCompiled extends Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue().toString());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -105,10 +109,10 @@ public class PreludeCompiled extends Prelude {
 			if(arg.getType().isString()){
 				currentOutStream.print(((IString) arg).getValue());
 			}
-			else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
-			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
 				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
 			}
 			else{
@@ -144,6 +148,122 @@ public class PreludeCompiled extends Prelude {
 		}
 	}
 	
+	// Begin of sorting functions
+
+	/**
+	 * A mini class to wrap a lessThan function
+	 */
+	private class Less {
+		private final ICallableCompiledValue less;
+
+		Less(ICallableCompiledValue less) {
+			this.less = less;
+		}
+
+		public boolean less(IValue x, IValue y) {
+			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
+					new IValue[] { x, y }, null)).getValue();
+		}
+	}
+
+	private class Sorting {
+		private final IValue[] array;
+		private final int size;
+		private final Less less;
+
+		private void swap(int i, int j) {
+			IValue tmp = array[i];
+			array[i] = array[j];
+			array[j] = tmp;
+		}
+
+		public Sorting(IValue[] array, Less less) {
+			this.array = array;
+			this.size = array.length;
+			this.less = less;
+		}
+
+		/**
+		 * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
+		 */
+		public Sorting sort() {
+			if (size == 0) {
+				return this;
+			}
+			if(less.less(array[0], array[0])) {
+				throw RuntimeExceptionFactory.illegalArgument(null, null); // "Bad comparator: Did you use less-or-equals instead of less-than?"
+			}
+			sort(0, size - 1);
+
+			return this;
+		}
+
+		public Sorting shuffle() {
+			for (int i = 0; i < size; i++) {
+				swap(i, i + (int) (Math.random() * (size-i)));
+			}
+			return this;
+		}
+
+		private void sort(int low, int high) {
+			IValue pivot = array[low + (high-low)/2];
+			int oldLow = low;
+			int oldHigh = high;
+
+			while (low < high) {
+				for ( ; less.less(array[low], pivot); low++); 
+				for ( ; less.less(pivot, array[high]); high--); 
+
+				if (low <= high) {
+					swap(low, high);
+					low++;
+					high--;
+				}
+			}
+
+			if (oldLow < high)
+				sort(oldLow, high);
+			if (low < oldHigh)
+				sort(low, oldHigh);
+		}
+	}
+
+	public IList sort(IList l, IValue cmpv){
+		IValue[] tmpArr = new IValue[l.length()];
+		for(int i = 0 ; i < l.length() ; i++){
+			tmpArr[i] = l.get(i);
+		}
+
+		// we randomly swap some elements to make worst case complexity unlikely
+		new Sorting(tmpArr, new Less((ICallableCompiledValue) cmpv)).shuffle().sort();
+
+
+		IListWriter writer = values.listWriter();
+		writer.append(tmpArr);
+		return writer.done();
+	}
+
+	public IList sort(ISet l, IValue cmpv) {
+		IValue[] tmpArr = new IValue[l.size()];
+		int i = 0;
+
+		// we assume that the set is reasonably randomly ordered, such
+		// that the worst case of quicksort is unlikely
+		for (IValue elem : l){
+			tmpArr[i++] = elem;
+		}
+
+		new Sorting(tmpArr, new Less((ICallableCompiledValue) cmpv)).sort();
+
+		IListWriter writer = values.listWriter();
+		for(IValue v : tmpArr){
+			writer.append(v);
+		}
+
+		return writer.done();
+	}
+	// end of sorting functions
+	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
 		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
@@ -178,7 +298,9 @@ public class PreludeCompiled extends Prelude {
 		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
 	}
 	
-	public IValue implode(IValue reifiedType, IConstructor tree, RascalExecutionContext rex) {
+	public IValue implode(IValue reifiedType, IConstructor arg0, RascalExecutionContext rex) {
+		ITree tree = (ITree) arg0;
+		
 		typeStore = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, typeStore);
 		try {
@@ -212,14 +334,15 @@ public class PreludeCompiled extends Prelude {
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
 			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
-			implodedArgs[i] = implode(store, argType, (IConstructor)args.get(i), false, rex);
+			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false, rex);
 		}
 		return implodedArgs;
 	}
 	
 	
-	protected IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, RascalExecutionContext rex) {
-
+	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, RascalExecutionContext rex) {
+		ITree tree = (ITree) arg0;
+		
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
@@ -227,9 +350,9 @@ public class PreludeCompiled extends Prelude {
 
 		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
 			IList args = TreeAdapter.getArgs(tree);
-			IConstructor before = (IConstructor) args.get(0);
-			IConstructor ast = (IConstructor) args.get(1);
-			IConstructor after = (IConstructor) args.get(2);
+			ITree before = (ITree) args.get(0);
+			ITree ast = (ITree) args.get(1);
+			ITree after = (ITree) args.get(2);
 			IValue result = implode(store, type, ast, splicing, rex);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
@@ -313,7 +436,7 @@ public class PreludeCompiled extends Prelude {
 				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.append(implode(store, elementType, (IConstructor) arg, false, rex));
+					w.append(implode(store, elementType, (ITree) arg, false, rex));
 				}
 				return w.done();
 			}
@@ -321,7 +444,7 @@ public class PreludeCompiled extends Prelude {
 				Type elementType = splicing ? type : type.getElementType();
 				ISetWriter w = values.setWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.insert(implode(store, elementType, (IConstructor) arg, false, rex));
+					w.insert(implode(store, elementType, (ITree) arg, false, rex));
 				}
 				return w.done();
 			}
@@ -346,7 +469,7 @@ public class PreludeCompiled extends Prelude {
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
-				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, rex);
+				IValue implodedArg = implode(store, elementType, (ITree) arg, true, rex);
 				if (implodedArg instanceof IList) {
 					// splicing
 					for (IValue nextArg: (IList)implodedArg) {
@@ -369,13 +492,13 @@ public class PreludeCompiled extends Prelude {
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
-				w.insert(implode(store, elementType, (IConstructor) arg, false, rex));
+				w.insert(implode(store, elementType, (ITree) arg, false, rex));
 			}
 			return w.done();
 		}
 		
-		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), Factory.Attribute_Bracket)) {
-			return implode(store, type, (IConstructor) TreeAdapter.getASTArgs(tree).get(0), false, rex);
+		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
+			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false, rex);
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -385,16 +508,16 @@ public class PreludeCompiled extends Prelude {
 			IMapWriter cw = values.mapWriter();
 			IListWriter aw = values.listWriter();
 			for (IValue kid : TreeAdapter.getArgs(tree)) {
-				if (TreeAdapter.isLayout((IConstructor) kid)) {
-					IList cts = extractComments((IConstructor) kid);
+				if (TreeAdapter.isLayout((ITree) kid)) {
+					IList cts = extractComments((ITree) kid);
 					if (!cts.isEmpty()) {
 					  cw.put(values.integer(j), cts);
 					}
 					j++;
 				}
-				else if (!TreeAdapter.isLiteral((IConstructor) kid) && 
-						!TreeAdapter.isCILiteral((IConstructor) kid) && 
-						!TreeAdapter.isEmpty((IConstructor) kid)) {
+				else if (!TreeAdapter.isLiteral((ITree) kid) && 
+						!TreeAdapter.isCILiteral((ITree) kid) && 
+						!TreeAdapter.isEmpty((ITree) kid)) {
 					aw.append(kid);
 				}
 			}
@@ -421,7 +544,7 @@ public class PreludeCompiled extends Prelude {
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
-					return implode(store, type, (IConstructor) args.get(0), splicing, rex);
+					return implode(store, type, (ITree) args.get(0), splicing, rex);
 				}
 				
 				
@@ -478,7 +601,7 @@ public class PreludeCompiled extends Prelude {
 		TreeVisitor<RuntimeException> visitor = new TreeVisitor<RuntimeException>() {
 
 			@Override
-			public IConstructor visitTreeAppl(IConstructor arg)
+			public ITree visitTreeAppl(ITree arg)
 					 {
 				if (TreeAdapter.isComment(arg)) {
 					comments.append(values.string(TreeAdapter.yield(arg)));
@@ -492,19 +615,19 @@ public class PreludeCompiled extends Prelude {
 			}
 
 			@Override
-			public IConstructor visitTreeAmb(IConstructor arg)
+			public ITree visitTreeAmb(ITree arg)
 					 {
 				return arg;
 			}
 
 			@Override
-			public IConstructor visitTreeChar(IConstructor arg)
+			public ITree visitTreeChar(ITree arg)
 					 {
 				return arg;
 			}
 
 			@Override
-			public IConstructor visitTreeCycle(IConstructor arg)
+			public ITree visitTreeCycle(ITree arg)
 					 {
 				return arg;
 			}

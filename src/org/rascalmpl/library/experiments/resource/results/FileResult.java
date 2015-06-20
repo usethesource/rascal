@@ -20,7 +20,7 @@ public class FileResult extends ResourceResult {
 	public FileResult(Type type, IValue value, IEvaluatorContext ctx, ISourceLocation fullURI, String displayURI) {
 		super(type, value, ctx, fullURI, displayURI);
 		Prelude prelude = new Prelude(ctx.getValueFactory());
-		ISourceLocation uri = FileURIResolver.constructFileURI(fullURI.getURI().getPath());
+		ISourceLocation uri = FileURIResolver.constructFileURI(fullURI.getPath());
 		this.value = prelude.readFile(uri);
 	}
 

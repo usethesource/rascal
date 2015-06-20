@@ -13,6 +13,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
@@ -24,8 +25,8 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 
 	static public class Default extends org.rascalmpl.ast.TypeArg.Default {
 
-		public Default(IConstructor __param1, org.rascalmpl.ast.Type __param2) {
-			super(__param1, __param2);
+		public Default(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -37,9 +38,9 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 
 	static public class Named extends org.rascalmpl.ast.TypeArg.Named {
 
-		public Named(IConstructor __param1, org.rascalmpl.ast.Type __param2,
+		public Named(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2,
 				Name __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -49,7 +50,7 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 
 	}
 
-	public TypeArg(IConstructor __param1) {
-		super(__param1);
+	public TypeArg(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

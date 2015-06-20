@@ -145,7 +145,6 @@ public class PointerKeyedHashMap<K, V>{
 		Entry<K, V> entry = data[position];
 		while(entry != null){
 			if(key == entry.key) return entry.value;
-			
 			entry = entry.next;
 		}
 		

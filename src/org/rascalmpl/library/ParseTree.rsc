@@ -235,11 +235,16 @@ public Production associativity(Symbol s, Associativity as, {*Production a, choi
 public Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
   = associativity(rhs, a, rest + alts) ;
 
-Production associativity(Symbol rhs, Associativity a, {prod(rhs, list[Symbol] lhs, set[Attr] as), *Production rest}) 
-  = \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
+//Production associativity(Symbol rhs, Associativity a, {prod(Symbol r2, list[Symbol] lhs, set[Attr] as), *Production rest}) 
+//  = \associativity(rhs, a, {rest + {prod(r2, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
 
-Production associativity(Symbol rhs, Associativity a, {prod(label(str l, rhs), list[Symbol] lhs, set[Attr] as), *Production rest}) 
-  =  \associativity(rhs, a, rest + {prod(label(l, rhs), lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
+Production associativity(Symbol rhs, Associativity a, set[Production] rest)
+  = associativity(rhs, a, withAssoc + withNewAssocs)
+  when  withoutAssoc := {p | p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
+        withoutAssoc != {},
+        withAssoc := rest - withoutAssoc,
+        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | p <- withoutAssoc}
+        ;
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 

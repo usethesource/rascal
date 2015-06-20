@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class DataTarget extends AbstractAST {
-  public DataTarget(IConstructor node) {
-    super();
+  public DataTarget(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,12 +41,12 @@ public abstract class DataTarget extends AbstractAST {
   }
 
   static public class Empty extends DataTarget {
-    // Production: sig("Empty",[])
+    // Production: sig("Empty",[],breakable=false)
   
     
   
-    public Empty(IConstructor node ) {
-      super(node);
+    public Empty(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -60,6 +61,15 @@ public abstract class DataTarget extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Empty)) {
         return false;
@@ -70,23 +80,29 @@ public abstract class DataTarget extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 ; 
+      return 167 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isLabeled() {
     return false;
   }
 
   static public class Labeled extends DataTarget {
-    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Name","label")])
+    // Production: sig("Labeled",[arg("org.rascalmpl.ast.Name","label")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name label;
   
-    public Labeled(IConstructor node , org.rascalmpl.ast.Name label) {
-      super(node);
+    public Labeled(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name label) {
+      super(src, node);
       
       this.label = label;
     }
@@ -102,6 +118,23 @@ public abstract class DataTarget extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = label.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        label.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Labeled)) {
         return false;
@@ -112,7 +145,7 @@ public abstract class DataTarget extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 373 * label.hashCode() ; 
+      return 769 + 17 * label.hashCode() ; 
     } 
   
     
@@ -125,5 +158,11 @@ public abstract class DataTarget extends AbstractAST {
     public boolean hasLabel() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(label));
+    }
+            
   }
 }

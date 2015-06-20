@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assignable extends AbstractAST {
-  public Assignable(IConstructor node) {
-    super();
+  public Assignable(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -124,14 +125,14 @@ public abstract class Assignable extends AbstractAST {
   }
 
   static public class Annotation extends Assignable {
-    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","annotation")])
+    // Production: sig("Annotation",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","annotation")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Name annotation;
   
-    public Annotation(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
-      super(node);
+    public Annotation(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
+      super(src, node);
       
       this.receiver = receiver;
       this.annotation = annotation;
@@ -148,6 +149,31 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = annotation.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        annotation.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Annotation)) {
         return false;
@@ -158,7 +184,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 31 * receiver.hashCode() + 167 * annotation.hashCode() ; 
+      return 233 + 383 * receiver.hashCode() + 227 * annotation.hashCode() ; 
     } 
   
     
@@ -180,19 +206,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasAnnotation() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(annotation));
+    }
+            
   }
   public boolean isBracket() {
     return false;
   }
 
   static public class Bracket extends Assignable {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Assignable","arg")])
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Assignable","arg")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable arg;
   
-    public Bracket(IConstructor node , org.rascalmpl.ast.Assignable arg) {
-      super(node);
+    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable arg) {
+      super(src, node);
       
       this.arg = arg;
     }
@@ -208,6 +240,23 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = arg.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        arg.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Bracket)) {
         return false;
@@ -218,7 +267,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 109 * arg.hashCode() ; 
+      return 977 + 797 * arg.hashCode() ; 
     } 
   
     
@@ -231,20 +280,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArg() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(arg));
+    }
+            
   }
   public boolean isConstructor() {
     return false;
   }
 
   static public class Constructor extends Assignable {
-    // Production: sig("Constructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Assignable\>","arguments")])
+    // Production: sig("Constructor",[arg("org.rascalmpl.ast.Name","name"),arg("java.util.List\<org.rascalmpl.ast.Assignable\>","arguments")],breakable=false)
   
     
     private final org.rascalmpl.ast.Name name;
     private final java.util.List<org.rascalmpl.ast.Assignable> arguments;
   
-    public Constructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
-      super(node);
+    public Constructor(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
+      super(src, node);
       
       this.name = name;
       this.arguments = arguments;
@@ -261,6 +316,33 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : arguments) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Constructor)) {
         return false;
@@ -271,7 +353,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 463 * name.hashCode() + 647 * arguments.hashCode() ; 
+      return 601 + 619 * name.hashCode() + 167 * arguments.hashCode() ; 
     } 
   
     
@@ -293,20 +375,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasArguments() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(arguments));
+    }
+            
   }
   public boolean isFieldAccess() {
     return false;
   }
 
   static public class FieldAccess extends Assignable {
-    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","field")])
+    // Production: sig("FieldAccess",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Name","field")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Name field;
   
-    public FieldAccess(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
-      super(node);
+    public FieldAccess(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
+      super(src, node);
       
       this.receiver = receiver;
       this.field = field;
@@ -323,6 +411,31 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = field.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        field.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof FieldAccess)) {
         return false;
@@ -333,7 +446,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 + 311 * receiver.hashCode() + 991 * field.hashCode() ; 
+      return 263 + 557 * receiver.hashCode() + 167 * field.hashCode() ; 
     } 
   
     
@@ -355,20 +468,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasField() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(field));
+    }
+            
   }
   public boolean isIfDefinedOrDefault() {
     return false;
   }
 
   static public class IfDefinedOrDefault extends Assignable {
-    // Production: sig("IfDefinedOrDefault",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","defaultExpression")])
+    // Production: sig("IfDefinedOrDefault",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","defaultExpression")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Expression defaultExpression;
   
-    public IfDefinedOrDefault(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
-      super(node);
+    public IfDefinedOrDefault(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
+      super(src, node);
       
       this.receiver = receiver;
       this.defaultExpression = defaultExpression;
@@ -385,6 +504,31 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = defaultExpression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defaultExpression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof IfDefinedOrDefault)) {
         return false;
@@ -395,7 +539,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 839 * receiver.hashCode() + 313 * defaultExpression.hashCode() ; 
+      return 937 + 439 * receiver.hashCode() + 439 * defaultExpression.hashCode() ; 
     } 
   
     
@@ -417,21 +561,27 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasDefaultExpression() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(defaultExpression));
+    }
+            
   }
   public boolean isSlice() {
     return false;
   }
 
   static public class Slice extends Assignable {
-    // Production: sig("Slice",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("Slice",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.OptionalExpression optFirst;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public Slice(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public Slice(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.receiver = receiver;
       this.optFirst = optFirst;
@@ -449,6 +599,39 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = optFirst.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optFirst.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = optLast.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optLast.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Slice)) {
         return false;
@@ -459,7 +642,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 631 + 463 * receiver.hashCode() + 613 * optFirst.hashCode() + 499 * optLast.hashCode() ; 
+      return 487 + 419 * receiver.hashCode() + 2 * optFirst.hashCode() + 797 * optLast.hashCode() ; 
     } 
   
     
@@ -490,13 +673,19 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(optFirst), clone(optLast));
+    }
+            
   }
   public boolean isSliceStep() {
     return false;
   }
 
   static public class SliceStep extends Assignable {
-    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")])
+    // Production: sig("SliceStep",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.OptionalExpression","optFirst"),arg("org.rascalmpl.ast.Expression","second"),arg("org.rascalmpl.ast.OptionalExpression","optLast")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
@@ -504,8 +693,8 @@ public abstract class Assignable extends AbstractAST {
     private final org.rascalmpl.ast.Expression second;
     private final org.rascalmpl.ast.OptionalExpression optLast;
   
-    public SliceStep(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
-      super(node);
+    public SliceStep(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.OptionalExpression optFirst,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.OptionalExpression optLast) {
+      super(src, node);
       
       this.receiver = receiver;
       this.optFirst = optFirst;
@@ -524,6 +713,47 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = optFirst.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optFirst.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = second.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        second.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = optLast.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optLast.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof SliceStep)) {
         return false;
@@ -534,7 +764,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 2 * receiver.hashCode() + 139 * optFirst.hashCode() + 359 * second.hashCode() + 919 * optLast.hashCode() ; 
+      return 19 + 317 * receiver.hashCode() + 883 * optFirst.hashCode() + 719 * second.hashCode() + 233 * optLast.hashCode() ; 
     } 
   
     
@@ -574,20 +804,26 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasOptLast() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(optFirst), clone(second), clone(optLast));
+    }
+            
   }
   public boolean isSubscript() {
     return false;
   }
 
   static public class Subscript extends Assignable {
-    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","subscript")])
+    // Production: sig("Subscript",[arg("org.rascalmpl.ast.Assignable","receiver"),arg("org.rascalmpl.ast.Expression","subscript")],breakable=false)
   
     
     private final org.rascalmpl.ast.Assignable receiver;
     private final org.rascalmpl.ast.Expression subscript;
   
-    public Subscript(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
-      super(node);
+    public Subscript(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
+      super(src, node);
       
       this.receiver = receiver;
       this.subscript = subscript;
@@ -604,6 +840,31 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = receiver.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        receiver.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = subscript.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        subscript.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Subscript)) {
         return false;
@@ -614,7 +875,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 211 * receiver.hashCode() + 439 * subscript.hashCode() ; 
+      return 29 + 151 * receiver.hashCode() + 29 * subscript.hashCode() ; 
     } 
   
     
@@ -636,19 +897,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasSubscript() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(receiver), clone(subscript));
+    }
+            
   }
   public boolean isTuple() {
     return false;
   }
 
   static public class Tuple extends Assignable {
-    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Assignable\>","elements")])
+    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Assignable\>","elements")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Assignable> elements;
   
-    public Tuple(IConstructor node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
-      super(node);
+    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
+      super(src, node);
       
       this.elements = elements;
     }
@@ -664,6 +931,25 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : elements) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Tuple)) {
         return false;
@@ -674,7 +960,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 167 + 541 * elements.hashCode() ; 
+      return 353 + 31 * elements.hashCode() ; 
     } 
   
     
@@ -687,19 +973,25 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasElements() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements));
+    }
+            
   }
   public boolean isVariable() {
     return false;
   }
 
   static public class Variable extends Assignable {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName qualifiedName;
   
-    public Variable(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-      super(node);
+    public Variable(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+      super(src, node);
       
       this.qualifiedName = qualifiedName;
     }
@@ -715,6 +1007,23 @@ public abstract class Assignable extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = qualifiedName.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        qualifiedName.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Variable)) {
         return false;
@@ -725,7 +1034,7 @@ public abstract class Assignable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 677 + 71 * qualifiedName.hashCode() ; 
+      return 337 + 257 * qualifiedName.hashCode() ; 
     } 
   
     
@@ -738,5 +1047,11 @@ public abstract class Assignable extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(qualifiedName));
+    }
+            
   }
 }

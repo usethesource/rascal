@@ -102,7 +102,7 @@ syntax ClassMod =
   | "private" 
   ;
 
-lexical LEX[StringLiteral] =
+lexical LEX_StringLiteral =
    string: "\"" StringPart* "\"" 
   ;
 
@@ -144,7 +144,7 @@ syntax ClassMemberDec =
   | InterfaceDec 
   ;
 
-lexical LEX[CharLiteral] =
+lexical LEX_CharLiteral =
    char: "\'" CharContent "\'" 
   ;
 
@@ -754,7 +754,7 @@ syntax ClassLiteral =
   ;
 
 syntax StringLiteral =
-  LEX[StringLiteral] 
+  LEX_StringLiteral 
   ;
 
 syntax AbstractMethodDec =
@@ -885,7 +885,7 @@ syntax Super =
   ;
 
 syntax CharLiteral =
-  LEX[CharLiteral] 
+  LEX_CharLiteral 
   ;
 
 lexical EndOfFile =

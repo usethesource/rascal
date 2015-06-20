@@ -41,9 +41,7 @@ public class LinearProgramming {
 		this.values = values;
 	}
 
-	public static final TypeStore typestore = new TypeStore(
-			org.rascalmpl.values.errors.Factory.getStore(),
-			org.rascalmpl.values.locations.Factory.getStore());
+	public static final TypeStore typestore = new TypeStore();
 
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
