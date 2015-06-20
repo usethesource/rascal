@@ -649,13 +649,13 @@ public interface IASTVisitor<T> {
 
   public T visitSymExcept(Sym.Except x);
 
-//  public T visitSymFarFollow(Sym.FarFollow x);
+  public T visitSymFarFollow(Sym.FarFollow x);
 
-//  public T visitSymFarNotFollow(Sym.FarNotFollow x);
+  public T visitSymFarNotFollow(Sym.FarNotFollow x);
 
-//  public T visitSymFarNotPrecede(Sym.FarNotPrecede x);
+  public T visitSymFarNotPrecede(Sym.FarNotPrecede x);
 
-//  public T visitSymFarPrecede(Sym.FarPrecede x);
+  public T visitSymFarPrecede(Sym.FarPrecede x);
 
   public T visitSymFollow(Sym.Follow x);
 
@@ -701,8 +701,7 @@ public interface IASTVisitor<T> {
 
   public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x);
 
-  // TODO
-//  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x);
+  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x);
 
   public T visitTagDefault(Tag.Default x);
 

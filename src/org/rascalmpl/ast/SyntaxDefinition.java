@@ -121,7 +121,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 11 * defined.hashCode() + 389 * production.hashCode() ; 
+      return 911 + 827 * defined.hashCode() + 29 * production.hashCode() ; 
     } 
   
     
@@ -224,7 +224,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 193 * start.hashCode() + 617 * defined.hashCode() + 521 * production.hashCode() ; 
+      return 947 + 883 * start.hashCode() + 743 * defined.hashCode() + 313 * production.hashCode() ; 
     } 
   
     
@@ -336,7 +336,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 839 * vis.hashCode() + 743 * defined.hashCode() + 751 * production.hashCode() ; 
+      return 607 + 727 * vis.hashCode() + 883 * defined.hashCode() + 617 * production.hashCode() ; 
     } 
   
     
@@ -438,7 +438,100 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 911 * defined.hashCode() + 827 * production.hashCode() ; 
+      return 233 + 263 * defined.hashCode() + 163 * production.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getDefined() {
+      return this.defined;
+    }
+  
+    @Override
+    public boolean hasDefined() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Prod getProduction() {
+      return this.production;
+    }
+  
+    @Override
+    public boolean hasProduction() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(defined), clone(production));
+    }
+            
+  }
+  public boolean isToken() {
+    return false;
+  }
+
+  static public class Token extends SyntaxDefinition {
+    // Production: sig("Token",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.Prod production;
+  
+    public Token(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(src, node);
+      
+      this.defined = defined;
+      this.production = production;
+    }
+  
+    @Override
+    public boolean isToken() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSyntaxDefinitionToken(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = defined.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        defined.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = production.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        production.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Token)) {
+        return false;
+      }        
+      Token tmp = (Token) o;
+      return true && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 683 + 661 * defined.hashCode() + 499 * production.hashCode() ; 
     } 
   
     
