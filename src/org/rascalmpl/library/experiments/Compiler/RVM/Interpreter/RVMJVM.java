@@ -3,25 +3,9 @@
  */
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 
 public class RVMJVM extends RVM {
 

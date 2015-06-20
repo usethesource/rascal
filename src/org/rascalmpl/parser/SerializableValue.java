@@ -7,7 +7,7 @@ import java.io.StringReader;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class SerializableValue implements Serializable {
 	
@@ -46,7 +46,7 @@ public class SerializableValue implements Serializable {
 		}
 
 		StandardTextReader reader = new StandardTextReader();
-		this.wrapped = reader.read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Production, new StringReader(b.toString()));
+		this.wrapped = reader.read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Production, new StringReader(b.toString()));
 	}
 	
 	@Override

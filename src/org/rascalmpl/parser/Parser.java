@@ -13,26 +13,20 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.jgll.grammar.Grammar;
-import org.jgll.grammar.symbol.Nonterminal;
-import org.jgll.parser.GLLParser;
-import org.jgll.parser.ParseError;
-import org.jgll.parser.ParseResult;
-import org.jgll.parser.ParserFactory;
-import org.jgll.util.Configuration;
-import org.jgll.util.Input;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.iguana.grammar.Grammar;
+import org.iguana.grammar.symbol.Nonterminal;
+import org.iguana.parser.GLLParser;
+import org.iguana.parser.ParseError;
+import org.iguana.parser.ParseResult;
+import org.iguana.parser.ParserFactory;
+import org.iguana.util.Configuration;
+import org.iguana.util.Input;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
