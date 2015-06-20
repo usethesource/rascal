@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry excluding="**/example-project/*" kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="test"/>
@@ -15,7 +16,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/commons-compress-1.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/caffeine-1.2.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/caffeine-1.2.0-javadoc.jar!/"/>

@@ -179,6 +179,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Sort = tf.constructor(uptr, Symbol, "sort", str, "name");
 	public static final Type Symbol_Lex = tf.constructor(uptr, Symbol, "lex", str, "name");
 	public static final Type Symbol_Keyword = tf.constructor(uptr, Symbol, "keywords", str, "name");
+	public static final Type Symbol_Token = tf.constructor(uptr, Symbol, "token", str, "name");
 	public static final Type Symbol_Meta = tf.constructor(uptr, Symbol, "meta", Symbol, "symbol");
 	public static final Type Symbol_Conditional = tf.constructor(uptr, Symbol, "conditional", Symbol, "symbol", tf.setType(Condition), "conditions");
 	public static final Type Symbol_IterSepX = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");

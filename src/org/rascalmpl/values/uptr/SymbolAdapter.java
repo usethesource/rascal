@@ -640,7 +640,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isToken(IConstructor rhs) {
-		return rhs.getConstructorType() == Factory.Symbol_Token;
+		return rhs.getConstructorType() == RascalValueFactory.Symbol_Token;
 	}
 	
 	public static boolean isKeyword(IConstructor rhs) {

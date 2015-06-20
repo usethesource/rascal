@@ -97,7 +97,7 @@ public abstract class SyntaxDefinition extends
 
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Lex, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Lex, vf.string(nt)));
 			}
 
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -105,7 +105,8 @@ public abstract class SyntaxDefinition extends
 		}
 	}
 	
-	public static class Token extends org.rascalmpl.ast.SyntaxDefinition.Token {
+	// TODO uncomment after bootstrap
+	/*public static class Token extends org.rascalmpl.ast.SyntaxDefinition.Token {
 		private final IConstructor node;
 
 		public Token(ISourceLocation src, IConstructor node, Sym defined, Prod production) {
@@ -136,7 +137,7 @@ public abstract class SyntaxDefinition extends
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
 			return null;
 		}
-	}
+	}*/
 	
 	public static class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
 		private final IConstructor node;
