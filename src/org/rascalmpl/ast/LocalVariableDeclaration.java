@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class LocalVariableDeclaration extends AbstractAST {
-  public LocalVariableDeclaration(IConstructor node) {
-    super();
+  public LocalVariableDeclaration(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
   }
 
   static public class Default extends LocalVariableDeclaration {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Declarator","declarator")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Declarator","declarator")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declarator declarator;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Declarator declarator) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declarator declarator) {
+      super(src, node);
       
       this.declarator = declarator;
     }
@@ -62,6 +63,23 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = declarator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        declarator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +90,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 439 * declarator.hashCode() ; 
+      return 283 + 461 * declarator.hashCode() ; 
     } 
   
     
@@ -85,19 +103,25 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     public boolean hasDeclarator() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(declarator));
+    }
+            
   }
   public boolean isDynamic() {
     return false;
   }
 
   static public class Dynamic extends LocalVariableDeclaration {
-    // Production: sig("Dynamic",[arg("org.rascalmpl.ast.Declarator","declarator")])
+    // Production: sig("Dynamic",[arg("org.rascalmpl.ast.Declarator","declarator")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declarator declarator;
   
-    public Dynamic(IConstructor node , org.rascalmpl.ast.Declarator declarator) {
-      super(node);
+    public Dynamic(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declarator declarator) {
+      super(src, node);
       
       this.declarator = declarator;
     }
@@ -113,6 +137,23 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = declarator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        declarator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Dynamic)) {
         return false;
@@ -123,7 +164,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 293 * declarator.hashCode() ; 
+      return 7 + 463 * declarator.hashCode() ; 
     } 
   
     
@@ -136,5 +177,11 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     public boolean hasDeclarator() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(declarator));
+    }
+            
   }
 }

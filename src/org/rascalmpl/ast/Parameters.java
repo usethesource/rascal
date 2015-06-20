@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Parameters extends AbstractAST {
-  public Parameters(IConstructor node) {
-    super();
+  public Parameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Parameters extends AbstractAST {
   }
 
   static public class Default extends Parameters {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -71,6 +72,31 @@ public abstract class Parameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = formals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        formals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = keywordFormals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordFormals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 853 * formals.hashCode() + 587 * keywordFormals.hashCode() ; 
+      return 19 + 829 * formals.hashCode() + 809 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -103,20 +129,26 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
+            
   }
   public boolean isVarArgs() {
     return false;
   }
 
   static public class VarArgs extends Parameters {
-    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")])
+    // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals"),arg("org.rascalmpl.ast.KeywordFormals","keywordFormals")],breakable=false)
   
     
     private final org.rascalmpl.ast.Formals formals;
     private final org.rascalmpl.ast.KeywordFormals keywordFormals;
   
-    public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
-      super(node);
+    public VarArgs(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Formals formals,  org.rascalmpl.ast.KeywordFormals keywordFormals) {
+      super(src, node);
       
       this.formals = formals;
       this.keywordFormals = keywordFormals;
@@ -133,6 +165,31 @@ public abstract class Parameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = formals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        formals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = keywordFormals.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordFormals.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof VarArgs)) {
         return false;
@@ -143,7 +200,7 @@ public abstract class Parameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 587 * formals.hashCode() + 883 * keywordFormals.hashCode() ; 
+      return 157 + 31 * formals.hashCode() + 13 * keywordFormals.hashCode() ; 
     } 
   
     
@@ -165,5 +222,11 @@ public abstract class Parameters extends AbstractAST {
     public boolean hasKeywordFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals), clone(keywordFormals));
+    }
+            
   }
 }

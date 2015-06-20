@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Variable;
@@ -30,9 +31,9 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 	static public class Default extends org.rascalmpl.ast.Declarator.Default {
 
-		public Default(IConstructor __param1, org.rascalmpl.ast.Type __param2,
+		public Default(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2,
 				List<Variable> __param3) {
-			super(__param1, __param2, __param3);
+			super(__param1, tree, __param2, __param3);
 		}
 
 		@Override
@@ -94,7 +95,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 	}
 
-	public Declarator(IConstructor __param1) {
-		super(__param1);
+	public Declarator(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

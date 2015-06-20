@@ -14,6 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -24,9 +25,9 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 
 	static public class Nonterminal extends org.rascalmpl.ast.Sym.Nonterminal {
 
-		public Nonterminal(IConstructor __param1,
+		public Nonterminal(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Nonterminal __param2) {
-			super(__param1, __param2);
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -35,7 +36,7 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 		}
 	}
 
-	public Sym(IConstructor __param1) {
-		super(__param1);
+	public Sym(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

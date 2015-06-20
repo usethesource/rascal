@@ -40,35 +40,35 @@ public Symbol sym2symbol(Sym sym) {
     case \token(Nonterminal n) :
       return \token("<n>");
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
-      return sort("<n>");
+      return Symbol::sort("<n>");
     case \start(Nonterminal n) : 
-      return \start(sort("<n>"));
+      return Symbol::\start(sort("<n>"));
     case literal(StringConstant l): 
-      return lit(unescape(l));
+      return Symbol::lit(unescape(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
-      return cilit(unescape(l));
+      return Symbol::cilit(unescape(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
-      return \parameterized-sort("<n>",separgs2symbols(syms)); 
+      return Symbol::\parameterized-sort("<n>",separgs2symbols(syms)); 
     case labeled(Sym s, NonterminalLabel n) : 
-      return label("<n>", sym2symbol(s));
+      return Symbol::label("<n>", sym2symbol(s));
     case optional(Sym s)  : 
-      return opt(sym2symbol(s));
+      return Symbol::opt(sym2symbol(s));
     case characterClass(Class cc): 
       return cc2ranges(cc);
     case parameter(Nonterminal n) : 
-      return \parameter("<n>", adt("Tree", []));
+      return Symbol::\parameter("<n>", adt("Tree", []));
     case empty() : 
-      return \empty();
+      return Symbol::\empty();
     case alternative(Sym first, {Sym "|"}+ alts) : 
       return alt({sym2symbol(first)} + {sym2symbol(elem) | elem <- alts});
     case iterStar(Sym s)  : 
-      return \iter-star(sym2symbol(s));
+      return Symbol::\iter-star(sym2symbol(s));
     case iter(Sym s)  : 
-      return \iter(sym2symbol(s));
+      return Symbol::\iter(sym2symbol(s));
     case iterStarSep(Sym s, Sym sep)  : 
-      return \iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);
+      return Symbol::\iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);
     case iterSep(Sym s, Sym sep)  : 
-      return \iter-seps(sym2symbol(s), [sym2symbol(sep)]);
+      return Symbol::\iter-seps(sym2symbol(s), [sym2symbol(sep)]);
     case sequence(Sym first, Sym+ sequence) : 
       return seq([sym2symbol(first)] + [sym2symbol(elem) | elem <- sequence]);
     case startOfLine(Sym s) : 

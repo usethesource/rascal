@@ -42,11 +42,14 @@ data AST
   ;
   
 data Sig 
-  = sig(str name, list[Arg] args)
+  = sig(str name, list[Arg] args, bool breakable = false)
   ;
   
 data Arg 
   = arg(str typ, str name);
+
+bool isBreakable(prod(_,_,{\tag("breakable"()), *_})) = true;
+default bool isBreakable(Production p) = false;
 
 public set[AST] grammarToASTModel(str pkg, Grammar g) {
   map[str, set[Sig]] m = ();
@@ -58,10 +61,10 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   }
   
   for (/p:prod(label(c,sort(name)),_,_) := g) 
-     m[name]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
+     m[name]?sigs += {sig(capitalize(c), productionArgs(pkg, p), breakable=isBreakable(p))};
 
   for (/p:prod(label(c,\parameterized-sort(name,[Symbol _:str _(str a)])),_,_) := g) 
-     m[name + "_" + a]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
+     m[name + "_" + a]?sigs += {sig(capitalize(c), productionArgs(pkg, p), breakable=isBreakable(p))};
 
   for (sn <- m) 
     asts += ast(sn, m[sn]);
@@ -79,6 +82,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
 }
 
 public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
+  arbSeed(42);
   model = grammarToASTModel(pkg, g);
   grammarToVisitor(outdir, pkg, model);
   grammarToASTClasses(outdir, pkg, model);
@@ -118,7 +122,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- sort(asts)) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.eclipse.imp.pdb.facts.ISourceLocation"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -131,8 +135,8 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          'import <i>;<}>
          '
          'public abstract class <ast.name> extends AbstractAST {
-         '  public <ast.name>(IConstructor node) {
-         '    super();
+         '  public <ast.name>(ISourceLocation src, IConstructor node) {
+         '    super(src /* we forget node on purpose */);
          '  }
          '
          '  <for (arg(typ, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
@@ -175,6 +179,33 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  }
          '
          '  @Override
+         '  protected void addForLineNumber(int $line, java.util.List\<AbstractAST\> $result) {
+         '    if (getLocation().getBeginLine() == $line) {
+         '      $result.add(this);
+         '    }
+         '    ISourceLocation $l;
+         '    <for (arg(typ, name) <- sig.args) {><if (/java.util.List/ := typ) {>
+         '    for (AbstractAST $elem : <name>) {
+         '      $l = $elem.getLocation();
+         '      if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '        $elem.addForLineNumber($line, $result);
+         '      }
+         '      if ($l.getBeginLine() \> $line) {
+         '        return;
+         '      }
+         '
+         '    }<} else {>
+         '    $l = <name>.getLocation();
+         '    if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '      <name>.addForLineNumber($line, $result);
+         '    }
+         '    if ($l.getBeginLine() \> $line) {
+         '      return;
+         '    }
+         '    <}><}>
+         '  }
+         '
+         '  @Override
          '  public boolean equals(Object o) {
          '    if (!(o instanceof <sig.name>)) {
          '      return false;
@@ -198,14 +229,23 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  public boolean has<cname>() {
          '    return true;
          '  }<}>	
+         '
+         '  @Override
+         '  public Object clone()  {
+         '    return newInstance(getClass(), src, (IConstructor) null <cloneActuals(sig.args)>);
+         '  }
+         '  <if (sig.breakable) {>@Override
+         '  public boolean isBreakable() {
+         '    return true;
+         '  }<}>        
          '}";
 }
 
 public str lexicalClass(str name) {
   return "static public class Lexical extends <name> {
          '  private final java.lang.String string;
-         '  public Lexical(IConstructor node, java.lang.String string) {
-         '    super(node);
+         '  public Lexical(ISourceLocation src, IConstructor node, java.lang.String string) {
+         '    super(src, node);
          '    this.string = string;
          '  }
          '  public java.lang.String getString() {
@@ -220,6 +260,11 @@ public str lexicalClass(str name) {
          '  @Override
          '  public boolean equals(Object o) {
          '    return o instanceof Lexical && ((Lexical) o).string.equals(string);  
+         '  }
+         '
+         '  @Override
+         '  public Object clone()  {
+         '    return newInstance(getClass(), src, (IConstructor) null, string);
          '  }
          '
          '  @Override
@@ -287,9 +332,17 @@ str actuals(list[Arg] args) {
   return (", <h.name>" | "<it>, <a>" | arg(_, a) <- tail(args) );
 }
 
+str cloneActuals(list[Arg] args) {
+  if (args == []) {
+     return "";
+  }
+  h = head(args);
+  return (", clone(<h.name>)" | "<it>, clone(<a>)" | arg(_, a) <- tail(args) );
+}
+
 public str construct(Sig sig) {
-  return "public <sig.name>(IConstructor node <signature(sig.args)>) {
-         '  super(node);
+  return "public <sig.name>(ISourceLocation src, IConstructor node <signature(sig.args)>) {
+         '  super(src, node);
          '  <for (arg(_, name) <- sig.args) {>
          '  this.<name> = <name>;<}>
          '}";

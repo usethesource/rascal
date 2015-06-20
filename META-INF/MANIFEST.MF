@@ -1,11 +1,21 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.2.qualifier
+Bundle-Version: 0.7.3.qualifier
 Export-Package: 
+ com.github.benmanes.caffeine,
+ com.github.benmanes.caffeine.base,
+ com.github.benmanes.caffeine.cache,
+ com.github.benmanes.caffeine.cache.stats,
+ com.github.benmanes.caffeine.cache.tracing,
+ com.github.benmanes.caffeine.locks,
+ de.ruedigermoeller.serialization,
+ de.ruedigermoeller.serialization.annotations,
+ de.ruedigermoeller.serialization.serializers,
+ de.ruedigermoeller.serialization.util,
  org.apache.commons.compress.compressors,
  org.apache.commons.compress.compressors.bzip2,
  org.apache.commons.compress.compressors.deflate,
@@ -74,15 +84,12 @@ Export-Package:
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
  org.rascalmpl.values,
- org.rascalmpl.values.errors,
- org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  org.tukaani.xz,
  org.yaml.snakeyaml
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
- org.jdom,
  org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
  org.apache.commons.lang,
@@ -112,4 +119,7 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/gson-2.2.4.jar,
  lib/xz-1.5.jar,
  lib/commons-compress-1.9.jar,
+ lib/jdom-2.0.6.jar,
+ lib/fst-1.34.jar,
+ lib/caffeine-1.2.0.jar,
  .

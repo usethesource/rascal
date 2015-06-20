@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class PatternWithAction extends AbstractAST {
-  public PatternWithAction(IConstructor node) {
-    super();
+  public PatternWithAction(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,14 +55,14 @@ public abstract class PatternWithAction extends AbstractAST {
   }
 
   static public class Arbitrary extends PatternWithAction {
-    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")])
+    // Production: sig("Arbitrary",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","statement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Statement statement;
   
-    public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
-      super(node);
+    public Arbitrary(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.statement = statement;
@@ -78,6 +79,31 @@ public abstract class PatternWithAction extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = statement.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        statement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Arbitrary)) {
         return false;
@@ -88,7 +114,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 443 * pattern.hashCode() + 433 * statement.hashCode() ; 
+      return 557 + 257 * pattern.hashCode() + 941 * statement.hashCode() ; 
     } 
   
     
@@ -110,20 +136,26 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasStatement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(statement));
+    }
+            
   }
   public boolean isReplacing() {
     return false;
   }
 
   static public class Replacing extends PatternWithAction {
-    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")])
+    // Production: sig("Replacing",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Replacement","replacement")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Replacement replacement;
   
-    public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
-      super(node);
+    public Replacing(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
+      super(src, node);
       
       this.pattern = pattern;
       this.replacement = replacement;
@@ -140,6 +172,31 @@ public abstract class PatternWithAction extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = replacement.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        replacement.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Replacing)) {
         return false;
@@ -150,7 +207,7 @@ public abstract class PatternWithAction extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 251 * pattern.hashCode() + 29 * replacement.hashCode() ; 
+      return 601 + 239 * pattern.hashCode() + 241 * replacement.hashCode() ; 
     } 
   
     
@@ -172,5 +229,11 @@ public abstract class PatternWithAction extends AbstractAST {
     public boolean hasReplacement() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(replacement));
+    }
+            
   }
 }

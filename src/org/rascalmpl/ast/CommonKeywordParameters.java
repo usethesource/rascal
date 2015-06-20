@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class CommonKeywordParameters extends AbstractAST {
-  public CommonKeywordParameters(IConstructor node) {
-    super();
+  public CommonKeywordParameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,12 +41,12 @@ public abstract class CommonKeywordParameters extends AbstractAST {
   }
 
   static public class Absent extends CommonKeywordParameters {
-    // Production: sig("Absent",[])
+    // Production: sig("Absent",[],breakable=false)
   
     
   
-    public Absent(IConstructor node ) {
-      super(node);
+    public Absent(ISourceLocation src, IConstructor node ) {
+      super(src, node);
       
     }
   
@@ -60,6 +61,15 @@ public abstract class CommonKeywordParameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Absent)) {
         return false;
@@ -70,23 +80,29 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 337 ; 
+      return 157 ; 
     } 
   
     	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
   }
   public boolean isPresent() {
     return false;
   }
 
   static public class Present extends CommonKeywordParameters {
-    // Production: sig("Present",[arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")])
+    // Production: sig("Present",[arg("java.util.List\<org.rascalmpl.ast.KeywordFormal\>","keywordFormalList")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList;
   
-    public Present(IConstructor node , java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
-      super(node);
+    public Present(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.KeywordFormal> keywordFormalList) {
+      super(src, node);
       
       this.keywordFormalList = keywordFormalList;
     }
@@ -102,6 +118,25 @@ public abstract class CommonKeywordParameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : keywordFormalList) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Present)) {
         return false;
@@ -112,7 +147,7 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 83 * keywordFormalList.hashCode() ; 
+      return 443 + 503 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -125,5 +160,11 @@ public abstract class CommonKeywordParameters extends AbstractAST {
     public boolean hasKeywordFormalList() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(keywordFormalList));
+    }
+            
   }
 }

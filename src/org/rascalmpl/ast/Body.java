@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Body extends AbstractAST {
-  public Body(IConstructor node) {
-    super();
+  public Body(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Body extends AbstractAST {
   }
 
   static public class Toplevels extends Body {
-    // Production: sig("Toplevels",[arg("java.util.List\<org.rascalmpl.ast.Toplevel\>","toplevels")])
+    // Production: sig("Toplevels",[arg("java.util.List\<org.rascalmpl.ast.Toplevel\>","toplevels")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Toplevel> toplevels;
   
-    public Toplevels(IConstructor node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
-      super(node);
+    public Toplevels(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
+      super(src, node);
       
       this.toplevels = toplevels;
     }
@@ -62,6 +63,25 @@ public abstract class Body extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : toplevels) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Toplevels)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class Body extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 863 + 173 * toplevels.hashCode() ; 
+      return 743 + 137 * toplevels.hashCode() ; 
     } 
   
     
@@ -85,5 +105,11 @@ public abstract class Body extends AbstractAST {
     public boolean hasToplevels() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(toplevels));
+    }
+            
   }
 }

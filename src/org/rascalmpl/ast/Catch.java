@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Catch extends AbstractAST {
-  public Catch(IConstructor node) {
-    super();
+  public Catch(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,14 +48,14 @@ public abstract class Catch extends AbstractAST {
   }
 
   static public class Binding extends Catch {
-    // Production: sig("Binding",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("Binding",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Statement","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression pattern;
     private final org.rascalmpl.ast.Statement body;
   
-    public Binding(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
-      super(node);
+    public Binding(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.pattern = pattern;
       this.body = body;
@@ -71,6 +72,31 @@ public abstract class Catch extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = pattern.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        pattern.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = body.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        body.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Binding)) {
         return false;
@@ -81,7 +107,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 859 * pattern.hashCode() + 461 * body.hashCode() ; 
+      return 499 + 113 * pattern.hashCode() + 601 * body.hashCode() ; 
     } 
   
     
@@ -103,19 +129,25 @@ public abstract class Catch extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(pattern), clone(body));
+    }
+            
   }
   public boolean isDefault() {
     return false;
   }
 
   static public class Default extends Catch {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","body")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","body")],breakable=false)
   
     
     private final org.rascalmpl.ast.Statement body;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Statement body) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Statement body) {
+      super(src, node);
       
       this.body = body;
     }
@@ -131,6 +163,23 @@ public abstract class Catch extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = body.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        body.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -141,7 +190,7 @@ public abstract class Catch extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 409 * body.hashCode() ; 
+      return 757 + 443 * body.hashCode() ; 
     } 
   
     
@@ -154,5 +203,11 @@ public abstract class Catch extends AbstractAST {
     public boolean hasBody() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(body));
+    }
+            
   }
 }

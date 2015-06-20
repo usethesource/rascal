@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class DateTimeLiteral extends AbstractAST {
-  public DateTimeLiteral(IConstructor node) {
-    super();
+  public DateTimeLiteral(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -54,13 +55,13 @@ public abstract class DateTimeLiteral extends AbstractAST {
   }
 
   static public class DateAndTimeLiteral extends DateTimeLiteral {
-    // Production: sig("DateAndTimeLiteral",[arg("org.rascalmpl.ast.DateAndTime","dateAndTime")])
+    // Production: sig("DateAndTimeLiteral",[arg("org.rascalmpl.ast.DateAndTime","dateAndTime")],breakable=false)
   
     
     private final org.rascalmpl.ast.DateAndTime dateAndTime;
   
-    public DateAndTimeLiteral(IConstructor node , org.rascalmpl.ast.DateAndTime dateAndTime) {
-      super(node);
+    public DateAndTimeLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DateAndTime dateAndTime) {
+      super(src, node);
       
       this.dateAndTime = dateAndTime;
     }
@@ -76,6 +77,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = dateAndTime.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        dateAndTime.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateAndTimeLiteral)) {
         return false;
@@ -86,7 +104,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 5 + 179 * dateAndTime.hashCode() ; 
+      return 643 + 751 * dateAndTime.hashCode() ; 
     } 
   
     
@@ -99,19 +117,25 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasDateAndTime() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(dateAndTime));
+    }
+            
   }
   public boolean isDateLiteral() {
     return false;
   }
 
   static public class DateLiteral extends DateTimeLiteral {
-    // Production: sig("DateLiteral",[arg("org.rascalmpl.ast.JustDate","date")])
+    // Production: sig("DateLiteral",[arg("org.rascalmpl.ast.JustDate","date")],breakable=false)
   
     
     private final org.rascalmpl.ast.JustDate date;
   
-    public DateLiteral(IConstructor node , org.rascalmpl.ast.JustDate date) {
-      super(node);
+    public DateLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.JustDate date) {
+      super(src, node);
       
       this.date = date;
     }
@@ -127,6 +151,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = date.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        date.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof DateLiteral)) {
         return false;
@@ -137,7 +178,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 59 * date.hashCode() ; 
+      return 907 + 857 * date.hashCode() ; 
     } 
   
     
@@ -150,19 +191,25 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasDate() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(date));
+    }
+            
   }
   public boolean isTimeLiteral() {
     return false;
   }
 
   static public class TimeLiteral extends DateTimeLiteral {
-    // Production: sig("TimeLiteral",[arg("org.rascalmpl.ast.JustTime","time")])
+    // Production: sig("TimeLiteral",[arg("org.rascalmpl.ast.JustTime","time")],breakable=false)
   
     
     private final org.rascalmpl.ast.JustTime time;
   
-    public TimeLiteral(IConstructor node , org.rascalmpl.ast.JustTime time) {
-      super(node);
+    public TimeLiteral(ISourceLocation src, IConstructor node , org.rascalmpl.ast.JustTime time) {
+      super(src, node);
       
       this.time = time;
     }
@@ -178,6 +225,23 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = time.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        time.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof TimeLiteral)) {
         return false;
@@ -188,7 +252,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 + 149 * time.hashCode() ; 
+      return 373 + 149 * time.hashCode() ; 
     } 
   
     
@@ -201,5 +265,11 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public boolean hasTime() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(time));
+    }
+            
   }
 }

@@ -14,6 +14,7 @@ import Message;
 import Set;
 import util::Reflective;
 import ParseTree;
+import util::SystemAPI;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -49,11 +50,11 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 bool checkModuleOK(loc moduleToCheck){
 	c = newConfiguration();							// Copied from checkStatementsString
 	try {
-		pt = parse(#start[Module],moduleToCheck);
+		pt = parse(#start[Module], moduleToCheck);
 		if (pt has top && Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
-			c = addScopeError(c, "Unexpected parse result for module to check", moduleToCheck); 
+			c = addScopeError(c, "Unexpected parse result for module to check: <pt>", moduleToCheck); 
 		}
 	} catch perror : {
 		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleToCheck);
@@ -160,6 +161,15 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 
 	
 void makeModule(str name, str body){
-	mloc = |tmp:///<name>.rsc|;
-    writeFile(mloc, "module <name>\n<body>");
+	tmpdir = getSystemProperty("java.io.tmpdir");
+	test_modules = |file:///| + tmpdir + "/test-modules";
+	if(!exists(test_modules)){
+		mkDirectory(test_modules);
+	}
+   
+	mloc = |test-modules:///<name>.rsc|;
+    writeFile(mloc, "module <name>
+                     <body>");
+    println("makeModule: <name>, <body>");
+    println("<test_modules>/<name>.rsc: <readFile(mloc)>");
 }

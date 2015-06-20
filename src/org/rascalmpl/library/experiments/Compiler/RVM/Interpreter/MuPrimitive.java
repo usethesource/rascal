@@ -1,9 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,11 +25,13 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -221,21 +227,19 @@ public enum MuPrimitive {
 			default:
 				step = 2;
 			}
-
-			int len = (args.length() / step) + 1;
 			int non_lit_len = 0;
 
-			
-			for(int i = 0; i < len; i += step){
-				if(!$is_literal(args.get(i * step))){
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
 					non_lit_len++;
 				}
 			}
 			Object[] elems = new Object[non_lit_len + 1];
+			
 			int j = 0;
-			for(int i = 0; i < len; i += step){
-				if(!$is_literal(args.get(i * step))){
-					elems[j++] = args.get(i * step);
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					elems[j++] = args.get(i);
 				}
 			}
 			elems[non_lit_len] = emptyKeywordMap;
@@ -488,35 +492,23 @@ public enum MuPrimitive {
 	 * 
 	 * [ ..., IValue, IString label ] => [ ..., mbool ]
 	 */
+	// TODO rename to more parse tree specific?
 	has_label {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			IValue v = (IValue) stack[sp - 2];;
-			if(v.getType().isAbstractData()){
-				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("appl")){
-					IConstructor prod = (IConstructor) cons.get(0);
-					IConstructor symbol = (IConstructor) prod.get(0);
-					
-					if(symbol.getName().equals("label")){
-						IString label_name = (IString) stack[sp - 1];
-						if(((IString) symbol.get(0)).equals(label_name)){
-							stack[sp - 2] = Rascal_TRUE;
-							return sp - 1;
-						}
-					}
-					
+			IValue v = (IValue) stack[sp - 2];
+			Type vt = v.getType();
+			String label_name = ((IString) stack[sp - 1]).getValue();
+			
+			if (isNonTerminalType(vt)) {
+				ITree cons = (ITree) v;
+				if (TreeAdapter.isAppl(cons)) {
+					String treeLabel = TreeAdapter.getConstructorName(cons);
+					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? Rascal_TRUE : Rascal_FALSE;
+					return sp - 1;
 				}
 			}
-//			if(v instanceof IConstructor && TreeAdapter.isAppl((IConstructor)v)){
-//				IConstructor prod = (IConstructor) ((IConstructor) v).get(0);
-//				IConstructor def = (IConstructor) prod.get(0);
-//				if(((IString) stack[sp - 1]).getValue().equals(SymbolAdapter.getLabelName(def))){
-//					stack[sp - 2] = Rascal_TRUE;
-//					return sp - 1;
-//				}
-//			}
 			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 		}
@@ -594,9 +586,13 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isAbstractData());	// TODO is this ok?
+			Type t = ((IValue) stack[sp - 1]).getType();
+			// TODO: review if is_constructor still needs true on parse trees
+			stack[sp - 1] = vf.bool(t.isAbstractData() || isNonTerminalType(t));
 			return sp;
-		};
+		}
+
+		
 	},
 	
 	/**
@@ -990,10 +986,10 @@ public enum MuPrimitive {
 					if(cons.getName().equals("prod")){
 						mset.add(cons);							// Add the production itself to the set
 					//} else if(cons.getName().equals("regular")){
-					} else if(consType == Factory.Symbol_IterPlus || 
-							  consType == Factory.Symbol_IterStar ||
-							  consType == Factory.Symbol_IterSepX || 
-							  consType == Factory.Symbol_IterStarSepX){
+					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
+							  consType == RascalValueFactory.Symbol_IterStar ||
+							  consType == RascalValueFactory.Symbol_IterSepX || 
+							  consType == RascalValueFactory.Symbol_IterStarSepX){
 						mset.add(cons);							// Add as SYMBOL to the set
 					} else {
 						Type tp = reifier.symbolToType(cons, definitions);
@@ -1115,6 +1111,40 @@ public enum MuPrimitive {
 		};
 	},
 	
+	make_iterator {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Object iteratee = stack[sp - 1];
+			if(iteratee instanceof Object[]){
+				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+			} else {
+				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
+			}
+			return sp;
+		};
+	},
+	iterator_hasNext {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
+			stack[sp - 1] = vf.bool(iter.hasNext());
+			return sp;
+		};
+	},
+	iterator_next {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
+			stack[sp - 1] = iter.next();
+			return sp;
+		};
+	},
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1229,7 +1259,7 @@ public enum MuPrimitive {
 	mset_set_subtract_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
+			assert arity == 2;
 			ISet set1 = ((ISet) stack[sp - 2]);
 			int n = set1.size();
 			ISet set2 = ((ISet) stack[sp - 1]);
@@ -1241,7 +1271,7 @@ public enum MuPrimitive {
 				}
 			}
 			stack[sp - 2] = mset;
-			return sp -1;
+			return sp - 1;
 		};
 	},
 	
@@ -1595,17 +1625,32 @@ public enum MuPrimitive {
 	
 	/**
 	 * Compile a RegExp Matcher given:
-	 * - IString1, the regexp
-	 * - IString2, the subject string
+	 * - IString, the regexp
+	 * - IValue, the subject string, either an IString or an arbitrary IValue (always a ParseTree).
 	 * 
-	 * [ ..., IString1, IString2 ] => [ ..., Matcher ]
+	 * [ ..., IString regexp, IValue subject ] => [ ..., Matcher ]
 	 */
 	regexp_compile {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
 			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
-			String subject = ((IString) stack[sp - 1]).getValue();
+			IValue isubject = (IValue) stack[sp - 1];
+			String subject;
+			if(isubject instanceof IString){
+				subject =  ((IString) isubject).getValue();
+			} else {
+				StringWriter w = new StringWriter();
+				IConstructor c = (IConstructor) isubject;
+				try {
+					TreeAdapter.unparse(c, w);
+				} catch (FactTypeUseException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				subject = w.toString();
+			}
+			//System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\" len = " + subject.length());
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
@@ -1943,6 +1988,20 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/**
+	 * Object = array[int]
+	 * 
+	 * [ ..., array, int ] => [ ..., Object ]
+	 *
+	 */
+	subscript_array_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
+			return sp - 1;
+		};
+	},
 	
 	/**
 	 * IValue = IList[mint]
@@ -2111,27 +2170,42 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-
 	/**
-	 * Get type of mint, IConstructor or IValue
+	 * Make a new subject: [iValue, mint]
 	 * 
-	 * [ ..., IConstructorEtc ] => [ ..., Type ]
+	 * [ ..., iValue, mint ] => [ ..., [iValue, mint] ]
 	 *
 	 */
-	typeOf_constructor {
+	make_subject {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			Object[] subject = new Object[2];
+			subject[0] = stack[sp - 2];
+			subject[1] = stack[sp - 1];
+			stack[sp - 2] = subject;
+			return sp - 1;
+		};
+	},
+	/**
+	 * Accept a list match when end of subject has been reached
+	 * 
+	 * [ ..., [iList, mint] ] => [ ..., ilist.length() == mint ]
+	 *
+	 */
+	accept_list_match {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			if (stack[sp - 1] instanceof Integer) {
-				stack[sp - 1] = TypeFactory.getInstance().integerType();
-			} else if (stack[sp - 1] instanceof IConstructor) {
-				stack[sp - 1] = ((IConstructor) stack[sp - 1]).getConstructorType();
-			} else {
-				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-			}
+			Object[] subject = (Object[]) stack[sp - 1];
+			IList listSubject = (IList) subject[0];
+			Integer cursor = (Integer) subject[1];
+			stack[sp - 1] = listSubject.length() == cursor ? Rascal_TRUE : Rascal_FALSE;
 			return sp;
-		}
-	};
+		};
+	}
+	
+	;
 
 	private static IValueFactory vf;
 
@@ -2148,6 +2222,10 @@ public enum MuPrimitive {
 		return values[muprim];
 	}
 
+	private static boolean isNonTerminalType(Type t) {
+		return t.isExternalType() && ((RascalType) t).isNonterminal();
+	}
+	
 	public int execute(final Object[] stack, final int sp, final int arity) {
 		System.err.println("Not implemented mufunction");
 		return 0;
@@ -2174,9 +2252,15 @@ public enum MuPrimitive {
 	 * @return true if v is a 'lit' or 'cilit'.
 	 */
 	private static boolean $is_literal(final IValue v){
-		if(v instanceof IConstructor){
-			IConstructor cons = (IConstructor) v;
-			return TreeAdapter.isLiteral(cons) || TreeAdapter.isCILiteral(cons);
+		if(isNonTerminalType(v.getType())) {
+			return TreeAdapter.isLiteral((ITree) v);
+		}
+		return false;
+	}
+	
+	private static boolean $is_layout(final IValue v){
+		if (isNonTerminalType(v.getType())) {
+			return TreeAdapter.isLayout((ITree) v);
 		}
 		return false;
 	}
@@ -2206,4 +2290,29 @@ public enum MuPrimitive {
 		return (IBool) descendantDescriptor[2];
 	}
 	 
+	
 }
+
+class ArrayIterator<T> implements Iterator<T> {
+	  private T array[];
+	  private int pos = 0;
+
+	  public ArrayIterator(T anArray[]) {
+	    array = anArray;
+	  }
+
+	  public boolean hasNext() {
+	    return pos < array.length;
+	  }
+
+	  public T next() throws NoSuchElementException {
+	    if (hasNext())
+	      return array[pos++];
+	    else
+	      throw new NoSuchElementException();
+	  }
+
+	  public void remove() {
+	    throw new UnsupportedOperationException();
+	  }
+	}

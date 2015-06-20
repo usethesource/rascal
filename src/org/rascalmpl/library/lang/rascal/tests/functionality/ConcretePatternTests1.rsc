@@ -2,20 +2,39 @@ module lang::rascal::tests::functionality::ConcretePatternTests1
 
 import ParseTree;
 
-
 syntax OptTestGrammar = A? a B b;
 
 syntax A = "a";
 syntax As = A+;
 
 syntax B = "b";
-syntax Bs = B*;
+syntax Bs = B* bs;
+
+syntax AB = (A | B)*;
+syntax ABs = (As | Bs)*;
+syntax A2 = [A]+ !>> [A];
+syntax B2 = [B]+ !>> [B];
+syntax AB2 = (A2 | B2)*;
 
 syntax C = "c";
 syntax Cs = {C ","}+;
 
 syntax D = "d";
-syntax Ds = {D ","}*;
+syntax Ds = {D ","}* ds;
+
+lexical E = "e";
+lexical Es = {E ","}* es;
+
+lexical F = "f";
+lexical Fs = F* fs;
+
+lexical EF = (E | F)*;
+lexical EFs = (Es | Fs)*;
+
+start syntax XorY = x : "x" | y : "y";
+
+lexical Layout = [.;];
+layout L = Layout* !>> [.;];
 
 lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
 lexical Mies = ([ab] [cd]);
@@ -93,11 +112,115 @@ test bool concreteMatch50() = (Ds) `<{D ","}* ds1>,<{D ","}* ds2>,d` := [Ds] "d"
 test bool concreteMatch51() = (Ds) `<{D ","}* ds1>,d,d,<{D ","}* ds2>,d` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 test bool concreteMatch52() = (Ds) `<{D ","}* ds1>,d,d,d,<{D ","}* ds2>` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 
+test bool concreteListEnum1() = ["<x>" | B x <- ((Bs) ``).bs] == [];
+test bool concreteListEnum2() = ["<x>" | B x <- ((Bs) `b`).bs] == ["b"];
+test bool concreteListEnum3() = ["<x>" | B x <- ((Bs) `bbbbb`).bs] == ["b", "b", "b", "b", "b"];
+test bool concreteListEnum4() = ["<x>" | D x <- ((Ds) ``).ds] == [];
+test bool concreteListEnum5() = ["<x>" | D x <- ((Ds) `d`).ds] == ["d"];
+test bool concreteListEnum6() = ["<x>" | D x <- ((Ds) `d,d,d,d,d`).ds] == ["d", "d", "d", "d", "d"];
+
+test bool lexicalListEnum1() = ["<x>" | E x <- ((Es) `e,e,e,e,e,e,e`).es] == ["e", "e", "e", "e", "e", "e", "e"];
+test bool lexicalListEnum2() = ["<x>" | F x <- ((Fs) `ffffff`).fs] == ["f", "f", "f", "f", "f", "f"];
+
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
+
+
+test bool concreteMatchVisit() {
+  result = false;
+  visit ([A]"a") {
+    case (A)`<A _>`: result = true;
+  }
+  return result;
+}
+test bool concreteMatchVisit() {
+  result = 0;
+  visit ([As]"aaa") {
+    case (A)`<A _>`: result += 1;
+  }
+  return result == 3;
+}
+
+@ignoreInterpreter{While this should work, the fix is to large, and there are workarounds}
+test bool concreteMatchVisitLayout() {
+  result = false;
+  visit ([start[XorY]] ".x.") {
+    case (Layout)`.`: result = true;
+  }
+  return result;
+}
+test bool concreteReplaceInLayout() 
+  = visit([start[XorY]] ".x;") {
+    case (Layout)`.` => (Layout)`;`
+  } == [start[XorY]] ";x;";
+
+test bool concreteMatchWithStart()
+  = /XorY _ := [start[XorY]]";x;";
+
+test bool concreteSwitch1(){
+	switch([XorY] "x"){
+		case (XorY) `x`: return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch2(){
+	switch([XorY] "x"){
+		case (XorY) `x`: return true;
+		case (XorY) `y`: return false;
+	}
+	return false;
+}
+
+test bool concreteSwitch3(){
+	switch([XorY] "y"){
+		case (XorY) `x`: return false;
+		case (XorY) `y`: return true;
+	}
+	return false;
+}
+
+test bool concreteSwitch4(){
+	switch([XorY] "y"){
+		case x(): 		 throw "fail to due extra match";
+		case (XorY) `y`: return true;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch5(){
+	switch([XorY] "y"){
+		case (XorY) `x`: throw "fail to due extra match"; 
+		case y(): 		 return true;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch6(){
+	switch([XorY] "y"){
+		case x(): 		 throw "fail to due extra match";
+		case y(): 		 return true;
+	}
+	throw "fail due to missing match";
+}
+
+test bool matchInsideLexicalCyclicGrammar1() 
+    = /E _ := [EFs]"eefef";
+
+test bool matchInsideLexical() 
+    = /E _ := [EF]"eefef";
+
+test bool matchInsideSyntaxCyclicGrammar2()
+    = /A _ := [ABs]"bbaab";
+
+test bool matchInsideSyntax()
+    = /A _ := [AB]"bbaab";
+    
+test bool matchInsideSyntax2()
+    = /A2 _ := [AB2]"AABBAA";
+
+value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  
-@ignoreCompiler{Not yet implemented in typechcker}
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-@ignoreCompiler{Not yet implemented in typechcker}
 test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

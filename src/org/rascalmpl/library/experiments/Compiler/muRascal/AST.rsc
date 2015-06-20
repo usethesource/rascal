@@ -4,6 +4,7 @@ import Message;
 import List;
 import Node;
 import Type;   
+import ParseTree;
 
 /*
  * Abstract syntax for muRascal.
@@ -15,8 +16,10 @@ import Type;
 
 public data MuModule =											
               muModule(str name, 
+              		   map[str,str] tags,
                        set[Message] messages,
                        list[loc] imports,
+                       list[loc] extends,
               		   map[str,Symbol] types, 
               		   map[Symbol, Production] symbol_definitions,
                        list[MuFunction] functions, 
@@ -24,19 +27,19 @@ public data MuModule =
                        list[MuExp] initialization,
                        int nlocals_in_initializations,
                        map[str,int] resolver,
-                       lrel[str,list[str],list[str]] overloaded_functions,
+                       lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
                        map[Symbol, Production] grammar,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
-                           loc src, list[str] modifiers, map[str,str] tags,
+                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, bool isPublic,
+                           loc src, list[str] modifiers, map[str,str] tags, bool isConcreteArg, int abstractFingerprint, int concreteFingerprint,
                            MuExp body)
               | muCoroutine(str qname, str uqname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)
           ;
@@ -60,20 +63,26 @@ public data MuExp =
 			muBool(bool b)										// muRascal Boolean constant
 		  | muInt(int n)										// muRascal integer constant
           | muCon(value c)										// Rascal Constant: an arbitrary IValue
+          | muTreeCon(Tree tree)								// Unused, but forces Tree to be part of the type MuModule.
+	   															// This is necessary to guarantee correct (de)serialization and can be removed
+	   															// when (de)serialization has been improved.
             													// Some special cases are handled by preprocessor, see below.
-          | muLab(str name)										// Label
+          | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
+ //         | muLab(str name)										// Label
           
-          | muFun1(str fuid)							            // *muRascal function constant: functions at the root
-          | muFun2(str fuid, str scopeIn)                        // *muRascal function constant: nested functions and closures
+          | muFun1(str fuid)							        // *muRascal* function constant: functions at the root
+          | muFun2(str fuid, str scopeIn)                       // *muRascal* function constant: nested functions and closures
           
-          | muOFun(str fuid)                                    // *Rascal functions, i.e., overloaded function at the root
+          | muOFun(str fuid)                                    // *Rascal* function, i.e., overloaded function at the root
           
-          | muConstr(str fuid) 									// Constructors
+          | muConstr(str fuid) 									// Constructor
           
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
+          | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
           | muTmp(str name, str fuid)							// Temporary variable introduced by front-end
+       
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, str fuid, int pos)
@@ -111,12 +120,14 @@ public data MuExp =
           			   list[MuExp] largs)						// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
-          | muReturn1(MuExp exp)									// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)               // Return from a coroutine with multiple values
+          | muReturn1(MuExp exp)								// Return from a function with value
+          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
+          
+          | muInsert(MuExp exp)									// Insert statement
               
-           // Assignment, If and While
+          // Assignment, If and While
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
@@ -138,7 +149,7 @@ public data MuExp =
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
          	
-          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
+          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
           
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
@@ -165,10 +176,10 @@ public data MuExp =
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
-          | muOne1(MuExp exp)                                    // Expression that always produces only the first value
-          | muOne2(list[MuExp] exps)								// Compute one result for a list of boolean expressions
-          | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-          | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
+          | muOne1(MuExp exp)                                   // Expression that always produces only the first value
+          //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
+         // | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+         // | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
           // Exceptions
           
@@ -180,9 +191,9 @@ public data MuExp =
           
           // Delimited continuations (experimental)
           
-          | muContVar(str fuid)
-          | muReset(MuExp fun)
-          | muShift(MuExp exp)
+          //| muContVar(str fuid)
+          //| muReset(MuExp fun)
+          //| muShift(MuExp exp)
           ;
           
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
@@ -374,6 +385,11 @@ MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2)], loc src) = muCon(<v1, 
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
 MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6)], loc src) = muCon(<v1, v2, v3, v4, v5, v6>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
+MuExp muCallPrim3("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
 
 MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);

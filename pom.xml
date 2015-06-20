@@ -6,11 +6,11 @@
 		<relativePath>../rascal-pom-parent/pom.xml</relativePath>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-pom-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal</artifactId>
-	<version>0.7.2.qualifier</version>
+	<version>0.7.3.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -35,6 +35,13 @@
 		      <include>META-INF/RASCAL.MF</include>
 		    </includes>
 		  </resource>
+		  <resource>
+		    <directory>test</directory>
+		    <filtering>false</filtering>
+		    <includes>
+			  <include>org/rascalmpl/test/data/**/*</include>
+		    </includes>
+		  </resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
@@ -44,6 +51,9 @@
 					<exclude>**/*.java</exclude>
 					<exclude>**/*.class</exclude>
 				</excludes>
+			</testResource>
+			<testResource>
+				<directory>test/org/rascalmpl/test/data/</directory>
 			</testResource>
 		</testResources>
 
@@ -63,9 +73,10 @@
 				</executions>
 				<configuration>
 					<argLine>
-                  -ea
+                  		-ea
 						-Xmx1g
 						-Xss128m
+						-Dfile.encoding=UTF-8
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
@@ -80,9 +91,9 @@
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>
 			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.1.qualifier</version>
-		</dependency>	
-		
+			<version>0.4.3.qualifier</version>
+		</dependency>
+
 		<!-- Rascal MANIFEST.MF Dependencies -->
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -103,7 +114,16 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
-		</dependency>            
+		</dependency>
+		<dependency>
+    		<groupId>com.github.ben-manes.caffeine</groupId>
+    		<artifactId>caffeine</artifactId>
+    		<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>de.ruedigermoeller</groupId>
+			<artifactId>fst</artifactId>
+			<version>1.34</version>
+		</dependency>
 	</dependencies>
-
 </project>

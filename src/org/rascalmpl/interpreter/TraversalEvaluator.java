@@ -57,8 +57,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -255,32 +255,34 @@ public class TraversalEvaluator {
 			return subject; // constants have no children to traverse into
 		} 
 
-		if (casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isChar(cons)) {
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isChar((ITree) cons)) {
 				return subject; // we dont traverse into the structure of literals and characters
 		}
 
 		IValue args[] = new IValue[cons.arity()];
-
-		if (casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isAppl(cons)){
+		
+		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) cons)){
+			ITree tree = (ITree)cons;
+			
 			// Constructor is "appl": we are dealing with a syntax tree
 			// - Lexical or literal are returned immediately
 
-			if (TreeAdapter.isLexical(cons)|| TreeAdapter.isLiteral(cons)){
+			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree)){
 				return subject; // we dont traverse into the structure of literals, lexicals, and characters
 			}
 			
 			// Otherwise:
 			// - Copy prod node verbatim to result
 			// - Only visit non-layout nodes in argument list
-			args[0] = TreeAdapter.getProduction(cons);
-			IList list = TreeAdapter.getArgs(cons);
+			args[0] = TreeAdapter.getProduction(tree);
+			IList list = TreeAdapter.getArgs(tree);
 			int len = list.length();
 
 			if (len > 0) {
-				IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
+				IListWriter w = eval.getValueFactory().listWriter();
 				boolean hasChanged = false;
 				boolean hasMatched = false;
-				boolean isTop = TreeAdapter.isTop(cons);
+				boolean isTop = TreeAdapter.isTop(tree);
 				
 				if (isTop) {
 					w.append(list.get(0)); // copy layout before
@@ -352,10 +354,11 @@ public class TraversalEvaluator {
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
 		    // defined in the current scope. For example, when data was serialized and the format
-		    // has changed in the meantime. We issue a warning, because it is indicative of a bug
+		    // has changed in the meantime, or when a generic function from a library calls visit.
+			//
+			// We issue a warning, because it is indicative of a bug
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
-		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
 		    if (kwParams != null) {
 		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, kwParams);
 		    }
@@ -379,7 +382,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IMap map = (IMap) subject;
 		if(!map.isEmpty()){
-			IMapWriter w = eval.getValueFactory().mapWriter(map.getType());
+			IMapWriter w = eval.getValueFactory().mapWriter();
 			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
@@ -410,7 +413,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		ISet set = (ISet) subject;
 		if(!set.isEmpty()){
-			ISetWriter w = eval.getValueFactory().setWriter(set.getType().getElementType());
+			ISetWriter w = eval.getValueFactory().setWriter();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -435,7 +438,7 @@ public class TraversalEvaluator {
 		IList list = (IList) subject;
 		int len = list.length();
 		if (len > 0){
-			IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
+			IListWriter w = eval.getValueFactory().listWriter();
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			

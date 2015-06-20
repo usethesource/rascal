@@ -27,8 +27,8 @@ import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
-
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 /*
 * S ::= E
 * E ::= E + E | E * E | 1
@@ -36,23 +36,23 @@ import org.rascalmpl.values.uptr.Factory;
 * NOTE: This test, tests prefix sharing.
 */
 @SuppressWarnings({"unchecked", "cast"})
-public class Ambiguous9 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
-	private final static IConstructor SYMBOL_E = VF.constructor(Factory.Symbol_Sort, VF.string("E"));
-	private final static IConstructor SYMBOL_plus = VF.constructor(Factory.Symbol_Lit, VF.string("+"));
-	private final static IConstructor SYMBOL_star = VF.constructor(Factory.Symbol_Lit, VF.string("*"));
-	private final static IConstructor SYMBOL_1 = VF.constructor(Factory.Symbol_Lit, VF.string("1"));
-	private final static IConstructor SYMBOL_char_plus = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(43))));
-	private final static IConstructor SYMBOL_char_star = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(42))));
-	private final static IConstructor SYMBOL_char_1 = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(49))));
+public class Ambiguous9 extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
+	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_E = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("E"));
+	private final static IConstructor SYMBOL_plus = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("+"));
+	private final static IConstructor SYMBOL_star = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("*"));
+	private final static IConstructor SYMBOL_1 = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("1"));
+	private final static IConstructor SYMBOL_char_plus = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(43))));
+	private final static IConstructor SYMBOL_char_star = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(42))));
+	private final static IConstructor SYMBOL_char_1 = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(49))));
 	
-	private final static IConstructor PROD_S_E = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_E), VF.set());
-	private final static IConstructor PROD_E_EplusE = VF.constructor(Factory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_E, SYMBOL_plus, SYMBOL_E), VF.set());
-	private final static IConstructor PROD_E_EstarE = VF.constructor(Factory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_E, SYMBOL_star, SYMBOL_E), VF.set());
-	private final static IConstructor PROD_E_1 = VF.constructor(Factory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_1), VF.set());
-	private final static IConstructor PROD_plus_plus = VF.constructor(Factory.Production_Default,  SYMBOL_plus, VF.list(SYMBOL_char_plus), VF.set());
-	private final static IConstructor PROD_star_star = VF.constructor(Factory.Production_Default,  SYMBOL_star, VF.list(SYMBOL_char_star), VF.set());
-	private final static IConstructor PROD_1_1 = VF.constructor(Factory.Production_Default,  SYMBOL_1, VF.list(SYMBOL_char_1), VF.set());
+	private final static IConstructor PROD_S_E = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_E), VF.set());
+	private final static IConstructor PROD_E_EplusE = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_E, SYMBOL_plus, SYMBOL_E), VF.set());
+	private final static IConstructor PROD_E_EstarE = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_E, SYMBOL_star, SYMBOL_E), VF.set());
+	private final static IConstructor PROD_E_1 = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_1), VF.set());
+	private final static IConstructor PROD_plus_plus = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_plus, VF.list(SYMBOL_char_plus), VF.set());
+	private final static IConstructor PROD_star_star = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_star, VF.list(SYMBOL_char_star), VF.set());
+	private final static IConstructor PROD_1_1 = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_1, VF.list(SYMBOL_char_1), VF.set());
 	
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode<IConstructor> NONTERMINAL_E0 = new NonTerminalStackNode<IConstructor>(0, 0, "E");
@@ -91,13 +91,13 @@ public class Ambiguous9 extends SGTDBF<IConstructor, IConstructor, ISourceLocati
 		return E_EXPECTS;
 	}
 	
-	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+	public ITree executeParser(){
+		return parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"E\")],{}),[amb({appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])])]),appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])])})])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), RascalValueFactory.uptr, RascalValueFactory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

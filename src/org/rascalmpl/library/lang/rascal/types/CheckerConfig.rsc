@@ -31,6 +31,7 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::types::CheckModule;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -129,10 +130,12 @@ data Configuration = config(set[Message] messages,
                             map[RName,int] globalSortMap,
                             map[int,value] deferredSignatures,
                             set[RName] unimportedNames,
-                            bool importing
+                            bool importing,
+                            rel[RName,RName] importGraph,
+                            set[RName] dirtyModules
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{});
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -651,7 +654,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
 	
-	int addAlias() {
+	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
 		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
 
@@ -663,21 +666,21 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	}
 
 	if (n notin c.typeEnv) {
-		itemId = addAlias();
+		itemId = addAliasAux();
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
 	} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
 		if (c.store[c.typeEnv[n]].rtype == rt) {
 			c.definitions = c.definitions + < c.typeEnv[n], l >;
 		} else {
-			itemId = addAlias();
+			itemId = addAliasAux();
 			c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
 		}
 	} else if (n in c.typeEnv) {
 		// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
-		itemId = addAlias();
+		itemId = addAliasAux();
 		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
 	}
 	

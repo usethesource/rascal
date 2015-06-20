@@ -13,25 +13,32 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.PreludeCompiled;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.ITree;
 
 public class ReflectiveCompiled extends Reflective {
 	
@@ -40,6 +47,24 @@ public class ReflectiveCompiled extends Reflective {
 	public ReflectiveCompiled(IValueFactory values){
 		super(values);
 		preludeCompiled = new PreludeCompiled(values);
+	}
+	
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
+		char[] data;
+		Reader textStream = null;
+		
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
+		try {
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
+		}
+		finally{
+			if(textStream != null){
+				textStream.close();
+			}
+		}
+		
+		return data;
 	}
 	
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
@@ -51,7 +76,13 @@ public class ReflectiveCompiled extends Reflective {
 	}
 	
 	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-		throw RascalRuntimeException.notImplemented("parseModule", null, null);
+		 IActionExecutor<ITree> actions = new NoActionExecutor();	
+		
+	     try {
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		} catch (IOException e) {
+			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+		}
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
@@ -63,7 +94,7 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		ISourceLocation uri = rex.getRascalResolver().resolveModule(modulePath.getValue());
+		ISourceLocation uri = rex.getRascalSearchPath().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RascalRuntimeException.io(modulePath, null);
 		}
@@ -82,7 +113,7 @@ public class ReflectiveCompiled extends Reflective {
 		}
 
 		try {
-			ISourceLocation uri = rex.getRascalResolver().resolvePath(value);
+			ISourceLocation uri = rex.getRascalSearchPath().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 

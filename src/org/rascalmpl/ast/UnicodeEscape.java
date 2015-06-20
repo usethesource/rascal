@@ -17,18 +17,19 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class UnicodeEscape extends AbstractAST {
-  public UnicodeEscape(IConstructor node) {
-    super();
+  public UnicodeEscape(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
 
   static public class Lexical extends UnicodeEscape {
   private final java.lang.String string;
-  public Lexical(IConstructor node, java.lang.String string) {
-    super(node);
+  public Lexical(ISourceLocation src, IConstructor node, java.lang.String string) {
+    super(src, node);
     this.string = string;
   }
   public java.lang.String getString() {
@@ -43,6 +44,11 @@ public abstract class UnicodeEscape extends AbstractAST {
   @Override
   public boolean equals(Object o) {
     return o instanceof Lexical && ((Lexical) o).string.equals(string);  
+  }
+
+  @Override
+  public Object clone()  {
+    return newInstance(getClass(), src, (IConstructor) null, string);
   }
 
   @Override

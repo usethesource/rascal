@@ -8,8 +8,9 @@ module experiments::Compiler::Rascal2muRascal::TypeReifier
  *     (4) type[value]            symbolToValue(Symbol) 		Compute the reified type for a symbol
  */
 
-import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckerConfig;
+//import lang::rascal::types::TestChecker;
+//import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
@@ -50,7 +51,7 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-public void getDeclarationInfo(Configuration config){
+public void extractDeclarationInfo(Configuration config){
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
@@ -59,8 +60,13 @@ public void getDeclarationInfo(Configuration config){
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
             + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
             + { <"Tree", adt("Tree",[])> }
+            + { <"Symbol", adt("Symbol",[])> }
+            + { <"Production", adt("Production",[])> }
+            + { <"Attr", adt("Attr",[])> }
+            + { <"Associativity", adt("Associativity",[])> }
+            + { <"CharRange", adt("CharRange",[])> }
+            + { <"Condition", adt("Condition",[])> }
             ;
-    
 
 	// Collect all the constructors of the adt types in the type environment
 	
@@ -75,7 +81,7 @@ public void getDeclarationInfo(Configuration config){
     
     types = range(typeRel);
     
-	// Collect all the productions of the non-terminal types in the type environment
+	// Collect all the  uctions of the non-terminal types in the type environment
     
     grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, config.store[uid].rtype in types );
    
@@ -83,6 +89,7 @@ public void getDeclarationInfo(Configuration config){
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 						      // TODO ""??
 	              | /Production p:prod(_,_,_) := grammar 
 	              };
+	   
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
@@ -109,6 +116,15 @@ public map[Symbol,Production] getGrammar() {
  	return definitions;
 }
 
+//map[int,Production] fixProds(map[int,Production] defs){
+//	return 
+//		visit(defs){ 
+// 		case Production::prod(Symbol sym, str name, list[Symbol] symbols, attributes) => 
+// 				name == "" ? ::prod(symbol, symbols, attributes) 
+// 						   : Production::prod(label(name, symbol), symbols, attributes)
+// 		};
+//}
+
 // Extract all declared symbols from a type checker configuration
 
 public map[Symbol,Production] getDefinitions() {
@@ -120,13 +136,23 @@ public map[Symbol,Production] getDefinitions() {
  	return definitions;
 }
 
+public Production getLabeledProduction(str name, Symbol symbol){
+	//println("getLabeledProduction: <getGrammar()[symbol]>");
+	name = unescape(name);
+	visit(getGrammar()[symbol]){
+		case p:prod(\label(name, symbol), _, _): return p;
+		case p:regular(\label(name, symbol)): return p;
+	};
+	throw "No LabeledProduction for <name>, <symbol>";
+}
+
 // Type reachability functions
 
 rel[Symbol, Symbol] dependentSymbolsInProduction(Symbol from, Symbol sym) {
 	switch(sym){
 		case label(_, s):	return /*{<from, sym>} + */dependentSymbolsInProduction(sym, s);
-		case conditional(sym, _):
-							return {<from, sym>} + dependentSymbolsInProduction(sym, s);
+		case conditional(sym1, _):
+							return {<from, sym>} + dependentSymbolsInProduction(sym, sym1);
 		case adt(_,_):		return {<from, sym>};
 		case sort(_):		return {<from, sym>};
 		case lex(_):		return {<from, sym>};
@@ -152,22 +178,34 @@ rel[Symbol, Symbol] getProductionDependencies(Symbol s, p: Production::prod(Symb
 	return res;
 }
 
-//rel[Symbol, Symbol] dependentSymbolsInConstructor(Symbol from, Symbol sym) {
-//	switch(sym){
-//		case label(_, s):	return /*{<from, sym>} + */dependentSymbolsInConstructor(sym, s);
-//		case adt(_,_):		return {<from, sym>};
-//		case sort(_):		return {<from, sym>};
-//		default:			return {<from, striprec(sym)>};
-//	};
-//}
-
-//bool isAdtOrSort(Symbol sym){
-//	switch(sym){
-//		case adt(_,_):		return true;
-//		case sort(_):		return true;
-//		default:			return false;
-//	};
-//}
+rel[Symbol, Symbol] dependentSymbols(Symbol from, Symbol sym) {
+	switch(sym){
+		case label(_, s):	return /*{<from, sym>} + */dependentSymbols(sym, s);
+		
+		case adt(_,_):		return {<from, sym>};
+		case sort(_):		return {<from, sym>};
+		case lex(_):		return {<from, sym>};
+		case \opt(s):		return {<from, sym>} + dependentSymbols(from, s);
+		case \iter(s):		return {<from, sym>} + dependentSymbols(from, s);
+		case \iter-star(s):	return {<from, sym>} + dependentSymbols(from, s);
+		case \iter-seps(s, seps):
+							return {<from, sym>} + dependentSymbols(from, s);
+		case \iter-star-seps(s, seps):
+							return {<from, sym>} + dependentSymbols(from, s);
+		case \alt(set[Symbol] syms):
+							return {<from, sym>} + { *dependentSymbols(from, s) | s <- syms};
+		case \seq(list[Symbol] syms):
+							return {<from, sym>} + { *dependentSymbols(from, s) | s <- syms};
+		case conditional(sym2, _):
+							return {<from, sym>} + dependentSymbols(from, sym2);										
+		case \parameterized-sort(str name, list[Symbol] parameters):
+							return {<from, sym>} + { <from, striprec(param)> | param <- parameters };
+		case \parameterized-lex(str name, list[Symbol] parameters):
+							return {<from, sym>} + { <from, striprec(param)> | param <- parameters };
+		
+		default:			return {<from, sym>};
+	};
+}	
 
 bool isExpandableSymbol(Symbol sym){
 	switch(sym){
@@ -184,13 +222,14 @@ bool isExpandableSymbol(Symbol sym){
 							return true;
 		case \parameterized-lex(str name, list[Symbol] parameters):
 							return true;
+		case \value():		return true;
 		default:			return false;
 	};
 }			
 
 rel[Symbol, Symbol] getConstructorDependencies(Symbol from, c:Symbol::\cons(Symbol \adtsym, str name, list[Symbol] parameters)) {
 	from = strip(from);
-	res = {<from, sym> | /Symbol sym := parameters, isExpandableSymbol(sym) };
+	res = { *dependentSymbols(from, sym) | /Symbol sym := parameters };
 	if(from != strip(\adtsym)){
 		res += <from, strip(\adtsym)>;
 	}
@@ -202,17 +241,17 @@ rel[Symbol, Symbol] getConstructorDependencies(Symbol from, c:Symbol::\cons(Symb
 // - visit
 
 private void computeReachableTypesAndConstructors(){
-
+	return;
 	definitions = getDefinitions();
-	rel[value,value] cleaned_productions = { <strip(def), p> | /Production p:prod(def,_,_) := grammar };
+	rel[value,value] cleaned_productions = { <strip(sym), p> | /Production p:prod(sym,_,_) := grammar };
 	
 	stripped_constructors = {<strip(s1),strip(s2)> | <s1, s2> <- constructors};
 	rel[value,value] containment = stripped_constructors
 								   + {*getConstructorDependencies(s, c) |  <s, c> <- constructors}
 	                               + cleaned_productions
-	                               + {*getProductionDependencies(s, p) |  <s, p> <- cleaned_productions};
+	                               + {*getProductionDependencies(s, p) |  <Symbol s, Production p> <- cleaned_productions};
 	
-	println("containment [<size(containment)>] ="); for(elm <- containment) { println("\t<elm>"); }
+	//println("containment [<size(containment)>] ="); for(elm <- containment) { println("\t<elm>"); }
 	
 	reachableTypes = containment+;
 	reachableTypes = top-down-break visit(reachableTypes){ 
@@ -224,52 +263,82 @@ private void computeReachableTypesAndConstructors(){
 }
 
 // Extract the reachable types for a given type
-// Note: at runtime RascalPrimitive.$should_descent takes care of
+// Note: at runtime RascalPrimitive.$should_descent_in_value takes care of
 // - list, set, map, tuple
 // - regular, parameterized-lex, parameterized-sort
 // - label
 // so these are not needed in the generated descent_into set
 
 set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
+	return {};
 	println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
 	
 	if(concreteMatch){
 		return getReachableConcreteTypes(subjectType, consNames, patternTypes);
 	}
-	desiredTypes = { s | /Symbol s := (subjectType + patternTypes)};
+	desiredPatternTypes = { s | /Symbol s := patternTypes};
+	desiredSubjectTypes = { s | /Symbol s := subjectType};
+	desiredTypes = desiredSubjectTypes + desiredPatternTypes;
 	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym)){
 		desiredTypes += adt("Tree", []);
 	}
 	println("desiredTypes = <desiredTypes>");
+	
 	set[value] initial_types = 
 		desiredTypes + (subjectType == \value()
-					   ? carrier(reachableTypes)
-	                   : desiredTypes + { sym | pts <- desiredTypes, Symbol sym <- reachableTypes[pts], isExpandableSymbol(sym)}
+					   ? { sym | sym <- carrier(reachableTypes),						
+					  			 r := reachableTypes[sym],
+					  			 size(consNames) != 0 ||
+					  			 \value() in r ||
+					  			 !isEmpty(desiredTypes & r) }
+					   		     
+	                   : { sym | stp <- desiredSubjectTypes, 						// We are looking for
+	                             Symbol sym <- reachableTypes[stp],  				// all symbols that are reachable from the desiredSubjectTypes
+	                             //isExpandableSymbol(sym), 							// that are expandable (or value)
+	                             r := reachableTypes[sym], 							// and 
+	                             size(consNames) != 0 || 							// either specific constructors have been given (and we are a bit permissive here)
+	                             \value() in r || 									// or value can be reached,
+	                             !isEmpty(desiredTypes & r)}						// or one or more desiredPatternTypes can be reached from it
 	                   );
 	 
-	set[value] descent_into = initial_types;
-	println("initial_types [<size(initial_types)>]"); for(elm <- initial_types){println("\t<elm>");};
+	set[value] descent_into = desiredSubjectTypes;
+	if(\value() in initial_types)
+		descent_into += \value();
+	if(\str() in initial_types)
+		descent_into += \str();
+	if(\node() in initial_types)
+		descent_into += \node();
+	if(adt("Tree", []) in desiredTypes)
+		initial_types += adt("Tree", []);
+	
+	//println("initial_types [<size(initial_types)>]"); for(elm <- initial_types){println("\t<elm>");};
 	adts_with_constructors = {};
 
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
+		//println("fromSym = <fromSym>, toSym = <toSym>");
 		if(Symbol c:\cons(Symbol \adtsym, str name, list[Symbol] parameters) := toSym){
-			if(name in consNames || (\adtsym == fromSym && !isEmpty(initial_types & (range(getConstructorDependencies(fromSym, c)) - \adtsym)))){
-			   println("adding to descent_into: <c>, fromSym=<fromSym>, range = <range(getConstructorDependencies(fromSym, c)) - \adtsym>");
+			set[value] deps = range(getConstructorDependencies(fromSym, c));
+			//println("\tdeps1 = <deps>");
+			deps = {s | /Symbol s := deps };
+			deps += reachableTypes[deps];
+			//println("\tdeps2 = <deps>");
+			if(name in consNames || (\adtsym == fromSym && (\value() in deps || !isEmpty(initial_types & deps)))){
+			   //println("adding to descent_into: <c>, fromSym = <fromSym>, deps = <deps>");
 			   descent_into += c;
 			   adts_with_constructors += \adtsym;
 			}
 		}
 	}
 	
-	descent_into -= adts_with_constructors;
-	println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	//descent_into -= (adts_with_constructors - {\node(), \str(), \value(),adt("Tree", [])});
+	//println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }
 
-bool desiredInAbstractMatch(value s1){
-	return prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) !:= s1;
-}
+//bool desiredInAbstractMatch(value s1){
+//	return prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) !:= s1;
+//}
 
 bool desiredInConcreteMatch(value s1){
 	switch(s1){
@@ -296,20 +365,40 @@ rel[value,value] removeTreeElements(rel[value, value] reachable, bool(value) des
 	{<s1, s2> | <s1, s2> <- reachable, desiredInConcreteMatch(s1), desired(s2) };
 
 set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
-	desiredTypes = { s | /Symbol s := (subjectType + patternTypes)};
+	desiredPatternTypes = { s | /Symbol s := patternTypes};
+	desiredSubjectTypes = { s | /Symbol s := subjectType};
+	desiredTypes = desiredSubjectTypes + desiredPatternTypes;
+	
 	println("desiredTypes = <desiredTypes>");
 	reachable = removeTreeElements(reachableTypes, desiredInConcreteMatch);
 	println("reachable [<size(reachable)>]"); //for(elm <- reachable){println("\t<elm>");};
 	                                                
+	//set[value] initial_types = 
+	//	desiredTypes + (subjectType == \value()
+	//					? desiredTypes + carrier(reachable)
+	//                    : desiredTypes + { sym | pts <- desiredTypes, Symbol sym <- reachable[pts], isExpandableSymbol(sym)}
+	//                    ); 
+	                    
 	set[value] initial_types = 
 		desiredTypes + (subjectType == \value()
-						? desiredTypes + carrier(reachable)
-	                    : desiredTypes + { sym | pts <- desiredTypes, Symbol sym <- reachable[pts], isExpandableSymbol(sym)}
-	                    ); 
+					   ? { sym | sym <- carrier(reachableTypes),						
+					  			 r := reachableTypes[sym],
+					  			 size(consNames) != 0 ||
+					  			 \value() in r ||
+					  			 !isEmpty(desiredTypes & r) }
+					   		     
+	                   : { sym | stp <- desiredSubjectTypes, 						// We are looking for
+	                             Symbol sym <- reachableTypes[stp],  				// all symbols that are reachable from the desiredSubjectTypes
+	                             //isExpandableSymbol(sym), 							// that are expandable (or value)
+	                             r := reachableTypes[sym], 							// and 
+	                             size(consNames) != 0 || 							// either specific constructors have been given (and we are a bit permissive here)
+	                             \value() in r || 									// or value can be reached,
+	                             !isEmpty(desiredTypes & r)}						// or one or more desiredPatternTypes can be reached from it
+	                   );
 	initial_types -= \value();
 	
 	set[value] descent_into = initial_types;
-	println("initial: <initial_types>");
+	//println("initial: <initial_types>");
 	nonterminals_with_productions = {};
 	
 	for(<Symbol fromSym, value toSym> <- reachableTypes,  fromSym in initial_types){
@@ -325,7 +414,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	
 	descent_into = { elm | elm <- descent_into, desiredInConcreteMatch(elm) };
 
-	println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	//println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }
@@ -342,10 +431,12 @@ bool isConcreteType(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separato
 
 default bool isConcreteType(Symbol symbol) {
 	if(grammar[symbol]?){
-		return all(alt <- grammar[symbol].alternatives, Production p := alt);
+		return all(alternative <- grammar[symbol].alternatives, Production p := alternative);
 	}
 	return false;
 }
+
+
 
 // ---------------- symbolToValue ------------------
 // TODO: rewrite the following code using
@@ -363,7 +454,6 @@ public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
-	//symbol = regulars(symbol,activeLayout);	//TODO still needed?
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){
@@ -385,8 +475,8 @@ public type[value] symbolToValue(Symbol symbol) {
  			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
+ 	
  	return type(symbol, definitions); 
- 	//return type(regulars(symbol, activeLayout), definitions); // TODO: still needed?
 }
 
 // primitive
@@ -457,6 +547,7 @@ public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Sy
 	
 // alias
 public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
+    //println("reify alias: <name>, <aliased>");
 	definitions = reify(aliased, definitions);
 	definitions = ( definitions | reify(sym, it) | sym <- parameters );
 	return definitions;
@@ -576,7 +667,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
+	= Production::\cons(Symbol::label(name, \type), parameters, [], /*(),*/ {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
 		
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
@@ -619,3 +710,18 @@ private Symbol regulars(Symbol s, Symbol l) {
 }
 
 public Symbol insertLayout(Symbol s) = regulars(s, activeLayout);
+
+public bool hasField(Symbol s, str fieldName){
+    //println("hasField: <s>, <fieldName>");
+
+    //if(isADTType(s)){
+    //   s2v = symbolToValue(s /*, config*/);
+    //   println("s2v = <s2v>");
+    //}
+    s1 = symbolToValue(s);
+    // TODO: this is too liberal, restrict to outer type.
+    visit(s1){
+       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
+    }
+    return false;
+}

@@ -24,6 +24,7 @@ public class Checkbox extends Button {
 
 	public Checkbox(IFigureConstructionEnv env, String caption, boolean checked, IValue fun,PropertyManager properties) {
 		super(env, caption, fun, properties);
+		widget.setSelection(checked);
 	}
 	
 	int buttonType(){

@@ -17,6 +17,8 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -50,8 +52,10 @@ public class TestEvaluator {
 		ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
 
 		runTests(topModule, topModule.getTests());
+		List<String> imports = new ArrayList<>(topModule.getImports());
+		Collections.shuffle(imports);
 
-		for (String i : topModule.getImports()) {
+		for (String i : imports) {
 			ModuleEnvironment mod = topModule.getImport(i);
 			
 			if (mod != null) {
@@ -62,10 +66,12 @@ public class TestEvaluator {
 
 	private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
 		testResultListener.start(tests.size());
+		// first, let's shuffle the tests
+		tests = new ArrayList<>(tests); // just to be sure, clone the list
+		Collections.shuffle(tests);
 
 //		try {
-		for (int i = tests.size() - 1; i >= 0; i--) {
-		  AbstractFunction test = tests.get(i);
+		for (AbstractFunction test: tests) {
 		  if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
 			  continue;
 		  }

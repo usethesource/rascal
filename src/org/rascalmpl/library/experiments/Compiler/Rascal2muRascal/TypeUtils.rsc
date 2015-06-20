@@ -7,15 +7,22 @@ import Map;
 import Node;
 import Relation;
 import String;
+import util::Reflective;
+
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes; 
+import experiments::Compiler::muRascal::AST;
+
+import lang::rascal::grammar::definition::Symbols;
+
+import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
-import experiments::Compiler::Rascal2muRascal::RascalType;
-import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::Rascal2muRascal::TypeReifier; 
-import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
+
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
+
+//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
+
+//import experiments::Compiler::Rascal2muRascal::RascalType;
 
 /*
  * This module provides a bridge to the "Configuration" delivered by the type checker
@@ -27,6 +34,7 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunction
   *             Initializes the type reifier
  * Part II: 	Defines other functions to access this type information.
  * Part III:	Type-related code generation functions.
+ * Part IV:		Translate Rascal types
  * 
  * Some details:
  * - the typechecker generates a unique identifier (uid, an integer) for every entity it encounters and this uid
@@ -60,11 +68,29 @@ alias UID = int;                                    // A UID is a unique identif
 
 alias FUID = str; 
 
-public Configuration getConfiguration() { return config; }
+private Configuration getConfiguration() { return config; }
 
 public map[UID uid, tuple[FUID fuid, int pos] fuid2pos] uid2addr = ();	
 													// map uids to FUIDs and positions
-public map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
+private map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
+
+public int getLoc2uid(loc l){
+    if(loc2uid[l]?){
+    	return loc2uid[l];
+    }
+    l = normalize(l);
+    println("getLoc2uid: <l>");
+    iprintln(loc2uid);
+    assert loc2uid[l]? : "getLoc2uid <l>";
+    return loc2uid[l];
+}
+
+public loc normalize(loc l) {
+    if(l.scheme == "std"){
+  	   return getSearchPathLocation(l.path)(l.offset, l.length, l.begin,l.end);
+    }
+    return l;
+}
 
 private set[UID] modules = {};
 
@@ -79,7 +105,7 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 private set[UID] constructors = {};					// declared constructors
 
 public bool isConstructor(UID uid) = uid in constructors;
-public set[UID] getConstructors() = constructors;
+//public set[UID] getConstructors() = constructors;
 
 public set[UID] variables = {};						// declared variables
 
@@ -108,18 +134,20 @@ private map[UID uid,int n] sig_scopes = ();         // number of signature scope
 @doc{Handling nesting}
 private rel[UID,UID] declares = {};
 private rel[UID,UID] containment = {};
+private rel[UID,UID] containmentPlus = {};			// containment+
 
 private map[UID,UID] declaredIn = ();				// inverse of declares
 private map[UID,UID] containedIn = ();				// inverse of containment
+private rel[UID,UID] containedInPlus = {};			// inverse of containment+
 
-alias OFUN = tuple[str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
+alias OFUN = tuple[str name, Symbol funType, str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
 public map[UID,str] uid2str = ();					// map uids to str
 
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private list[OFUN] overloadedFunctions = [];	// list of overloaded functions
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -175,9 +203,11 @@ public void resetScopeExtraction() {
 	sig_scopes = ();
 	declares = {};
 	containment = {};
+	containmentPlus = {};
 	
 	declaredIn = ();
 	containedIn = ();
+	containedInPlus = {};
 	
 	uid2str = ();
 	uid2type = ();
@@ -228,16 +258,17 @@ void extractScopes(Configuration c){
    
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      
+      //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-         	 //println("<uid>: <item>");
+         	 //println("<uid>: <item>, scope: <inScope>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
              for(l <- config.uses[uid]) {
                  loc2uid[l] = uid;
              }
+             //println("loc2uid: <src> : <loc2uid[src]>");
              // Fill in uid2name
              
              fname = getSimpleName(rname);
@@ -258,7 +289,7 @@ void extractScopes(Configuration c){
              //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	//println("add loc2uid[<l>] = <uid>");
+		     	//println("loc2uid already defined=<loc2uid[l]?>,  add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -365,12 +396,13 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ; //println("extractScopes: skipping <uid>: <item>");
+        default: ;//println("extractScopes: skipping <uid>: <item>");
       }
     }
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
+    containedInPlus = invert(containmentPlus);
     declaredIn = toMapUnique(invert(declares));
 	containedIn = toMapUnique(invert(containment));
     
@@ -521,7 +553,7 @@ void extractScopes(Configuration c){
     	}
     	// The alternatives of the overloaded function may come from different scopes 
     	// but only in case of module scopes;
-    	assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
+    	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     
@@ -532,29 +564,29 @@ void extractScopes(Configuration c){
     
    
     
-    // Finally, extract all declarations for the benefit of the type reifier
-    
-    getDeclarationInfo(config);
+    //// Finally, extract all declarations for the benefit of the type reifier
+    //
+    //getDeclarationInfo(config);
 }
 
-int declareGeneratedFunction(str name, Symbol rtype){
-	//println("declareGeneratedFunction: <name>, <rtype>");
+int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
+	println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
+    // TODO: all are placed in scope 0, is that ok?
+    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, [], false, src);
     functions += {uid};
     //declares += {<inScope, uid>}; TODO: do we need this?
      
     // Fill in uid2name
-    //name = getFUID(name,rtype);
-	//println("name = <name>");
-     
-    uid2name[uid] = name;
+    uid2name[uid] = fuid;
+    loc2uid[src] = uid;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
     if(!uid2str[uid]?){
-    	uid2str[uid] = name;
+    	uid2str[uid] = fuid;
     } else {
-    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <name>";
+    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <fuid>";
     }
     return uid;
 }
@@ -564,7 +596,12 @@ int declareGeneratedFunction(str name, Symbol rtype){
 /********************************************************************/
 
 // Get the type of an expression as Symbol
-Symbol getType(loc l) = config.locationTypes[l];
+Symbol getType(loc l) {
+    l = normalize(l);
+	assert config.locationTypes[l]? : "getType for <l>";
+	//println("getType(<l>) = <config.locationTypes[l]>");
+	return config.locationTypes[l];
+}	
 
 // Get the type of an expression as string
 str getType(Tree e) = "<getType(e@\loc)>";
@@ -588,9 +625,8 @@ str getOuterType(Tree e) {
  * Additionally, it does not allow getting types of functions that are part of an overloaded function;
  * Alternatively, the type of a function can be looked up by its @loc;   
  */
-Symbol getFunctionType(loc l) { 
-   assert loc2uid[l]? : "getFunctionType <l>";
-   UID uid = loc2uid[l];
+Symbol getFunctionType(loc l) {  
+   UID uid = getLoc2uid(l);
    fun = config.store[uid];
    if(function(_,Symbol rtype,_,_,_,_,_,_) := fun) {
        return rtype;
@@ -600,8 +636,7 @@ Symbol getFunctionType(loc l) {
 }
 
 Symbol getClosureType(loc l) {
-   assert loc2uid[l]? : "getClosureType <l>";
-   UID uid = loc2uid[l];
+   UID uid = getLoc2uid(l);
    cls = config.store[uid];
    if(closure(Symbol rtype,_,_,_) := cls) {
        return rtype;
@@ -616,7 +651,7 @@ AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
 	return config.store[config.typeEnv[rn]];
 }
 					
-KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
+KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].keywordParams;
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //println("getVariableScope: <name>, <l>)");
@@ -626,8 +661,7 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //          	if(l1 == l) println("EQUAL");
   //          }
   //println(	loc2uid[l] );
-  assert loc2uid[l]? : "getVariableScope <l>";
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   //println(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
   return addr;
@@ -656,6 +690,20 @@ str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cn
 
 str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+
+
+@doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
+	// Due to the current semantics of the implode
+	modName = replaceAll(modName, "::", "");
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
+}
+str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
+	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
 
 str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
@@ -698,34 +746,51 @@ str convert2fuid(UID uid) {
 	return name;
 }
 
+public MuExp getConstructor(str cons) {
+   cons = unescape(cons);
+   uid = -1;
+   for(c <- constructors){
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
+     if(cons == getSimpleName(getConfiguration().store[c].name)){
+        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        uid = c;
+        break;
+     }
+   }
+   if(uid < 0)
+      throw("No definition for constructor: <cons>");
+   return muConstr(convert2fuid(uid));
+}
+
 public bool isDataType(AbstractValue::datatype(_,_,_,_)) = true;
 public default bool isDataType(AbstractValue _) = false;
 
-public bool isNonTerminalType(AbstractValue::sorttype(_,_,_,_)) = true;
+public bool isNonTerminalType(sorttype(_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue a) = false;
 
-public bool hasField(Symbol s, str fieldName){
-    //println("hasField: <s>, <fieldName>");
-
-    //if(isADTType(s)){
-    //   s2v = symbolToValue(s /*, config*/);
-    //   println("s2v = <s2v>");
-    //}
-    s = symbolToValue(s);
-    // TODO: this is too liberal, restrict to outer type.
-    visit(s){
-       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
-    }
-    return false;
-}
+//public bool hasField(Symbol s, str fieldName){
+//    //println("hasField: <s>, <fieldName>");
+//
+//    //if(isADTType(s)){
+//    //   s2v = symbolToValue(s /*, config*/);
+//    //   println("s2v = <s2v>");
+//    //}
+//    s1 = symbolToValue(s);
+//    // TODO: this is too liberal, restrict to outer type.
+//    visit(s1){
+//       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
+//    }
+//    return false;
+//}
 
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
 
 public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
+     l = normalize(l);
      containmentPlus = containment+;
      set[UID] decls = {};
      if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
@@ -737,6 +802,8 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
      }
      throw "Block scope at <l> has not been found!";
 }
+
+
 
 /********************************************************************/
 /*     Part III: Type-related code generation functions             */
@@ -752,22 +819,58 @@ public MuExp mkCallToLibFun(str modName, str fname)
 
 // Generate a MuExp to access a variable
 
-// Sort available overloading alternatives as follows:
-// First non-default (most recent first), then defaults (also most recent first).
+// Sort available overloading alternatives as follows (trying to maintain good compatibility with the interpreter):
+// - First non-default functions (inner scope first, most recent last), 
+// - then default functions (also most inner scope first, then most recent last).
 
-bool funIdLess(int n, int m) = n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = funInnerScope(n,m) || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
 	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, funIdLess) + sort(defaults, funIdLess);
+	return sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+}
+
+bool funInnerScope(int n, int m) =
+	config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
+
+public list[UID] sortFunctionsByRecentScope(list[UID] funs){
+	return sort(funs, funInnerScope);
+}
+
+public set[UID] accessibleScopes(loc luse) {
+  luse = normalize(luse);
+//println("containmentPlus = <containmentPlus>");
+	 return {0, 1} +
+     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
+               //(  blockScope(int scope, loc l) := av 
+               //|| booleanScope(int scope, loc l) := av
+               //|| function(_,_,_, _, int scope, _, _, loc l) := av
+               //|| constructor(_,_,_,int scope, loc l) := av
+               //|| label(_,functionLabel(), int scope, loc l) := av
+               //|| closure(_,_, int scope, loc l)  := av
+               //|| \module(_, loc l) := av
+               //)
+               , luse < av.at || av.at.path != luse.path
+               };
+} 
+ 
+public UID declaredScope(UID uid) {
+	if(config.store[uid]?){
+		res = config.store[uid].containedIn;
+		//println("declaredScope[<uid>] = <res>");
+		return res;
+	}
+	println("declaredScope[<uid>] = 0 (generated)");
+	return 0;
 }
 
 MuExp mkVar(str name, loc l) {
+  l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   //println("uid = <uid>");
   //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -786,13 +889,14 @@ MuExp mkVar(str name, loc l) {
     str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
  
-    addOverloadedFunctionAndResolver(ofuid, <addr.fuid,ofuids>);
+    addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
   	return muOFun(ofuid);
   }
   
   // Keyword parameters
   if(uid in keywordParameters) {
-      return muVarKwp(addr.fuid,name);
+  	//println("return : <muVarKwp(addr.fuid,name)>");
+      return muVarKwp(addr.fuid, name);
   }
   
   //println("return : <muVar(name, addr.fuid, addr.pos)>");
@@ -802,6 +906,7 @@ MuExp mkVar(str name, loc l) {
 // Generate a MuExp to reference a variable
 
 MuExp mkVarRef(str name, loc l){
+  l = normalize(l);
   <fuid, pos> = getVariableScope("<name>", l);
   return muVarRef("<name>", fuid, pos);
 }
@@ -809,7 +914,7 @@ MuExp mkVarRef(str name, loc l){
 // Generate a MuExp for an assignment
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-  uid = loc2uid[l];
+  uid = getLoc2uid(l);
   tuple[str fuid, int pos] addr = uid2addr[uid];
   if(uid in keywordParameters) {
       return muAssignKwp(addr.fuid,name,exp);
@@ -860,3 +965,86 @@ default int size(Tree t) {
 }
 
 private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
+
+
+Symbol getElementType(\list(Symbol et)) = et;
+Symbol getElementType(\set(Symbol et)) = et;
+Symbol getElementType(\bag(Symbol et)) = et;
+Symbol getElementType(Symbol t) = Symbol::\value();
+
+/*
+ * translateType: translate a concrete (textual) type description to a Symbol
+ */
+
+Symbol translateType((BasicType) `value`) 		= Symbol::\value();
+Symbol translateType(t: (BasicType) `loc`) 		= Symbol::\loc();
+Symbol translateType(t: (BasicType) `node`) 	= Symbol::\node();
+Symbol translateType(t: (BasicType) `num`) 		= Symbol::\num();
+Symbol translateType(t: (BasicType) `int`) 		= Symbol::\int();
+Symbol translateType(t: (BasicType) `real`) 	= Symbol::\real();
+Symbol translateType(t: (BasicType) `rat`)      = Symbol::\rat();
+Symbol translateType(t: (BasicType) `str`) 		= Symbol::\str();
+Symbol translateType(t: (BasicType) `bool`) 	= Symbol::\bool();
+Symbol translateType(t: (BasicType) `void`) 	= Symbol::\void();
+Symbol translateType(t: (BasicType) `datetime`)	= Symbol::\datetime();
+
+Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
+												= \bag(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `list [ <TypeArg arg> ]`) 
+												= \list(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
+												= \map(translateType(arg1), translateType(arg2)); 
+Symbol translateType(t: (StructuredType) `set [ <TypeArg arg> ]`)
+												= \set(translateType(arg)); 
+Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
+												= \rel([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
+												= \lrel([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
+												= \tuple([ translateType(arg) | arg <- args]);
+Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType(arg));      
+
+Symbol translateType(t : (Type) `(<Type tp>)`) = translateType(tp);
+Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
+Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
+Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);
+Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
+Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
+Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
+Symbol translateType(t : (Type) `<Sym symbol>`)  = insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
+
+Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
+
+Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) = 
+									\func(translateType(tp), [ translateType(arg) | arg <- args]);
+									
+Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+	// look up the name in the type environment
+	val = getAbstractValueForQualifiedName(name);
+	
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}
+Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+	// look up the name in the type environment
+	val = getAbstractValueForQualifiedName(name);
+	
+	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+		// instantiate type parameters
+		val.rtype.parameters = [ translateType(param) | param <- parameters];
+		return val.rtype;
+	}
+	throw "The name <name> is not resolved to a type: <val>.";
+}  
+									
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
+
+default Symbol translateType(Type t) {
+	throw "Cannot translate type <t>";
+}
+

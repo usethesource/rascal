@@ -89,10 +89,10 @@ public class LayeredGraph extends Figure {
 			String layer = fig.prop.getStr(LAYER);
 
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Id property should be defined", null, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property should be defined", Figure.VF.bool(false), fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			if(getRegisteredNodeId(name) != null)
-				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", null, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", Figure.VF.bool(false), fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		
 			LayeredGraphNode node = new LayeredGraphNode(this, name, fig);
 			this.nodes.add(node);

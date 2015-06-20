@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Formals extends AbstractAST {
-  public Formals(IConstructor node) {
-    super();
+  public Formals(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Formals extends AbstractAST {
   }
 
   static public class Default extends Formals {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","formals")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","formals")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> formals;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> formals) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> formals) {
+      super(src, node);
       
       this.formals = formals;
     }
@@ -62,6 +63,25 @@ public abstract class Formals extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : formals) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class Formals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 541 * formals.hashCode() ; 
+      return 727 + 673 * formals.hashCode() ; 
     } 
   
     
@@ -85,5 +105,11 @@ public abstract class Formals extends AbstractAST {
     public boolean hasFormals() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(formals));
+    }
+            
   }
 }

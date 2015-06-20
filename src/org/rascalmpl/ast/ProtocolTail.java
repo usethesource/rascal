@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ProtocolTail extends AbstractAST {
-  public ProtocolTail(IConstructor node) {
-    super();
+  public ProtocolTail(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -61,15 +62,15 @@ public abstract class ProtocolTail extends AbstractAST {
   }
 
   static public class Mid extends ProtocolTail {
-    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidProtocolChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")])
+    // Production: sig("Mid",[arg("org.rascalmpl.ast.MidProtocolChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.ProtocolTail","tail")],breakable=false)
   
     
     private final org.rascalmpl.ast.MidProtocolChars mid;
     private final org.rascalmpl.ast.Expression expression;
     private final org.rascalmpl.ast.ProtocolTail tail;
   
-    public Mid(IConstructor node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
-      super(node);
+    public Mid(ISourceLocation src, IConstructor node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+      super(src, node);
       
       this.mid = mid;
       this.expression = expression;
@@ -87,6 +88,39 @@ public abstract class ProtocolTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = mid.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        mid.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = expression.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = tail.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        tail.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Mid)) {
         return false;
@@ -97,7 +131,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 809 * mid.hashCode() + 29 * expression.hashCode() + 281 * tail.hashCode() ; 
+      return 191 + 89 * mid.hashCode() + 787 * expression.hashCode() + 73 * tail.hashCode() ; 
     } 
   
     
@@ -128,19 +162,25 @@ public abstract class ProtocolTail extends AbstractAST {
     public boolean hasTail() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(mid), clone(expression), clone(tail));
+    }
+            
   }
   public boolean isPost() {
     return false;
   }
 
   static public class Post extends ProtocolTail {
-    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")])
+    // Production: sig("Post",[arg("org.rascalmpl.ast.PostProtocolChars","post")],breakable=false)
   
     
     private final org.rascalmpl.ast.PostProtocolChars post;
   
-    public Post(IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
-      super(node);
+    public Post(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
+      super(src, node);
       
       this.post = post;
     }
@@ -156,6 +196,23 @@ public abstract class ProtocolTail extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = post.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        post.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Post)) {
         return false;
@@ -166,7 +223,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 859 * post.hashCode() ; 
+      return 673 + 233 * post.hashCode() ; 
     } 
   
     
@@ -179,5 +236,11 @@ public abstract class ProtocolTail extends AbstractAST {
     public boolean hasPost() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(post));
+    }
+            
   }
 }

@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class QualifiedName extends AbstractAST {
-  public QualifiedName(IConstructor node) {
-    super();
+  public QualifiedName(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class QualifiedName extends AbstractAST {
   }
 
   static public class Default extends QualifiedName {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Name\>","names")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Name\>","names")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Name> names;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Name> names) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Name> names) {
+      super(src, node);
       
       this.names = names;
     }
@@ -62,6 +63,25 @@ public abstract class QualifiedName extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : names) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class QualifiedName extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 + 211 * names.hashCode() ; 
+      return 331 + 223 * names.hashCode() ; 
     } 
   
     
@@ -85,5 +105,11 @@ public abstract class QualifiedName extends AbstractAST {
     public boolean hasNames() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(names));
+    }
+            
   }
 }

@@ -14,11 +14,15 @@
 package org.rascalmpl.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -30,18 +34,31 @@ public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
-		if (cons.getType() == Factory.Symbol) {
+		// TODO refactor this into different factory methods in RascalTypeFactory
+		
+		if (cons.getConstructorType() == RascalValueFactory.Tree_Appl) {
+			// Note that here we go from * to + lists if the list is not empty
+			this.symbol = TreeAdapter.getType((ITree) cons);
+		}
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
+			ISet alts = TreeAdapter.getAlternatives((ITree) cons);
+			
+			if (!alts.isEmpty()) {
+				ITree first = (ITree) alts.iterator().next();
+				this.symbol = TreeAdapter.getType(first);
+			}
+			else {
+				this.symbol = IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty);
+			}
+		}
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Cycle) {
+			this.symbol = TreeAdapter.getType((ITree) cons);
+		}
+		else if (cons.getType() == RascalValueFactory.Symbol) {
 			this.symbol = cons;
 		}
-		else if (cons.getType() == Factory.Production) {
+		else if (cons.getType() == RascalValueFactory.Production) {
 			this.symbol = ProductionAdapter.getType(cons);
-		}
-		else if (cons.getConstructorType() == Factory.Tree_Appl) {
-			this.symbol = TreeAdapter.getType(cons);
-		}
-		else if (cons.getConstructorType() == Factory.Tree_Amb) {
-			IConstructor first = (IConstructor) TreeAdapter.getAlternatives(cons).iterator().next();
-			this.symbol = TreeAdapter.getType(first);
 		}
 		else {
 			throw new ImplementationError("Invalid concrete syntax type constructor:" + cons);
@@ -52,8 +69,22 @@ public class NonTerminalType extends RascalType {
 		this(Symbols.typeToSymbol(type, lex, layout));
 	}
 	
+    @Override
+    public boolean isNonterminal() {
+    	return true;
+    }
+    
+    @Override
+    public Type asAbstractDataType() {
+    	return RascalValueFactory.Tree;
+    }
+    
 	public IConstructor getSymbol() {
 		return symbol;
+	}
+	
+	public int getArity() {
+		return symbol.arity();
 	}
 	
 	public boolean isConcreteListType() {
@@ -66,7 +97,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public Type getAbstractDataType() {
-	  return Factory.Tree;
+	  return RascalValueFactory.Tree;
 	}
 	
 	@Override
@@ -77,12 +108,12 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public String getName() {
-		return Factory.Tree.getName();
+		return RascalValueFactory.Tree.getName();
 	}
 	
 	@Override
 	public Type getTypeParameters() {
-		return Factory.Tree.getTypeParameters();
+		return RascalValueFactory.Tree.getTypeParameters();
 	}
 	
 	@Override
@@ -92,7 +123,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected boolean isSubtypeOfAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree);
+	  return type.equivalent(RascalValueFactory.Tree);
 	}
 	
 	@Override
@@ -107,12 +138,12 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected Type lubWithAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree) ? type : TF.nodeType(); 
+	  return type.equivalent(RascalValueFactory.Tree) ? type : TF.nodeType(); 
 	}
 	
 	@Override
 	protected Type lubWithConstructor(Type type) {
-	  return type.getAbstractDataType().equivalent(Factory.Tree) ? Factory.Tree : TF.nodeType();
+	  return type.getAbstractDataType().equivalent(RascalValueFactory.Tree) ? RascalValueFactory.Tree : TF.nodeType();
 	}
 	
 	@Override
@@ -122,7 +153,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	protected Type glbWithAbstractData(Type type) {
-	  return type.equivalent(Factory.Tree) ? this : TF.voidType(); 
+	  return type.equivalent(RascalValueFactory.Tree) ? this : TF.voidType(); 
 	}
 	
 	@Override
@@ -136,10 +167,8 @@ public class NonTerminalType extends RascalType {
 	  if (type instanceof NonTerminalType) {
 	    return ((NonTerminalType) type).isSubtypeOfNonTerminal(this);
 	  }
-		if(type.isAbstractData() && getName() == type.getName()) {
-			return type.getTypeParameters().isSubtypeOf(this.getTypeParameters());
-		}
-		return super.isSupertypeOf(type);
+	  
+	  return super.isSupertypeOf(type);
 	}
 	
 	@Override
@@ -160,37 +189,70 @@ public class NonTerminalType extends RascalType {
 	@Override
 	public boolean isSubtypeOfNonTerminal(RascalType other) {
 	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym));
+	 
+	  if ((SymbolAdapter.isIterPlus(symbol) && (SymbolAdapter.isIterStar(otherSym) || SymbolAdapter.isIterPlus(otherSym)))
+		 || (SymbolAdapter.isIterStar(symbol) && SymbolAdapter.isIterStar(otherSym))) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  return nt1.isSubtypeOfNonTerminal(nt2);
 	  }
+	  else if ((SymbolAdapter.isIterPlusSeps(symbol) && (SymbolAdapter.isIterStarSeps(otherSym) || SymbolAdapter.isIterPlusSeps(otherSym)))
+			  || (SymbolAdapter.isIterStarSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym))) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  
+		  if (nt1.isSubtypeOfNonTerminal(nt2)) {
+			  IList seps1 = SymbolAdapter.getSeparators(symbol);
+			  IList seps2 = SymbolAdapter.getSeparators(otherSym);
 
-	  if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-	    return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
-	        && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
+			  // this works around broken regular prods in the RVM which have the wrong or missing layout symbols:
+			  int sep1index = seps1.length() == 3 ? 1 : 0;
+			  int sep2index = seps2.length() == 3 ? 1 : 0;
+
+			  nt1 = (RascalType) RTF.nonTerminalType((IConstructor) seps1.get(sep1index));
+			  nt2 = (RascalType) RTF.nonTerminalType((IConstructor) seps2.get(sep2index));
+			  return nt1.isSubtypeOfNonTerminal(nt2);
+		  }
+
+		  return false;
+	  }
+	  else if (SymbolAdapter.isOpt(symbol) && SymbolAdapter.isOpt(otherSym)) {
+		  RascalType nt1 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(symbol));
+		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
+		  return nt1.isSubtypeOfNonTerminal(nt2);
+	  }
+//	  else if (SymbolAdapter.isSequence(symbol) && SymbolAdapter.isSeq(otherSym)) {
+		  // TODO pairwise issubtype
+//	  }
+
+	  if (SymbolAdapter.isParameter(otherSym)) {
+		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
+		  return isSubtypeOf(bound);
 	  }
 	  
+	  // TODO co-variance for the other structured symbols (sequence, opt, list)
 	  return SymbolAdapter.isEqual(otherSym, symbol);
 	}
 	
 	@Override
 	protected Type lubWithNonTerminal(RascalType other) {
-	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  
-	  // * eats +
-    if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
-      return this;
-    }
+		IConstructor otherSym = ((NonTerminalType)other).symbol;
 
-    return SymbolAdapter.isEqual(otherSym, symbol) ? this : Factory.Tree;
+		// * eats +
+		if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+			return other;
+		}
+		else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+			return this;
+		}
+		else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+			return other;
+		}
+		else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+			return this;
+		}
+
+		return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
 	}
 
 	@Override

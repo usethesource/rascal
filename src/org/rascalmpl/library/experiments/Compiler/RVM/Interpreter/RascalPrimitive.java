@@ -42,12 +42,16 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -103,6 +107,38 @@ public enum RascalPrimitive {
 			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
 			stack[sp - 3] = vf.node(name, args, kwargs);
 			return sp - 2;
+		}
+	},
+	// Rebuild a constructor or nodem reusing its annotations
+	rebuild {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IValue subject = (IValue) stack[sp - 3];
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+			// TODO: jurgen can be optimized for the ITree case
+			if(subject.getType().isAbstractData()){
+				IConstructor cons1 = (IConstructor) subject;
+				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
+				if(annotations.size() > 0){
+					// TODO: @paulklint what about the keyword parameters?
+					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = cons2;
+				return sp - 2;
+			} else {
+				INode node1 = (INode) subject;
+				INode node2 = vf.node(node1.getName(), args, kwargs);
+				if(annotations.size() > 0){
+					node2 = node2.asAnnotatable().setAnnotations(annotations);
+				}
+				stack[sp - 3] = node2;
+				return sp - 2;
+			}
 		}
 	},
 	list {
@@ -554,6 +590,13 @@ public enum RascalPrimitive {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	elm_add_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_add_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+	
 	loc_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -721,25 +764,11 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			String indent = $getCurrentIndent();
 			
 			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
-			int len = iarg_s.length();
-			boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
-			String arg_s = iarg_s.getValue();
-			arg_s = $removeMargins(arg_s);
-			String [] lines = arg_s.split("\n");
-			if(lines.length <= 1){
-				templateBuilder.append(arg_s);
-			} else {
-				templateBuilder.append(lines[0]);
-				for(int j = 1; j < lines.length; j++){
-					templateBuilder.append("\n").append(indent).append(lines[j]);
-				}
-				if(endsWithNL)
-					templateBuilder.append("\n");
-			}
+			String arg_s = $removeMargins(iarg_s).getValue();
 			
+			templateBuilder.append(arg_s);
 			stack[sp - 1] = vf.string("");
 			return sp;
 		}
@@ -1325,6 +1354,29 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	node_equal_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode leftNode = (INode) stack[sp - 2];
+			INode rightNode = (INode) stack[sp - 1];
+			int leftArity = leftNode.arity();
+			int rightArity = rightNode.arity();
+			stack[sp - 2] = Rascal_FALSE;
+			
+			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
+				return sp - 1;
+			}
+			for(int i = 0; i < leftArity; i++){
+				if(!$equal(leftNode.get(i), rightNode.get(i), currentFrame).getValue()){
+					return sp - 1;
+				}
+			}
+			stack[sp - 2] = Rascal_TRUE;
+			return sp - 1;
+		}
+	},
+	
 	// equal on other types
 	
 	equal {
@@ -1335,6 +1387,8 @@ public enum RascalPrimitive {
 			IValue right = (IValue)stack[sp - 1];
 			if(left.getType().isNumber() && right.getType().isNumber()){
 				return num_equal_num.execute(stack, sp, arity, currentFrame);
+			} else if(left.getType().isNode() && right.getType().isNode()){
+				return node_equal_node.execute(stack, sp, arity, currentFrame);
 			} else {
 				stack[sp - 2] = vf.bool(left.isEqual(right));
 				return sp - 1;
@@ -1362,20 +1416,18 @@ public enum RascalPrimitive {
 			IString field = ((IString) stack[sp - 1]);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
-			if(tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
+			if (tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
 				stack[sp - 2] = Rascal_TRUE;
-			} else {
-				if(cons.getName().equals("appl")){
-					IConstructor prod = (IConstructor) cons.get("prod");
-					IList prod_symbols = (IList) prod.get("symbols");
+			} 
+			else {
+				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+					IConstructor prod = ((ITree) cons).getProduction();
 					
-					for(int i = 0; i < prod_symbols.length(); i++){
-						IConstructor arg = (IConstructor) prod_symbols.get(i);
-						if(arg.getName().equals("label")){
-							if(((IString) arg.get(0)).equals(field)){
-								stack[sp - 2] = Rascal_TRUE;
-								return sp - 1;
-							}
+					for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+						IConstructor arg = (IConstructor) elem;
+						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+							stack[sp - 2] = Rascal_TRUE;
+							return sp - 1;
 						}
 					}
 				}
@@ -1411,6 +1463,7 @@ public enum RascalPrimitive {
 					stack[sp - 2] = v;
 					return sp - 1;
 				}
+				// TODO jurgen rewrite to ITree API
 				if(cons.getName().equals("appl")){
 					IList appl_args = (IList) cons.get("args");
 					IConstructor prod = (IConstructor) cons.get("prod");
@@ -1865,10 +1918,17 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			IConstructor appl = (IConstructor) stack[sp - 2];
-			IList appl_args = (IList) appl.get("args");
-			IConstructor prod = (IConstructor) appl.get("prod");
-			IList prod_symbols = (IList) prod.get("symbols");
 			IString field = ((IString) stack[sp - 1]);
+			// TODO jurgen rewrite to ITree API
+			IList appl_args = (IList) appl.get("args");
+			if(field.getValue().equals("args")){		// TODO: Not sure does this belong here? Add more fields?
+				stack[sp - 2] = appl_args;
+				return sp - 1;
+			}
+			IConstructor prod = (IConstructor) appl.get("prod");
+			//System.err.println("nonterminal_field_access, prod = " + prod);
+			IList prod_symbols = (IList) prod.get("symbols");
+			
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
@@ -1880,6 +1940,29 @@ public enum RascalPrimitive {
 				}
 			}
 			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
+		}
+	},
+	
+	nonterminal_has_field {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor appl = (IConstructor) stack[sp - 2];
+			IConstructor prod = (IConstructor) appl.get("prod");
+			IList prod_symbols = (IList) prod.get("symbols");
+			IString field = ((IString) stack[sp - 1]);
+			// TODO jurgen rewrite to ITree API
+			for(int i = 0; i < prod_symbols.length(); i++){
+				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("label")){
+					if(((IString) arg.get(0)).equals(field)){
+						stack[sp - 2] = Rascal_TRUE;
+						return sp - 1;
+					}
+				}
+			}
+			stack[sp - 2] = Rascal_FALSE;
+			return sp - 1;
 		}
 	},
 	
@@ -1895,7 +1978,12 @@ public enum RascalPrimitive {
 			IValue val = (IValue) stack[sp - 2];
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
+				
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+				
+//				stdout.println("annotation_get: label  = " + label + ", on=" + val);
+//				stdout.println("annotation_get: result = " + stack[sp - 2]);
+			
 				if(stack[sp - 2] == null) {
 					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 				}
@@ -1903,6 +1991,24 @@ public enum RascalPrimitive {
 			} catch (FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 			}
+		}
+	},
+	is_defined_annotation_get {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val = (IValue) stack[sp - 2];
+			String label = ((IString) stack[sp - 1]).getValue();
+			try {
+				IValue v = val.asAnnotatable().getAnnotation(label);
+				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+				temp_array_of_2[1] = v;
+			} catch (FactTypeUseException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
 		}
 	},
 	annotation_set {
@@ -1914,6 +2020,10 @@ public enum RascalPrimitive {
 			String label = ((IString) stack[sp - 2]).getValue();
 			IValue repl = (IValue) stack[sp - 1];
 			stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
+			
+// 				stdout.println("annotation_SET: label  = " + label + ", repl=" + repl + ", on=" + val);
+// 				stdout.println("annotation_SET: result = " + stack[sp - 3]);
+		
 			return sp - 2;
 		}
 	},
@@ -2915,18 +3025,27 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isAppl((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(treeSubject instanceof IConstructor && TreeAdapter.isTree((IConstructor) treeSubject) && TreeAdapter.isAppl((ITree) treeSubject));
 			return sp;
 		}	
 	},
-	is_concrete_list {
+	is_layout {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isList((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
+			return sp;
+		}	
+	},
+	is_concretelist {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
 			return sp;
 		}	
 	},
@@ -2937,7 +3056,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
 			return sp;
 		}	
 	},
@@ -2948,7 +3067,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((IConstructor)treeSubject));
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
 			return sp;
 		}	
 	},
@@ -2958,7 +3077,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
 			return sp;
 		}	
 	},
@@ -2967,7 +3086,66 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getArgs((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getArgs((ITree)treeSubject);
+			return sp;
+		}	
+	},
+	
+	get_concrete_list_elements {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ITree treeSubject = (ITree) stack[sp - 1];
+			if (!(TreeAdapter.isList(treeSubject) || TreeAdapter.isOpt(treeSubject))) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
+				throw new ImplementationError(
+						"This is not a context-free list production: " + treeSubject);
+			}
+			IList children = TreeAdapter.getArgs(treeSubject);
+			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+
+			IConstructor symbol = TreeAdapter.getType(treeSubject);
+			boolean layoutPresent = false;
+			if(children.length() > 1){
+				ITree child1 = (ITree)children.get(1);
+				if(TreeAdapter.isLayout(child1)){
+					layoutPresent = true;
+				}
+			}
+			int delta = layoutPresent ? 2 : 1;
+			
+			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+				IList separators = SymbolAdapter.getSeparators(symbol);
+				boolean nonLayoutSeparator = false;
+				for(IValue sep : separators){
+					if(!((IConstructor) sep).getName().equals("layouts")){
+						nonLayoutSeparator = true;
+						break;
+					}
+				}
+				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
+			}
+
+			for (int i = 0; i < children.length();) {
+				IValue kid = children.get(i);
+				writer.append(kid);
+				// skip layout and/or separators
+				i += delta;
+			}
+			stack[sp - 1] = writer.done();
+			return sp;
+		}	
+	},
+	
+	strip_lexical {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IConstructor lexSubject = (IConstructor) stack[sp - 1];
+			if(lexSubject.getName().equals("conditional")){
+				lexSubject = (IConstructor) lexSubject.get("symbol");
+			}
+			
+			stack[sp - 1] = lexSubject;
 			return sp;
 		}	
 	},
@@ -2977,7 +3155,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getType((IConstructor)treeSubject);
+			stack[sp - 1] = TreeAdapter.getType((ITree)treeSubject);
 			return sp;
 		}	
 	},
@@ -2987,11 +3165,11 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
 			IValue treeSubject = (IValue) stack[sp - 1];
-			IConstructor symbol = TreeAdapter.getType((IConstructor)treeSubject);
+			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			stack[sp - 1] = 
 					
-					vf.constructor(Factory.Symbol_Sort, vf.string(typeName));
+					vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
 			return sp;
 		}	
 	},
@@ -3001,7 +3179,7 @@ public enum RascalPrimitive {
 	 */
 	
 	// Generic join
-	
+	// TODO note: how can join not know the types of its arguments yet?
 	join {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3012,6 +3190,7 @@ public enum RascalPrimitive {
 			IValue right = (IValue) stack[sp - 2];
 			Type rightType = right.getType();
 
+			// TODO: why dynamic dispatch here if the type checker should know about these cases?
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3311,7 +3490,7 @@ public enum RascalPrimitive {
 
 
 			switch (ToplevelType.getToplevelType(leftType)) {
-
+// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
 			case BOOL:
 				return bool_less_bool.execute(stack, sp, arity, currentFrame);
 			case STR:
@@ -3536,7 +3715,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) stack[sp - 2];
 			ISourceLocation right = (ISourceLocation) stack[sp - 1];
 
-			int compare = left.getURI().toString().compareTo(right.getURI().toString());
+			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
 				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
@@ -4006,7 +4185,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) stack[sp - 2];
 			ISourceLocation right = (ISourceLocation) stack[sp - 1];
 
-			int compare = left.getURI().toString().compareTo(right.getURI().toString());
+			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
 				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
@@ -4484,13 +4663,12 @@ public enum RascalPrimitive {
 	appl_create {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			Type applConstrType = (Type) stack[sp - 3];
+			assert arity == 2;
 			IValue prod = (IValue) stack[sp - 2];
 			IValue args = (IValue) stack[sp -1];
 
-			stack[sp - 3] = vf.constructor(applConstrType, prod, args);
-			return sp - 2;
+			stack[sp - 2] = vf.constructor(RascalValueFactory.Tree_Appl, prod, args);
+			return sp - 1;
 		}
 
 	},
@@ -5274,7 +5452,7 @@ public enum RascalPrimitive {
 			IValue source = (IValue) stack[sp - 1];
 			if(source.getType().isString()){
 				IString s = (IString) source;
-				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame.src, currentFrame);
 			} else {
 				ISourceLocation s = (ISourceLocation) source;
 				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
@@ -5284,12 +5462,13 @@ public enum RascalPrimitive {
 
 	},
 	parse_fragment {
+		// TODO: @paulklint how can parse fragment be a run-time primitive? 
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 5;
 			IString module_name = (IString) stack[sp - 5];
 			IValue start = (IValue) stack[sp - 4];
-			IConstructor ctree = (IConstructor) stack[sp - 3];
+			ITree ctree = (ITree) stack[sp - 3];
 			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 			IMap grammar = (IMap) stack[sp - 1];
 
@@ -5323,7 +5502,24 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	
+	is_defined_adt_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IConstructor cons =  (IConstructor) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+				temp_array_of_2[0] = Rascal_TRUE;
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+				
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	node_subscript_int {
 		@Override
@@ -5341,7 +5537,25 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_node_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode node =  (INode) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				if(idx < 0){
+					idx =  node.arity() + idx;
+				}
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = node.get(idx);  
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	list_subscript_int {
 		@Override
@@ -5357,6 +5571,22 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_list_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList lst = ((IList) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
 	map_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5365,6 +5595,17 @@ public enum RascalPrimitive {
 			if(stack[sp - 2] == null) {
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
+			return sp - 1;
+		}
+	},
+	is_defined_map_subscript {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			Object v = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+			temp_array_of_2[1] = v;
+			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
@@ -5382,7 +5623,23 @@ public enum RascalPrimitive {
 			}
 			return sp - 1;
 		}
-
+	},
+	is_defined_str_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IString str = ((IString) stack[sp - 2]);
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
+						              : str.substring(str.length() + idx, str.length() + idx + 1);
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
 	},
 	tuple_subscript_int {
 		@Override
@@ -5398,6 +5655,23 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	is_defined_tuple_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ITuple tup = (ITuple) stack[sp - 2];
+			int idx = ((IInteger) stack[sp - 1]).intValue();
+			try {
+				temp_array_of_2[0] = Rascal_TRUE;
+				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+			} catch(IndexOutOfBoundsException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
 	rel_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5503,6 +5777,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
+			// TODO: this code can be optimized and simplified via TreeAdapter
 			IConstructor appl = (IConstructor) stack[sp - 2];
 			IList appl_args = (IList) appl.get("args");
 			IConstructor prod = (IConstructor) appl.get("prod");
@@ -5861,16 +6136,19 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IValue subject = (IValue) stack[sp - 2];
 			Type subjectType = subject.getType();
-			
 			Type type = (Type) stack[sp - 1];
 			
-			if(subjectType == Factory.Tree && TreeAdapter.isAppl((IConstructor) subject) && type instanceof NonTerminalType){
-				NonTerminalType subjectNT = new NonTerminalType((IConstructor) subject);
-				NonTerminalType typeNT = (NonTerminalType) type;
-				stack[sp - 2] = vf.bool(subjectNT.equals(typeNT) || subjectNT.isSubtypeOfNonTerminal(typeNT));
-			} else {
+			// TODO: this special case should be unnecessary in the future
+//			if(type instanceof NonTerminalType){
+//				if(subjectType == RascalValueFactory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
+//					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
+//					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
+//				} else {
+//					stack[sp - 2] = Rascal_FALSE;
+//				}
+//			} else {
 				stack[sp - 2] = vf.bool(subjectType.isSubtypeOf(type));
-			}
+//			}
 			return sp - 1;
 		}
 	},
@@ -5992,9 +6270,9 @@ public enum RascalPrimitive {
 			Type type = typeReifier.symbolToType(type_cons, idefinitions);
 			
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(Factory.TypeParam, type);
+			bindings.put(RascalValueFactory.TypeParam, type);
 			
-			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			stack[sp - 2] = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
 			
 			return sp - 1;
 		}
@@ -6045,7 +6323,7 @@ public enum RascalPrimitive {
 			
 			IValue subject = (IValue) stack[sp - 2];
 			Object[] descriptor = (Object[]) stack[sp - 1];
-			stack[sp - 2] = $should_descent_on_value(subject, descriptor);
+			stack[sp - 2] = $should_descent_in_value(subject, descriptor);
 			return sp - 1;
 		}
 	},
@@ -6068,7 +6346,7 @@ public enum RascalPrimitive {
 			
 			Type key_type = subject.getType().getKeyType();
 			
-			stack[sp - 2] = $should_descent_on_type(key_type, symbolset);	
+			stack[sp - 2] = $should_descent_in_type(key_type, symbolset);	
 			return sp - 1;
 		}
 	},
@@ -6089,7 +6367,7 @@ public enum RascalPrimitive {
 			
 			Type val_type = subject.getType().getValueType();
 			
-			stack[sp - 2] = $should_descent_on_type(val_type, symbolset);	
+			stack[sp - 2] = $should_descent_in_type(val_type, symbolset);	
 			return sp - 1;
 		}
 	},
@@ -6202,12 +6480,14 @@ public enum RascalPrimitive {
 			IString uri = ((IString) stack[sp - 1]);
 
 			try {
-				stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
+				stack[sp - 1] = vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
 				return sp;
-			} catch (URISyntaxException e) {
-				throw RascalRuntimeException.illegalArgument(uri, currentFrame);
+			} 
+			catch (URISyntaxException e) {
+				// this is actually an unexpected run-time exception since Rascal prevents you from 
+				// creating non-encoded 
+				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
 			}
-
 		}
 	},
 	loc_with_offset_create {
@@ -6240,7 +6520,44 @@ public enum RascalPrimitive {
 			}
 			return sp;
 		}
-	};
+	}
+//	,
+//	traverse_bottom_up {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 8;
+//			OverloadedFunctionInstance phi = (OverloadedFunctionInstance) stack[sp - 8];
+//			IValue iSubject = (IValue) stack[sp - 7];
+//			Reference rHasMatch = (Reference) stack[sp - 6];
+//			Reference rBeenChanged = (Reference) stack[sp - 5];
+//			Reference rLeaveVisit = (Reference) stack[sp - 4];
+//			Reference rBegin = (Reference) stack[sp - 3];
+//			Reference rEnd = (Reference) stack[sp - 2];
+//			IValue descendantDescriptor = (IValue) stack[sp - 1];
+//			
+//			Object[] localStack = new Object[2];
+//			Reference rMatched = new Reference(localStack, 0);
+//			Reference rChanged = new Reference(localStack, 1);
+//			
+//			localStack[0] = vf.bool(false);
+//			localStack[1] = vf.bool(false);
+//			
+//			iSubject = VISIT_CHILDREN(iSubject, traverse_bottom_up, rHasMatch, phi, rBegin, rEnd, descendantDescriptor);
+//			iSubject = 
+//			rBeenChanged.setValue(((IBool)rChanged).or((IBool) rBeenChanged));
+//			return sp - 7;
+//		}
+//
+//		private IValue VISIT_CHILDREN(IValue iSubject,
+//				RascalPrimitive traverseBottomUp, Reference rHasMatch,
+//				OverloadedFunctionInstance phi, Reference rBegin,
+//				Reference rEnd, IValue descendantDescriptor) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//	}
+	
+	;
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
 
@@ -6248,6 +6565,7 @@ public enum RascalPrimitive {
 		return values[prim];
 	}
 
+	private static RascalExecutionContext rex;
 	private static IValueFactory vf;
 	private static TypeFactory tf;
 	private static TypeStore typeStore;
@@ -6255,6 +6573,7 @@ public enum RascalPrimitive {
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
+	private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
@@ -6262,8 +6581,7 @@ public enum RascalPrimitive {
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
-	private static Type valueType;
-	private static Type nodeType;
+	private static final Object[] temp_array_of_2 = new Object[2];
 	
 	private static ITestResultListener testResultListener;
 
@@ -6275,8 +6593,9 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(RVM usedRvm, RascalExecutionContext rex){
+	public static void init(RVM usedRvm, RascalExecutionContext usedRex){
 		rvm = usedRvm;
+		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
 		parsingTools = new ParsingTools(vf);
@@ -6291,14 +6610,23 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
-		valueType = tf.valueType();
-		nodeType = tf.nodeType();
 		testResultListener = rex.getTestResultListener();
 	}
 	
 	public static void reset(){
-		parsingTools.reset();
+		parsingTools = new ParsingTools(vf);
+		parsingTools.setContext(rex);
+		//parsingTools.reset();
+		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
+		type2symbolCache = new HashMap<Type,IConstructor>();
+	}
+	
+	public static void restoreRVMAndContext(RVM usedRvm, RascalExecutionContext usedRex){
+		if(rvm != usedRvm || rex != usedRex){
+			rvm = usedRvm;
+			rex = usedRex;
+		}
 	}
 
 	public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6388,13 +6716,54 @@ public enum RascalPrimitive {
 		indentStack.push(ind.substring(0, endIndex));
 		return s;
 	}
-
 	
-
-	private static String $removeMargins(String arg) {
-		arg = MARGIN.matcher(arg).replaceAll("");
-		return arg;
-		//return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
+	private static IString $removeMargins(IString s) {
+		// NB: ignored margin indents can only start *after* a new line.
+		// So atBeginning is initially false.
+		boolean atBeginning = false;
+		StringBuffer buf = new StringBuffer();
+		String indent = $getCurrentIndent();
+		
+		StringBuilder sb = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			int ch = s.charAt(i);
+			if (atBeginning && (ch == ' ' || ch == '\t')) {
+				buf.appendCodePoint(ch);
+				continue;
+			}
+			if (atBeginning && ch == '\'') {
+				// we've only seen ' ' and/or '\t' so we're about
+				// to reach real content, don't add to buf.
+				buf = new StringBuffer();
+				atBeginning = false;
+				continue;
+			}
+			if (ch == '\n') { // atBeginning &&
+				sb.append(buf);
+				buf = new StringBuffer(indent);
+				atBeginning = true;
+				sb.appendCodePoint(ch);
+				continue;
+			}
+			if (atBeginning) {
+				// we were in the margin, but found something other
+				// than ' ', '\t' and '\'', so anything in buf
+				// is actual content; add it.
+				sb.append(buf);
+				buf = new StringBuffer();
+				sb.appendCodePoint(ch);
+				atBeginning = false;
+				continue;
+			}
+			sb.appendCodePoint(ch);
+		}
+		
+		// Add trailing whitespace (fixes #543)
+		sb.append(buf.toString());
+		String jstr = sb.toString();
+		// TODO: inline this to avoid another pass over the string.
+		return vf.string(jstr);
+		//return vf.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(jstr));
 	}
 
 	private static ISourceLocation $loc_field_update(ISourceLocation sloc, String field, IValue repl,Frame currentFrame) {		
@@ -6548,7 +6917,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getURI().getScheme() + " does not support the port field, use authority instead.", currentFrame);
+					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -6716,7 +7085,14 @@ public enum RascalPrimitive {
 		return (IValue)fakeStack[0];
 	}
 
-
+	private static IBool $equal(IValue left, IValue right,Frame currentFrame){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		equal.execute(fakeStack, 2, 2, currentFrame);
+		return (IBool)fakeStack[0];
+	}
+	
 	private static IBool $lessequal(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -6781,14 +7157,10 @@ public enum RascalPrimitive {
 			}
 		}
 
-		if (len == 0) {
-			throw RascalRuntimeException.emptyList(currentFrame);
-		}
-		if (firstIndex >= len) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(firstIndex), currentFrame);
-		}
-		if (endIndex > len ) {
-			throw RascalRuntimeException.indexOutOfBounds(vf.integer(endIndex), currentFrame);
+		if(len == 0 || firstIndex >= len){
+			firstIndex = secondIndex = endIndex = 0;
+		} else if(endIndex > len){
+			endIndex = len;
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
@@ -6928,10 +7300,11 @@ public enum RascalPrimitive {
 	}
 
 	private static boolean $isTree(IValue v){
-		return v.getType() == Factory.Tree; //.isAbstractData() && v.getType().getName().equals("Tree");
+		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
 	
 	private static int $getIter(IConstructor cons){
+		// TODO: optimize away string equality
 		switch(cons.getName()){
 		case "iter": case "iter-star":
 			return 2;
@@ -6974,7 +7347,7 @@ public enum RascalPrimitive {
 		if(given instanceof IValue){
 			IValue val = (IValue) given;
 			Type tp = val.getType();
-			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().isSubtypeOf(RascalValueFactory.Tree)){
 				IList lst = (IList) val;
 				StringWriter w = new StringWriter();
 				for(int i = 0; i < lst.length(); i++){
@@ -7027,18 +7400,18 @@ public enum RascalPrimitive {
 
 			@Override
 			public IConstructor visitReal(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Real);
+				return vf.constructor(RascalValueFactory.Symbol_Real);
 			}
 
 			@Override
 			public IConstructor visitInteger(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Int);
+				return vf.constructor(RascalValueFactory.Symbol_Int);
 			}
 
 			@Override
 			public IConstructor visitRational(Type type)
 					throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Rat);
+				return vf.constructor(RascalValueFactory.Symbol_Rat);
 			}
 
 			@Override
@@ -7049,19 +7422,19 @@ public enum RascalPrimitive {
 					for(int i = 0; i < elementType.getArity(); i++){
 						fields[i] =elementType.getFieldType(i).accept(this);
 					}
-					return vf.constructor(Factory.Symbol_ListRel, vf.list(fields));
+					return vf.constructor(RascalValueFactory.Symbol_ListRel, vf.list(fields));
 				}
-				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_List, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IConstructor visitMap(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
 			}
 
 			@Override
 			public IConstructor visitNumber(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Num);
+				return vf.constructor(RascalValueFactory.Symbol_Num);
 			}
 
 			@Override
@@ -7077,25 +7450,25 @@ public enum RascalPrimitive {
 					for(int i = 0; i < elementType.getArity(); i++){
 						fields[i] =elementType.getFieldType(i).accept(this);
 					}
-					return vf.constructor(Factory.Symbol_Rel, vf.list(fields));
+					return vf.constructor(RascalValueFactory.Symbol_Rel, vf.list(fields));
 				}
-				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
+				return vf.constructor(RascalValueFactory.Symbol_Set, type.getElementType().accept(this));
 			}
 
 			@Override
 			public IConstructor visitSourceLocation(Type type)
 					throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Loc);
+				return vf.constructor(RascalValueFactory.Symbol_Loc);
 			}
 
 			@Override
 			public IConstructor visitString(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Str);
+				return vf.constructor(RascalValueFactory.Symbol_Str);
 			}
 
 			@Override
 			public IConstructor visitNode(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Node);
+				return vf.constructor(RascalValueFactory.Symbol_Node);
 			}
 
 			@Override
@@ -7106,7 +7479,7 @@ public enum RascalPrimitive {
 				for(int i = 0; i < fieldTypes.getArity(); i++){
 					args[i] = fieldTypes.getFieldType(i).accept(this);
 				}
-				return vf.constructor(Factory.Symbol_Cons, type.getAbstractDataType().accept(this), vf.string(type.getName()), vf.list(args));
+				return vf.constructor(RascalValueFactory.Symbol_Cons, type.getAbstractDataType().accept(this), vf.string(type.getName()), vf.list(args));
 				//return vf.constructor(Factory.Symbol_Cons, vf.string(type.getName()), type.getFieldTypes().accept(this));
 			}
 
@@ -7118,7 +7491,7 @@ public enum RascalPrimitive {
 				for(int i = 0; i < parameterType.getArity(); i++){
 					args[i] = parameterType.getFieldType(i).accept(this);
 				}
-				return vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
+				return vf.constructor(RascalValueFactory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
 			}
 
 			@Override
@@ -7127,22 +7500,22 @@ public enum RascalPrimitive {
 				for(int i = 0; i < type.getArity(); i++){
 					fields[i] = type.getFieldType(i).accept(this);
 				}
-				return vf.constructor(Factory.Symbol_Tuple, vf.list(fields));
+				return vf.constructor(RascalValueFactory.Symbol_Tuple, vf.list(fields));
 			}
 
 			@Override
 			public IConstructor visitValue(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Value);
+				return vf.constructor(RascalValueFactory.Symbol_Value);
 			}
 
 			@Override
 			public IConstructor visitVoid(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Void);
+				return vf.constructor(RascalValueFactory.Symbol_Void);
 			}
 
 			@Override
 			public IConstructor visitBool(Type type) throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Bool);
+				return vf.constructor(RascalValueFactory.Symbol_Bool);
 			}
 
 			@Override
@@ -7161,7 +7534,7 @@ public enum RascalPrimitive {
 			@Override
 			public IConstructor visitDateTime(Type type)
 					throws RuntimeException {
-				return vf.constructor(Factory.Symbol_Datetime);
+				return vf.constructor(RascalValueFactory.Symbol_Datetime);
 			}
 			
 		 });
@@ -7179,39 +7552,45 @@ public enum RascalPrimitive {
 	 * @return
 	 */
 	
-	private static IBool $should_descent_on_value(final IValue subject, final Object[] descriptor){
-		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		
-		if(subject instanceof IConstructor){
-			if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((IConstructor)subject)){
-				IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
-				if(symbolset.contains(prod)){
-					return Rascal_TRUE;
-				}
-				
-				Type prodConsType = prod.getConstructorType();
-				
-				if(prodConsType == Factory.Production_Regular){
-					IValue regularType = prod.get("def");
-					return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
-				}
-				if(prodConsType == Factory.Symbol_ParameterizedLex || prodConsType == Factory.Symbol_ParameterizedSort){
-					return Rascal_TRUE;
-				}
-				return Rascal_FALSE;
-			} else 
-			if(symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)){
-				return Rascal_TRUE;
-			}
-		}
-		return $should_descent_on_type(subject.getType(), symbolset);
+	private static IBool $should_descent_in_value(IValue subject, final Object[] descriptor){
+		return Rascal_TRUE;
+//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
+//		if(subject instanceof INode){
+//			if(subject instanceof IConstructor){
+//				if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((IConstructor)subject)){
+//					IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
+//					if(symbolset.contains(prod)){
+//						return Rascal_TRUE;
+//					}
+//
+//					Type prodConsType = prod.getConstructorType();
+//
+//					if(prodConsType == Factory.Production_Regular){
+//						IValue regularType = prod.get("def");
+//						return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
+//					}
+//					if(prodConsType == Factory.Symbol_ParameterizedLex || prodConsType == Factory.Symbol_ParameterizedSort){
+//						return Rascal_TRUE;
+//					}
+//					return Rascal_FALSE;
+//				} else  {
+//					IConstructor cons = (IConstructor) subject;
+//					subject = SymbolAdapter.delabel(cons); //TODO what if subject is no longer an INode?
+//					return symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(subject.getType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)
+//						? Rascal_TRUE : Rascal_FALSE;
+//					}
+//			}
+//			return 	Rascal_TRUE; //symbolset.contains(nodeType) || symbolset.contains(valueType) ? Rascal_TRUE : Rascal_FALSE;
+//		}
+//		return $should_descent_in_type(subject.getType(), symbolset);
 	}
 	
-	private static IBool $should_descent_on_type(final Type type, final HashSet<Object> symbolset){
-		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
-			return Rascal_TRUE;
-		}
-		return Rascal_FALSE;
+	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
+		return Rascal_TRUE;
+//		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
+//			return Rascal_TRUE;
+//		}
+//		return Rascal_FALSE;
 	}
 }
 

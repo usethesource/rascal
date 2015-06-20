@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class TypeArg extends AbstractAST {
-  public TypeArg(IConstructor node) {
-    super();
+  public TypeArg(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -47,13 +48,13 @@ public abstract class TypeArg extends AbstractAST {
   }
 
   static public class Default extends TypeArg {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Type","type")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Type type) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type) {
+      super(src, node);
       
       this.type = type;
     }
@@ -69,6 +70,23 @@ public abstract class TypeArg extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -79,7 +97,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 941 * type.hashCode() ; 
+      return 797 + 787 * type.hashCode() ; 
     } 
   
     
@@ -92,20 +110,26 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasType() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type));
+    }
+            
   }
   public boolean isNamed() {
     return false;
   }
 
   static public class Named extends TypeArg {
-    // Production: sig("Named",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")])
+    // Production: sig("Named",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name")],breakable=false)
   
     
     private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Name name;
   
-    public Named(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-      super(node);
+    public Named(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+      super(src, node);
       
       this.type = type;
       this.name = name;
@@ -122,6 +146,31 @@ public abstract class TypeArg extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = type.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        type.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Named)) {
         return false;
@@ -132,7 +181,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 887 * type.hashCode() + 773 * name.hashCode() ; 
+      return 397 + 191 * type.hashCode() + 977 * name.hashCode() ; 
     } 
   
     
@@ -154,5 +203,11 @@ public abstract class TypeArg extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(type), clone(name));
+    }
+            
   }
 }

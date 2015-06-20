@@ -37,6 +37,8 @@ import lang::csv::ast::Implode;
 import Type;
 import Map;
 import ParseTree;
+import List;
+import String;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -107,20 +109,9 @@ public value readCSV(loc location, map[str,str] options) {
 @reflect{Uses URI Resolver Registry}
 public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@deprecated{use the readCSV with keyword parameters}
-public &T readCSV(type[&T] result, loc location, map[str,str] options) {
-	return readCSV(result, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
-
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
-
-@deprecated{use the getCSVType with keyword parameters}
-public type[value] getCSVType(loc location, map[str,str] options) {
-	return getCSVType(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
-
 
 @doc{
 Synopsis: Write a relation to a CSV (Comma Separated Values) file.
@@ -157,12 +148,6 @@ will produce the following files:
 @reflect{Uses type parameter.}
 public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@deprecated{use writeCSV with optional parameters}
-//@reflect{Uses type parameter.}
-public void writeCSV(&T relation, loc location, map[str,str] options) {
-	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
-}
-
 public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 
 public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
@@ -171,7 +156,7 @@ public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l))
 @resource{csv}
 public str generate(str moduleName, loc uri) {
     map[str,str] options = uri.params;
-
+	
     // We can pass the name of the function to generate. If we did, grab it then remove
     // it from the params.
     str funname = "resourceValue";
@@ -180,7 +165,18 @@ public str generate(str moduleName, loc uri) {
         options = domainX(options,{"funname"});
     }
         
-    type[value] csvType = getCSVType(uri, options);
+    type[value] csvType = getCSVType(uri, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
+    
+    optionParams = [];
+    if ("header" in options) {
+    	optionParams = optionParams + "header=<options["header"]>";
+    }
+    if ("separator" in options) {
+    	optionParams = optionParams + "separator=\"<options["separator"]>\"";
+    }
+    if ("encoding" in options) {
+    	optionParams = optionParams + "encoding=\"<options["encoding"]>\"";
+    }
     
     mbody = "module <moduleName>
             'import lang::csv::IO;
@@ -188,7 +184,7 @@ public str generate(str moduleName, loc uri) {
             'alias <funname>Type = <csvType>;
             '
             'public <funname>Type <funname>() {
-            '   return readCSV(#<csvType>, <uri>, <options>);
+            '   return readCSV(#<csvType>, <uri><if(size(optionParams)>0){>, <intercalate(",",optionParams)><}>);
             '}
             '";
             

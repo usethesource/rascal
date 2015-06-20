@@ -46,6 +46,7 @@ public class Webserver {
         URI uri = url.getURI();
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
+    host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
     final ICallableValue callee = (ICallableValue) callback; 
     
     NanoHTTPD server = new NanoHTTPD(host, port) {
@@ -166,6 +167,7 @@ public class Webserver {
     try {
       server.start();
     } catch (IOException e) {
+    	System.err.println("laat zien: " + e);
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
     }
   }
@@ -186,7 +188,7 @@ public class Webserver {
   @Override
   protected void finalize() throws Throwable {
     for (NanoHTTPD server : servers.values()) {
-      if (server != null) {
+      if (server != null && server.wasStarted()) {
         server.stop();
       }
     }

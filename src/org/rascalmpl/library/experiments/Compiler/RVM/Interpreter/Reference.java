@@ -10,7 +10,7 @@ public class Reference {
 	final Object[] stack;
 	final int pos;
 	
-	public Reference(Object[] stack, int pos) {
+	public Reference(final Object[] stack, final int pos) {
 		this.stack = stack;
 		this.pos = pos;
 	}

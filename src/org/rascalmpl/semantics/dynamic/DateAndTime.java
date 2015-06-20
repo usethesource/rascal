@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -33,8 +34,8 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
 	static public class Lexical extends org.rascalmpl.ast.DateAndTime.Lexical {
 
-		public Lexical(IConstructor __param1, String __param2) {
-			super(__param1, __param2);
+		public Lexical(ISourceLocation __param1, IConstructor tree, String __param2) {
+			super(__param1, tree, __param2);
 		}
 
 		@Override
@@ -68,7 +69,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
 	}
 
-	public DateAndTime(IConstructor __param1) {
-		super(__param1);
+	public DateAndTime(ISourceLocation __param1, IConstructor tree) {
+		super(__param1, tree);
 	}
 }

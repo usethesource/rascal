@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Toplevel extends AbstractAST {
-  public Toplevel(IConstructor node) {
-    super();
+  public Toplevel(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class Toplevel extends AbstractAST {
   }
 
   static public class GivenVisibility extends Toplevel {
-    // Production: sig("GivenVisibility",[arg("org.rascalmpl.ast.Declaration","declaration")])
+    // Production: sig("GivenVisibility",[arg("org.rascalmpl.ast.Declaration","declaration")],breakable=false)
   
     
     private final org.rascalmpl.ast.Declaration declaration;
   
-    public GivenVisibility(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
-      super(node);
+    public GivenVisibility(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(src, node);
       
       this.declaration = declaration;
     }
@@ -62,6 +63,23 @@ public abstract class Toplevel extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = declaration.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        declaration.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof GivenVisibility)) {
         return false;
@@ -72,7 +90,7 @@ public abstract class Toplevel extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 109 * declaration.hashCode() ; 
+      return 661 + 499 * declaration.hashCode() ; 
     } 
   
     
@@ -85,5 +103,11 @@ public abstract class Toplevel extends AbstractAST {
     public boolean hasDeclaration() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(declaration));
+    }
+            
   }
 }

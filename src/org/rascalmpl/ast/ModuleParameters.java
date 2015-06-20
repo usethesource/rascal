@@ -17,10 +17,11 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class ModuleParameters extends AbstractAST {
-  public ModuleParameters(IConstructor node) {
-    super();
+  public ModuleParameters(ISourceLocation src, IConstructor node) {
+    super(src /* we forget node on purpose */);
   }
 
   
@@ -40,13 +41,13 @@ public abstract class ModuleParameters extends AbstractAST {
   }
 
   static public class Default extends ModuleParameters {
-    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.TypeVar\>","parameters")])
+    // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.TypeVar\>","parameters")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.TypeVar> parameters;
   
-    public Default(IConstructor node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
-      super(node);
+    public Default(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
+      super(src, node);
       
       this.parameters = parameters;
     }
@@ -62,6 +63,25 @@ public abstract class ModuleParameters extends AbstractAST {
     }
   
     @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : parameters) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
     public boolean equals(Object o) {
       if (!(o instanceof Default)) {
         return false;
@@ -72,7 +92,7 @@ public abstract class ModuleParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 367 * parameters.hashCode() ; 
+      return 211 + 83 * parameters.hashCode() ; 
     } 
   
     
@@ -85,5 +105,11 @@ public abstract class ModuleParameters extends AbstractAST {
     public boolean hasParameters() {
       return true;
     }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(parameters));
+    }
+            
   }
 }

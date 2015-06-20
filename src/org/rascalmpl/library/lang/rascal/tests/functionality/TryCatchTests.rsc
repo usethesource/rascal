@@ -100,6 +100,30 @@ int safeDivide(int x, int y){
  		return 0; 
 }
 
+
+int catchStackThrow(int i) {
+	throw i ;
+}
+
+value catchStack() {
+        int i = 1;
+        int y = 0 ;
+        while (i < 50) {
+            try {
+				y = 1 + catchStackThrow(i) ;
+            }
+            catch int x : {
+            	i = x + 1 ;
+            }
+      }
+      return <i> ;
+}
+
+// testCatchStack
+
+test bool testCatchStack() = catchStack() == <50> ;
+
+
 // testClassify
   
 test bool testClassify1() = classify(3) == 1;
@@ -174,6 +198,38 @@ test bool pathNotFoundException1() {
 		S = readFile(|file:///DoesNotExist|);
 	} catch PathNotFound(loc location):
 		return true;
+	return false;
+}
+
+test bool emptyTryStatement() {
+	try;
+	catch: ;
+	return return true;
+}
+
+test bool emptyTryBlock() {
+	try {
+	;
+	}
+	catch: ;
+	return return true;
+}
+
+// empty catch statement
+
+test bool emptyCatchStatement() {
+	try {
+		return true;
+	} catch: ;
+	return false;
+}
+
+// empty catch block
+
+test bool emptyCatchBlock() {
+	try {
+		return true;
+	} catch: ;
 	return false;
 }
 

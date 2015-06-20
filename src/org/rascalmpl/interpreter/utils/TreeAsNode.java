@@ -3,7 +3,6 @@ package org.rascalmpl.interpreter.utils;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -12,14 +11,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeAsNode implements INode {
   private final String name;
   private final IList args;
-  private final IConstructor tree;
+  private final ITree tree;
 
-  public TreeAsNode(IConstructor tree) {
+  public TreeAsNode(ITree tree) {
     this.name = TreeAdapter.getConstructorName(tree);
     this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
     this.tree = tree;

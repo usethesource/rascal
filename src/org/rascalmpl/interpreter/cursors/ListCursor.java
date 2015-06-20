@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -61,6 +62,11 @@ public class ListCursor extends Cursor implements IList {
 	@Override
 	public IList reverse() {
 		return new ListCursor(getList().reverse(), getCtx());
+	}
+	
+	@Override
+	public IList shuffle(Random rand) {
+		return new ListCursor(getList().shuffle(rand), getCtx());
 	}
 
 	@Override
