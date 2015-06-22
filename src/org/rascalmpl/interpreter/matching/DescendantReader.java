@@ -114,22 +114,19 @@ public class DescendantReader implements Iterator<IValue> {
 	private void pushConcreteSyntaxNode(ITree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
 		
-		if (TreeAdapter.isLexical(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
-			/*
-			 * Don't recurse
-			 */
+		if (TreeAdapter.isChar(tree) || TreeAdapter.isCycle(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
 			spine.push(tree);
-			return;
+			return; // do not recurse
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
+			// only recurse
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				pushConcreteSyntaxNode((ITree) alt);
 			}
 			return;
-//			throw new ImplementationError("Cannot handle ambiguous subject");
 		}
-			
+		
 		NonTerminalType ctype = (NonTerminalType) tree.getType();
 		if (debug) System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		IConstructor sym = ctype.getSymbol();
@@ -162,7 +159,7 @@ public class DescendantReader implements Iterator<IValue> {
 			 */
 			spine.push(tree);
 			IList applArgs = (IList) tree.get(1);
-			int delta = (SymbolAdapter.isLiteral(sym)) ? 1 : 2;   // distance between elements
+			int delta = (SymbolAdapter.isLex(sym)) ? 1 : 2;   // distance between elements
 			
 			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
 				//spine.push(applArgs.get(i));

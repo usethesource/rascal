@@ -114,7 +114,7 @@ public class TreeAdapter {
 	}
 	
 	public static IConstructor getProduction(ITree tree) {
-		return (IConstructor) tree.get("prod");
+		return tree.getProduction();
 	}
 	
 	public static IConstructor getType(ITree tree) {

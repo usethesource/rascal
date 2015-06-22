@@ -1,6 +1,11 @@
 module experiments::vis2::sandbox::Demo
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::Steden;
+import experiments::vis2::sandbox::Nederland;
+import experiments::vis2::sandbox::SinAndCos;
+import experiments::vis2::sandbox::AEX;
+import experiments::vis2::sandbox::Graph;
 import Prelude;
 
 void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, align = centerMid);
@@ -70,7 +75,7 @@ void tst(loc l) = writeFile(l, toHtmlString(hcat(figs=[shape(innerSchoolPlot1()+
         lineColor = "blue")])));  
      
 Figure schoolPlot() {
-     return  overlay(width = 600, height = 600, figs = [
+     return  overlay(lineWidth=1, width = 600, height = 600, figs = [
         shape(innerSchoolPlot1()+innerSchoolPlot2(), fillColor = "none",
         scaleX=<<0,10>,<0,400>>, scaleY=<<0,10>,<400,0>>, width = 400, height = 400, 
         lineColor = "blue"), 
@@ -126,16 +131,23 @@ Figure labeled(Figure g) {
       render( 
       demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
+   
       
-Figure demoFig() = grid(figArray=[[demo1(), demo2()], [demo3(), demo4()]
-            , [demo5(), demo6()], [demo7(), demo8()]]);
+Figure demoFig() = grid(figArray=[
+            [demo1(), demo2()]
+             , [demo3() , demo4()]
+             , [demo5(), demo6()]
+             , [demo7(), demo8()]
+             ,[demo9(), demo10()]
+             ,[demo11(), demo0()]
+            ]);
                   
 void demo() = render(demoFig(),
-     width = 800, height = 1600);
+     width = 800, height = 1800);
      
  void fdemo(loc l) {
       // println(schoolPlot());
-      writeFile(l, toHtmlString(demoFig(), debug = false, width = 800, height = 1600));
+      writeFile(l, toHtmlString(demoFig(), debug = false, width = 800, height = 800));
       }
 
 
@@ -263,10 +275,15 @@ void vennDiagram(loc l)= writeFile(l, toHtmlString(vennDiagram0(), debug = false
 
 /**********************  markers ******************************/
 
+Figure marker() = shape([move(10, 10), line(200, 200)], scaleX=<<0, 1>,<0, 1>>, scaleY=<<0,1>,<0,1>>, 
+     startMarker = box(lineWidth = 1, size=<50,50>, fig = circle(r=20, fillColor = "blue", fig = text("hello")), fillColor = "red"));
+
+void tmarker()=render(marker());
+
 Figure plotg(num(num) g, list[num] d) {
      Figure f = shape( [move(d[0], g(d[0]))]+[line(x, g(x))|x<-tail(d)]
          scaleX=<<-1,1>,<20,320>>,  scaleY=<<0,1>,<100,300>>,
-         size=<400, 400>,shapeCurved=  true, lineColor = "red"
+         size=<400, 220>,shapeCurved=  true, lineColor = "red"
          , startMarker = box(width=10, height = 10,  fillColor = "blue", lineWidth = 0)
          , midMarker = ngon(n=3, r=4, fillColor = "purple", lineWidth = 0)
          , endMarker = ngon(n=3, r=10, fillColor = "green", lineWidth = 0)
@@ -342,7 +359,29 @@ Figure flags() = grid(hgap=5, vgap = 5, figArray=[[dutch(), luxembourg(), german
                     width = 400, height = 200);  
    
    
-Figure demo8() = flags();                 
+Figure demo8() = flags(); 
+
+Figure demo9() = steden(); 
+
+Figure demo10() = sinAndCos();   
+
+Figure demo11() = nederland(1); 
+
+Figure demo12() = nederland(7); 
+
+Figure demo0() = fsm();                
                     
 void tflags() = render(flags());           
+
+void tsteden() = render(steden(width=800, height = 800));
+
+void tnederland() = render(nederland(5, width=400, height = 200));
+
+void tsincos() = render(sinAndCos());
+
+void taex() = render(aex());
+
+void tfsm() = render(fsm());
+
+
 
