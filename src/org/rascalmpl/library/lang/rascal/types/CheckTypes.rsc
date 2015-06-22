@@ -8466,6 +8466,13 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
 public anno map[loc,str] Tree@docStrings;
 public anno map[loc,set[loc]] Tree@docLinks;
 
+public anno map[loc,str] start[Module]@docStrings;
+public anno map[loc,set[loc]] start[Module]@docLinks;
+
+public anno map[loc,str] Module@docStrings;
+public anno map[loc,set[loc]] Module@docLinks;
+
+
 public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck);
 }
@@ -8521,6 +8528,14 @@ public default Module check(Tree t) {
 	else
 		throw "Cannot check arbitrary trees";
 }
+
+public default start[Module] check(loc l) {
+  m = parse(#start[Module], l);
+  m.top = check(m.top);
+  m@docLinks = m.top@docLinks;
+  m@docStrings = m.top@docStrings;
+  return m;
+} 
 
 CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
 	sym = visit(sym) {

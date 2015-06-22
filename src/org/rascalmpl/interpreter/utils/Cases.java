@@ -342,7 +342,7 @@ public class Cases  {
 				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
 				StringConstant constant = name.getLiteral().getStringLiteral().getConstant();
-        key = StringUtils.unescapeBase(StringUtils.unquote(((StringConstant.Lexical) constant).getString()));
+				key = StringUtils.unescapeBase(StringUtils.unquote(((StringConstant.Lexical) constant).getString()));
 			}
 
 			List<DefaultBlock> same = table.get(key);
