@@ -187,6 +187,7 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
    	    println("rascal2rvm: Parsing and checking <moduleLoc>");
    		M = parse(#start[Module], moduleLoc).top;
    	    config  = checkModule(M, newConfiguration(), bindir=bindir);
+   	    //text(config);
    	} catch e: {
    	    throw e;
    	}

@@ -125,7 +125,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			index = functionStore.size();
 			functionMap.put(fname, index);
 			functionStore.add(null);
-			System.out.println("useFunctionName (undef): " + index + "  => " + fname);
+			//System.out.println("useFunctionName (undef): " + index + "  => " + fname);
 		}
 		//System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
