@@ -1370,9 +1370,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
   //     println("ftype = <ftype>, of.alts = <of.alts>");
   //
        
-       accessible = accessibleScopes(expression@\loc) + {0};
-       //println("accessible = <accessible>");
-       for(int alt <- of.alts, declaredScope(alt) in accessible) {
+       for(alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
@@ -1380,7 +1378,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
-       resolved = sortOverloadedFunctions(toSet(resolved));
+      // resolved = sortOverloadedFunctions(toSet(resolved));
        
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
