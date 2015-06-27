@@ -782,6 +782,7 @@ str convert2fuid(UID uid) {
         	    }
         	    name = replaceAll(path, "/", "::") + "/" + name;
         	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");
+        	    //println("convert2fuid(<uid>) =\> <name>");
         	    return name;
 			}
         }
@@ -950,7 +951,7 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
      cachedScope = false;
   }
   
-  res = [ alt | alt <- uids, declaredScope(alt) in accessible ];
+  res = [ alt | UID alt <- uids, declaredScope(alt) in accessible ];
   accessibleFunctions[key] = res;
   //println("<cachedScope ? "CACHED SCOPES: " : "">accessibleAlts(<uids>, <luse>): <res>");
   return res;
