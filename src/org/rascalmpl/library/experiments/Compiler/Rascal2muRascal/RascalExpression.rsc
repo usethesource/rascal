@@ -1372,6 +1372,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        for(alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
+assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
            	   //println("alt <alt> matches");
@@ -1591,11 +1592,15 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
 private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isDefined){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
+    list_of_subscripts = [ s | s <- subscripts ]; // redundant
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
+    } else 
+    if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
+    	op = "list_subscript_int";
     }
     if(isDefined){
     	op = "is_defined_<op>";
@@ -1681,7 +1686,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
 // -- field project expression --------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
-    tp = getType(expression@\loc);   
+    tp = getType(expression@\loc); 
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -1692,7 +1697,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
-    }	
+    }
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
     return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
