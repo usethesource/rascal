@@ -273,7 +273,8 @@ void listDecls(RVMProgram p, Query select, int line, bool listing){
 }
 
 void statistics(loc root = |project://rascal/src/|,
-                loc bindir = |home:///bin|
+                loc bindir = |home:///bin|,
+                bool printMessages = false
                 ){
     allFiles = find(root, "rsc");
     
@@ -281,17 +282,29 @@ void statistics(loc root = |project://rascal/src/|,
     ncoroutines = 0;
     ninstructions = 0;
   
-    messages = {};
+    messages = [];
     missing = {};
     nsuccess = 0;
+    
+    if(printMessages){
+    	println("Messages:\n");
+    }
+    
     for(f <- allFiles){
         rvmLoc = RVMProgramLocation(f, bindir);
         try {
-            p = readTextValueFile(#RVMProgram, rvmLoc);
+            p = readBinaryValueFile(#RVMProgram, rvmLoc);
             if(size(p.messages) == 0 || all(msg <- p.messages, msg is warning)){
                 nsuccess += 1;
             }
-            messages += p.messages;
+            messages += toList(p.messages);
+            
+            if(printMessages && size(p.messages) > 0){
+               println(f);
+               for(msg <- p.messages){
+        	      println("\t<msg>");
+        	   }
+        	} 
            
             for(dname <- p.declarations){
                 decl = p.declarations[dname];
@@ -312,6 +325,7 @@ void statistics(loc root = |project://rascal/src/|,
     
     fatal = {};
     
+    
     for(msg <- messages){
         if(msg is error){
             if(findFirst(msg.msg, "Fatal compilation error") >= 0){
@@ -324,7 +338,9 @@ void statistics(loc root = |project://rascal/src/|,
          }
     }
     
-    println("files:        <size(allFiles)>
+    println("\nStatistics:
+            '
+            'files:        <size(allFiles)>
             'functions:    <nfunctions>
             'coroutines:   <ncoroutines>
             'instructions: <ninstructions>
@@ -342,7 +358,7 @@ set[loc] getFunctionLocations(
 							){
    rvmLoc = RVMProgramLocation(srcLoc, bindir);
    try {
-        p = readTextValueFile(#RVMProgram, rvmLoc);
+        p = readBinaryValueFile(#RVMProgram, rvmLoc);
         
         return {p.declarations[dname].src | dname <- p.declarations};
    } catch e: {
