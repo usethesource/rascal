@@ -66,18 +66,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public enum RascalPrimitive {
 
-	assertreport {
+	assert_fails {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			boolean succeeded = ((IBool) stack[sp - 3]).getValue();
-			IString message = (IString) stack[sp - 2];
-			ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
-			if(!succeeded){
-				stdout.println("Assertion failed" + message + " at " + src);
-				throw RascalRuntimeException.assertionFailed(message, src,  currentFrame);
-			}
-			return sp - 2;
+			assert arity == 1;
+			IString message = (IString) stack[sp - 1];
+			stdout.println("Assertion failed" + message + " at " + currentFrame.src);
+			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
 		}
 	},
 
