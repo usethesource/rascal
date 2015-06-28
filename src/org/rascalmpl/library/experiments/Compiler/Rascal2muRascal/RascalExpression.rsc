@@ -1370,7 +1370,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
   //     println("ftype = <ftype>, of.alts = <of.alts>");
   //
        
-       for(alt <- accessibleAlts(of.alts, expression@\loc)){
+       for(UID alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
 assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
@@ -1680,7 +1680,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
     }	
-    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ], e@\loc);
+    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, unescape("<key>"))), translate(replacement) ], e@\loc);
 }
 
 // -- field project expression --------------------------------------
@@ -1698,7 +1698,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
     }
-    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
+    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
     return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
 }
