@@ -1927,6 +1927,9 @@ public enum RascalPrimitive {
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("conditional")){
+					arg = (IConstructor) arg.get(0);
+				}
 				if(arg.getName().equals("label")){
 					if(((IString) arg.get(0)).equals(field)){
 						stack[sp - 2] = appl_args.get(i);
@@ -1949,6 +1952,9 @@ public enum RascalPrimitive {
 			// TODO jurgen rewrite to ITree API
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("conditional")){
+					arg = (IConstructor) arg.get(0);
+				}
 				if(arg.getName().equals("label")){
 					if(((IString) arg.get(0)).equals(field)){
 						stack[sp - 2] = Rascal_TRUE;
