@@ -493,6 +493,13 @@ test bool testList45() = 2 in [1, 2, 3];
 test bool testList46() = 3 notin [2, 4, 6];
     		
 test bool testList47() = (2 > 3 ? [1,2] : [1,2,3]) == [1,2,3];
+
+@ignoreInterpreter{Not implemented}
+test bool testList48() = 1 >> [2, 3] == [1, 2, 3];
+
+@ignoreInterpreter{Not implemented}
+test bool testList49() = [2, 3] << 4 == [2, 3, 4];
+
     
 	@expected{IndexOutOfBounds}
 test bool  SubscriptError11() { 		[1,2][5];return false;  	}
