@@ -1883,8 +1883,11 @@ MuExp translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`) =
 
 // -- append after expression ---------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`) =
-    infix("add", e);
+MuExp translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`) {
+   op = "add";
+   lot = getOuterType(e.lhs);
+   return muCallPrim3("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
+}
 
 // -- modulo expression ---------------------------------------------
 
