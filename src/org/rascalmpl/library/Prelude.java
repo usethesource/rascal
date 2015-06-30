@@ -2088,33 +2088,34 @@ public class Prelude {
 		File file = new File(loc.getPath());
 		
 		String name = file.getName().replaceAll(".java", "");
+		String pkg = file.getParent().substring(file.getParent().indexOf("org")).replaceAll("/", ".");
 		
 		System.out.println("Path: " + loc.getPath() + "; file name: " + file.getName() + "; class name: " + name);
 		
 		try {
 			PrintWriter writer = new PrintWriter(file.getAbsolutePath(), "UTF-8");
-			writer.println("package org.jgll.parser.datadependent.precedence;");
+			writer.println("package " + pkg + ";");
 			writer.println();
 			writer.println("import java.util.Arrays;");
-			writer.println("import org.jgll.datadependent.ast.AST;");
-			writer.println("import org.jgll.grammar.Grammar;");
-			writer.println("import org.jgll.grammar.GrammarGraph;");
-			writer.println("import org.jgll.grammar.condition.ConditionType;");
-			writer.println("import org.jgll.grammar.condition.RegularExpressionCondition;");
-			writer.println("import org.jgll.grammar.symbol.*;");
-			writer.println("import org.jgll.grammar.symbol.Character;");
-			writer.println("import static org.jgll.grammar.symbol.LayoutStrategy.*;");
-			writer.println("import org.jgll.grammar.transformation.DesugarAlignAndOffside;");
-			writer.println("import org.jgll.grammar.transformation.DesugarPrecedenceAndAssociativity;");
-			writer.println("import org.jgll.grammar.transformation.EBNFToBNF;");
-			writer.println("import org.jgll.grammar.transformation.LayoutWeaver;");
-			writer.println("import org.jgll.parser.GLLParser;");
-			writer.println("import org.jgll.parser.ParseResult;");
-			writer.println("import org.jgll.parser.ParserFactory;");
-			writer.println("import org.jgll.regex.*;");
-			writer.println("import org.jgll.util.Configuration;");
-			writer.println("import org.jgll.util.Input;");
-			writer.println("import org.jgll.util.Visualization;");
+			writer.println("import org.iguana.datadependent.ast.AST;");
+			writer.println("import org.iguana.grammar.Grammar;");
+			writer.println("import org.iguana.grammar.GrammarGraph;");
+			writer.println("import org.iguana.grammar.condition.ConditionType;");
+			writer.println("import org.iguana.grammar.condition.RegularExpressionCondition;");
+			writer.println("import org.iguana.grammar.symbol.*;");
+			writer.println("import org.iguana.grammar.symbol.Character;");
+			writer.println("import static org.iguana.grammar.symbol.LayoutStrategy.*;");
+			writer.println("import org.iguana.grammar.transformation.DesugarAlignAndOffside;");
+			writer.println("import org.iguana.grammar.transformation.DesugarPrecedenceAndAssociativity;");
+			writer.println("import org.iguana.grammar.transformation.EBNFToBNF;");
+			writer.println("import org.iguana.grammar.transformation.LayoutWeaver;");
+			writer.println("import org.iguana.parser.GLLParser;");
+			writer.println("import org.iguana.parser.ParseResult;");
+			writer.println("import org.iguana.parser.ParserFactory;");
+			writer.println("import org.iguana.regex.*;");
+			writer.println("import org.iguana.util.Configuration;");
+			writer.println("import org.iguana.util.Input;");
+			writer.println("import org.iguana.util.Visualization;");
 			writer.println();
 			writer.println("import org.junit.Assert;");
 			writer.println("import org.junit.Test;");
