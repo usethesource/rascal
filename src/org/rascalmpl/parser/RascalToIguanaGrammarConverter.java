@@ -1018,6 +1018,10 @@ public class RascalToIguanaGrammarConverter {
 				return lExt(Names.name(Names.lastName(qname.getQualifiedName())));
 			else if (name.equals("rExt"))
 				return rExt(Names.name(Names.lastName(qname.getQualifiedName())));
+			else if (name.equals("yield"))
+				return yield(Names.name(Names.lastName(qname.getQualifiedName())));
+			else if (name.equals("val"))
+				return val(Names.name(Names.lastName(qname.getQualifiedName())));
 			else
 				throw new RuntimeException("Unsupported expression: " + this);
 		}
