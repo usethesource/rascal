@@ -205,6 +205,86 @@ test bool concreteSwitch6(){
 	throw "fail due to missing match";
 }
 
+test bool concreteSwitch7(){
+	switch([As] "aaa"){
+		case (As) `<A+ as>`: 		
+				return "<as>" == "aaa"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch8(){
+	switch([As] "a.a.a"){
+		case (As) `<A+ as>`: 		
+				return "<as>" == "a.a.a"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch9(){
+	switch([Bs] "bbb"){
+		case (Bs) `<B* bs>`: 		
+				return "<bs>" == "bbb"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch10(){
+	switch([Bs] "b..b..b"){
+		case (Bs) `<B* bs>`: 		
+				return "<bs>" == "b..b..b"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch11(){
+	switch([Cs] "c,c,c,c"){
+		case (Cs) `<{C ","}+ cs>`: 		
+				return "<cs>" == "c,c,c,c"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch12(){
+	switch([Cs] "c.,.c.,.c.,.c"){
+		case (Cs) `<{C ","}+ cs>`: 		
+				return "<cs>" == "c.,.c.,.c.,.c"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch13(){
+	switch([Ds] "d,d,d,d"){
+		case (Ds) `<{D","}* ds>`: 		
+				return "<ds>" == "d,d,d,d"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
+test bool concreteSwitch14(){
+	switch([Ds] "d.,.d.,.d.,.d"){
+		case (Ds) `<{D","}* ds>`: 		
+				return "<ds>" == "d.,.d.,.d.,.d"; 
+		default: 		 
+				return false;
+	}
+	throw "fail due to missing match";
+}
+
 test bool matchInsideLexicalCyclicGrammar1() 
     = /E _ := [EFs]"eefef";
 
