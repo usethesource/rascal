@@ -368,12 +368,16 @@ public class RascalToIguanaGrammarConverter {
 			Symbol last = body.get(body.size() - 1);
 			if (last instanceof Code) {
 				Code code = (Code) last;
-				org.iguana.datadependent.ast.Statement lastStmt = code.getStatements()[code.getStatements().length];
+				org.iguana.datadependent.ast.Statement lastStmt = code.getStatements()[code.getStatements().length - 1];
 				if (lastStmt instanceof org.iguana.datadependent.ast.Statement.Expression) {
 					Return ret = Return.builder(((org.iguana.datadependent.ast.Statement.Expression) lastStmt).getExpression()).build();
-					code = Code.code(code.getSymbol(), Arrays.copyOf(code.getStatements(), code.getStatements().length - 1));
 					body.remove(body.size() - 1);
-					body.add(code);
+					if (code.getStatements().length == 1) {
+						body.add(code.getSymbol());
+					} else {
+						code = Code.code(code.getSymbol(), Arrays.copyOf(code.getStatements(), code.getStatements().length - 1));
+						body.add(code);
+					}
 					body.add(ret);
 				}
 				
@@ -1164,8 +1168,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public Boolean visit(Return symbol) {
-			// TODO: support for return
-			return null;
+			return false;
 		}
 
 		@Override
