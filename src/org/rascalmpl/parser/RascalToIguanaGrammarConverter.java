@@ -59,6 +59,7 @@ import org.iguana.grammar.symbol.IfThenElse;
 import org.iguana.grammar.symbol.Ignore;
 import org.iguana.grammar.symbol.LayoutStrategy;
 import org.iguana.grammar.symbol.Nonterminal;
+import org.iguana.grammar.symbol.Nonterminal.Builder;
 import org.iguana.grammar.symbol.Offside;
 import org.iguana.grammar.symbol.PrecedenceLevel;
 import org.iguana.grammar.symbol.Recursion;
@@ -212,6 +213,22 @@ public class RascalToIguanaGrammarConverter {
 		List<Rule> rules = new ArrayList<>();
 		
 		Nonterminal head = Nonterminal.withName(getName((IConstructor) nonterminal));
+		IList formals = (IList) nonterminal.asWithKeywordParameters().getParameters().get("formals");
+		if (formals != null) {
+			Builder builder = Nonterminal.builder(head);
+			String[] parameters = new String[formals.length()];
+			int i = 0;
+			for (IValue formal : formals) {
+				if (formal instanceof IConstructor) {
+					IConstructor symbol = (IConstructor) formal;
+					if (symbol.getName() == "label")
+						parameters[i++] = getLabel(symbol);
+				} else {
+					throw new RuntimeException("Unexpected type of a formal parameter: " + formal);
+				}
+			}
+			head = builder.addParameters(parameters).build();
+		}
 		
 		IConstructor choice = (IConstructor) definitions.get(nonterminal);
 		assert choice.getName().equals("choice");
@@ -477,7 +494,19 @@ public class RascalToIguanaGrammarConverter {
 		switch (symbol.getName()) {
 			case "sort":
 			case "lex":
-				return Nonterminal.withName(getName(symbol));
+				Nonterminal nonterminal = Nonterminal.withName(getName(symbol));
+				IList actuals = (IList) symbol.asWithKeywordParameters().getParameters().get("actuals");
+				if (actuals != null) {
+					Builder builder = Nonterminal.builder(nonterminal);
+					org.iguana.datadependent.ast.Expression[] arguments = new org.iguana.datadependent.ast.Expression[actuals.length()];
+					int i = 0;
+					for (IValue actual : actuals) {
+						if (actual instanceof IString)
+							arguments[i++] = (org.iguana.datadependent.ast.Expression) buildExpression(parseRascal("Expression", ((IString) actual).getValue())).accept(new Visitor());
+					}
+					nonterminal = builder.apply(arguments).build();
+				}
+				return nonterminal;
 
 			case "char-class":
 				Alt<CharacterRange> charClass = getCharacterClass(symbol);
