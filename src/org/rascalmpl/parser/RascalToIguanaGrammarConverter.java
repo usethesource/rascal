@@ -14,6 +14,7 @@
 package org.rascalmpl.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -362,6 +363,22 @@ public class RascalToIguanaGrammarConverter {
 		Associativity associativity = getAssociativity(attributes);
 		
 		List<Symbol> body = getSymbolList(rhs);
+		
+		if (!body.isEmpty()) {
+			Symbol last = body.get(body.size() - 1);
+			if (last instanceof Code) {
+				Code code = (Code) last;
+				org.iguana.datadependent.ast.Statement lastStmt = code.getStatements()[code.getStatements().length];
+				if (lastStmt instanceof org.iguana.datadependent.ast.Statement.Expression) {
+					Return ret = Return.builder(((org.iguana.datadependent.ast.Statement.Expression) lastStmt).getExpression()).build();
+					code = Code.code(code.getSymbol(), Arrays.copyOf(code.getStatements(), code.getStatements().length - 1));
+					body.remove(body.size() - 1);
+					body.add(code);
+					body.add(ret);
+				}
+				
+			}
+		}
 		
 		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT_REC));
 		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT_REC));
