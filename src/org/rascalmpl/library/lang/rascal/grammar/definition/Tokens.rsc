@@ -34,7 +34,7 @@ Production simplify(Production p) = innermost visit(p) {
   case seq([Symbol s])               => s
   case alt({Symbol s})               => s
   case conditional(Symbol s, {})     => s
-  case conditional(Symbol s, {*other, c}) => conditional(s,other) when c is \follow || c is \not-follow || c is \precede || c is \not-precede
+  //case conditional(Symbol s, {*other, c}) => conditional(s,other) when c is \follow || c is \not-follow || c is \precede || c is \not-precede
 };
 
 &T replaceDefinitions(&T v, Grammar g)  = innermost visit(v) {
