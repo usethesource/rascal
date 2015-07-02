@@ -2121,6 +2121,7 @@ public class Prelude {
 			writer.println("import org.junit.Test;");
 			writer.println();
 			writer.println("import com.google.common.collect.Sets;");
+			writer.println("import static org.iguana.util.CollectionsUtil.*;");
 			writer.println();
 			writer.println("@SuppressWarnings(\"unused\")");
 			writer.println("public class " + name +" {");
