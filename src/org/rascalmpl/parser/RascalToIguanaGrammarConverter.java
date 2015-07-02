@@ -115,13 +115,17 @@ public class RascalToIguanaGrammarConverter {
 	
 	private Map<IValue, Rule> rulesMap;
 	
+	private Map<IConstructor, Terminal> tokens = new HashMap<>();
+	
+	private IMap definitions;
+	
 	private Nonterminal layout;
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
 		Grammar.Builder builder = new Grammar.Builder();
 		
-		IMap definitions = (IMap) rascalGrammar.get("rules");
+		definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
 		
@@ -138,16 +142,23 @@ public class RascalToIguanaGrammarConverter {
 				case "start":	
 					builder.addRules(getAlternatives(getSymbolCons(constructor), definitions, LayoutStrategy.INHERITED));
 					break;
+
+				case "token":
+					tokens.computeIfAbsent(constructor, c -> getTokenDefinition(c, definitions));
+					break;
 					
 				case "layouts":
 				case "lex":
-				case "token":
 				case "keywords":
 					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.NO_LAYOUT));
 					break;
 					
-				default:
+				case "sort":
 					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.INHERITED));
+					break;
+				
+				default:
+					System.out.println("Unkonwn construct: " + constructor);
 					break;
  			}
 		}
@@ -238,6 +249,18 @@ public class RascalToIguanaGrammarConverter {
 		getAlternatives(head, choice, strategy, rules, true);
 		
 		return rules;
+	}
+	
+	private Terminal getTokenDefinition(IConstructor constructor, IMap definitions) {
+		IConstructor choice = (IConstructor) definitions.get(constructor);
+		ISet alts = (ISet) choice.get("alternatives");
+		IConstructor alt = (IConstructor) alts.iterator().next();
+		List<Symbol> symbols = getSymbolList((IList) alt.get("symbols"));
+
+		if (symbols.size() == 1)
+			return Terminal.from((RegularExpression) symbols.get(0));
+		else 
+			return Terminal.from(Sequence.from(symbols));
 	}
 	
 	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules, boolean isRoot) {
@@ -581,7 +604,7 @@ public class RascalToIguanaGrammarConverter {
 				return Epsilon.getInstance();
 				
 			case "token":
-				return Nonterminal.withName(getName(symbol));
+				return tokens.computeIfAbsent(symbol, c -> getTokenDefinition(c, definitions));
 
 			case "layouts":
 //				if (layout != null) {
