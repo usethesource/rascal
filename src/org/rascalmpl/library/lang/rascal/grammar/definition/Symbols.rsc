@@ -144,6 +144,7 @@ Symbol type2symbol(Type t) {
     case basic(BasicType::\int()) : return Symbol::\int();
     case basic(BasicType::\bool()) : return Symbol::\bool();
     case basic(BasicType::\real()) : return Symbol::\real();
+    case basic(BasicType::\string()) : return Symbol::\str();
     case symbol(Sym s) : return sym2symbol(s);
     default: throw "TODO unsupportedType <t>";
   }
