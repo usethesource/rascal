@@ -18,8 +18,8 @@ public Grammar lexToToken(Grammar g) = visit(g) {
 public Grammar preprocess(map[Symbol,Production] definitions, bool lexToTok = false) {
   gr = grammar({}, definitions);
   iprintln("gr before: <gr>");
-  if (lexToTok) 
-    gr = lexToToken(gr);
+  //if (lexToTok) 
+  //  gr = lexToToken(gr);
     
   //gr = literals(gr);
   gr = flattenTokens(gr);

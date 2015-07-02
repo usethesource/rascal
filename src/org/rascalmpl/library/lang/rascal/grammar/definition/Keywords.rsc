@@ -55,7 +55,7 @@ set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   solve(todo) {  
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
-      if (cond has symbol, cond.symbol is lex || cond.symbol is sort || cond.symbol is keywords, isFinite(g, cond.symbol)) {
+      if (cond has symbol, cond.symbol is lex || cond.symbol is sort || cond.symbol is keywords || cond.symbol is \token, isFinite(g, cond.symbol)) {
         if (cond.symbol.name in names) {
           continue;
         }
