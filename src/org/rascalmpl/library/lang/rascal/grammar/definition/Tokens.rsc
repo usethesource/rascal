@@ -8,6 +8,7 @@ import lang::rascal::grammar::definition::Literals;
 //import lang::rascal::grammar::definition::Characters;
 
 Grammar flattenTokens(Grammar g) {
+  g = literals(g);
   deps = symbolDependencies(g)+;
   
   if (s <- g.rules, s is \token, <s,s> in deps) {
