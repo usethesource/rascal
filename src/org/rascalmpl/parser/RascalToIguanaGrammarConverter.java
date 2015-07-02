@@ -119,7 +119,7 @@ public class RascalToIguanaGrammarConverter {
 	
 	private IMap definitions;
 	
-	private Nonterminal layout;
+	private Symbol layout;
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
@@ -201,21 +201,35 @@ public class RascalToIguanaGrammarConverter {
 		return builder.setLayout(layout).build();
 	}
 	
-	public Nonterminal getLayoutNonterminal(IConstructor rascalGrammar) {
+	public Symbol getLayoutNonterminal(IConstructor rascalGrammar) {
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		
-		List<String> layoutNonterminals = new ArrayList<>();
+		List<Symbol> layouts = new ArrayList<>();
 		
 		for (IValue nonterminal : definitions) {
 			IConstructor constructor = (IConstructor) nonterminal;
-			if (constructor.getName().equals("layouts")) {
-				layoutNonterminals.add(getName(constructor));
+			
+			switch (constructor.getName()) {
+			
+				case "layouts":
+					if (!getName(constructor).equals("$default$")) 
+						layouts.add(Nonterminal.withName(getName(constructor)));	
+					break;
+	
+				case "sort":
+				case "lex":
+					if (getName(constructor).equals("Layout"))
+						layouts.add(Nonterminal.withName(getName(constructor)));
+					break;
+					
+				case "token":
+					if (getName(constructor).equals("Layout"))
+						layouts.add(getTokenDefinition(constructor, definitions));
+					break;
 			}
 		}
 		
-		List<String> layouts = layoutNonterminals.stream().filter(s -> !s.equals("$default$")).collect(Collectors.toList());
-		
-		return layouts.isEmpty() ? null : Nonterminal.withName(layouts.get(0)); 
+		return layouts.isEmpty() ? null : layouts.get(0); 
 	}
 	
 	private PrecedenceLevel level;
@@ -258,9 +272,9 @@ public class RascalToIguanaGrammarConverter {
 		List<Symbol> symbols = getSymbolList((IList) alt.get("symbols"));
 
 		if (symbols.size() == 1)
-			return Terminal.from((RegularExpression) symbols.get(0));
+			return Terminal.builder((RegularExpression) symbols.get(0)).setName(getName(constructor)).build();
 		else 
-			return Terminal.from(Sequence.from(symbols));
+			return Terminal.builder(Sequence.from(symbols)).setName(getName(constructor)).build();
 	}
 	
 	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules, boolean isRoot) {

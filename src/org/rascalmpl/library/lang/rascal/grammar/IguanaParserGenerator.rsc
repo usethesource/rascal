@@ -21,12 +21,13 @@ public Grammar preprocess(map[Symbol,Production] definitions, bool lexToTok = fa
   //if (lexToTok) 
   //  gr = lexToToken(gr);
     
+  gr = expandKeywords(gr);
+
   //gr = literals(gr);
   gr = flattenTokens(gr);
   //gr = addHoles(gr);
   
   // TODO: expandKeywords breaks when symbols have Tree children
-  gr = expandKeywords(gr);
   
   //gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
