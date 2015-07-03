@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
+import static org.iguana.datadependent.ast.AST.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -34,9 +35,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-
-import static org.iguana.datadependent.ast.AST.*;
-
 import org.iguana.datadependent.ast.AbstractAST;
 import org.iguana.grammar.Grammar;
 import org.iguana.grammar.condition.Condition;
@@ -77,30 +75,30 @@ import org.iguana.regex.Sequence;
 import org.iguana.regex.Star;
 import org.iguana.traversal.ISymbolVisitor;
 import org.iguana.util.CollectionsUtil;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Expression.LessThanOrEq;
-import org.rascalmpl.ast.IntegerLiteral;
-import org.rascalmpl.ast.Literal;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Equals;
 import org.rascalmpl.ast.Expression.FieldAccess;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
 import org.rascalmpl.ast.Expression.LessThan;
+import org.rascalmpl.ast.Expression.LessThanOrEq;
 import org.rascalmpl.ast.Expression.Negation;
 import org.rascalmpl.ast.Expression.Or;
 import org.rascalmpl.ast.Expression.QualifiedName;
+import org.rascalmpl.ast.IntegerLiteral;
+import org.rascalmpl.ast.Literal;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.LocalVariableDeclaration.Default;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Statement.Assignment;
 import org.rascalmpl.ast.Statement.VariableDeclaration;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
+import org.rascalmpl.ast.Variable;
 import org.rascalmpl.ast.Variable.Initialized;
 import org.rascalmpl.ast.Variable.UnInitialized;
-import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Names;
@@ -567,12 +565,10 @@ public class RascalToIguanaGrammarConverter {
 				return nonterminal;
 
 			case "char-class":
-				Alt<CharacterRange> charClass = getCharacterClass(symbol);
-				return charClass.isSingleChar() ? charClass.asSingleChar() : charClass;
+				return getCharacterClass(symbol);
 				
 			case "lit":
-				Sequence<Character> keyword = Sequence.from(getString(symbol));
-				return keyword.isSingleChar() ? keyword.asSingleChar() : Terminal.from(keyword);
+				return Terminal.from(Sequence.from(getString(symbol)));
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
