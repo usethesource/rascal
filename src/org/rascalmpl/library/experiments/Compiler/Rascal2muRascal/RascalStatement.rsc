@@ -47,14 +47,14 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 MuExp translate(s: (Statement) `assert <Expression expression> ;`) {
     ifname = nextLabel();
     return muIfelse(ifname, translate(expression), 
-                    [  ],
+                    [ muCon(true) ],
     				[ muCallPrim3("assert_fails", [muCon("")], s@\loc) ]);
 }    
 
 MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) {
     ifname = nextLabel();
     return muIfelse(ifname, translate(expression), 
-                    [  ],
+                    [ muCon(true) ],
     				[ muCallPrim3("assert_fails", [translate(message)], s@\loc) ]);
 }
     
@@ -632,9 +632,11 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpre
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
-    nelems = size(elements); // size_assignables
-    str tmp_name = nextTmp();
     elems = [ e | e <- elements];   // hack since elements[i] yields a value result;
+    nelems = size(elems); // size_assignables
+    
+    str tmp_name = nextTmp();
+ 
     return muBlock(
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("tuple_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
@@ -644,9 +646,10 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
 
 MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, str operator,  str rhs_type, MuExp rhs) { 
     str fuid = topFunctionScope();
+    elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
     nelems = size(arguments);// size_assignables
     str tmp_name = nextTmp();
-    elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
+   
     return muBlock(
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("adt_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
@@ -799,13 +802,19 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
+      //println("translateFormals:\ntp: ");
+      //iprintln(tp);
+      //println("translateType(tp): <translateType(tp)>");
       exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
-                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
+                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp, insertLayout=true)) 
+                                                                                                     : translateType(tp, insertLayout=true) ), 
                                                         muCon(pos)
                                                     ]),
              [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
              [ muFailReturn() ]);
       leaveBacktrackingScope();
+      //println("translateFormals returns:");
+      //iprintln(exp);
       return exp;
     }
 }
