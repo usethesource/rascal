@@ -417,16 +417,16 @@ public Figure ellipse2a = box(lineWidth = 10, lineColor = "lightblue",
 void tellipse2a(){ ex("ellipse2a", ellipse2a); }
 
 public Figure ellipse3 = ellipse(lineWidth=20, lineColor= "lightgrey",  rx=100, ry=75, 
-fillColor="red", align = topLeft, fig=box(size=<50,80>, fillColor="yellow", fig=circle(r=10)));
+fillColor="red", align = topLeft, fig=box(size=<50,80>, lineWidth = 1,fillColor="yellow", fig=circle(r=10)));
 void tellipse3(){ ex("ellipse3", ellipse3); }
 
 public Figure ellipse4 = ellipse(lineWidth=20, lineColor= "lightgrey",  rx=100, ry=75, 
-fillColor="red", align = centerMid, fig=box(size=<50,80>, fillColor="yellow", fig=circle(r=10)));
+fillColor="red", align = centerMid, fig=box(size=<50,80>, lineWidth = 1, fillColor="yellow", fig=circle(r=10)));
 void tellipse4(){ ex("ellipse4", ellipse4); }
 
 
 public Figure ellipse5 = ellipse(lineWidth=20, lineColor= "lightgrey",  rx=100, ry=75, 
-fillColor="red", align = bottomRight, fig=box(size=<50,80>, fillColor="yellow", fig=circle(r=10)));
+fillColor="red", align = bottomRight, fig=box(size=<50,80>, lineWidth = 1, fillColor="yellow", fig=circle(r=10)));
 void tellipse5(){ ex("ellipse5", ellipse4); }
 
 public Figure ellipse6 = at(0, 0, ellipse(padding = <0, 0, 0,0>,

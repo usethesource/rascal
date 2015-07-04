@@ -40,6 +40,8 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 // Events and bindings for input elements
 
+
+
 data Event 
 	= on()
 	| on(str eventName, void(str, str) callback)
@@ -250,44 +252,32 @@ public data Figure(
 
 
 // Charts
-	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
+	| combochart(list[Chart] charts =[],  ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| combochart(GoogleData googleData, ChartOptions options = chartOptions())
-	| piechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| piechart(GoogleData googleData, ChartOptions options = chartOptions())
-	| linechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| linechart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	   int tooltipColumn = 1)
-	| linechart(GoogleData googleData, ChartOptions options = chartOptions())
-	| scatterchart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	   int tooltipColumn = 1)
-	| scatterchart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	   int tooltipColumn = 1)
-	| scatterchart(GoogleData googleData, ChartOptions options = chartOptions())
-	| barchart(XYLabeledData xyLabeledData , ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| barchart(GoogleData googleData, ChartOptions options = chartOptions())
-	| candlestickchart(BoxData boxData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| candlestickchart(BoxLabeledData boxLabeledData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| candlestickchart(GoogleData googleData, ChartOptions options = chartOptions())
-    | areachart(GoogleData googleData ,  ChartOptions options = chartOptions())
-    | sankey(GoogleData googleData ,  ChartOptions options = chartOptions())
+    | linechart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+    | areachart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+	| scatterchart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+	| candlestickchart(GoogleData googleData =[], ChartOptions options = chartOptions())
+	| piechart(GoogleData googleData = [],  ChartOptions options = chartOptions())
 // Graphs
 
-   | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
-   | edge(str from, str to, str label)
-   
+   | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, Dot] nodeProp = (), 
+     Figure marker = emptyFigure, GraphOptions options = graphOptions())
+ 
 // Trees
 	| tree(Figure root, Figures children)
    ;
+   
+data GraphOptions = graphOptions(
+    str orientation = "topDown", int nodesep = 50, int edgesep=10, int layersep= 30, str flavor="layeredGraph"
+        
+    );
  
+data Dot = dot(str shape="",str labelStyle="", str style = "", str label="");
 
-
-    
+data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
+    ,str labelStyle="", str arrowStyle = "");
+  
 data ChartArea ( 
      value left = "",
      value width = "",
@@ -462,19 +452,19 @@ tuple[list[map[str, str]] header, map[tuple[value, int], list[value]] \data]
      list[list[value]] r = [];
      list[map[str, str]] h = [];
      switch(c) {
-        case line(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number")];}
-        case area(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number")];}
+        case line(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number", "label":c.name)];}
+        case area(XYData x): {r = [[d[0], d[1]]|d<-x]; h = [("type":"number", "label":c.name)];}
         case line(XYLabeledData x): {
                                      r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x];
-                                     h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                     h = [("type":"number", "label":c.name), getTooltipMap(tooltipColumn)];
                                     }
         case area(XYLabeledData x): {
                                       r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x];
-                                      h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                      h = [("type":"number", "label":c.name), getTooltipMap(tooltipColumn)];
                                     }
         case bar(XYLabeledData x): {
                                     r = [[d[0], d[1], tooltipColumn>=0?"<d[tooltipColumn]>":d[2]]|d<-x]; 
-                                    h = [("type":"number"), getTooltipMap(tooltipColumn)];
+                                    h = [("type":"number","label":c.name), getTooltipMap(tooltipColumn)];
                                    }           
         }
      map[tuple[value, int], list[value]] q  = ();
@@ -495,36 +485,6 @@ bool hasXYLabeledData(Chart c) {
      return false;
      } 
 
-list[list[value]] strip(XYLabeledData b, bool tickLabels) {
-     if (tickLabels) { 
-         map[num, list[value]] m = (e[0]:[e[2], e[1], e[2]]|e<-b);
-         list[num] x = sort(domain(m));
-         return [[("type":"string"), ("type":"number"), ("type":"string", "role":"tooltip")]]
-               +[m[i]|i<-x];
-          }
-     else {
-         map[num, list[value]] m = (e[0]:[e[0], e[1], e[2]]|e<-b);
-         list[num] x = sort(domain(m));
-         return [[("type":"number"), ("type":"number"), ("type":"string", "role":"tooltip")]]
-               +[m[i]|i<-x];
-         }
-     }
-     
-list[list[value]] strip(XYData b) {
-        return [[("type":"number"), ("type":"number")]]
-               +[[d[0],d[1]]|d<-b];
-     } 
-
-
-list[list[value]] strip(BoxData b, BoxHeader h) {
-     return [[h[0], h[1], h[2], h[3], h[4]]]+[[d[0],d[1],d[2],d[3],d[4]]|d<-b];
-     }  
-
-list[list[value]] strip(BoxLabeledData b, BoxHeader h) {
-     return [[h[0], h[1], h[2], h[3], h[4], ("type":"string","role":"tooltip")]]+[[d[0],d[1],d[2],d[3],d[4], d[5]]|d<-b];
-     } 
-     
-                
 list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
    list[tuple[list[map[str, str]] header, map[tuple[value, int], list[value]]\data]] m = [tData(c, tooltipColumn)|c<-charts];   
    set[tuple[value, int]] d = union({domain(c.\data)|c <-m});   
