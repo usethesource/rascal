@@ -1518,7 +1518,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
                 if (maintainFieldNames) fieldNames += getTupleFieldName(rt, offset);
             }
         } else if ((Field)`<Name fn>` := f) {
-            fnAsString = "<fn>";
+            fnAsString = prettyPrintName(convertName(fn));
             if (!tupleHasField(rt, fnAsString)) {
                 failures += makeFailType("Field <fn> does not exist", f@\loc);   // PK: was prettyPrintName(fn)
             } else {
