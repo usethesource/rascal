@@ -404,16 +404,16 @@ MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args
            													  muCon(1000000), 
            													  muCon(lookahead.nElem), 
                 											  muCon(sep), 
-                											  muCon(regular(holeType))]);
+                											  muCon(regular(insertLayout(holeType)))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
-           //println("libFun = <libFun>");
-           //println("lookahead = <lookahead>");
+           //println("libFun =            //println("lookahead = <lookahead>");
+okahead>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
            													  muCon(nIter(holeType)), 
            													  muCon(1000000), 
            													  muCon(lookahead.nElem),  
-           													  muCon(regular(holeType))]);
+           													  muCon(regular(insertLayout(holeType)))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
