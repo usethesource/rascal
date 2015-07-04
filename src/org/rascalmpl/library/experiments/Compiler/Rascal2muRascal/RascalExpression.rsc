@@ -1370,17 +1370,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
   //     println("ftype = <ftype>, of.alts = <of.alts>");
   //
        
-       accessible = accessibleScopes(expression@\loc) + {0};
-       //println("accessible = <accessible>");
-       for(int alt <- of.alts, declaredScope(alt) in accessible) {
+       for(UID alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
+assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
            	   //println("alt <alt> matches");
                resolved += alt;
            }
        }
-       resolved = sortOverloadedFunctions(toSet(resolved));
+      // resolved = sortOverloadedFunctions(toSet(resolved));
        
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
@@ -1593,11 +1592,15 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
 private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isDefined){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
+    list_of_subscripts = [ s | s <- subscripts ]; // redundant
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
+    } else 
+    if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
+    	op = "list_subscript_int";
     }
     if(isDefined){
     	op = "is_defined_<op>";
@@ -1677,13 +1680,13 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
     }	
-    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ], e@\loc);
+    return muCallPrim3("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, unescape("<key>"))), translate(replacement) ], e@\loc);
 }
 
 // -- field project expression --------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
-    tp = getType(expression@\loc);   
+    tp = getType(expression@\loc); 
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -1694,8 +1697,8 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
-    }	
-    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
+    }
+    fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
     return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
 }
@@ -1880,8 +1883,11 @@ MuExp translate(e:(Expression) `<Expression lhs> \>\> <Expression rhs>`) =
 
 // -- append after expression ---------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`) =
-    infix("add", e);
+MuExp translate(e:(Expression) `<Expression lhs> \<\< <Expression rhs>`) {
+   op = "add";
+   lot = getOuterType(e.lhs);
+   return muCallPrim3("<lot>_<op>_elm", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
+}
 
 // -- modulo expression ---------------------------------------------
 

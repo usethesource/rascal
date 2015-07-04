@@ -10,6 +10,12 @@ syntax As = A+;
 syntax B = "b";
 syntax Bs = B* bs;
 
+syntax AB = (A | B)*;
+syntax ABs = (As | Bs)*;
+syntax A2 = [A]+ !>> [A];
+syntax B2 = [B]+ !>> [B];
+syntax AB2 = (A2 | B2)*;
+
 syntax C = "c";
 syntax Cs = {C ","}+;
 
@@ -21,6 +27,9 @@ lexical Es = {E ","}* es;
 
 lexical F = "f";
 lexical Fs = F* fs;
+
+lexical EF = (E | F)*;
+lexical EFs = (Es | Fs)*;
 
 start syntax XorY = x : "x" | y : "y";
 
@@ -195,6 +204,21 @@ test bool concreteSwitch6(){
 	}
 	throw "fail due to missing match";
 }
+
+test bool matchInsideLexicalCyclicGrammar1() 
+    = /E _ := [EFs]"eefef";
+
+test bool matchInsideLexical() 
+    = /E _ := [EF]"eefef";
+
+test bool matchInsideSyntaxCyclicGrammar2()
+    = /A _ := [ABs]"bbaab";
+
+test bool matchInsideSyntax()
+    = /A _ := [AB]"bbaab";
+    
+test bool matchInsideSyntax2()
+    = /A2 _ := [AB2]"AABBAA";
 
 value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  

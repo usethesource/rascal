@@ -99,3 +99,14 @@ test bool let4(){ Exp2 e = \int2(1); return e == \int2(1);}
 test bool let5(){ Exp2 e = var2("a"); return e == var2("a");}
 test bool let6(){ Exp2 e = let("a",\int2(1),var2("a")); return e ==  let("a",\int2(1),var2("a"));}
 test bool let7() = Var2 var2 := "a";
+
+// escaped constructor and field names
+
+data DwithEscapes = \f() | \g(int \lft, str \rht);
+
+test bool escape1a() = \f() == \f();
+test bool escape1b() = \g(1, "a").\lft == 1;
+test bool escape1c() = \g(1, "a").\rht == "a";
+test bool escape1c() = \g(1, "a") is \g;
+test bool escape1c() = \g(1, "a") has \lft;
+

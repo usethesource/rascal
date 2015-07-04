@@ -447,7 +447,7 @@ public enum Opcode {
 			
 		case CHECKARGTYPEANDCOPY:
 			return "CHECKARGTYPEANDCOPY " + cb.getConstantValue(arg1) + ", " 
-								  		  + cb.getConstantValue(arg2) + ", "
+								  		  + cb.getConstantType(arg2) + ", "
 								  		  + cb.finalCode[pc + 1];
 					 			  
 		case LOADLOC0:
