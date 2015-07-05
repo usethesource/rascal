@@ -77,6 +77,7 @@ import org.iguana.traversal.ISymbolVisitor;
 import org.iguana.util.CollectionsUtil;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Equals;
 import org.rascalmpl.ast.Expression.FieldAccess;
@@ -1003,6 +1004,12 @@ public class RascalToIguanaGrammarConverter {
 		@Override
 		public AbstractAST visitExpressionOr(Or x) {
 			return or((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this), 
+					  (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionAnd(And x) {
+			return and((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this), 
 					  (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
