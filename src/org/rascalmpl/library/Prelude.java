@@ -2150,7 +2150,7 @@ public class Prelude {
 			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
 			writer.println();
 			writer.println("         grammar = new DesugarState().transform(grammar);");
-			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence())");
+			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
 			writer.println();
 			writer.println("         grammar = new LayoutWeaver().transform(grammar);");
 			writer.println();
