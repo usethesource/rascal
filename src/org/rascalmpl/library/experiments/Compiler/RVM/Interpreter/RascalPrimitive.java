@@ -5594,10 +5594,10 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
-				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-					stdout.println("\t" + f.toString());
-				}
+//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+//					stdout.println("\t" + f.toString());
+//				}
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
 			return sp - 1;
