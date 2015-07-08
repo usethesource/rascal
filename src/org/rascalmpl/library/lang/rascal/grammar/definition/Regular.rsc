@@ -49,7 +49,7 @@ public set[Production] expand(Symbol s) {
       return {prod(s,[],{})};
    }   
 
-   throw "missed a case <s>";                   
+   throw "expand, missed a case <s>";                   
 }
 
 public Grammar makeRegularStubs(Grammar g) {

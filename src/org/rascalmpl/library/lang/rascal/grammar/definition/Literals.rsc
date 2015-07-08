@@ -56,7 +56,7 @@ public str character(StringCharacter c) {
     case [StringCharacter] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
     case [StringCharacter] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>")); 
     case [StringCharacter] /^\n[ \t]* \'/            : return "\n";
-    default: throw "missed a case <c>";
+    default: throw "character, missed a case <c>";
   }
 }
 
