@@ -347,7 +347,7 @@ public Symbol cc2ranges(Class cc) {
      case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
      case \union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
      case \difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
-     default: throw "missed a case <cc>";
+     default: throw "cc2ranges, missed a case <cc>";
    }
 }
       
@@ -359,7 +359,7 @@ private CharRange range(Range r) {
       // users may flip te ranges, but after this reversed ranges will results in empty ranges
       return cL <= cR ? range(cL, cR) : range(cR, cL);
     } 
-    default: throw "missed a case <r>";
+    default: throw "range, missed a case <r>";
   }
 } 
  
@@ -377,6 +377,6 @@ private int charToInt(Char c) {
     case [Char] /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
     case [Char] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
     case [Char] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    default: throw "missed a case <c>";
+    default: throw "charToInt, missed a case <c>";
   }
 }
