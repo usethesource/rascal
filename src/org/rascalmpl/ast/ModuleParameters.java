@@ -72,7 +72,7 @@ public abstract class ModuleParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 307 * parameters.hashCode() ; 
+      return 487 + 547 * parameters.hashCode() ; 
     } 
   
     

@@ -86,7 +86,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 317 * dateAndTime.hashCode() ; 
+      return 991 + 857 * dateAndTime.hashCode() ; 
     } 
   
     
@@ -137,7 +137,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 + 937 * date.hashCode() ; 
+      return 751 + 251 * date.hashCode() ; 
     } 
   
     
@@ -188,7 +188,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 197 * time.hashCode() ; 
+      return 953 + 317 * time.hashCode() ; 
     } 
   
     
