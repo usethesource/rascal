@@ -81,7 +81,7 @@ public abstract class Mapping_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 43 + 113 * from.hashCode() + 311 * to.hashCode() ; 
+      return 491 + 79 * from.hashCode() + 71 * to.hashCode() ; 
     } 
   
     
