@@ -414,6 +414,23 @@ test bool testLocation37() = !(|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) >=
     		
 test bool testLocation38() = |file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,6,<1,40>,<1,46>);
 test bool testLocation39() = |file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,7,<1,40>,<1,47>);
+
+
+test bool testLocation40() =
+  |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>)
+< |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>);
+
+test bool testLocation41() =
+  |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>)
+<= |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>);
+
+test bool testLocation42() =
+  |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>)
+> |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>);
+
+test bool testLocation43() =
+  |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>)
+>= |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>);
     	  	
 // 	testList
     	
