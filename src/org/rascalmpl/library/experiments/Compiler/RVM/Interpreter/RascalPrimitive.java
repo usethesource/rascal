@@ -3744,7 +3744,7 @@ public enum RascalPrimitive {
 					stack[sp - 2] = vf.bool(llen < rlen);
 					return sp - 1;
 				}
-				stack[sp - 2] = Rascal_FALSE;
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 				return sp - 1;
 			}
 			else if (compare == 0) {
