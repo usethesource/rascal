@@ -118,7 +118,7 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    i = 0;
    while(i < len){
       r = lrexps[i];
-      //println("regexp: <r>");
+      //println("lregex[<i>]: <r>\nfragmentCode = <fragmentCode>");
       if("<r>" == "\\"){
          fragment += "\\" + (i < len  - 1 ? "<lrexps[i + 1]>" : "");
          i += 2;
@@ -161,8 +161,7 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
                        [ muCallPrim3("stringwriter_add", [muTmp(swriter,fuid), exp], e@\loc) | exp <- fragmentCode ] +
                        muCallPrim3("stringwriter_close", [muTmp(swriter,fuid)], e@\loc));
-   return <buildRegExp, varrefs>;
-   
+   return  <buildRegExp, varrefs>;   
 }
 
 tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
@@ -218,7 +217,7 @@ syntax ConcreteHole
  *   aspects of concrete patterns:
  *   - MATCH_APPL_IN_LIST: match a list element of the form appl(prod(...), ...)
  *   - MATCH_LIT_IN_LIST: match a lsit element of the form appl(prod(lit(S),...)
- *   - MATCH_OPTIONAL_LAYOUTR_IN_LIST: skips potential layout between list elements
+ *   - MATCH_OPTIONAL_LAYOUT_IN_LIST: skips potential layout between list elements
  *   - MATCH_CONCRETE_MULTIVAR_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST
  *   - SKIP_OPTIONAL_SEPARATOR: match a separator before or after a multivariable
@@ -251,7 +250,7 @@ loc getConcreteHoleVarLoc(h: appl(Production prod, list[Tree] args)) {
 }	
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), Symbol symbol){
- //println("translateParsedConcretePattern: <prod>, <symbol>");
+  //println("translateParsedConcretePattern: <prod>, <symbol>");
   if(isConcreteHole(t)){
      <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
      return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("ConcreteVar", fuid, pos)]);
@@ -278,7 +277,7 @@ MuExp translateParsedConcretePattern(amb(set[Tree] alts), Symbol symbol) {
 }
 
 default MuExp translateParsedConcretePattern(Tree c, Symbol symbol) {
-   iprintln(c);
+   //iprintln(c);
    throw "translateParsedConcretePattern: Cannot handle <c> at <c@\loc>";
 }
 
@@ -334,7 +333,7 @@ list[Tree] removeSeparators(list[Tree] pats){
 }
 
 MuExp translateConcreteListPattern(list[Tree] pats, bool isLex){
- //println("Before: <for(p <- pats){><p><}>");
+ //println("translateConcreteListPattern: <for(p <- pats){><p><}>, isLex = <isLex>");
  pats = removeSeparators(pats);
  //println("After: <for(p <- pats){><p><}>");
  lookahead = computeConcreteLookahead(pats);  
@@ -387,33 +386,44 @@ int nIter(Tree pat){
 }
 
 MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
-  //println("translatePatAsConcreteListElem: <applProd>");
+  //println("translatePatAsConcreteListElem:"); iprintln(applProd);
+  //println("lex: <lex(_) := applProd.def>");
+  if(lex(_) := applProd.def){
+  	isLex = true;
+  }
     if(isConcreteHole(t)){
      varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      //println("holeType = <holeType>");
+    
      if(isIter(holeType)){
         if(isIterWithSeparator(holeType)){
            sep = getSeparator(holeType);
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
+           if(!isLex){
+           		holeType = insertLayout(holeType);
+           }
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
            													  muCon(nIter(holeType)), 
            													  muCon(1000000), 
            													  muCon(lookahead.nElem), 
                 											  muCon(sep), 
-                											  muCon(regular(insertLayout(holeType)))]);
+                											  muCon(regular(holeType))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
-           //println("libFun =            //println("lookahead = <lookahead>");
-okahead>");
+           //println("libFun = <libFun>");
+           //println("lookahead = <lookahead>");
+            if(!isLex){
+           		holeType = insertLayout(holeType);
+           }
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
            													  muCon(nIter(holeType)), 
            													  muCon(1000000), 
            													  muCon(lookahead.nElem),  
-           													  muCon(regular(insertLayout(holeType)))]);
+           													  muCon(regular(holeType))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
