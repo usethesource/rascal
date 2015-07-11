@@ -351,7 +351,7 @@ private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(dees
 
 private list[MuExp] translatePreChars(PreStringChars pre) {
    spre = removeMargins(deescape("<pre>"[1..-1]));
-   return "<spre>" == "" ? [] : [ muCon(spre) ];
+   return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
 }	
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
