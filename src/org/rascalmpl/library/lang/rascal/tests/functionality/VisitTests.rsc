@@ -729,7 +729,18 @@ test bool StringVisit64() = TDCntAB("b") == <0, 10>;
 test bool StringVisit65() = TDCntAB("ab") == <1, 10>;
 test bool StringVisit66() = TDCntAB("ba") == <1, 10>;
 test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
-		
+
+// StringVisit7
+
+str deescape(str s) = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+
+test bool StringVisit71() = deescape("abc") == "abc";
+test bool StringVisit72() = deescape("\\") == "\\";
+test bool StringVisit73() = deescape("\\\\") == "\\";
+test bool StringVisit74() = deescape("\\\<") == "\<";
+test bool StringVisit75() = deescape("\\\>") == "\>";
+test bool StringVisit76() = deescape("\\n") == "n";
+
 // Keywords and visit
 
 data RECT = rect(int w, int h, str color = "white");
