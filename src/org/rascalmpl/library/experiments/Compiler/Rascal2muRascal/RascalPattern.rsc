@@ -169,6 +169,10 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
    str fragment = "(";
    for(nr <- namedregexps){
        elm = "<nr>";
+       elm = trim(elm);
+       if(size(elm) == 0){
+       	 continue;
+       }
        if(size(elm) == 1){
          fragment += escape(elm, regexpEscapes);
        } else if(elm[0] == "\\"){
