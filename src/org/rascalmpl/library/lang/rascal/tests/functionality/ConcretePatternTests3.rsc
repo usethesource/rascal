@@ -11,7 +11,7 @@ rel[Sym, Name] extractPatternTree1(Tree concrete){
 }
 
 test bool concrete1() = size(extractPatternTree1(T)) == 1;
-test bool concrete2() = extractPatternTree1(T) == psList;
+test bool concrete2() = extractPatternTree1(T) == ThePsList;
 
 rel[Sym, Name]  extractPatternTree2(Tree concrete){  
   psList = {};
@@ -22,7 +22,7 @@ rel[Sym, Name]  extractPatternTree2(Tree concrete){
 }
 
 test bool concrete3() = size(extractPatternTree2(T)) == 1;
-test bool concrete4() = extractPatternTree1(T) == psList;
+test bool concrete4() = extractPatternTree1(T) == ThePsList;
 
 
 // Parse tree of (Concrete) `<A a>`
@@ -546,7 +546,7 @@ appl(
   @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(121,11,<9,8>,<9,19>)
 ];
 
-rel[Sym,Name] psList =
+rel[Tree,Tree] ThePsList =
 {<appl(
     prod(
       label(
