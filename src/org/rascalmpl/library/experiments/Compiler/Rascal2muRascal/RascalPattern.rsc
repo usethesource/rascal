@@ -167,18 +167,19 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
 tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
    exps = [];
    str fragment = "(";
+   atStart = true;
    for(nr <- namedregexps){
        elm = "<nr>";
-       elm = trim(elm);
-       if(size(elm) == 0){
+       if(atStart && size(trim(elm)) == 0){
        	 continue;
        }
+       atStart = false;
        if(size(elm) == 1){
          fragment += escape(elm, regexpEscapes);
        } else if(elm[0] == "\\"){
          fragment += elm[0..];
        } else if((NamedRegExp) `\<<Name name2>\>` := nr){
-         //println("Name case: <name2>");
+         println("Name case: <name2>");
          if(fragment != ""){
             exps += muCon(fragment);
             fragment = "";
