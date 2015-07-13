@@ -27,3 +27,19 @@ test bool dropLabelsConcatDuplicate(tuple[int x, str s] a, tuple[real x] b)
 	
 test bool keepLabelsConcat(tuple[int x, str s] a, tuple[real r] b) 
 	= ((a + b) has x);
+	
+// tuples with escped field names	
+	
+alias TUP = tuple[int \n,str \type];
+
+test bool escape1() {  TUP T = <1, "a">; return T.\n == 1; }
+test bool escape2() {  TUP T = <1, "a">; return T.\type == "a"; }
+
+test bool escape3() {  list[TUP] L = [<1, "a">, <2, "b">]; return L[0].\n == 1; }
+test bool escape4() {  list[TUP] L = [<1, "a">, <2, "b">]; return L[0].\type == "a"; }
+
+@ignoreCompiler{Does not properly unescape field name, see issue #840}
+test bool escape5() {  list[TUP] L = [<1, "a">, <2, "b">]; return L.\n == [1, 2]; }
+
+@ignoreCompiler{Does not properly unescape field name, see issue #840}
+test bool escape6() {  list[TUP] L = [<1, "a">, <2, "b">]; return L<\n> == [1, 2]; }

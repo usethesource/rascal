@@ -137,7 +137,7 @@ test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
 @ignoreInterpreter{Not supported}
 test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
 @ignoreInterpreter{Not supported}
-test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
+test bool tst() = run(" [1,2,3] \<\< 4") == [1,2,3] + 4;
 
 @ignoreInterpreter{Not supported}
 test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;

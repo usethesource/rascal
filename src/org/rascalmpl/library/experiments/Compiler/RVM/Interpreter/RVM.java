@@ -56,7 +56,7 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
@@ -446,6 +446,7 @@ public class RVM implements java.io.Serializable {
 	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
+		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
 		
 		//finalizeInstructions();
@@ -476,6 +477,7 @@ public class RVM implements java.io.Serializable {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
 		}
+		rex.setCurrentModuleName(oldModuleName);
 		return res;
 	}
 	
@@ -639,14 +641,17 @@ public class RVM implements java.io.Serializable {
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 		Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 		for(Frame f = cf; f != null; f = f.previousCallFrame) {
-			Object okargs = f.stack[f.function.nformals - 1];
-			if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-				HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
-				if(kargs.containsKey(name)) {
-					IValue val = kargs.get(name);
-					if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-						stack[sp++] = val;
-						return sp;
+			int nf = f.function.nformals;
+			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
+				Object okargs = f.stack[nf - 1];
+				if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+					HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+					if(kargs.containsKey(name)) {
+						IValue val = kargs.get(name);
+						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+							stack[sp++] = val;
+							return sp;
+						}
 					}
 				}
 			}
@@ -758,8 +763,12 @@ public class RVM implements java.io.Serializable {
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
-
-				if (debug) {
+				
+//				if (cf.function.name.contains("translateStats")){
+//					debug = true;
+//				}
+				
+				if (debug){
 					print_step(pc, stack, sp, cf);
 				}
 				
@@ -1135,12 +1144,24 @@ public class RVM implements java.io.Serializable {
 					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
 					
 					int pos2 = (int) instructions[pc++];
+					
 					if(argType.isSubtypeOf(paramType)){
 						stack[pos2] = stack[pos];
 						stack[sp++] = vf.bool(true);
-					} else {
-						stack[sp++] = vf.bool(false);
+						continue NEXT_INSTRUCTION;
 					}
+					if(argType instanceof RascalType){
+						RascalType atype = (RascalType) argType;
+						RascalType ptype = (RascalType) paramType;
+						if(ptype.isNonterminal() &&  atype.isSubtypeOfNonTerminal(ptype)){
+							stack[pos2] = stack[pos];
+							stack[sp++] = vf.bool(true);
+							continue NEXT_INSTRUCTION;
+						}
+					}
+						
+					stack[sp++] = vf.bool(false);
+					System.out.println("OP_CHECKARGTYPEANDCOPY: " + argType + ", " + paramType + " => false");
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FAILRETURN:

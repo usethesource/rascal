@@ -404,7 +404,8 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats)
+    //println("MATCH_SIMPLE_CALL_OR_TREE", iSubject)    
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
@@ -655,7 +656,10 @@ coroutine MATCH_LIST(pats, iList)
 guard
 	iList is list
 {
+    
     var subject = MAKE_SUBJECT(iList, 0)
+    
+    //println("MATCH_LIST", iList);
     MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject)
 }
 
@@ -727,6 +731,7 @@ coroutine MATCH_LITERAL_IN_LIST(pat, rSubject)
         start = GET_SUBJECT_CURSOR(deref rSubject),
         elm; 
  
+ 	//println("MATCH_LITERAL_IN_LIST",  get_list(iList, start))
     if(start < size_list(iList)){ 
 	    elm = get_list(iList, start)
 	    //println("MATCH_LITERAL_IN_LIST, true", pat, elm);
@@ -1042,7 +1047,8 @@ guard {
         children = get_children(iElem), 
         cpats
     
-    //println("MATCH_APPL_IN_LIST", iProd, iElem)
+    //println("MATCH_APPL_IN_LIST, iProd", iProd)
+    //println("MATCH_APPL_IN_LIST, iElem", iElem)
     // TODO: this appl can be checked faster!
     if(iElem is appl && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
@@ -1050,6 +1056,7 @@ guard {
             yield MAKE_SUBJECT(iList, start+1)
         }
     }
+    //println("MATCH_APPL_IN_LIST exhausted", start, iElem)
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
@@ -1060,8 +1067,8 @@ guard {
         start < size_list(iList) 
 } {
     var iElem = get_list(iList, start), 
-        children = get_children(iElem)
-    //println("MATCH_LIT_IN_LIST", iProd, iElem)
+        children = get_children(iElem)  
+      //println("MATCH_LIT_IN_LIST", iProd, iElem)
      // TODO: this appl can be checked faster!    
     if(iElem is appl && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
@@ -1073,6 +1080,8 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
     var iList = GET_SUBJECT_LIST(deref rSubject),
         start = GET_SUBJECT_CURSOR(deref rSubject), 
         iElem, children, prod, prodchildren;
+        
+    //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iList)
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
         //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
@@ -1566,7 +1575,7 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	if(prim("should_descent", iVal, descendantDescriptor)){
+	//if(prim("should_descent", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1579,7 +1588,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	    //println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 }
+	 //}
 	 pat(iVal) 
 }
 
@@ -1619,14 +1628,15 @@ coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
 }
 
 coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
-guard
-	prim("should_descent", iNd, descendantDescriptor)
+//guard
+//	prim("should_descent", iNd, descendantDescriptor)
 {
    var val, iter;
    
    //println("DESCENT_AND_MATCH_NODE");
    
    // isConcreteMatch?
+   /*
    if(muprim("descendant_is_concrete_match", descendantDescriptor) && iNd is appl){ 
       //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
       if(prim("is_concretelist", iNd)){
@@ -1653,6 +1663,7 @@ guard
       //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
       exhaust
    } 
+   */
    //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", get_name(iNd))                                 
    // Not a concrete list or appl
    iter = iterator(get_children_and_keyword_values(iNd))                  

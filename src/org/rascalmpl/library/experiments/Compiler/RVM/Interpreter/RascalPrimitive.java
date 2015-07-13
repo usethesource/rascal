@@ -66,18 +66,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public enum RascalPrimitive {
 
-	assertreport {
+	assert_fails {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			boolean succeeded = ((IBool) stack[sp - 3]).getValue();
-			IString message = (IString) stack[sp - 2];
-			ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
-			if(!succeeded){
-				stdout.println("Assertion failed" + message + " at " + src);
-				throw RascalRuntimeException.assertionFailed(message, src,  currentFrame);
-			}
-			return sp - 2;
+			assert arity == 1;
+			IString message = (IString) stack[sp - 1];
+			stdout.println("Assertion failed" + message + " at " + currentFrame.src);
+			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
 		}
 	},
 
@@ -1932,6 +1927,9 @@ public enum RascalPrimitive {
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("conditional")){
+					arg = (IConstructor) arg.get(0);
+				}
 				if(arg.getName().equals("label")){
 					if(((IString) arg.get(0)).equals(field)){
 						stack[sp - 2] = appl_args.get(i);
@@ -1954,6 +1952,9 @@ public enum RascalPrimitive {
 			// TODO jurgen rewrite to ITree API
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
+				if(arg.getName().equals("conditional")){
+					arg = (IConstructor) arg.get(0);
+				}
 				if(arg.getName().equals("label")){
 					if(((IString) arg.get(0)).equals(field)){
 						stack[sp - 2] = Rascal_TRUE;
@@ -3743,7 +3744,7 @@ public enum RascalPrimitive {
 					stack[sp - 2] = vf.bool(llen < rlen);
 					return sp - 1;
 				}
-				stack[sp - 2] = Rascal_FALSE;
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 				return sp - 1;
 			}
 			else if (compare == 0) {
@@ -5593,6 +5594,10 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
+//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+//					stdout.println("\t" + f.toString());
+//				}
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
 			return sp - 1;

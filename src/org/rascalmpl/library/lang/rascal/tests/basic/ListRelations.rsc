@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::ListRelations
 
 import List;
 import ListRelation;
+import IO;
 
 // Operators
 
@@ -24,10 +25,14 @@ test bool \join(lrel[&A, &B]X, lrel[&B, &C, &D] Y) =
   (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y;  
   
 // Note that all subscriptions are of the form X[{a}] to avoid that a is interpreted as an integer index.  
-test bool subscription(lrel[&A, &B, &C] X) =
+test bool subscription1(lrel[&A, &B, &C] X) =
   isEmpty(X) ||
   all(&A a <- domain(X), any(<&B b, &C c> <- X[{a}], <a, b, c> in X)) &&
   all(<&A a, &B b, &C c> <- X, <b, c> in X[{a}]);
+
+// Make sure that a single integer subscript is properly interpreted as a list index
+test bool subscription2(lrel[int,str] X) =
+   [X[i] | int i <- [0 .. size(X)]] == X;
   
 test bool tclosure(lrel[int, int] X) = 
   isEmpty(X) ||
@@ -103,3 +108,5 @@ test bool tst_rangeX(lrel[int, int] X) {
    XR = rangeX(X, s);
    return isEmpty(XR) || all(<a, b> <- XR, b notin s);
 }
+
+

@@ -187,6 +187,7 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
    	    println("rascal2rvm: Parsing and checking <moduleLoc>");
    		M = parse(#start[Module], moduleLoc).top;
    	    config  = checkModule(M, newConfiguration(), bindir=bindir);
+   	    //text(config);
    	} catch e: {
    	    throw e;
    	}
@@ -217,7 +218,8 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
 RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
 
    // moduleLoc = getSearchPathLocation(moduleLoc.path);
-    println("moduleLoc = <moduleLoc>");
+    println("moduleLoc = <moduleLoc>, normalize(moduleLo)");
+    moduleLoc = normalize(moduleLoc);
 	<cfg, rvmProgram> = compile1(moduleLoc, bindir=bindir);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
@@ -231,12 +233,24 @@ RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc 
    	for(dirtyLoc <- dirtyModulesLoc){
    		println("\tdirty: <dirtyLoc>");
    	}
+   	for(<m1, m2> <- cfg.importGraph){
+   		println("<m1> imports <m2>");
+   	}
    	
-   	dependencies = { getModuleLocation(prettyPrintName(rname)) | rname <- carrier(cfg.importGraph) } - moduleLoc;
+   	importedByStar = invert(cfg.importGraph)*;
    	
-   	println("dependencies: <dependencies>");
+   	affectedByDirty = importedByStar[cfg.dirtyModules];
+    println("affectedByDirty: <affectedByDirty>"); 
    	
-    for(dependency <- dependencies){
+   	println("Affected but not in dirty: <affectedByDirty - cfg.dirtyModules>");
+   	
+   	//shouldRecompile = { getModuleLocation(prettyPrintName(rname)) | rname <- affectedByDirty } - moduleLoc;
+   	
+   	allDependencies = { getModuleLocation(prettyPrintName(rname)) | rname <- carrier(cfg.importGraph) } - moduleLoc;
+   	
+   	println("allDependencies: <allDependencies>");
+   	
+    for(dependency <- allDependencies){
     	//println("dependency = <dependency>");
     	//println("dependency in dirtyModulesLoc = <dependency in dirtyModulesLoc>");
     	//
