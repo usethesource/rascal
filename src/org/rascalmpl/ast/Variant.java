@@ -90,7 +90,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 307 + 11 * name.hashCode() + 857 * arguments.hashCode() + 283 * keywordArguments.hashCode() ; 
+      return 467 + 127 * name.hashCode() + 109 * arguments.hashCode() + 883 * keywordArguments.hashCode() ; 
     } 
   
     

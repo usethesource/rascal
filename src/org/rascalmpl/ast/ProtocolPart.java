@@ -97,7 +97,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 617 * pre.hashCode() + 239 * expression.hashCode() + 439 * tail.hashCode() ; 
+      return 337 + 257 * pre.hashCode() + 617 * expression.hashCode() + 307 * tail.hashCode() ; 
     } 
   
     
@@ -166,7 +166,7 @@ public abstract class ProtocolPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 599 * protocolChars.hashCode() ; 
+      return 313 + 431 * protocolChars.hashCode() ; 
     } 
   
     

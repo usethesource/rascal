@@ -100,7 +100,7 @@ public abstract class LeftSym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 + 17 * sym.hashCode() ; 
+      return 101 + 607 * sym.hashCode() ; 
     } 
   
     
@@ -155,7 +155,7 @@ public abstract class LeftSym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 271 * nonterminal.hashCode() + 421 * typ.hashCode() + 379 * formals.hashCode() ; 
+      return 67 + 853 * nonterminal.hashCode() + 991 * typ.hashCode() + 991 * formals.hashCode() ; 
     } 
   
     
@@ -230,7 +230,7 @@ public abstract class LeftSym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 613 + 751 * nonterminal.hashCode() + 191 * parameters.hashCode() + 643 * typ.hashCode() + 719 * formals.hashCode() ; 
+      return 761 + 523 * nonterminal.hashCode() + 829 * parameters.hashCode() + 349 * typ.hashCode() + 37 * formals.hashCode() ; 
     } 
   
     
@@ -310,7 +310,7 @@ public abstract class LeftSym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 797 * nonterminal.hashCode() + 71 * formals.hashCode() ; 
+      return 787 + 769 * nonterminal.hashCode() + 853 * formals.hashCode() ; 
     } 
   
     
@@ -374,7 +374,7 @@ public abstract class LeftSym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 19 * nonterminal.hashCode() + 859 * parameters.hashCode() + 421 * formals.hashCode() ; 
+      return 179 + 773 * nonterminal.hashCode() + 311 * parameters.hashCode() + 829 * formals.hashCode() ; 
     } 
   
     

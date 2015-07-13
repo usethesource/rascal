@@ -76,6 +76,7 @@ import org.iguana.regex.Star;
 import org.iguana.traversal.ISymbolVisitor;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Equals;
 import org.rascalmpl.ast.Expression.FieldAccess;
@@ -373,7 +374,8 @@ public class RascalToIguanaGrammarConverter {
 			if (last instanceof Code) {
 				Code code = (Code) last;
 				org.iguana.datadependent.ast.Statement lastStmt = code.getStatements()[code.getStatements().length - 1];
-				if (lastStmt instanceof org.iguana.datadependent.ast.Statement.Expression) {
+				if (lastStmt instanceof org.iguana.datadependent.ast.Statement.Expression
+						&& !(((org.iguana.datadependent.ast.Statement.Expression) lastStmt).getExpression() instanceof org.iguana.datadependent.ast.Expression.Assignment)) {
 					Return ret = Return.builder(((org.iguana.datadependent.ast.Statement.Expression) lastStmt).getExpression()).build();
 					body.remove(body.size() - 1);
 					if (code.getStatements().length == 1) {
@@ -384,7 +386,6 @@ public class RascalToIguanaGrammarConverter {
 					}
 					body.add(ret);
 				}
-				
 			}
 		}
 		
@@ -933,7 +934,9 @@ public class RascalToIguanaGrammarConverter {
 				  id.equals("ppLookup") ||
 				  id.equals("endOfFile") ||
 				  id.equals("startsWith") ||
-				  id.equals("endsWith"))) {
+				  id.equals("endsWith") ||
+				  id.equals("put") ||
+				  id.equals("contains"))) {
 				throw new RuntimeException("Unsupported function: " + id);
 			}
 			
@@ -960,6 +963,10 @@ public class RascalToIguanaGrammarConverter {
 				return startsWith(args);
 			else if (id.equals("endsWith")) 
 				return endsWith(args[0], args[1]);
+			else if (id.equals("put"))
+				return put(args[0], args[1]);
+			else if (id.equals("contains"))
+				return contains(args[0], args[1]);
 			else 
 				return println(args);
 		}
@@ -972,6 +979,12 @@ public class RascalToIguanaGrammarConverter {
 		@Override
 		public AbstractAST visitExpressionOr(Or x) {
 			return or((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this), 
+					  (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
+		}
+		
+		@Override
+		public AbstractAST visitExpressionAnd(And x) {
+			return and((org.iguana.datadependent.ast.Expression) x.getLhs().accept(this), 
 					  (org.iguana.datadependent.ast.Expression) x.getRhs().accept(this));
 		}
 		
