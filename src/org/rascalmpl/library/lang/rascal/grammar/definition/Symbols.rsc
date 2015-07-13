@@ -88,7 +88,7 @@ public Symbol sym2symbol(Sym sym) {
     case except(Sym s, NonterminalLabel n):
       return conditional(sym2symbol(s), {\except("<n>")});
     default: 
-      throw "missed a case <sym>";
+      throw "sym2symbol, missed a case <sym>";
   }
 }
 

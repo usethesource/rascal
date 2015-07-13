@@ -73,7 +73,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
         for(msg <- messages){
         	println(msg);
         }
-        throw "Cannot execute due to compilation errors";
+        throw "Cannot execute due to compilation errors: <messages>";
    }
    
    // Read the muLibrary, recompile if necessary
@@ -144,7 +144,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
   	           imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmProgram.resolver[ofname] + pos_delta) | str ofname <- importedRvmProgram.resolver );
   	       
-  	       } catch x: println("execute: Reading <importedLoc> did not succeed: <x>");      
+  	       } catch x: throw "execute: Reading <importedLoc> did not succeed: <x>";      
        }
    }
    

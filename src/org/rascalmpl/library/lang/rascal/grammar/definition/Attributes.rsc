@@ -31,6 +31,6 @@ public Attr mod2attr(ProdModifier m) {
                                                 : return \tag("<n>"("<unescape(l)>"));
     case \tag(\expression(Name n, literal(Literal l)))
                                                 : return \tag("<n>"("<unescape("<l>")>"));
-    default: { rprintln(m); throw "missed a case <m>"; }
+    default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
   }
 }
