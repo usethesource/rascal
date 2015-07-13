@@ -12,10 +12,11 @@ void ex(Figure b) = render(vcat(figs =[text("\\\"aap\\\""), b]));
 
 Figure WB = box(fillColor="antiquewhite", lineWidth = 6, lineColor = "grey", 
        size=<50,100>);
-Figure RB = box(fillColor="red", size=<20,20>);
+Figure RB = box(fillColor="red", lineWidth = 1, size=<20,20>);
 
-public Figure box1 = box(fillColor="red", size=<200,200>);
-void tbox1(){ render(box1, align = centerMid); }  
+public Figure box1 = hcat(lineWidth = 6, lineColor = "grey", figs=[rotate(45, box(fillColor="red", size=<50,50>)),
+rotate(45, box(fillColor="red", size=<50,50>))]);
+void tbox1(){ render(box1, align = centerMid, debug = false); }  
 
 public Figure box2 = box(fillColor="yellow", size=<200,200>, lineColor = "red", 
         lineWidth=10);
@@ -67,6 +68,7 @@ void boxes(){
 						       [RB, box4, box5, box6],
 						       [WB,  box7, box8, box9],
 						       [box10, box11],
+						       [box18, box19],
 						       [box12]
 						  ]), width = 1000, height = 1000, debug = false);
 }
@@ -89,11 +91,11 @@ public Figure box17 = box(fig=box(fig=RB,fillColor="white",  size=<50, 50>, line
 size=<200,200>, gap=<0,0>, align=bottomLeft, lineWidth = 0, lineColor="red");
 void tbox17(){ render(box17, align = topLeft, debug = false); }
 
-// public Figure box18 = box(fig=RB, fillColor="blue", grow=3);
-//void tbox18(){ ex("box18", box18); }
-//
-//public Figure box19 = box(fig=text("Hello", fontSize=20), grow=2);
-//void tbox19(){ ex("box19", box19); }
+public Figure box18 = box(size=<100, 100>, fig=RB, fillColor="antiquewhite", grow=1.5);
+void tbox18(){ render(box18); }
+
+public Figure box19 = box(fig=text("Hello", fontSize=20), grow=1.2, rounded=<10,10>);
+void tbox19(){ ex("box19", box19); }
 
 public Figure box20 = box(align = topLeft, lineWidth = 5, fig=box( lineWidth=20, lineColor="blue", fillColor = "white", size=<200,200>, lineOpacity = 0.5), fillColor = "white", lineColor="red");
 void tbox20(){ render(box20, align = bottomRight); }
@@ -108,7 +110,7 @@ void thcat() {render(hcat(figs=[WB, RB]));}
 
 void tgrid() {render(grid(figArray=[[WB, RB], [RB, WB], [WB, RB, WB]]));}
 
-Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue", size=<10,10>)];
+Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat1 = box(align = topLeft, size=<300, 300>,  fig = hcat(figs=rgbFigs, align=topLeft));    
 void thcat1(){ render(hcat1); }
@@ -165,8 +167,9 @@ void tfhcat0(loc l)= writeFile(l,
 public Figure hcat11 = 
        box(padding=<0, 0, 0, 0>, lineWidth = 10, fillColor = "antiquewhite", lineColor = "blue"
        ,fig= ellipse(padding=<0, 0, 0, 0>
-             ,fig=hcat(figs=rgbFigs) 
-       ,lineWidth = 10, lineColor= "brown", fillColor="lightgrey",align = centerMid
+             ,fig=hcat(lineWidth=1, figs=rgbFigs) 
+             // ,size=<100, 50>
+       ,lineWidth = 10, lineColor= "yellow", fillColor="lightgrey",align = centerMid
        )
  )
 ;
@@ -212,7 +215,7 @@ void tboxt_hcat6(){ ex("boxt_hcat6", boxt_hcat6); }
 
 void hcats(){
 	ex("hcats", vcat(figs=[grid(gap=<0,0>
-	   , borderWidth = 4 , borderColor = "brown", borderStyle = "ridge" 
+	   , borderWidth = 4 , lineWidth = 1, lineColor = "red", borderColor = "brown", borderStyle = "ridge" 
 	                 ,figArray=[
 							[hcat1, hcat2, hcat3],
 							[hcat4, hcat5, hcat6],
@@ -402,8 +405,8 @@ Figure ell1 = ellipse(cx=50, cy = 90, rx = 40, ry = 80, align= centerMid,  fig=v
 void tell0(){ ex("hello", hcat(figs=[ell0, ell1], gap = <10, 10>), debug = false); }
 
 // ellipse ------------------------------------------------------------
-public Figure ellipse1 = box(lineWidth = 2, fig=ellipse(rx=100, ry=75,   fillColor="lightblue"));
-void tellipse1(){ ex("ellipse1", ellipse1); }
+public Figure ellipse1 = box(lineWidth = 2,  fig=ellipse(rx=100, ry=75,   fillColor="lightblue"));
+void tellipse1(){ render(rotate(10, ellipse1), align = centerMid); }
 
 void tfellipse1(loc l)  = writeFile(l, toHtmlString(ellipse1));
 
@@ -558,13 +561,13 @@ void tpolygon4(){ ex("polygon4", polygon4); }
 public Figure polygon5 = polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=4);
 void tpolygon5(){ ex("polygon5", polygon5); }
 
-public Figure polygon6 = box(fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=1));
+public Figure polygon6 = box(lineWidth = 1, fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=1));
 void tpolygon6(){ ex("polygon6", polygon6); }
 
-public Figure polygon7 =  box(fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=4));
+public Figure polygon7 =  box(lineWidth = 1, fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=4));
 void tpolygon7(){ ex("polygon7", polygon7); }
 
-public Figure polygon8 = box(fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=10));
+public Figure polygon8 = box(lineWidth = 1, fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=10));
 void tpolygon8(){ ex("polygon8", polygon8); }
 
 public Figure polygon9 = box(lineColor="red", lineWidth=10, fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=10));
@@ -579,7 +582,7 @@ void polygons() {
 }
 
 public Figure ngon1 = ngon(n = 3, r=100);
-void tngon1(){ ex("ngon1", ngon1); }
+void tngon1(){ render(overlay(figs=[rotate(30, ngon1), rotate(90, ngon1)], align = topLeft), align = topLeft, debug = false); }
 
 public Figure ngon2 = ngon(n = 4, r=100);
 void tngon2(){ ex("ngon2", ngon2); }
@@ -682,31 +685,31 @@ void tshapes0() {render(shapes0());}
 
 /********************** shape ******************************/
 
-public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true);
+public Figure shape1 = shape( [line(100,100), line(100,200), line(200,200)], size=<300, 300>,shapeClosed=true);
 void tshape1(){	ex("shape1", shape1); }
 void ftshape1(loc f){writeFile(f, toHtmlString(shape1));}
 
-public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true);
+public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true, size=<300, 300>);
 void tshape2(){ ex("shape2", shape2); }
 
-public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
+public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red", size=<300, 300>),
 	
-							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue")
+							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue", size=<300, 300>)
 							 ]);
 void tshape3(){ ex("shape3", shape3); }
 
-public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow");
+public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow", size=<300, 300>);
 void tshape4(){	ex("shape4", shape4); }
 
-public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow");
+public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow", size=<300, 300>);
 void tshape5(){	ex("shape5", shape5); }
 
 public Figure shape6 = box(lineColor="red", fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey", size=<100, 100>));
 void tshape6(){	ex("shape6", shape6); }
 
 public Figure shape7 = box(lineColor="red", lineWidth=10, fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+					                      shapeClosed=true, lineWidth = 1, fillRule="evenodd", fillColor = "grey", size=<100, 100>));
 					                      
 void tshape7(){	ex("shape7", shape7); }
 
@@ -716,23 +719,23 @@ public Figure fillRule1 = grid(fillColor="antiquewhite",
 						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
 						                 startMarker=ngon(n=3, r=10 ,fillColor="red"),     
 										 endMarker=ngon(n=3, r =10,fillColor="green"),
-					                     shapeClosed=true, fillEvenOdd=false, fillColor = "grey"),
+					                     shapeClosed=true, fillEvenOdd=false, fillColor = "grey", size=<100, 100>),
 					           
 					                 shape([line(0,0), line(0, 60), line(60,60), line(60, 0), move(15,15), line(15,45), line(45,45), line(45, 15)],
 					                       startMarker=ngon(n=3, r=10 ,fillColor="red"),     
 										   endMarker=ngon(n=3, r =10,fillColor="green"), 	// clockwise/counter clockwise
-					                       shapeClosed=true, fillEvenOdd=false, fillColor = "grey")
+					                       shapeClosed=true, fillEvenOdd=false, fillColor = "grey", size=<100, 100>)
 					               ],
 					               
 					               [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
 					                      startMarker=ngon(n=3, r=10 ,fillColor="red"),     
 										  endMarker=ngon(n=3, r =10,fillColor="green"),
-					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey"),
+					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey", size=<100, 100>),
 					           
 					                 shape([line(0,0), line(0, 60), line(60,60), line(60,0), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
 					                       startMarker=ngon(n=3, r=10 ,fillColor="red"),     
 										   endMarker=ngon(n=3, r =10,fillColor="green"),
-					                       shapeClosed=true, fillEvenOdd=true, fillColor = "grey")
+					                       shapeClosed=true, fillEvenOdd=true, fillColor = "grey", size=<100, 100>)
 					               ] ]);
 void tfillRule1(){ ex("fillRule1", fillRule1); }
 
@@ -876,6 +879,51 @@ void gflex3(){
 				                ]));
 }
 
+/********************** shape with markers ******************************/
+
+public Figure marker1() =  box(align=topLeft, fig=shape([move(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red")));
+void tmarker1(){ render(marker1()); }
+
+public Figure marker2() = box(align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red")));
+void tmarker2(){ render(marker2()); }
+
+public Figure marker3() = box(align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], 
+												shapeClosed=true,
+												startMarker=box(size=<10,10>,fillColor="red"),
+												midMarker=box(size=<20,20>,fillColor="blue")
+												));
+void tmarker3(){ render(marker3()); }
+
+public Figure marker4() = box(align=topLeft, fig=shape([move(100,100), line(150,30), line(200,100), line(150,150)],
+												shapeClosed=true, shapeCurved=true,
+												startMarker=box(size=<10,10>,fillColor="red"),
+												midMarker=box(size=<20,20>,fillColor="blue")
+												//endMarker=box(size=<20,20>,fillColor="yellow")
+												));
+void tmarker4(){ render(marker4()); }
+
+Figure arrow(int side, str color, bool rightDir=true) =
+	rightDir ? shape([line(0,0), line(side,side), line(0, 2*side)], shapeClosed=true, fillColor=color)
+			 : shape([line(side,0), line(0,side), line(side, 2*side)], shapeClosed=true, fillColor=color);
+
+public Figure arrow1() = box(align=topLeft, fig= shape([move(100,100), line(200,200)], endMarker=arrow(10, "red")));
+void tarrow1(){ render(arrow1()); }
+
+public Figure arrow2() = box(align=topLeft, fig= shape([move(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red")));
+void tarrow2(){	render(arrow2()); }
+
+public Figure arrow3() = box(align=topLeft, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
+	                                            shapeCurved=true, fillColor="silver",startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red")));
+void tarrow3(){	render(arrow3); }
+
+void markers(){
+      render(grid( // gap=<10,10>,
+					   figArray=[[marker1(), marker2(), marker3(), marker4()]
+					   			 , [arrow1(), arrow2(), arrow3()]
+					   			]));
+}
+
+
 // ------------------------------------------------------------------------------ 
 
 Figure scrabbleField = box(fillColor="antiqueWhite", size=<20,20>, lineColor = "green", lineWidth=1);
@@ -887,7 +935,25 @@ void scrabble() {
     }
 
 
+// Figure ov() = overlay(size=<200, 200>, figs=[at(0, 0, box(size=<50, 50>, fig=rotate(45, box(size=<50, 10>, fillColor="red")), align = centerMid)), at(0, 0, box(size=<50, 50>, fig=rotate(135, box(size=<50, 10>, align = centerMid, fillColor = "green"))))]);
+Figure ov() = box(lineWidth=0, fillOpacity=0.5, fig=overlayBox(200, 200,[
+    rotate(45, box(size=<100, 10>, fillColor="red", fillOpacity=0.5))
+   ,rotate(135, box(size=<100, 10>, fillColor = "green", fillOpacity=0.5))
+   ,rotate(0, box(size=<100, 10>, fillColor = "magenta", fillOpacity=0.5))
+   ,rotate(90, box(size=<100, 10>, fillColor = "blue", fillOpacity=0.5))
+    ]));
 
+void tov()= render(ov());
+
+Figure ov1() = overlay(lineWidth = 0, figs=[
+    rotate(60, ngon(n=4, r = 100, fig = rotate(0, 
+      box(size=<100, 100>
+        ,  fig=box(size=<50, 20>, round=<20, 20>, fillColor="pink")
+        , align = centerRight
+        )
+    ))), at(50, 50, circle(r=50, fillColor="none", lineWidth=1))]);
+
+void tov1()= render(ov1());
 
 public void main() {
        q = getKeywordParameters(box_hcat6);
@@ -896,3 +962,16 @@ public void main() {
              }
        println(z);
      } 
+     
+ Figure geo() {
+    int b = 400;
+    int x = 180, y = 100;
+    return overlay(size=<b, b>, figs=
+      [shape([move(b/2, 0), line(b/2, b), 
+              move(0, b/2), line(b, b/2)])
+        ,at((b-x)/2, (b-y)/2, rotate(90, box(size=<x,y>)))
+      // , scaleX=<<0,b>,<0,b>>, scaleY=<<0,b>,<0,b>>
+      ]);
+    }
+     
+ void tgeo()= render(geo(), align = topLeft, size=<800, 800>);   
