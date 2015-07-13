@@ -2107,6 +2107,7 @@ public class Prelude {
 			writer.println("import static org.iguana.grammar.symbol.LayoutStrategy.*;");
 			writer.println("import org.iguana.grammar.transformation.DesugarAlignAndOffside;");
 			writer.println("import org.iguana.grammar.transformation.DesugarPrecedenceAndAssociativity;");
+			writer.println("import org.iguana.grammar.transformation.DesugarState;");
 			writer.println("import org.iguana.grammar.transformation.EBNFToBNF;");
 			writer.println("import org.iguana.grammar.transformation.LayoutWeaver;");
 			writer.println("import org.iguana.parser.GLLParser;");
@@ -2146,6 +2147,9 @@ public class Prelude {
             writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
             writer.println();
 			writer.println("         grammar = new DesugarPrecedenceAndAssociativity().transform(grammar);");
+			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
+			writer.println();
+			writer.println("         grammar = new DesugarState().transform(grammar);");
 			writer.println("         // System.out.println(grammar.toStringWithOrderByPrecedence());");
 			writer.println();
 			writer.println("         grammar = new LayoutWeaver().transform(grammar);");

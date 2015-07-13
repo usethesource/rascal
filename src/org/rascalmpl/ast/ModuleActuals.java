@@ -72,7 +72,7 @@ public abstract class ModuleActuals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 967 + 2 * types.hashCode() ; 
+      return 127 + 83 * types.hashCode() ; 
     } 
   
     
