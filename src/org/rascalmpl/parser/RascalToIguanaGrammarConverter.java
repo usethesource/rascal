@@ -967,7 +967,11 @@ public class RascalToIguanaGrammarConverter {
 				  id.equals("startsWith") ||
 				  id.equals("endsWith") ||
 				  id.equals("put") ||
-				  id.equals("contains"))) {
+				  id.equals("contains") ||
+				  id.equals("push") ||
+				  id.equals("pop") ||
+				  id.equals("top") ||
+				  id.equals("find"))) {
 				throw new RuntimeException("Unsupported function: " + id);
 			}
 			
@@ -994,10 +998,21 @@ public class RascalToIguanaGrammarConverter {
 				return startsWith(args);
 			else if (id.equals("endsWith")) 
 				return endsWith(args[0], args[1]);
-			else if (id.equals("put"))
-				return put(args[0], args[1]);
-			else if (id.equals("contains"))
+			else if (id.equals("put")) {
+				if (args.length == 2)
+					return put(args[0], args[1]);
+				else
+					return put(args[0], args[1], args[2]);
+			} else if (id.equals("contains"))
 				return contains(args[0], args[1]);
+			else if (id.equals("push"))
+				return push(args[0], args[1]);
+			else if (id.equals("pop"))
+				return pop(args[0]);
+			else if (id.equals("top"))
+				return top(args[0]);
+			else if (id.equals("find"))
+				return find(args[0], args[1]);
 			else 
 				return println(args);
 		}
