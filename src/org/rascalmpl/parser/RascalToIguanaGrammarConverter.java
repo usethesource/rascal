@@ -1088,6 +1088,14 @@ public class RascalToIguanaGrammarConverter {
 		}
 		
 		@Override
+		public AbstractAST visitExpressionMap(org.rascalmpl.ast.Expression.Map x) {
+			if (!x.getMappings().isEmpty())
+				throw new RuntimeException("Unsupported expression: " + this);
+			
+			return map();
+		}
+		
+		@Override
 		public AbstractAST visitExpressionQualifiedName(QualifiedName x) {
 			return var(Names.name(Names.lastName(x.getQualifiedName())));
 		}
