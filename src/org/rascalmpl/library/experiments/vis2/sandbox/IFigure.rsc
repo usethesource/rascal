@@ -7,9 +7,7 @@ import util::HtmlDisplay;
 import util::Math;
 import experiments::vis2::sandbox::Figure;
 
-// '<style("border","<f.lineWidth<0?1:f.lineWidth>px solid <f.lineColor>")>
 private loc base = |std:///experiments/vis2/sandbox|;
-
 
 public data IFigure = ifigure(str id, list[IFigure] child);
 
@@ -28,7 +26,7 @@ int occur = 0;
 
 
 alias Elm = tuple[void(str, str) f, int seq, str id, str begintag, str endtag, str script, int width, int height,
-      int x, int y, 
+      int x, int y, int lx, int ly, 
       Alignment align, int lineWidth, str lineColor, bool sizeFromParent];
 
 
@@ -234,11 +232,11 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
     widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")<style("border","1px solid black")> 
-        '<stylePx("width", width)><stylePx("height", height)>
+        '<stylePx("width", width)><style("height", width)>
         '<style("stroke-width",lineWidth)>
         ;       
         "
-       , width, height, width, height, align, 1, "", false >;
+       , width, height, width, height, 0, 0, align, 1, "", false >;
        seq=seq+1;
        state += <id, fillColor>;
        old+=fillColor;
@@ -284,11 +282,42 @@ int getLineWidth(Figure f) {
         }
    return lw;
   }
-    
-str getLineColor(IFigure f) {
-    if (ifigure(id, _) := f) return widget[id].lineColor;
-    return "";
-    }
+  
+str getLineColor(Figure f) {
+    str c = f.lineColor;
+    while (isEmpty(c)) {
+        f = figMap[parentMap[f.id]];
+        c = f.lineColor;
+        }
+   return c;
+  }
+
+str getFillColor(Figure f) {
+    str c = f.fillColor;
+    while (isEmpty(c)) {
+        f = figMap[parentMap[f.id]];
+        c = f.fillColor;
+        }
+   return c;
+  } 
+   
+num getFillOpacity(Figure f) {
+    num c = f.fillOpacity;
+    while (c<0) {
+        f = figMap[parentMap[f.id]];
+        c = f.fillOpacity;
+        }
+   return c;
+  }
+  
+num getLineOpacity(Figure f) {
+    num c = f.lineOpacity;
+    while (c<0) {
+        f = figMap[parentMap[f.id]];
+        c = f.lineOpacity;
+        }
+   return c;
+  }
     
 bool getSizeFromParent(IFigure f) {
     if (ifigure(id, _) := f) return widget[id].sizeFromParent;
@@ -427,7 +456,7 @@ IFigure _text(str id, bool fo, Figure f, str s) {
     int height = f.height;
     Alignment align =  width<0?topLeft:f.align;
     // str endtag = addSvgTag?"\</text\>":"\</div\>"; 
-    str endtag = "\</text\>\</svg\>"; 
+    str endtag = fo?"\</div\>":"\</text\>\</svg\>";
     // 
     widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -443,10 +472,10 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<fo?"":attr("y", getTextY(f))+attr("x", getTextX(f, s))> 
         '.text(\"<s>\") 
         ';"
-        , getTextWidth(f, s), getTextHeight(f), getAtX(f), getAtY(f), align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , getTextWidth(f, s), getTextHeight(f), getAtX(f), getAtY(f), 0, 0, align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, []);
     }
@@ -466,8 +495,7 @@ str trChart(str cmd, str id, Figure chart) {
        d = toJSON(chart.googleData, true);
     if ((kw["xyData"]?) && !isEmpty(chart.xyData)) {     
        d = toJSON([["x", "y"]] + [[e[0], e[1]]|e<-chart.xyData], true);
-       }
-    // str c = intercalate(",", [trColumn(q)|q<-joinColumn(charts, chart.tickLabels)])   
+       }  
     if (options.width>=0) chart.width = options.width;
     if (options.height>=0) chart.height = options.height;
     return 
@@ -509,15 +537,15 @@ IFigure _googlechart(str cmd, str id, Figure f) {
         "
         'd3.select(\"#<id>\")
         '<debugStyle()>
-        '<style("background-color", "<f.fillColor>")>
+        '<style("background-color", "<getFillColor(f)>")>
         '<stylePx("width", width)><stylePx("height", height)>
         ';
         '<drawVisualization(fname, trChart(cmd, id, f))>
         "
-        , f.width, f.height, 0, 0, align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , f.width, f.height, 0, 0, 0, 0, align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, []);
     }
@@ -536,7 +564,7 @@ IFigure _googlechart(str cmd, str id, Figure f) {
     
 str getGraphOpt(Figure g) {
    map[str, value] m = getKeywordParameters(g.options);
-   str r =  "{";
+   str r =  "{style:\"fill:none\", ";
    if (!isEmpty(m)) {
         for (t<-m) {
            r+="<t>:<vl(m[t])>,";
@@ -550,12 +578,15 @@ str getGraphOpt(Figure g) {
 str getEdgeOpt(Edge s) {
       map[str, value] m = getKeywordParameters(s);
       str r =  ",{";
+      // str r =  ", {style:\"fill:none\", ";
       if (s.lineInterpolate=="basis") {
           r+="lineInterpolate:\"basis\",";
           }
       if (!isEmpty(m))  {  
          for (t<-m) {
+           if (t!="lineColor")
            r+="<t>:<vl(m[t])>,";
+           else r+="style: \"stroke:<m[t]>;fill:none\",";
            }    
          r = replaceLast(r,",","");
          } 
@@ -582,42 +613,46 @@ str getEdgeOpt(Edge s) {
     }
     
 str dagreIntersect(Figure s) {
-    //switch(s) {
-    //   case circle(): {
-    //      return "dagreD3.intersect.circle(node, <s.r>, point);";
-    //      }
-    //   case elipse(): return "dagreD3.intersect.ellipse(node, <s.rx>, <s.ry>, point);";
-    //   case ngon(): return "
-    //      
-    //      'return dagreD3.intersect.polygon(node, points, point);";
-    //   default: return "dagreD3.intersect.rect(node, point);";
-    // }
     return "return dagreD3.intersect.polygon(node, points, point);";    
     }
     
-str dagrePoints() {
+str dagrePoints(f) {
+      if (q:ngon():=f) {
+          num angle = 2 * PI() / f.n;
+          p  = [<f.r+f.r*cos(i*angle), f.r+f.r*sin(i*angle)>|int i<-[0..f.n]];
+          return 
+            replaceLast( "[<for(z<-p){> {x:<toInt(z[0])>, y: <toInt(z[1])>},<}>]",
+          ",", "");
+          }
        return "[{x:0, y:0}, {x:width, y:0}, {x:width, y:height}, {x:0, y:height}]";
        }
        
 str addShape(Figure s) {  
     // println("addShape: <s.width>  <s.height>"); 
+    int n = 4;
+    switch(s) {
+         case q:ngon(): n = q.n;
+         case q:circle: n = 32;
+         }
     return "
     'render.shapes().<s.id> = function (parent, bbox, node) {
-    'var width = parseInt(d3.select(\"#m_<s.id>\").attr(\"markerWidth\"));
-    'var height = parseInt(d3.select(\"#m_<s.id>\").attr(\"markerHeight\"));
-    'var points = <dagrePoints()>;
+    'var width = parseInt(d3.select(\"#<s.id>\").attr(\"width\"));
+    'var height = parseInt(d3.select(\"#<s.id>\").attr(\"height\"));
+    'var points = <dagrePoints(s)>;
     'var dpoints = \"M \"+ points.map(function(d) { return d.x + \" \" + d.y; }).join(\" \")+\" Z\";
     'shapeSvg = parent.insert(\"path\", \":first-child\")
     ' <attr1("d", "dpoints")> 
     ' <style("fill", "none")><style("stroke", "none")>
     ' <attr1("transform", "\"translate(\"+-width/2+\",\"+-height/2+\")\"")>
-    '    <style("marker-start","url(#m_<s.id>)")>;
+    '  
     '    node.intersect = function(point) {
     '    <dagreIntersect(s)>
     '    }
     '    return shapeSvg;
-    '    }
+    '    }  
     ";
+    
+    // <style("marker-start","url(#m_<s.id>)")>;
     }
    
  str drawGraph(str fname, str id, str body) { 
@@ -626,22 +661,36 @@ str addShape(Figure s) {
     'var svg = d3.select(\"#<id>\");
     'var inner = svg.append(\"g\"); 
     'var render = new dagreD3.render();
+  
     '<body>
     'render(inner, g);
-    ' var xCenterOffset = (parseInt(svg.attr(\"width\")) - g.graph().width) / 3;
-    ' inner.attr(\"transform\", \"translate(\" + xCenterOffset + \", 20)\");
-    ' svg.attr(\"height\", g.graph().height + 80);
+    
+    ' g.nodes().forEach(function(v) {
+    '     var n = g.node(v);
+    '     var id = n.shape;
+    '     var width = parseInt(d3.select(\"#\"+id).attr(\"width\"));
+    '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"));
+    '    d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2)")><attr1("y", "Math.floor(n.y-height/2)")>;
+    '     });
     '}
-    ";  
+    "; 
+    // '    
+    //g.nodes().forEach(function(v) {
+    // console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
+    //' var xCenterOffset = (parseInt(svg.attr(\"width\")) - g.graph().width) / 3;
+    // ' inner.attr(\"transform\", \"translate(\" + xCenterOffset + \", 20)\");
+    // ' svg.attr(\"height\", g.graph().height + 80);
+    // '  alert(n.x);
     }
     
     
     
- IFigure _graph(str id, Figure f) {
+ IFigure _graph(str id, Figure f, list[str] ids) {
     //str begintag="\<div  id=\"<id>\"\>";
     str begintag =
          "\<svg id=\"<id>\"\><visitDefs(id, false)>";
     str endtag="\</svg\>";
+    // str endtag = "";
     int width = f.width;
     int height = f.height;
     Alignment align =  width<0?topLeft:f.align;
@@ -657,10 +706,10 @@ str addShape(Figure s) {
         ';     
         '<drawGraph(fname, id, trGraph(f))>
         "
-        , f.width, f.height, 0, 0, align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , f.width, f.height, 0, 0, 0, 0, align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, []);
     }
@@ -710,7 +759,42 @@ int getAtX(IFigure f) {
 int getAtY(IFigure f) {
     if (ifigure(id, _) := f) return widget[id].y;
     return 0;
-    }   
+    } 
+
+int getLx(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].lx;
+    return 0;
+    }
+    
+int getLy(IFigure f) {
+    if (ifigure(id, _) := f) return widget[id].ly;
+    return 0;
+    }  
+ 
+int xRotate(f) = (rWidth(f, f.width, f.height)-f.width)/2;
+int yRotate(f) = (rHeight(f, f.width, f.height)-f.height)/2;   
+str beginRotate(Figure f) {
+    
+    if (f.rotate[0]==0) return "";
+    if (f.rotate[1]<0 && f.rotate[2]<0) {
+        // println("beginRotate width <f.width>  height <f.height>");
+        int lx = xRotate(f);
+        int ly = yRotate(f);      
+        f.rotate[1] = (f.width)/2;
+        f.rotate[2] = (f.height)/2;
+        // println("cx: <f.rotate[1]>  cy: <f.rotate[2]>");
+        return "\<g transform=\" translate(<lx>, <ly>) rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
+        }
+    }
+  
+str endRotate(Figure f) =  f.rotate[0]==0?"":"\</g\>";
+
+str beginScale(Figure f) {   
+    if (f.grow==1) return "";
+    return "\<g transform=\"scale(<f.grow>)\" \>";
+    }
+  
+str endScale(Figure f) =  f.grow==1?"":"\</g\>";
     
 int hPadding(Figure f) = f.padding[0]+f.padding[2];     
 
@@ -724,65 +808,79 @@ bool hasInnerCircle(Figure f)  {
           }
      return (circle():=f) || (ellipse():=f) || (ngon():=f);
      }
-     
+  
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
-                         
- IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {   
-      //if (f.lineWidth<0) {
-      //     if (hasInnerCircle(f)) f.lineWidth = 2;
-      //     else f.lineWidth = 1; 
-      //     } 
-      // println("rect:<f.lineWidth>");   
+ 
+ int rWidth(Figure f, int w, int h) {
+   if (f.rotate[0]==0 || f.width<0) return f.width;
+   num angle = (PI()* f.rotate[0])/180;
+   int r = toInt(w*abs(cos(angle))+h*abs(sin(angle)))
+   +corner(4, getLineWidth(f));
+   // println("rwidth:<r>");
+   return r;
+   }
+ 
+ int rHeight(Figure f, int w, int h) {
+     if (f.rotate[0]==0 || f.height<0) return f.height;
+     num angle = (PI()*f.rotate[0])/180;
+     int r = toInt(h*abs(cos(angle))+w*abs(sin(angle)))
+          +corner(4, getLineWidth(f));
+     // println("rheight:<r>");
+     return r;
+     }                   
+ IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {    
       int lw = getLineWidth(f);  
-      if (isEmpty(f.fillColor)) f.fillColor = "none";
-      if (isEmpty(f.lineColor)) f.lineColor = "black"; 
-      
-      if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
+      if (getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = topLeft;
       if ((f.width<0 || f.height<0) && (getWidth(fig)<0 || getHeight(fig)<0)) 
                       f.align = centerMid;
       int offset1 = round((0.5-f.align[0])*lw);
       int offset2 = round((0.5-f.align[1])*lw);
-      // println("<id>: align = <lw> <f.align> <0.5-f.align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");     
-      str begintag=
-         "\<svg <moveAt(fo, f)> xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
-         '<beginTag("<id>", fo, f.align, fig, offset1, offset2)>
-         ";
-        
-       // println("<begintag>");
-       str endtag = endTag(fo);
-       if (getWidth(fig)>0 && getHeight(fig)>0){
+      if (getWidth(fig)>0 && getHeight(fig)>0){
            if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
            if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
            }
+      // println("<id>: align = <lw> <f.align> <0.5-f.align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");  
+      str begintag= 
+         "\<svg <moveAt(fo, f)> xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)> 
+         '\<rect id=\"<id>\" /\> 
+         '<beginTag("<id>", fo, f.align, fig, offset1, offset2)>
+         "; 
+       //  vector-effect=\"non-scaling-stroke\"    
+       str endtag =endTag(fo);
+       endtag += endRotate(f);  
+       endtag+=endScale(f);
        endtag += "\</svg\>"; 
+       int width = f.width;
+       int height = f.height;
+       int lx = xRotate(f);
+       int ly = yRotate(f); 
+       f.width = rWidth(f, width, height);
+       f.height = rHeight(f, width, height);    
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
         '<on(getEvent(f.event), "doFunction(\"<id>\")")>
         '<attr("x", 0)><attr("y", 0)> 
         '<attr("rx", f.rounded[0])><attr("ry", f.rounded[1])> 
-        '<attr("width", f.width)><attr("height", f.height)>
+        '<attr("width", width)><attr("height", height)>
         '<styleInsideSvg(id, f, fig)>
-        ",f.width, f.height, getAtX(f), getAtY(f), f.align, 
-          getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ",toInt(f.grow*f.width), toInt(f.grow*f.height), getAtX(f), getAtY(f), lx, ly, f.align, 
+          toInt(f.grow*getLineWidth(f)), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, [fig]);
        } 
-           
- 
  
  str styleInsideSvgOverlay(str id, Figure f) {
-      int lw = getLineWidth(f)<0?1:getLineWidth(f); 
       return " 
         '<style("stroke-width",getLineWidth(f))>
-        '<style("stroke","<f.lineColor>")>
-        '<style("fill", "<f.fillColor>")> 
+        '<style("stroke","<getLineColor(f)>")>
+        '<style("fill", "<getFillColor(f)>")> 
         '<style("stroke-dasharray", cv(f.lineDashing))> 
-        '<style("fill-opacity", f.fillOpacity)> 
-        '<style("stroke-opacity", f.lineOpacity)>      
+        '<style("fill-opacity", getFillOpacity(f))> 
+        '<style("stroke-opacity", getLineOpacity(f))>      
         ';       
         'd3.select(\"#<id>_svg\")
         '<attr("width", f.width)><attr("height", f.height)>
@@ -799,32 +897,27 @@ bool hasInnerCircle(Figure f)  {
  str styleInsideSvg(str id, Figure f,  IFigure fig) {  
     int x  =getAtX(fig);
     int y = getAtX(fig);
-    //  int lw = f.lineWidth<0?0:f.lineWidth;
     int lw = getLineWidth(f);
-    // println(f);
-    // if ((ellipse():=f) || (circle():=f) || (ngon():=f)) lw = 0; 
-    // int width = f.width<0?screenWidth:f.width;
-    // int height = f.height<0?screenHeight:f.height;
     int width = f.width;
-    int height = f.height;
+    int height = f.height;  
     str bId = id; 
     switch (f) {
         case ngon():bId = "<id>_rect";
         case ellipse():bId = "<id>_rect";
         case circle():bId = "<id>_rect";
         }  
-     int hpad = hPadding(f);
-     int vpad = vPadding(f);       
+    int hpad = hPadding(f);
+    int vpad = vPadding(f);    
     return "
         '<style("stroke-width",getLineWidth(f))>
-        '<style("stroke",f.lineColor)>
+        '<style("stroke",getLineColor(f))>
         '<style("stroke-dasharray", cv(f.lineDashing))> 
-        '<style("fill", f.fillColor)> 
-        '<style("fill-opacity", f.fillOpacity)> 
-        '<style("stroke-opacity", f.lineOpacity)>      
+        '<style("fill", getFillColor(f))> 
+        '<style("fill-opacity", getFillOpacity(f))> 
+        '<style("stroke-opacity", getLineOpacity(f))>      
         ';
         'd3.select(\"#<id>_svg\")
-        '<attr("width", width)><attr("height", height)>
+        '<attr("width", toInt(f.grow*width))><attr("height", toInt(f.grow*height))>
         ';
         
         'd3.select(\"#<id>_fo\")
@@ -851,8 +944,7 @@ num cyL(Figure f) =
       (((ellipse():=f)?(f.ry):(f.r)) + (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
      
  IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
-      // if (f.lineWidth<0) f.lineWidth = 1;
-      int lw = getLineWidth(f); 
+      int lw = getLineWidth(f);    
       str tg = "";
       switch (f) {
           case ellipse(): {tg = "ellipse"; 
@@ -905,17 +997,21 @@ num cyL(Figure f) =
                           if (f.height<0 && f.r>=0) f.height = round(f.r*2+lw);                 
                           }
           } 
-       if (f.cx>0 || f.cy>0) {
+        if (f.cx>0 || f.cy>0) {
            int x = f.at[0]+round(f.cx)-round((ellipse():=f)?f.rx:f.r)-lw/2;
            int y=  f.at[1]+round(f.cy)-round((ellipse():=f)?f.ry:f.r)-lw/2;
            f.at = <x, y>;
-           }     
+           }  
        str begintag =
-         "\<svg <moveAt(fo, f)> xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\>\<rect id=\"<id>_rect\"/\> \<<tg> id=\"<id>\"/\> 
+         "\<svg <moveAt(fo, f)> xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\><beginScale(f)><beginRotate(f)>\<rect id=\"<id>_rect\"/\> \<<tg> id=\"<id>\"/\> 
          '<beginTag("<id>", fo, f.align, fig)>
          ";
        str endtag = endTag(fo);
-       endtag += "\</svg\>"; 
+       endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
+       int width = f.width;
+       int height = f.height;
+       f.width = rWidth(f, width, height);
+       f.height = rHeight(f, width, height);  
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>_rect\")
@@ -928,10 +1024,10 @@ num cyL(Figure f) =
         '<attr("width", f.width)><attr("height", f.height)>
         '<ellipse():=f?"<attr("rx", toP(f.rx))><attr("ry", toP(f.ry))>":"<attr("r", toP(f.r))>">
         '<styleInsideSvg(id, f, fig)>
-        ", f.width, f.height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, [fig]);
        }
@@ -1010,13 +1106,13 @@ int getNgonHeight(Figure f, IFigure fig) {
 
 int getPolWidth(Figure f) {
          if (f.width>=0) return f.width;
-         num width = rescale(max([p.x|p<-f.points]), f.scaleX);  
+         num width = rescale(max([p.x|p<-f.points]), f.scaleX)+getLineWidth(f);  
          return toInt(width);
          }
 
 int getPolHeight(Figure f) {
          if (f.height>=0) return f.height;
-         num height = rescale(max([p.y|p<-f.points]), f.scaleY);     
+         num height = rescale(max([p.y|p<-f.points]), f.scaleY)+getLineWidth(f);     
          return toInt(height);
          }
        
@@ -1024,6 +1120,7 @@ IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure()) {
        // str begintag= beginTag("<id>_table", topLeft); 
        f.width = getPolWidth(f);
        f.height = getPolHeight(f);
+       if (f.yReverse) f.scaleY = <<0, f.height>, <f.height, 0>>;
        str begintag = "";
        begintag+=
          "\<svg id=\"<id>_svg\"\>\<polygon id=\"<id>\"/\>       
@@ -1036,10 +1133,10 @@ IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure()) {
         '<attr("points", translatePoints(f, f.scaleX, f.scaleY))>
         '<style("fill-rule", f.fillEvenOdd?"evenodd":"nonzero")>
         '<styleInsideSvgOverlay(id, f)>
-        ", f.width, f.height, getAtX(f), getAtY(f),  f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ", f.width, f.height, getAtX(f), getAtY(f),  0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, [fig]);
        }
@@ -1052,8 +1149,6 @@ num yV(Vertex v) = (line(num x, num y):=v)?y:((move(num x, num y):=v)?y:0);
 int getPathWidth(Figure f) {
         if (shape(list[Vertex] vs):= f) {
              if (f.width>=0) return f.width;
-             // num width = rescale(max([xV(p)|p<-vs]), f.scaleX)-rescale(min([xV(p)|p<-vs]),f.scaleX);     
-             // return toInt(width);
              return screenWidth;
             }
          return -1;
@@ -1062,8 +1157,6 @@ int getPathWidth(Figure f) {
 int getPathHeight(Figure f) {
          if (shape(list[Vertex] vs):= f) {
              if (f.height>=0) return f.height;
-             //num height = rescale(max([yV(p)|p<-vs]), f.scaleY) - rescale(min([yV(p)|p<-vs]), f.scaleY);     
-             //return toInt(height);
              return screenHeight;
          }
       }
@@ -1115,16 +1208,11 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
            left = min([xV(p)|p<-vs]);
            right = max([xV(p)|p<-vs]);
        }    
-       if (f.scaleY==<<0,1>,<0,1>>) {
+       if (f.height<0)
             f.height = toInt(bottom-top)+ 100;
-            f.scaleY=<<top, bottom>,<bottom-top+50, 50>>;
-            }
-       if (f.scaleX==<<0,1>,<0,1>>) {
-            f.width = toInt(right - left)+100;
-            f.scaleX=<<left, right>,<50, right-left+50>>;
-            }
-       if (isEmpty(f.fillColor)) f.fillColor = "none";
-       if (isEmpty(f.lineColor)) f.lineColor = "black";  
+       if (f.width<0) 
+             f.width = toInt(right-left)+100;
+       if (f.yReverse && f.scaleY==<<0,1>,<0,1>>) f.scaleY = <<0, f.height>, <f.height, 0>>;  
        str begintag = "";
        begintag+=
          "\<svg id=\"<id>_svg\"\><visitDefs(id, true)>\<path id=\"<id>\"/\>       
@@ -1140,17 +1228,28 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
         '<style("marker-end",  mS(f.endMarker,"url(#m_<id>_end)"))>
         '<style("fill-rule", f.fillEvenOdd?"evenodd":"nonzero")>
         '<styleInsideSvgOverlay(id, f)>
-        ", f.width, f.height, getAtX(f), getAtY(f),  f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, [fig]);
        }
+       
+str beginRotateNgon(Figure f) {
+    
+    if (f.rotate[0]==0) return "";
+    if (f.rotate[1]<0 && f.rotate[2]<0) {
+        f.rotate[1] = f.width/2;
+        f.rotate[2]=  f.height/2;
+        // println(f.rotate);
+        return "\<g transform=\"rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
+        }
+    }
                  
 IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
        int lw = getLineWidth(f);
-       if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid;
+       if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = centerMid;
        bool b  = false;             
        int d = max([getWidth(fig), getHeight(fig)]);
        if (f.r<0 && d>=0) {
@@ -1165,16 +1264,13 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignmen
              }
        if (f.width<0 && f.r>=0) f.width= round(f.r*2+lw);
        if (f.height<0 && f.r>=0) f.height = round(f.r*2+lw);
-       if (isEmpty(f.fillColor)) f.fillColor = "none";
-       if (isEmpty(f.lineColor)) f.lineColor = "black";
-       // if (f.lineWidth<0) f.lineWidth = 1;
        str begintag = "";
        begintag+=
-         "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\>\<rect id=\"<id>_rect\"/\><extraCircle(id, f)> \<polygon id=\"<id>\"/\>        
+         "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<rect id=\"<id>_rect\"/\> <extraCircle(id, f)>\<polygon id=\"<id>\"/\>        
          '<beginTag("<id>", fo, f.align, fig)>
          ";
-       str endtag =  endTag(fo);
-       endtag += "\</svg\>"; 
+       str endtag =  endTag(fo); 
+       endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>_rect\")
@@ -1190,10 +1286,10 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignmen
         '<attr("points", translatePoints(f, f.scaleX, f.scaleY))> 
         '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvg(id, f, fig)>
-        ", f.width, f.height, getAtX(f), getAtY(f),  f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ", f.width, f.height, getAtX(f), getAtY(f),  0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
          seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id, [fig]);
        }
@@ -1210,24 +1306,11 @@ str hAlign(Alignment align) {
        if (align == bottomRight || align == centerRight || align == topRight) return "align=\"right\"";    
        }
        
-//str vGap(Alignment align, int vgap) {
-//       if (align == bottomLeft || align == bottomMid || align == bottomRight) return style("padding-bottom", vgap);
-//       if (align == centerLeft || align ==centerMid || align ==centerRight)  return style("padding-top", vgap)+style("padding-bottom", vgap);
-//       if (align == topLeft || align == topMid || align == topRight) return style("padding-top", vgap);
-//       }
-//       
-//str hGap(Alignment align, int hgap) {
-//       if (align == bottomLeft || align == centerLeft || align == topLeft) return style("padding-left", hgap);
-//       if (align == bottomMid || align == centerMid || align == topMid) return style("padding-left", hgap)+style("padding-right", hgap);
-//       if (align == bottomRight || align == centerRight || align == topRight) return style("padding-right", hgap);  
-//       }
-       
 str _padding(tuple[int, int, int, int] p) {
        return stylePx("padding-left", p[0])+stylePx("padding-top", p[1])
              +stylePx("padding-right", p[2])+stylePx("padding-bottom", p[3]);     
        }
-//   '<style("background-color", "<f.fillColor>")>;
-// <style("fill","none")><style("stroke","black")><style("stroke-width",1)> 
+
 bool isSvg(str s) =  startsWith(s, "\<svg");
    
 IFigure _overlay(str id, Figure f, IFigure fig1...) {
@@ -1235,11 +1318,15 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
        // if (f.lineWidth<0) f.lineWidth = 0;  
        if (f.width<0 && min([getWidth(g)|g<-fig1])>=0) f.width = max([getAtX(g)+getWidth(g)|g<-fig1]);
        if (f.height<0 && min([getHeight(g)|g<-fig1])>=0) f.height = max([getAtY(g)+getHeight(g)|g<-fig1]);
-       if (isEmpty(f.fillColor)) f.fillColor = "none";
-       if (isEmpty(f.lineColor)) f.lineColor = "black";
        str begintag =
-         "\<svg id=\"<id>_svg\"\>\<rect id=\"<id>\"/\>";
-       str endtag="\</svg\>";
+         "\<svg id=\"<id>_svg\"\><beginScale(f)><beginRotate(f)>\<rect id=\"<id>\"/\>";
+       str endtag="<endRotate(f)><endScale(f)>\</svg\>";
+       int width = f.width;
+       int height = f.height;
+       int lx = xRotate(f);
+       int ly = yRotate(f); 
+       f.width = rWidth(f, width, height);
+       f.height = rHeight(f, width, height);   
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -1248,16 +1335,16 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
         '<styleInsideSvgOverlay(id, f)>    
         ';
         <for (q<-fig1){> 
-        'd3.select(\"#<getId(q)>_svg\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>   
+        'd3.select(\"#<getId(q)>_svg\")<attrPx("x", getAtX(q)-getLx(q))><attrPx("y", getAtY(q)-getLy(q))>   
         ;<}> 
         <for (q<-fig1){> 
          '<getSizeFromParent(q)?"adjustFrame(\"<getId(q)>\", <f.width>, <f.height>);":"">
          <}>  
         "
-        , f.width, f.height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , f.width, f.height, getAtX(f), getAtY(f), lx, ly, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id ,fig1);
        }
@@ -1287,13 +1374,13 @@ IFigure _button(str id, Figure f, str txt, bool addSvgTag) {
         'd3.select(\"#<id>\") 
         '<stylePx("width", width)><stylePx("height", height)>   
         '<debugStyle()>
-        '<style("background-color", "<f.fillColor>")> 
+        '<style("background-color", "<getFillColor(f)>")> 
         '.text(\"<txt>\")   
         ;"
-        , width, height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , width, height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        return ifigure(id ,[]);
        }
@@ -1318,7 +1405,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
@@ -1340,18 +1427,17 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("width", width)><attrPx("height", height)>      
         '<debugStyle()>
-        '<style("background-color", "<f.fillColor>")> 
+        '<style("background-color", "<getFillColor(f)>")> 
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
         '<style("stroke-width",getLineWidth(f))>
         '<_padding(f.padding)>     
         ;   
         "
-        , width, height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        , width, height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
-       // if (width>=0 && height>=0)
        adjust+=  "adjustTableW(<[getId(c)|c<-fig1]>, \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
                <-hPadding(f)>, <-vPadding(f)>);\n";
        return ifigure(id ,[td("<id>_<getId(g)>", f, g, width, height)| g<-fig1]);
@@ -1363,32 +1449,32 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> x=0 y=0 \<rect id=\"<id>_rect\"/\> 
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                 
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
            ;
        str endtag="\</table\>";
+       if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
         '<stylePx("width", width)><stylePx("height", height)> 
         '<attrPx("width", width)><attrPx("height", height)>       
-        '<attr("fill",f.fillColor)><attr("stroke",f.lineColor)>
+        '<attr("fill",getFillColor(f))><attr("stroke",getLineColor(f))>
         '<style("border-spacing", "<f.hgap> <f.vgap>")>
         '<style("stroke-width",getLineWidth(f))>
         '<_padding(f.padding)> 
         ;
-        ", width, height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
-        if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
-            }
+        ", width, height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
+       
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
-       // if (width>=0 && height>=0)
           adjust+=  "adjustTableH(<[getId(c)|c<-fig1]>, \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
           <-hPadding(f)>, <-vPadding(f)>);\n";
        return ifigure(id, [td("<id>_<getId(g)>", f, g,  width, height, tr = true)| g<-fig1]);
@@ -1405,14 +1491,12 @@ list[list[IFigure]] transpose(list[list[IFigure]] f) {
        }
 
 IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[]]) {
-       if (isEmpty(f.fillColor)) f.fillColor = "none";
-       if (isEmpty(f.lineColor)) f.lineColor = "black";
        // if (f.lineWidth<0) f.lineWidth = 1;
        list[list[IFigure]] figArray1 = transpose(figArray);
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
@@ -1421,32 +1505,30 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        str endtag="
             '\</table\>
             ";
+       if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")       
          '<debugStyle()>
          '<stylePx("width", f.width)><stylePx("height", f.height)> 
          '<attrPx("width", f.width)><attrPx("height", f.height)>   
-         '<style("background-color", "<f.fillColor>")>
+         '<style("background-color", "<getFillColor(f)>")>
          '<style("border-spacing", "<f.hgap> <f.vgap>")>
          '<style("stroke-width",getLineWidth(f))>
          '<_padding(f.padding)> 
          '<debugStyle()>; 
-        ", f.width, f.height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
-        if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
-            }
+        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;      
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+=f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+=getFillColor(f);
        widgetOrder+= id;
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
        adjust+=  "adjustTableWH(<[[getId(d)|d<-c] | c<-figArray]>, \"<id>\", <-getLineWidth(f)>, 
           <-hPadding(f)>, <-vPadding(f)>);\n";
        return ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
        }      
- //  '<hGap(f.align, f.hgap)>  
- //       '<vGap(f.align, f.vgap)>  
    
  IFigure td(str id, Figure f, IFigure fig1, int width, int height, bool tr = false) {
     str begintag = tr?"\<tr\>":"";
@@ -1457,14 +1539,12 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
         "
         'd3.select(\"#<id>\")
         '<debug?debugStyle():borderStyle(f)>       
-        '<style("background-color", "<f.fillColor>")>  
-          
-        ", f.width, f.height, getAtX(f), getAtY(f), f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        '<style("background-color", "<getFillColor(f)>")>      
+        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+= f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+= getFillColor(f);
        widgetOrder+= id;
-       // if (cellWidth<0) adjust+= "adjust1(\"<id>\", \"<getId(fig1)>\");\n";
     return ifigure(id, [fig1]);
     }
     
@@ -1473,10 +1553,10 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
     str endtag="\</tr\>";
     widget[id] = <null, seq, id, begintag, endtag,
         "
-        ", width, height, width, height, f.align, getLineWidth(f), f.lineColor, f.sizeFromParent >;
+        ", width, height, width, height, 0, 0, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent >;
        seq=seq+1;
-       state += <id, f.fillColor>;
-       old+= f.fillColor;
+       state += <id, getFillColor(f)>;
+       old+= getFillColor(f);
        widgetOrder+= id;
        
        // if (width<0) adjust+= "adjust1(\"<id>\", \"<getId(fig)>\");\n";
@@ -1494,6 +1574,7 @@ list[tuple[str, Figure]] addMarkers(Figure f, list[tuple[str, Figure]] ms) {
         }
     return r;
     }
+
 
 
 Figure addMarker(Figure f, str id, Figure g) {
@@ -1516,13 +1597,15 @@ Figure addMarker(Figure f, str id, Figure g) {
        }
      g.id = "<id>";
      if (g.lineWidth<0) g.lineWidth = 1;
+     if (g.lineOpacity<0) g.lineOpacity = 1.0;
+     if (g.fillOpacity<0) g.fillOpacity = 1.0;
      if (isEmpty(g.fillColor)) g.fillColor="none";
      if (isEmpty(g.lineColor)) g.lineColor = "black";
      list[IFigure] fs = (defs[f.id]?)?defs[f.id]:[];
-     // buildParentTree(g);
+     buildParentTree(g);
      // println("addMarker:<g.id> <g.lineWidth>");
      figMap[g.id] = g;
-     fs +=_translate(g, align = centerMid, fo = false);
+     fs +=_translate(g, align = centerMid, fo = true);
          defs[f.id] = fs;
        }  
      // println("addMarker:  <g.id> <g.size>  <g.width>"); 
@@ -1567,9 +1650,13 @@ void buildParentTree(Figure f) {
         case g:at(_, _, fg):  cL(g, fg); 
         case g:atX(_, fg):  cL(g, fg); 
         case g:atY(_, fg):  cL(g, fg);
+        case g:graph():  for (q<-g.nodes) cL(g, q[1]);
+        case g:rotate(_, fg):  cL(g, fg); 
+        case g:rotate(_, _, _, fg):  cL(g, fg); 
         }  
         return; 
     } 
+    
  
 IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = false,
     bool fo = true) {
@@ -1610,18 +1697,42 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                             return iemptyFigure();
                             }                 
         case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs]
-            // , align = align
             );
         case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs]
-         // , align = align
          );
-        case overlay(): return _overlay(f.id, f, [_translate(q, addSvgTag = true)|q<-f.figs]);
+         
+        case overlay(): { 
+              IFigure r = _overlay(f.id, f, [_translate(q, addSvgTag = true)|q<-f.figs]);
+              // return _rect("<f.id>_box", fo, f, fig = r, align = topLeft); 
+              return r;
+              }
+              
         case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, align = f.align)|q<-e]|e<-f.figArray]
-        // , align = align
         );
-        case at(int x, int y, Figure fig): {fig.at = <x, y>; return _translate(fig, align = align, fo = fo);}
-        case atX(int x, Figure fig):	{fig.at = <x, 0>; return _translate(fig, align = align, fo = fo);}			
-        case atY(int y, Figure fig):	{fig.at = <0, y>; return _translate(fig, align = align, fo = fo);}	
+        case at(int x, int y, Figure fig): {
+                     fig.rotate = f.rotate;
+                     fig.at = <x, y>; 
+                     return _translate(fig, align = align, fo = fo);
+                     }
+        case atX(int x, Figure fig):	{
+                    fig.rotate = f.rotate;
+                    fig.at = <x, 0>; 
+                    return _translate(fig, align = align, fo = fo);
+                    }			
+        case atY(int y, Figure fig):	{
+                    fig.rotate = f.rotate;
+                    fig.at = <0, y>; 
+                    return _translate(fig, align = align, fo = fo);
+                    }
+        //case rotate(int angle, int x, int y, Figure fig): {
+        //   // fig.at = f.at;
+        //   fig.rotate = <angle, x, y>; return _translate(fig, align = align, fo = fo);}
+        case rotate(int angle,  Figure fig): {
+           // fig.at = f.at;
+           fig.rotate = <angle, -1, -1>; 
+           fig.at = f.at;
+           return _translate(fig, align = align, fo = fo);
+           }		
         case button(str txt):  return _button(f.id, f,  txt, addSvgTag, align = align, fo = fo);
         case combochart():  return _googlechart("ComboChart", f.id, f);
         case piechart():  return _googlechart("PieChart", f.id, f);
@@ -1630,16 +1741,26 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case scatterchart():  return _googlechart("ScatterChart", f.id, f);
         case areachart():  return _googlechart("AreaChart", f.id, f);
         case graph(): {
-              f.nodes = addMarkers(f, f.nodes); 
-              return _graph(f.id, f); }
+              // f.nodes = addMarkers(f, f.nodes); 
+              // return _graph(f.id, f);
+              list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
+              IFigure r =
+               _overlay("<f.id>_ov", f 
+                , [_graph(f.id, f, [getId(i)|i<-ifs])]
+                 + 
+                ifs
+                ,align = topLeft);
+               // return _rect("<f.id>_box", fo, f, fig = r, align = topLeft); 
+               return r;        
         }
+       }
     }
     
     
 public void _render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
-     int lineWidth = 1, bool display = true)
+     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0)
      {
         
         id = 0;
@@ -1663,6 +1784,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         h.lineWidth = lineWidth;
         h.fillColor = fillColor;
         h.lineColor = lineColor;
+        h.lineOpacity = lineOpacity;
+        h.fillOpacity = fillOpacity;
         h.align = align;
         h.id = "figureArea";
         figMap[h.id] = h;
