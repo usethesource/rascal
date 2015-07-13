@@ -74,7 +74,6 @@ import org.iguana.regex.RegularExpression;
 import org.iguana.regex.Sequence;
 import org.iguana.regex.Star;
 import org.iguana.traversal.ISymbolVisitor;
-import org.iguana.util.CollectionsUtil;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.CallOrTree;
@@ -163,38 +162,8 @@ public class RascalToIguanaGrammarConverter {
 		
 		List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
 		List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
-	
-		List<List<PrecedencePattern>> split = CollectionsUtil.split(precedencePatterns, 300);
-		
-		System.out.println("public static List<PrecedencePattern> precedencePatterns() {");
-		System.out.println("   List<PrecedencePattern> list = new ArrayList<>();");
-		for (int j = 0; j < split.size(); j++) {
-			System.out.println("   list.addAll(precedencePatterns" + (j + 1) + "());");
-		}
-		System.out.println("   return list;");
-		System.out.println("}");
-		
-		int i = 0;
-		for (List<PrecedencePattern> l : split) {
-			System.out.println("private static List<PrecedencePattern> precedencePatterns" + ++i + "() {");
-			System.out.println("  return Arrays.asList(");
-			l.forEach(p -> {
-				System.out.println("  // " + p);
-				System.out.println("     " + p.getConstructorCode() + ", ");	
-			});
-			System.out.println(");");
-			System.out.println("}");
-		}
-		
-		System.out.println("public static List<ExceptPattern> exceptPatterns() {");
-		System.out.println("   return Arrays.asList(");
-		exceptPatterns.forEach(p -> {
-			System.out.println("   // " + p);
-			System.out.println("   " + p.getConstructorCode() + ", ");
-		});
-		System.out.println(");");
-		System.out.println("}");
-
+		builder.addPrecedencePatterns(precedencePatterns);
+		builder.addExceptPatterns(exceptPatterns);
 		
 		return builder.setLayout(layout).build();
 	}
