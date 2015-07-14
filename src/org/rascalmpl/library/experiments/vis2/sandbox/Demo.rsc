@@ -6,6 +6,7 @@ import experiments::vis2::sandbox::Nederland;
 import experiments::vis2::sandbox::SinAndCos;
 import experiments::vis2::sandbox::AEX;
 import experiments::vis2::sandbox::Graph;
+import experiments::vis2::sandbox::Flower;
 import util::Math;
 import Prelude;
 
@@ -155,6 +156,7 @@ Figure demoFig() = grid(figArray=[
              ,[demo15(), demo13()]
              ,[demo14(), demo11()]
              ,[demo16(), demo17()]
+             ,[demo18()]
             ]);
                   
 void demo() = render(demoFig(),
@@ -410,6 +412,8 @@ void taex() = render(aex());
 
 void tfsm() = render(fsm());
 
+Figure klokBox(int r, int n) =  box(lineWidth = 0, fillOpacity=1.0, size=<2*n, 2*n>, fillColor= "none", align = topMid, fig=at(0, 0, box(size=<10, n>, rounded=<10, 10>, 
+lineWidth = 1, fillColor="yellow")));
 
 Figure klokFrame() {
      int r = 80; 
@@ -421,16 +425,8 @@ Figure klokFrame() {
          +circle(r=r-10, fillColor = "silver", lineColor = "red")
         +[at(17+r+toInt(sin((PI()*2*i)/12)*(r-10)), toInt(17+r-cos((PI()*2*i)/12)*(r-10)), circle(r=d, fillColor="black"))|int i<-[12, 3, 6, 9]
         ]
-        +rotate(200,  
-           overlay(size=<8, 2*r>, lineWidth =0, figs=[
-               box( fillColor="none", size=<8, 2*r>)
-               ,at(0, r, box(rounded=<10,10>, fillColor="yellow", size=<8, r-25>, lineWidth = 1))
-               ]))
-        +rotate(180,  
-           overlay(size=<8, 2*r>, lineWidth =0, figs=[
-               box( fillColor="none", size=<8, r>)
-               ,at(0, r, box(rounded=<10,10>, fillColor="yellow", size=<8, r-40>, lineWidth = 1))
-               ]))
+        +rotate(20, klokBox(r, 70))       
+        +rotate(0, klokBox(r, 50))
         +circle(r=5, fillColor = "red")
         ;
      return box(fig=overlayBox(200, 200, cs), align = centerMid);
@@ -443,12 +439,14 @@ void tklok()= render(klokFrame());
 
 void fklok(loc l) = writeFile(l, toHtmlString(klokFrame()));
 
-Figure ov() = box(lineWidth=0, fillOpacity=0.5, fig=overlayBox(200, 200,[
-    rotate(45, box(size=<100, 10>, fillColor="red"))
-   ,rotate(135, box(size=<100, 10>, fillColor = "green"))
-   ,rotate(0, box(size=<100, 10>, fillColor = "magenta"))
-   ,rotate(90, box(size=<100, 10>, fillColor = "blue"))
-    ]));
+Figure ovBox(str color) =  box(lineWidth = 0, fillOpacity=0.8, size=<100, 100>, fillColor= "none", align = centerMid, fig=box(size=<50, 10>, fillColor=color));
+
+Figure ov() = overlay(figs = [
+    rotate(45, ovBox("red"))
+   ,rotate(135, ovBox("green"))
+   ,rotate(0, ovBox("magenta"))
+   ,rotate(90, ovBox("blue"))
+    ]);
 
 void tov()= render(ov());
 
@@ -484,3 +482,6 @@ Figure demo17() = big();
 
 void tbig() = render(big());
 
+Figure demo18() = flower();
+
+void tflower() = render(big());

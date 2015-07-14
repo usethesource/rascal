@@ -1,3 +1,13 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
 module experiments::vis2::sandbox::IFigure
 import Prelude;
 import util::Webserver;
@@ -9,13 +19,26 @@ import experiments::vis2::sandbox::Figure;
 
 private loc base = |std:///experiments/vis2/sandbox|;
 
+// The random accessable data element by key id belonging to a widget, like _box, _circle, _hcat. 
+
+alias Elm = tuple[void(str, str) f, int seq, str id, str begintag, str endtag, str script, int width, int height,
+      int x, int y, int lx, int ly, 
+      Alignment align, int lineWidth, str lineColor, bool sizeFromParent];
+
+// Map which stores the widget info
+
+public map[str, Elm] widget = (); 
+
+// The tree which is the compiled Figure, the only fields are id or content.
+// Id is a reference to hashmap widget
+
 public data IFigure = ifigure(str id, list[IFigure] child);
 
 public data IFigure = ifigure(str content);
 
 public data IFigure = iemptyFigure();
 
-
+// --------------------------------------------------------------------------------
 
 bool debug = true;
 int screenWidth = 400;
@@ -24,31 +47,11 @@ int screenHeight = 400;
 int seq = 0;
 int occur = 0;
 
-
-alias Elm = tuple[void(str, str) f, int seq, str id, str begintag, str endtag, str script, int width, int height,
-      int x, int y, int lx, int ly, 
-      Alignment align, int lineWidth, str lineColor, bool sizeFromParent];
-
-
+// ----------------------------------------------------------------------------------
 alias State = tuple[str name, str v];
 public list[State] state = [];
 public list[str] old = [];
-
-public void setDebug(bool b) {
-   debug = b;
-   }
-
-public void null(str event, str id ){return;}
-      
-int getInt(str id) = toInt(state[widget[id].seq].v);
-
-void setInt(str id, int v) {state[widget[id].seq].v = "<v>";}
-
-str getStr(str id) = state[widget[id].seq].v;
-
-void setStr(str id, str v) {state[widget[id].seq].v =  v;}
-
-public map[str, Elm] widget = ();
+//-----------------------------------------------------------------------------------
 
 public map[str, str] parentMap = ();
 
@@ -63,6 +66,24 @@ public list[str] googleChart = [];
 public list[str] markerScript = [];
 
 public map[str, list[IFigure] ] defs = ();
+
+IFigure fig;
+
+// ----------------------------------------------------------------------------------------
+
+public void setDebug(bool b) {
+   debug = b;
+   }
+
+public void null(str event, str id ){return;}
+      
+int getInt(str id) = toInt(state[widget[id].seq].v);
+
+void setInt(str id, int v) {state[widget[id].seq].v = "<v>";}
+
+str getStr(str id) = state[widget[id].seq].v;
+
+void setStr(str id, str v) {state[widget[id].seq].v =  v;}
 
 public void clearWidget() { 
     println("clearWidget <screenWidth> <screenHeight>");
@@ -93,7 +114,6 @@ str visitDefs(str id, bool orient) {
          "
          ;       
          }
-     //    ' markerWidth=<getWidth(f)>  markerHeight=<getHeight(f)>
      return "\<defs\>
            ' <for (f<-defs[id]){> \<marker id=\"m_<f.id>\"        
            ' refX = <orient?getWidth(f)/2:0>   refY = <orient?getHeight(f)/2:0> <orient?"orient=\"auto\"":"">
@@ -105,13 +125,8 @@ str visitDefs(str id, bool orient) {
     }
     return "";
     }
-    
-// ' refX = <getWidth(f)/2>   refY = <getHeight(f)/2> orient=\"auto\"
-//  orient=\"auto\"
-    
-IFigure fig;
-//   'table { border-collapse: collapse;} 
-// 'table td, table th {padding: 0;}  
+ 
+
 str google = "\<script src=\'https://www.google.com/jsapi?autoload={
         ' \"modules\":[{
         ' \"name\":\"visualization\",
@@ -273,10 +288,7 @@ int getLineWidth(IFigure f) {
     
 int getLineWidth(Figure f) {
     int lw = f.lineWidth;
-    // for (d<-parentMap) println(d);
     while (lw<0) {
-        // println("getLineW:<f.id> <f.lineWidth>");
-        // println(parentMap[f.id]);
         f = figMap[parentMap[f.id]];
         lw = f.lineWidth;
         }
@@ -674,16 +686,8 @@ str addShape(Figure s) {
     '     });
     '}
     "; 
-    // '    
-    //g.nodes().forEach(function(v) {
-    // console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
-    //' var xCenterOffset = (parseInt(svg.attr(\"width\")) - g.graph().width) / 3;
-    // ' inner.attr(\"transform\", \"translate(\" + xCenterOffset + \", 20)\");
-    // ' svg.attr(\"height\", g.graph().height + 80);
-    // '  alert(n.x);
     }
-    
-    
+      
     
  IFigure _graph(str id, Figure f, list[str] ids) {
     //str begintag="\<div  id=\"<id>\"\>";
@@ -770,20 +774,15 @@ int getLy(IFigure f) {
     if (ifigure(id, _) := f) return widget[id].ly;
     return 0;
     }  
- 
-int xRotate(f) = (rWidth(f, f.width, f.height)-f.width)/2;
-int yRotate(f) = (rHeight(f, f.width, f.height)-f.height)/2;   
+   
 str beginRotate(Figure f) {
     
     if (f.rotate[0]==0) return "";
-    if (f.rotate[1]<0 && f.rotate[2]<0) {
-        // println("beginRotate width <f.width>  height <f.height>");
-        int lx = xRotate(f);
-        int ly = yRotate(f);      
+    if (f.rotate[1]<0 && f.rotate[2]<0) {  
         f.rotate[1] = (f.width)/2;
         f.rotate[2] = (f.height)/2;
         // println("cx: <f.rotate[1]>  cy: <f.rotate[2]>");
-        return "\<g transform=\" translate(<lx>, <ly>) rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
+        return "\<g transform=\" rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
         }
     }
   
@@ -811,26 +810,10 @@ bool hasInnerCircle(Figure f)  {
   
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
  
- int rWidth(Figure f, int w, int h) {
-   if (f.rotate[0]==0 || f.width<0) return f.width;
-   num angle = (PI()* f.rotate[0])/180;
-   int r = toInt(w*abs(cos(angle))+h*abs(sin(angle)))
-   +corner(4, getLineWidth(f));
-   // println("rwidth:<r>");
-   return r;
-   }
- 
- int rHeight(Figure f, int w, int h) {
-     if (f.rotate[0]==0 || f.height<0) return f.height;
-     num angle = (PI()*f.rotate[0])/180;
-     int r = toInt(h*abs(cos(angle))+w*abs(sin(angle)))
-          +corner(4, getLineWidth(f));
-     // println("rheight:<r>");
-     return r;
-     }                   
+            
  IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {    
       int lw = getLineWidth(f);  
-      if (getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = topLeft;
+      if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
       if ((f.width<0 || f.height<0) && (getWidth(fig)<0 || getHeight(fig)<0)) 
                       f.align = centerMid;
       int offset1 = round((0.5-f.align[0])*lw);
@@ -852,10 +835,8 @@ bool hasInnerCircle(Figure f)  {
        endtag += "\</svg\>"; 
        int width = f.width;
        int height = f.height;
-       int lx = xRotate(f);
-       int ly = yRotate(f); 
-       f.width = rWidth(f, width, height);
-       f.height = rHeight(f, width, height);    
+       int lx = 0;
+       int ly = 0;   
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
@@ -1010,8 +991,6 @@ num cyL(Figure f) =
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
        int width = f.width;
        int height = f.height;
-       f.width = rWidth(f, width, height);
-       f.height = rHeight(f, width, height);  
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>_rect\")
@@ -1088,7 +1067,6 @@ int getNgonWidth(Figure f, IFigure fig) {
          int r = toInt(rR(f));
          // int lw = f.lineWidth<0?0:2;
          int lw = 1;
-         // if (ngon():=f) return 2*r+2*lw+max([getAtX(fig), getAtY(fig)]);   
          if (ngon():=f) return 2*r+lw;     
          return -1;
          }
@@ -1096,10 +1074,7 @@ int getNgonWidth(Figure f, IFigure fig) {
 int getNgonHeight(Figure f, IFigure fig) {
          if (f.height>=0) return f.height;
          int r = toInt(rR(f));
-         // int lw = f.lineWidth<0?0:2;
-         int lw = 1;
-         // println("r=<r>");
-         // if (ngon():=f) return 2*r+2*lw+max([getAtX(fig), getAtY(fig)]);   
+         int lw = 1;  
          if (ngon():=f) return 2*r+lw;      
          return -1;
          }
@@ -1323,10 +1298,8 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
        str endtag="<endRotate(f)><endScale(f)>\</svg\>";
        int width = f.width;
        int height = f.height;
-       int lx = xRotate(f);
-       int ly = yRotate(f); 
-       f.width = rWidth(f, width, height);
-       f.height = rHeight(f, width, height);   
+       int lx = 0;
+       int ly = 0;  
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -1670,8 +1643,6 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
        }
     if (f.cellWidth<0) f.cellWidth = f.width;
     if (f.cellHeight<0) f.cellHeight = f.height;
-    
-    // println("translate: <f.id> <f.align>");
     switch(f) {
         case emptyFigure(): return iemptyFigure();
         case box():  return _rect(f.id, fo, f, fig = _translate(f.fig, align = nA(f, f.fig), fo = fo), align = align);
@@ -1741,8 +1712,6 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case scatterchart():  return _googlechart("ScatterChart", f.id, f);
         case areachart():  return _googlechart("AreaChart", f.id, f);
         case graph(): {
-              // f.nodes = addMarkers(f, f.nodes); 
-              // return _graph(f.id, f);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
               IFigure r =
                _overlay("<f.id>_ov", f 
@@ -1750,7 +1719,6 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                  + 
                 ifs
                 ,align = topLeft);
-               // return _rect("<f.id>_box", fo, f, fig = r, align = topLeft); 
                return r;        
         }
        }
@@ -1770,10 +1738,6 @@ public void _render(Figure fig1, int width = 400, int height = 400,
             screenWidth = size[0];
             screenHeight = size[1];
          }
-       //if (fig1.lineWidth<0) {
-       //    if (hasInnerCircle(fig1)) fig1.lineWidth = 2;
-       //    else fig1.lineWidth = 1; 
-       //    } 
         clearWidget();
         if (at(_, _, _):= fig1 || atX(_,_):=fig1 || atY(_,_):=fig1 
         // || fig1.height<0 || fig1.width<0 
@@ -1791,11 +1755,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         figMap[h.id] = h;
         fig1= buildFigMap(fig1);
         parentMap[fig1.id] = h.id; 
-        // println([d|d<-figMap]);
         buildParentTree(fig1);
-        // println([d|d<-parentMap]);
         IFigure f = _translate(fig1, align = align);
-        // println(f);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
         lineWidth = lineWidth, display = display);
      }
