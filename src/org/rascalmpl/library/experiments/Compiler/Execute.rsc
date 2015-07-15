@@ -9,12 +9,13 @@ import List;
 import Set;
 import ParseTree;
 import util::Benchmark;
+import analysis::graphs::Graph;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Load;
 
-import experiments::Compiler::RVM::AST;
+extend experiments::Compiler::RVM::AST;   // Strange: using import here, gives RVMProgram not defined errors later on
 import experiments::Compiler::RVM::Run;
 import experiments::Compiler::Compile;
 
@@ -104,20 +105,29 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
        }
    }
    
-   set[loc] processed = {};
    rel[str,str] extending_modules = {};
+   
    void processImports(RVMProgram rvmProgram) {
-       for(imp <- rvmProgram.imports + defaultImports, imp notin processed) {
-           println("execute: importing <imp> in <rvmProgram.name>");
+       list[str] orderedImports = reverse(order(rvmProgram.importGraph)) - rvmProgram.name;
+       println("Ordered import graph <rvmProgram.name>: <orderedImports>");
+       
+       for(str impName <- orderedImports) {
+           println("execute: IMPORT <impName>");
            
-           processed += imp;
+           imp = getModuleLocation(impName);
            importedLoc = RVMProgramLocation(imp, bindir);
            try {
   	           RVMProgram importedRvmProgram = readBinaryValueFile(#RVMProgram, importedLoc);
   	           
-  	           if(imp in rvmProgram.extends){
-           			println("execute: <rvmProgram.name> EXTENDS <imp>");
-           			extending_modules += {<rvmProgram.name, importedRvmProgram.name>};
+  	           extensions = {};
+  	          // if(imp in rvmProgram.extends){
+           		//	println("execute: <rvmProgram.name> EXTENDS <imp>");
+           		//	extensions += {<rvmProgram.name, importedRvmProgram.name>};
+           		//}
+           		
+           		for(ext <- importedRvmProgram.extends){
+           			println("execute: <importedRvmProgram.name> EXTENDS <ext>");
+           			extensions += {<importedRvmProgram.name, ext>};
            		}
            
   	           messages += importedRvmProgram.messages;
@@ -125,15 +135,13 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           
   	           // Temporary work around related to issue #343
   	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
-  	           
-  	           processImports(importedRvmProgram);
   	          
   	           imported_types = imported_types + importedRvmProgram.types;
   	           new_declarations = [ importedRvmProgram.declarations[dname] | str dname <-importedRvmProgram.declarations ];
   	           
-  	           //println("extending_modules = <extending_modules>");
-  	 
-  	 		   if(!isEmpty(extending_modules)){
+  	 		   if(!isEmpty(extensions)){
+  	 		   		extending_modules += extensions;
+  	           		println("extending_modules = <extending_modules>");
   	       	   		resolve_module_extensions(importedRvmProgram.name, imported_declarations, new_declarations);
   	       	   }	
   	       	   
@@ -148,10 +156,11 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
        }
    }
    
-   bool does_extend(str moduleName, list[str] functions) =
-   		any(fname <- functions, <moduleName, fname[0 .. findFirst(fname, "/")]> in extending_modules);
-
-   
+   bool does_extend(str moduleName, list[str] functions) {
+   		res = any(fname <- functions, fnameModule := fname[0 .. findFirst(fname, "/")], moduleName != fnameModule, <moduleName, fnameModule> in extending_modules);
+   		println("does_extend =\> <res> for <moduleName>, <functions>");
+   		return res;
+   }
    
    void resolve_module_extensions(str importName, list[experiments::Compiler::RVM::AST::Declaration] imported_declarations, list[experiments::Compiler::RVM::AST::Declaration] new_declarations){
    		
@@ -206,13 +215,13 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
         throw "Cannot execute due to compilation errors";
    
    }
-   pos_delta = size(imported_overloaded_functions);
-   mainProgram.resolver = ( ofname : mainProgram.resolver[ofname] + pos_delta | str ofname <- mainProgram.resolver );
+  pos_delta = size(imported_overloaded_functions);
+  mainProgram.resolver = ( ofname : mainProgram.resolver[ofname] + pos_delta | str ofname <- mainProgram.resolver );
    
    //println("==== <mainProgram.name>:");
    //println("functions:"); for(fn <- mainProgram.declarations) println("<fn>: <mainProgram.declarations[fn]>");
    
-   if(!isEmpty(mainProgram.extends)){
+   if(!isEmpty(extending_modules)){
    		resolve_module_extensions(mainProgram.name, imported_declarations, [ mainProgram.declarations[dname] | str dname <-mainProgram.declarations ]);
    }	
    
