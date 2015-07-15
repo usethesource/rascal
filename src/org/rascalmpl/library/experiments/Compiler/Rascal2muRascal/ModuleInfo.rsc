@@ -9,8 +9,8 @@ import IO;
 
 private str module_name;							//  name of current module
 private str function_uid;							// uid of current function
-private list[loc] imported_modules = [];			// modules imported by current module
-private list[loc] extended_modules = [];				// modules extended by current module
+private list[str] imported_modules = [];			// modules imported by current module
+private list[str] extended_modules = [];			// modules extended by current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module
 private list[MuVariable] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
@@ -43,19 +43,19 @@ public void setModuleName(str name){
 
 public str getModuleName() = module_name;
 
-public void addImportToModule(loc moduleLoc){
-	imported_modules += moduleLoc;
+public void addImportToModule(str moduleName){
+	imported_modules += moduleName;
 }
 
-public list[loc] getImportsInModule(){
+public list[str] getImportsInModule(){
 	return imported_modules;
 }
 
-public void addExtendToModule(loc moduleLoc){
-	extended_modules += moduleLoc;
+public void addExtendToModule(str moduleName){
+	extended_modules += moduleName;
 }
 
-public list[loc] getExtendsInModule(){
+public list[str] getExtendsInModule(){
 	return extended_modules;
 }
 
