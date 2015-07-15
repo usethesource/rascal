@@ -806,8 +806,8 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       //iprintln(tp);
       //println("translateType(tp): <translateType(tp)>");
       exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
-                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp, insertLayout=true)) 
-                                                                                                     : translateType(tp, insertLayout=true) ), 
+                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) 
+                                                                                                     : translateType(tp) ), 
                                                         muCon(pos)
                                                     ]),
              [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
