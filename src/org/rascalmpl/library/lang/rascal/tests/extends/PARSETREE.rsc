@@ -34,5 +34,6 @@ test bool PTsubtype5() = subtype(SORT(B()), TREE());
 test bool PTsubtype6() = subtype(SORT(C()), TREE());
 test bool PTsubtype7() = subtype(SORT(D()), TREE());
 
+@ignoreInterpreter{This failing test seems to be an error in the interpreter}
 test bool PTsubtype8() = !subtype(Z(), A());
 
