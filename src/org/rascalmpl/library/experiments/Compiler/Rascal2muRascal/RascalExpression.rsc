@@ -1,13 +1,12 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalExpression
 
-import Prelude;
 import IO;
 import ValueIO;
+import String;
 import Node;
 import Map;
 import Set;
-import String;
 import ParseTree;
 import util::Reflective;
 
@@ -356,11 +355,11 @@ private list[MuExp] translatePreChars(PreStringChars pre) {
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
   smid = removeMargins(deescape("<mid>"[1..-1]));
-  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid@\loc) ];
+  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
 }
 
-str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
-
+str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+                     
 /* Recap of relevant rules from Rascal grammar:
 
    syntax StringTemplate
@@ -385,7 +384,7 @@ str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => 
 
 public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
 	mids = removeMargins(deescape("<mid>"[1..-1]));
-	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(mids)], mid@\loc) ];
+	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(deescape(mids))], mid@\loc) ];	// ?
 }
 
 public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {

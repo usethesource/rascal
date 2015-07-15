@@ -443,6 +443,9 @@ void extractScopes(Configuration c){
     declaredInPlus = invert(declares)+;
 	containedIn = toMapUnique(invert(containment));
 	
+	//println("containment: <containment>");
+	//println("declares: <declares>");
+	
 	containedOrDeclaredInPlus = (invert(declares) + invert(containment))+;
 	importedModuleScopes = range(config.modEnv);
     
@@ -453,6 +456,9 @@ void extractScopes(Configuration c){
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
     	
+    	//println("topdecls:");
+    	//for(td <- topdecls){ println(td); }
+    	
  		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
  		
     	for(i <- index(topdecls)) {
@@ -460,10 +466,14 @@ void extractScopes(Configuration c){
             uid2addr[topdecls[i]] = <fuid_module_init, i + 1>;
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
+                //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
+                
             	if(config.store[os].at < config.store[topdecls[i]].at){
             		decls_inner_vars = sort([ uid | UID uid <- declares[os], variable(RName name,_,_,_,_) := config.store[uid] ]);
+            		//println("decls_inner_vars: <decls_inner_vars>");
     			    for(int j <- index(decls_inner_vars)) {
         			    uid2addr[decls_inner_vars[j]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
+        			    //println("add1: uid2ddr[<decls_inner_vars[j]> = <uid2addr[decls_inner_vars[j]]>");
         			    nmodule_var_init_locals += 1;
         		    }
             	}
@@ -486,6 +496,7 @@ void extractScopes(Configuration c){
     		
     		mvname = (variable(rname,_,_,_,_) := config.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
     		uid2addr[topdecls[i]] = <convert2fuid(muid) + mvname, -1>;
+    		//println("add2 uid2addr[<topdecls[i]>] = <uid2addr[topdecls[i]]>");
     	}
     }
 
@@ -597,16 +608,13 @@ void extractScopes(Configuration c){
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     
+    //for(int uid <- sort(toList(domain(uid2addr)))){
+    //	println("<uid>: <uid2addr[uid]>");
+    //}
     //for(int uid <- uid2addr){
     //	if(uid in ofunctions)
     //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
-    
-   
-    
-    //// Finally, extract all declarations for the benefit of the type reifier
-    //
-    //getDeclarationInfo(config);
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
@@ -1096,20 +1104,30 @@ Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
 Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
 												= \reified(translateType(arg));      
 
-Symbol translateType(t : (Type) `(<Type tp>)`) = translateType(tp);
-Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
-Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
-Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);
-Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
-Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
-Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  = insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
+Symbol translateType(t : (Type) `(<Type tp>)`) 
+												= translateType(tp);
+Symbol translateType(t : (Type) `<UserType user>`) 
+												= translateType(user);
+Symbol translateType(t : (Type) `<FunctionType function>`) 
+												= translateType(function);
+Symbol translateType(t : (Type) `<StructuredType structured>`)  
+												= translateType(structured);
+Symbol translateType(t : (Type) `<BasicType basic>`)  
+												= translateType(basic);
+Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  
+												{ throw "DataTypeSelector"; }
+Symbol translateType(t : (Type) `<TypeVar typeVar>`) 
+												= translateType(typeVar);
+Symbol translateType(t : (Type) `<Sym symbol>`)  
+												= insertLayout(sym2symbol(symbol));		// make sure concrete lists have layout defined
+								 							   
+Symbol translateType(t : (TypeArg) `<Type tp>`) 
+												= translateType(tp);
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) 
+												= \label(getSimpleName(convertName(name)), translateType(tp));
 
-Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
-
-Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) = 
-									\func(translateType(tp), [ translateType(arg) | arg <- args]);
+Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
+												= \func(translateType(tp), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
@@ -1132,8 +1150,10 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
+Symbol translateType(t: (TypeVar) `& <Name name>`) 
+												= \parameter(getSimpleName(convertName(name)), Symbol::\value());  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
+												= \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {
 	throw "Cannot translate type <t>";
