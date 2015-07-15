@@ -68,7 +68,7 @@ MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
    }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, (), {}, [], [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), pmod@\location);
+   return muModule(pmod.name, (), {}, [], [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, (), {}, pmod@\location);
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
