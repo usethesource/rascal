@@ -46,7 +46,7 @@ public list[&T] order(Graph[&T] g) {
   solve (g) {
     t = top(g);
     if(isEmpty(t)){ // a cycle remains and cannot be ordered
-       return toList(carrier(g)) + result + [e | e <- b];
+       return result + toList(carrier(g)) + [e | e <- b];
     }
     result = result + [e | e <- t];
     g = { <from,to> | <from,to> <- g, from notin t};
