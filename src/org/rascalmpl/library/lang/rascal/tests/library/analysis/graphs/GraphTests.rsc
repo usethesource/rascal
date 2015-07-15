@@ -1,4 +1,4 @@
- module lang::rascal::tests::library::GraphTests
+ module lang::rascal::tests::library::analysis::graphs::GraphTests
   /*******************************************************************************
    * Copyright (c) 2009-2015 CWI
    * All rights reserved. This program and the accompanying materials
@@ -13,15 +13,77 @@
    *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
   *******************************************************************************/
  import analysis::graphs::Graph;
+ 
+ 
+import analysis::graphs::Graph;
+
+
+/*
+              1 -----> 3
+              |        |
+              v        |
+              2        |
+              |        |
+              v        |
+              4 <------+
+
+*/
+public Graph[int] G1 = {<3,4>, <1,2>, <2,4>, <1,3>};
+
+/*
+               1
+               |
+               v
+               2 <----> 3
+               ^        ^
+               |        |
+               v        v
+               4 <----> 5
+
+*/
+
+public Graph[int] G2 = {<1, 2>, <2, 3>, <3, 2>, <2, 4>, <4, 2>, <3, 5>, <5, 3>, <4, 5>, <5, 3>};
+
+
+/*
+               1------->6------>7<---->8
+               | 
+               v
+               2 <----> 3
+               ^        ^
+               |        |
+               v        v
+               4 <----> 5
+
+*/
+
+public Graph[int] G3 = {<1, 2>, <2, 3>, <3, 2>, <2, 4>, <4, 2>, <3, 5>, <5, 3>, <4, 5>, <5, 3>, <1,6>, <6,7>, <7,8>,<8,7>}; 
   
 // bottom
   
 test bool bottom1() = bottom({}) == {};
 test bool bottom2() = bottom({<1,2>, <1,3>, <2,4>, <3,4>}) == {4};
-  
+test bool bottom3() = bottom(G1) == {4};
+test bool bottom4() = bottom(G2) == {};
+test bool bottom5() = bottom(G3) == {};
+
+// TODO: connectedComponents
+
+// order
+
+test bool order1() = order(G1) == [1,3,2,4];
+test bool order2() = order(G2)[-1] == 1;
+test bool order3() = order(G3)[-1] == 1 &&  order(G3)[-2] == 6;
+
 // predecessors
   
 test bool predecessors1()=  predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4) =={2, 3};
+test bool predecessors2() = predecessors(G1, 2) == {1};
+test bool predecessors3() = predecessors(G1, 4) == {1,2,3};
+test bool predecessors4() = predecessors(G2, 2) == {1};
+test bool predecessors5() = predecessors(G2, 5) == {1,2,3,4};
+test bool predecessors6() = predecessors(G3, 8) == {1,6,7};
+test bool predecessors7() = predecessors(G3, 5) == {1,2,3,4};
   
 // reachR()
   
@@ -49,12 +111,20 @@ test bool reach4() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {4}) =={4};
 test bool reach5() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {3,4}) =={3,4};
 test bool reach6() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {2,3}) =={2, 3,4};
   	
+// TODO: shortestPathPair
+  	
 // successors
   
 test bool successors1() = successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1) =={2, 3};
-  
+test bool successors2() = successors(G1, 3) == {4};
+test bool successors3() = successors(G1, 1) == {2,3,4};
+test bool successors4() = successors(G2, 1) == {2,3,4,5};
+test bool successors5() = successors(G2, 2) == {2,3,4,5};
+
 // top
   
 test bool top1() = top({}) == {};
 test bool top2() = top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};
- 
+test bool top3() = top(G1) == {1};
+test bool top4() = top(G2) == {1};
+test bool top5() = top(G3) == {1};
