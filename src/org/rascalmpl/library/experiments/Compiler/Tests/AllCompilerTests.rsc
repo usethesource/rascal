@@ -10,7 +10,7 @@ module experiments::Compiler::Tests::AllCompilerTests
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 
-import util::ShellExec;
+//import util::ShellExec;
 import IO;
 
 // Note: Type commented out since it uses a definition of datatype D that is incompatible with TestUtils

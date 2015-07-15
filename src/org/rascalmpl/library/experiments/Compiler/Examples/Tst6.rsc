@@ -1,17 +1,20 @@
-module experiments::Compiler::Examples::Tst6
 
+module experiments::Compiler::Examples::Tst6
+import ParseTree;
+import IO;
+
+syntax A = "a";
+syntax As0 = A* as0;
+syntax As1 = A+ as1;
+
+	
 value main(list[value] args){
 
-	int fac(int n) {
-		switch(n){
-			case 0: 
-				return 1;
-			default:
-				return n * fac(n - 1);
-		}
-	
+	switch([As1] "aaa"){
+		case (As1) `<A+ as>`: 		
+				return "<as>" == "aaa"; 
+		default: 		 
+				return false;
 	}
-	
-	return fac(5);
-
+	throw "fail due to missing match";
 }
