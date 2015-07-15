@@ -72,18 +72,18 @@ test bool bottom5() = bottom(G3) == {};
 // order
 
 test bool order1() = order(G1) == [1,3,2,4];
-test bool order2() = order(G2)[-1] == 1;
-test bool order3() = order(G3)[-1] == 1 &&  order(G3)[-2] == 6;
+test bool order2() = order(G2)[0] == 1;
+test bool order3() = order(G3)[0] == 1 &&  order(G3)[1] == 6;
 
 // predecessors
   
 test bool predecessors1()=  predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4) =={2, 3};
 test bool predecessors2() = predecessors(G1, 2) == {1};
-test bool predecessors3() = predecessors(G1, 4) == {1,2,3};
-test bool predecessors4() = predecessors(G2, 2) == {1};
-test bool predecessors5() = predecessors(G2, 5) == {1,2,3,4};
-test bool predecessors6() = predecessors(G3, 8) == {1,6,7};
-test bool predecessors7() = predecessors(G3, 5) == {1,2,3,4};
+test bool predecessors3() = predecessors(G1, 4) == {2,3};
+test bool predecessors4() = predecessors(G2, 2) == {1,3,4};
+test bool predecessors5() = predecessors(G2, 5) == {3,4};
+test bool predecessors6() = predecessors(G3, 8) == {7};
+test bool predecessors7() = predecessors(G3, 5) == {3,4};
   
 // reachR()
   
@@ -117,9 +117,9 @@ test bool reach6() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {2,3}) =={2, 3,4};
   
 test bool successors1() = successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1) =={2, 3};
 test bool successors2() = successors(G1, 3) == {4};
-test bool successors3() = successors(G1, 1) == {2,3,4};
-test bool successors4() = successors(G2, 1) == {2,3,4,5};
-test bool successors5() = successors(G2, 2) == {2,3,4,5};
+test bool successors3() = successors(G1, 1) == {2,3};
+test bool successors4() = successors(G2, 1) == {2};
+test bool successors5() = successors(G3, 2) == {3,4};
 
 // top
   
