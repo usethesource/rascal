@@ -349,3 +349,10 @@ int cntAroundCs1((AroundCs1) `OPENCs1<{C ","}+ cs1>CLOSE`) = cntCs0(cs1);
 test bool around4() = cntAroundCs1([AroundCs1] "OPENCs1.c.CLOSE") == 1;
 
 test bool around5() = cntAroundCs1([AroundCs1] "OPENCs1.c.,.c.CLOSE") == 2;
+
+// test for issue #834
+int cntTrees(list[A] trees) = ( 0 | it + 1 | A a <- trees);
+test bool callNoTree() = cntTrees([]) == 0;
+test bool callOneTree() = cntTrees([[A]"a"]) == 1;
+test bool callTwoTrees() = cntTrees([[A]"a",[A]"a"]) == 2;
+test bool callTreeTrees() = cntTrees([[A]"a",[A]"a",[A]"a"]) == 3;
