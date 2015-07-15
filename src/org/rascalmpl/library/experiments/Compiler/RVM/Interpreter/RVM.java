@@ -764,9 +764,7 @@ public class RVM implements java.io.Serializable {
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
 				
-//				if (cf.function.name.contains("translateStats")){
-//					debug = true;
-//				}
+				//ocall_debug = cf.function.name.contains("subtype") || cf.function.name.contains("comparable") ;
 				
 				if (debug){
 					print_step(pc, stack, sp, cf);
