@@ -40,18 +40,19 @@ public data RVMProgram =
 		  rvm(str name,
 		  	  map[str,str] tags,
 		      set[Message] messages,
-			  list[loc] imports,
-			  list[loc] extends,
+			  list[str] imports,
+			  list[str] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
               lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
+              rel[str,str] importGraph,
               loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], src);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], {}, src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
