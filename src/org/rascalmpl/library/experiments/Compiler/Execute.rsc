@@ -108,7 +108,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    rel[str,str] extending_modules = {};
    
    void processImports(RVMProgram rvmProgram) {
-       list[str] orderedImports = reverse(order(rvmProgram.importGraph)) - rvmProgram.name;
+       list[str] orderedImports = reverse(order(rvmProgram.importGraph))/* - rvmProgram.name*/;
        println("Ordered import graph <rvmProgram.name>: <orderedImports>");
        
        for(str impName <- orderedImports) {
@@ -137,7 +137,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           
   	 		   if(!isEmpty(extensions)){
   	 		   		extending_modules += extensions;
-  	           		//println("extending_modules = <extending_modules>");
+  	           		println("extending_modules = <extending_modules>");
   	       	   		resolve_module_extensions(importedRvmProgram.name, imported_declarations, new_declarations);
   	       	   }	
   	       	   
@@ -153,8 +153,8 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    }
    
    bool does_extend(str moduleName, list[str] functions) {
-   		res = any(fname <- functions, fnameModule := fname[0 .. findFirst(fname, "/")], moduleName != fnameModule, <moduleName, fnameModule> in extending_modules);
-   		println("does_extend =\> <res> for <moduleName>, <functions>");
+   		res = any(str fname <- functions, str fnameModule := fname[0 .. findFirst(fname, "/")], <moduleName, fnameModule> in extending_modules);
+   		//println("does_extend =\> <res> for <moduleName>, <functions>");
    		return res;
    }
    
@@ -172,7 +172,8 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    	   //		return;
    	   //}
 	   for(decl <- new_declarations){
-	   	if(decl has ftype){
+	      //println("resolve_module_extensions: <decl>");
+	   	  if(decl has ftype){
 	   	    
 	   		 overloads = imported_overloaded_functions[decl.uqname, decl.ftype, decl.scopeIn];
 	   		 if(overloads != []){
@@ -217,9 +218,9 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
    //println("==== <mainProgram.name>:");
    //println("functions:"); for(fn <- mainProgram.declarations) println("<fn>: <mainProgram.declarations[fn]>");
    
-   if(!isEmpty(extending_modules)){
-   		resolve_module_extensions(mainProgram.name, imported_declarations, [ mainProgram.declarations[dname] | str dname <-mainProgram.declarations ]);
-   }	
+   //if(!isEmpty(extending_modules)){
+   //		resolve_module_extensions(mainProgram.name, imported_declarations, [ mainProgram.declarations[dname] | str dname <-mainProgram.declarations ]);
+   //}	
    
    //println("imported_declarations:"); for(fn <- imported_declarations) /*if(contains(fn[0].uqname, "subtype"))*/ println("<fn>");
    //println("<mainProgram.name>: final imported_overloaded_functions:"); for(fn <- imported_overloaded_functions) println("\t<fn>");
