@@ -94,16 +94,16 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
      imported_declarations = parseMuLibrary(bindir=bindir);
    }
    
-   // Recompile the default imports, if necessary
-   
-   for(loc def <- defaultImports){
-       compiledDef = RVMProgramLocation(def, bindir);
-       if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
-          rvm_def = compile(def, bindir = bindir);
-          //<cfg, rvm_def> = compile(def, bindir = bindir);
-          messages += rvm_def.messages;
-       }
-   }
+   //// Recompile the default imports, if necessary
+   //
+   //for(loc def <- defaultImports){
+   //    compiledDef = RVMProgramLocation(def, bindir);
+   //    if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
+   //       rvm_def = compile(def, bindir = bindir);
+   //       //<cfg, rvm_def> = compile(def, bindir = bindir);
+   //       messages += rvm_def.messages;
+   //    }
+   //}
    
    rel[str,str] extending_modules = {};
    
@@ -120,15 +120,11 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           RVMProgram importedRvmProgram = readBinaryValueFile(#RVMProgram, importedLoc);
   	           
   	           extensions = {};
-  	          // if(imp in rvmProgram.extends){
-           		//	println("execute: <rvmProgram.name> EXTENDS <imp>");
-           		//	extensions += {<rvmProgram.name, importedRvmProgram.name>};
-           		//}
            		
-           		for(ext <- importedRvmProgram.extends){
-           			println("execute: <importedRvmProgram.name> EXTENDS <ext>");
-           			extensions += {<importedRvmProgram.name, ext>};
-           		}
+           	   for(ext <- importedRvmProgram.extends){
+           		   println("execute: <importedRvmProgram.name> EXTENDS <ext>");
+           		   extensions += {<importedRvmProgram.name, ext>};
+           	   }
            
   	           messages += importedRvmProgram.messages;
   	           imported_moduleTags[importedRvmProgram.name] = importedRvmProgram.tags;
@@ -141,7 +137,7 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
   	           
   	 		   if(!isEmpty(extensions)){
   	 		   		extending_modules += extensions;
-  	           		println("extending_modules = <extending_modules>");
+  	           		//println("extending_modules = <extending_modules>");
   	       	   		resolve_module_extensions(importedRvmProgram.name, imported_declarations, new_declarations);
   	       	   }	
   	       	   
