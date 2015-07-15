@@ -6,6 +6,9 @@ import List;
 import DateTime;
 import experiments::Compiler::Execute;
 import String;
+import ParseTree;
+
+import util::Reflective;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -45,8 +48,11 @@ list[str] functionalityTests = [
 "ComprehensionTests",		// OK, 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "ConcretePatternTests1",	// OK
 "ConcretePatternTests2",	// OK
+"ConcretePatternTests3",	// OK
 "ConcreteSyntaxTests1",     // OK
 "ConcreteSyntaxTests2",     // OK
+"ConcreteSyntaxTests3",     // OK
+"ConcreteSyntaxTests4",     // OK
 "ConcreteTerms",			// OK
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
@@ -79,7 +85,6 @@ list[str] libraryTests = [
 
 
 "BooleanTests",			    // OK
-"GraphTests",			    // OK
 "IntegerTests",			    // OK
 "ListRelationTests",
 "ListTests" ,			    // OK
@@ -92,6 +97,7 @@ list[str] libraryTests = [
 "StringTests",			    // OK
 "TypeTests",
 "ValueIOTests",
+"analysis/graphs/GraphTests",
 "analysis/statistics/DescriptiveTests",
 "analysis/statistics/RangeUtils",
 "lang/csv/CSVIOTests",      // OK
@@ -220,6 +226,9 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
       prog = base + (tst + ".rsc");
+      for(str ext <- ["sig", "sigs", "tc", "rvm.gz", "rvm.ser.gz"]){
+      	try { remove(getDerivedLocation(prog, ext)); } catch:;
+     }
       try {
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false, bindir=|home:///bin|)){
 	         s = makeTestSummary(test_results);

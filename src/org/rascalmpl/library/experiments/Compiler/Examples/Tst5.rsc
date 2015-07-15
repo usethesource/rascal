@@ -1,10 +1,19 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::tests::types::StaticTestingUtils;
+import lang::rascal::\syntax::Rascal;
+import List;
+import IO;
 
-value main(list[value] args) = 
-	checkOK("13;", 
-			importedModules = ["experiments::Compiler::Examples::\\syntax::Main"]
-			//importedModules = ["experiments::Compiler::Examples::\\syntax::Main"]
-		
-			);
+int processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+   iprintln(rexps);
+
+   lrexps = [r | r <- rexps];
+   
+   println("lrexps = <lrexps>");
+   
+   return size(lrexps);
+   
+}
+
+value main(list[value] args) = processRegExpLiteral((RegExpLiteral) `/abc/`);
