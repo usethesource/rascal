@@ -7352,14 +7352,18 @@ public enum RascalPrimitive {
 		if(given instanceof IValue){
 			IValue val = (IValue) given;
 			Type tp = val.getType();
-			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().isSubtypeOf(RascalValueFactory.Tree)){
-				IList lst = (IList) val;
-				StringWriter w = new StringWriter();
-				for(int i = 0; i < lst.length(); i++){
-					w.write($value2string(lst.get(i)));
+			if(tp.isList()){
+				Type elemType = tp.getElementType();
+				if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
+					IList lst = (IList) val;
+					StringWriter w = new StringWriter();
+					for(int i = 0; i < lst.length(); i++){
+						w.write($value2string(lst.get(i)));
+					}
+					res = w.toString();
+				} else {
+					res = $value2string(val);
 				}
-				res = w.toString();
-
 			} else {
 				res = $value2string(val);
 			}
