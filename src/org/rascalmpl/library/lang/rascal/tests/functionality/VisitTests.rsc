@@ -345,8 +345,20 @@ test bool visit21() = visit (weird1([])) { case list[int] _ => [1] } == weird1([
 
 data Y = weird2(list[int] y);
 
-/* TODO: fails in compiler: because we require that the dynamic type of the replacement is a subtype of the dynamic type of the subject, however list[int] !<: list[void] */
-/* Should become: require that the dynamic type of the replacement is a subtype of the static type of the subject */
+/* TODO: fails in compiler: because we require that the dynamic type of the replacement is a subtype of the dynamic type of the subject, 
+ *       however list[int] !<: list[void]
+ *       Should become: require that the dynamic type of the replacement is a subtype of the static type of the subject.
+ */
+ 
+/* This a very tricky case! At the moment the compiler has the following information available:
+ *  - the static types of the subject, the pattern and the replacement
+ * At runtime are available:
+ * -  the dynamic types of the subject, the visited subtree and the replacement.
+ * What is NOT available is the static type of the visited subtree of the subject.
+ * This would require the following:
+ * - maintain a path from the root of the subject to the current subtree
+ * - use this path to determine the static type of the current subtree.
+ */
 test bool visit22() = 
 	visit (weird2([])) { case list[int] _ => [1] } == weird2([1]);
 
