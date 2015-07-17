@@ -1573,6 +1573,15 @@ public enum MuPrimitive {
 		};
 	},
 	
+	one_dot_zero {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 0;
+			stack[sp] = vf.real("1.0");
+			return sp + 1;
+		};
+	},
+	
 	/**
 	 * mbool3 = (mbool1 || mbool2)
 	 * 

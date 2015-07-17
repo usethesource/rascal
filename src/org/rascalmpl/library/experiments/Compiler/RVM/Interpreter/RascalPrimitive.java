@@ -5440,7 +5440,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
+				stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
 			return sp;
 		}
 	},
