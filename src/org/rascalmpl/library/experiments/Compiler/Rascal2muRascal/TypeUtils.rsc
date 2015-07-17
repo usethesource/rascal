@@ -444,9 +444,12 @@ void extractScopes(Configuration c){
 	containedIn = toMapUnique(invert(containment));
 	
 	//println("containment: <containment>");
+	//println("containmentPlus: <containmentPlus>");
 	//println("declares: <declares>");
 	
 	containedOrDeclaredInPlus = (invert(declares) + invert(containment))+;
+	
+	//println("containedOrDeclaredInPlus: <containedOrDeclaredInPlus>");
 	importedModuleScopes = range(config.modEnv);
     
     for(muid <- modules){
@@ -879,24 +882,55 @@ public MuExp mkCallToLibFun(str modName, str fname)
 // - First non-default functions (inner scope first, most recent last), 
 // - then default functions (also most inner scope first, then most recent last).
 
-bool funFirst(int n, int m) = funInnerScope(n,m) || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = preferInnerScope(n,m); // || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
-	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
-}
-
-bool funInnerScope(int n, int m) {
-    key = <n, m>;
-    if(funInnerScopes[key]?){
-       return funInnerScopes[key];
-    }
-	res = config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
-	funInnerScopes[key] = res;
+	res = sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+	//println("sortOverloadedFunctions: <items> =\> <res>");
 	return res;
 }
+
+bool preferInnerScope(int n, int m) {
+    key = <n, m>;
+    if(funInnerScopes[key]?){
+       //println("preferInnerScope <key> =\> <funInnerScopes[key]> (cached)");
+       return funInnerScopes[key];
+    }
+    nContainer = config.store[n].containedIn;
+    nContainers = containedOrDeclaredInPlus[nContainer];
+    mContainer = config.store[m].containedIn;
+    mContainers = containedOrDeclaredInPlus[mContainer];
+    
+    bool res = false;
+   
+    if(nContainers == {} && mContainers == {}) { // global global
+      	  res = n < m;
+     } else
+     if(nContainers == {} && mContainers != {}){ // global non-global
+          res = false; //nContainer notin mContainers;
+     } else
+     if(nContainers != {} && mContainers == {}) { // non-global global
+       res = true; //mContainer in nContainers;
+     } else {							  // non-global non-global 
+       res =  nContainer in mContainers;// && mContainer notin nContainers;
+     }
+	funInnerScopes[key] = res;
+	//println("preferInnerScope <key> =\> <res>");
+	return res;
+}
+
+//bool funInnerScope(int n, int m) {
+//    key = <n, m>;
+//    if(funInnerScopes[key]?){
+//       return funInnerScopes[key];
+//    }
+//	res = config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
+//	funInnerScopes[key] = res;
+//	return res;
+//}
+
 //public list[UID] sortFunctionsByRecentScope(list[UID] funs){
 //	return sort(funs, funInnerScope);
 //}
@@ -985,7 +1019,7 @@ MuExp mkVar(str name, loc l) {
     //	println("<nnuid>: <config.store[nnuid]>");
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
+    str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
     
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
