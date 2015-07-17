@@ -331,13 +331,15 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
  *
  */
 
-bool isSpoiler(Pattern pattern){
+bool isSpoiler(Pattern pattern, int fp){
+    if(fp == fingerprintDefault)
+    	return true;
 	if(pattern is variableBecomes || pattern is typedVariableBecomes)
-		return isSpoiler(pattern.pattern);
+		return isSpoiler(pattern.pattern, fp);
 	if(pattern is splice || pattern is splicePlus || pattern is asType) 
-		return isSpoiler(pattern.argument);
+		return isSpoiler(pattern.argument, fp);
 		
-	return 
+	return
  	      pattern is qualifiedName
  	   || pattern is multiVariable
  	   || pattern is negative
@@ -374,9 +376,9 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
    
   for(c <- reverse(cases)){
 	  if(c is patternWithAction){
-	    if(!isSpoiler(c.patternWithAction.pattern)){
-	       pwa = c.patternWithAction;
-	       key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	    pwa = c.patternWithAction;
+	    key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	    if(!isSpoiler(c.patternWithAction.pattern, key)){
 	       table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, pwa, table, key);
 	    }
 	  } else {
@@ -384,7 +386,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
 	  }
    }
    default_table = (fingerprintDefault : default_code);
-   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, useConcreteFingerprint))){
 	  default_table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, c.patternWithAction, default_table, fingerprintDefault);
    }
    
@@ -394,16 +396,23 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
 
 // Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
 
-int fingerprint(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
+int fingerprint(Pattern p, bool useConcreteFingerprint) {
+	fp = fingerprint1(p, useConcreteFingerprint);
+	//println("fingerprint(<p>, <useConcreteFingerprint>) = \> <fp>");
+	return fp;
+}
+
+int fingerprint1(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
 	getFingerprint(readTextValueString("<lit>"), useConcreteFingerprint) when !(p.literal is regExp);
 
-int fingerprint(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
-	res = getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
-	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
+int fingerprint1(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
+    t = parseConcrete(concrete);
+	res = isConcreteHole(t) ? fingerprintDefault : getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
+	//println("fingerprint <res>, <getType(p@\loc)> for <p>"); iprintln(parseConcrete(concrete));
 	return res;
 }
 
-int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, bool useConcreteFingerprint) { 
+int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, bool useConcreteFingerprint) { 
 	args = [a | a <- arguments];	// TODO: work around!
 	res = fingerprintDefault;
 	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
@@ -418,13 +427,13 @@ int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <
 	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
 	return res;
 }
-int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
-int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
-int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
-int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
-int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint(argument, useConcreteFingerprint);
-int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
-default int fingerprint(Pattern p, bool useConcreteFingerprint) {
+int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint1(argument, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
+default int fingerprint1(Pattern p, bool useConcreteFingerprint) {
 	//println("fingerprint <fingerprintDefault> (default), <getType(p@\loc)> for <p>");
 	return fingerprintDefault;
 }	
