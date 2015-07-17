@@ -280,15 +280,16 @@ coroutine RANGE_INT(pat, iFirst, iEnd) {
 coroutine RANGE(pat, iFirst, iEnd) {
     var j, 
         n, 
-        rone = rint(1)
+        rone 
    
    if(iFirst is int && iEnd is int){
          j = iFirst
          n = iEnd
+         rone = rint(1)
    } else {
       j = prim("num_to_real", iFirst)
       n = prim("num_to_real", iEnd)
-      rone = prim("num_to_real", rone)
+      rone = muprim("one_dot_zero", 1) // we cannot have zero args here :-(
    }
     if(prim("less", j, n)) {
         while(prim("less", j, n)) {
