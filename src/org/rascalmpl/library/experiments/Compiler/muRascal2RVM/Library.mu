@@ -514,7 +514,6 @@ coroutine MATCH_SUBSTRING(pat, rBegin, rEnd, iSubject)
     //println("MATCH_SUBSTRING:", pat, deref rBegin, rEnd, iSubject);
     if(is_tail(iSubject, pat, mint(deref rBegin))){
         //println("MATCH_SUBSTRING succeeds", pat, deref rBegin, size(pat), iSubject);
-         //println("MATCH_SUBSTRING succeeds")
         deref rEnd = len
         yield
     }
@@ -535,11 +534,11 @@ coroutine MATCH_VAR(rVar, iSubject) {
 }
 
 coroutine MATCH_NEW_VAR(rVar, iSubject) {
-    var iVal 
     yield iSubject
 }
 
 coroutine MATCH_ANONYMOUS_VAR(iSubject) {
+    //println("MATCH_ANONYMOUS_VAR", iSubject)
     yield
 }
 
@@ -1686,6 +1685,7 @@ coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
 coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
     var matcher = muprim("regexp_compile", iRegexp, iSubject), 
         j, rVar
+    //println("MATCH_REGEXP", iRegexp, iSubject)
     while(muprim("regexp_find", matcher)) {
         j = 0 
         while(j < size_array(varrefs)) {
@@ -2108,6 +2108,7 @@ function VISIT_STR_REBUILD(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
     deref rEnd = len;     
     //println("VISIT_STR_REBUILD", iSubject, len)
     while(j < len){
+        //println("j", j);
         childHasMatch = false
         childBeenChanged = false
         deref rBegin = j
@@ -2115,12 +2116,14 @@ function VISIT_STR_REBUILD(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
         repl = phi(iSubject, ref childHasMatch, ref childBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor)
         if(deref rLeaveVisit){ return repl }
         if(childHasMatch){
+            //println("childHasMatch=true", j, mint(deref rBegin))
             if(mint(deref rBegin) > j){
               prim("stringwriter_add", writer, substring(iSubject, j, mint(deref rBegin)))
             }
             prim("stringwriter_add", writer, repl)
             j = mint(deref rEnd)
         } else {
+            //println("childHasMatch=false", j, substring(iSubject, j, j + 1))
             prim("stringwriter_add", writer, substring(iSubject, j, j + 1))
             j = j + 1
         }
