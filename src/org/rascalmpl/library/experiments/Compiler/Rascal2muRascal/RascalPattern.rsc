@@ -258,7 +258,7 @@ MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), S
   //println("translateParsedConcretePattern: <prod>, <symbol>");
   if(isConcreteHole(t)){
      <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
-     return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("ConcreteVar", fuid, pos)]);
+     return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(symbol), muVarRef("ConcreteVar", fuid, pos)]);
   }
   //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
   prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
