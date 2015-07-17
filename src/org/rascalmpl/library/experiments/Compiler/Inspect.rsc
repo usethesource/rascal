@@ -98,6 +98,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
           ){
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
     RVMProgram p;
+    listing = listing || line >= 0;
     try {
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
