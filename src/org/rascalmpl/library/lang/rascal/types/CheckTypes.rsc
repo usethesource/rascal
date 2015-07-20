@@ -6749,7 +6749,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		AbstractValue av = d.store[itemId];
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-			c = addConstructor(c, name, at, rtype, [], [<kp,kt,kpList> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
+			c = addConstructor(c, name, at, rtype, [], kplist, registerName = false);
 			loadedIds = loadedIds + itemId;
 		}
 	}
