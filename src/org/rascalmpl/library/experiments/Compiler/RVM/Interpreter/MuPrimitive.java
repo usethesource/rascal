@@ -32,7 +32,9 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 
 /**
  * MuPrimitive defines all primitives that are necessary for running muRascal programs.
@@ -985,11 +987,11 @@ public enum MuPrimitive {
 					Type consType= cons.getConstructorType();
 					if(cons.getName().equals("prod")){
 						mset.add(cons);							// Add the production itself to the set
-					//} else if(cons.getName().equals("regular")){
-					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
-							  consType == RascalValueFactory.Symbol_IterStar ||
-							  consType == RascalValueFactory.Symbol_IterSepX || 
-							  consType == RascalValueFactory.Symbol_IterStarSepX){
+					} else if(cons.getName().equals("regular")){
+//					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
+//							  consType == RascalValueFactory.Symbol_IterStar ||
+//							  consType == RascalValueFactory.Symbol_IterSepX || 
+//							  consType == RascalValueFactory.Symbol_IterStarSepX){
 						mset.add(cons);							// Add as SYMBOL to the set
 					} else {
 						Type tp = reifier.symbolToType(cons, definitions);
@@ -1119,9 +1121,16 @@ public enum MuPrimitive {
 			Object iteratee = stack[sp - 1];
 			if(iteratee instanceof Object[]){
 				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+			} else 
+			if(iteratee instanceof AnnotatedAmbFacade){
+					stack[sp - 1] = ((AnnotatedAmbFacade) iteratee).getAlternatives().iterator();
+			} else
+			if(iteratee instanceof AnnotatedConstructorFacade){
+				stack[sp - 1] = ((AnnotatedConstructorFacade) iteratee).getChildren().iterator();
 			} else {
 				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
 			}
+			
 			return sp;
 		};
 	},
