@@ -118,4 +118,14 @@ public class RascalSearchPath {
 	public void remove(IRascalSearchPathContributor contrib) {
 		contributors.remove(contrib);
 	}
+	
+	public String toString(){
+		StringBuffer sb = new StringBuffer("RascalSearchPath[ ");
+		
+		for(IRascalSearchPathContributor contrib : contributors){
+			sb.append(contrib.getName()).append(" ");
+		}
+		sb.append("])");
+		return sb.toString();
+	}
 }

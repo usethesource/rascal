@@ -30,7 +30,7 @@ public abstract class RascalType extends ExternalType {
 
   protected abstract boolean isSupertypeOf(RascalType type);
   
-  protected boolean isSubtypeOfNonTerminal(RascalType type) {
+  public boolean isSubtypeOfNonTerminal(RascalType type) {
     return false;
   }
   

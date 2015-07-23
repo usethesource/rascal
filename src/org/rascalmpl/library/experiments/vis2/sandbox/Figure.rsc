@@ -20,6 +20,8 @@ import lang::json::IO;
 
 alias Position = tuple[num x, num y];
 
+alias Rotate = tuple[num angle, num x, num y];
+
 alias Rescale = tuple[tuple[num, num], tuple[num, num]];
 
 // Alignment for relative placement of figure in parent
@@ -120,6 +122,7 @@ public data Figure(
 		int cellHeight = -1,
 		int cellWidth = -1,
 		Position at = <0,0>,
+		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
 		tuple[int,int] gap = <0,0>,
@@ -129,7 +132,7 @@ public data Figure(
     	// Line properties
     
 		int lineWidth = -1,			
-		str lineColor = "black", 		
+		str lineColor = "", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
@@ -172,7 +175,7 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | frame(Figure fig=emptyFigure())
+   | frame(Figure fig=emptyFigure()) // Invisible box
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
@@ -184,6 +187,7 @@ public data Figure(
      )	// regular polygon
    
    | polygon(Points points=[], bool fillEvenOdd = true,
+            bool yReverse = false,
             Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>)
    
@@ -191,7 +195,8 @@ public data Figure(
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
-   			bool fillEvenOdd = true,		// The fill rule to be used. (TODO: remove?)
+   			bool fillEvenOdd = true,
+   			bool yReverse = true,		// The fill rule to be used. (TODO: remove?)
    			Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>,
    			Figure startMarker=emptyFigure(),
@@ -214,9 +219,11 @@ public data Figure(
    | atY(int y, Figure fig)
    
   	//TODO: avoid name clash with Math::util:scale
-   | SCALE(num factor, Figure fig)
+ //  | SCALE(num factor, Figure fig)
    
+   // Advised to embed the figure in a frame and use that frame as argument of rotate
    | rotate(num angle, Figure fig)
+   
 
 // Input elements
 
@@ -260,9 +267,10 @@ public data Figure(
 	| candlestickchart(GoogleData googleData =[], ChartOptions options = chartOptions())
 	| piechart(GoogleData googleData = [],  ChartOptions options = chartOptions())
 // Graphs
-
+// Must be used as innerfigure in box(fig=..., align = topLeft). 
+// Advised is to use the function graph(nodes, edges)
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, Dot] nodeProp = (), 
-     Figure marker = emptyFigure, GraphOptions options = graphOptions())
+     GraphOptions options = graphOptions())
  
 // Trees
 	| tree(Figure root, Figures children)
@@ -276,7 +284,7 @@ data GraphOptions = graphOptions(
 data Dot = dot(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
-    ,str labelStyle="", str arrowStyle = "");
+     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "");
   
 data ChartArea ( 
      value left = "",
@@ -531,5 +539,14 @@ public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
 
-
+public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
+   int lineWidth = 1) =  
+   box(fig = graph(nodes = n, edges = e,
+               nodeProp = (), size = size, width = width, height = height,
+               options = graphOptions()), align = topLeft, lineWidth = lineWidth);
+               
+public Figure overlayBox(int width, int height, list[Figure] figs) {
+      list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
+      return overlay(figs = b);
+      }
    

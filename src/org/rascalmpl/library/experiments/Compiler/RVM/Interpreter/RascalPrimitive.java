@@ -3744,7 +3744,7 @@ public enum RascalPrimitive {
 					stack[sp - 2] = vf.bool(llen < rlen);
 					return sp - 1;
 				}
-				stack[sp - 2] = Rascal_FALSE;
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 				return sp - 1;
 			}
 			else if (compare == 0) {
@@ -5440,7 +5440,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
+				stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
 			return sp;
 		}
 	},
@@ -5594,10 +5594,10 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
-				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-					stdout.println("\t" + f.toString());
-				}
+//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+//					stdout.println("\t" + f.toString());
+//				}
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
 			return sp - 1;
@@ -7352,14 +7352,18 @@ public enum RascalPrimitive {
 		if(given instanceof IValue){
 			IValue val = (IValue) given;
 			Type tp = val.getType();
-			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().isSubtypeOf(RascalValueFactory.Tree)){
-				IList lst = (IList) val;
-				StringWriter w = new StringWriter();
-				for(int i = 0; i < lst.length(); i++){
-					w.write($value2string(lst.get(i)));
+			if(tp.isList()){
+				Type elemType = tp.getElementType();
+				if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
+					IList lst = (IList) val;
+					StringWriter w = new StringWriter();
+					for(int i = 0; i < lst.length(); i++){
+						w.write($value2string(lst.get(i)));
+					}
+					res = w.toString();
+				} else {
+					res = $value2string(val);
 				}
-				res = w.toString();
-
 			} else {
 				res = $value2string(val);
 			}

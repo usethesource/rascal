@@ -347,6 +347,16 @@ test bool testStringInterpolation10() {str a = "a\\\\c"; return "1<a>2" == "1a\\
     		
 test bool testStringInterpolation11() {str a = "a\<c"; return "1<a>2" == "1a\<c2";}
 test bool testStringInterpolation12() {str a = "a\>c"; return "1<a>2" == "1a\>c2";}
+
+test bool testStringInterpolation13() {str a = "abc"; return "1\\<a>2" == "1\\abc2";}
+test bool testStringInterpolation14() {str a = "abc"; return "1<a>\\2" == "1abc\\2";}
+test bool testStringInterpolation15() {str a = "abc"; return "1\<<a>2" == "1\<abc2";}
+test bool testStringInterpolation16() {str a = "abc"; return "1<a>\>2" == "1abc\>2";}
+
+test bool testStringInterpolation17() {str a = "a\\bc"; return "1\\<a>2" == "1\\a\\bc2";}
+test bool testStringInterpolation18() {str a = "a\\bc"; return "1<a>\\2" == "1a\\bc\\2";}
+test bool testStringInterpolation19() {str a = "a\\bc"; return "1\<<a>2" == "1\<a\\bc2";}
+test bool testStringInterpolation20() {str a = "a\\bc"; return "1<a>\>2" == "1a\\bc\>2";}
     	
 loc Loc = |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
 loc Loc2 = |file:///home/paulk/pico2.trm|(0,1,<2,3>,<4,5>);	
@@ -414,6 +424,23 @@ test bool testLocation37() = !(|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) >=
     		
 test bool testLocation38() = |file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,6,<1,40>,<1,46>);
 test bool testLocation39() = |file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,7,<1,40>,<1,47>);
+
+
+test bool testLocation40() =
+  |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>)
+< |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>);
+
+test bool testLocation41() =
+  |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>)
+<= |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>);
+
+test bool testLocation42() =
+  |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>)
+> |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>);
+
+test bool testLocation43() =
+  |project://rascal/xxx.rsc|(5661,24,<160,10>,<160,34>)
+>= |project://rascal/xxx.rsc|(5667,18,<160,16>,<160,34>);
     	  	
 // 	testList
     	

@@ -1573,6 +1573,15 @@ public enum MuPrimitive {
 		};
 	},
 	
+	one_dot_zero {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 0;
+			stack[sp] = vf.real("1.0");
+			return sp + 1;
+		};
+	},
+	
 	/**
 	 * mbool3 = (mbool1 || mbool2)
 	 * 
@@ -2200,7 +2209,18 @@ public enum MuPrimitive {
 			Object[] subject = (Object[]) stack[sp - 1];
 			IList listSubject = (IList) subject[0];
 			Integer cursor = (Integer) subject[1];
-			stack[sp - 1] = listSubject.length() == cursor ? Rascal_TRUE : Rascal_FALSE;
+			int len = listSubject.length();
+			if(cursor == len){
+				stack[sp - 1] = Rascal_TRUE;
+				return sp;
+			}
+			for(int i = cursor; i < len; i++){				// Check wether only nullables follow
+				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
+					stack[sp - 1] = Rascal_FALSE;
+					return sp;
+				}
+			}
+			stack[sp - 1] = Rascal_TRUE;
 			return sp;
 		};
 	}
@@ -2261,6 +2281,13 @@ public enum MuPrimitive {
 	private static boolean $is_layout(final IValue v){
 		if (isNonTerminalType(v.getType())) {
 			return TreeAdapter.isLayout((ITree) v);
+		}
+		return false;
+	}
+	
+	private static boolean $is_nullable(final IValue v){
+		if (v instanceof ITree) {
+			return TreeAdapter.getArgs((ITree) v).length() == 0;
 		}
 		return false;
 	}

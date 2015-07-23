@@ -331,10 +331,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				if(name.endsWith("_init(list(value());)#0")){
 					initializers.add(name);
 				}
-				if(name.endsWith("_testsuite(list(value());)#0")){
-					testsuites.add(name);
+				if(!name.endsWith("_testsuite(list(value());)#0")){
+					//testsuites.add(name);
+					loadInstructions(name, declaration, false);
 				}
-				loadInstructions(name, declaration, false);
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
 				String name = ((IString) declaration.get("qname")).getValue();

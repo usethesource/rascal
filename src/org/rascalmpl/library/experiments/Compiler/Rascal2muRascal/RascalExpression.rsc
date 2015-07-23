@@ -1,13 +1,12 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalExpression
 
-import Prelude;
 import IO;
 import ValueIO;
+import String;
 import Node;
 import Map;
 import Set;
-import String;
 import ParseTree;
 import util::Reflective;
 
@@ -351,16 +350,16 @@ private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(dees
 
 private list[MuExp] translatePreChars(PreStringChars pre) {
    spre = removeMargins(deescape("<pre>"[1..-1]));
-   return "<spre>" == "" ? [] : [ muCon(spre) ];
+   return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
 }	
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
   smid = removeMargins(deescape("<mid>"[1..-1]));
-  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(smid) ], mid@\loc) ];
+  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
 }
 
-str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
-
+str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+                     
 /* Recap of relevant rules from Rascal grammar:
 
    syntax StringTemplate
@@ -385,7 +384,7 @@ str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => 
 
 public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
 	mids = removeMargins(deescape("<mid>"[1..-1]));
-	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(mids)], mid@\loc) ];
+	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(deescape(mids))], mid@\loc) ];	// ?
 }
 
 public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
@@ -1051,10 +1050,13 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 			conditions = [ translate(e) | Expression e <- pwa.replacement.conditions ];
 		}
 		
-		// TODO: We use the run-time type of the current subject here but this should become the static type
+		// TODO: We (should) use the static type of the current subject here
+		
+		// e.g. muTypeCon(getType(pwa.pattern@\loc)) but that maybe too large.
 		
 		replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
-		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) ], pwa@\loc);
+		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) 
+		                                  ], pwa@\loc);
 		                      
     	table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
     				                    [ muAssign("replacement", fuid, replacementPos, replacement),
@@ -1097,9 +1099,9 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
 	
 	for(c <- reverse(cases)){
 		if(c is patternWithAction) {
-		  if(!isSpoiler(c.patternWithAction.pattern)){
-			 pwa = c.patternWithAction;
-			 key = fingerprint(pwa.pattern, useConcreteFingerprint);
+		   pwa = c.patternWithAction;
+		   key = fingerprint(pwa.pattern, useConcreteFingerprint);
+		  if(!isSpoiler(c.patternWithAction.pattern, key)){
 			 table = addPatternWithActionCode(fuid, subjectType, pwa, table, key);
 		  }
 		} else {
@@ -1110,14 +1112,20 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
 		}
 	}
 	default_table = (fingerprintDefault : default_code);
-    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+    for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, useConcreteFingerprint))){
 	  default_table = addPatternWithActionCode(fuid, subjectType, c.patternWithAction, default_table, fingerprintDefault);
    }
    
    //println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    case_code = [ muCase(key, table[key]) | key <- table];
    default_code =  default_table[fingerprintDefault];
-   return muSwitch(muVar("iSubject", fuid, iSubjectPos), useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+   fetchSubject = (subjectType == \str()) ? muCallMuPrim("substring_str_mint_mint", [ muVar("iSubject", fuid, iSubjectPos),
+   																	   				   muVarDeref("begin", fuid, beginPos),
+   																	   				   muVarDeref("end", fuid, endPos)
+                                                                     				 ]) 
+                                          : muVar("iSubject", fuid, iSubjectPos)
+                                          ;
+   return muSwitch(fetchSubject, useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
 	
 }
 
@@ -1143,7 +1151,7 @@ public bool hasConcretePatternsOnly(list[Case] cases){
 				return false;
 			}
 		} else {
-			;//return false;		// A default case is present: everything can match
+			;//return false;		// A default case is present: everything can match TODO:??
 		}
 	}
 	return true;

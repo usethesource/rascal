@@ -103,7 +103,7 @@ function askServer(path, parameters, callback) {
                      height= 2*ry + lw;               
                     break; 
         };
-    // d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
+    d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
     d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
     d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
    }
