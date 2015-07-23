@@ -169,6 +169,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
    	  				  getOverloadingResolver(),
    	  				  overloaded_functions, 
    	  				  getGrammar(),
+   	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc);
 
    } 
@@ -195,13 +196,13 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    addImportToModule(getModuleLocation(qualifiedNameToPath(qname)));
+    addImportToModule("<qname>");
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){
-	moduleLoc = getModuleLocation(qualifiedNameToPath(qname));
-	addImportToModule(moduleLoc);
-	addExtendToModule(moduleLoc);
+	moduleName = "<qname>";
+	addImportToModule(moduleName);
+	addExtendToModule(moduleName);
 }
 
 private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }

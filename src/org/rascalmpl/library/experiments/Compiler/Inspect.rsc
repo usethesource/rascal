@@ -98,6 +98,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
           ){
     rvmLoc = RVMProgramLocation(srcLoc, bindir);
     RVMProgram p;
+    listing = listing || line >= 0;
     try {
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
@@ -112,6 +113,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
               [], 
               (), 
               [],
+              {},
               rvmLoc);
     	} else {
         	p = readBinaryValueFile(#RVMProgram, rvmLoc);
@@ -124,6 +126,10 @@ void inspect(loc srcLoc,                // location of Rascal source file
 	        
 	        if(p.tags != ()){
 	        	println("TAGS: <p.tags>");
+	        }
+	        
+	        if(p.importGraph != {}){
+	        	println("IMPORTGRAPH: <p.importGraph>");
 	        }
         }
          
@@ -193,7 +199,7 @@ void printMessages(set[Message] messages){
     }
 }
 
-void printImports(list[loc] imports){
+void printImports(list[str] imports){
 	if(size(imports)> 0){
     	println("IMPORTS:");
        	for(imp <- imports){
@@ -201,7 +207,7 @@ void printImports(list[loc] imports){
         }
     }
 }
-void printExtends(list[loc] extends){
+void printExtends(list[str] extends){
 	if(size(extends)> 0){
     	println("EXTENDS:");
        	for(ext <- extends){

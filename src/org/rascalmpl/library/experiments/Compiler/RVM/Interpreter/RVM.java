@@ -56,7 +56,7 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
@@ -764,9 +764,7 @@ public class RVM implements java.io.Serializable {
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
 				
-//				if (cf.function.name.equals("experiments::Compiler::muRascal2RVM::mu2rvm/tr(adt(\"MuExp\",[]);)#562")){
-//					debug = true;
-//				}
+				//ocall_debug = cf.function.name.contains("subtype") || cf.function.name.contains("comparable") ;
 				
 				if (debug){
 					print_step(pc, stack, sp, cf);
@@ -1144,12 +1142,24 @@ public class RVM implements java.io.Serializable {
 					Type paramType = cf.function.typeConstantStore[CodeBlock.fetchArg2(instruction)];
 					
 					int pos2 = (int) instructions[pc++];
+					
 					if(argType.isSubtypeOf(paramType)){
 						stack[pos2] = stack[pos];
 						stack[sp++] = vf.bool(true);
-					} else {
-						stack[sp++] = vf.bool(false);
+						continue NEXT_INSTRUCTION;
 					}
+					if(argType instanceof RascalType){
+						RascalType atype = (RascalType) argType;
+						RascalType ptype = (RascalType) paramType;
+						if(ptype.isNonterminal() &&  atype.isSubtypeOfNonTerminal(ptype)){
+							stack[pos2] = stack[pos];
+							stack[sp++] = vf.bool(true);
+							continue NEXT_INSTRUCTION;
+						}
+					}
+						
+					stack[sp++] = vf.bool(false);
+					//System.out.println("OP_CHECKARGTYPEANDCOPY: " + argType + ", " + paramType + " => false");
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FAILRETURN:

@@ -183,8 +183,8 @@ void resetShiftCounter() {
 RVMProgram mu2rvm(muModule(str module_name, 
 						   map[str,str] tags,
 						   set[Message] messages, 
-						   list[loc] imports,
-						   list[loc] extends, 
+						   list[str] imports,
+						   list[str] extends, 
 						   map[str,Symbol] types,  
 						   map[Symbol, Production] symbol_definitions,
                            list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, 
@@ -192,6 +192,7 @@ RVMProgram mu2rvm(muModule(str module_name,
                            map[str,int] resolver,
                            lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions, 
                            map[Symbol, Production] grammar, 
+                           rel[str,str] importGraph,
                            loc src), 
                   bool listing=false){
  
@@ -334,7 +335,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
 

@@ -43,17 +43,35 @@ test bool nomatchWithLocalVariable() { str x = "123"; (/<x:[a-z]+>/ !:= "abc"); 
 	
 test bool repeatedInterpolation(){r = out:for (i <- [1,2,3]) for (/<i>/ := "332211") append out:i; return r == [1,1,2,2,3,3]; }
 	
-// interpolatingAndEscaped
+// interpolating
 
-test bool interpolationAndEscaped1() {x = "."; return (/<x>/ !:= "a");}
-test bool interpolationAndEscaped2() {x = "."; return /<x>/ := ".";}
-test bool interpolationAndEscaped3() = /.<x:bc>/ := "abc" && x == "bc";
-test bool interpolationAndEscaped4() = /^(a|b)*$/ := "ababab"; 
-test bool interpolationAndEscaped5() = /(a|b)<x:cd>/ := "acd" && x == "cd";
-test bool interpolationAndEscaped6() = /^(a|b)*$/ !:= "abacbab";
-test bool interpolationAndEscaped7() = /(.)<x:bc>/ := "abc" && x == "bc";
-test bool interpolationAndEscaped8() { x = "("; y = ")"; return /<x>.<y>/ !:= "a";}
-test bool interpolationAndEscaped9() { x = "("; y = ")"; return /<x>.<y>/ := "(a)";}
+test bool interpolation1() {x = "."; return (/<x>/ !:= "a");}
+test bool interpolation2() {x = "."; return /<x>/ := ".";}
+test bool interpolation3() = /.<x:bc>/ := "abc" && x == "bc";
+test bool interpolation4() = /^(a|b)*$/ := "ababab"; 
+test bool interpolation5() = /(a|b)<x:cd>/ := "acd" && x == "cd";
+test bool interpolation6() = /^(a|b)*$/ !:= "abacbab";
+test bool interpolation7() = /(.)<x:bc>/ := "abc" && x == "bc";
+test bool interpolation8() { x = "("; y = ")"; return /<x>.<y>/ !:= "a";}
+test bool interpolation9() { x = "("; y = ")"; return /<x>.<y>/ := "(a)";}
+
+// escape
+test bool escape1() = /\\/ := "\\";
+test bool escape2() = /a\\/ := "a\\";
+test bool escape3() = /\\b/ := "\\b";
+test bool escape4() = /a\\b/ := "a\\b";
+
+test bool escape5() = /[\\]/ := "\\";
+test bool escape6() = /[\\ \<]/ := "\\";
+test bool escape7() = /[\\ \<]/ := "\<";
+
+test bool escape8() = /a[\\ \<]/ := "a\\";
+test bool escape9() = /a[\\ \<]/ := "a\<";
+test bool escape10() = /[\\ \>]b/ := "\\b";
+test bool escape11() = /[\\ \>]b/ := "\>b";
+test bool escape12() = /a[\\ \>]b/ := "a\\b";
+test bool escape13() = /a[\\ \>]b/ := "a\>b";
+
 	
 //	literalBracket
 

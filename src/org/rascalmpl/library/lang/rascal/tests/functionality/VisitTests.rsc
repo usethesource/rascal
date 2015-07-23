@@ -345,8 +345,20 @@ test bool visit21() = visit (weird1([])) { case list[int] _ => [1] } == weird1([
 
 data Y = weird2(list[int] y);
 
-/* TODO: fails in compiler: because we require that the dynamic type of the replacement is a subtype of the dynamic type of the subject, however list[int] !<: list[void] */
-/* Should become: require that the dynamic type of the replacement is a subtype of the static type of the subject */
+/* TODO: fails in compiler: because we require that the dynamic type of the replacement is a subtype of the dynamic type of the subject, 
+ *       however list[int] !<: list[void]
+ *       Should become: require that the dynamic type of the replacement is a subtype of the static type of the subject.
+ */
+ 
+/* This a very tricky case! At the moment the compiler has the following information available:
+ *  - the static types of the subject, the pattern and the replacement
+ * At runtime are available:
+ * -  the dynamic types of the subject, the visited subtree and the replacement.
+ * What is NOT available is the static type of the visited subtree of the subject.
+ * This would require the following:
+ * - maintain a path from the root of the subject to the current subtree
+ * - use this path to determine the static type of the current subtree.
+ */
 test bool visit22() = 
 	visit (weird2([])) { case list[int] _ => [1] } == weird2([1]);
 
@@ -729,7 +741,18 @@ test bool StringVisit64() = TDCntAB("b") == <0, 10>;
 test bool StringVisit65() = TDCntAB("ab") == <1, 10>;
 test bool StringVisit66() = TDCntAB("ba") == <1, 10>;
 test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
-		
+
+// StringVisit7
+
+str deescape(str s) = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+
+test bool StringVisit71() = deescape("abc") == "abc";
+test bool StringVisit72() = deescape("\\") == "\\";
+test bool StringVisit73() = deescape("\\\\") == "\\";
+test bool StringVisit74() = deescape("\\\<") == "\<";
+test bool StringVisit75() = deescape("\\\>") == "\>";
+test bool StringVisit76() = deescape("\\n") == "n";
+
 // Keywords and visit
 
 data RECT = rect(int w, int h, str color = "white");

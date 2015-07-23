@@ -149,6 +149,7 @@ data Modifier
     | \strictfp()
     | \annotation(Expression \anno)
     | \onDemand()
+    | \default()
     ;
 
 @memo

@@ -258,7 +258,7 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN(typ, rVar, iVal) {
 }
 
 /******************************************************************************************/
-/*                    Ranges                                                                  */
+/*                    Ranges                                                              */
 /******************************************************************************************/
 
 coroutine RANGE_INT(pat, iFirst, iEnd) {
@@ -280,15 +280,16 @@ coroutine RANGE_INT(pat, iFirst, iEnd) {
 coroutine RANGE(pat, iFirst, iEnd) {
     var j, 
         n, 
-        rone = rint(1)
+        rone 
    
    if(iFirst is int && iEnd is int){
          j = iFirst
          n = iEnd
+         rone = rint(1)
    } else {
       j = prim("num_to_real", iFirst)
       n = prim("num_to_real", iEnd)
-      rone = prim("num_to_real", rone)
+      rone = muprim("one_dot_zero", 1) // we cannot have zero args here :-(
    }
     if(prim("less", j, n)) {
         while(prim("less", j, n)) {
@@ -404,7 +405,8 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, iSubject)  
+    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats)
+    //println("MATCH_SIMPLE_CALL_OR_TREE", iSubject)    
  
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
@@ -513,7 +515,6 @@ coroutine MATCH_SUBSTRING(pat, rBegin, rEnd, iSubject)
     //println("MATCH_SUBSTRING:", pat, deref rBegin, rEnd, iSubject);
     if(is_tail(iSubject, pat, mint(deref rBegin))){
         //println("MATCH_SUBSTRING succeeds", pat, deref rBegin, size(pat), iSubject);
-         //println("MATCH_SUBSTRING succeeds")
         deref rEnd = len
         yield
     }
@@ -534,11 +535,11 @@ coroutine MATCH_VAR(rVar, iSubject) {
 }
 
 coroutine MATCH_NEW_VAR(rVar, iSubject) {
-    var iVal 
     yield iSubject
 }
 
 coroutine MATCH_ANONYMOUS_VAR(iSubject) {
+    //println("MATCH_ANONYMOUS_VAR", iSubject)
     yield
 }
 
@@ -655,7 +656,10 @@ coroutine MATCH_LIST(pats, iList)
 guard
 	iList is list
 {
+    
     var subject = MAKE_SUBJECT(iList, 0)
+    
+    //println("MATCH_LIST", iList);
     MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject)
 }
 
@@ -727,6 +731,7 @@ coroutine MATCH_LITERAL_IN_LIST(pat, rSubject)
         start = GET_SUBJECT_CURSOR(deref rSubject),
         elm; 
  
+ 	//println("MATCH_LITERAL_IN_LIST",  get_list(iList, start))
     if(start < size_list(iList)){ 
 	    elm = get_list(iList, start)
 	    //println("MATCH_LITERAL_IN_LIST, true", pat, elm);
@@ -1042,7 +1047,8 @@ guard {
         children = get_children(iElem), 
         cpats
     
-    //println("MATCH_APPL_IN_LIST", iProd, iElem)
+    //println("MATCH_APPL_IN_LIST, iProd", iProd)
+    //println("MATCH_APPL_IN_LIST, iElem", iElem)
     // TODO: this appl can be checked faster!
     if(iElem is appl && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
@@ -1050,6 +1056,7 @@ guard {
             yield MAKE_SUBJECT(iList, start+1)
         }
     }
+    //println("MATCH_APPL_IN_LIST exhausted", start, iElem)
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
@@ -1060,8 +1067,8 @@ guard {
         start < size_list(iList) 
 } {
     var iElem = get_list(iList, start), 
-        children = get_children(iElem)
-    //println("MATCH_LIT_IN_LIST", iProd, iElem)
+        children = get_children(iElem)  
+      //println("MATCH_LIT_IN_LIST", iProd, iElem)
      // TODO: this appl can be checked faster!    
     if(iElem is appl && equal(iProd, children[0])) {
         yield MAKE_SUBJECT(iList, start + 1)
@@ -1073,6 +1080,8 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
     var iList = GET_SUBJECT_LIST(deref rSubject),
         start = GET_SUBJECT_CURSOR(deref rSubject), 
         iElem, children, prod, prodchildren;
+        
+    //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iList)
     if(start < size_list(iList)) {
         iElem = get_list(iList, start)
         //println("MATCH_OPTIONAL_LAYOUT_IN_LIST", iElem)
@@ -1566,7 +1575,7 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	if(prim("should_descent", iVal, descendantDescriptor)){
+	//if(prim("should_descent", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1579,7 +1588,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	    //println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 }
+	 //}
 	 pat(iVal) 
 }
 
@@ -1619,14 +1628,15 @@ coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
 }
 
 coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
-guard
-	prim("should_descent", iNd, descendantDescriptor)
+//guard
+//	prim("should_descent", iNd, descendantDescriptor)
 {
    var val, iter;
    
    //println("DESCENT_AND_MATCH_NODE");
    
    // isConcreteMatch?
+   /*
    if(muprim("descendant_is_concrete_match", descendantDescriptor) && iNd is appl){ 
       //println("DESCENT_AND_MATCH_NODE, enter is_appl", iNd)
       if(prim("is_concretelist", iNd)){
@@ -1653,6 +1663,7 @@ guard
       //println("DESCENT_AND_MATCH_NODE, exhausted:", iNd)
       exhaust
    } 
+   */
    //println("DESCENT_AND_MATCH_NODE, *** bottom ***:", get_name(iNd))                                 
    // Not a concrete list or appl
    iter = iterator(get_children_and_keyword_values(iNd))                  
@@ -1675,6 +1686,7 @@ coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
 coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
     var matcher = muprim("regexp_compile", iRegexp, iSubject), 
         j, rVar
+    //println("MATCH_REGEXP", iRegexp, iSubject)
     while(muprim("regexp_find", matcher)) {
         j = 0 
         while(j < size_array(varrefs)) {
@@ -2097,6 +2109,7 @@ function VISIT_STR_REBUILD(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
     deref rEnd = len;     
     //println("VISIT_STR_REBUILD", iSubject, len)
     while(j < len){
+        //println("j", j);
         childHasMatch = false
         childBeenChanged = false
         deref rBegin = j
@@ -2104,12 +2117,14 @@ function VISIT_STR_REBUILD(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
         repl = phi(iSubject, ref childHasMatch, ref childBeenChanged, rLeaveVisit, rBegin, rEnd, descendantDescriptor)
         if(deref rLeaveVisit){ return repl }
         if(childHasMatch){
+            //println("childHasMatch=true", j, mint(deref rBegin))
             if(mint(deref rBegin) > j){
               prim("stringwriter_add", writer, substring(iSubject, j, mint(deref rBegin)))
             }
             prim("stringwriter_add", writer, repl)
             j = mint(deref rEnd)
         } else {
+            //println("childHasMatch=false", j, substring(iSubject, j, j + 1))
             prim("stringwriter_add", writer, substring(iSubject, j, j + 1))
             j = j + 1
         }

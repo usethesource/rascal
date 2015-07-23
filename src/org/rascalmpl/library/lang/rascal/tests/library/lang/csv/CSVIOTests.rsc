@@ -27,6 +27,7 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 	}
 
 	if (/\node() !:= typeOf(dt)) {
+	   dt = fixAmbStrings(dt);
 		writeCSV(dt, targetFile);
 		if (dt != readCSV(targetFile)) {
 			throw "inferred types";	
@@ -35,7 +36,7 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 	return true;
 }
 
-&T fixIntStr(&T v) {
+&T fixAmbStrings(&T v) {
 	return visit(v) {
 		case str s => "a" + s
 			when /^[ \t\n]*[0-9]+[ \t\n]*$/ := s
@@ -45,20 +46,22 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 			when /^[ \t\n]*[0-9][ \t\n]*+r[ \t\n]*[0-9]*[ \t\n]*$/ := s
 		case str s => "a" + s
 			when /^[ \t\n]*\<[ \t\<\>]*\>[ \t\n]*$/ := s
+		case str s => "a" + s
+			when /^[ \t\n]*[{(\[][ \t\n]*[)}\]][ \t\n]*$/ := s
 	};
 }
 
 test bool csvWithLoc(rel[loc first, int second] dt) = readWrite(dt);
-test bool csvWithStr(rel[str first, int second] dt) = readWrite(fixIntStr(dt));
-test bool csvWithList(rel[list[&T] first, int second] dt) = readWrite(fixIntStr(dt));
-test bool csvWithSet(rel[set[&T] first, int second] dt) = readWrite(fixIntStr(dt));
-test bool csvWithMap(rel[map[&T, &Y] first, int second] dt) = readWrite(fixIntStr(dt));
-test bool csvWithNode(rel[node first, int second] dt) = readWrite(fixIntStr(dt));
+test bool csvWithStr(rel[str first, int second] dt) = readWrite(dt);
+test bool csvWithList(rel[list[&T] first, int second] dt) = readWrite(dt);
+test bool csvWithSet(rel[set[&T] first, int second] dt) = readWrite(dt);
+test bool csvWithMap(rel[map[&T, &Y] first, int second] dt) = readWrite(dt);
+test bool csvWithNode(rel[node first, int second] dt) = readWrite(dt);
 
-test bool csvRandom(rel[&T,&X] dt) = readWrite(fixIntStr(dt));
+test bool csvRandom(rel[&T,&X] dt) = readWrite(dt);
 
-test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite(fixIntStr(dt));
-test bool csvMoreRandomTypes(rel[&T1 a, &T2 b, int c, str d, &T3 e] dt) = readWrite(fixIntStr(dt));
+test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite(dt);
+test bool csvMoreRandomTypes(rel[&T1 a, &T2 b, int c, str d, &T3 e] dt) = readWrite(dt);
 
 
 @memo str createString(int j) = ("a" | it + "<i>" | i <- [0..j]);

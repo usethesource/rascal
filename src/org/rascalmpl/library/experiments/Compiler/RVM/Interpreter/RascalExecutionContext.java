@@ -74,56 +74,9 @@ public class RascalExecutionContext {
 		currentModuleName = "UNDEFINED";
 		
 		// TODO: Search path initialization: compare with Evaluator!
-		rascalSearchPath = new RascalSearchPath();
-		URIResolverRegistry resolverRegistry = rascalSearchPath.getRegistry();
-		rascalSearchPath.addPathContributor(StandardLibraryContributor.getInstance());
+		rascalSearchPath = ctx.getEvaluator().getRascalResolver();
 		
-		// register some schemes
-		FileURIResolver files = new FileURIResolver();
-		resolverRegistry.registerInputOutput(files);
-
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
-
-		//added
-		HttpsURIResolver https = new HttpsURIResolver();
-		resolverRegistry.registerInput(https);
-
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerLogical(cwd);
-
-		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-
-		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
-
-		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
-		resolverRegistry.registerInput(benchmarkdata);
-
-		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerLogical(new HomeURIResolver());
-		resolverRegistry.registerInputOutput(new TempURIResolver());
-
-		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
-		
-		FileURIResolver testModuleResolver = new TempURIResolver() {		// Code borrowed from Evaluator
-		    @Override
-		    public String scheme() {
-		      return "test-modules";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-		      return System.getProperty("java.io.tmpdir") + path;
-		    }
-		  };
-		rascalSearchPath.getRegistry().registerInputOutput(testModuleResolver);
-		rascalSearchPath.addPathContributor(new URIContributor(URIUtil.rootLocation("test-modules")));
-		
+		//System.out.println("RascalExecutionContext: " + rascalSearchPath);
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
 		stderr = ctx.getEvaluator().getStdErr();
