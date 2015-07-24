@@ -104,7 +104,7 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-	// Rebuild a constructor or nodem reusing its annotations
+	// Rebuild a constructor or node, reusing its annotations
 	rebuild {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -134,6 +134,90 @@ public enum RascalPrimitive {
 				stack[sp - 3] = node2;
 				return sp - 2;
 			}
+		}
+	},
+	// Rebuild a concrete node, reusing its annotations
+	rebuild_concrete {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			ITree subject = (ITree) stack[sp - 3];
+			IValue[] args = (IValue[]) stack[sp - 2];
+			IValue prod = subject.getProduction();
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+			for(int i = 0; i < args.length; i++){
+				writer.append(args[i]);
+			}
+			IValue[] args2 = {prod, writer.done() };
+			
+			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
+			if(annotations.size() > 0){
+				// TODO: @paulklint what about the keyword parameters?
+				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+			}
+			stack[sp - 3] = isubject2;
+			return sp - 2;
+		}
+	},
+	// Rebuild a concrete list, reusing its annotations
+	rebuild_concrete_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ITree subject = (ITree) stack[sp - 2];
+			IValue[] args = (IValue[]) stack[sp - 1];
+			IValue prod = subject.getProduction();
+			IList children = TreeAdapter.getArgs(subject);
+//			@SuppressWarnings("unchecked")
+//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+
+			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+
+			IConstructor symbol = TreeAdapter.getType(subject);
+			boolean layoutPresent = false;
+			if(children.length() > 1){
+				ITree child1 = (ITree)children.get(1);
+				if(TreeAdapter.isLayout(child1)){
+					layoutPresent = true;
+				}
+			}
+			int delta = layoutPresent ? 2 : 1;
+
+			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+				IList separators = SymbolAdapter.getSeparators(symbol);
+				boolean nonLayoutSeparator = false;
+				for(IValue sep : separators){
+					if(!((IConstructor) sep).getName().equals("layouts")){
+						nonLayoutSeparator = true;
+						break;
+					}
+				}
+				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
+			}
+
+			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+			for (int i = 0; i < args.length; i++) {
+				IValue kid = args[i];
+				writer.append(kid);
+				// copy layout and/or separators
+				if(i < args.length - 1){
+					for(int j = 1; j < delta; j++){
+						writer.append(children.get(i*delta + j));
+					}
+				}
+			}
+
+			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
+			if(annotations.size() > 0){
+				// TODO: @paulklint what about the keyword parameters?
+				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+			}
+			stack[sp - 2] = isubject2;
+			return sp - 1;
 		}
 	},
 	list {
@@ -2027,23 +2111,6 @@ public enum RascalPrimitive {
 					}
 				}
 			}
-//			IConstructor appl = (IConstructor) stack[sp - 2];
-//			IConstructor prod = (IConstructor) appl.get("prod");
-//			IList prod_symbols = (IList) prod.get("symbols");
-//			IString field = ((IString) stack[sp - 1]);
-//			// TODO jurgen rewrite to ITree API
-//			for(int i = 0; i < prod_symbols.length(); i++){
-//				IConstructor arg = (IConstructor) prod_symbols.get(i);
-//				if(arg.getName().equals("conditional")){
-//					arg = (IConstructor) arg.get(0);
-//				}
-//				if(arg.getName().equals("label")){
-//					if(((IString) arg.get(0)).equals(field)){
-//						stack[sp - 2] = Rascal_TRUE;
-//						return sp - 1;
-//					}
-//				}
-//			}
 			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 		}
@@ -6432,13 +6499,14 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
 	/**
-	 * Given a subject value and a descriptor, should we descent in it?
+	 * Given a subject value and a descriptor, should we descent in it as abstract value?
 	 * 
 	 * [ ..., subject value, descriptor] => true/false
 	 *
 	 */
-	should_descent {
+	should_descent_in_abstract {
 		@Override
 		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
 			assert arity == 2;
@@ -6451,7 +6519,7 @@ public enum RascalPrimitive {
 	},
 	
 	/**
-	 * Given a subject value and a descriptor, should we descent in it?
+	 * Given a subject value and a descriptor, should we descent in it as concrete value?
 	 * 
 	 * [ ..., subject value, descriptor] => true/false
 	 *
@@ -6479,7 +6547,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-		
+			
 			IValue subject = (IValue) stack[sp - 2];
 			Object[] descriptor = (Object[]) stack[sp - 1];
 			HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
@@ -6511,22 +6579,6 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-//	
-//	should_descent_concrete_arg {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 1;
-//			
-//			IConstructor subject = (IConstructor) stack[sp - 1];
-//			IConstructor prod = (IConstructor) subject.get("prod");
-//			IConstructor def =  (IConstructor) prod.get("def");
-//			String sym_name = def.getName();
-//		
-//			stack[sp - 1] = !(sym_name.equals("lit") || sym_name.equals("cilit") || sym_name.equals("char-class")) 
-//					        ? Rascal_TRUE : Rascal_FALSE;		
-//			return sp;
-//		}
-//	},
 	
 	descendant_is_concrete_match {
 		@Override
@@ -6539,20 +6591,6 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
-//	type_in_symbolset {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 2;
-//			
-//			IValue subject = (IValue) stack[sp - 2];
-//			Type type = subject.getType();
-//			ISet set = (ISet) stack[sp - 1];
-//			IValue symbol = $type2symbol(type);
-//			stack[sp - 2] = set.contains(symbol) ? Rascal_TRUE : Rascal_FALSE;		
-//			return sp - 1;
-//		}
-//	},
 	
 	/*
 	 * update_...
@@ -6724,6 +6762,7 @@ public enum RascalPrimitive {
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
 	private static final Object[] temp_array_of_2 = new Object[2];
+	private static final boolean disableDescentOptimizer = false;
 	
 	private static ITestResultListener testResultListener;
 
@@ -7693,18 +7732,20 @@ public enum RascalPrimitive {
 
 	private static IBool $should_descent_in_concrete_value(IValue subject, final Object[] descriptor){
 		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		ITree isubject = (ITree)subject;
-		if(isubject.isAppl()){
-			IConstructor  prod = (IConstructor) isubject.getProduction();
-		
-			return symbolset.contains(prod) 
-				? Rascal_TRUE 
-				: Rascal_FALSE;
-		}
-		if(isubject.isAmb()){
-			return Rascal_TRUE;
-		}
-		return Rascal_FALSE;
+		//if(subject instanceof ITree){
+			ITree isubject = (ITree)subject;
+			if(isubject.isAppl()){
+				IConstructor  prod = (IConstructor) isubject.getProduction();
+
+				return symbolset.contains(prod) 
+						? Rascal_TRUE 
+						: Rascal_FALSE;
+			}
+			if(isubject.isAmb()){
+				return Rascal_TRUE;
+			}
+		//}
+		return /*subject.getType().isList() ? Rascal_TRUE : */Rascal_FALSE;
 	}
 	
 	/**
@@ -7717,42 +7758,13 @@ public enum RascalPrimitive {
 	
 	private static IBool $should_descent_in_abstract_value(IValue subject, final Object[] descriptor){
 		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		return Rascal_TRUE;
-//		if(subject instanceof INode){
-//			if(subject instanceof ITree){
-//				if(MuPrimitive.$descendant_is_concrete_match(descriptor).getValue() && TreeAdapter.isAppl((ITree)subject)){
-//					IConstructor  prod = (IConstructor) ((IConstructor)subject).get("prod");
-//					if(symbolset.contains(prod)){
-//						return Rascal_TRUE;
-//					}
-//
-//					Type prodConsType = prod.getConstructorType();
-//
-//					if(prodConsType == RascalValueFactory.Production_Regular){
-//						IValue regularType = prod.get("def");
-//						return symbolset.contains(regularType) ? Rascal_TRUE : Rascal_FALSE;
-//					}
-//					if(prodConsType == RascalValueFactory.Symbol_ParameterizedLex || prodConsType == RascalValueFactory.Symbol_ParameterizedSort){
-//						return Rascal_TRUE;
-//					}
-//					return Rascal_FALSE;
-//				} else  {
-//					IConstructor cons = (IConstructor) subject;
-//					subject = SymbolAdapter.delabel(cons); //TODO what if subject is no longer an INode?
-//					return symbolset.contains(((IConstructor) subject).getConstructorType()) || symbolset.contains(subject.getType()) || symbolset.contains(nodeType) || symbolset.contains(valueType)
-//						? Rascal_TRUE : Rascal_FALSE;
-//					}
-//			}
-//			return 	Rascal_TRUE; //symbolset.contains(nodeType) || symbolset.contains(valueType) ? Rascal_TRUE : Rascal_FALSE;
-//		}
-		//return $should_descent_in_type(subject.getType(), symbolset);
+		return $should_descent_in_type(subject instanceof IConstructor ? ((IConstructor)subject).getConstructorType() : subject.getType(), symbolset);
 	}
 	
 	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
-		if(symbolset.contains(type) || symbolset.contains(valueType) || type.isList() || type.isSet() || type.isMap() || type.isTuple() || type.isNode()){
-			return Rascal_TRUE;
-		}
-		return Rascal_FALSE;
+		return symbolset.contains(type) || symbolset.contains(valueType) || symbolset.contains(nodeType)
+			   ? Rascal_TRUE
+			   : Rascal_FALSE;
 	}
 }
 
