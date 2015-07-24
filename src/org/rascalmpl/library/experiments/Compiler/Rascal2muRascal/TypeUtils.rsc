@@ -671,6 +671,9 @@ str getOuterType(Tree e) {
 	if(label(_, Symbol sym) := tp){
 	   return "<getName(sym)>";
 	}
+	if(\start(Symbol sym) := tp || sort(_) := tp){
+		return "nonterminal";
+	}
 	return "<getName(tp)>";
 }
 
