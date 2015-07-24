@@ -829,24 +829,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	MuExp traverse_fun;
 	bool fixpoint = false;
 	
-	str rebuild = "";
-	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
-									|| hasTopLevelInsert(c)) ) {
-		rebuild = "_REBUILD";
-	}
 	
-	if(\visit is defaultStrategy) {
-		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
-	} else {
-		switch("<\visit.strategy>") {
-			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>");
-			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>");
-			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK<rebuild>");
-			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK<rebuild>");
-			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<rebuild>"); fixpoint = true; }
-			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<rebuild>"); fixpoint = true; }
-		}
-	}
 	
 	// Unique 'id' of a visit in the function body
 	int i = nextVisit();
@@ -869,15 +852,39 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	enterFunctionScope(phi_fuid);
 	cases = [ c | Case c <- \visit.cases ];
 	
-	concreteMatch = hasConcretePatternsOnly(cases);
-	MuExp body = translateVisitCases(phi_fuid, getType(\visit.subject@\loc), concreteMatch, cases);
+	subjectType = getType(\visit.subject@\loc);
+	concreteMatch = hasConcretePatternsOnly(cases) 
+	                && isConcreteType(subjectType); // || subjectType == adt("Tree",[]));
+	
+	println("visit: <subjectType>, <concreteMatch>");
+	MuExp body = translateVisitCases(phi_fuid, subjectType, concreteMatch, cases);
 	
 	tc = getTypesAndConstructorsInVisit(cases);
-	reachable = getReachableTypes(getType(\visit.subject@\loc), tc.constructors, tc.types, concreteMatch);
+	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
 	println("reachableTypesInVisit: <reachable>");
 	
 	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
 	
+	str concrete = concreteMatch ? "_CONCRETE" : "";
+	
+	str rebuild = "";
+	if( Case c <- \visit.cases, (c is patternWithAction && c.patternWithAction is replacing 
+									|| hasTopLevelInsert(c)) ) {
+		rebuild = "_REBUILD";
+	}
+	
+	if(\visit is defaultStrategy) {
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<concrete><rebuild>");
+	} else {
+		switch("<\visit.strategy>") {
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<concrete><rebuild>");
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<concrete><rebuild>");
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK<concrete><rebuild>");
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK<concrete><rebuild>");
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP<concrete><rebuild>"); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN<concrete><rebuild>"); fixpoint = true; }
+		}
+	}
 	
 	// ***Note: (fixes issue #434) 
 	//    (1) All the variables introduced within a visit scope should become local variables of the phi-function
@@ -1739,6 +1746,8 @@ MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     	case "adt": 	op = "adt";
     	case "sort":	op = "nonterminal";
     	case "lex":		op = "nonterminal";
+    	case "nonterminal":
+    					op = "nonterminal";
     	default:
      		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
     }	
