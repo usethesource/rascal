@@ -877,18 +877,33 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	int i = nextVisit();	
 	// Generate and add a nested function 'phi'
 	str descId = topFunctionScope() + "/" + "DESC_<i>";
-	concreteMatch = isConcretePattern(pattern);
+	//subjectType = stripStart(subjectType);
+	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
+	descendantFun = concreteMatch && (subjectType != \str()) ? "DESCENT_AND_MATCH_CONCRETE" : "DESCENT_AND_MATCH";
 	tc = getTypesAndConstructors(pattern);
-    reachable = getReachableTypes(Symbol::\value(), tc.constructors, tc.types, concreteMatch);
+    reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
     descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern, Symbol::\value()),  descriptor]);
+    return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
+
+// Strip start if present
+
+Symbol stripStart(\start(Symbol s)) = s;
+default Symbol stripStart(Symbol s) = s;
 
 // is  a pattern a concretePattern?
 
-bool isConcretePattern(Pattern p) =
+bool isConcretePattern(Pattern p) = 
 	isNonTerminalType(getType(p@\loc));
-
+	
+bool isConcreteType(Symbol subjectType) =
+	(  isNonTerminalType(subjectType)
+	|| subtype(subjectType, adt("Tree", [])) && subjectType != adt("Tree",[])
+	);
+	
+bool concreteTraversalAllowed(Pattern pattern, Symbol subjectType) =
+    isConcretePattern(pattern) && isConcreteType(subjectType);
+	
 // get the types and constructor names from a pattern
 
 tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<QualifiedName qualifiedName>`) =
