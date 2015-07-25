@@ -32,6 +32,7 @@ private set[Symbol] types = {};
 private rel[Symbol,Symbol] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
+private map[Symbol,Production] fullGrammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 private rel[value,value] reachableTypes = {};
@@ -43,6 +44,7 @@ public void resetTypeReifier() {
     constructors = {};
     productions = {};
     grammar = ();
+    fullGrammar = ();
     starts = {};
     activeLayout = Symbol::\layouts("$default$");
     reachableTypes = {};
@@ -99,6 +101,7 @@ public void extractDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
+    fullGrammar = getGrammar();
    	computeReachableTypesAndConstructors();
 }
 
@@ -133,7 +136,7 @@ public map[Symbol,Production] getDefinitions() {
 public Production getLabeledProduction(str name, Symbol symbol){
 	//println("getLabeledProduction: <getGrammar()[symbol]>");
 	name = unescape(name);
-	visit(getGrammar()[symbol]){
+	visit(fullGrammar[symbol]){
 		case p:prod(\label(name, symbol), _, _): return p;
 		case p:regular(\label(name, symbol)): return p;
 	};
@@ -178,9 +181,8 @@ private void computeReachableTypesAndConstructors(){
 }
 
 private void computeReachableConcreteTypes(){
-	gr = getGrammar();
 	reachableConcreteTypes = {};
-	for(/Production p: prod(sym,args,attrs) := gr){
+	for(/Production p: prod(sym,args,attrs) := fullGrammar){
 	   for(/Symbol s := args){
 	   		reachableConcreteTypes += <delabel(sym), delabel(s)>;
 	   }
@@ -214,6 +216,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	
 	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
 		// We just give up when abstract and concrete symbols occur together
+		println("descent_into (abstract) [1]: {value()}");
 	   return {\value()};
 	}
 	println("desiredSubjectTypes = <desiredSubjectTypes>");
@@ -225,7 +228,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 		//println("removed from reachableTypes:"); for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
 	}
 	
-	println("prunedReachableTypes:"); for(x <- prunedReachableTypes){println("\t<x>");}
+	//println("prunedReachableTypes:"); for(x <- prunedReachableTypes){println("\t<x>");}
 	descent_into = desiredTypes;
 	for(<from, to> <- prunedReachableTypes){
 		if(to in desiredTypes || any(t <- desiredTypes, subtype(t, to))){
@@ -245,7 +248,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	//}
 	tuples = { Symbol::\tuple(symbols) | sym <- descent_into, \rel(symbols) := sym || \lrel(symbols) := sym };
 	descent_into += tuples;
-	 println("descent_into [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	println("descent_into (abstract) [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }
@@ -265,11 +268,10 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 		prunedReachableConcreteTypes = carrierR(reachableConcreteTypes, (reachableConcreteTypes)[desiredSubjectTypes] + desiredSubjectTypes);
 		//println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
 	}
-	gr = getGrammar();
 	descent_into = {};
 	// Find all concrete types that can lead to a desired type
 	for(sym <- invert(prunedReachableConcreteTypes+)[desiredPatternTypes]){
-	  alts =  gr[sym];
+	  alts =  fullGrammar[sym];
 	  for(/Production p := alts){
 	    switch(p){
 	    case choice(_, choices): descent_into += choices;
@@ -296,7 +298,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	    descent_into += regular(itr);
 	    if(isAltOrSeq(s)) descent_into += regular(s);
 	  }	
-	println("descent_into = "); for(s <- descent_into) println("\t<s>");
+	println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
 	return descent_into;
 }
 
