@@ -1640,7 +1640,7 @@ coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
 {
    var val, iter;
    
-   //println("DESCENT_AND_MATCH_NODE");
+   //println("DESCENT_AND_MATCH_NODE", iNd);
    iter = iterator(get_children_and_keyword_values(iNd))                  
     
    while(hasNext(iter)) {
