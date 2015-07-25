@@ -863,7 +863,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
 	println("reachableTypesInVisit: <reachable>");
 	
-	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
 	
 	str concrete = concreteMatch ? "_CONCRETE" : "";
 	
