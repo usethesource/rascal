@@ -6323,21 +6323,8 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-			IValue subject = (IValue) stack[sp - 2];
-			Type subjectType = subject.getType();
-			Type type = (Type) stack[sp - 1];
-			
-			// TODO: this special case should be unnecessary in the future
-//			if(type instanceof NonTerminalType){
-//				if(subjectType == RascalValueFactory.Tree && TreeAdapter.isAppl((IConstructor) subject)){
-//					Type subjectNT = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) subject);
-//					stack[sp - 2] = vf.bool( subjectNT.isSubtypeOf(type));
-//				} else {
-//					stack[sp - 2] = Rascal_FALSE;
-//				}
-//			} else {
-				stack[sp - 2] = vf.bool(subjectType.isSubtypeOf(type));
-//			}
+		
+			stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6512,8 +6499,8 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			
 			IValue subject = (IValue) stack[sp - 2];
-			Object[] descriptor = (Object[]) stack[sp - 1];
-			stack[sp - 2] = $should_descent_in_abstract_value(subject, descriptor);
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			stack[sp - 2] = descriptor.shouldDescentInAbstractValue(subject);
 			return sp - 1;
 		}
 	},
@@ -6529,9 +6516,9 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
 			assert arity == 2;
 			
-			IValue subject = (IValue) stack[sp - 2];
-			Object[] descriptor = (Object[]) stack[sp - 1];
-			stack[sp - 2] = $should_descent_in_concrete_value(subject, descriptor);
+			ITree subject = (ITree) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			stack[sp - 2] = descriptor.shouldDescentInConcreteValue(subject);
 			return sp - 1;
 		}
 	},
@@ -6549,12 +6536,10 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			
 			IValue subject = (IValue) stack[sp - 2];
-			Object[] descriptor = (Object[]) stack[sp - 1];
-			HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-			
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
 			Type key_type = subject.getType().getKeyType();
 			
-			stack[sp - 2] = $should_descent_in_type(key_type, symbolset);	
+			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
 			return sp - 1;
 		}
 	},
@@ -6570,27 +6555,26 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			
 			IValue subject = (IValue) stack[sp - 2];
-			Object[] descriptor = (Object[]) stack[sp - 1];
-			HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
 			
 			Type val_type = subject.getType().getValueType();
 			
-			stack[sp - 2] = $should_descent_in_type(val_type, symbolset);	
+			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
 			return sp - 1;
 		}
 	},
 	
-	descendant_is_concrete_match {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			
-			Object[] descriptor = (Object[]) stack[sp - 1];
-		
-			stack[sp - 1] = MuPrimitive.$descendant_is_concrete_match(descriptor);		
-			return sp;
-		}
-	},
+//	descendant_is_concrete_match {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 1;
+//			
+//			Object[] descriptor = (Object[]) stack[sp - 1];
+//		
+//			stack[sp - 1] = MuPrimitive.$descendant_is_concrete_match(descriptor);		
+//			return sp;
+//		}
+//	},
 	
 	/*
 	 * update_...
@@ -7730,42 +7714,42 @@ public enum RascalPrimitive {
 		 return result;
 	}
 
-	private static IBool $should_descent_in_concrete_value(IValue subject, final Object[] descriptor){
-		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		//if(subject instanceof ITree){
-			ITree isubject = (ITree)subject;
-			if(isubject.isAppl()){
-				IConstructor  prod = (IConstructor) isubject.getProduction();
-
-				return symbolset.contains(prod) 
-						? Rascal_TRUE 
-						: Rascal_FALSE;
-			}
-			if(isubject.isAmb()){
-				return Rascal_TRUE;
-			}
-		//}
-		return /*subject.getType().isList() ? Rascal_TRUE : */Rascal_FALSE;
-	}
-	
-	/**
-	 * Determine whether we should descent in a value 'subject', given a descendant descriptor.
-	 * This check considers t and its child types.
-	 * @param subject
-	 * @param descriptor
-	 * @return
-	 */
-	
-	private static IBool $should_descent_in_abstract_value(IValue subject, final Object[] descriptor){
-		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-		return $should_descent_in_type(subject instanceof IConstructor ? ((IConstructor)subject).getConstructorType() : subject.getType(), symbolset);
-	}
-	
-	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
-		return symbolset.contains(type) || symbolset.contains(valueType) || symbolset.contains(nodeType)
-			   ? Rascal_TRUE
-			   : Rascal_FALSE;
-	}
+//	private static IBool $should_descent_in_concrete_value(IValue subject, final Object[] descriptor){
+//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
+//		//if(subject instanceof ITree){
+//			ITree isubject = (ITree)subject;
+//			if(isubject.isAppl()){
+//				IConstructor  prod = (IConstructor) isubject.getProduction();
+//
+//				return symbolset.contains(prod) 
+//						? Rascal_TRUE 
+//						: Rascal_FALSE;
+//			}
+//			if(isubject.isAmb()){
+//				return Rascal_TRUE;
+//			}
+//		//}
+//		return /*subject.getType().isList() ? Rascal_TRUE : */Rascal_FALSE;
+//	}
+//	
+//	/**
+//	 * Determine whether we should descent in a value 'subject', given a descendant descriptor.
+//	 * This check considers t and its child types.
+//	 * @param subject
+//	 * @param descriptor
+//	 * @return
+//	 */
+//	
+//	private static IBool $should_descent_in_abstract_value(IValue subject, final Object[] descriptor){
+//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
+//		return $should_descent_in_type(subject instanceof IConstructor ? ((IConstructor)subject).getConstructorType() : subject.getType(), symbolset);
+//	}
+//	
+//	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
+//		return symbolset.contains(type) || symbolset.contains(valueType) || symbolset.contains(nodeType)
+//			   ? Rascal_TRUE
+//			   : Rascal_FALSE;
+//	}
 }
 
 /*
