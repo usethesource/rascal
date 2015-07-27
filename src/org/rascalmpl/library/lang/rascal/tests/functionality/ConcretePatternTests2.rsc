@@ -68,22 +68,70 @@ test bool semiConcrete2() = tuple[Identifier,Identifier] _ := <[Identifier] "x",
 test bool concreteMatch230() = [ "<ident>" | /Identifier ident := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
  							   ["x", "a", "b", "c"];
  							   
-test bool concreteMatch231() = [ "<stat>" | /Stat stat := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
+test bool concreteMatch231() {
+	res = [];
+	visit([Stat] "if x then a := 1;b:=2 else c:=3 fi"){
+		case Identifier ident: res += "<ident>";
+	}
+	return res == ["x", "a", "b", "c"];
+}						   
+ 							   
+test bool concreteMatch232() = [ "<stat>" | /Stat stat := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] == 
 							   ["a := 1", "b:=2", "c:=3", "if x then a := 1;b:=2 else c:=3 fi"];
 							   
-test bool concreteMatch232() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch233() {
+	res = [];
+	visit([Stat] "if x then a := 1;b:=2 else c:=3 fi"){
+		case Stat stat: res += "<stat>";
+	}
+	return res ==  ["a := 1", "b:=2", "c:=3", "if x then a := 1;b:=2 else c:=3 fi"];
+}	
+								   
+test bool concreteMatch234() = [ "<stats>" | /{Stat ";"}* stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  							   ["a := 1;b:=2", "c:=3"];
  							   
-					test bool concreteMatch232NonEmpty1() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
-    ["a := 1;b:=2", "c:=3"];
+test bool concreteMatch235() {
+	res = [];
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi"){
+		case {Stat ";"}* stats: res += "<stats>";
+	}
+	return res == ["a := 1;b:=2", "c:=3"];
+}	
+				   
+test bool concreteMatch236() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+                               ["a := 1;b:=2", "c:=3"];
+                             
+test bool concreteMatch237(){
+	res = [];
+	visit([Stat] "if x then a := 1;b:=2 else c:=3 fi"){
+		case {Stat ";"}+ stats: res += "<stats>";
+	}
+	return res == ["a := 1;b:=2", "c:=3"];
+}
     
-test bool concreteMatch232NonEmpty2() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then else c:=3 fi" ] ==
-    ["c:=3"];
+test bool concreteMatch238() = [ "<stats>" | /{Stat ";"}+ stats := [Stat] "if x then else c:=3 fi" ] ==
+    						   ["c:=3"];
+
+test bool concreteMatch239(){
+	res = [];
+	visit( [Stat] "if x then else c:=3 fi" ){
+		case {Stat ";"}+ stats: res += "<stats>";
+	}
+	return res == ["c:=3"];
+}   						   
  							   
-test bool concreteMatch233() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch240() = [ s | /lit(str s) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  								["if","then",";","else",";","fi","if","then",";",":=",":=",";",":=",":=","else",";",":=",":=","fi"];
  								
-test bool concreteMatch234() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
+test bool concreteMatch241(){
+	res = [];
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case lit(str s): res += s;
+	}
+	return res == ["if","then",";","else",";","fi","if","then",";",":=",":=",";",":=",":=","else",";",":=",":=","fi"];
+}								
+ 								
+test bool concreteMatch242() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] ==
  [105,105,102,102,105,102,32,32,32,32,32,32,32,97,122,97,122,120,32,32,32,32,32,32,32,116,116
  ,104,104,101,101,110,110,116,104,101,110,32,32,32,32,32,32,32,97,122,97,122,97,32,32,32,32,32
  ,32,32,58,58,61,61,58,61,32,32,32,32,32,32,32,48,57,48,57,49,32,32,32,32,32,32,59,59,59,32,32
@@ -91,4 +139,66 @@ test bool concreteMatch234() =  [ n | /int n := [Stat] "if x then a := 1;b:=2 el
  ,57,50,32,32,32,32,32,32,32,101,101,108,108,115,115,101,101,101,108,115,101,32,32,32,32,32,32
  ,32,97,122,97,122,99,32,32,32,32,32,32,58,58,61,61,58,61,32,32,32,32,32,32,48,57,48,57,51,32
  ,32,32,32,32,32,32,102,102,105,105,102,105];
+ 
+test bool concreteMatch243(){
+	res = [];
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case int n: res += n;
+	}
+	return res ==
+	 [105,105,102,102,105,102,32,32,32,32,32,32,32,97,122,97,122,120,32,32,32,32,32,32,32,116,116
+ 	 ,104,104,101,101,110,110,116,104,101,110,32,32,32,32,32,32,32,97,122,97,122,97,32,32,32,32,32
+ 	 ,32,32,58,58,61,61,58,61,32,32,32,32,32,32,32,48,57,48,57,49,32,32,32,32,32,32,59,59,59,32,32
+	 ,32,32,32,32,97,122,97,122,98,32,32,32,32,32,32,58,58,61,61,58,61,32,32,32,32,32,32,48,57,48
+ 	 ,57,50,32,32,32,32,32,32,32,101,101,108,108,115,115,101,101,101,108,115,101,32,32,32,32,32,32
+ 	 ,32,97,122,97,122,99,32,32,32,32,32,32,58,58,61,61,58,61,32,32,32,32,32,32,48,57,48,57,51,32
+	 ,32,32,32,32,32,32,102,102,105,105,102,105];
+} 
+
+
+test bool concreteMatch244() =  size([ x | /x:appl(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 60;
+ 
+test bool concreteMatch245(){
+	n = 0;
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case appl(_,_): n += 1;
+	}
+	return n == 60;
+}
+
+test bool concreteMatch246() =  size([ x | /x:\char-class(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;
+ 
+test bool concreteMatch247(){
+	n = 0;
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case \char-class(_): n += 1;
+	}
+	return n == 75;
+}
+
+test bool concreteMatch246() =  size([ x | /x:\sort(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 16;
+ 
+test bool concreteMatch247(){
+	n = 0;
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case \sort(_): n += 1;
+	}
+	return n == 16;
+}
+
+test bool concreteMatch248() =  size([ x | /x:\layouts(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 34;
+ 
+test bool concreteMatch249(){
+	n = 0;
+	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+		case \layouts(_): n += 1;
+	}
+	return n == 34;
+}			
+ 
+ 
+ 
+ 
+ 
+ 
  								

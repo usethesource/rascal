@@ -543,6 +543,7 @@ public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
 public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
 public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
 public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+public bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 public default bool isNonTerminalType(Symbol s) = false;
 
 //@doc{Determine the size of a concrete list}

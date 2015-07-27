@@ -22,7 +22,7 @@ rel[Sym, Name]  extractPatternTree2(Tree concrete){
 }
 
 test bool concrete3() = size(extractPatternTree2(T)) == 1;
-test bool concrete4() = extractPatternTree1(T) == ThePsList;
+test bool concrete4() = extractPatternTree2(T) == ThePsList;
 
 
 // Parse tree of (Concrete) `<A a>`
