@@ -874,15 +874,15 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, Symbol subjec
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	//println("pattern <pattern>, isConcretePattern = <isConcretePattern(pattern)>");
-	//int i = nextVisit();	
+	int i = nextVisit();	
 	// Generate and add a nested function 'phi'
-	//str descId = topFunctionScope() + "/" + "DESC_<i>";
+	str descId = topFunctionScope() + "/" + "DESC_<i>";
 	//subjectType = stripStart(subjectType);
 	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
 	descendantFun = concreteMatch && (subjectType != \str()) ? "DESCENT_AND_MATCH_CONCRETE" : "DESCENT_AND_MATCH";
 	tc = getTypesAndConstructors(pattern);
     reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-    descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+    descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
     return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 
