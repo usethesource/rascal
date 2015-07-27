@@ -497,7 +497,7 @@ public class RVM implements java.io.Serializable {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[varScope]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {					
 				stack[sp++] = fr.stack[pos];
 				return sp;
@@ -511,7 +511,7 @@ public class RVM implements java.io.Serializable {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[varScope]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {					
 				stack[sp++] = new Reference(fr.stack, pos);
 				return sp;
@@ -521,7 +521,7 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	int LOADVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
 				stack[sp++] = ref.stack[ref.pos];
@@ -537,7 +537,7 @@ public class RVM implements java.io.Serializable {
 			moduleVariables.put(mvar, (IValue)stack[sp -1]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
 				fr.stack[pos] = stack[sp - 1];
@@ -564,7 +564,7 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	int STOREVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) { 
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) { 
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
 				ref.stack[ref.pos] = stack[sp - 1];
@@ -576,7 +576,7 @@ public class RVM implements java.io.Serializable {
 	
 	@SuppressWarnings("unchecked")
 	int LOADVARKWP(int varScope, String name, Frame cf, Object[] stack, int sp){
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {	
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
@@ -608,7 +608,7 @@ public class RVM implements java.io.Serializable {
 	@SuppressWarnings("unchecked")
 	int STOREVARKWP(int varScope, String name, Frame cf, Object[] stack, int sp){
 		IValue val = (IValue) stack[sp - 1];
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
