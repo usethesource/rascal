@@ -9,13 +9,11 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.values.uptr.ITree;
 
 /**
  * Create a descendant descriptor given
- * 0: id, a string that identifies this descendant
  * 1: symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
  * 2: concreteMatch, indicates a concrete or abstract match
  * 
@@ -26,10 +24,7 @@ public class DescendantDescriptor {
 	private final HashSet<Object> mSymbolSet;
 	private final boolean concreteMatch;
 	private final boolean containsNodeOrValueType;
-	private final IBool Rascal_FALSE;
-	private final Type valueType =  TypeFactory.getInstance().valueType();
-	private final Type nodeType =  TypeFactory.getInstance().nodeType();
-	private final IBool Rascal_TRUE;
+	//private int counter = 0;
 	
 	DescendantDescriptor(IValueFactory vf, ISet symbolset, IMap definitions, IBool concreteMatch ){
 		mSymbolSet = new HashSet<Object>(symbolset.size());
@@ -50,40 +45,39 @@ public class DescendantDescriptor {
 				System.err.println("Problem with " + v + ", " + e);
 			}
 		}
-		containsNodeOrValueType = mSymbolSet.contains(nodeType) || mSymbolSet.contains(valueType);
-		Rascal_FALSE = vf.bool(false);
-		Rascal_TRUE = vf.bool(true);
+		containsNodeOrValueType = mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);
 	}
 	
 	IBool shouldDescentInAbstractValue(IValue subject) {
 		assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
+		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
 		if (containsNodeOrValueType) {
-			return Rascal_TRUE;
+			return RascalPrimitive.Rascal_TRUE;
 		}
 		Type type = subject instanceof IConstructor 
 				    ? ((IConstructor) subject).getConstructorType() 
 				    : subject.getType();
-		return mSymbolSet.contains(type) ? Rascal_TRUE : Rascal_FALSE;
+		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 	}
 	
 	IBool shouldDescentInConcreteValue(ITree subject) {
 		assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
 			IConstructor prod = (IConstructor) subject.getProduction();
-			return mSymbolSet.contains(prod) ? Rascal_TRUE : Rascal_FALSE;
+			return mSymbolSet.contains(prod) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 		}
 		if (subject.isAmb()) {
-			return Rascal_TRUE;
+			return RascalPrimitive.Rascal_TRUE;
 		}
-		return Rascal_FALSE;
+		return RascalPrimitive.Rascal_FALSE;
 	}
 	
 	IBool shouldDescentInType(Type type) {
 		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
 		if (containsNodeOrValueType) {
-			return Rascal_TRUE;
+			return RascalPrimitive.Rascal_TRUE;
 		}
-		return mSymbolSet.contains(type) ? Rascal_TRUE : Rascal_FALSE;
+		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 	}
 	
 }
