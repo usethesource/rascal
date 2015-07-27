@@ -955,6 +955,7 @@ public enum MuPrimitive {
 	
 	/**
 	 * Create a descendant descriptor given
+	 * - a unique id
 	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
 	 * - concreteMatch, indicates a concrete or abstract match
 	 * - definitions needed for type reifier
@@ -964,14 +965,18 @@ public enum MuPrimitive {
 	make_descendant_descriptor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 3;
-			
-			ISet symbolset = (ISet) stack[sp - 3];
-			IBool concreteMatch = (IBool) stack[sp - 2];
-			IMap definitions = (IMap) stack[sp - 1];
-			
-			stack[sp - 3] = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-			return sp - 2;
+			assert arity == 4;
+			IString id = (IString) stack[sp - 4];
+			DescendantDescriptor desc = descendantDescriptorMap.get(id);
+			if(desc == null){
+				ISet symbolset = (ISet) stack[sp - 3];
+				IBool concreteMatch = (IBool) stack[sp - 2];
+				IMap definitions = (IMap) stack[sp - 1];
+				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+				descendantDescriptorMap.put(id,  desc);
+			}
+			stack[sp - 4] = desc;
+			return sp - 3;
 		};
 	},
 	
@@ -2196,6 +2201,8 @@ public enum MuPrimitive {
 	private static IBool Rascal_FALSE;
 	
 	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
+	
+	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
 
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
