@@ -26,12 +26,12 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -955,71 +955,23 @@ public enum MuPrimitive {
 	
 	/**
 	 * Create a descendant descriptor given
-	 * 0: id, a string that identifies this descendant
-	 * 1: symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
-	 * 2: concreteMatch, indicates a concrete or abstract match
+	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * - concreteMatch, indicates a concrete or abstract match
+	 * - definitions needed for type reifier
 	 * 
-	 * The descriptor itself is an object array of length 3. Its elements can accessed using
-	 * - $descendant_get_id
-	 * - $descendant_get_symbolset
-	 * - $descendant_is_concrete_match
-	 * 
-	 * [ IString id, ISet symbolset, IBool concreteMatch] => descendant_descriptor
+	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
 	 */
 	make_descendant_descriptor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 4;
-			
-			Object[] desc =  new Object[3];
-			IValue id = (IValue) stack[sp - 4];
+			assert arity == 3;
 			
 			ISet symbolset = (ISet) stack[sp - 3];
 			IBool concreteMatch = (IBool) stack[sp - 2];
 			IMap definitions = (IMap) stack[sp - 1];
-			HashSet<Object> mset = new HashSet<Object>();
-			TypeReifier reifier = new TypeReifier(vf);
-			for(IValue v : symbolset){
-				try {
-					IConstructor cons = (IConstructor) v;
-					Type consType= cons.getConstructorType();
-					if(cons.getName().equals("prod")){
-						mset.add(cons);							// Add the production itself to the set
-					//} else if(cons.getName().equals("regular")){
-					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
-							  consType == RascalValueFactory.Symbol_IterStar ||
-							  consType == RascalValueFactory.Symbol_IterSepX || 
-							  consType == RascalValueFactory.Symbol_IterStarSepX){
-						mset.add(cons);							// Add as SYMBOL to the set
-					} else {
-						Type tp = reifier.symbolToType(cons, definitions);
-						mset.add(tp);							// Otherwise add as TYPE to the set
-					}
-				} catch (Throwable e) {
-					System.err.println("Problem with " + v + ", " + e);
-				}
-			}
-			desc[0] = id;
-			desc[1] = mset;				// converted symbolset
-			desc[2] = concreteMatch;
 			
-			stack[sp - 4] = desc;
-			return sp - 3;
-		};
-	},
-	
-	/**
-	 * Given a descendant descriptor, fetch its "concreteMatch" field.
-	 * 
-	 * [ ..., descriptor ] => [ ..., mbool ]
-	 *
-	 */
-	descendant_is_concrete_match {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = $descendant_is_concrete_match((Object[]) stack[sp -1]);
-			return sp;
+			stack[sp - 3] = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+			return sp - 2;
 		};
 	},
 	
@@ -1119,9 +1071,16 @@ public enum MuPrimitive {
 			Object iteratee = stack[sp - 1];
 			if(iteratee instanceof Object[]){
 				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+			} else 
+			if(iteratee instanceof AnnotatedAmbFacade){
+					stack[sp - 1] = ((AnnotatedAmbFacade) iteratee).getAlternatives().iterator();
+			} else
+			if(iteratee instanceof AnnotatedConstructorFacade){
+				stack[sp - 1] = ((AnnotatedConstructorFacade) iteratee).getChildren().iterator();
 			} else {
 				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
 			}
+			
 			return sp;
 		};
 	},
@@ -2278,12 +2237,12 @@ public enum MuPrimitive {
 		return false;
 	}
 	
-	private static boolean $is_layout(final IValue v){
-		if (isNonTerminalType(v.getType())) {
-			return TreeAdapter.isLayout((ITree) v);
-		}
-		return false;
-	}
+//	private static boolean $is_layout(final IValue v){
+//		if (isNonTerminalType(v.getType())) {
+//			return TreeAdapter.isLayout((ITree) v);
+//		}
+//		return false;
+//	}
 	
 	private static boolean $is_nullable(final IValue v){
 		if (v instanceof ITree) {
@@ -2292,30 +2251,30 @@ public enum MuPrimitive {
 		return false;
 	}
 	
-	/**
-	 * @param descendantDescriptor
-	 * @return its 'id' element
-	 */
-	protected static IString $descendant_get_id(final Object[] descendantDescriptor){
-		return (IString) descendantDescriptor[0];
-	}
-	
-	/**
-	 * @param descendantDescriptor
-	 * @return its symbolset element
-	 */
-	@SuppressWarnings("unchecked")
-	protected static HashSet<Object> $descendant_get_symbolset(final Object[] descendantDescriptor){
-		return (HashSet<Object>) descendantDescriptor[1];
-	}
-	
-	/**
-	 * @param descendantDescriptor
-	 * @return its concreteMatch element
-	 */
-	protected static IBool $descendant_is_concrete_match(Object[] descendantDescriptor){
-		return (IBool) descendantDescriptor[2];
-	}
+//	/**
+//	 * @param descendantDescriptor
+//	 * @return its 'id' element
+//	 */
+//	protected static IString $descendant_get_id(final Object[] descendantDescriptor){
+//		return (IString) descendantDescriptor[0];
+//	}
+//	
+//	/**
+//	 * @param descendantDescriptor
+//	 * @return its symbolset element
+//	 */
+//	@SuppressWarnings("unchecked")
+//	protected static HashSet<Object> $descendant_get_symbolset(final Object[] descendantDescriptor){
+//		return (HashSet<Object>) descendantDescriptor[1];
+//	}
+//	
+//	/**
+//	 * @param descendantDescriptor
+//	 * @return its concreteMatch element
+//	 */
+//	protected static IBool $descendant_is_concrete_match(Object[] descendantDescriptor){
+//		return (IBool) descendantDescriptor[2];
+//	}
 	 
 	
 }

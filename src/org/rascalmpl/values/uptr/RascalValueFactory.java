@@ -1287,7 +1287,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	static class AnnotatedAmbFacade extends AnnotatedConstructorFacade implements ITree {
+	static public class AnnotatedAmbFacade extends AnnotatedConstructorFacade implements ITree {
 		public AnnotatedAmbFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}

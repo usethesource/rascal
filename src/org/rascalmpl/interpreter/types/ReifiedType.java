@@ -121,9 +121,16 @@ public class ReifiedType extends RascalType {
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		return super.match(matched, bindings)
-				&& (matched instanceof ReifiedType) 
-				&& arg.match(((ReifiedType) matched).arg, bindings);
+		if (matched instanceof ReifiedType) {
+			return super.match(matched, bindings)
+					&& arg.match(((ReifiedType) matched).arg, bindings);
+		}
+		else if (matched.isBottom()) {
+			return arg.match(matched, bindings);
+		}
+		else {
+			return false;
+		}
 	}
 	
 	@Override
