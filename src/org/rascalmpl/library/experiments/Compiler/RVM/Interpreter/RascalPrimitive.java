@@ -6314,7 +6314,8 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+			stack[sp - 2] = vf.bool($subtype((Type) stack[sp - 2], (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6324,7 +6325,8 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 		
-			stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
+			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
+			stack[sp - 2] = vf.bool($subtype(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6563,19 +6565,6 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-//	descendant_is_concrete_match {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 1;
-//			
-//			Object[] descriptor = (Object[]) stack[sp - 1];
-//		
-//			stack[sp - 1] = MuPrimitive.$descendant_is_concrete_match(descriptor);		
-//			return sp;
-//		}
-//	},
-	
 	/*
 	 * update_...
 	 */
@@ -6629,11 +6618,6 @@ public enum RascalPrimitive {
 				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame);
 			}
 		}
-
-		/*
-		 * Miscellaneous
-		 */
-
 	},
 	loc_create {
 		@Override
@@ -6732,21 +6716,21 @@ public enum RascalPrimitive {
 	private static TypeFactory tf;
 	private static TypeStore typeStore;
 	private static Type lineColumnType;
-	private static Type nodeType;
-	private static Type valueType;
+	static Type nodeType;
+	static Type valueType;
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
 	private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
+	private static final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
 	
-	private static IBool Rascal_TRUE;
-	private static IBool Rascal_FALSE;
+	static IBool Rascal_TRUE;
+	static IBool Rascal_FALSE;
 	private static final Object[] temp_array_of_2 = new Object[2];
-	private static final boolean disableDescentOptimizer = false;
 	
 	private static ITestResultListener testResultListener;
 
@@ -7714,42 +7698,23 @@ public enum RascalPrimitive {
 		 return result;
 	}
 
-//	private static IBool $should_descent_in_concrete_value(IValue subject, final Object[] descriptor){
-//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-//		//if(subject instanceof ITree){
-//			ITree isubject = (ITree)subject;
-//			if(isubject.isAppl()){
-//				IConstructor  prod = (IConstructor) isubject.getProduction();
-//
-//				return symbolset.contains(prod) 
-//						? Rascal_TRUE 
-//						: Rascal_FALSE;
-//			}
-//			if(isubject.isAmb()){
-//				return Rascal_TRUE;
-//			}
-//		//}
-//		return /*subject.getType().isList() ? Rascal_TRUE : */Rascal_FALSE;
-//	}
-//	
-//	/**
-//	 * Determine whether we should descent in a value 'subject', given a descendant descriptor.
-//	 * This check considers t and its child types.
-//	 * @param subject
-//	 * @param descriptor
-//	 * @return
-//	 */
-//	
-//	private static IBool $should_descent_in_abstract_value(IValue subject, final Object[] descriptor){
-//		HashSet<Object> symbolset = MuPrimitive.$descendant_get_symbolset(descriptor);
-//		return $should_descent_in_type(subject instanceof IConstructor ? ((IConstructor)subject).getConstructorType() : subject.getType(), symbolset);
-//	}
-//	
-//	private static IBool $should_descent_in_type(final Type type, final HashSet<Object> symbolset){
-//		return symbolset.contains(type) || symbolset.contains(valueType) || symbolset.contains(nodeType)
-//			   ? Rascal_TRUE
-//			   : Rascal_FALSE;
-//	}
+	boolean $subtype(final Type t1, final Type t2){
+		Map<Type,Boolean> t2map = subtypeCache.get(t1);
+		if(t2map == null){
+			boolean sub = t1.isSubtypeOf(t2);
+			t2map = new HashMap<Type,Boolean>();
+			t2map.put(t2, sub);
+			subtypeCache.put(t1, t2map);
+			return sub;
+		}
+		Boolean res = t2map.get(t2);
+		if(res == null){
+			boolean sub = t1.isSubtypeOf(t2);
+			t2map.put(t2,  sub);
+			return sub;
+		}
+		return res.booleanValue();
+	}
 }
 
 /*
