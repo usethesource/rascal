@@ -202,7 +202,7 @@ public class Execute {
 				result = rvm.executeProgram(moduleName, executable.uid_module_main, arguments);
 			}
 			long now = Timing.getCpuTime();
-			MuPrimitive.exit();
+			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit();
 			Opcode.exit();
 			if(profile.getValue()){
