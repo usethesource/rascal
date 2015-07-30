@@ -212,7 +212,12 @@ list[str] files_with_tests =
 ];
 
 list[str] reachability_tests = [
+"ConcretePatternTests1",
 "ConcretePatternTests2",
+"ConcretePatternTests3",
+"ConcreteSyntaxTests1",
+"ConcreteSyntaxTests2",
+"ConcreteSyntaxTests3",
 "PatternTests",
 "PatternDescendantTests",
 "StatementTests",						
@@ -226,9 +231,9 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
       prog = base + (tst + ".rsc");
-      for(str ext <- ["sig", "sigs", "tc", "rvm.gz", "rvm.ser.gz"]){
+      for(str ext <- [/*"sig", "sigs", "tc"*/ "rvm.gz", "rvm.ser.gz"]){
       	try { remove(getDerivedLocation(prog, ext)); } catch:;
-     }
+      }
       try {
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false, bindir=|home:///bin|)){
 	         s = makeTestSummary(test_results);
