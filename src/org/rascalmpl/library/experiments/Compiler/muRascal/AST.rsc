@@ -195,6 +195,8 @@ public data MuExp =
           //| muContVar(str fuid)
           //| muReset(MuExp fun)
           //| muShift(MuExp exp)
+          
+          | muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd)
           ;
           
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
