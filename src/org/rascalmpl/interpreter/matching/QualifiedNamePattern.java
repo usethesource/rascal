@@ -16,7 +16,6 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -46,11 +45,11 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		
 		// Look for this variable while we are constructing this pattern
 		if(anonymous) {
-			declaredType = TypeFactory.getInstance().parameterType(UUID.randomUUID().toString());
+			declaredType = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> varRes = env.getSimpleVariable(name);
 			if (varRes == null || varRes.getType() == null) {
-				declaredType = TypeFactory.getInstance().parameterType(UUID.randomUUID().toString());
+				declaredType = TypeFactory.getInstance().valueType();
 			} else {
 				declaredType = varRes.getType();
 			}
