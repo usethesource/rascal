@@ -82,6 +82,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReference;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -392,18 +393,28 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 			
 			Type signature = getArgumentTypes(eval);
-			Type constructorType = TF.nodeType();
+			java.util.List<Type> constructorTypes = new LinkedList<>();
 			
 			for (AbstractFunction candidate : functions) {
 				java.util.Map<Type,Type> bindings = new HashMap<>();
 				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.match(signature, bindings)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature.instantiate(bindings));
 					if (decl != null) {
-						constructorType = decl;
+						constructorTypes.add(decl);
 					}
 				}
 			}
-			return constructorType;
+			
+			if (constructorTypes.size() == 1) {
+				return constructorTypes.get(0);
+			}
+			else if (constructorTypes.size() == 0) {
+				return TF.nodeType();
+			}
+			else {
+				throw new AmbiguousFunctionReference(cons, nameExpr);
+			}
+			
 		}
 
 		private Type getArgumentTypes(IEvaluatorContext eval) {
