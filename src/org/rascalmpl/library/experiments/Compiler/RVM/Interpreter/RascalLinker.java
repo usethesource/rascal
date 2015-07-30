@@ -824,7 +824,14 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				
 			case "RESETLOCS":
 				codeblock.RESETLOCS(getListField(instruction, "positions"));
-				break;	
+				break;
+				
+			case "VISIT":
+				codeblock.VISIT(getBooleanField(instruction, "direction"),
+								getBooleanField(instruction, "fixedpoint"),
+								getBooleanField(instruction, "progress"),
+								getBooleanField(instruction, "rebuild"));
+				break;
 				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
