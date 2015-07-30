@@ -166,13 +166,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return declarationEnvironment;
 	}
 	
-	public boolean match(Type actuals) {
-		if (actuals.isSubtypeOf(getFormals())) {
+	public boolean match(Type actuals, Map<Type,Type> bindings) {
+		if (actuals.match(getFormals(), bindings)) {
 			return true;
 		}
 		
 		if (hasVarArgs) {
-			return matchVarArgsFunction(actuals);
+			return matchVarArgsFunction(actuals, bindings);
 		}
 		
 		return false;
@@ -203,12 +203,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
-	private boolean matchVarArgsFunction(Type actuals) {
+	private boolean matchVarArgsFunction(Type actuals, Map<Type,Type> bindings) {
 		int arity = getFormals().getArity();
 		int i;
 		
 		for (i = 0; i < arity - 1; i++) {
-			if (!actuals.getFieldType(i).isSubtypeOf(getFormals().getFieldType(i))) {
+			if (!actuals.getFieldType(i).match(getFormals().getFieldType(i), bindings)) {
 				return false;
 			}
 		}
@@ -220,7 +220,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		Type elementType = getFormals().getFieldType(i).getElementType();
 
 		for (; i < actuals.getArity(); i++) {
-			if (!actuals.getFieldType(i).isSubtypeOf(elementType)) {
+			if (!actuals.getFieldType(i).match(elementType, bindings)) {
 				return false;
 			}
 		}
