@@ -155,12 +155,12 @@ public class Symbols {
 			return factory.constructor(RascalValueFactory.Symbol_Seq, syms);
 		}
 		if(symbol.isAlternative()){
-			List<Sym> symbols = symbol.getSequence();
+			List<Sym> symbols = symbol.getAlternatives();
 			IValue[] symValues = new IValue[symbols.size()];
 			for(int i = symbols.size() - 1; i >= 0; --i){
 				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
 			}
-			IValue syms = factory.list(symValues);
+			IValue syms = factory.set(symValues);
 			return factory.constructor(RascalValueFactory.Symbol_Alt, syms);
 		}
 		if (symbol.isParametrized()) {
@@ -171,6 +171,11 @@ public class Symbols {
 			}
 			IValue syms = factory.list(symValues);
 			return factory.constructor(RascalValueFactory.Symbol_ParameterizedSort, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), syms);
+		}
+		
+		if (symbol.isParameter()) {
+			IConstructor treeSymbol = factory.constructor(RascalValueFactory.Symbol_Adt, factory.string("Tree"), factory.listWriter().done());
+			return factory.constructor(RascalValueFactory.Symbol_Parameter, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), treeSymbol);
 		}
 		
 		if (symbol.isPrecede() || symbol.isNotPrecede() || symbol.isFollow() || symbol.isNotFollow() || symbol.isColumn() || symbol.isStartOfLine() || symbol.isEndOfLine() || symbol.isExcept()) {
