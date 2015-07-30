@@ -95,11 +95,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Visit;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
-
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
 import de.ruedigermoeller.serialization.FSTClazzInfo;
@@ -713,6 +713,15 @@ public class CodeBlock implements Serializable {
 	public CodeBlock RESETLOCS(IList positions) {
 		return add(new ResetLocs(this, getConstantIndex(positions)));
 	}
+	
+	public CodeBlock VISIT ( boolean direction, boolean progress, boolean fixedpoint, boolean rebuild){
+		return add(new Visit(this, 
+				getConstantIndex(vf.bool(direction)),
+				getConstantIndex(vf.bool(progress)),
+				getConstantIndex(vf.bool(fixedpoint)),
+				getConstantIndex(vf.bool(rebuild))));
+	}
+	
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
