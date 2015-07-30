@@ -19,6 +19,10 @@ public class Reference {
 		return stack[pos];
 	}
 	
+	public void setValue(Object v){
+		stack[pos] = v;
+	}
+	
 	/**
 	 * @return true when this reference refers to a variable with non-null value.
 	 */
