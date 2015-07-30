@@ -87,16 +87,17 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		}
 
 		Type tmp;
-		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
+		Map<Type, Type> bindings = new HashMap<Type,Type>();
+		bindings.putAll(ctx.getCurrentEnvt().getTypeBindings());
+		
+		if (declaredType.match(subject.getValue().getType(), bindings)) {
 			if(debug)System.err.println("matches");
 			
 			try {
 				// type checking code for formal parameters; the static type of the actual should be a sub-type of the type of the formal
-				Map<Type, Type> bindings = new HashMap<Type,Type>();
-				bindings.putAll(ctx.getCurrentEnvt().getTypeBindings());
 				declaredType.match(subject.getType(), bindings);
 
-			   tmp = declaredType.instantiate(bindings);
+				tmp = declaredType.instantiate(bindings);
 
 				if (tmp != declaredType) {
 					ctx.getCurrentEnvt().storeTypeBindings(bindings);
