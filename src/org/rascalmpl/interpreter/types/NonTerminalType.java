@@ -188,6 +188,9 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public boolean isSubtypeOfNonTerminal(RascalType other) {
+		if (other == this) {
+			return true;
+		}
 	  IConstructor otherSym = ((NonTerminalType)other).symbol;
 	 
 	  if ((SymbolAdapter.isIterPlus(symbol) && (SymbolAdapter.isIterStar(otherSym) || SymbolAdapter.isIterPlus(otherSym)))
