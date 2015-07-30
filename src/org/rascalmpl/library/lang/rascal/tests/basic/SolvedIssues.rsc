@@ -23,3 +23,17 @@ test bool infiniteMatcher() {
   }
   return true;
 }
+
+data Exp = a(int x, int y = 5);
+
+test bool inferKWparamType() {
+  // a regression test
+  
+  if (a(x, y = q) := a(0,y=3)) { 
+    int z = q; // used to throw an exception "Expected int, but got value true;"
+    return true; 
+  } 
+  else {
+    return false;
+  }
+}  
