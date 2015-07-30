@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
 import java.util.HashSet;
 
@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.values.uptr.ITree;
 
 /**
@@ -26,7 +27,7 @@ public class DescendantDescriptor {
 	private final boolean containsNodeOrValueType;
 	//private int counter = 0;
 	
-	DescendantDescriptor(IValueFactory vf, ISet symbolset, IMap definitions, IBool concreteMatch ){
+	public DescendantDescriptor(IValueFactory vf, ISet symbolset, IMap definitions, IBool concreteMatch ){
 		mSymbolSet = new HashSet<Object>(symbolset.size());
 		this.concreteMatch = concreteMatch.getValue();
 		TypeReifier reifier = new TypeReifier(vf);
@@ -48,7 +49,15 @@ public class DescendantDescriptor {
 		containsNodeOrValueType = mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);
 	}
 	
-	IBool shouldDescentInAbstractValue(IValue subject) {
+	public boolean isConcreteMatch(){
+		return concreteMatch;
+	}
+	
+	public boolean isAllwaysTrue(){
+		return containsNodeOrValueType;
+	}
+	
+	public IBool shouldDescentInAbstractValue(IValue subject) {
 		assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
 		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
 		if (containsNodeOrValueType) {
@@ -60,7 +69,7 @@ public class DescendantDescriptor {
 		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 	}
 	
-	IBool shouldDescentInConcreteValue(ITree subject) {
+	public IBool shouldDescentInConcreteValue(ITree subject) {
 		assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
 			IConstructor prod = (IConstructor) subject.getProduction();
@@ -72,7 +81,7 @@ public class DescendantDescriptor {
 		return RascalPrimitive.Rascal_FALSE;
 	}
 	
-	IBool shouldDescentInType(Type type) {
+	public IBool shouldDescentInType(Type type) {
 		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
 		if (containsNodeOrValueType) {
 			return RascalPrimitive.Rascal_TRUE;
