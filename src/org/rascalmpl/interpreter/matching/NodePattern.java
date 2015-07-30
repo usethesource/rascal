@@ -151,7 +151,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		TypeStore store = ctx.getCurrentEnvt().getStore();
-		if (store.hasKeywordParameters(patternConstructorType)) {
+		if (patternConstructorType != null && store.hasKeywordParameters(patternConstructorType)) {
 			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(patternConstructorType);
 			Map<String, IValue> kwArgs = ((INode) subject.getValue()).asWithKeywordParameters().getParameters();
 
