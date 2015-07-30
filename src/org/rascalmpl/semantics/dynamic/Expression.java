@@ -78,6 +78,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -397,7 +398,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 			for (AbstractFunction candidate : functions) {
 				java.util.Map<Type,Type> bindings = new HashMap<>();
-				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.match(signature, bindings)) {
+				if (candidate instanceof ConstructorFunction && candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.match(signature, bindings)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature.instantiate(bindings));
 					if (decl != null) {
 						constructorTypes.add(decl);
@@ -409,7 +410,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return constructorTypes.get(0);
 			}
 			else if (constructorTypes.size() == 0) {
-				return TF.nodeType();
+				return null;
 			}
 			else {
 				throw new AmbiguousFunctionReference(cons, nameExpr);
