@@ -97,3 +97,16 @@ test bool remainder1() = unexpectedType("num n = 5; n % 2 == 1;");
 
 test bool remainder2() = unexpectedType("num n = 2; 5 % n == 1;");  		
   
+data Exp = a(int x, int y = 5);
+  
+test bool inferKWparamType() {
+  // a regression test
+  
+  if (a(x, y = q) := a(0,y=3)) { 
+    int z = q; // used to throw an exception "Expected int, but got value true;"
+    return true; 
+  } 
+  else {
+    return false;
+  }
+}  
