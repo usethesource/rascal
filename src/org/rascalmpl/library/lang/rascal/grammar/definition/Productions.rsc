@@ -92,7 +92,7 @@ private Production prod2prod(Symbol nt, Prod p) {
       return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
     case others(): return \others(nt);
     case reference(Name n): return \reference(nt, "<n>");
-    default: throw "prod2prod, missed a case <p>, <p@\loc>";
+    default: throw "prod2prod, missed a case <p>";
   } 
 }
 

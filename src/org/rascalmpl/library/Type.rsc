@@ -122,7 +122,7 @@ Description:
 Nested choice is flattened.
 }
 public Production choice(Symbol s, set[Production] choices){
-		if(!any(Production::choice(Symbol t, set[Production] b)  <- choices)){
+	if(!any(choice(Symbol t, set[Production] b)  <- choices)){
 	   fail;
 	} else {   
 	    // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
