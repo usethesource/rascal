@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -44,6 +45,7 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -6712,12 +6714,12 @@ public enum RascalPrimitive {
 	}
 
 	private static RascalExecutionContext rex;
-	private static IValueFactory vf;
+	public static IValueFactory vf;
 	private static TypeFactory tf;
 	private static TypeStore typeStore;
 	private static Type lineColumnType;
-	static Type nodeType;
-	static Type valueType;
+	public static Type nodeType;
+	public static Type valueType;
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
@@ -6728,13 +6730,16 @@ public enum RascalPrimitive {
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
 	
-	static IBool Rascal_TRUE;
-	static IBool Rascal_FALSE;
+	public static IBool Rascal_TRUE;
+	public static IBool Rascal_FALSE;
 	private static final Object[] temp_array_of_2 = new Object[2];
 	
 	private static ITestResultListener testResultListener;
 
 	public static ParsingTools getParsingTools() { assert parsingTools != null; return parsingTools; }
+	
+	private static long timeSpent[];
+	private static boolean profileRascalPrimitives = false;
 
 	/**
 	 * Initialize the primitive methods.
@@ -6762,6 +6767,7 @@ public enum RascalPrimitive {
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 		testResultListener = rex.getTestResultListener();
+		timeSpent = new long[values.length];
 	}
 	
 	public static void reset(){
@@ -6784,26 +6790,30 @@ public enum RascalPrimitive {
 		System.err.println("Not implemented mufunction");
 		return 0 ;
 	}
-
-	public static void exit(){
-//		if(profiling)
-//			printProfile();
+	
+	public static void recordTime(int n, long duration){
+		timeSpent[n] += duration;
 	}
 
-//	private static void printProfile(){
-//		stdout.println("\nRascalPrimitive execution times (ms)");
-//		long total = 0;
-//		TreeMap<Long,String> data = new TreeMap<Long,String>();
-//		for(int i = 0; i < values.length; i++){
-//			if(timeSpent[i] > 0 ){
-//				data.put(timeSpent[i], values[i].name());
-//				total += timeSpent[i];
-//			}
-//		}
-//		for(long t : data.descendingKeySet()){
-//			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-//		}
-//	}
+	public static void exit(){
+		if(profileRascalPrimitives)
+			printProfile();
+	}
+
+	private static void printProfile(){
+		stdout.println("\nRascalPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+		for(long t : data.descendingKeySet()){
+			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
+	}
 
 	/************************************************************************************
 	 * 					AUXILIARY VARIABLES USED BY AUXILIARY FUNCTIONS					*	
