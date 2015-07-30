@@ -12,7 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *******************************************************************************/
+*******************************************************************************/
 package org.rascalmpl.values.uptr;
 
 import static org.rascalmpl.values.uptr.RascalValueFactory.CharRange_Range;
@@ -73,12 +73,12 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolAdapter {
-	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
-
+  private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	
 	private SymbolAdapter() {
 		super();
 	}
-
+	
 	public static IConstructor delabel(IConstructor sym) {
 		if (isLabel(sym)) {
 			return (IConstructor) sym.get("symbol"); // do not use getSymbol() here!
@@ -99,17 +99,17 @@ public class SymbolAdapter {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_Meta;
 	}
-
+	
 	public static boolean isStartSort(IConstructor tree) {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_Start_Sort;
 	}  
-
-	//	public static boolean isStart(IConstructor tree) {
-	//		tree = delabel(tree);
-	//		return tree.getConstructorType() == Factory.Symbol_START;
-	//	}
-
+	
+//	public static boolean isStart(IConstructor tree) {
+//		tree = delabel(tree);
+//		return tree.getConstructorType() == Factory.Symbol_START;
+//	}
+	  
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
 			tree = delabel(tree);
@@ -118,20 +118,20 @@ public class SymbolAdapter {
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 
-
+	
 	public static IConstructor getLabeledSymbol(IConstructor tree) {
 		return ((IConstructor) tree.get("symbol"));
 	}
-
+		
 	public static IConstructor getSymbol(IConstructor tree) {
 		tree = delabel(tree);
 		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree) || isConditional(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
-
+		
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
-
+	
 	public static boolean isConditional(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_Conditional;
 	}
@@ -139,7 +139,7 @@ public class SymbolAdapter {
 	public static String getLabelName(IConstructor tree) {
 		return ((IString) tree.get("name")).getValue();
 	}
-
+	
 	/**
 	 * Use this to get a name of a sort or parameterized sort, not to get the name of a label.
 	 * @param tree sort or parameterized sort
@@ -147,26 +147,26 @@ public class SymbolAdapter {
 	 */
 	public static String getName(IConstructor tree) {
 		tree = delabel(tree);
-
+		
 		return ((IString) tree.get("name")).getValue();
 	}
-
+	
 	public static String getLabel(IConstructor tree) {
 		if (isLabel(tree)) {
 			return ((IString) tree.get("name")).getValue();
 		}
-
+		
 		throw new ImplementationError("Symbol does not have a child named \"label\" : " + tree);
 	}
 
 	public static boolean isParameterizedSort(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_ParameterizedSort;
 	}
-
+	
 	public static boolean isParameterizedLex(IConstructor tree) {
-		return tree.getConstructorType() == Symbol_ParameterizedLex;
-	}
-
+    return tree.getConstructorType() == Symbol_ParameterizedLex;
+  }
+	
 	public static boolean isLiteral(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_Lit;
 	}
@@ -178,51 +178,51 @@ public class SymbolAdapter {
 	public static boolean isIterStar(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_IterStar;
 	}
-
+	
 	public static boolean isIterPlus(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_IterPlus;
 	}
-
+	
 	public static boolean isLayouts(IConstructor tree) {
 		return tree.getConstructorType() == Symbol_LayoutX;
 	}
-
+	
 	public static boolean isStarList(IConstructor tree) {
 		tree = delabel(tree);
 		return isIterStar(tree) || isIterStarSeps(tree) ;
 	}
-
+	
 	public static boolean isPlusList(IConstructor tree) {
 		tree = delabel(tree);
 		return isIterPlus(tree) || isIterPlusSeps(tree);
 	}
-
+	
 	public static boolean isSepList(IConstructor tree){
 		tree = delabel(tree);
 		return isIterPlusSeps(tree) || isIterStarSeps(tree);
 	}
-
+	
 	public static boolean isAnyList(IConstructor tree) {
 		tree = delabel(tree);
 		return isStarList(tree) || isPlusList(tree);
 	}
-
+	
 	public static boolean isOpt(IConstructor tree) {
 		return delabel(tree).getConstructorType() == Symbol_Opt;
 	}
-
+	
 	public static boolean isSequence(IConstructor tree){
 		return delabel(tree).getConstructorType() == Symbol_Seq;
 	}
-
+	
 	public static boolean isAlternative(IConstructor tree){
 		return delabel(tree).getConstructorType() == Symbol_Alt;
 	}
 
 	public static String toString(IConstructor symbol, boolean withLayout) {
 		// TODO: this code clones the symbol formatter impemented in Rascal. 
-		// When we have a faster Rascal (compiler?) we should remove this clone.
-
+	  // When we have a faster Rascal (compiler?) we should remove this clone.
+		
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol"), withLayout) + " " + ((IString) symbol.get("name")).getValue();
 		}
@@ -233,68 +233,69 @@ public class SymbolAdapter {
 			return "()";
 		}
 		if (isCharClass(symbol)) {
-			IList ranges = getRanges(symbol);
-			StringBuilder b = new StringBuilder();
-			b.append("[");
-			for (IValue range : ranges) {
-				IInteger from = getRangeBegin(range);
-				IInteger to = getRangeEnd(range);
-				if  (from.equals(to)) {
-					b.append(escapeChar(from.intValue()));
-				}
-				else {
-					b.append(escapeChar(from.intValue()));
-					b.append("-");
-					b.append(escapeChar(to.intValue()));
-				}
-			}
-			b.append("]");
-			return b.toString();
+		  IList ranges = getRanges(symbol);
+		  StringBuilder b = new StringBuilder();
+		  b.append("[");
+		  for (IValue range : ranges) {
+		    IInteger from = getRangeBegin(range);
+		    IInteger to = getRangeEnd(range);
+		    if  (from.equals(to)) {
+		      b.append(escapeChar(from.intValue()));
+		    }
+		    else {
+		      b.append(escapeChar(from.intValue()));
+		      b.append("-");
+		      b.append(escapeChar(to.intValue()));
+		    }
+		  }
+		  b.append("]");
+		  return b.toString();
 		}
-
-		if (isIterPlusSeps(symbol)) {
-			IList seps = getSeparators(symbol);
-			StringBuilder b = new StringBuilder();
-
-			if (!withLayout && seps.length() == 1 && isLayouts((IConstructor) seps.get(0))) {
-				b.append(toString(getSymbol(symbol), withLayout));
-				b.append('+');
-			}
-			else {
-				b.append('{');
-				b.append(toString(getSymbol(symbol), withLayout));
-				for (IValue sep : seps) {
-					b.append(" ");
-					b.append(toString((IConstructor) sep, withLayout));
-				}
-				b.append('}');
-				b.append('+');
-			}
-
-			return b.toString();
-
+		
+		
+    if (isIterPlusSeps(symbol)) {
+      IList seps = getSeparators(symbol);
+      StringBuilder b = new StringBuilder();
+      
+      if (!withLayout && seps.length() == 1 && isLayouts((IConstructor) seps.get(0))) {
+        b.append(toString(getSymbol(symbol), withLayout));
+        b.append('+');
+      }
+      else {
+        b.append('{');
+        b.append(toString(getSymbol(symbol), withLayout));
+        for (IValue sep : seps) {
+          b.append(" ");
+          b.append(toString((IConstructor) sep, withLayout));
+        }
+        b.append('}');
+        b.append('+');
+      }
+      
+      return b.toString();
+			
 		}
-
+    
 		if (isIterStarSeps(symbol)) {
 			StringBuilder b = new StringBuilder();
-			IList seps = getSeparators(symbol);
-
+			 IList seps = getSeparators(symbol);
+			 
 			if (!withLayout && seps.length() == 1 && isLayouts((IConstructor) seps.get(0))) {
-				b.append(toString(getSymbol(symbol), withLayout));
-				b.append('*');
-			}
-			else {
-				b.append('{');
-				b.append(toString(getSymbol(symbol), withLayout));
-				for (IValue sep : seps) {
-					if (!isLayouts((IConstructor) sep)) {
-						b.append(" ");
-						b.append(toString((IConstructor) sep, withLayout));
-					}
-				}
-				b.append('}');
-				b.append('*');
-			}
+        b.append(toString(getSymbol(symbol), withLayout));
+        b.append('*');
+      }
+      else {
+        b.append('{');
+        b.append(toString(getSymbol(symbol), withLayout));
+        for (IValue sep : seps) {
+          if (!isLayouts((IConstructor) sep)) {
+            b.append(" ");
+            b.append(toString((IConstructor) sep, withLayout));
+          }
+        }
+        b.append('}');
+        b.append('*');
+      }
 			return b.toString();
 		}
 		if (isIterPlus(symbol)) {
@@ -307,24 +308,22 @@ public class SymbolAdapter {
 			return toString(getSymbol(symbol), withLayout) + '?';
 		}
 		if (isSeq(symbol)) {
-			return "(" + toString(getSymbols(symbol), ' ', withLayout) + ")";
+		  return "(" + toString(getSymbols(symbol), ' ', withLayout) + ")";
 		}
 		if (isAlt(symbol)) {
-			ISet alts = getAlternatives(symbol);
-			StringBuilder b = new StringBuilder();
-			b.append("(");
-			boolean first = true;
-			for (IValue elem : alts) {
-				if (first) {
-					first = false;
-				}
-				else {
-					b.append(" | ");
-				}
-				b.append(toString((IConstructor) elem, withLayout));
-			}
-			b.append(")");
-			return b.toString(); 
+		  ISet alts = getAlternatives(symbol);
+		  StringBuilder b = new StringBuilder();
+		  b.append("(");
+		  boolean first = true;
+		  for (IValue elem : alts) {
+		    if (!first) {
+		      first = false;
+		      b.append(" | ");
+		    }
+		    b.append(toString((IConstructor) elem, withLayout));
+		  }
+		  b.append(")");
+		  return b.toString(); 
 		}
 		if (isLayouts(symbol)) {
 			return withLayout ? "layout[" + symbol.get("name") + "]" : "";
@@ -350,16 +349,16 @@ public class SymbolAdapter {
 		if (isParameter(symbol)) {
 			return "&" + getName(symbol);
 		}
-
+		
 		if (isInt(symbol) || isStr(symbol) || isReal(symbol) || isBool(symbol) || isRat(symbol)
 				|| isNode(symbol) || isValue(symbol) || isVoid(symbol) || isNum(symbol) || isDatetime(symbol) || isLoc(symbol)) {
 			return symbol.getName();
 		}
-
+		
 		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
 			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol"), withLayout) + "]";
 		}
-
+		
 		if (isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(symbol.getName());
@@ -369,67 +368,67 @@ public class SymbolAdapter {
 			b.append(']');
 			return b.toString();
 		}
-
+		
 		if (isMap(symbol)) {
 			return symbol.getName() + "[" + toString((IConstructor) symbol.get("from"), withLayout) + "," + toString((IConstructor) symbol.get("to"), withLayout) + "]";
 		}
-
+		
 		if (isConditional(symbol)) {
-			ISet conditions = getConditions(symbol);
-			StringBuilder b = new StringBuilder();
-			// first prefix conditions
-			for (IValue elem : conditions) {
-				IConstructor cond = (IConstructor) elem;
-				switch (cond.getConstructorType().getName()) {
-				case "precede": 
-					b.append(toString((IConstructor) cond.get("symbol"), withLayout));
-					b.append(" << ");
-					break;
-				case "not-precede":
-					b.append(toString((IConstructor) cond.get("symbol"), withLayout));
-					b.append(" !<< ");
-					break;
-				case "begin-of-line":
-					b.append("^ ");
-					break;
-				}
-			}
-			// then the symbol
-			b.append(toString(getSymbol(symbol), withLayout));
-
-			// then the postfix conditions
-			for (IValue elem : conditions) {
-				IConstructor cond = (IConstructor) elem;
-				switch (cond.getConstructorType().getName()) {
-				case "follow": 
-					b.append(" >> ");
-					b.append(toString((IConstructor) cond.get("symbol"), withLayout));
-					break;
-				case "not-follow":
-					b.append(" !>> ");
-					b.append(toString((IConstructor) cond.get("symbol"), withLayout));
-					break;
-				case "delete":
-					b.append(" \\ ");
-					b.append(toString((IConstructor) cond.get("symbol"), withLayout));
-					break;
-				case "except":
-					b.append("!");
-					b.append(((IString) cond.get("label")).getValue());
-				case "end-of-line":
-					b.append(" $");
-					break;
-				}
-			}
-
-			return b.toString();
+		  ISet conditions = getConditions(symbol);
+		  StringBuilder b = new StringBuilder();
+		  // first prefix conditions
+		  for (IValue elem : conditions) {
+		    IConstructor cond = (IConstructor) elem;
+		    switch (cond.getConstructorType().getName()) {
+		    case "precede": 
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
+		      b.append(" << ");
+		      break;
+		    case "not-precede":
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
+          b.append(" !<< ");
+          break;
+		    case "begin-of-line":
+          b.append("^ ");
+          break;
+		    }
+		  }
+		  // then the symbol
+		  b.append(toString(getSymbol(symbol), withLayout));
+		  
+		  // then the postfix conditions
+		  for (IValue elem : conditions) {
+		    IConstructor cond = (IConstructor) elem;
+		    switch (cond.getConstructorType().getName()) {
+        case "follow": 
+          b.append(" >> ");
+          b.append(toString((IConstructor) cond.get("symbol"), withLayout));
+          break;
+		    case "not-follow":
+		      b.append(" !>> ");
+		      b.append(toString((IConstructor) cond.get("symbol"), withLayout));
+          break;
+		    case "delete":
+          b.append(" \\ ");
+          b.append(toString((IConstructor) cond.get("symbol"), withLayout));
+          break;
+		    case "except":
+		      b.append("!");
+		      b.append(((IString) cond.get("label")).getValue());
+		    case "end-of-line":
+		      b.append(" $");
+		      break;
+		    }
+      }
+		    
+		  return b.toString();
 		}
-
+		
 		if (isADT(symbol) || isAlias(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(getName(symbol));
 			IList params = (IList) symbol.get("parameters");
-
+			
 			if (!params.isEmpty()) {
 				b.append('[');
 				b.append(toString(params, ',', withLayout));
@@ -437,7 +436,7 @@ public class SymbolAdapter {
 			}
 			return b.toString();
 		}
-
+		
 		if (isFunc(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(toString((IConstructor) symbol.get("ret"), withLayout));
@@ -446,7 +445,7 @@ public class SymbolAdapter {
 			b.append(")");
 			return b.toString();
 		}
-
+		
 		if (isCons(symbol)) {
 			StringBuilder b = new StringBuilder();
 			b.append(toString((IConstructor) symbol.get("adt"), withLayout));
@@ -456,67 +455,67 @@ public class SymbolAdapter {
 			b.append(toString((IList) symbol.get("parameters"), ',', withLayout));
 			b.append(")");
 		}
-
+		
 		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
 	}
 
 	private static ISet getConditions(IConstructor symbol) {
-		return (ISet) symbol.get("conditions");
-	}
+    return (ISet) symbol.get("conditions");
+  }
 
-	/**
+  /**
 	 * char-classes have almost the same escape convention as char classes except for spaces
 	 * @param from
 	 * @return
 	 */
-	private static String escapeChar(int from) {
-		if (from == ' ') {
-			return "\\ ";
-		}
+  private static String escapeChar(int from) {
+    if (from == ' ') {
+      return "\\ ";
+    }
+    
+    String strRep = VF.string(from).toString();
+    return strRep.substring(1, strRep.length() - 1);
+  }
 
-		String strRep = VF.string(from).toString();
-		return strRep.substring(1, strRep.length() - 1);
-	}
+  private static IInteger getRangeEnd(IValue range) {
+    return (IInteger) ((IConstructor) range).get("end");
+  }
 
-	private static IInteger getRangeEnd(IValue range) {
-		return (IInteger) ((IConstructor) range).get("end");
-	}
-
-	private static IInteger getRangeBegin(IValue range) {
-		return (IInteger) ((IConstructor) range).get("begin");
-	}
+  private static IInteger getRangeBegin(IValue range) {
+    return (IInteger) ((IConstructor) range).get("begin");
+  }
 
 	public static IList getRanges(IConstructor symbol) {
-		return (IList) symbol.get("ranges");
-	}
+    return (IList) symbol.get("ranges");
+  }
 
-	public static IList getSymbols(IConstructor symbol) {
-		return (IList) symbol.get("symbols");
-	}
+  public static IList getSymbols(IConstructor symbol) {
+    return (IList) symbol.get("symbols");
+  }
 
-	private static String toString(IList symbols, char sep, boolean withLayout) {
+  private static String toString(IList symbols, char sep, boolean withLayout) {
 		StringBuilder b = new StringBuilder();
-
+		
 		if (symbols.length() > 0) {
 			b.append(toString((IConstructor) symbols.get(0), false));
 			for (int i = 1; i < symbols.length(); i++) {
-				IConstructor sym = (IConstructor) symbols.get(i);
-				if (!withLayout && isLayouts(sym)) {
-					continue;
-				}
+			  IConstructor sym = (IConstructor) symbols.get(i);
+			  if (!withLayout && isLayouts(sym)) {
+			    continue;
+			  }
 				b.append(sep);
-				b.append(toString(sym, withLayout));
+        b.append(toString(sym, withLayout));
 			}
 		}
-
+		
 		return b.toString();
 	}
-
+	
 	public static boolean isCons(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_Cons;
 	}
-
+	
 	public static boolean isFunc(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_Func;
 	}
@@ -552,7 +551,7 @@ public class SymbolAdapter {
 	public static boolean isRel(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_Rel;
 	}
-
+	
 	public static boolean isListRel(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_ListRel;
 	}
@@ -564,7 +563,7 @@ public class SymbolAdapter {
 	public static boolean isDatetime(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_Datetime;
 	}
-
+	
 	public static boolean isLoc(IConstructor symbol) {
 		return symbol.getConstructorType() == Symbol_Loc;
 	}
@@ -613,12 +612,12 @@ public class SymbolAdapter {
 		symbol = delabel(symbol);
 		return (IConstructor) symbol.get("rhs");
 	}
-
+	
 	public static boolean isIterStarSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
 		return rhs.getConstructorType() == Symbol_IterStarSepX;
 	}
-
+	
 	public static boolean isIterPlusSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
 		return rhs.getConstructorType() == Symbol_IterSepX;
@@ -632,7 +631,7 @@ public class SymbolAdapter {
 	public static boolean isLex(IConstructor rhs) {
 		return rhs.getConstructorType() == Symbol_Lex;
 	}
-
+	
 	public static boolean isKeyword(IConstructor rhs) {
 		return rhs.getConstructorType() == Symbol_Keyword;
 	}
@@ -640,7 +639,7 @@ public class SymbolAdapter {
 	public static boolean isEmpty(IConstructor rhs) {
 		return rhs.getConstructorType() == Symbol_Empty;
 	}
-
+	
 	/**
 	 * Computes symbol equality modulo lex/sort/layout/keyword distinction and modulo labels and conditions
 	 */
@@ -648,65 +647,65 @@ public class SymbolAdapter {
 		while (isLabel(l)) {
 			l = getLabeledSymbol(l);
 		}
-
+		
 		while (isLabel(r)) {
 			r = getLabeledSymbol(r);
 		}
-
+		
 		while (isConditional(l)) {
 			l = getSymbol(l);
 		}
-
+		
 		while (isConditional(r)) {
 			r = getSymbol(r);
 		}
-
+		
 		if (isLayouts(l) && isLayouts(r)) {
 			return true;
 		}
-
+		
 		if (isSort(l) || isLex(l) || isKeyword(l) || isLayouts(l)) {
 			if (isLex(r) || isSort(r) || isKeyword(r) || isLayouts(r)) {
 				return getName(l).equals(getName(r));
 			}
 		}
-
+		
 		if (isParameterizedSort(l) && isParameterizedSort(r)) {
 			return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
 		}
-
+		
 		if (isParameterizedLex(l) && isParameterizedLex(r)) {
-			return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
-		}
-
+      return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
+    }
+		
 		if (isParameter(l) && isParameter(r)) {
 			return getName(l).equals(getName(r));
 		}
-
+		
 		if ((isIterPlusSeps(l) && isIterPlusSeps(r)) || (isIterStarSeps(l) && isIterStarSeps(r))) {
 			return isEqual(getSymbol(l), getSymbol(r)) && isEqual(getSeparators(l), getSeparators(r));
 		}
-
+		
 		if ((isIterPlus(l) && isIterPlus(r)) || (isIterStar(l) && isIterStar(r)) || (isOpt(l) && isOpt(r))) {
 			return isEqual(getSymbol(l), getSymbol(r));
 		}
-
+		
 		if (isEmpty(l) && isEmpty(r)) {
 			return true;
 		}
-
+		
 		if (isAlt(l) && isAlt(r)) {
 			return isEqual(getAlternatives(l), getAlternatives(r));
 		}
-
+		
 		if (isSeq(l) && isSeq(r)) {
 			return isEqual(getSequence(l), getSequence(r));
 		}
-
+		
 		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
 			return l.isEqual(r);
 		}
-
+		
 		return false;
 	}
 
@@ -726,7 +725,7 @@ public class SymbolAdapter {
 		if (l.size() != r.size()) {
 			return false;
 		}
-
+		
 		OUTER:for (IValue le : l) {
 			for (IValue re : r) {
 				if (isEqual((IConstructor) le, (IConstructor) re)) {
@@ -740,7 +739,7 @@ public class SymbolAdapter {
 		return true;
 	}
 
-	public static ISet getAlternatives(IConstructor r) {
+	private static ISet getAlternatives(IConstructor r) {
 		return (ISet) r.get("alternatives");
 	}
 
@@ -751,18 +750,18 @@ public class SymbolAdapter {
 	public static boolean isSeq(IConstructor l) {
 		return l.getConstructorType() == Symbol_Seq;
 	}
-
+	
 	public static boolean isEqual(IList l, IList r) {
 		if (l.length() != r.length()) {
 			return false;
 		}
-
+			
 		for (int i = 0; i < l.length(); i++) {
 			if (!isEqual((IConstructor) l.get(i), (IConstructor) r.get(i))) {
 				return false;
 			}
 		}
-
+		
 		return true;
 	}
 
@@ -779,14 +778,14 @@ public class SymbolAdapter {
 
 	public static IConstructor starToPlus(IConstructor sym) {
 		assert isStarList(sym) && !isLabel(sym) && !isConditional(sym);
-
+		
 		if (isIterStar(sym)) {
 			return VF.constructor(Symbol_IterPlus, getSymbol(sym));
 		}
 		else if (isIterStarSeps(sym)) {
 			return VF.constructor(Symbol_IterSepX, getSymbol(sym), getSeparators(sym));
 		}
-
+		
 		assert false;
 		return sym;
 	}
