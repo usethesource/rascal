@@ -752,6 +752,12 @@ public enum RascalPrimitive {
 			return set_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	elm_add_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_add_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
 	str_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3841,10 +3847,21 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-			boolean left =((IBool) stack[sp - 2]).getValue();
+			boolean left = ((IBool) stack[sp - 2]).getValue();
 			boolean right = ((IBool) stack[sp - 1]).getValue();
 
 			stack[sp - 2] = vf.bool(!left && right);
+			return sp - 1;
+		}
+	},
+	bool_or_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
+
+			stack[sp - 2] = vf.bool(left || right);
 			return sp - 1;
 		}
 	},
