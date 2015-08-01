@@ -33,6 +33,7 @@ private rel[Symbol,Symbol] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
 private map[Symbol,Production] fullGrammar = ();
+private map[Symbol,Production] instantiatedGrammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 private rel[value,value] reachableTypes = {};
@@ -45,6 +46,7 @@ public void resetTypeReifier() {
     productions = {};
     grammar = ();
     fullGrammar = ();
+    instantiatedGrammar = ();
     starts = {};
     activeLayout = Symbol::\layouts("$default$");
     reachableTypes = {};
@@ -160,6 +162,7 @@ rel[Symbol,Symbol] getDependencies(c:  Symbol::\cons(Symbol \adtsym, str name, l
 	res = {<c, striprec(sym)> | Symbol sym <- parameters} + { *getDependencies(sym) | Symbol sym <- parameters };
 	return res;
 }
+
 // TODO: alias, func, var-func, reified
 
 default rel[Symbol,Symbol] getDependencies(Symbol s) = {};
@@ -169,26 +172,76 @@ default rel[Symbol,Symbol] getDependencies(Symbol s) = {};
 // - visit
 
 private void computeReachableTypesAndConstructors(){
-
 	stripped_constructors = {<striprec(s1),striprec(s2)> | <s1, s2> <- constructors};
 	rel[value,value] containment = stripped_constructors
 								   + {*getDependencies(c)|  <s, c> <- stripped_constructors};
 	                              ;
 	reachableTypes = containment+;
 	
-	//println("reachableTypes [<size(reachableTypes)>] ="); for(elm <- reachableTypes) { println("\t<elm>"); }
+	println("reachableTypes [<size(reachableTypes)>] ="); //for(elm <- reachableTypes) { println("\t<elm>"); }
 	computeReachableConcreteTypes();
 }
 
+// Auxiliary functions for computeReachableConcreteTypes
+
+bool isParameterFree(list[Symbol] symbols) = !(/\parameter(name, formals) := symbols);
+
+// Get all instantiated parameters in the complete grammar
+
+set[Symbol] getInstantiatedParameters(){
+	instantiated_params = {};
+	visit(fullGrammar){
+		case sym: \parameterized-sort(name, list[Symbol] args):
+			if( isParameterFree(args)) instantiated_params += sym; else fail;
+		case sym: \parameterized-lex(name, list[Symbol] args):
+			if( isParameterFree(args)) instantiated_params += sym; else fail;
+	};
+	return instantiated_params;
+}
+
+// Instantiate one parameterized production with actual parameters
+
+private Production instantiateParameterizedProduction(Production p, list[Symbol] actuals){
+    lhs = p.def;
+    instantiated_alts = p.alternatives;
+    instantiated_parameters = lhs.parameters;
+	for(int i <- [0 .. size(lhs.parameters)]){
+	    param = lhs.parameters[i];
+	    actual = actuals[i];
+	    instantiated_parameters[i] = actual;
+		instantiated_alts = visit(instantiated_alts){
+		   case \parameter(pname, ptype) => actual when pname == param.name
+		}
+	}
+	p.def.parameters = instantiated_parameters;
+	p.alternatives = instantiated_alts;
+	return p;
+}
+// 
+private map[Symbol, Production] instantiateAllParameterizedProductions(map[Symbol,Production] grammar){
+	instantiated_params = getInstantiatedParameters();
+	instantiated_productions = ();
+	for(Symbol lhs <- grammar){
+		if(\parameterized-sort(name, list[Symbol] parameters) := lhs){
+			for(Symbol ip <- instantiated_params, ip.name == name, size(ip.parameters) == size(parameters)){
+				iprod = instantiateParameterizedProduction(fullGrammar[lhs], ip.parameters);
+				instantiated_productions[iprod.def] = iprod;
+			}
+		}
+	}	
+	return instantiated_productions;
+}
+
 private void computeReachableConcreteTypes(){
+	instantiatedGrammar = fullGrammar + instantiateAllParameterizedProductions(fullGrammar);
 	reachableConcreteTypes = {};
-	for(/Production p: prod(sym,args,attrs) := fullGrammar){
-	   for(/Symbol s := args){
+	for(/Production p: prod(sym,args,attrs) := instantiatedGrammar){
+	    for(/Symbol s := args){
 	   		reachableConcreteTypes += <delabel(sym), delabel(s)>;
 	   }
 	}
 	reachableConcreteTypes = reachableConcreteTypes+;
-	//println("reachableConcreteTypes:");for(elm <- reachableConcreteTypes) { println("\t<elm>"); }
+	//println("reachableConcreteTypes [<size(reachableConcreteTypes)>] :");for(elm <- reachableConcreteTypes) { println("\t<elm>"); }
 }
 
 // Extract the reachable types for a given type, given
@@ -230,8 +283,12 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	
 	//println("prunedReachableTypes:"); for(x <- prunedReachableTypes){println("\t<x>");}
 	descent_into = desiredTypes;
-	for(<from, to> <- prunedReachableTypes){
-		if(to in desiredTypes || any(t <- desiredTypes, subtype(t, to))){
+	
+	// TODO <Symbol from ,Symbol to> <- ... makes the stack validator unhappy.
+	for(<Symbol from, Symbol to> <- prunedReachableTypes){
+		if(to in desiredTypes){		// TODO || here was the cause 
+			descent_into += {from, to};
+		} else if(any(Symbol t <- desiredTypes, subtype(t, to))){
 			descent_into += {from, to};
 		} else if(c:Symbol::\cons(Symbol \adtsym, str name, list[Symbol] parameters) := from  && 
 	                        (\adtsym in patternTypes || name in consNames)){
@@ -240,6 +297,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	                        (\adtsym in patternTypes || name in consNames)){
 	              descent_into += {from, to};         
 	    }
+	    ;
 	}
 	
 	//if(\value() in descent_into){
@@ -253,7 +311,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	return descent_into;
 }
 
-// Extract the reachable abstract types
+// Extract the reachable concrete types
 
 set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
 	desiredPatternTypes = { s | /Symbol s := patternTypes};
@@ -268,36 +326,40 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 		prunedReachableConcreteTypes = carrierR(reachableConcreteTypes, (reachableConcreteTypes)[desiredSubjectTypes] + desiredSubjectTypes);
 		//println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
 	}
-	descent_into = {};
+	
+	set [value] descent_into = {};
+	
 	// Find all concrete types that can lead to a desired type
+
 	for(sym <- invert(prunedReachableConcreteTypes+)[desiredPatternTypes]){
-	  alts =  fullGrammar[sym];
-	  for(/Production p := alts){
-	    switch(p){
-	    case choice(_, choices): descent_into += choices;
-	    case associativity(_, _, choices): descent_into += choices;
-	    case priority(_, choices): descent_into += toSet(choices);
-	    default:
+	   alts = instantiatedGrammar[sym];
+	   for(/Production p := alts){
+	       switch(p){
+	       case choice(_, choices): descent_into += choices;
+	       case associativity(_, _, choices): descent_into += choices;
+	       case priority(_, choices): descent_into += toSet(choices);
+	       default:
 	    	descent_into += p;
+	       }
 	    }
-	  }
-	 } 
-	  for(/itr:\iter(s) := descent_into){
+	  }  
+	
+	for(/itr:\iter(s) := descent_into){
 	  	descent_into += regular(itr);
 	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	  }	
-	  for(/itr:\iter-star(s) := descent_into){
+	}	
+	for(/itr:\iter-star(s) := descent_into){
 	  	descent_into += regular(itr);
 	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	  }	
-	  for(/itr:\iter-seps(s,_) := descent_into){
+	}	
+	for(/itr:\iter-seps(s,_) := descent_into){
 	  	descent_into += regular(itr);
 	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	  }	
-	  for(/itr:\iter-star-seps(s,_) := descent_into){
+	}	
+	for(/itr:\iter-star-seps(s,_) := descent_into){
 	    descent_into += regular(itr);
 	    if(isAltOrSeq(s)) descent_into += regular(s);
-	  }	
+	}	
 	println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
 	return descent_into;
 }
