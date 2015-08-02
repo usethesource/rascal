@@ -45,6 +45,15 @@ lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-
 lexical Mies = ([ab] [cd]);
 syntax Noot  = (("a"|"b") ("c"|"d"));
 
+syntax M[&T] = "[[" &T "]]";
+
+syntax MA = M[A];
+syntax MB = M[B];
+
+syntax N[&T,&U] = "\<\<" &T "," &U "\>\>";
+
+syntax NAB = N[A,B];
+
 test bool concreteMatch01() = (A) `<A a>` := [A] "a";
 test bool concreteMatch01a() = (A) `a` := [A] "a";
 
@@ -356,3 +365,14 @@ test bool callNoTree() = cntTrees([]) == 0;
 test bool callOneTree() = cntTrees([[A]"a"]) == 1;
 test bool callTwoTrees() = cntTrees([[A]"a",[A]"a"]) == 2;
 test bool callTreeTrees() = cntTrees([[A]"a",[A]"a",[A]"a"]) == 3;
+
+// Descendant in parameterized concrete sort
+
+test bool descentInParameterizedSort1() = /A a := (M[A]) `[[a]]`;
+test bool descentInParameterizedSort2() = /A a !:= (M[B]) `[[b]]`;
+
+test bool descentInParameterizedSort3() = /B b := (M[B]) `[[b]]`;
+test bool descentInParameterizedSort4() = /B b !:= (M[A]) `[[a]]`;
+
+test bool descentInParameterizedSort5() = /A a := (N[A,B]) `\<\<a,b\>\>`;
+test bool descentInParameterizedSort6() = /B b := (N[A,B]) `\<\<a,b\>\>`;
