@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
@@ -150,12 +149,11 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 
-		TypeStore store = ctx.getCurrentEnvt().getStore();
-		if (patternConstructorType != null && store.hasKeywordParameters(patternConstructorType)) {
-			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(patternConstructorType);
-			Map<String, IValue> kwArgs = ((INode) subject.getValue()).asWithKeywordParameters().getParameters();
+		if (ctx.getCurrentEnvt().getStore().hasKeywordParameters(type)) {
+			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(type);
+			Map<String, IValue> kwArgs = ((INode) subject).asWithKeywordParameters().getParameters();
 
-			Map<String, Type> kwFormals = store.getKeywordParameters(patternConstructorType);
+			Map<String, Type> kwFormals = ctx.getCurrentEnvt().getStore().getKeywordParameters(type);
 			
 			for (String kwLabel : keywordParameters.keySet()) {
 				IValue subjectParam = kwArgs.get(kwLabel);
