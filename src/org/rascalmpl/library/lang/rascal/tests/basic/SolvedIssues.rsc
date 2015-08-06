@@ -26,7 +26,6 @@ test bool infiniteMatcher() {
 
 data Exp = a(int x, int y = 5);
 
-@ignore
 test bool inferKWparamType() {
   // a regression test
   
