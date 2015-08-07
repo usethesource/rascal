@@ -180,6 +180,25 @@ data Symbol
   
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
+// Symbol head formal parameters for data-dependency
+data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, Tree] keywordDefaults = ());
+
+// Actual parameters for symbols with data-dependency
+data Symbol(list[str] actuals = [], map[str,str] keywordActuals = ());
+
+// data dependent
+data Symbol
+     = \scope(list[Symbol] symbols)
+     | \if(str condition, Symbol symbol)
+     | \ifElse(str condition, Symbol ifSymbol, Symbol thenSymbol)
+     | \when(Symbol symbol, str condition)
+     | \do(Symbol symbol, str block)
+     | \while(str condition, Symbol symbol)
+     | \align(Symbol symbol)
+     | \offside(Symbol symbol)
+     | \ignore(Symbol symbol)
+     ;  
+     
 @doc{
 Synopsis: constructors for declaring preconditions and postconditions on symbols
 }
