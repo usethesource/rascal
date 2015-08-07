@@ -326,7 +326,6 @@ public class SymbolAdapter {
 			return b.toString();
 		}
 		
-		
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol"), withLayout) + " " + ((IString) symbol.get("name")).getValue();
 		}
@@ -902,6 +901,14 @@ public class SymbolAdapter {
 		while (isConditional(r)) {
 			r = getSymbol(r);
 		}
+		
+		while (isConstrained(l)) {
+			l = getSymbol(l);
+		}
+		
+		while (isConstrained(r)) {
+			r = getSymbol(l);
+		}
 
 		if (isLayouts(l) && isLayouts(r)) {
 			return true;
@@ -948,8 +955,12 @@ public class SymbolAdapter {
 		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
 			return l.isEqual(r);
 		}
-
+		
 		return false;
+	}
+
+	private static boolean isConstrained(IConstructor l) {
+		return isIf(l) || isIfElse(l) || isScope(l) || isWhen(l) || isWhile(l) || isDo(l) || isIgnore(l) || isOffside(l) || isAlign(l);
 	}
 
 	private static IList getParameters(IConstructor l) {
