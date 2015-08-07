@@ -14,14 +14,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.ast.DefinedSym;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Start;
-import org.rascalmpl.ast.Sym;
-import org.rascalmpl.ast.SyntaxDefinition.Keyword;
-import org.rascalmpl.ast.SyntaxDefinition.Language;
-import org.rascalmpl.ast.SyntaxDefinition.Layout;
-import org.rascalmpl.ast.SyntaxDefinition.Lexical;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -41,7 +37,7 @@ public abstract class SyntaxDefinition extends
 	public static class Language extends org.rascalmpl.ast.SyntaxDefinition.Language {
 		private final IConstructor node;
 
-		public Language(ISourceLocation src, IConstructor node, Start start, Sym defined,
+		public Language(ISourceLocation src, IConstructor node, Start start, DefinedSym defined,
 				Prod production) {
 			super(src, node, start, defined, production);
 			this.node = node;
@@ -59,12 +55,17 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			Sym type = getDefined();
+			DefinedSym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
-			if (type.isNonterminal()) {
+			if (type.isDefault() && type.getSym().isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getSym().getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
+			}
+			else if (type.hasNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
+
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -75,7 +76,7 @@ public abstract class SyntaxDefinition extends
 	public static class Lexical extends org.rascalmpl.ast.SyntaxDefinition.Lexical {
 		private final IConstructor node;
 
-		public Lexical(ISourceLocation src, IConstructor node, Sym defined, Prod production) {
+		public Lexical(ISourceLocation src, IConstructor node, DefinedSym defined, Prod production) {
 			super(src, node, defined, production);
 			this.node = node;
 		}
@@ -93,23 +94,28 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  Sym type = getDefined();
-      IValueFactory vf = eval.getValueFactory();
-      
-      if (type.isNonterminal()) {
-        String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
-      }
-      
-      eval.getCurrentModuleEnvironment().declareProduction(getTree());
-      return null;
+			DefinedSym type = getDefined();
+			IValueFactory vf = eval.getValueFactory();
+
+			if (type.isDefault() && type.getSym().isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getSym().getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Lex, vf.string(nt)));
+			}
+			else if (type.hasNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Lex, vf.string(nt)));
+
+			}
+
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
+			return null;
 		}
 	}
 	
 	public static class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
 		private final IConstructor node;
 
-		public Layout(ISourceLocation src, IConstructor node, Visibility vis, Sym defined,
+		public Layout(ISourceLocation src, IConstructor node, Visibility vis, DefinedSym defined,
 				Prod production) {
 			super(src, node, vis, defined, production);
 			this.node = node;
@@ -127,23 +133,28 @@ public abstract class SyntaxDefinition extends
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  Sym type = getDefined();
-      IValueFactory vf = eval.getValueFactory();
-      
-      if (type.isNonterminal()) {
-        String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
-      }
-      
-      eval.getCurrentModuleEnvironment().declareProduction(getTree());
-      return null;
+			DefinedSym type = getDefined();
+			IValueFactory vf = eval.getValueFactory();
+
+
+			if (type.isDefault() && type.getSym().isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getSym().getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_LayoutX, vf.string(nt)));
+			}
+			else if (type.hasNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_LayoutX, vf.string(nt)));
+			}
+
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
+			return null;
 		}
 	}
 	
 	public static class Keyword extends org.rascalmpl.ast.SyntaxDefinition.Keyword {
 		private final IConstructor node;
 
-		public Keyword(ISourceLocation src, IConstructor node, Sym defined, Prod production) {
+		public Keyword(ISourceLocation src, IConstructor node, DefinedSym defined, Prod production) {
 			super(src, node, defined, production);
 			this.node = node;
 		}
@@ -160,10 +171,14 @@ public abstract class SyntaxDefinition extends
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			Sym type = getDefined();
+			DefinedSym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
-			if (type.isNonterminal()) {
+			if (type.isDefault() && type.getSym().isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getSym().getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Keyword, vf.string(nt)));
+			}
+			else if (type.hasNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Keyword, vf.string(nt)));
 			}

@@ -25,6 +25,20 @@ public abstract class Sym extends AbstractAST {
   }
 
   
+  public boolean hasArguments() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBlock() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Statement> getBlock() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasAlternatives() {
     return false;
   }
@@ -46,6 +60,13 @@ public abstract class Sym extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Sym> getSequence() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasSymbols() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Sym> getSymbols() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasCistring() {
     return false;
   }
@@ -60,11 +81,25 @@ public abstract class Sym extends AbstractAST {
   public org.rascalmpl.ast.Class getCharClass() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasCondition() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getCondition() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasColumn() {
     return false;
   }
 
   public org.rascalmpl.ast.IntegerLiteral getColumn() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasKeywordArguments() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
   public boolean hasNonterminal() {
@@ -86,6 +121,20 @@ public abstract class Sym extends AbstractAST {
   }
 
   public org.rascalmpl.ast.StringConstant getString() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBody() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getBody() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasElsePart() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getElsePart() {
     throw new UnsupportedOperationException();
   }
   public boolean hasFirst() {
@@ -114,6 +163,13 @@ public abstract class Sym extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasThenPart() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getThenPart() {
     throw new UnsupportedOperationException();
   }
 
@@ -186,7 +242,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 379 * first.hashCode() + 811 * alternatives.hashCode() ; 
+      return 151 + 311 * first.hashCode() + 73 * alternatives.hashCode() ; 
     } 
   
     
@@ -269,7 +325,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 83 * cistring.hashCode() ; 
+      return 619 + 5 * cistring.hashCode() ; 
     } 
   
     
@@ -343,7 +399,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 71 + 683 * charClass.hashCode() ; 
+      return 191 + 467 * charClass.hashCode() ; 
     } 
   
     
@@ -427,7 +483,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 577 * symbol.hashCode() + 41 * column.hashCode() ; 
+      return 149 + 19 * symbol.hashCode() + 761 * column.hashCode() ; 
     } 
   
     
@@ -453,6 +509,1039 @@ public abstract class Sym extends AbstractAST {
     @Override
     public Object clone()  {
       return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(column));
+    }
+            
+  }
+  public boolean isDependAlign() {
+    return false;
+  }
+
+  static public class DependAlign extends Sym {
+    // Production: sig("DependAlign",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public DependAlign(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
+      
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isDependAlign() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependAlign(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependAlign)) {
+        return false;
+      }        
+      DependAlign tmp = (DependAlign) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 89 + 587 * symbol.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
+  }
+  public boolean isDependAlternative() {
+    return false;
+  }
+
+  static public class DependAlternative extends Sym {
+    // Production: sig("DependAlternative",[arg("org.rascalmpl.ast.Expression","condition"),arg("org.rascalmpl.ast.Sym","thenPart"),arg("org.rascalmpl.ast.Sym","elsePart")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Expression condition;
+    private final org.rascalmpl.ast.Sym thenPart;
+    private final org.rascalmpl.ast.Sym elsePart;
+  
+    public DependAlternative(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Sym thenPart,  org.rascalmpl.ast.Sym elsePart) {
+      super(src, node);
+      
+      this.condition = condition;
+      this.thenPart = thenPart;
+      this.elsePart = elsePart;
+    }
+  
+    @Override
+    public boolean isDependAlternative() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependAlternative(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = condition.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        condition.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = thenPart.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        thenPart.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = elsePart.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        elsePart.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependAlternative)) {
+        return false;
+      }        
+      DependAlternative tmp = (DependAlternative) o;
+      return true && tmp.condition.equals(this.condition) && tmp.thenPart.equals(this.thenPart) && tmp.elsePart.equals(this.elsePart) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 67 + 191 * condition.hashCode() + 577 * thenPart.hashCode() + 263 * elsePart.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getCondition() {
+      return this.condition;
+    }
+  
+    @Override
+    public boolean hasCondition() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getThenPart() {
+      return this.thenPart;
+    }
+  
+    @Override
+    public boolean hasThenPart() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getElsePart() {
+      return this.elsePart;
+    }
+  
+    @Override
+    public boolean hasElsePart() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(condition), clone(thenPart), clone(elsePart));
+    }
+            
+  }
+  public boolean isDependCode() {
+    return false;
+  }
+
+  static public class DependCode extends Sym {
+    // Production: sig("DependCode",[arg("org.rascalmpl.ast.Sym","symbol"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","block")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final java.util.List<org.rascalmpl.ast.Statement> block;
+  
+    public DependCode(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  java.util.List<org.rascalmpl.ast.Statement> block) {
+      super(src, node);
+      
+      this.symbol = symbol;
+      this.block = block;
+    }
+  
+    @Override
+    public boolean isDependCode() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependCode(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : block) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependCode)) {
+        return false;
+      }        
+      DependCode tmp = (DependCode) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.block.equals(this.block) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 647 + 991 * symbol.hashCode() + 409 * block.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Statement> getBlock() {
+      return this.block;
+    }
+  
+    @Override
+    public boolean hasBlock() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(block));
+    }
+            
+  }
+  public boolean isDependConditionAfter() {
+    return false;
+  }
+
+  static public class DependConditionAfter extends Sym {
+    // Production: sig("DependConditionAfter",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.Expression","condition")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.Expression condition;
+  
+    public DependConditionAfter(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Expression condition) {
+      super(src, node);
+      
+      this.symbol = symbol;
+      this.condition = condition;
+    }
+  
+    @Override
+    public boolean isDependConditionAfter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependConditionAfter(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = condition.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        condition.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependConditionAfter)) {
+        return false;
+      }        
+      DependConditionAfter tmp = (DependConditionAfter) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.condition.equals(this.condition) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 907 + 89 * symbol.hashCode() + 347 * condition.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getCondition() {
+      return this.condition;
+    }
+  
+    @Override
+    public boolean hasCondition() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol), clone(condition));
+    }
+            
+  }
+  public boolean isDependConditionBefore() {
+    return false;
+  }
+
+  static public class DependConditionBefore extends Sym {
+    // Production: sig("DependConditionBefore",[arg("org.rascalmpl.ast.Expression","condition"),arg("org.rascalmpl.ast.Sym","thenPart")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Expression condition;
+    private final org.rascalmpl.ast.Sym thenPart;
+  
+    public DependConditionBefore(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Sym thenPart) {
+      super(src, node);
+      
+      this.condition = condition;
+      this.thenPart = thenPart;
+    }
+  
+    @Override
+    public boolean isDependConditionBefore() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependConditionBefore(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = condition.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        condition.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = thenPart.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        thenPart.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependConditionBefore)) {
+        return false;
+      }        
+      DependConditionBefore tmp = (DependConditionBefore) o;
+      return true && tmp.condition.equals(this.condition) && tmp.thenPart.equals(this.thenPart) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 509 + 151 * condition.hashCode() + 599 * thenPart.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getCondition() {
+      return this.condition;
+    }
+  
+    @Override
+    public boolean hasCondition() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getThenPart() {
+      return this.thenPart;
+    }
+  
+    @Override
+    public boolean hasThenPart() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(condition), clone(thenPart));
+    }
+            
+  }
+  public boolean isDependIgnore() {
+    return false;
+  }
+
+  static public class DependIgnore extends Sym {
+    // Production: sig("DependIgnore",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public DependIgnore(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
+      
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isDependIgnore() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependIgnore(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependIgnore)) {
+        return false;
+      }        
+      DependIgnore tmp = (DependIgnore) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 29 + 941 * symbol.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
+  }
+  public boolean isDependLoop() {
+    return false;
+  }
+
+  static public class DependLoop extends Sym {
+    // Production: sig("DependLoop",[arg("org.rascalmpl.ast.Expression","condition"),arg("org.rascalmpl.ast.Sym","body")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Expression condition;
+    private final org.rascalmpl.ast.Sym body;
+  
+    public DependLoop(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Sym body) {
+      super(src, node);
+      
+      this.condition = condition;
+      this.body = body;
+    }
+  
+    @Override
+    public boolean isDependLoop() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependLoop(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = condition.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        condition.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = body.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        body.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependLoop)) {
+        return false;
+      }        
+      DependLoop tmp = (DependLoop) o;
+      return true && tmp.condition.equals(this.condition) && tmp.body.equals(this.body) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 103 + 67 * condition.hashCode() + 769 * body.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getCondition() {
+      return this.condition;
+    }
+  
+    @Override
+    public boolean hasCondition() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Sym getBody() {
+      return this.body;
+    }
+  
+    @Override
+    public boolean hasBody() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(condition), clone(body));
+    }
+            
+  }
+  public boolean isDependNonterminal() {
+    return false;
+  }
+
+  static public class DependNonterminal extends Sym {
+    // Production: sig("DependNonterminal",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Nonterminal nonterminal;
+    private final java.util.List<org.rascalmpl.ast.Expression> arguments;
+    private final org.rascalmpl.ast.KeywordArguments_Expression keywordArguments;
+  
+    public DependNonterminal(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
+      super(src, node);
+      
+      this.nonterminal = nonterminal;
+      this.arguments = arguments;
+      this.keywordArguments = keywordArguments;
+    }
+  
+    @Override
+    public boolean isDependNonterminal() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependNonterminal(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : arguments) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      $l = keywordArguments.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordArguments.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependNonterminal)) {
+        return false;
+      }        
+      DependNonterminal tmp = (DependNonterminal) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.arguments.equals(this.arguments) && tmp.keywordArguments.equals(this.keywordArguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 149 + 541 * nonterminal.hashCode() + 353 * arguments.hashCode() + 23 * keywordArguments.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Nonterminal getNonterminal() {
+      return this.nonterminal;
+    }
+  
+    @Override
+    public boolean hasNonterminal() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
+      return this.arguments;
+    }
+  
+    @Override
+    public boolean hasArguments() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
+      return this.keywordArguments;
+    }
+  
+    @Override
+    public boolean hasKeywordArguments() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal), clone(arguments), clone(keywordArguments));
+    }
+            
+  }
+  public boolean isDependOffside() {
+    return false;
+  }
+
+  static public class DependOffside extends Sym {
+    // Production: sig("DependOffside",[arg("org.rascalmpl.ast.Sym","symbol")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public DependOffside(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(src, node);
+      
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isDependOffside() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependOffside(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = symbol.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        symbol.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependOffside)) {
+        return false;
+      }        
+      DependOffside tmp = (DependOffside) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 787 + 863 * symbol.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbol));
+    }
+            
+  }
+  public boolean isDependParametrized() {
+    return false;
+  }
+
+  static public class DependParametrized extends Sym {
+    // Production: sig("DependParametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Nonterminal nonterminal;
+    private final java.util.List<org.rascalmpl.ast.Sym> parameters;
+    private final java.util.List<org.rascalmpl.ast.Expression> arguments;
+    private final org.rascalmpl.ast.KeywordArguments_Expression keywordArguments;
+  
+    public DependParametrized(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
+      super(src, node);
+      
+      this.nonterminal = nonterminal;
+      this.parameters = parameters;
+      this.arguments = arguments;
+      this.keywordArguments = keywordArguments;
+    }
+  
+    @Override
+    public boolean isDependParametrized() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependParametrized(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = nonterminal.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        nonterminal.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      for (AbstractAST $elem : parameters) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      for (AbstractAST $elem : arguments) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+      $l = keywordArguments.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordArguments.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependParametrized)) {
+        return false;
+      }        
+      DependParametrized tmp = (DependParametrized) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.parameters.equals(this.parameters) && tmp.arguments.equals(this.arguments) && tmp.keywordArguments.equals(this.keywordArguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 557 + 61 * nonterminal.hashCode() + 281 * parameters.hashCode() + 263 * arguments.hashCode() + 19 * keywordArguments.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Nonterminal getNonterminal() {
+      return this.nonterminal;
+    }
+  
+    @Override
+    public boolean hasNonterminal() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
+      return this.arguments;
+    }
+  
+    @Override
+    public boolean hasArguments() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
+      return this.keywordArguments;
+    }
+  
+    @Override
+    public boolean hasKeywordArguments() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(nonterminal), clone(parameters), clone(arguments), clone(keywordArguments));
+    }
+            
+  }
+  public boolean isDependScope() {
+    return false;
+  }
+
+  static public class DependScope extends Sym {
+    // Production: sig("DependScope",[arg("java.util.List\<org.rascalmpl.ast.Sym\>","symbols")],breakable=false)
+  
+    
+    private final java.util.List<org.rascalmpl.ast.Sym> symbols;
+  
+    public DependScope(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Sym> symbols) {
+      super(src, node);
+      
+      this.symbols = symbols;
+    }
+  
+    @Override
+    public boolean isDependScope() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymDependScope(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : symbols) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DependScope)) {
+        return false;
+      }        
+      DependScope tmp = (DependScope) o;
+      return true && tmp.symbols.equals(this.symbols) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 61 + 241 * symbols.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public java.util.List<org.rascalmpl.ast.Sym> getSymbols() {
+      return this.symbols;
+    }
+  
+    @Override
+    public boolean hasSymbols() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(symbols));
     }
             
   }
@@ -500,7 +1589,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 ; 
+      return 409 ; 
     } 
   
     	
@@ -565,7 +1654,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 821 + 821 * symbol.hashCode() ; 
+      return 443 + 11 * symbol.hashCode() ; 
     } 
   
     
@@ -649,7 +1738,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 139 * symbol.hashCode() + 233 * label.hashCode() ; 
+      return 389 + 229 * symbol.hashCode() + 193 * label.hashCode() ; 
     } 
   
     
@@ -742,7 +1831,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 359 * symbol.hashCode() + 151 * match.hashCode() ; 
+      return 617 + 521 * symbol.hashCode() + 269 * match.hashCode() ; 
     } 
   
     
@@ -825,7 +1914,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 311 + 73 * symbol.hashCode() ; 
+      return 839 + 743 * symbol.hashCode() ; 
     } 
   
     
@@ -909,7 +1998,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 5 * symbol.hashCode() + 191 * sep.hashCode() ; 
+      return 751 + 241 * symbol.hashCode() + 911 * sep.hashCode() ; 
     } 
   
     
@@ -992,7 +2081,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 149 * symbol.hashCode() ; 
+      return 827 + 29 * symbol.hashCode() ; 
     } 
   
     
@@ -1076,7 +2165,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 761 * symbol.hashCode() + 89 * sep.hashCode() ; 
+      return 947 + 883 * symbol.hashCode() + 743 * sep.hashCode() ; 
     } 
   
     
@@ -1169,7 +2258,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 587 + 67 * symbol.hashCode() + 191 * label.hashCode() ; 
+      return 313 + 607 * symbol.hashCode() + 727 * label.hashCode() ; 
     } 
   
     
@@ -1252,7 +2341,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 263 * string.hashCode() ; 
+      return 883 + 617 * string.hashCode() ; 
     } 
   
     
@@ -1326,7 +2415,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 991 * nonterminal.hashCode() ; 
+      return 233 + 263 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1410,7 +2499,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 907 * symbol.hashCode() + 89 * match.hashCode() ; 
+      return 163 + 683 * symbol.hashCode() + 661 * match.hashCode() ; 
     } 
   
     
@@ -1503,7 +2592,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 509 * match.hashCode() + 151 * symbol.hashCode() ; 
+      return 499 + 769 * match.hashCode() + 163 * symbol.hashCode() ; 
     } 
   
     
@@ -1586,7 +2675,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 29 * symbol.hashCode() ; 
+      return 641 + 313 * symbol.hashCode() ; 
     } 
   
     
@@ -1660,7 +2749,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 103 * nonterminal.hashCode() ; 
+      return 509 + 563 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1746,7 +2835,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 769 * nonterminal.hashCode() + 149 * parameters.hashCode() ; 
+      return 149 + 431 * nonterminal.hashCode() + 67 * parameters.hashCode() ; 
     } 
   
     
@@ -1839,7 +2928,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 353 * match.hashCode() + 23 * symbol.hashCode() ; 
+      return 19 + 181 * match.hashCode() + 599 * symbol.hashCode() ; 
     } 
   
     
@@ -1934,7 +3023,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 863 * first.hashCode() + 557 * sequence.hashCode() ; 
+      return 101 + 421 * first.hashCode() + 277 * sequence.hashCode() ; 
     } 
   
     
@@ -2017,7 +3106,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 281 * nonterminal.hashCode() ; 
+      return 487 + 797 * nonterminal.hashCode() ; 
     } 
   
     
@@ -2091,7 +3180,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 19 * symbol.hashCode() ; 
+      return 787 + 397 * symbol.hashCode() ; 
     } 
   
     
@@ -2175,7 +3264,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 241 * symbol.hashCode() + 409 * match.hashCode() ; 
+      return 191 + 977 * symbol.hashCode() + 173 * match.hashCode() ; 
     } 
   
     

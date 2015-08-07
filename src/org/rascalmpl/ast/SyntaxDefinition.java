@@ -25,6 +25,13 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   
+  public boolean hasDefined() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.DefinedSym getDefined() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasProduction() {
     return false;
   }
@@ -37,13 +44,6 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Start getStart() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasDefined() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Sym getDefined() {
     throw new UnsupportedOperationException();
   }
   public boolean hasVis() {
@@ -62,13 +62,13 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Keyword extends SyntaxDefinition {
-    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
+    // Production: sig("Keyword",[arg("org.rascalmpl.ast.DefinedSym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
-    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.DefinedSym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DefinedSym defined,  org.rascalmpl.ast.Prod production) {
       super(src, node);
       
       this.defined = defined;
@@ -121,12 +121,12 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 11 * defined.hashCode() + 389 * production.hashCode() ; 
+      return 541 + 491 * defined.hashCode() + 331 * production.hashCode() ; 
     } 
   
     
     @Override
-    public org.rascalmpl.ast.Sym getDefined() {
+    public org.rascalmpl.ast.DefinedSym getDefined() {
       return this.defined;
     }
   
@@ -155,14 +155,14 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Language extends SyntaxDefinition {
-    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
+    // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.DefinedSym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Start start;
-    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.DefinedSym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Language(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+    public Language(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.DefinedSym defined,  org.rascalmpl.ast.Prod production) {
       super(src, node);
       
       this.start = start;
@@ -224,7 +224,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 193 * start.hashCode() + 617 * defined.hashCode() + 521 * production.hashCode() ; 
+      return 167 + 809 * start.hashCode() + 109 * defined.hashCode() + 373 * production.hashCode() ; 
     } 
   
     
@@ -238,7 +238,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Sym getDefined() {
+    public org.rascalmpl.ast.DefinedSym getDefined() {
       return this.defined;
     }
   
@@ -267,14 +267,14 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Layout extends SyntaxDefinition {
-    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
+    // Production: sig("Layout",[arg("org.rascalmpl.ast.Visibility","vis"),arg("org.rascalmpl.ast.DefinedSym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
     private final org.rascalmpl.ast.Visibility vis;
-    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.DefinedSym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Visibility vis,  org.rascalmpl.ast.DefinedSym defined,  org.rascalmpl.ast.Prod production) {
       super(src, node);
       
       this.vis = vis;
@@ -336,7 +336,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 839 * vis.hashCode() + 743 * defined.hashCode() + 751 * production.hashCode() ; 
+      return 449 + 571 * vis.hashCode() + 467 * defined.hashCode() + 691 * production.hashCode() ; 
     } 
   
     
@@ -350,7 +350,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Sym getDefined() {
+    public org.rascalmpl.ast.DefinedSym getDefined() {
       return this.defined;
     }
   
@@ -379,13 +379,13 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   static public class Lexical extends SyntaxDefinition {
-    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
+    // Production: sig("Lexical",[arg("org.rascalmpl.ast.DefinedSym","defined"),arg("org.rascalmpl.ast.Prod","production")],breakable=false)
   
     
-    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.DefinedSym defined;
     private final org.rascalmpl.ast.Prod production;
   
-    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.DefinedSym defined,  org.rascalmpl.ast.Prod production) {
       super(src, node);
       
       this.defined = defined;
@@ -438,12 +438,12 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 911 * defined.hashCode() + 827 * production.hashCode() ; 
+      return 701 + 19 * defined.hashCode() + 137 * production.hashCode() ; 
     } 
   
     
     @Override
-    public org.rascalmpl.ast.Sym getDefined() {
+    public org.rascalmpl.ast.DefinedSym getDefined() {
       return this.defined;
     }
   

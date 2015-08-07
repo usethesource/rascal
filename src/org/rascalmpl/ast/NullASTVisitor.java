@@ -337,6 +337,26 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitDefinedSymDefault(DefinedSym.Default x) { 
+    return null; 
+  }
+
+  public T visitDefinedSymDependFormals(DefinedSym.DependFormals x) { 
+    return null; 
+  }
+
+  public T visitDefinedSymDependFormalsParametrized(DefinedSym.DependFormalsParametrized x) { 
+    return null; 
+  }
+
+  public T visitDefinedSymDependVoidFormals(DefinedSym.DependVoidFormals x) { 
+    return null; 
+  }
+
+  public T visitDefinedSymDependVoidFormalsParametrized(DefinedSym.DependVoidFormalsParametrized x) { 
+    return null; 
+  }
+
   public T visitEvalCommandDeclaration(EvalCommand.Declaration x) { 
     return null; 
   }
@@ -1266,6 +1286,50 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitSymColumn(Sym.Column x) { 
+    return null; 
+  }
+
+  public T visitSymDependAlign(Sym.DependAlign x) { 
+    return null; 
+  }
+
+  public T visitSymDependAlternative(Sym.DependAlternative x) { 
+    return null; 
+  }
+
+  public T visitSymDependCode(Sym.DependCode x) { 
+    return null; 
+  }
+
+  public T visitSymDependConditionAfter(Sym.DependConditionAfter x) { 
+    return null; 
+  }
+
+  public T visitSymDependConditionBefore(Sym.DependConditionBefore x) { 
+    return null; 
+  }
+
+  public T visitSymDependIgnore(Sym.DependIgnore x) { 
+    return null; 
+  }
+
+  public T visitSymDependLoop(Sym.DependLoop x) { 
+    return null; 
+  }
+
+  public T visitSymDependNonterminal(Sym.DependNonterminal x) { 
+    return null; 
+  }
+
+  public T visitSymDependOffside(Sym.DependOffside x) { 
+    return null; 
+  }
+
+  public T visitSymDependParametrized(Sym.DependParametrized x) { 
+    return null; 
+  }
+
+  public T visitSymDependScope(Sym.DependScope x) { 
     return null; 
   }
 
