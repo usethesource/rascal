@@ -35,10 +35,44 @@ public bool match(Symbol checked, Symbol referenced) {
 
 public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
+Symbol sym2symbol(DefinedSym _ :\default(Sym s)) = sym2symbol(s);
+Symbol sym2symbol(DefinedSym _ :dependVoidFormals(Nonterminal n, Parameters f)) 
+  = addParameters(sort("<n>"), f);
+Symbol sym2symbol(DefinedSym _ :dependVoidFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Parameters f)) 
+ = addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), f);
+Symbol sym2symbol(DefinedSym _ :dependFormals(Nonterminal n, Type t, Parameters f)) 
+ = addParameters(sort("<n>"), type2symbol(t), f);
+Symbol sym2symbol(DefinedSym _ :dependFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Type t, Parameters f))
+ = addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), type2symbol(t), f);
+ 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return Symbol::sort("<n>");
+    case \bracket(Sym s): 
+      return sym2symbol(s);
+    case dependAlign(Sym s):
+      return \align(sym2symbol(s));
+    case dependOffside(Sym s):
+      return \offside(sym2symbol(s));
+    case dependIgnore(Sym s):
+      return \ignore(sym2symbol(s));
+    case dependNonterminal(_, Nonterminal n, {Expression ","}* a, kwArgs) :
+      return addActuals(sort("<n>"), a); // TODO don't forget about the kwArgs
+    case dependParametrized(_, Nonterminal n, {Sym ","}+ syms, {Expression ","}* a, kwArgs) :
+      return addActuals(\parameterized-sort("<n>",separgs2symbols(syms)), a);  // TODO don't forget about the kwArgs
+    case dependScope(Sym+ syms):
+      return \scope(args2symbols(syms));
+    case dependCode(Sym s, Statement+ block):
+      return \do(sym2symbol(s), "<block>");
+    case dependConditionAfter(Sym s, Expression condition):
+      return \when(sym2symbol(s), "<condition>");
+    case dependConditionBefore(Expression condition, Sym s):
+      return \if("<condition>", sym2symbol(s));
+    case dependAlternative(Expression condition, Sym i, Sym e):
+      return \ifElse("<condition>", sym2symbol(i), sym2symbol(e));
+    case dependLoop(Expression condition, Sym s):
+      return \while("<condition>", sym2symbol(s));      
     case \start(Nonterminal n) : 
       return Symbol::\start(sort("<n>"));
     case literal(StringConstant l): 

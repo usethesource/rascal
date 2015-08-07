@@ -1277,6 +1277,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymBracket(Sym.Bracket x) { 
+    return null; 
+  }
+
   public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { 
     return null; 
   }

@@ -11,8 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 

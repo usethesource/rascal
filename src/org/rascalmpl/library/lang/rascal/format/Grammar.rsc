@@ -284,6 +284,7 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {}): {
         println("WARNING: empty conditional <sym>");
         return symbol2rascal(s);
+    // TODO: add data dependend symbols, and take care of brackets when necessary!
     }
     case empty(): 
         return "()"; 

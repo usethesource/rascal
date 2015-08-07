@@ -113,13 +113,14 @@ syntax Sym
 	| literal: StringConstant string 
 	| caseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
 // regular expressions
-	| iter: Sym symbol "+" 
-	| iterStar: Sym symbol "*" 
+	| iter: Sym!dependScope symbol "+" 
+	| iterStar: Sym!dependScope symbol "*" 
 	| iterSep: "{" Sym symbol Sym sep "}" "+" 
 	| iterStarSep: "{" Sym symbol Sym sep "}" "*" 
 	| optional: Sym symbol "?" 
 	| alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| sequence: "(" Sym first Sym+ sequence ")"
+	| bracket \bracket: "(" Sym symbol ")"
 	| empty: "(" ")"
 // additional constraint notation starts here:	
 	| except:   Sym symbol "!" NonterminalLabel label
@@ -740,7 +741,7 @@ syntax Type
 	| basic: BasicType basic 
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
-	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
+	| symbol: Sym!nonterminal!labeled!parametrized!parameter!dependVoidFormals!dependVoidFormalsParametrized!dependFormals!dependFormalsParametrized!dependNonterminal!dependParametrized symbol
 	;
 
 syntax Declaration
