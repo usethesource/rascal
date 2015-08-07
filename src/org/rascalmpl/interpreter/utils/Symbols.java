@@ -60,6 +60,8 @@ public class Symbols {
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
 	private static IValue symbolAST2SymbolConstructor(Sym symbol, boolean lex, String layout) {
 		
+		// TODO: add cases for data dependend extensions!
+		
 		if (symbol.isCaseInsensitiveLiteral()) {
 			return factory.constructor(RascalValueFactory.Symbol_CiLit, ciliteral2Symbol(symbol.getCistring()));
 		}
