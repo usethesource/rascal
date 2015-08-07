@@ -272,6 +272,7 @@ public class SymbolAdapter {
 			return b.toString();
 		}
 		
+		
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol"), withLayout) + " " + ((IString) symbol.get("name")).getValue();
 		}
