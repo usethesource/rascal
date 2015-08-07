@@ -44,23 +44,31 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
     switch (sd) {
       case \layout(_, nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(\layouts("<n>"), p)},nothing()>;
-      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
-        return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
+      case \language(present() /*start*/, DefinedSym s, Prod p) : 
+        return < {prod(\start(sort("<n>")),[label("top", sym2symbol(s))],{})
                 ,prod2prod(sort("<n>"), p)}
                ,just(\start(sort("<n>")))>;
-      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-        return <{prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p)}, nothing()>;
-      case \language(absent(), nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\sort("<n>"), p)},nothing()>;
-      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-        return <{prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p)}, nothing()>;
-      case \lexical(nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\lex("<n>"), p)}, nothing()>;
-      case \keyword(nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(keywords("<n>"), p)}, nothing()>;
+      case \language(absent(), DefinedSym s, Prod p) : 
+        return <{prod2prod(sym2symbol(s), p)},nothing()>;
+      case \lexical(DefinedSym s, Prod p) : 
+        return <{prod2prod(toLex(sym2symbol(s)), p)}, nothing()>;
+      case \keyword(DefinedSym s, Prod p) : 
+        return <{prod2prod(toKeyword(sym2symbol(s)), p)}, nothing()>;
       default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
     }
 } 
+
+private Symbol toLex(Symbol s) 
+  = visit (s) { 
+       case \sort(n) => \lex(n) 
+       case \parameterized-sort(n,ps) => \parameterized-lex(n,ps) 
+  };
+
+private Symbol toKeyword(Symbol s) 
+  = visit (s) { 
+       case \sort(n) => \keywords(n) 
+  };
+
    
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {

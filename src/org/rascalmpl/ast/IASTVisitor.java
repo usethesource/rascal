@@ -647,6 +647,8 @@ public interface IASTVisitor<T> {
 
   public T visitSymAlternative(Sym.Alternative x);
 
+  public T visitSymBracket(Sym.Bracket x);
+
   public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
 
   public T visitSymCharacterClass(Sym.CharacterClass x);

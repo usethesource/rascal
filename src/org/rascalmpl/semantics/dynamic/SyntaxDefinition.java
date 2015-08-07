@@ -65,7 +65,6 @@ public abstract class SyntaxDefinition extends
 			else if (type.hasNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(nt)));
-
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
@@ -104,7 +103,6 @@ public abstract class SyntaxDefinition extends
 			else if (type.hasNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Lex, vf.string(nt)));
-
 			}
 
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
