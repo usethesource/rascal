@@ -70,6 +70,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -270,6 +271,11 @@ public class SymbolAdapter {
 			
 			b.append(')');
 			return b.toString();
+		}
+		
+		// data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, str] keywordDefaults = ());
+		if (hasReturnType(symbol) || hasFormals(symbol) || hasKeywordFormals(symbol)) {
+			
 		}
 		
 		
@@ -544,6 +550,19 @@ public class SymbolAdapter {
 
 		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
+	}
+
+	private static boolean hasKeywordFormals(IConstructor symbol) {
+		IWithKeywordParameters<? extends IConstructor> kw = symbol.asWithKeywordParameters();
+		return kw.hasParameter("keywordTypes"); 
+	}
+
+	private static boolean hasFormals(IConstructor symbol) {
+		return symbol.asWithKeywordParameters().hasParameter("formals");
+	}
+
+	private static boolean hasReturnType(IConstructor symbol) {
+		return symbol.asWithKeywordParameters().hasParameter("returnType");
 	}
 
 	private static String getDependendBlock(IConstructor symbol) {
