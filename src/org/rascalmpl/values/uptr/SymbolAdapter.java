@@ -65,6 +65,7 @@ import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_Void;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -125,11 +126,20 @@ public class SymbolAdapter {
 
 	public static IConstructor getSymbol(IConstructor tree) {
 		tree = delabel(tree);
-		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree) || isConditional(tree)) {
+		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree) || isConditional(tree)
+		   || isIf(tree) || isWhen(tree) || isIfElse(tree) || isAlign(tree) || isDo(tree) || isOffside(tree) || isIgnore(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
 
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
+	}
+
+	private static boolean isOffside(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_Offside;
+	}
+
+	private static boolean isDo(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_Do;
 	}
 
 	public static boolean isConditional(IConstructor tree) {
@@ -223,6 +233,45 @@ public class SymbolAdapter {
 		// TODO: this code clones the symbol formatter impemented in Rascal. 
 		// When we have a faster Rascal (compiler?) we should remove this clone.
 
+		if (hasActualParameters(symbol) ||  hasActualKeywordParameters(symbol)) {
+			IList actuals = getActualParameters(symbol);
+			IMap actualKws = getActualKeywordParameters(symbol);
+			
+			StringBuffer b = new StringBuffer();
+			
+			b.append(toString(symbol.asWithKeywordParameters().unsetParameter("actuals").asWithKeywordParameters().unsetParameter("keywordActuals"), withLayout));
+			b.append('(');
+			
+			for (int i = 0; i < actuals.length() - 1; i++) {
+				b.append(((IString) actuals.get(i)).getValue());
+				b.append(',');
+				b.append(' ');
+			}
+			
+			if (!actuals.isEmpty()) {
+				b.append(((IString) actuals.get(actuals.length() - 1)).getValue());
+				
+				if (!actualKws.isEmpty()) {
+					b.append(',');
+					b.append(' ');
+				}
+			}
+			
+			for (IValue key : actualKws) {
+				b.append(((IString) key).getValue());
+				b.append('=');
+				b.append(((IString) actualKws.get(key)).getValue());
+				b.append(", ");
+			}
+			
+			if (!actualKws.isEmpty()) {
+				b.replace(b.length() - 2, b.length(), "");
+			}
+			
+			b.append(')');
+			return b.toString();
+		}
+		
 		if (isLabel(symbol)) {
 			return toString((IConstructor) symbol.get("symbol"), withLayout) + " " + ((IString) symbol.get("name")).getValue();
 		}
@@ -356,10 +405,44 @@ public class SymbolAdapter {
 		}
 
 		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
-			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol"), withLayout) + "]";
+			return symbol.getName() + "[" + toString(getSymbol(symbol), withLayout) + "]";
 		}
 		
+		if (isScope(symbol)) {
+			return "{ " + toString(getSymbols(symbol), ' ', withLayout) + " }";
+		}
 		
+		if (isDo(symbol)) {
+			return toString(getSymbol(symbol), withLayout) + " " + getDependendBlock(symbol);
+		}
+		
+		if (isIf(symbol)) {
+			return "if (" + getDependendCondition(symbol) + ") " + toString((IConstructor) getSymbol(symbol), withLayout);
+		}
+		
+		if (isIfElse(symbol)) {
+			return "if (" + getDependendCondition(symbol) + ") " + toString(getIfSymbol(symbol), withLayout) + " else " + toString(getThenSymbol(symbol), withLayout);
+		}
+		
+		if (isWhen(symbol)) {
+			return toString(getSymbol(symbol), withLayout) + " when " + getDependendCondition(symbol);
+		}
+		
+		if (isWhile(symbol)) {
+			return "while (" + getDependendCondition(symbol) + ") " + toString(getSymbol(symbol), withLayout);
+		}
+		
+		if (isAlign(symbol)) {
+			return "align " + toString(getSymbol(symbol), withLayout);
+		}
+		
+		if (isIgnore(symbol)) {
+			return "ignore " + toString(getSymbol(symbol), withLayout);
+		}
+		
+		if (isOffside(symbol)) {
+			return "offside " + toString(getSymbol(symbol), withLayout);
+		}
 
 		if (isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
 			StringBuilder b = new StringBuilder();
@@ -460,6 +543,76 @@ public class SymbolAdapter {
 
 		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
+	}
+
+	private static String getDependendBlock(IConstructor symbol) {
+		return ((IString) symbol.get("block")).getValue();
+	}
+
+	private static boolean hasActualKeywordParameters(IConstructor symbol) {
+		return symbol.asWithKeywordParameters().hasParameter("keywordActuals");
+	}
+
+	private static IList getActualParameters(IConstructor symbol) {
+		if (hasActualParameters(symbol)) {
+			return (IList) symbol.asWithKeywordParameters().getParameter("actuals");
+		}
+		else {
+			return VF.list();
+		}
+	}
+	
+	private static IMap getActualKeywordParameters(IConstructor symbol) {
+		if (hasActualKeywordParameters(symbol)) {
+			return (IMap) symbol.asWithKeywordParameters().getParameter("keywordActuals");
+		}
+		else {
+			return VF.mapWriter().done();
+		}
+	}
+	
+	private static boolean hasActualParameters(IConstructor symbol) {
+		return symbol.asWithKeywordParameters().hasParameter("actuals");
+	}
+
+	private static IConstructor getThenSymbol(IConstructor symbol) {
+		return (IConstructor) symbol.get("thenSymbol");
+	}
+
+	private static IConstructor getIfSymbol(IConstructor symbol) {
+		return (IConstructor) symbol.get("ifSymbol");
+	}
+
+	private static String getDependendCondition(IConstructor symbol) {
+		return ((IString) symbol.get("condition")).getValue();
+	}
+
+	private static boolean isIfElse(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_IfElse;
+	}
+
+	private static boolean isIgnore(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_Ignore;
+	}
+
+	private static boolean isAlign(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_Align;
+	}
+
+	private static boolean isWhile(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_While;
+	}
+
+	private static boolean isWhen(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_When;
+	}
+
+	private static boolean isIf(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_If;
+	}
+
+	private static boolean isScope(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Symbol_Scope;
 	}
 
 	private static ISet getConditions(IConstructor symbol) {
