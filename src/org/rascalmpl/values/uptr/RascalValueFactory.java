@@ -214,6 +214,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Alias = tf.constructor(uptr, Symbol, "alias", str, "name", tf.listType(Symbol), "parameters", Symbol, "aliased");
 	public static final Type Symbol_Cons = tf.constructor(uptr, Symbol, "cons", Symbol, "adt", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_BoundParameter = tf.constructor(uptr, Symbol, "parameter", str , "name", Symbol, "bound");
+	public static final Type Symbol_Scope = tf.constructor(uptr, Symbol, "scope", tf.listType(Symbol), "symbols");
+	public static final Type Symbol_If = tf.constructor(uptr, Symbol, "if", tf.stringType(), "condition", Symbol, "symbol");
+	public static final Type Symbol_IfElse = tf.constructor(uptr, Symbol, "if", tf.stringType(), "condition", Symbol, "ifSymbol", Symbol, "thenSymbol");
+	public static final Type Symbol_While = tf.constructor(uptr, Symbol, "while", tf.stringType(), "condition", Symbol, "symbol");
+	public static final Type Symbol_When = tf.constructor(uptr, Symbol, "when", Symbol, "symbol", tf.stringType(), "condition");
+	public static final Type Symbol_Do = tf.constructor(uptr, Symbol, "when", Symbol, "symbol", tf.stringType(), "block");
+	public static final Type Symbol_Align = tf.constructor(uptr, Symbol, "align", Symbol, "symbol");
+	public static final Type Symbol_Offside = tf.constructor(uptr, Symbol, "offside", Symbol, "symbol");
+	public static final Type Symbol_Ignore = tf.constructor(uptr, Symbol, "ignore", Symbol, "symbol");
+	
 	
 	/* Internally (type checker) used constructors for Symbol: */
 	public static final Type Symbol_Overloaded = tf.constructor(uptr, Symbol, "overloaded", tf.setType(Symbol), "overloads", tf.setType(Symbol), "defaults");
