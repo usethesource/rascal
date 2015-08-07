@@ -103,7 +103,11 @@ syntax Sym
 	| parameter: "&" Nonterminal nonterminal 
 	| parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
 	| \start: "start" "[" Nonterminal nonterminal "]"
-	| labeled: Sym symbol NonterminalLabel label
+	| labeled: Sym symbol NonterminalLabel label 
+// data-dependent non-terminals for parameter passing; needs to be cleaned up since it works around restrictions bugs
+  | dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+  | dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+  | dependScope: "{" Sym+ symbols "}"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
@@ -116,17 +120,24 @@ syntax Sym
 	| optional: Sym symbol "?" 
 	| alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| sequence: "(" Sym first Sym+ sequence ")"
-	// TODO: MinimalIter: Sym symbol IntegerConstant minimal "+"
-	// TODO: MinimalIterSep: "{" Sym symbol Symbol sep "}" IntegerConstant minimal "+"
-	// TODO | Permutation: "(" Sym first "~" {Sym "~"}+ participants ")"
-	// TODO | Combination: "(" Sym first "#" {Sym "#"}+ elements ")"
 	| empty: "(" ")"
-// conditionals
-	| column: Sym symbol "@" IntegerLiteral column 
-	| endOfLine: Sym symbol "$" 
-	| startOfLine: "^" Sym symbol
+// additional constraint notation starts here:	
 	| except:   Sym symbol "!" NonterminalLabel label
+// sugar for layout sensitive constraints
+  | column: Sym symbol "@" IntegerLiteral column 
+  | endOfLine: Sym symbol "$" 
+  | startOfLine: "^" Sym symbol
+  > \dependAlign: "align" Sym symbol
+  | \dependOffside: "offside" Sym symbol
+  | \dependIgnore: "ignore" Sym symbol
+// data dependent constraints and binding effects 
+  > dependCode: Sym symbol "do" Statement+ block
+  > dependConditionAfter: Sym symbol "when" "(" Expression condition ")"
+  > dependConditionBefore: "if" "(" Expression condition ")" Sym thenPart
+  | dependAlternative: "if" "(" Expression condition ")" Sym thenPart "else" Sym elsePart
+  | dependLoop: "while" "(" Expression condition ")" Sym body	
 	>  
+// character-level constraints	
 	assoc ( 
 	  left  ( follow:     Sym symbol  "\>\>" Sym match
 	        | notFollow:  Sym symbol "!\>\>" Sym match
@@ -140,6 +151,14 @@ syntax Sym
 	left unequal:  Sym symbol "\\" Sym match
 	;
 
+syntax DefinedSym
+    = \default: Sym!dependNonterminal!dependParametrized sym
+    | dependVoidFormals: Nonterminal nonterminal >> "(" Parameters formals \ "()" 
+    | dependVoidFormalsParametrized: () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Parameters formals \ "()"
+    | dependFormals: Nonterminal nonterminal Type typ >> "(" Parameters formals  \ "()" 
+    | dependFormalsParametrized: () () Nonterminal nonterminal  >> "[" "[" {Sym ","}+ parameters "]" Type typ >> "(" Parameters formals  \ "()"  
+    ;
+    
 lexical TimePartNoTZ
 	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
 	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
@@ -156,10 +175,10 @@ lexical Name
 	;
 
 syntax SyntaxDefinition
-	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
-	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
-	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
-	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
+	=  @Foldable \layout  : Visibility vis "layout"  DefinedSym defined "=" Prod production ";" 
+	|  @Foldable \lexical : "lexical" DefinedSym defined "=" Prod production ";" 
+	|  @Foldable \keyword : "keyword" DefinedSym defined "=" Prod production ";"
+	|  @Foldable language: Start start "syntax" DefinedSym defined "=" Prod production ";" ;
 
 syntax Kind
 	= function: "function" 
@@ -215,7 +234,7 @@ syntax Expression
 	| qualifiedName  : QualifiedName qualifiedName 
 	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]"
 	| slice        : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst ".." OptionalExpression optLast "]" 
-    | sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
+  | sliceStep    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" OptionalExpression optFirst "," Expression second ".." OptionalExpression optLast "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
@@ -246,7 +265,7 @@ syntax Expression
 	> non-assoc ( notIn: Expression lhs "notin" Expression rhs  
 		        | \in: Expression lhs "in" Expression rhs 
 	)
-	> non-assoc ( greaterThanOrEq: Expression lhs "\>=" Expression rhs  
+	> non-assoc (greaterThanOrEq: Expression lhs "\>=" Expression rhs  
 		        | lessThanOrEq   : Expression lhs "\<=" Expression rhs 
 		        | lessThan       : Expression lhs "\<" !>> "-" Expression rhs 
 		        | greaterThan    : Expression lhs "\>" Expression rhs 

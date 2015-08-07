@@ -92,7 +92,7 @@ public abstract class FunctionBody extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 29 * statements.hashCode() ; 
+      return 313 + 463 * statements.hashCode() ; 
     } 
   
     

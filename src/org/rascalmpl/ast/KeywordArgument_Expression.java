@@ -107,7 +107,7 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 971 * name.hashCode() + 179 * expression.hashCode() ; 
+      return 757 + 829 * name.hashCode() + 47 * expression.hashCode() ; 
     } 
   
     

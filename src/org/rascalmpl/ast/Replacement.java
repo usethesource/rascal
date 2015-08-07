@@ -109,7 +109,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 + 3 * replacementExpression.hashCode() + 293 * conditions.hashCode() ; 
+      return 127 + 607 * replacementExpression.hashCode() + 631 * conditions.hashCode() ; 
     } 
   
     
@@ -192,7 +192,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 433 * replacementExpression.hashCode() ; 
+      return 449 + 113 * replacementExpression.hashCode() ; 
     } 
   
     

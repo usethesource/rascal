@@ -97,7 +97,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 139 * associativity.hashCode() ; 
+      return 223 + 499 * associativity.hashCode() ; 
     } 
   
     
@@ -161,7 +161,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 ; 
+      return 919 ; 
     } 
   
     	
@@ -226,7 +226,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 3 * tag.hashCode() ; 
+      return 233 + 709 * tag.hashCode() ; 
     } 
   
     

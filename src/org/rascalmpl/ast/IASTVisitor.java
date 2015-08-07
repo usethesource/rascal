@@ -177,6 +177,16 @@ public interface IASTVisitor<T> {
 
   public T visitDeclaratorDefault(Declarator.Default x);
 
+  public T visitDefinedSymDefault(DefinedSym.Default x);
+
+  public T visitDefinedSymDependFormals(DefinedSym.DependFormals x);
+
+  public T visitDefinedSymDependFormalsParametrized(DefinedSym.DependFormalsParametrized x);
+
+  public T visitDefinedSymDependVoidFormals(DefinedSym.DependVoidFormals x);
+
+  public T visitDefinedSymDependVoidFormalsParametrized(DefinedSym.DependVoidFormalsParametrized x);
+
   public T visitEvalCommandDeclaration(EvalCommand.Declaration x);
 
   public T visitEvalCommandImport(EvalCommand.Import x);
@@ -642,6 +652,28 @@ public interface IASTVisitor<T> {
   public T visitSymCharacterClass(Sym.CharacterClass x);
 
   public T visitSymColumn(Sym.Column x);
+
+  public T visitSymDependAlign(Sym.DependAlign x);
+
+  public T visitSymDependAlternative(Sym.DependAlternative x);
+
+  public T visitSymDependCode(Sym.DependCode x);
+
+  public T visitSymDependConditionAfter(Sym.DependConditionAfter x);
+
+  public T visitSymDependConditionBefore(Sym.DependConditionBefore x);
+
+  public T visitSymDependIgnore(Sym.DependIgnore x);
+
+  public T visitSymDependLoop(Sym.DependLoop x);
+
+  public T visitSymDependNonterminal(Sym.DependNonterminal x);
+
+  public T visitSymDependOffside(Sym.DependOffside x);
+
+  public T visitSymDependParametrized(Sym.DependParametrized x);
+
+  public T visitSymDependScope(Sym.DependScope x);
 
   public T visitSymEmpty(Sym.Empty x);
 
