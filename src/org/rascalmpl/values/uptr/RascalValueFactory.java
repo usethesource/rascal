@@ -250,6 +250,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	static {
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
+		
+		// data Symbol(list[str] actuals = [], map[str,str] keywordActuals = ());
+		uptr.declareKeywordParameter(Symbol, "actuals", tf.listType(tf.stringType()));
+		uptr.declareKeywordParameter(Symbol, "keywordActuals", tf.mapType(tf.stringType(), tf.stringType()));
+		// data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, str] keywordDefaults = ());
+		uptr.declareKeywordParameter(Symbol, "returnType", Symbol);
+		uptr.declareKeywordParameter(Symbol, "keywordTypes", tf.mapType(tf.stringType(), Symbol));
+		uptr.declareKeywordParameter(Symbol, "keywordDefaults", tf.mapType(tf.stringType(), tf.stringType()));
 	}
 
 	

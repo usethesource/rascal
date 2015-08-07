@@ -181,7 +181,7 @@ data Symbol
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
 // Symbol head formal parameters for data-dependency
-data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, Tree] keywordDefaults = ());
+data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, str] keywordDefaults = ());
 
 // Actual parameters for symbols with data-dependency
 data Symbol(list[str] actuals = [], map[str,str] keywordActuals = ());
