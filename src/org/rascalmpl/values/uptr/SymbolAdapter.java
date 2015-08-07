@@ -275,7 +275,55 @@ public class SymbolAdapter {
 		
 		// data Symbol(Symbol returnType = \void(), list[Symbol] formals = [], map[str,Symbol] keywordTypes= (), map[str, str] keywordDefaults = ());
 		if (hasReturnType(symbol) || hasFormals(symbol) || hasKeywordFormals(symbol)) {
+			StringBuffer b = new StringBuffer();
+	
+			b.append(toString(symbol.asWithKeywordParameters().unsetParameter("formals").asWithKeywordParameters().unsetParameter("keywordTypes").asWithKeywordParameters().unsetParameter("keywordDefaults"), withLayout));
 			
+			if (hasReturnType(symbol)) {
+				b.append(' ');
+				b.append(toString(getReturnType(symbol), withLayout));
+			}
+			
+			b.append('(');
+			if (hasFormals(symbol) || hasKeywordFormals(symbol)) {
+				IList formals = getFormals(symbol);
+				IMap formalKws = getKeywordFormals(symbol);
+				IMap defaults = getKeywordDefaults(symbol);
+				
+				for (int i = 0; i < formals.length() - 1; i++) {
+					b.append(((IString) formals.get(i)).getValue());
+					b.append(',');
+					b.append(' ');
+				}
+				
+				if (!formals.isEmpty()) {
+					b.append(((IString) formals.get(formals.length() - 1)).getValue());
+					
+					if (!formalKws.isEmpty()) {
+						b.append(',');
+						b.append(' ');
+					}
+				}
+				
+				for (IValue key : formalKws) {
+					b.append(toString((IConstructor) formalKws.get(key), withLayout));
+					b.append(' ');
+					b.append(((IString) key).getValue());
+					b.append(" = ");
+					b.append(((IString) defaults.get(key)).getValue());
+					b.append(", ");
+				}
+				
+				if (!formalKws.isEmpty()) {
+					b.replace(b.length() - 2, b.length(), "");
+				}
+				
+				b.append(')');
+				return b.toString();
+			}
+			b.append(')');
+			
+			return b.toString();
 		}
 		
 		
@@ -552,13 +600,31 @@ public class SymbolAdapter {
 		return symbol.toString();
 	}
 
+	private static IConstructor getReturnType(IConstructor symbol) {
+		return (IConstructor) symbol.asWithKeywordParameters().getParameter("returnType");
+	}
+
+	
 	private static boolean hasKeywordFormals(IConstructor symbol) {
 		IWithKeywordParameters<? extends IConstructor> kw = symbol.asWithKeywordParameters();
-		return kw.hasParameter("keywordTypes"); 
+		return kw.hasParameter("keywordTypes") && ((IMap) kw.getParameter("keywordTypes")).isEmpty(); 
 	}
 
 	private static boolean hasFormals(IConstructor symbol) {
-		return symbol.asWithKeywordParameters().hasParameter("formals");
+		IWithKeywordParameters<? extends IConstructor> kw = symbol.asWithKeywordParameters();
+		return kw.hasParameter("formals") && ((IMap) kw.getParameter("formals")).isEmpty();
+	}
+	
+	private static IList getFormals(IConstructor symbol) {
+		return (IList) symbol.asWithKeywordParameters().getParameter("formals");
+	}
+	
+	private static IMap getKeywordFormals(IConstructor symbol) {
+		return (IMap) symbol.asWithKeywordParameters().getParameter("keywordTypes");
+	}
+	
+	private static IMap getKeywordDefaults(IConstructor symbol) {
+		return (IMap) symbol.asWithKeywordParameters().getParameter("keywordDefaults");
 	}
 
 	private static boolean hasReturnType(IConstructor symbol) {
@@ -570,7 +636,8 @@ public class SymbolAdapter {
 	}
 
 	private static boolean hasActualKeywordParameters(IConstructor symbol) {
-		return symbol.asWithKeywordParameters().hasParameter("keywordActuals");
+		IWithKeywordParameters<? extends IConstructor> kw = symbol.asWithKeywordParameters();
+		return kw.hasParameter("keywordActuals") && !((IMap) kw.getParameter("keywordActuals")).isEmpty();
 	}
 
 	private static IList getActualParameters(IConstructor symbol) {
@@ -592,7 +659,8 @@ public class SymbolAdapter {
 	}
 	
 	private static boolean hasActualParameters(IConstructor symbol) {
-		return symbol.asWithKeywordParameters().hasParameter("actuals");
+		IWithKeywordParameters<? extends IConstructor> kw = symbol.asWithKeywordParameters();
+		return kw.hasParameter("actuals") && !((IList) kw.getParameter("actuals")).isEmpty();
 	}
 
 	private static IConstructor getThenSymbol(IConstructor symbol) {
