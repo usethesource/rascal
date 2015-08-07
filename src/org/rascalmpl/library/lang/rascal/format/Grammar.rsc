@@ -200,7 +200,9 @@ public str attr2mod(Attr a) {
   }
 }
 
+// TODO: this does not add brackets where necessary...
 public str symbol2rascal(Symbol sym) {
+  // TODO: add formal and actual (keyword) parameters, which are encoded as keyword parameters 
   switch (sym) {
     case label(str l, x) :
     	return "<symbol2rascal(x)> <l>";  
@@ -284,8 +286,23 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {}): {
         println("WARNING: empty conditional <sym>");
         return symbol2rascal(s);
-    // TODO: add data dependend symbols, and take care of brackets when necessary!
     }
+    case \offside(s) :
+        return "offside <symbol2rascal(s)>";
+    case \align(s) :
+        return "align <symbol2rascal(s)>";
+    case \if(e,s) :
+        return "if (<e>) <symbol2rascal(s)>";
+    case \when(s,e):
+        return "<symbol2rascal(s)> when <e>";
+    case \while(e,s):
+        return "while (<e>) <symbol2rascal(s)>";
+    case \do(s,b):
+        return "<symbol2rascal(s)> do <b>";
+    case \ignore(s):
+        return "ignore <symbol2rascal(s)>";
+    case scope(l):
+        return "{<for (s <- scope) {><symbol2rascal(s)> <}>}";
     case empty(): 
         return "()"; 
   }
