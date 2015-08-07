@@ -39,7 +39,7 @@ public class Symbols {
 	
 	public static IConstructor typeToSymbol(Sym type, boolean lex, String layout) {
 	  return (IConstructor) symbolAST2SymbolConstructor(type, lex, layout);
-  }
+	}
   
 	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {

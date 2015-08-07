@@ -105,9 +105,9 @@ syntax Sym
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label 
 // data-dependent non-terminals for parameter passing; needs to be cleaned up since it works around restrictions bugs
-  | dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
-  | dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
-  | dependScope: "{" Sym+ symbols "}"
+    | dependNonterminal: () Nonterminal nonterminal >> "(" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+    | dependParametrized: () Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]" "(" {Expression ","}+ arguments KeywordArguments[Expression] keywordArguments ")"
+    | dependScope: "{" Sym+ symbols "}"
 // literals 
 	| characterClass: Class charClass 
 	| literal: StringConstant string 
