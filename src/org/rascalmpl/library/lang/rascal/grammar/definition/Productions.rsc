@@ -42,12 +42,12 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 
 public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
     switch (sd) {
-      case \layout(_, nonterminal(Nonterminal n), Prod p) : 
-        return <{prod2prod(\layouts("<n>"), p)},nothing()>;
+      case \layout(_, DefinedSym s, Prod p) : 
+        return <{prod2prod(toLayout(sym2symbol(s)), p)},nothing()>;
       case \language(present() /*start*/, DefinedSym s, Prod p) : 
-        return < {prod(\start(sort("<n>")),[label("top", sym2symbol(s))],{})
-                ,prod2prod(sort("<n>"), p)}
-               ,just(\start(sort("<n>")))>;
+        return < {prod(\start(sym2symbol(s)),[label("top", sym2symbol(s))],{})
+                ,prod2prod(sym2symbol(s), p)}
+               ,just(\start(sym2symbol(s)))>;
       case \language(absent(), DefinedSym s, Prod p) : 
         return <{prod2prod(sym2symbol(s), p)},nothing()>;
       case \lexical(DefinedSym s, Prod p) : 
@@ -68,6 +68,11 @@ private Symbol toKeyword(Symbol s)
   = visit (s) { 
        case \sort(n) => \keywords(n) 
   };
+  
+private Symbol toLayout(Symbol s) 
+  = visit (s) { 
+       case \sort(n) => \layouts(n) 
+  };  
 
    
 private Production prod2prod(Symbol nt, Prod p) {
