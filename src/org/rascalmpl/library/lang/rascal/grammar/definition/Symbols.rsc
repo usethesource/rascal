@@ -45,6 +45,8 @@ Symbol sym2symbol(DefinedSym _ :dependFormals(Nonterminal n, Type t, Parameters 
 Symbol sym2symbol(DefinedSym _ :dependFormalsParametrized(Nonterminal n, {Sym ","}+ syms, Type t, Parameters f))
  = addParameters(\parameterized-sort("<n>",separgs2symbols(syms)), type2symbol(t), f);
  
+ 
+ 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
@@ -125,6 +127,39 @@ public Symbol sym2symbol(Sym sym) {
       throw "sym2symbol, missed a case <sym>";
   }
 }
+
+Symbol addParameters(Symbol s, Symbol t, Parameters f) = addParameters(s, f)[returnType = s];
+
+Symbol addParameters(Symbol s, Parameters p)  
+  = s[formals=convertFormals(formals)][keywordTypes=convertKeywordFormals(kwFormals)][keywordDefaults=getKeywordDefaults(kwFormals)]
+    when \default(Formals formals, KeywordFormals kwFormals) := p;
+
+list[Symbol] convertFormals(Formals f) 
+  = [ label("<name>", type2symbol(\type)) | typedVariable(Type \type, Name name) <- formals] 
+  when \default({Pattern ","}* formals) := f;
+  
+map[str,Symbol] convertKeywordFormals(Formals f) // TODO
+  = () when \none() := f; 
+    
+map[str,Symbol] convertKeywordFormals(KeywordFormals kwFormals) // TODO
+  = (); 
+  
+map[str, Tree] getKeywordDefaults(KeywordFormals kwFormals) // TODO
+  = ();
+  
+default Symbol addParameters(Symbol s, Parameters p) {
+  throw "TODO varargs not yet implemented";
+}
+
+Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals kwf) 
+  = addActuals(s, args) when \none() := kwf;
+
+default Symbol addActuals(Symbol s,  {Expression ","}* args, KeywordFormals _) {
+  throw "keyword arguments not yet default";
+}
+  
+Symbol addActuals(Symbol s,  {Expression ","}* args)
+  = s[actuals=[ "<arg>" | Expression arg <- args]];
 
 public list[Symbol] args2symbols(Sym* args) {
   return [sym2symbol(s) | Sym s <- args];
