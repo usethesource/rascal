@@ -960,7 +960,7 @@ public class SymbolAdapter {
 	}
 
 	private static boolean isConstrained(IConstructor l) {
-		return isIf(l) || isIfElse(l) || isScope(l) || isWhen(l) || isWhile(l) || isDo(l) || isIgnore(l) || isOffside(l) || isAlign(l);
+		return isIf(l) || isIfElse(l) || isWhen(l) || isWhile(l) || isDo(l) || isIgnore(l) || isOffside(l) || isAlign(l);
 	}
 
 	private static IList getParameters(IConstructor l) {
