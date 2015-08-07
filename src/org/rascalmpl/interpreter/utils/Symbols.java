@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
+import org.rascalmpl.ast.DefinedSym;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Range;
 import org.rascalmpl.ast.StringConstant;
@@ -55,6 +56,26 @@ public class Symbols {
 		}
 
 		throw new RuntimeException("Can't convert type to symbol: "+type);
+	}
+	
+	private static IValue symbolAST2SymbolConstructor(DefinedSym s, boolean lex, String layout) {
+		if (s.isDefault()) {
+			return symbolAST2SymbolConstructor(s.getSym(), lex, layout);
+		}
+		else if (s.isDependFormals()) {
+			// TODO
+		}
+		else if (s.isDependFormalsParametrized()) {
+			// TODO
+		}
+		else if (s.isDependVoidFormals()) {
+			// TODO
+		}
+		else if (s.isDependVoidFormalsParametrized()) {
+			// TODO
+		}
+		
+		throw new NotYetImplemented(s);
 	}
 	
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
@@ -184,6 +205,49 @@ public class Symbols {
 		  return symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 		}
 		
+		if (symbol.isDependAlign()) {
+			// TODO
+		}
+		
+		if (symbol.isDependAlternative()) {
+			// TODO
+		}
+		
+		if (symbol.isDependCode()) {
+			// TODO
+		}
+		
+		if (symbol.isDependConditionAfter()) {
+			// TODO
+		}
+		
+		if (symbol.isDependConditionBefore()) {
+			// TODO
+		}
+		
+		if (symbol.isDependIgnore()) {
+			// TODO
+		}
+		
+		if (symbol.isDependLoop()) {
+			// TODO
+		}
+		
+		if (symbol.isDependNonterminal()) {
+			// TODO
+		}
+		
+		if (symbol.isDependOffside()) {
+			// TODO
+		}
+		
+		if (symbol.isDependParametrized()) {
+			// TODO
+		}
+		
+		if (symbol.isDependScope()) {
+			// TODO
+		}
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
 
