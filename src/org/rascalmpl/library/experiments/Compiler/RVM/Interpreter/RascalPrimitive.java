@@ -68,6 +68,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public enum RascalPrimitive {
 
+	/**
+	 * Report a failing assertion
+	 * 
+	 * [ ..., IValue msg ] => raise assertionFailedException
+	 *
+	 */
 	assert_fails {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -82,6 +88,12 @@ public enum RascalPrimitive {
 	 * Value factory operations
 	 */
 	
+	/**
+	 * Build a constructor
+	 * 
+	 * [ ..., Type type,  IValue[] args, Map kwArgs ] => [ ..., constructor value ]
+	 *
+	 */
 	constructor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -94,6 +106,13 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+	
+	/**
+	 * Build a node
+	 * 
+	 * [ ..., IString name,  IValue[] args, Map kwArgs ] => [ ..., node value]
+	 *
+	 */
 	node {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -106,122 +125,129 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-	// Rebuild a constructor or node, reusing its annotations
-	rebuild {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			IValue subject = (IValue) stack[sp - 3];
-			IValue[] args = (IValue[]) stack[sp - 2];
-			@SuppressWarnings("unchecked")
-			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-			
-			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-			// TODO: jurgen can be optimized for the ITree case
-			if(subject.getType().isAbstractData()){
-				IConstructor cons1 = (IConstructor) subject;
-				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
-				if(annotations.size() > 0){
-					// TODO: @paulklint what about the keyword parameters?
-					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
-				}
-				stack[sp - 3] = cons2;
-				return sp - 2;
-			} else {
-				INode node1 = (INode) subject;
-				INode node2 = vf.node(node1.getName(), args, kwargs);
-				if(annotations.size() > 0){
-					node2 = node2.asAnnotatable().setAnnotations(annotations);
-				}
-				stack[sp - 3] = node2;
-				return sp - 2;
-			}
-		}
-	},
-	// Rebuild a concrete node, reusing its annotations
-	rebuild_concrete {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			ITree subject = (ITree) stack[sp - 3];
-			IValue[] args = (IValue[]) stack[sp - 2];
-			IValue prod = subject.getProduction();
-			@SuppressWarnings("unchecked")
-			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-
-			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-			for(int i = 0; i < args.length; i++){
-				writer.append(args[i]);
-			}
-			IValue[] args2 = {prod, writer.done() };
-			
-			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
-			if(annotations.size() > 0){
-				// TODO: @paulklint what about the keyword parameters?
-				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-			}
-			stack[sp - 3] = isubject2;
-			return sp - 2;
-		}
-	},
-	// Rebuild a concrete list, reusing its annotations
-	rebuild_concrete_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ITree subject = (ITree) stack[sp - 2];
-			IValue[] args = (IValue[]) stack[sp - 1];
-			IValue prod = subject.getProduction();
-			IList children = TreeAdapter.getArgs(subject);
+//	// Rebuild a constructor or node, reusing its annotations
+//	rebuild {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 3;
+//			IValue subject = (IValue) stack[sp - 3];
+//			IValue[] args = (IValue[]) stack[sp - 2];
 //			@SuppressWarnings("unchecked")
 //			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-
-			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-
-			IConstructor symbol = TreeAdapter.getType(subject);
-			boolean layoutPresent = false;
-			if(children.length() > 1){
-				ITree child1 = (ITree)children.get(1);
-				if(TreeAdapter.isLayout(child1)){
-					layoutPresent = true;
-				}
-			}
-			int delta = layoutPresent ? 2 : 1;
-
-			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
-				IList separators = SymbolAdapter.getSeparators(symbol);
-				boolean nonLayoutSeparator = false;
-				for(IValue sep : separators){
-					if(!((IConstructor) sep).getName().equals("layouts")){
-						nonLayoutSeparator = true;
-						break;
-					}
-				}
-				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
-			}
-
-			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-			for (int i = 0; i < args.length; i++) {
-				IValue kid = args[i];
-				writer.append(kid);
-				// copy layout and/or separators
-				if(i < args.length - 1){
-					for(int j = 1; j < delta; j++){
-						writer.append(children.get(i*delta + j));
-					}
-				}
-			}
-
-			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
-			if(annotations.size() > 0){
-				// TODO: @paulklint what about the keyword parameters?
-				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-			}
-			stack[sp - 2] = isubject2;
-			return sp - 1;
-		}
-	},
+//			
+//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+//			// TODO: jurgen can be optimized for the ITree case
+//			if(subject.getType().isAbstractData()){
+//				IConstructor cons1 = (IConstructor) subject;
+//				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
+//				if(annotations.size() > 0){
+//					// TODO: @paulklint what about the keyword parameters?
+//					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+//				}
+//				stack[sp - 3] = cons2;
+//				return sp - 2;
+//			} else {
+//				INode node1 = (INode) subject;
+//				INode node2 = vf.node(node1.getName(), args, kwargs);
+//				if(annotations.size() > 0){
+//					node2 = node2.asAnnotatable().setAnnotations(annotations);
+//				}
+//				stack[sp - 3] = node2;
+//				return sp - 2;
+//			}
+//		}
+//	},
+//	// Rebuild a concrete node, reusing its annotations
+//	rebuild_concrete {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 3;
+//			ITree subject = (ITree) stack[sp - 3];
+//			IValue[] args = (IValue[]) stack[sp - 2];
+//			IValue prod = subject.getProduction();
+//			@SuppressWarnings("unchecked")
+//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+//
+//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+//			for(int i = 0; i < args.length; i++){
+//				writer.append(args[i]);
+//			}
+//			IValue[] args2 = {prod, writer.done() };
+//			
+//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
+//			if(annotations.size() > 0){
+//				// TODO: @paulklint what about the keyword parameters?
+//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+//			}
+//			stack[sp - 3] = isubject2;
+//			return sp - 2;
+//		}
+//	},
+//	// Rebuild a concrete list, reusing its annotations
+//	rebuild_concrete_list {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 2;
+//			ITree subject = (ITree) stack[sp - 2];
+//			IValue[] args = (IValue[]) stack[sp - 1];
+//			IValue prod = subject.getProduction();
+//			IList children = TreeAdapter.getArgs(subject);
+////			@SuppressWarnings("unchecked")
+////			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+//
+//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+//
+//			IConstructor symbol = TreeAdapter.getType(subject);
+//			boolean layoutPresent = false;
+//			if(children.length() > 1){
+//				ITree child1 = (ITree)children.get(1);
+//				if(TreeAdapter.isLayout(child1)){
+//					layoutPresent = true;
+//				}
+//			}
+//			int delta = layoutPresent ? 2 : 1;
+//
+//			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+//				IList separators = SymbolAdapter.getSeparators(symbol);
+//				boolean nonLayoutSeparator = false;
+//				for(IValue sep : separators){
+//					if(!((IConstructor) sep).getName().equals("layouts")){
+//						nonLayoutSeparator = true;
+//						break;
+//					}
+//				}
+//				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
+//			}
+//
+//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+//			for (int i = 0; i < args.length; i++) {
+//				IValue kid = args[i];
+//				writer.append(kid);
+//				// copy layout and/or separators
+//				if(i < args.length - 1){
+//					for(int j = 1; j < delta; j++){
+//						writer.append(children.get(i*delta + j));
+//					}
+//				}
+//			}
+//
+//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
+//			if(annotations.size() > 0){
+//				// TODO: @paulklint what about the keyword parameters?
+//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+//			}
+//			stack[sp - 2] = isubject2;
+//			return sp - 1;
+//		}
+//	},
+	
+	/**
+	 * Build a list
+	 * 
+	 * [ ..., IValue[] args ] => [ ..., list value]
+	 *
+	 */
 	list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -231,6 +257,13 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Build a list relation
+	 * 
+	 * [ ..., IValue[] args ] => [ ..., list relation value]
+	 *
+	 */
 	lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -240,6 +273,13 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Build a set
+	 * 
+	 * [ ..., IValue[] args ] => [ ..., set value]
+	 *
+	 */
 	set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -249,6 +289,13 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Build a relation
+	 * 
+	 * [ ..., IValue[] args ] => [ ..., relation value]
+	 *
+	 */
 	rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -258,6 +305,13 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Build a tuple
+	 * 
+	 * [ ..., IValue[] args ] => [ ..., tuple value]
+	 *
+	 */
 	tuple {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -272,6 +326,12 @@ public enum RascalPrimitive {
 	 * ...writer_add
 	 */
 	
+	/**
+	 * Add values to a list writer
+	 * 
+	 * [ ..., IListWriter e, IValue arg1, IValue arg2, ... ] => [ ..., IListWriter e]
+	 *
+	 */
 	listwriter_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -283,6 +343,13 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	
+	/**
+	 * Add values to a set writer
+	 * 
+	 * [ ..., ISetWriter e, IValue arg1, IValue arg2, ... ] => [ ..., ISetWriter e]
+	 *
+	 */
 	setwriter_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -294,6 +361,13 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	
+	/**
+	 * Add values to a map writer
+	 * 
+	 * [ ..., IMapWriter e, IValue key1, IValue val1, IValue key2, IValue val2, ... ] => [ ..., IMapWriter e]
+	 *
+	 */
 	mapwriter_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -304,15 +378,17 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
+	/**
 	 * addition
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 + val2]
 	 *
 	 * infix Addition "+"
 	 * {  
 	 *		&L <: num x &R <: num               -> LUB(&L, &R),
 
 	 *		list[&L] x list[&R]                 -> list[LUB(&L,&R)],
-	 *		list[&L] x &R              		  -> list[LUB(&L,&R)] when &R is not a list,	  
+	 *		list[&L] x &R              		  	-> list[LUB(&L,&R)] when &R is not a list,	  
 	 *		&L x list[&R <: &L]                 -> list[LUB(&L,&R)] when &L is not a list,
 
 	 *		set[&L] x set[&R]                   -> set[LUB(&L,&R)],
@@ -481,8 +557,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// add on int
-	
+	/**
+	 * addition on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 + val2]
+	 */
 	int_add_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -491,6 +570,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * addition on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2] => [ ..., val1 + val2]
+	 */
 	int_add_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -499,6 +584,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * addition on int and rational
+	 * 
+	 * [ ... IInteger val1, IRational val2] => [ ..., val1 + val2]
+	 */
 	int_add_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -507,6 +598,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2] => [ ..., val1 + val2]
+	 */
 	int_add_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -515,9 +612,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	// add on num
-	
+
+	/**
+	 * addition on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2] => [ ..., val1 + val2]
+	 */
 	num_add_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -526,6 +626,11 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	/**
+	 * addition on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2] => [ ..., val1 + val2]
+	 */
 	num_add_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -534,6 +639,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2] => [ ..., val1 + val2]
+	 */
 	num_add_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -542,6 +653,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2] => [ ..., val1 + val2]
+	 */
 	num_add_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -551,8 +668,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// add on rat
-	
+	/**
+	 * addition on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2] => [ ..., val1 + val2]
+	 */
 	rat_add_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -561,6 +681,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2] => [ ..., val1 + val2]
+	 */
 	rat_add_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -569,6 +695,11 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	/**
+	 * addition on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2] => [ ..., val1 + val2]
+	 */
 	rat_add_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -577,6 +708,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on rat and real
+	 * 
+	 * [ ... IRational val1, Ireal val2] => [ ..., val1 + val2]
+	 */
 	rat_add_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -585,9 +722,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	// add on real
-	
+
+	/**
+	 * addition on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2] => [ ..., val1 + val2]
+	 */
 	real_add_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -596,6 +736,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2] => [ ..., val1 + val2]
+	 */
 	real_add_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -604,6 +750,11 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	/**
+	 * addition on real and real
+	 * 
+	 * [ ... IReal val1, Ireal val2] => [ ..., val1 + val2]
+	 */
 	real_add_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -612,6 +763,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2] => [ ..., val1 + val2]
+	 */
 	real_add_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -623,6 +780,12 @@ public enum RascalPrimitive {
 	
 	// Add on non-numeric types
 	
+	/**
+	 * addition on list and list
+	 * 
+	 * [ ... IList val1, IList val2] => [ ..., val1 + val2]
+	 */
+	
 	list_add_list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -631,6 +794,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on list and element
+	 * 
+	 * [ ... IList val1, IValue val2] => [ ..., val1 + val2]
+	 */
 	list_add_elm {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -639,6 +808,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on element and list
+	 * 
+	 * [ ... IValue val1, IList val2] => [ ..., val1 + val2]
+	 */
 	elm_add_list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -647,30 +822,60 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on list and list relation
+	 * 
+	 * [ ... IList val1, IListRelation val2] => [ ..., val1 + val2]
+	 */
 	list_add_lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on list relation and list relation
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 + val2]
+	 */
 	lrel_add_lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on list relation and list
+	 * 
+	 * [ ... IListRelation val1, IList val2] => [ ..., val1 + val2]
+	 */
 	lrel_add_list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on list relation and element
+	 * 
+	 * [ ... IListRelation val1, IValue val2] => [ ..., val1 + val2]
+	 */
 	lrel_add_elm {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on element and list relation
+	 * 
+	 * [ ... IListRelation val1, IValue val2] => [ ..., val1 + val2]
+	 */
 	elm_add_lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -678,6 +883,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	/**
+	 * addition on loc and str
+	 * 
+	 * [ ... ISourceLocation val1, IString val2] => [ ..., val1 + val2]
+	 */
 	loc_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -694,6 +904,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on map and map
+	 * 
+	 * [ ... IMap val1, IMap val2] => [ ..., val1 + val2]
+	 */
 	map_add_map {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -702,6 +918,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on set and element
+	 * 
+	 * [ ... ISet val1, IValue val2] => [ ..., val1 + val2]
+	 */
 	set_add_elm {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -710,6 +932,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on element and set
+	 * 
+	 * [ ... IValue val1, ISet val2] => [ ..., val1 + val2]
+	 */
 	elm_add_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -718,6 +946,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on set and set
+	 * 
+	 * [ ... ISet val1, ISet val2] => [ ..., val1 + val2]
+	 */
 	set_add_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -726,12 +960,24 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on set and relation
+	 * 
+	 * [ ... ISet val1, IRelation val2] => [ ..., val1 + val2]
+	 */
 	set_add_rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return set_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on rel and rel
+	 * 
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 + val2]
+	 */
 	rel_add_rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -740,24 +986,48 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * addition on rel and set
+	 * 
+	 * [ ... IRelation val1, ISet val2] => [ ..., val1 + val2]
+	 */
 	rel_add_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return set_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on rel and element
+	 * 
+	 * [ ... IRelation val1, IValue val2] => [ ..., val1 + val2]
+	 */
 	rel_add_elm {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return set_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on element and rel
+	 * 
+	 * [ ... IValue val1, IRelation val2] => [ ..., val1 + val2]
+	 */
 	elm_add_rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return elm_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
+	
+	/**
+	 * addition on str and str
+	 * 
+	 * [ ... IString val1, IString val2] => [ ..., val1 + val2]
+	 */
 	str_add_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -776,8 +1046,34 @@ public enum RascalPrimitive {
 		}		
 	},
 	
-	/*
-	 * str_escape_for_regexp
+	/**
+	 * addition on tuple and tuple
+	 * 
+	 * [ ... ITuple val1, ITuple val2] => [ ..., val1 + val2]
+	 */
+	
+	tuple_add_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ITuple t1 = (ITuple) stack[sp - 2];
+			ITuple t2 = (ITuple) stack[sp - 1];
+			int len1 = t1.arity();
+			int len2 = t2.arity();
+			IValue elems[] = new IValue[len1 + len2];
+			for(int i = 0; i < len1; i++)
+				elems[i] = t1.get(i);
+			for(int i = 0; i < len2; i++)
+				elems[len1 + i] = t2.get(i);
+			stack[sp - 2] = vf.tuple(elems);
+			return sp - 1;
+		}
+	},
+	
+	/**
+	 * str_escape_for_regexp: escape the regexp meta-characters in a string
+	 * 
+	 * [ ... IValue val] => [ ..., IString escaped_val]
 	 */
 	
 	str_escape_for_regexp {
@@ -809,6 +1105,17 @@ public enum RascalPrimitive {
 	 * Templates
 	 */
 	
+	/**
+	 * Create a string template
+	 * 
+	 * [ ... ] => [ ... ]
+	 * or
+	 * [ ..., IString initial ] => [ ..., initial]
+	 * 
+	 * Note: The string builder is maintained implicitly on the templateBuilderStack.
+	 * This may cause problems (i.e. leaving spurious builders on that stack)  when an exception
+	 * occurs during template construction. 
+	 */
 	template_open {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -827,6 +1134,12 @@ public enum RascalPrimitive {
 			return arity == 1 ? sp : sp + 1;
 		}
 	},
+	
+	/**
+	 * Increase indentation in string template
+	 * 
+	 * [ ..., IString indent ] => [ ..., ""]
+	 */
 	template_indent {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -837,6 +1150,12 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Decrease indentation in string template
+	 * 
+	 * [ ..., IString indent ] => [ ..., ""]
+	 */
 	template_unindent {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -847,6 +1166,12 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Add string to string template
+	 * 
+	 * [ ..., IString val ] => [ ..., ""]
+	 */
 	template_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -860,6 +1185,12 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	
+	/**
+	 * Close string template
+	 * 
+	 * [ ... ] => [ ..., IString value_of_template]
+	 */
 	template_close {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -871,28 +1202,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * Add on template
+	/**
+	 * Convert a value to string
+	 * 
+	 * [ ..., IValue val] => [ ..., IString converted_value]
 	 */
-	
-	tuple_add_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ITuple t1 = (ITuple) stack[sp - 2];
-			ITuple t2 = (ITuple) stack[sp - 1];
-			int len1 = t1.arity();
-			int len2 = t2.arity();
-			IValue elems[] = new IValue[len1 + len2];
-			for(int i = 0; i < len1; i++)
-				elems[i] = t1.get(i);
-			for(int i = 0; i < len2; i++)
-				elems[len1 + i] = t2.get(i);
-			stack[sp - 2] = vf.tuple(elems);
-			return sp - 1;
-		}
-	},
-	
 	value_to_string {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -902,8 +1216,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * composition
+	/**
+	 *composition
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 o val2]
+	 *
 	 * infix Composition "o" {
 	 * 	lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C],
  	 * 	rel[&A,&B] x rel[&B,&C] -> rel[&A,&C],
@@ -930,6 +1247,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * compose lrel and lrel
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 o val2]
+	 */
 	lrel_compose_lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -941,6 +1264,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	
+	/**
+	 * compose rel and rel
+	 * 
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 o val2]
+	 */
 	rel_compose_rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -951,6 +1281,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * compose map and map
+	 * 
+	 * [ ... IMap val1, IMap val2] => [ ..., val1 o val2]
+	 */
 	map_compose_map {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -960,10 +1296,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * mod
+	/**
+	 * modulo
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 mod val2]
 	 */
-	
 	mod {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -975,6 +1312,12 @@ public enum RascalPrimitive {
 			throw new CompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rvm.getStdErr(), currentFrame);
 		}
 	},
+	
+	/**
+	 * modulo on int and int
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 mod val2]
+	 */
 	int_mod_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -984,13 +1327,13 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
+	/**
 	 * division
+	 * 
+	 *  * [ ... IValue val1, IValue val2] => [ ..., val1 / val2]
 	 * 
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
-	
-	// Generic divide
 	
 	divide {
 		@Override
@@ -1059,8 +1402,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// divide on int
-	
+	/**
+	 * divide on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 / val2]
+	 */
 	int_divide_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1073,6 +1419,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2] => [ ..., val1 / val2]
+	 */
 	int_divide_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1085,6 +1437,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on int and rat
+	 * 
+	 * [ ... IInteger val1, IRational val2] => [ ..., val1 / val2]
+	 */
 	int_divide_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1097,6 +1455,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2] => [ ..., val1 / val2]
+	 */
 	int_divide_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1110,8 +1474,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// divide on num
-	
+	/**
+	 * divide on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2] => [ ..., val1 / val2]
+	 */
 	num_divide_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1124,6 +1491,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2] => [ ..., val1 / val2]
+	 */
 	num_divide_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1136,6 +1509,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2] => [ ..., val1 / val2]
+	 */
 	num_divide_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1148,6 +1527,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2] => [ ..., val1 / val2]
+	 */
 	num_divide_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1161,8 +1546,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// divide on rat
-	
+	/**
+	 * divide on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2] => [ ..., val1 / val2]
+	 */
 	rat_divide_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1175,6 +1563,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2] => [ ..., val1 / val2]
+	 */
 	rat_divide_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1187,6 +1581,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2] => [ ..., val1 / val2]
+	 */
 	rat_divide_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1199,6 +1599,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on rat and real
+	 * 
+	 * [ ... IRational val1, IReal val2] => [ ..., val1 / val2]
+	 */
 	rat_divide_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1211,9 +1617,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
-	// divide on real
-	
+
+	/**
+	 * divide on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2] => [ ..., val1 / val2]
+	 */
 	real_divide_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1226,6 +1635,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2] => [ ..., val1 / val2]
+	 */
 	real_divide_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1238,6 +1653,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on real and real
+	 * 
+	 * [ ... IReal val1, IReal val2] => [ ..., val1 / val2]
+	 */
 	real_divide_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1250,6 +1671,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * divide on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2] => [ ..., val1 / val2]
+	 */
 	real_divide_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1263,45 +1690,17 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * ...writer_close
-	 */
-
-	listwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IListWriter writer = (IListWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-
-	},
-	setwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISetWriter writer = (ISetWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-
-	},
-	mapwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IMapWriter writer = (IMapWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-	},
+	
 	
 	/*
 	 * equal
 	 */
 	
-	// equal on int
+	/**
+	 * equal on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 == val2]
+	 */
 	
 	int_equal_int {
 		@Override
@@ -1311,6 +1710,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2] => [ ..., val1 == val2]
+	 */
 	int_equal_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1319,6 +1724,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on int and rat
+	 * 
+	 * [ ... IInteger val1, IRational val2] => [ ..., val1 == val2]
+	 */
 	int_equal_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1327,6 +1738,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2] => [ ..., val1 == val2]
+	 */
 	int_equal_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1336,8 +1753,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// equal on num
-	
+	/**
+	 * equal on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2] => [ ..., val1 == val2]
+	 */
 	num_equal_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1346,6 +1766,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2] => [ ..., val1 == val2]
+	 */
 	num_equal_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1354,6 +1780,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2] => [ ..., val1 == val2]
+	 */
 	num_equal_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1362,6 +1794,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2] => [ ..., val1 == val2]
+	 */
 	num_equal_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1371,8 +1809,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	// equal on real
-	
+	/**
+	 * equal on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2] => [ ..., val1 == val2]
+	 */
 	real_equal_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1381,6 +1822,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+
+	/**
+	 * equal on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2] => [ ..., val1 == val2]
+	 */
 	real_equal_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1389,6 +1837,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+
+	/**
+	 * equal on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2] => [ ..., val1 == val2]
+	 */
 	real_equal_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1397,6 +1852,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on real and real
+	 * 
+	 * [ ... IReal val1, IReal val2] => [ ..., val1 == val2]
+	 */
 	real_equal_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1405,9 +1866,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	// equal on rat
-	
+
+	/**
+	 * equal on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2] => [ ..., val1 == val2]
+	 */
 	rat_equal_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1416,6 +1880,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2] => [ ..., val1 == val2]
+	 */
 	rat_equal_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1424,6 +1894,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2] => [ ..., val1 == val2]
+	 */
 	rat_equal_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1432,6 +1908,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on rat and real
+	 * 
+	 * [ ... IRational val1, IReal val2] => [ ..., val1 == val2]
+	 */
 	rat_equal_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1440,6 +1922,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * equal on node and node
+	 * 
+	 * [ ... INode val1, INode val2] => [ ..., val1 == val2]
+	 */
 	
 	node_equal_node {
 		@Override
@@ -1466,6 +1954,12 @@ public enum RascalPrimitive {
 	
 	// equal on other types
 	
+	
+	/**
+	 * equal on arbitrary types
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 == val2]
+	 */
 	equal {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1482,6 +1976,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+	 * equal on types
+	 * 
+	 * [ ... Type type1, Type type2] => [ ..., type1 == type2]
+	 */
 	type_equal_type {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1491,8 +1991,14 @@ public enum RascalPrimitive {
 		}		
 	},
 	
-	/*
-	 * ..._has_field
+	/******************************************************************************************/
+	/*			Fields and Field updates							 						  */
+	/******************************************************************************************/
+	
+	/**
+	 * Runtime check whether given constructor has a named field
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., IBool true if cons does have fieldName ]
 	 */
 	
 	adt_has_field {
@@ -1524,10 +2030,11 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * ..._field_access
+	/**
+	 * Retrieve valeu of named field of constructor
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., IValue value of field fieldName ]
 	 */
-	
 	adt_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -4535,7 +5042,7 @@ public enum RascalPrimitive {
 	},
 	
 	/*
-	 * ...writer_open
+	 * ...writer_open and ...writer_close
 	 */
 	
 	listwriter_open {
@@ -4548,6 +5055,18 @@ public enum RascalPrimitive {
 		}
 
 	},
+	
+	listwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IListWriter writer = (IListWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
+		}
+
+	},
+	
 	setwriter_open {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -4558,6 +5077,17 @@ public enum RascalPrimitive {
 		}
 
 	},
+	
+	setwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISetWriter writer = (ISetWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
+		}
+
+	},
 	mapwriter_open {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -4565,6 +5095,16 @@ public enum RascalPrimitive {
 			IMapWriter writer = vf.mapWriter();
 			stack[sp] = writer;
 			return sp + 1;
+		}
+	},
+	
+	mapwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IMapWriter writer = (IMapWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
 		}
 	},
 	
