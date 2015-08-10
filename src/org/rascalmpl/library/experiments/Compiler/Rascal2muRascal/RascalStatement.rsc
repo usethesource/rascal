@@ -420,7 +420,7 @@ int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
 	   if(useConcreteFingerprint){	// Abstract pattern during concrete match
 	   		pr = getLabeledProduction(s, getType(p@\loc));
 	   		res = getFingerprintNode(pr);
-	   		//println("getProduction= <pr>, <res>");
+	   		//println("fingerprint1: <pr>, <res>");
 	   } else {						// Abstract pattern druing abstract match
 	        if(isNonTerminalType((getType(p@\loc)))){
 	        ;// an abstract pattern of a nonterminal type will use labels in a production
