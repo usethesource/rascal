@@ -13,8 +13,10 @@ x Compile and test type checker
 x Compile and test compiler
 - Test compiled compiler
 
-Runtime environment
-- Detach the execute command from the interpretator and make it stand alone
+Runtime environment end IDE integration
+- Make use-def etc info available for the Rascal IDE
+- Replace current interpreter-based parser generator used by the compiler by compiled parser generator
+- Detach the execute command from the interpreter and make it stand alone
 - Adapt the debugger to run with compiled code
 - Create a RascalShell for compiled code
 - Replace interpreter by compiler in IDE 
