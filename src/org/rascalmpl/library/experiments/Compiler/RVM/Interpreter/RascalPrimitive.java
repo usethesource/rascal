@@ -57,37 +57,42 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
- * The primitives that can be called via the CALLPRIM instruction.
+ * The primitives that can be called via the CALLPRIM instruction are defined here.
  * Each primitive with name P (e.g., int_add_int) is defined by:
  * - an enumeration constant P (e.g., int_add_int)
  * - a method int execute(Object[] stack, int sp) associated with that enumeration constant
  * 
- * Each primitive implementation gets the current stack and stack pointer as argument
+ * Each primitive implementation gets as arguments
+ * 
+ * - the current stack
+ * - the current stack pointer
+ * - the current stack frame
+ * 
  * and returns a new stack pointer. It may make modifications to the stack.
  */
 
+/*
+ * This enumeration is organized in the following sections:
+ * - Creation of values and some utilities on them (~ line 90)
+ * - Readers and writers (~ line 605)
+ * - Operators (~ line 770)
+ * - Type-related operators and functions (~ line 6290)
+ * - String templates (~ line 6748)
+ * - Fields and Field updates (~ line 6849)
+ * - Various getters (~ line 7700)
+ * - Slices ( ~ line 7854)
+ * - Subscripting (~ line 8219)
+ * - Annotations (~ line 8719)
+ * - Type reachability for descendant match (~ line 8792)
+ * - Miscellaneous  (~ line 8871)
+ * - Initialization and auxiliary functions (> line 9000)
+ */
+
 public enum RascalPrimitive {
+	/************************************************************************************************/
+	/*				Creation of values and some utilities on them									*/
+	/************************************************************************************************/
 
-	/**
-	 * Report a failing assertion
-	 * 
-	 * [ ..., IValue msg ] => raise assertionFailedException
-	 *
-	 */
-	assert_fails {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IString message = (IString) stack[sp - 1];
-			stdout.println("Assertion failed" + message + " at " + currentFrame.src);
-			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
-		}
-	},
-
-	/*
-	 * Value factory operations
-	 */
-	
 	/**
 	 * Build a constructor
 	 * 
@@ -106,9 +111,9 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-	
+
 	/**
-	 * Build a node
+	 * Build a node, given args and kwArgs
 	 * 
 	 * [ ..., IString name,  IValue[] args, Map kwArgs ] => [ ..., node value]
 	 *
@@ -125,125 +130,146 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-//	// Rebuild a constructor or node, reusing its annotations
-//	rebuild {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 3;
-//			IValue subject = (IValue) stack[sp - 3];
-//			IValue[] args = (IValue[]) stack[sp - 2];
-//			@SuppressWarnings("unchecked")
-//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-//			
-//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-//			// TODO: jurgen can be optimized for the ITree case
-//			if(subject.getType().isAbstractData()){
-//				IConstructor cons1 = (IConstructor) subject;
-//				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
-//				if(annotations.size() > 0){
-//					// TODO: @paulklint what about the keyword parameters?
-//					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
-//				}
-//				stack[sp - 3] = cons2;
-//				return sp - 2;
-//			} else {
-//				INode node1 = (INode) subject;
-//				INode node2 = vf.node(node1.getName(), args, kwargs);
-//				if(annotations.size() > 0){
-//					node2 = node2.asAnnotatable().setAnnotations(annotations);
-//				}
-//				stack[sp - 3] = node2;
-//				return sp - 2;
-//			}
-//		}
-//	},
-//	// Rebuild a concrete node, reusing its annotations
-//	rebuild_concrete {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 3;
-//			ITree subject = (ITree) stack[sp - 3];
-//			IValue[] args = (IValue[]) stack[sp - 2];
-//			IValue prod = subject.getProduction();
-//			@SuppressWarnings("unchecked")
-//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-//
-//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-//			for(int i = 0; i < args.length; i++){
-//				writer.append(args[i]);
-//			}
-//			IValue[] args2 = {prod, writer.done() };
-//			
-//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
-//			if(annotations.size() > 0){
-//				// TODO: @paulklint what about the keyword parameters?
-//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-//			}
-//			stack[sp - 3] = isubject2;
-//			return sp - 2;
-//		}
-//	},
-//	// Rebuild a concrete list, reusing its annotations
-//	rebuild_concrete_list {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 2;
-//			ITree subject = (ITree) stack[sp - 2];
-//			IValue[] args = (IValue[]) stack[sp - 1];
-//			IValue prod = subject.getProduction();
-//			IList children = TreeAdapter.getArgs(subject);
-////			@SuppressWarnings("unchecked")
-////			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-//
-//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-//
-//			IConstructor symbol = TreeAdapter.getType(subject);
-//			boolean layoutPresent = false;
-//			if(children.length() > 1){
-//				ITree child1 = (ITree)children.get(1);
-//				if(TreeAdapter.isLayout(child1)){
-//					layoutPresent = true;
-//				}
-//			}
-//			int delta = layoutPresent ? 2 : 1;
-//
-//			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
-//				IList separators = SymbolAdapter.getSeparators(symbol);
-//				boolean nonLayoutSeparator = false;
-//				for(IValue sep : separators){
-//					if(!((IConstructor) sep).getName().equals("layouts")){
-//						nonLayoutSeparator = true;
-//						break;
-//					}
-//				}
-//				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
-//			}
-//
-//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-//			for (int i = 0; i < args.length; i++) {
-//				IValue kid = args[i];
-//				writer.append(kid);
-//				// copy layout and/or separators
-//				if(i < args.length - 1){
-//					for(int j = 1; j < delta; j++){
-//						writer.append(children.get(i*delta + j));
-//					}
-//				}
-//			}
-//
-//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
-//			if(annotations.size() > 0){
-//				// TODO: @paulklint what about the keyword parameters?
-//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-//			}
-//			stack[sp - 2] = isubject2;
-//			return sp - 1;
-//		}
-//	},
 	
 	/**
-	 * Build a list
+	 * Build a node, given args on stack
+	 * 
+	 * [ ..., IString name, IValue arg1, IValue arg2, ... ] => [ ..., name(arg1, arg2, ...) ]
+	 */
+	node_create {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity >= 1;
+
+			String name = ((IString) stack[sp - arity]).getValue();
+			IValue[] args = new IValue[arity - 2];
+			for(int i = 0; i < arity - 2; i ++){
+				args[i] = (IValue) stack[sp - arity + 1 + i];
+			}
+			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
+			return sp - arity + 1;
+		}
+	},
+	//	// Rebuild a constructor or node, reusing its annotations
+	//	rebuild {
+	//		@Override
+	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//			assert arity == 3;
+	//			IValue subject = (IValue) stack[sp - 3];
+	//			IValue[] args = (IValue[]) stack[sp - 2];
+	//			@SuppressWarnings("unchecked")
+	//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+	//			
+	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+	//			// TODO: jurgen can be optimized for the ITree case
+	//			if(subject.getType().isAbstractData()){
+	//				IConstructor cons1 = (IConstructor) subject;
+	//				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
+	//				if(annotations.size() > 0){
+	//					// TODO: @paulklint what about the keyword parameters?
+	//					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+	//				}
+	//				stack[sp - 3] = cons2;
+	//				return sp - 2;
+	//			} else {
+	//				INode node1 = (INode) subject;
+	//				INode node2 = vf.node(node1.getName(), args, kwargs);
+	//				if(annotations.size() > 0){
+	//					node2 = node2.asAnnotatable().setAnnotations(annotations);
+	//				}
+	//				stack[sp - 3] = node2;
+	//				return sp - 2;
+	//			}
+	//		}
+	//	},
+	//	// Rebuild a concrete node, reusing its annotations
+	//	rebuild_concrete {
+	//		@Override
+	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//			assert arity == 3;
+	//			ITree subject = (ITree) stack[sp - 3];
+	//			IValue[] args = (IValue[]) stack[sp - 2];
+	//			IValue prod = subject.getProduction();
+	//			@SuppressWarnings("unchecked")
+	//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+	//
+	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+	//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+	//			for(int i = 0; i < args.length; i++){
+	//				writer.append(args[i]);
+	//			}
+	//			IValue[] args2 = {prod, writer.done() };
+	//			
+	//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
+	//			if(annotations.size() > 0){
+	//				// TODO: @paulklint what about the keyword parameters?
+	//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+	//			}
+	//			stack[sp - 3] = isubject2;
+	//			return sp - 2;
+	//		}
+	//	},
+	//	// Rebuild a concrete list, reusing its annotations
+	//	rebuild_concrete_list {
+	//		@Override
+	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//			assert arity == 2;
+	//			ITree subject = (ITree) stack[sp - 2];
+	//			IValue[] args = (IValue[]) stack[sp - 1];
+	//			IValue prod = subject.getProduction();
+	//			IList children = TreeAdapter.getArgs(subject);
+	////			@SuppressWarnings("unchecked")
+	////			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+	//
+	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+	//
+	//			IConstructor symbol = TreeAdapter.getType(subject);
+	//			boolean layoutPresent = false;
+	//			if(children.length() > 1){
+	//				ITree child1 = (ITree)children.get(1);
+	//				if(TreeAdapter.isLayout(child1)){
+	//					layoutPresent = true;
+	//				}
+	//			}
+	//			int delta = layoutPresent ? 2 : 1;
+	//
+	//			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
+	//				IList separators = SymbolAdapter.getSeparators(symbol);
+	//				boolean nonLayoutSeparator = false;
+	//				for(IValue sep : separators){
+	//					if(!((IConstructor) sep).getName().equals("layouts")){
+	//						nonLayoutSeparator = true;
+	//						break;
+	//					}
+	//				}
+	//				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
+	//			}
+	//
+	//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+	//			for (int i = 0; i < args.length; i++) {
+	//				IValue kid = args[i];
+	//				writer.append(kid);
+	//				// copy layout and/or separators
+	//				if(i < args.length - 1){
+	//					for(int j = 1; j < delta; j++){
+	//						writer.append(children.get(i*delta + j));
+	//					}
+	//				}
+	//			}
+	//
+	//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
+	//			if(annotations.size() > 0){
+	//				// TODO: @paulklint what about the keyword parameters?
+	//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
+	//			}
+	//			stack[sp - 2] = isubject2;
+	//			return sp - 1;
+	//		}
+	//	},
+
+	/**
+	 * Build a list, given list of elements
 	 * 
 	 * [ ..., IValue[] args ] => [ ..., list value]
 	 *
@@ -259,7 +285,65 @@ public enum RascalPrimitive {
 	},
 	
 	/**
-	 * Build a list relation
+	 * Build a list, given elements on stack
+	 * 
+	 * [ ... IValue val1, IValue val2, ... ] => [ ..., [val1, val2, ...] ]
+	 */
+	list_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity >= 0;
+
+			if(arity == 0){
+				stack[sp] = emptyList;
+				return sp + 1;
+			}
+
+			IListWriter writer = vf.listWriter();
+
+			for (int i = arity - 1; i >= 0; i--) {
+				writer.append((IValue) stack[sp - 1 - i]);
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = writer.done();
+
+			return sp1;
+		}
+	},
+	
+	/**
+	 * size of list
+	 * 
+	 * [ ... IList val] => [ ...,IInteger size ]
+	 */	
+	list_size {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
+			return sp;
+		}
+	},
+	
+	/**
+	 * sublist of list
+	 * 
+	 * [ ..., IList lst, IInteger offset, IInteger length ] => [ ..., lst[offset .. offset+length] ]
+	 */
+	sublist {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IList lst = (IList) stack[sp - 3];
+			int offset = ((IInteger) stack[sp - 2]).intValue();
+			int length = ((IInteger) stack[sp - 1]).intValue();
+			stack[sp - 3] = lst.sublist(offset, length);
+			return sp - 2;
+		}
+	},
+
+	/**
+	 * Build a list relation, given list of elements
 	 * 
 	 * [ ..., IValue[] args ] => [ ..., list relation value]
 	 *
@@ -273,9 +357,9 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
+
 	/**
-	 * Build a set
+	 * Build a set, given list of elements
 	 * 
 	 * [ ..., IValue[] args ] => [ ..., set value]
 	 *
@@ -291,7 +375,68 @@ public enum RascalPrimitive {
 	},
 	
 	/**
-	 * Build a relation
+	 * Build a set, given elements on stack
+	 * 
+	 *  * [ ... IValue val1, IValue val2, ... ] => [ ..., {val1, val2, ...} ]
+	 */
+	set_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity >= 0;
+
+			if(arity == 0){
+				stack[sp] = emptySet;
+				return sp + 1;
+			}
+
+			ISetWriter writer = vf.setWriter();
+
+			for (int i = arity - 1; i >= 0; i--) {
+				writer.insert((IValue) stack[sp - 1 - i]);
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = writer.done();
+
+			return sp1;
+		}
+
+	},
+	
+	/**
+	 * Convert single-element set to element
+	 * 
+	 * [ ..., ISet set ] => [ ..., IValue elm ]
+	 */
+	set2elm {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISet set = (ISet) stack[sp - 1];
+			if(set.size() != 1)
+				throw new CompilerError("set2elm: set should have a single element", rvm.getStdErr(), currentFrame);
+			IValue elm = set.iterator().next();
+			stack[sp - 1] = elm;
+			return sp;
+		}
+	},
+
+	/**
+	 * size of set
+	 * 
+	 * [ ... ISet val] => [ ..., IInteger size ]
+	 */	
+	set_size {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISet set = (ISet) stack[sp - 1];		
+			stack[sp - 1] = vf.integer(set.size());
+			return sp;
+		}
+	},
+
+	/**
+	 * Build a relation, given list of elements
 	 * 
 	 * [ ..., IValue[] args ] => [ ..., relation value]
 	 *
@@ -305,9 +450,9 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
+
 	/**
-	 * Build a tuple
+	 * Build a tuple, given list of elements
 	 * 
 	 * [ ..., IValue[] args ] => [ ..., tuple value]
 	 *
@@ -322,10 +467,156 @@ public enum RascalPrimitive {
 		}
 	},
 	
-	/*
-	 * ...writer_add
+	/**
+	 * Build a tuple, given elements on stack
+	 * 
+	 *  * [ ... IValue val1, IValue val2, ... ] => [ ..., <val1, val2, ...> ]
 	 */
-	
+	tuple_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity >= 0;
+			IValue[] elems = new IValue[arity];
+
+			for (int i = arity - 1; i >= 0; i--) {
+				elems[i] = (IValue) stack[sp - arity + i];
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = vf.tuple(elems);
+			return sp1;
+		}
+	},
+
+	/**
+	 * Create a map, given key, value pairs on stack
+	 * 
+	 * [ ... IValue key1, IValue val1, IValue key2, IValue val2... ] => [ ..., (key1 : val1, key2 : val2, ...) ]
+	 */
+	map_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity >= 0;
+
+			if(arity == 0){
+				stack[sp] = emptyMap;
+				return sp + 1;
+			}
+
+			IMapWriter writer = vf.mapWriter();
+
+			for (int i = arity; i > 0; i -= 2) {
+				writer.put((IValue) stack[sp - i], (IValue) stack[sp - i + 1]);
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = writer.done();
+
+			return sp1;
+		}
+	},
+
+	/**
+	 * Create a loc
+	 * [ ..., IString uri ] => [ ..., ISourceLocation l ]
+	 */
+	loc_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IString uri = ((IString) stack[sp - 1]);
+
+			try {
+				stack[sp - 1] = vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
+				return sp;
+			} 
+			catch (URISyntaxException e) {
+				// this is actually an unexpected run-time exception since Rascal prevents you from 
+				// creating non-encoded 
+				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * Create a loc with given offsets and length
+	 * [ ..., IString uri, IInteger offset, IInteger length, IInteger beginLine, IInteger beginCol, IInteger endLine, IInteger endCol] => [ ..., ISourceLocation l ]
+	 */
+	loc_with_offset_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 5;
+			ISourceLocation loc = (ISourceLocation) stack[sp - arity];
+			int offset = ((IInteger) stack [sp - arity + 1]).intValue();
+			int length = ((IInteger) stack [sp - arity + 2]).intValue();
+
+			ITuple begin = (ITuple) stack [sp - arity + 3];
+			int beginLine = ((IInteger) begin.get(0)).intValue();
+			int beginCol = ((IInteger) begin.get(1)).intValue();
+
+			ITuple end = (ITuple) stack [sp - arity + 4];
+			int endLine = ((IInteger) end.get(0)).intValue();
+			int endCol = ((IInteger)  end.get(1)).intValue();
+
+			stack[sp - arity] = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
+			return sp - arity + 1;
+		}
+	},
+
+	/**
+	 * Create a nonterminal value
+	 * 
+	 * [ ..., IValue prod, IValue args ] => [ ..., appl(prod, args) ]
+	 */
+	appl_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue prod = (IValue) stack[sp - 2];
+			IValue args = (IValue) stack[sp -1];
+
+			stack[sp - 2] = vf.constructor(RascalValueFactory.Tree_Appl, prod, args);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Create a reified type
+	 * 
+	 * [ ..., IConstructor type_cons, IMap definitions ] => [ ..., Type t ]
+	 */
+	reifiedType_create {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IConstructor type_cons = (IConstructor) stack[sp - 2];
+			IMap idefinitions = (IMap) stack[sp - 1];
+			typeReifier = new TypeReifier(vf);
+
+			Type type = typeReifier.symbolToType(type_cons, idefinitions);
+
+			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(RascalValueFactory.TypeParam, type);
+
+			stack[sp - 2] = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+
+			return sp - 1;
+		}
+	},
+
+	/*****************************************************************************************************/
+	/*						Readers and writers															 */
+	/*****************************************************************************************************/
+
+	listwriter_open {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 0;	// For now, later type can be added
+			IListWriter writer = vf.listWriter();
+			stack[sp] = writer;
+			return sp + 1;
+		}
+	},
+
 	/**
 	 * Add values to a list writer
 	 * 
@@ -343,7 +634,27 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
-	
+
+	listwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IListWriter writer = (IListWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
+		}
+	},
+
+	setwriter_open {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 0;	// For now, later type can be added
+			ISetWriter writer = vf.setWriter();
+			stack[sp] = writer;
+			return sp + 1;
+		}
+	},
+
 	/**
 	 * Add values to a set writer
 	 * 
@@ -361,7 +672,27 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
-	
+
+	setwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISetWriter writer = (ISetWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
+		}
+	},
+
+	mapwriter_open {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 0;	// For now, later type can be added
+			IMapWriter writer = vf.mapWriter();
+			stack[sp] = writer;
+			return sp + 1;
+		}
+	},
+
 	/**
 	 * Add values to a map writer
 	 * 
@@ -377,6 +708,93 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+
+	mapwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IMapWriter writer = (IMapWriter) stack[sp - 1];
+			stack[sp - 1] = writer.done();
+			return sp;
+		}
+	},
+
+	/**
+	 * Create a string writer
+	 * 
+	 * [ ... ] => [ ..., new StringBuilder ]
+	 */
+	stringwriter_open {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 0;
+			stack[sp] = new StringBuilder();
+			return sp + 1;
+		}
+	},
+
+	/**
+	 * Add a value to a stringwriter
+	 * 
+	 * [ ... StringBuilder sb, IValue val] => [ ..., sb with val appended ]
+	 */
+	stringwriter_add {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			StringBuilder b = (StringBuilder) stack[sp - 2];
+			IValue v = ((IValue) stack[sp - 1]);
+			String s;
+			if(v.getType().isString()){
+				s = ((IString) v).getValue();
+			} else {
+				s = v.toString();
+			}
+			stack[sp - 2] = b.append(s);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Close a stringwriter
+	 * 
+	 * [ ... StringBuilder sb] => [ ..., IString string value of stringwriter ]
+	 */
+	stringwriter_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			StringBuilder b = (StringBuilder) stack[sp - 1];
+			stack[sp - 1] = vf.string(b.toString());
+			return sp;
+		}
+	},
+
+	/********************************************************************************************************/
+	/*								Operators																*/
+	/********************************************************************************************************/
+
+	// addition
+	// compose
+	// division
+	// equal
+	// greater
+	// greaterequal
+	// in
+	// intersect
+	// join
+	// less
+	// lessequal
+	// mod
+	// negative
+	// notequal
+	// notin
+	// non_negative
+	// product
+	// remainder
+	// subtract
+	// transitive_closure
+	// transitive_reflexive_closure
 	
 	/**
 	 * addition
@@ -402,7 +820,7 @@ public enum RascalPrimitive {
 	 *		tuple[&L1,&L2] x tuple[&R1,&R2,&R3] -> tuple[&L1,&L2,&R1,&R2,&R3]
 	 * }
 	 */
-	
+
 	add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -556,7 +974,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * addition on int and int
 	 * 
@@ -598,7 +1016,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on int and real
 	 * 
@@ -639,7 +1057,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on num and rat
 	 * 
@@ -653,7 +1071,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on num and real
 	 * 
@@ -667,7 +1085,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on rat and int
 	 * 
@@ -681,7 +1099,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on rat and num
 	 * 
@@ -708,7 +1126,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on rat and real
 	 * 
@@ -736,7 +1154,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on real and int
 	 * 
@@ -763,7 +1181,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on real and rat
 	 * 
@@ -777,15 +1195,15 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	// Add on non-numeric types
-	
+
 	/**
 	 * addition on list and list
 	 * 
 	 * [ ... IList val1, IList val2] => [ ..., val1 + val2]
 	 */
-	
+
 	list_add_list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -794,7 +1212,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on list and element
 	 * 
@@ -808,7 +1226,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on element and list
 	 * 
@@ -822,7 +1240,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on list and list relation
 	 * 
@@ -834,7 +1252,7 @@ public enum RascalPrimitive {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on list relation and list relation
 	 * 
@@ -846,7 +1264,7 @@ public enum RascalPrimitive {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on list relation and list
 	 * 
@@ -858,7 +1276,7 @@ public enum RascalPrimitive {
 			return list_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on list relation and element
 	 * 
@@ -870,7 +1288,7 @@ public enum RascalPrimitive {
 			return list_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on element and list relation
 	 * 
@@ -882,7 +1300,7 @@ public enum RascalPrimitive {
 			return elm_add_list.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on loc and str
 	 * 
@@ -904,7 +1322,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on map and map
 	 * 
@@ -918,7 +1336,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on set and element
 	 * 
@@ -932,7 +1350,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on element and set
 	 * 
@@ -946,7 +1364,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on set and set
 	 * 
@@ -960,7 +1378,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on set and relation
 	 * 
@@ -972,7 +1390,7 @@ public enum RascalPrimitive {
 			return set_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on rel and rel
 	 * 
@@ -986,7 +1404,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * addition on rel and set
 	 * 
@@ -998,7 +1416,7 @@ public enum RascalPrimitive {
 			return set_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on rel and element
 	 * 
@@ -1010,7 +1428,7 @@ public enum RascalPrimitive {
 			return set_add_elm.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on element and rel
 	 * 
@@ -1022,7 +1440,7 @@ public enum RascalPrimitive {
 			return elm_add_set.execute(stack, sp, arity, currentFrame);
 		}
 	},
-	
+
 	/**
 	 * addition on str and str
 	 * 
@@ -1045,13 +1463,13 @@ public enum RascalPrimitive {
 			}
 		}		
 	},
-	
+
 	/**
 	 * addition on tuple and tuple
 	 * 
 	 * [ ... ITuple val1, ITuple val2] => [ ..., val1 + val2]
 	 */
-	
+
 	tuple_add_tuple {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1069,153 +1487,881 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	/**
-	 * str_escape_for_regexp: escape the regexp meta-characters in a string
-	 * 
-	 * [ ... IValue val] => [ ..., IString escaped_val]
-	 */
-	
-	str_escape_for_regexp {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue v = ((IValue) stack[sp - 1]);
-			String s;
-			if(v.getType().isString()){
-				s = ((IString) v).getValue();
-			} else {
-				s = v.toString();
-			}
-			StringBuilder b = new StringBuilder();
 
-			for (int i = 0; i < s.length(); i++) {
-				char ch = s.charAt(i);
-				if ("^.|?*+()[\\".indexOf(ch) != -1) {
-					b.append('\\');
+	/**
+	 * subtraction on arbitary values
+	 * 
+	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 * 
+	 * infix Difference "-" {
+	 *		&L <: num x &R <: num                -> LUB(&L, &R),
+	 * 		list[&L] x list[&R]                  -> list[LUB(&L,&R)],
+	 *		set[&L] x set[&R]                    -> set[LUB(&L,&R)],
+	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+	 * }
+	 */
+	subtract {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue lhs = ((IValue) stack[sp - 2]);
+			IValue rhs = ((IValue) stack[sp - 1]);
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return int_subtract_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return int_subtract_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return int_subtract_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return int_subtract_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
-				b.append(ch);
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return num_subtract_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return num_subtract_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return num_subtract_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return num_subtract_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return real_subtract_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return real_subtract_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return real_subtract_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return real_subtract_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return rat_subtract_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return rat_subtract_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return rat_subtract_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return rat_subtract_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				}
+			default:
+				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 			}
-			stack[sp - 1] = vf.string(b.toString());
-			return sp;
 		}
 	},
-	
-	/*
-	 * Templates
-	 */
-	
+
 	/**
-	 * Create a string template
+	 * subtraction on int and int
 	 * 
-	 * [ ... ] => [ ... ]
-	 * or
-	 * [ ..., IString initial ] => [ ..., initial]
-	 * 
-	 * Note: The string builder is maintained implicitly on the templateBuilderStack.
-	 * This may cause problems (i.e. leaving spurious builders on that stack)  when an exception
-	 * occurs during template construction. 
+	 * [ ..., IInteger val1, IInteger val2 ] => [ ..., val1 - val2 ]
 	 */
-	template_open {
+	int_subtract_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity <= 1;
-			String pre = "";
-			if(arity == 1){
-				pre = ((IString) stack[sp - 1]).getValue();
-				stack[sp - 1] = vf.string("");
-			} else {
-				stack[sp] = vf.string("");
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on int and num
+	 * 
+	 * [ ..., IInteger val1, INumber val2 ] => [ ..., val1 - val2 ]
+	 */
+	int_subtract_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on int and rat
+	 * 
+	 * [ ..., IInteger val1, IRational val2 ] => [ ..., val1 - val2 ]
+	 */
+	int_subtract_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on int and real
+	 * 
+	 * [ ..., IInteger val1, IReal val2 ] => [ ..., val1 - val2 ]
+	 */
+	int_subtract_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
+			return sp - 1;
+		}	
+	},
+
+	/**
+	 * subtraction on num and int
+	 * 
+	 * [ ..., INumber val1, IInteger val2 ] => [ ..., val1 - val2 ]
+	 */
+	num_subtract_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on num and num
+	 * 
+	 * [ ..., INumber val1, INumber val2 ] => [ ..., val1 - val2 ]
+	 */
+	num_subtract_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on num and rat
+	 * 
+	 * [ ..., INumber val1, IRational val2 ] => [ ..., val1 - val2 ]
+	 */
+	num_subtract_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on num and inrealt
+	 * 
+	 * [ ..., INumber val1, IReal val2 ] => [ ..., val1 - val2 ]
+	 */
+	num_subtract_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on rat and int
+	 * 
+	 * [ ..., IRational val1, IInteger val2 ] => [ ..., val1 - val2 ]
+	 */
+	rat_subtract_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on rat and inumnt
+	 * 
+	 * [ ..., IRational val1, INumber val2 ] => [ ..., val1 - val2 ]
+	 */
+	rat_subtract_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on rat and rat
+	 * 
+	 * [ ..., IRational val1, IRational val2 ] => [ ..., val1 - val2 ]
+	 */
+	rat_subtract_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on rat and real
+	 * 
+	 * [ ..., IRational val1, IReal val2 ] => [ ..., val1 - val2 ]
+	 */
+	rat_subtract_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
+			return sp - 1;
+		}	
+	},
+
+	/**
+	 * subtraction on real and number
+	 * 
+	 * [ ..., IReal val1, INumber val2 ] => [ ..., val1 - val2 ]
+	 */
+	real_subtract_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on real and int
+	 * 
+	 * [ ..., IReal val1, IInteger val2 ] => [ ..., val1 - val2 ]
+	 */
+	real_subtract_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on real and real
+	 * 
+	 * [ ..., IReal val1, IReal val2 ] => [ ..., val1 - val2 ]
+	 */
+	real_subtract_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on real and rat
+	 * 
+	 * [ ..., IReal val1, IRational val2 ] => [ ..., val1 - val2 ]
+	 */
+	real_subtract_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on list and element
+	 * 
+	 * [ ..., IList val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 */
+	list_subtract_elm {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on list and list
+	 * 
+	 * [ ..., IList val1, IList val2 ] => [ ..., val1 - val2 ]
+	 */
+	list_subtract_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on list and list relation
+	 * 
+	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 */
+	list_subtract_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_subtract_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on list relation and list relation
+	 * 
+	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 */
+	lrel_subtract_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_subtract_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on list relation and list
+	 * 
+	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 */
+	lrel_subtract_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_subtract_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on list relation and element
+	 * 
+	 * [ ..., IListRelation val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 */
+	lrel_subtract_elm {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_subtract_elm.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on maps
+	 * 
+	 * [ ..., IMap val1, IMap val2 ] => [ ..., val1 - val2 ]
+	 */
+	map_subtract_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on rel
+	 * 
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 - val2 ]
+	 */
+	rel_subtract_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_subtract_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on rel and set
+	 * 
+	 * [ ..., IRelation val1, ISet val2 ] => [ ..., val1 - val2 ]
+	 */
+	rel_subtract_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_subtract_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on rel and element
+	 * 
+	 * [ ..., IRelation val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 */
+	rel_subtract_elm {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_subtract_elm.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * subtraction on set and element
+	 * 
+	 * [ ..., ISet val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 */
+	set_subtract_elm {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on set
+	 * 
+	 * [ ..., ISet val1, ISet val2 ] => [ ..., val1 - val2 ]
+	 */
+	set_subtract_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtraction on set and rel
+	 * 
+	 * [ ..., ISet val1, IRelation val2 ] => [ ..., val1 - val2 ]
+	 */
+	set_subtract_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_subtract_set.execute(stack, sp, arity, currentFrame);
+		}
+	},	
+
+
+
+
+	/**
+	 * product of arbitrary values
+	 * 
+	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 * val2 ]
+	 * 
+	 * infix Product "*" {
+	 *		&L <: num x &R <: num                -> LUB(&L, &R),
+	 * 		list[&L] x list[&R]                  -> lrel[&L,&R],
+	 *		set[&L] x set[&R]                    -> rel[&L,&R]
+	 * }
+	 */
+	product {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue lhs = ((IValue) stack[sp - 2]);
+			IValue rhs = ((IValue) stack[sp - 1]);
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return int_product_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return int_product_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return int_product_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return int_product_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
+				}
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return num_product_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return num_product_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return num_product_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return num_product_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return real_product_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return real_product_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return real_product_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return real_product_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return rat_product_int.execute(stack, sp, arity, currentFrame);
+				case NUM:
+					return rat_product_num.execute(stack, sp, arity, currentFrame);
+				case REAL:
+					return rat_product_real.execute(stack, sp, arity, currentFrame);
+				case RAT:
+					return rat_product_rat.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
+				}
+			default:
+				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 			}
-			$pushIndent("");
-			templateBuilderStack.push(templateBuilder);
-			templateBuilder = new StringBuilder();
-			templateBuilder.append($unescape(pre));
-			return arity == 1 ? sp : sp + 1;
 		}
 	},
-	
+
 	/**
-	 * Increase indentation in string template
+	 * product of int and int
 	 * 
-	 * [ ..., IString indent ] => [ ..., ""]
+	 * [ ..., IInteger val1, IInteger val2 ] => [ ..., val1 * val2 ]
 	 */
-	template_indent {
+	int_product_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			String ind = ((IString) stack[sp - 1]).getValue();
-			$indent(ind);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+			return sp - 1;
 		}
 	},
-	
+
 	/**
-	 * Decrease indentation in string template
+	 * product of int and num
 	 * 
-	 * [ ..., IString indent ] => [ ..., ""]
+	 * [ ..., IInteger val1, INumber val2 ] => [ ..., val1 * val2 ]
 	 */
-	template_unindent {
+	int_product_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			String ind = ((IString) stack[sp - 1]).getValue();
-			$unindent(ind);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
+			return sp - 1;
 		}
 	},
-	
+
 	/**
-	 * Add string to string template
+	 * product of int and rat
 	 * 
-	 * [ ..., IString val ] => [ ..., ""]
+	 * [ ..., IInteger val1, IRational val2 ] => [ ..., val1 * val2 ]
 	 */
-	template_add {
+	int_product_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			
-			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
-			String arg_s = $removeMargins(iarg_s).getValue();
-			
-			templateBuilder.append(arg_s);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
+			return sp - 1;
 		}
 	},
-	
+
 	/**
-	 * Close string template
+	 * product of int and real
 	 * 
-	 * [ ... ] => [ ..., IString value_of_template]
+	 * [ ..., IInteger val1, IReal val2 ] => [ ..., val1 * val2 ]
 	 */
-	template_close {
+	int_product_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 0;
-			$popIndent();
-			stack[sp] = vf.string(templateBuilder.toString());
-			templateBuilder = templateBuilderStack.pop();
-			return sp + 1;
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
+			return sp - 1;
 		}
 	},
-	
+
 	/**
-	 * Convert a value to string
+	 * product of num and int
 	 * 
-	 * [ ..., IValue val] => [ ..., IString converted_value]
+	 * [ ..., INumber val1, IInteger val2 ] => [ ..., val1 * val2 ]
 	 */
-	value_to_string {
+	num_product_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.string($value_to_string(stack[sp - 1], currentFrame));
-			return sp;
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+			return sp - 1;
 		}
 	},
-	
+
+	/**
+	 * product of num and num
+	 * 
+	 * [ ..., INumber val1, INumber val2 ] => [ ..., val1 * val2 ]
+	 */
+	num_product_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of num and rat
+	 * 
+	 * [ ..., INumber val1, IRational val2 ] => [ ..., val1 * val2 ]
+	 */
+	num_product_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of num and real
+	 * 
+	 * [ ..., INumber val1, IReal val2 ] => [ ..., val1 * val2 ]
+	 */
+	num_product_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
+			return sp - 1;
+		}	
+	},
+
+	/**
+	 * product of rat and int
+	 * 
+	 * [ ..., IRational val1, IInteger val2 ] => [ ..., val1 * val2 ]
+	 */
+	rat_product_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of rat and num
+	 * 
+	 * [ ..., IRational val1, INumber val2 ] => [ ..., val1 * val2 ]
+	 */
+	rat_product_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of rat and rat
+	 * 
+	 * [ ..., IRational val1, IRational val2 ] => [ ..., val1 * val2 ]
+	 */
+	rat_product_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of rat and real
+	 * 
+	 * [ ..., IRational val1, IReal val2 ] => [ ..., val1 * val2 ]
+	 */
+	rat_product_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of real and num
+	 * 
+	 * [ ..., IReal val1, INumber val2 ] => [ ..., val1 * val2 ]
+	 */
+	real_product_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of real and int
+	 * 
+	 * [ ..., IReal val1, IInteger val2 ] => [ ..., val1 * val2 ]
+	 */
+	real_product_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of real and real
+	 * 
+	 * [ ..., IReal val1, IReal val2 ] => [ ..., val1 * val2 ]
+	 */
+	real_product_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of real and rat
+	 * 
+	 * [ ..., IReal val1, IRational val2 ] => [ ..., val1 * val2 ]
+	 */
+	real_product_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of lists
+	 * 
+	 * [ ..., IList val1, IList val2 ] => [ ..., val1 * val2 ]
+	 */
+	list_product_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			IListWriter w = vf.listWriter();
+			for(IValue l : left){
+				for(IValue r : right){
+					w.append(vf.tuple(l,r));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of list relations
+	 * 
+	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 * val2 ]
+	 */
+	lrel_product_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_product_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * product of sets
+	 * 
+	 * [ ..., ISet val1, ISet val2 ] => [ ..., val1 * val2 ]
+	 */
+	set_product_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			ISetWriter w = vf.setWriter();
+			for(IValue l : left){
+				for(IValue r : right){
+					w.insert(vf.tuple(l,r));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * product of rel
+	 * 
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 * val2 ]
+	 */
+	rel_product_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_product_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * remainder on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 % val2 ]
+	 */
+	remainder {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			IValue lhs = ((IValue) stack[sp - 2]);
+			IValue rhs = ((IValue) stack[sp - 1]);
+			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
+				return int_remainder_int.execute(stack, sp, arity, currentFrame);
+			}
+			throw new CompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
+		}
+	},
+
+	/**
+	 * remainder on int and int
+	 * 
+	 * [ ... IInteger val1, IINteger val2 ] => [ ..., val1 % val2 ]
+	 */
+	int_remainder_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+
 	/**
 	 *composition
 	 * 
@@ -1223,11 +2369,11 @@ public enum RascalPrimitive {
 	 *
 	 * infix Composition "o" {
 	 * 	lrel[&A,&B] x lrel[&B,&C] -> lrel[&A,&C],
- 	 * 	rel[&A,&B] x rel[&B,&C] -> rel[&A,&C],
- 	 * 	map[&A,&B] x map[&B,&C] -> map[&A,&C]
+	 * 	rel[&A,&B] x rel[&B,&C] -> rel[&A,&C],
+	 * 	map[&A,&B] x map[&B,&C] -> map[&A,&C]
 	 * }
 	 */
-	
+
 	compose {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1247,7 +2393,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * compose lrel and lrel
 	 * 
@@ -1264,8 +2410,8 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	
+
+
 	/**
 	 * compose rel and rel
 	 * 
@@ -1281,7 +2427,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * compose map and map
 	 * 
@@ -1295,7 +2441,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * modulo
 	 * 
@@ -1312,7 +2458,7 @@ public enum RascalPrimitive {
 			throw new CompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rvm.getStdErr(), currentFrame);
 		}
 	},
-	
+
 	/**
 	 * modulo on int and int
 	 * 
@@ -1326,7 +2472,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * division
 	 * 
@@ -1334,7 +2480,7 @@ public enum RascalPrimitive {
 	 * 
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
 	 */
-	
+
 	divide {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1401,7 +2547,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on int and int
 	 * 
@@ -1419,7 +2565,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on int and num
 	 * 
@@ -1437,7 +2583,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on int and rat
 	 * 
@@ -1455,7 +2601,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on int and real
 	 * 
@@ -1473,7 +2619,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on num and int
 	 * 
@@ -1491,7 +2637,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on num and num
 	 * 
@@ -1509,7 +2655,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on num and rat
 	 * 
@@ -1527,7 +2673,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on num and real
 	 * 
@@ -1545,7 +2691,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on rat and int
 	 * 
@@ -1563,7 +2709,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on rat and num
 	 * 
@@ -1581,7 +2727,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on rat and rat
 	 * 
@@ -1599,7 +2745,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on rat and real
 	 * 
@@ -1635,7 +2781,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on real and int
 	 * 
@@ -1653,7 +2799,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on real and real
 	 * 
@@ -1671,7 +2817,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * divide on real and rat
 	 * 
@@ -1689,19 +2835,19 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
-	
-	
+
+
+
 	/*
 	 * equal
 	 */
-	
+
 	/**
 	 * equal on int and int
 	 * 
 	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 == val2]
 	 */
-	
+
 	int_equal_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1710,7 +2856,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on int and num
 	 * 
@@ -1724,7 +2870,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on int and rat
 	 * 
@@ -1738,7 +2884,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on int and real
 	 * 
@@ -1752,7 +2898,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on num and int
 	 * 
@@ -1766,7 +2912,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on num and num
 	 * 
@@ -1780,7 +2926,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on num and rat
 	 * 
@@ -1794,7 +2940,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on num and real
 	 * 
@@ -1808,7 +2954,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on real and int
 	 * 
@@ -1822,7 +2968,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 
 	/**
 	 * equal on real and num
@@ -1837,7 +2983,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 
 	/**
 	 * equal on real and rat
@@ -1852,7 +2998,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on real and real
 	 * 
@@ -1880,7 +3026,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on rat and num
 	 * 
@@ -1894,7 +3040,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on rat and rat
 	 * 
@@ -1908,7 +3054,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on rat and real
 	 * 
@@ -1922,13 +3068,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
 	 * equal on node and node
 	 * 
 	 * [ ... INode val1, INode val2] => [ ..., val1 == val2]
 	 */
-	
+
 	node_equal_node {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -1938,7 +3084,7 @@ public enum RascalPrimitive {
 			int leftArity = leftNode.arity();
 			int rightArity = rightNode.arity();
 			stack[sp - 2] = Rascal_FALSE;
-			
+
 			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
 				return sp - 1;
 			}
@@ -1951,10 +3097,10 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	// equal on other types
-	
-	
+
+
 	/**
 	 * equal on arbitrary types
 	 * 
@@ -1976,7 +3122,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	
+
 	/**
 	 * equal on types
 	 * 
@@ -1990,17 +3136,3726 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}		
 	},
+
+
+	// ==== greater
+
+	/**
+	 * greater-than on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 > val2]
+	 */
+	int_greater_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2] => [ ..., val1 > val2]
+	 */
+	int_greater_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on int and rat
+	 * 
+	 * [ ... IInteger val1, IRational val2] => [ ..., val1 > val2]
+	 */
+	int_greater_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2] => [ ..., val1 > val2]
+	 */
+	int_greater_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2] => [ ..., val1 > val2]
+	 */
+	num_greater_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+
+	/**
+	 * greater-than on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2] => [ ..., val1 > val2]
+	 */
+	num_greater_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2] => [ ..., val1 > val2]
+	 */
+	num_greater_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+
+	/**
+	 * greater-than on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2] => [ ..., val1 > val2]
+	 */
+	num_greater_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},	
+
+	/**
+	 * greater-than on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2] => [ ..., val1 > val2]
+	 */
+	rat_greater_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2] => [ ..., val1 > val2]
+	 */
+	rat_greater_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2] => [ ..., val1 > val2]
+	 */
+	rat_greater_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on rat and real
+	 * 
+	 * [ ... IRational val1, IReal val2] => [ ..., val1 > val2]
+	 */
+	rat_greater_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2] => [ ..., val1 > val2]
+	 */
+	real_greater_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2] => [ ..., val1 > val2]
+	 */
+	real_greater_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on real and real
+	 * 
+	 * [ ... IReal val1, IReal val2] => [ ..., val1 > val2]
+	 */
+	real_greater_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2] => [ ..., val1 > val2]
+	 */
+	real_greater_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 > val2]
+	 */
+
+	greater {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = lessequal.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than on adts
+	 * 
+	 * [ ... IConstructor val1, IConstructor val2] => [ ..., val1 > val2]
+	 */
+	adt_greater_adt {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			return node_greater_node.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * greater-than on bool
+	 * 
+	 * [ ... IBool val1, IBool val2] => [ ..., val1 > val2]
+	 */
+
+	bool_greater_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IBool) stack[sp - 2]).and(((IBool) stack[sp - 1]).not());
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on datetime
+	 * 
+	 * [ ... IDateTime val1, IDateTime val2] => [ ..., val1 > val2]
+	 */
+	datetime_greater_datetime {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on list
+	 * 
+	 * [ ... IList val1, IList val2] => [ ..., val1 > val2]
+	 */
+	list_greater_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than on list relation
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 > val2]
+	 */
+	lrel_greater_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than on loc
+	 * 
+	 * [ ... ISourceLocation val1, ISourceLocation val2] => [ ..., val1 > val2]
+	 */
+	loc_greater_loc {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = loc_lessequal_loc.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than on map
+	 * 
+	 * [ ... IMap val1, IMap val2] => [ ..., val1 > val2]
+	 */
+	map_greater_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IMap left = (IMap) stack[sp - 2];
+			IMap right = (IMap) stack[sp - 1];
+
+			stack[sp - 2] = vf.bool(right.isSubMap(left) && !left.isSubMap(right));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on node
+	 * 
+	 * [ ... INode val1, INode val2] => [ ..., val1 > val2]
+	 */
+	node_greater_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int newsp = node_lessequal_node.execute(stack, sp, arity, currentFrame);
+			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
+			return newsp;
+		}
+	},
+
+	/**
+	 * greater-than on set
+	 * 
+	 * [ ... ISet val1, ISet val2] => [ ..., val1 > val2]
+	 */
+	set_greater_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on rel
+	 * 
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 > val2]
+	 */
+	rel_greater_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on str
+	 * 
+	 * [ ... IString val1, IString val2] => [ ..., val1 > val2]
+	 */
+	str_greater_str {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than on tuple
+	 * 
+	 * [ ... ITuple val1, ITuple val2] => [ ..., val1 > val2]
+	 */
+	tuple_greater_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
 	
+	// ==== greaterequal
+
+	/**
+	 * greater-than-or-equal on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2] => [ ..., val1 >= val2]
+	 */
+	int_greaterequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2] => [ ..., val1 >= val2]
+	 */
+	int_greaterequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on int and rat
+	 * 
+	 * [ ... IInteger val1, IRational val2] => [ ..., val1 >= val2]
+	 */
+	int_greaterequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2] => [ ..., val1 >= val2]
+	 */
+	int_greaterequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2] => [ ..., val1 >= val2]
+	 */
+	num_greaterequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2] => [ ..., val1 >= val2]
+	 */
+	num_greaterequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2] => [ ..., val1 >= val2]
+	 */
+	num_greaterequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2] => [ ..., val1 >= val2]
+	 */
+	num_greaterequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2] => [ ..., val1 >= val2]
+	 */
+	rat_greaterequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2] => [ ..., val1 >= val2]
+	 */
+	rat_greaterequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2] => [ ..., val1 >= val2]
+	 */
+	rat_greaterequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on rat and real
+	 * 
+	 * [ ... IRational val1, IReal val2] => [ ..., val1 >= val2]
+	 */
+	rat_greaterequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2] => [ ..., val1 >= val2]
+	 */
+	real_greaterequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2] => [ ..., val1 >= val2]
+	 */
+	real_greaterequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on real and real
+	 * 
+	 * [ ... IReal val1, IReal val2] => [ ..., val1 >= val2]
+	 */
+	real_greaterequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+	/**
+	 * greater-than-or-equal on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2] => [ ..., val1 >= val2]
+	 */
+	real_greaterequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2] => [ ..., val1 >= val2]
+	 */
+	greaterequal {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = less.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on adts
+	 * 
+	 * [ ... IConstructor val1, IConstructor val2] => [ ..., val1 >= val2]
+	 */
+	adt_greaterequal_adt {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			return node_greaterequal_node.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on bool
+	 * 
+	 * [ ... IBool val1, IBool val2] => [ ..., val1 >= val2]
+	 */
+	bool_greaterequal_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
+			stack[sp - 2] = vf.bool((left && !right) || (left == right));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on datetime
+	 * 
+	 * [ ... IDateTime val1, IDateTime val2] => [ ..., val1 >= val2]
+	 */
+	datetime_greaterequal_datetime {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on lists
+	 * 
+	 * [ ... IList val1, IList val2] => [ ..., val1 >= val2]
+	 */
+	list_greaterequal_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = list_less_list.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on list relations
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 >= val2]
+	 */
+	lrel_greaterequal_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = list_less_list.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on locs
+	 * 
+	 * [ ... ISourceLocation val1, ISourceLocation val2] => [ ..., val1 >= val2]
+	 */
+	loc_greaterequal_loc {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = loc_less_loc.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on nodes
+	 * 
+	 * [ ... INode val1, INode val2] => [ ..., val1 >= val2]
+	 */
+	node_greaterequal_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int newsp = node_less_node.execute(stack, sp, arity, currentFrame);
+			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
+			return newsp;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on maps
+	 * 
+	 * [ ... IMap val1, IMap val2] => [ ..., val1 >= val2]
+	 */
+	map_greaterequal_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IMap left = (IMap) stack[sp - 2];
+			IMap right = (IMap) stack[sp - 1];
+			stack[sp - 2] = vf.bool(right.isSubMap(left));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on sets
+	 * 
+	 * [ ... ISet val1, ISet val2] => [ ..., val1 >= val2]
+	 */
+	set_greaterequal_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on rels
+	 * 
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 >= val2]
+	 */
+	rel_greaterequal_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on str
+	 * 
+	 * [ ... IString val1, IString val2] => [ ..., val1 >= val2]
+	 */
+	str_greaterequal_str {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
+			stack[sp - 2] = vf.bool(c == 0 || c == 1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * greater-than-or-equal on tuples
+	 * 
+	 * [ ... ITuple val1, ITuple val2] => [ ..., val1 >= val2]
+	 */
+	tuple_greaterequal_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			int spnew = tuple_less_tuple.execute(stack, sp, arity, currentFrame);
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
+			return spnew;
+		}
+	},
+
+	// ==== intersect
+	
+	/**
+	 * intersect of two values
+	 * 
+	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 & val2 ]
+	 * 
+	 * infix intersect "&" {
+	 *		list[&L] x list[&R]                  -> list[LUB(&L,&R)],
+	 *		set[&L] x set[&R]                    -> set[LUB(&L,&R)],
+	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
+	 * } 
+	 */
+
+	intersect {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue left = (IValue) stack[sp - 2];
+			Type leftType = left.getType();
+			IValue right = (IValue) stack[sp - 2];
+			Type rightType = right.getType();
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case LIST:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case LIST:
+					return list_intersect_list.execute(stack, sp, arity, currentFrame);
+				case LREL:
+					return list_intersect_lrel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+			case SET:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case SET:
+					return set_intersect_set.execute(stack, sp, arity, currentFrame);
+				case REL:
+					return set_intersect_rel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+			case MAP:
+				return map_intersect_map.execute(stack, sp, arity, currentFrame);
+
+			default:
+				throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * intersect on lists
+	 * 
+	 * [ ... IList val1, IList val2 ] => [ ..., val1 & val2 ]
+	 */
+	list_intersect_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * intersect on list and list relation
+	 * 
+	 * [ ... IList val1, IListRelation val2 ] => [ ..., val1 & val2 ]
+	 */
+	list_intersect_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_intersect_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * intersect on list relations
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2 ] => [ ..., val1 & val2 ]
+	 */
+	lrel_intersect_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_intersect_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * intersect on list relation and list
+	 * 
+	 * [ ... IListRelation val1, IList val2 ] => [ ..., val1 & val2 ]
+	 */
+	lrel_intersect_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_intersect_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * intersect on maps
+	 * 
+	 * [ ... IMap val1, IMap val2 ] => [ ..., val1 & val2 ]
+	 */
+	map_intersect_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * intersect on rels
+	 * 
+	 * [ ... IRelation val1, IRelation val2 ] => [ ..., val1 & val2 ]
+	 */
+	rel_intersect_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_intersect_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * intersect on rel and set
+	 * 
+	 * [ ... IRelation val1, ISet val2 ] => [ ..., val1 & val2 ]
+	 */
+	rel_intersect_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_intersect_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * intersect on sets
+	 * 
+	 * [ ... ISet val1, ISet val2 ] => [ ..., val1 & val2 ]
+	 */
+	set_intersect_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * intersect on set and rel
+	 * 
+	 * [ ... ISet val1, IRelation val2 ] => [ ..., val1 & val2 ]
+	 */
+	set_intersect_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_intersect_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	// ==== in
+	
+	/**
+	 * in (is-element-of) on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 in val2 ]
+	 */
+	in {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue left = (IValue) stack[sp - 2];
+			Type leftType = left.getType();
+			IValue right = (IValue) stack[sp - 2];
+			Type rightType = right.getType();
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case LIST:
+				return elm_in_list.execute(stack, sp, arity, currentFrame);
+			case LREL:
+				return elm_in_lrel.execute(stack, sp, arity, currentFrame);
+			case SET:
+				return elm_in_set.execute(stack, sp, arity, currentFrame);
+			case REL:
+				return elm_in_rel.execute(stack, sp, arity, currentFrame);
+			case MAP:
+				return elm_in_map.execute(stack, sp, arity, currentFrame);
+			default:
+				throw new CompilerError("in: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * in (is-element-of) on element and list
+	 * 
+	 * [ ... IValue val1, IList val2 ] => [ ..., val1 in val2 ]
+	 */
+	elm_in_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+
+	},
+
+	/**
+	 * in (is-element-of) on element and list relation
+	 * 
+	 * [ ... IValue val1, IListRelation val2 ] => [ ..., val1 in val2 ]
+	 */
+	elm_in_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_in_list.execute(stack, sp, arity, currentFrame);
+		}
+
+	},
+
+	/**
+	 * in (is-element-of) on element and set
+	 * 
+	 * [ ... IValue val1, ISet val2 ] => [ ..., val1 in val2 ]
+	 */
+	elm_in_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+
+	},
+
+	/**
+	 * in (is-element-of) on element and relation
+	 * 
+	 * [ ... IValue val1, IRelation val2 ] => [ ..., val1 in val2 ]
+	 */
+	elm_in_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_in_set.execute(stack, sp, arity, currentFrame);
+		}
+
+	},
+
+	/**
+	 * in (is-element-of) on element and map
+	 * 
+	 * [ ... IValue val1, IMap val2 ] => [ ..., val1 in val2 ]
+	 */
+	elm_in_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+
+	// ==== notin
+
+	/**
+	 * notin (not-element-of) on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	notin {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue left = (IValue) stack[sp - 2];
+			Type leftType = left.getType();
+			IValue right = (IValue) stack[sp - 2];
+			Type rightType = right.getType();
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case LIST:
+				return elm_notin_list.execute(stack, sp, arity, currentFrame);
+			case LREL:
+				return elm_notin_lrel.execute(stack, sp, arity, currentFrame);
+			case SET:
+				return elm_notin_set.execute(stack, sp, arity, currentFrame);
+			case REL:
+				return elm_notin_rel.execute(stack, sp, arity, currentFrame);
+			case MAP:
+				return elm_notin_map.execute(stack, sp, arity, currentFrame);
+			default:
+				throw new CompilerError("notin: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * notin (not-element-of) on element and list
+	 * 
+	 * [ ... IValue val1, IList val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	elm_notin_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(!((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notin (not-element-of) on element and list relation
+	 * 
+	 * [ ... IValue val1, IListRelation val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	elm_notin_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_notin_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * notin (not-element-of) on element and set
+	 * 
+	 * [ ... IValue val1, ISet val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	elm_notin_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(!((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notin (not-element-of) on element and relation
+	 * 
+	 * [ ... IValue val1, IRelation val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	elm_notin_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return elm_notin_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * notin (not-element-of) on element and map
+	 * 
+	 * [ ... IValue val1, IMap val2 ] => [ ..., val1 notin val2 ]
+	 */	
+	elm_notin_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(!((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
+			return sp - 1;
+		}
+	},
+	
+	// ==== non_negative
+
+	/**
+	 * Non_negative
+	 * 
+	 * [ ..., IInteger val ] => [ ..., val >= 0 ]
+	 */
+	non_negative {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			if(((IInteger)stack[sp -1]).intValue() < 0){
+				throw RascalRuntimeException.indexOutOfBounds(((IInteger)stack[sp -1]), currentFrame);
+			}
+			return sp;
+		}
+	},
+
+	// ==== join
+
+	// Generic join
+	// TODO note: how can join not know the types of its arguments yet?
+	join {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue left = (IValue) stack[sp - 2];
+			Type leftType = left.getType();
+			IValue right = (IValue) stack[sp - 2];
+			Type rightType = right.getType();
+
+			// TODO: why dynamic dispatch here if the type checker should know about these cases?
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case LIST:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case LIST:
+					return list_join_list.execute(stack, sp, arity, currentFrame);
+				case LREL:
+					return list_join_lrel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+			case LREL:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case LIST:
+					return lrel_join_list.execute(stack, sp, arity, currentFrame);
+				case LREL:
+					return lrel_join_lrel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+			case SET:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case SET:
+					return set_join_set.execute(stack, sp, arity, currentFrame);
+				case REL:
+					return set_join_rel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+
+			case REL:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case SET:
+					return rel_join_set.execute(stack, sp, arity, currentFrame);
+				case REL:
+					return rel_join_rel.execute(stack, sp, arity, currentFrame);
+				default:
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+				}
+
+			default:
+				throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/** join on lists
+	 * 
+	 * [ ..., IList val1, IList val2 ] => [ ..., val1 join val2 ]
+	 */
+	list_join_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return list_product_list.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/** join on list and list relation
+	 * 
+	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 join val2 ]
+	 */
+	list_join_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			if(left.length() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.length() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type rightType = right.get(0).getType();
+			assert rightType.isTuple();
+
+			int rarity = rightType.getArity();
+			IValue fieldValues[] = new IValue[1 + rarity];
+			IListWriter w =vf.listWriter();
+
+			for (IValue lval : left){
+				fieldValues[0] = lval;
+				for (IValue rtuple: right) {
+					for (int i = 0; i < rarity; i++) {
+						fieldValues[i + 1] = ((ITuple)rtuple).get(i);
+					}
+					w.append(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/** join on list relations
+	 * 
+	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 join val2 ]
+	 */
+	lrel_join_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			if(left.length() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.length() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type leftType = left.get(0).getType();
+			Type rightType = right.get(0).getType();
+			assert leftType.isTuple();
+			assert rightType.isTuple();
+
+			int larity = leftType.getArity();
+			int rarity = rightType.getArity();
+			IValue fieldValues[] = new IValue[larity + rarity];
+			IListWriter w =vf.listWriter();
+
+			for (IValue ltuple : left){
+				for (IValue rtuple: right) {
+					for (int i = 0; i < larity; i++) {
+						fieldValues[i] = ((ITuple)ltuple).get(i);
+					}
+					for (int i = larity; i < larity + rarity; i++) {
+						fieldValues[i] = ((ITuple)rtuple).get(i - larity);
+					}
+					w.append(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/** join on list relation and list
+	 * 
+	 * [ ..., IListRelation val1, IList val2 ] => [ ..., val1 join val2 ]
+	 */
+	lrel_join_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			if(left.length() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.length() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type leftType = left.get(0).getType();
+			assert leftType.isTuple();
+
+			int larity = leftType.getArity();
+			IValue fieldValues[] = new IValue[larity + 1];
+			IListWriter w =vf.listWriter();
+
+			for (IValue ltuple : left){
+				for (IValue rval: right) {
+					for (int i = 0; i < larity; i++) {
+						fieldValues[i] = ((ITuple)ltuple).get(i);
+					}
+					fieldValues[larity] = rval;
+					w.append(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/** join on sets
+	 * 
+	 * [ ..., ISet val1, ISet val2 ] => [ ..., val1 join val2 ]
+	 */
+	set_join_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			return set_product_set.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/** join on set and relation
+	 * 
+	 * [ ..., ISet val1, IRelation val2 ] => [ ..., val1 join val2 ]
+	 */
+	set_join_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			if(left.size() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.size() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type rightType = right.getElementType();
+			assert rightType.isTuple();
+
+			int rarity = rightType.getArity();
+			IValue fieldValues[] = new IValue[1 + rarity];
+			ISetWriter w =vf.setWriter();
+
+			for (IValue lval : left){
+				for (IValue rtuple: right) {
+					fieldValues[0] = lval;
+					for (int i = 0; i <  rarity; i++) {
+						fieldValues[i + 1] = ((ITuple)rtuple).get(i);
+					}
+					w.insert(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/** join on rels
+	 * 
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 join val2 ]
+	 */
+	rel_join_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			if(left.size() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.size() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type leftType = left.getElementType();
+			Type rightType = right.getElementType();
+			assert leftType.isTuple();
+			assert rightType.isTuple();
+
+			int larity = leftType.getArity();
+			int rarity = rightType.getArity();
+			IValue fieldValues[] = new IValue[larity + rarity];
+			ISetWriter w =vf.setWriter();
+
+			for (IValue ltuple : left){
+				for (IValue rtuple: right) {
+					for (int i = 0; i < larity; i++) {
+						fieldValues[i] = ((ITuple)ltuple).get(i);
+					}
+					for (int i = larity; i < larity + rarity; i++) {
+						fieldValues[i] = ((ITuple)rtuple).get(i - larity);
+					}
+					w.insert(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	/** join on relation and set
+	 * 
+	 * [ ..., IRelation val1, ISet val2 ] => [ ..., val1 join val2 ]
+	 */
+	rel_join_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			if(left.size() == 0){
+				stack[sp - 2] = left;
+				return sp -1;
+			}
+			if(right.size() == 0){
+				stack[sp - 2] = right;
+				return sp -1;
+			}
+			Type leftType = left.getElementType();
+			assert leftType.isTuple();
+
+			int larity = leftType.getArity();
+			IValue fieldValues[] = new IValue[larity + 1];
+			ISetWriter w =vf.setWriter();
+
+			for (IValue ltuple : left){
+				for (IValue rval: right) {
+					for (int i = 0; i < larity; i++) {
+						fieldValues[i] = ((ITuple)ltuple).get(i);
+					}
+					fieldValues[larity] = rval;
+					w.insert(vf.tuple(fieldValues));
+				}
+			}
+			stack[sp - 2] = w.done();
+			return sp - 1;
+		}
+	},
+
+	// ==== less
+
+	/**
+	 * less-than on arbitrary values
+	 * 
+	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 < val2 ]
+	 */
+	less {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			Type leftType = ((IValue) stack[sp - 2]).getType();
+			Type rightType = ((IValue) stack[sp - 1]).getType();
+
+			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
+				return num_less_num.execute(stack, sp, arity, currentFrame);
+			}
+
+			if(!leftType.comparable(rightType)){
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
+			case BOOL:
+				return bool_less_bool.execute(stack, sp, arity, currentFrame);
+			case STR:
+				return str_less_str.execute(stack, sp, arity, currentFrame);
+			case DATETIME:
+				return datetime_less_datetime.execute(stack, sp, arity, currentFrame);
+			case LOC:
+				return loc_less_loc.execute(stack, sp, arity, currentFrame);
+			case LIST:
+			case LREL:
+				return list_less_list.execute(stack, sp, arity, currentFrame);
+			case SET:
+			case REL:
+				return set_less_set.execute(stack, sp, arity, currentFrame);
+			case MAP:
+				return map_less_map.execute(stack, sp, arity, currentFrame);
+			case CONSTRUCTOR:
+			case NODE:
+				return node_less_node.execute(stack, sp, arity, currentFrame);
+			case ADT:
+				return adt_less_adt.execute(stack, sp, 2, currentFrame);
+			case TUPLE:
+				return tuple_less_tuple.execute(stack, sp, arity, currentFrame);
+			default:
+				throw new CompilerError("less: unexpected type " + leftType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * less-than on int and int
+	 * 
+	 * [ ..., IInteger val1, IInteger val2 ] => [ ..., val1 < val2 ]
+	 */
+	int_less_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on int and num
+	 * 
+	 * [ ..., IInteger val1, INumber val2 ] => [ ..., val1 < val2 ]
+	 */
+	int_less_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on int and rat
+	 * 
+	 * [ ..., IInteger val1, IRational val2 ] => [ ..., val1 < val2 ]
+	 */
+	int_less_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on int and real
+	 * 
+	 * [ ..., IInteger val1, IReal val2 ] => [ ..., val1 < val2 ]
+	 */
+	int_less_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on num and int
+	 * 
+	 * [ ..., INumber val1, IInteger val2 ] => [ ..., val1 < val2 ]
+	 */
+	num_less_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on num and num
+	 * 
+	 * [ ..., INumber val1, INumber val2 ] => [ ..., val1 < val2 ]
+	 */
+	num_less_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on num and rat
+	 * 
+	 * [ ..., INumber val1, IRational val2 ] => [ ..., val1 < val2 ]
+	 */
+	num_less_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on num and real
+	 * 
+	 * [ ..., INumber val1, IReal val2 ] => [ ..., val1 < val2 ]
+	 */
+	num_less_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on rat and int
+	 * 
+	 * [ ..., IRational val1, IInteger val2 ] => [ ..., val1 < val2 ]
+	 */
+	rat_less_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on rat and num
+	 * 
+	 * [ ..., IRational val1, INumber val2 ] => [ ..., val1 < val2 ]
+	 */
+	rat_less_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on rat and rat
+	 * 
+	 * [ ..., IRational val1, IRational val2 ] => [ ..., val1 < val2 ]
+	 */
+	rat_less_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on rat and real
+	 * 
+	 * [ ..., IRational val1, IReal val2 ] => [ ..., val1 < val2 ]
+	 */
+	rat_less_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on real and num
+	 * 
+	 * [ ..., IReal val1, INumber val2 ] => [ ..., val1 < val2 ]
+	 */
+	real_less_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on real and int
+	 * 
+	 * [ ..., IReal val1, IInteger val2 ] => [ ..., val1 < val2 ]
+	 */
+	real_less_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on real and numreal
+	 * 
+	 * [ ..., IReal val1, IReal val2 ] => [ ..., val1 < val2 ]
+	 */
+	real_less_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on real and num
+	 * 
+	 * [ ..., IReal val1, IRational val2 ] => [ ..., val1 < val2 ]
+	 */
+	real_less_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on adts
+	 * 
+	 * [ ..., IConstructor val1, IConstructor val2 ] => [ ..., val1 < val2 ]
+	 */
+	adt_less_adt {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			return node_less_node.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * less-than on bool
+	 * 
+	 * [ ..., IBool val1, IBool val2 ] => [ ..., val1 < val2 ]
+	 */
+	bool_less_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
+
+			stack[sp - 2] = vf.bool(!left && right);
+			return sp - 1;
+		}
+	},
+	//		bool_or_bool {
+	//			@Override
+	//			public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//				assert arity == 2;
+	//				boolean left = ((IBool) stack[sp - 2]).getValue();
+	//				boolean right = ((IBool) stack[sp - 1]).getValue();
+	//
+	//				stack[sp - 2] = vf.bool(left || right);
+	//				return sp - 1;
+	//			}
+	//		},
+
+	/**
+	 * less-than on datetime
+	 * 
+	 * [ ..., IDateTime val1, IDateTime val2 ] => [ ..., val1 < val2 ]
+	 */
+	datetime_less_datetime {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on list
+	 * 
+	 * [ ..., IList val1, IList val2 ] => [ ..., val1 < val2 ]
+	 */
+	list_less_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			stack[sp - 2] = $list_less_list(left, right);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on list relation
+	 * 
+	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 < val2 ]
+	 */
+	lrel_less_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+			stack[sp - 2] = $list_less_list(left, right);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on loc
+	 * 
+	 * [ ..., ISourceLocation val1, ISourceLocation val2 ] => [ ..., val1 < val2 ]
+	 */
+	loc_less_loc {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISourceLocation left = (ISourceLocation) stack[sp - 2];
+			ISourceLocation right = (ISourceLocation) stack[sp - 1];
+
+			int compare = left.top().toString().compareTo(right.top().toString());
+			if (compare < 0) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+			else if (compare > 0) {
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			// but the uri's are the same
+			// note that line/column information is superfluous and does not matter for ordering
+
+			if (left.hasOffsetLength()) {
+				if (!right.hasOffsetLength()) {
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+
+				int roffset = right.getOffset();
+				int rlen = right.getLength();
+				int loffset = left.getOffset();
+				int llen = left.getLength();
+
+				if (loffset == roffset) {
+					stack[sp - 2] = vf.bool(llen < rlen);
+					return sp - 1;
+				}
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
+				return sp - 1;
+			}
+			else if (compare == 0) {
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			if (!right.hasOffsetLength()) {
+				throw new CompilerError("offset length missing", rvm.getStdErr(), currentFrame);
+			}
+			stack[sp - 2] = Rascal_FALSE;
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on map
+	 * 
+	 * [ ..., IMap val1, IMap val2 ] => [ ..., val1 < val2 ]
+	 */
+	map_less_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IMap left = ((IMap) stack[sp - 2]);
+			IMap right = ((IMap) stack[sp - 1]);
+
+			stack[sp - 2] = vf.bool(left.isSubMap(right) && !right.isSubMap(left));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on node
+	 * 
+	 * [ ..., INode val1, INode val2 ] => [ ..., val1 < val2 ]
+	 */
+	node_less_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode left = (INode) stack[sp - 2];
+			INode right = (INode) stack[sp - 1];
+
+			int compare = left.getName().compareTo(right.getName());
+
+			if (compare <= -1) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+
+			if (compare >= 1){
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			// if the names are not ordered, then we order lexicographically on the arguments:
+
+			int leftArity = left.arity();
+			int rightArity = right.arity();
+
+			Object[] fakeStack = new Object[2];
+			fakeStack[0] = Rascal_FALSE;
+			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+
+				fakeStack[0] = left.get(i);
+				fakeStack[1] = right.get(i);
+				if(leftArity < rightArity || i < leftArity - 1)
+					lessequal.execute(fakeStack, 2, 2, currentFrame);
+				else
+					less.execute(fakeStack, 2, 2, currentFrame);
+
+				if(!((IBool)fakeStack[0]).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+			}
+
+			if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
+				if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
+					// bail out 
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+			}
+
+			if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+
+			if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+				Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
+				Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
+				if (paramsLeft.size() < paramsRight.size()) {
+					stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+				}
+				if (paramsLeft.size() > paramsRight.size()) {
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+				if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+					stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+				}
+				if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+				//assert paramsLeft.keySet().equals(paramsRight.keySet());
+				for (String k: paramsLeft.keySet()) {
+					fakeStack[0] = paramsLeft.get(k);
+					fakeStack[1] = paramsRight.get(k);
+					less.execute(fakeStack, 2, 2, currentFrame);
+
+					if(!((IBool)fakeStack[0]).getValue()){
+						stack[sp - 2] = Rascal_FALSE;
+						return sp - 1;
+					}
+				}
+			}
+
+			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on set
+	 * 
+	 * [ ..., ISet val1, ISet val2 ] => [ ..., val1 < val2 ]
+	 */
+	set_less_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet lhs = (ISet) stack[sp - 2];
+			ISet rhs = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on rel
+	 * 
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 < val2 ]
+	 */
+	rel_less_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet lhs = (ISet) stack[sp - 2];
+			ISet rhs = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on str
+	 * 
+	 * [ ..., IString val1, IString val2 ] => [ ..., val1 < val2 ]
+	 */
+	str_less_str {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
+			stack[sp - 2] = vf.bool(c == -1);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than on tuple
+	 * 
+	 * [ ..., ITuple val1, ITuple val2 ] => [ ..., val1 < val2 ]
+	 */
+	tuple_less_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			ITuple left = (ITuple)stack[sp - 2];
+			int leftArity = left.arity();
+			ITuple right = (ITuple)stack[sp - 1];
+			int rightArity = right.arity();
+
+			Object[] fakeStack = new Object[2];
+			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+				fakeStack[0] = left.get(i);
+				fakeStack[1] = right.get(i);
+				if(leftArity < rightArity || i < leftArity - 1)
+					equal.execute(fakeStack, 2, 2, currentFrame);
+				else
+					less.execute(fakeStack, 2, 2, currentFrame);
+
+				if(!((IBool)fakeStack[0]).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+			}
+
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
+			return sp - 1;
+		}
+	},
+
+	// ==== lessequal
+
+	/**
+	 * less-than-or-equal on arbitrary values
+	 * 
+	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 <= val2 ]
+	 */
+	lessequal {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			Type leftType = ((IValue) stack[sp - 2]).getType();
+			Type rightType = ((IValue) stack[sp - 1]).getType();
+
+			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
+				return num_lessequal_num.execute(stack, sp, arity, currentFrame);
+			}
+
+			if(!leftType.comparable(rightType)){
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+
+			case BOOL:
+				return bool_lessequal_bool.execute(stack, sp, arity, currentFrame);
+
+			case STR:
+				return str_lessequal_str.execute(stack, sp, arity, currentFrame);
+
+			case DATETIME:
+				return datetime_lessequal_datetime.execute(stack, sp, arity, currentFrame);
+
+			case LOC:
+				return loc_lessequal_loc.execute(stack, sp, arity, currentFrame);
+
+			case LIST:
+			case LREL:
+				return list_lessequal_list.execute(stack, sp, arity, currentFrame);
+			case SET:
+			case REL:
+				return set_lessequal_set.execute(stack, sp, arity, currentFrame);
+			case MAP:
+				return map_lessequal_map.execute(stack, sp, arity, currentFrame);
+			case CONSTRUCTOR:
+			case NODE:
+				return node_lessequal_node.execute(stack, sp, arity, currentFrame);
+			case ADT:
+				return adt_lessequal_adt.execute(stack, sp, 2, currentFrame);
+			case TUPLE:
+				return tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame);
+			default:
+				throw new CompilerError("lessequal: unexpected type " + leftType, rvm.getStdErr(), currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * less-than-or-equal on int and int
+	 * 
+	 * [ ... IInteger val1, IInteger val2 ] => [ ..., val1 <= val2 ]
+	 */
+	int_lessequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on int and num
+	 * 
+	 * [ ... IInteger val1, INumber val2 ] => [ ..., val1 <= val2 ]
+	 */
+	int_lessequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on int and rat
+	 * 
+	 * [ ... IInteger val1, IRational val2 ] => [ ..., val1 <= val2 ]
+	 */
+	int_lessequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on int and real
+	 * 
+	 * [ ... IInteger val1, IReal val2 ] => [ ..., val1 <= val2 ]
+	 */
+	int_lessequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on num and int
+	 * 
+	 * [ ... INumber val1, IInteger val2 ] => [ ..., val1 <= val2 ]
+	 */
+	num_lessequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on num and num
+	 * 
+	 * [ ... INumber val1, INumber val2 ] => [ ..., val1 <= val2 ]
+	 */
+	num_lessequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on num and rat
+	 * 
+	 * [ ... INumber val1, IRational val2 ] => [ ..., val1 <= val2 ]
+	 */
+	num_lessequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on num and real
+	 * 
+	 * [ ... INumber val1, IReal val2 ] => [ ..., val1 <= val2 ]
+	 */
+	num_lessequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on rat and int
+	 * 
+	 * [ ... IRational val1, IInteger val2 ] => [ ..., val1 <= val2 ]
+	 */
+	rat_lessequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on rat and num
+	 * 
+	 * [ ... IRational val1, INumber val2 ] => [ ..., val1 <= val2 ]
+	 */
+	rat_lessequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on rat and rat
+	 * 
+	 * [ ... IRational val1, IRational val2 ] => [ ..., val1 <= val2 ]
+	 */
+	rat_lessequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on rat and real
+	 * 
+	 * [ ... IRational val1, IReal val2 ] => [ ..., val1 <= val2 ]
+	 */
+	rat_lessequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on real and num
+	 * 
+	 * [ ... IReal val1, INumber val2 ] => [ ..., val1 <= val2 ]
+	 */
+	real_lessequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+
+	/**
+	 * less-than-or-equal on real and int
+	 * 
+	 * [ ... IReal val1, IInteger val2 ] => [ ..., val1 <= val2 ]
+	 */
+	real_lessequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on real and real
+	 * 
+	 * [ ... IReal val1, IReal val2 ] => [ ..., val1 <= val2 ]
+	 */
+	real_lessequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on real and rat
+	 * 
+	 * [ ... IReal val1, IRational val2 ] => [ ..., val1 <= val2 ]
+	 */
+	real_lessequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on adt
+	 * 
+	 * [ ... IConstructor val1, IConstructor val2 ] => [ ..., val1 <= val2 ]
+	 */
+	adt_lessequal_adt {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			return node_lessequal_node.execute(stack, sp, arity, currentFrame);
+		}
+	},
+
+	/**
+	 * less-than-or-equal on bool
+	 * 
+	 * [ ... IBool val1, IBool val2 ] => [ ..., val1 <= val2 ]
+	 */
+	bool_lessequal_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
+
+			stack[sp - 2] = vf.bool((!left && right) || (left == right));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on datetime
+	 * 
+	 * [ ... IDateTime val1, IDateTime val2 ] => [ ..., val1 <= val2 ]
+	 */
+	datetime_lessequal_datetime {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			int c = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]);
+			stack[sp - 2] =  vf.bool(c == -1 || c == 0);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on list
+	 * 
+	 * [ ... IList val1, IList val2 ] => [ ..., val1 <= val2 ]
+	 */
+	list_lessequal_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+
+			stack[sp - 2] = $list_lessequal_list(left, right);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on list relation
+	 * 
+	 * [ ... IListRelation val1, IListRelation val2 ] => [ ..., val1 <= val2 ]
+	 */
+	lrel_lessequal_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IList left = (IList) stack[sp - 2];
+			IList right = (IList) stack[sp - 1];
+
+			stack[sp - 2] = $list_lessequal_list(left, right);
+			return sp - 1;
+		}
+
+	},
+
+	/**
+	 * less-than-or-equal on loc
+	 * 
+	 * [ ... ISourceLocation val1, ISourceLocation val2 ] => [ ..., val1 <= val2 ]
+	 */
+	loc_lessequal_loc {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISourceLocation left = (ISourceLocation) stack[sp - 2];
+			ISourceLocation right = (ISourceLocation) stack[sp - 1];
+
+			int compare = left.top().toString().compareTo(right.top().toString());
+			if (compare < 0) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+			else if (compare > 0) {
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			// but the uri's are the same
+			// note that line/column information is superfluous and does not matter for ordering
+
+			if (left.hasOffsetLength()) {
+				if (!right.hasOffsetLength()) {
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+
+				int roffset = right.getOffset();
+				int rlen = right.getLength();
+				int loffset = left.getOffset();
+				int llen = left.getLength();
+
+				if (loffset == roffset) {
+					stack[sp - 2] = vf.bool(llen <= rlen);
+					return sp - 1;
+				}
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
+				return sp - 1;
+			}
+			else if (compare == 0) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+
+			if (!right.hasOffsetLength()) {
+				throw new CompilerError("missing offset length", rvm.getStdErr(), currentFrame);
+			}
+			stack[sp - 2] = Rascal_FALSE;
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on map
+	 * 
+	 * [ ... IMap val1, IMap val2 ] => [ ..., val1 <= val2 ]
+	 */
+	map_lessequal_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IMap left = (IMap) stack[sp - 2];
+			IMap right = (IMap) stack[sp - 1];
+			stack[sp - 2] = vf.bool(left.isSubMap(right));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on node
+	 * 
+	 * [ ... INode val1, INode val2 ] => [ ..., val1 <= val2 ]
+	 */
+	node_lessequal_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			INode left = (INode) stack[sp - 2];
+			INode right = (INode) stack[sp - 1];
+
+			int compare = left.getName().compareTo(right.getName());
+
+			if (compare <= -1) {
+				stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+			}
+
+			if (compare >= 1){
+				stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+			}
+
+			// if the names are not ordered, then we order lexicographically on the arguments:
+
+			int leftArity = left.arity();
+			int rightArity = right.arity();
+
+			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+			}
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on losetc
+	 * 
+	 * [ ... ISet val1, ISet val2 ] => [ ..., val1 <= val2 ]
+	 */
+	set_lessequal_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
+			return sp - 1;
+		}	
+	},
+
+	/**
+	 * less-than-or-equal on rel
+	 * 
+	 * [ ... IRelation val1, IRelation val2 ] => [ ..., val1 <= val2 ]
+	 */
+	rel_lessequal_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			ISet left = (ISet) stack[sp - 2];
+			ISet right = (ISet) stack[sp - 1];
+			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
+			return sp - 1;
+		}	
+	},
+
+	/**
+	 * less-than-or-equal on str
+	 * 
+	 * [ ... IString val1, IString val2 ] => [ ..., val1 <= val2 ]
+	 */
+	str_lessequal_str {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
+			stack[sp - 2] = vf.bool(c == -1 || c == 0);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * less-than-or-equal on tuple
+	 * 
+	 * [ ... ITuple val1, ITuple val2 ] => [ ..., val1 <= val2 ]
+	 */
+	tuple_lessequal_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			ITuple left = (ITuple)stack[sp - 2];
+			int leftArity = left.arity();
+			ITuple right = (ITuple)stack[sp - 1];
+			int rightArity = right.arity();
+
+			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
+				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+				}
+			}
+
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
+			return sp - 1;
+		}
+	},
+
+	// ==== transitiveClosure
+
+	/**
+	 * transitiveClosure on arbitrary values
+	 * 
+	 * [ ..., IValue val ] => [ ..., val* ]
+	 * 
+	 * postfix Closure "+", "*" { 
+	 *  	lrel[&L,&L]			-> lrel[&L,&L],
+	 * 		rel[&L,&L]  		-> rel[&L,&L]
+	 * }
+	 */
+	transitive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue lhs = (IValue) stack[sp - 1];
+			Type lhsType = lhs.getType();
+			if(lhsType.isListRelation()){
+				return lrel_transitive_closure.execute(stack, sp, arity, currentFrame);
+			}
+			if(lhsType.isRelation()){
+				return rel_transitive_closure.execute(stack, sp, arity, currentFrame);
+			}
+			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+		}
+
+	},
+
+	/**
+	 * transitiveClosure on lrel
+	 * 
+	 * [ ..., IListRelation val ] => [ ..., val* ]
+	 */
+	lrel_transitive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
+			stack[sp - 1] = left.closure();
+			return sp;
+		}
+	},
+
+	/**
+	 * transitiveClosure on rel
+	 * 
+	 * [ ..., IRelation val ] => [ ..., val* ]
+	 */
+	rel_transitive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
+			stack[sp - 1] = left.closure();
+			return sp;
+		}
+	},
+
+	/**
+	 * transitiveReflexiveClosure on arbitrary values
+	 * 
+	 *  [ ..., IValue val ] => [ ..., val+ ]
+	 * 
+	 * postfix Closure "+", "*" { 
+	 *  	lrel[&L,&L]			-> lrel[&L,&L],
+	 * 		rel[&L,&L]  		-> rel[&L,&L]
+	 */
+	transitive_reflexive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue lhs = (IValue) stack[sp - 1];
+			Type lhsType = lhs.getType();
+			if(lhsType.isListRelation()){
+				return lrel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame);
+			}
+			if(lhsType.isRelation()){
+				return rel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame);
+			}
+			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+		}
+	},
+
+	/**
+	 * transitiveReflexiveClosure on lrel
+	 * 
+	 *  [ ..., IListRelation val ] => [ ..., val+ ]
+	 */
+	lrel_transitive_reflexive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
+			stack[sp - 1] = left.closureStar();
+			return sp;
+		}
+
+	},
+
+	/**
+	 * transitiveReflexiveClosure on rel
+	 * 
+	 *  [ ..., IRelation val ] => [ ..., val+ ]
+	 */
+	rel_transitive_reflexive_closure {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
+			stack[sp - 1] = left.closureStar();
+			return sp;
+		}
+	},
+
+	/**
+	 * notequal on arbitrary values
+	 * 
+	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 != val2 ]
+	 */
+	notequal {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on int and int
+	 * 
+	 * [ ..., IInteger val1, IInteger val2 ] => [ ..., val1 != val2 ]
+	 */
+	int_notequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on int and num
+	 * 
+	 * [ ..., IInteger val1, INumber val2 ] => [ ..., val1 != val2 ]
+	 */
+	int_notequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on int and rat
+	 * 
+	 * [ ..., IInteger val1, IRational val2 ] => [ ..., val1 != val2 ]
+	 */
+	int_notequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on int and real
+	 * 
+	 * [ ..., IInteger val1, IReal val2 ] => [ ..., val1 != val2 ]
+	 */
+	int_notequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on num and int
+	 * 
+	 * [ ..., INumber val1, IInteger val2 ] => [ ..., val1 != val2 ]
+	 */
+	num_notequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on num and int
+	 * 
+	 * [ ..., INumber val1, INumber val2 ] => [ ..., val1 != val2 ]
+	 */
+	num_notequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on num and rat
+	 * 
+	 * [ ..., INumber val1, IRational val2 ] => [ ..., val1 != val2 ]
+	 */
+	num_notequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on num and real
+	 * 
+	 * [ ..., INumber val1, IReal val2 ] => [ ..., val1 != val2 ]
+	 */
+	num_notequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on real and int
+	 * 
+	 * [ ..., IReal val1, IInteger val2 ] => [ ..., val1 != val2 ]
+	 */
+	real_notequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on real and num
+	 * 
+	 * [ ..., IReal val1, INumber val2 ] => [ ..., val1 != val2 ]
+	 */
+	real_notequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on real and rat
+	 * 
+	 * [ ..., IReal val1, IRational val2 ] => [ ..., val1 != val2 ]
+	 */
+	real_notequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on real and irealnt
+	 * 
+	 * [ ..., IReal val1, IReal val2 ] => [ ..., val1 != val2 ]
+	 */
+	real_notequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on rat and int
+	 * 
+	 * [ ..., IRational val1, IInteger val2 ] => [ ..., val1 != val2 ]
+	 */
+	rat_notequal_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on rat and num
+	 * 
+	 * [ ..., IRational val1, INUmber val2 ] => [ ..., val1 != val2 ]
+	 */
+	rat_notequal_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on rat and rat
+	 * 
+	 * [ ..., IRational val1, IRational val2 ] => [ ..., val1 != val2 ]
+	 */
+	rat_notequal_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * notequal on rat and real
+	 * 
+	 * [ ..., IRational val1, IReal val2 ] => [ ..., val1 != val2 ]
+	 */
+	rat_notequal_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
+			return sp - 1;
+		}
+	},
+
+
+
+	/**
+	 * negative on arbitrary value
+	 * 
+	 * [ ..., IValue val ] => [ ..., -val ]
+	 * 
+	 * prefix UnaryMinus "-" { &L <: num -> &L }
+	 */
+	negative {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+
+			IValue left = (IValue) stack[sp - 1];
+			Type leftType = left.getType();
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case INT: return negative_int.execute(stack, sp, arity, currentFrame);
+			case NUM: return negative_num.execute(stack, sp, arity, currentFrame);
+			case REAL: return negative_real.execute(stack, sp, arity, currentFrame);
+			case RAT: return negative_rat.execute(stack, sp, arity, currentFrame);
+			default:
+				throw new CompilerError("negative: unexpected type " + leftType, currentFrame);
+
+			}
+		}
+	},
+
+	/**
+	 * negative on int
+	 * 
+	 * [ ..., IInteger val ] => [ ..., -val ]
+	 */
+	negative_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
+			return sp;
+		}
+	},
+
+	/**
+	 * negative on real
+	 * 
+	 * [ ..., IReal val ] => [ ..., -val ]
+	 */
+	negative_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = ((IReal) stack[sp - 1]).negate();
+			return sp;
+		}
+	},
+
+	/**
+	 * negative on rat
+	 * 
+	 * [ ..., IRational val ] => [ ..., -val ]
+	 */
+	negative_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = ((IRational) stack[sp - 1]).negate();
+			return sp;
+		}
+	},
+
+	/**
+	 * negative on num
+	 * 
+	 * [ ..., INumber val ] => [ ..., -val ]
+	 */
+	negative_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
+			return sp;
+		}
+	},
+
+	/********************************************************************************************************/
+	/* 								Type-related operators and functions									*/
+	/********************************************************************************************************/
+
+	/**
+	 * is (is-type) on arbitrary value
+	 * 
+	 * [ ... IValue val1, IString typeName] => [ ..., val1 is typeName ]
+	 */
+	is {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val  = (IValue) stack[sp - 2];
+			Type tp = val.getType();
+			String name = ((IString) stack[sp - 1]).getValue();
+			stack[sp - 2] = Rascal_FALSE;
+			if(tp.isAbstractData()){
+				if(tp.getName().equals("Tree")){
+					IConstructor cons = (IConstructor) val;
+					if(cons.getName().equals("appl")){
+						IConstructor prod = (IConstructor) cons.get(0);
+						IConstructor def = (IConstructor) prod.get(0);
+						if(def.getName().equals("label")){
+							stack[sp - 2] = vf.bool(((IString) def.get(0)).getValue().equals(name));
+						}
+					}
+				} else {
+					String consName = ((IConstructor)val).getConstructorType().getName();
+					if(consName.startsWith("\\")){
+						consName = consName.substring(1);
+					}
+					stack[sp - 2] = vf.bool(consName.equals(name));
+				}
+			} else if(tp.isNode()){
+				String nodeName = ((INode) val).getName();
+				if(nodeName.startsWith("\\")){
+					nodeName = nodeName.substring(1);
+				}
+				stack[sp - 2] = vf.bool(nodeName.equals(name));
+			} 
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * is (is-type) for bool type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is bool ]
+	 */
+	is_bool {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
+			return sp;
+		}
+
+	},
+
+	/**
+	 * is (is-type) for datetime type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is datetime ]
+	 */
+	is_datetime {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for int type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is int ]
+	 */
+	is_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for list type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is list ]
+	 */
+	is_list {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for loc type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is loc ]
+	 */
+	is_loc {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for list relation type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is lrel ]
+	 */
+	is_lrel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
+			return sp;
+		}
+
+	},
+
+	/**
+	 * is (is-type) for map type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is map ]
+	 */
+	is_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
+			return sp;
+		}
+
+	},
+
+	/**
+	 * is (is-type) for node type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is node ]
+	 */
+	is_node {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
+			return sp;
+		}
+
+	},
+
+	/**
+	 * is (is-type) for num type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is num ]
+	 */
+	is_num {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for rat type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is rat ]
+	 */
+	is_rat {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for real type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is real ]
+	 */
+	is_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for rel type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is rel ]
+	 */
+	is_rel {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for set type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is set ]
+	 */
+	is_set {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for str type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is str ]
+	 */
+	is_str {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
+			return sp;
+		}
+	},
+
+	/**
+	 * is (is-type) for tuple type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is tuple ]
+	 */
+	is_tuple {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for nonterminal type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is appl ]
+	 */
+	is_appl {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			Object treeSubject = stack[sp - 1];
+			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for amb type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is amb ]
+	 */
+	is_amb {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			Object treeSubject = stack[sp - 1];
+			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for datetimelayout type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is layout ]
+	 */
+	is_layout {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for concrete list type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is concretelist ]
+	 */
+	is_concretelist {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for lexical type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is lexical ]
+	 */
+	is_lexical {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
+			return sp;
+		}	
+	},
+
+	/**
+	 * is (is-type) for char type
+	 * 
+	 * [ ... IValue val1] => [ ..., val1 is char ]
+	 */
+	is_char {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue treeSubject = (IValue) stack[sp - 1];
+			Type subjectType = treeSubject.getType();
+			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
+			return sp;
+		}	
+	},
+
+	/**
+	 * subtype-of
+	 * 
+	 * [ ..., Type t1, Type t1 ] => [ ..., t1 <: t2 ]
+	 */
+	subtype {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+			stack[sp - 2] = vf.bool($subtype((Type) stack[sp - 2], (Type) stack[sp - 1]));
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * subtype-of-value
+	 * 
+	 * [ ..., IValue v, Type t ] => [ ..., typeof(v) <: t ]
+	 */
+	subtype_value_type {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
+			stack[sp - 2] = vf.bool($subtype(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
+			return sp - 1;
+		}
+	},
+
+
+	/**
+	 * typeOf a value
+	 * 
+	 * [ ..., IValue v ] => ..., typeOf(v) ]
+	 */
+	@SuppressWarnings("unchecked")
+	typeOf {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+				// Move to muPrimitives?
+				HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+				if(mset.isEmpty()){
+					stack[sp - 1] = tf.setType(tf.voidType());
+				} else {
+					IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
+					stack[sp - 1] =tf.setType(v.getType());
+				}
+
+			} else {
+				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+			}
+			return sp;
+		}
+	},
+
+	/**
+	 * Convert from type to Symbol
+	 * 
+	 * [ ..., Type t ] => [ ... Symbol s ]
+	 * 
+	 * TODO redundant arg here
+	 */
+
+	type2symbol {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			Type type = (Type) stack[sp - 2];
+			stack[sp - 2] = $type2symbol(type);
+			//			IMap idefinitions = (IMap) stack[sp - 1];
+			//			typeReifier = new TypeReifier(vf);
+			//			
+			//			new ReifiedType(type);
+			//			
+			//			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			//			bindings.put(Factory.TypeParam, type);
+			//			
+			//			Symbols.typeToSymbol(type, false,  "");
+			//			
+			//			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			//			
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Get the element type of a composite type.
+	 * 
+	 * [ ..., Type t ] => [ ..., elementTypeOf(t) ]
+	 */
+	elementTypeOf {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			Type tp = (Type) stack[sp - 1];
+			stack[sp - 1] = tp.getElementType();
+			return sp;
+		}
+	},
+
+	/*******************************************************************************************************/
+	/*				String templates																	  */
+	/******************************************************************************************************/
+
+	/**
+	 * Create a string template
+	 * 
+	 * [ ... ] => [ ... ]
+	 * or
+	 * [ ..., IString initial ] => [ ..., initial]
+	 * 
+	 * Note: The string builder is maintained implicitly on the templateBuilderStack.
+	 * This may cause problems (i.e. leaving spurious builders on that stack)  when an exception
+	 * occurs during template construction. 
+	 */
+	template_open {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity <= 1;
+			String pre = "";
+			if(arity == 1){
+				pre = ((IString) stack[sp - 1]).getValue();
+				stack[sp - 1] = vf.string("");
+			} else {
+				stack[sp] = vf.string("");
+			}
+			$pushIndent("");
+			templateBuilderStack.push(templateBuilder);
+			templateBuilder = new StringBuilder();
+			templateBuilder.append($unescape(pre));
+			return arity == 1 ? sp : sp + 1;
+		}
+	},
+
+	/**
+	 * Increase indentation in string template
+	 * 
+	 * [ ..., IString indent ] => [ ..., ""]
+	 */
+	template_indent {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$indent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
+		}
+	},
+
+	/**
+	 * Decrease indentation in string template
+	 * 
+	 * [ ..., IString indent ] => [ ..., ""]
+	 */
+	template_unindent {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			String ind = ((IString) stack[sp - 1]).getValue();
+			$unindent(ind);
+			stack[sp - 1] = vf.string("");
+			return sp;
+		}
+	},
+
+	/**
+	 * Add string to string template
+	 * 
+	 * [ ..., IString val ] => [ ..., ""]
+	 */
+	template_add {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+
+			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
+			String arg_s = $removeMargins(iarg_s).getValue();
+
+			templateBuilder.append(arg_s);
+			stack[sp - 1] = vf.string("");
+			return sp;
+		}
+	},
+
+	/**
+	 * Close string template
+	 * 
+	 * [ ... ] => [ ..., IString value_of_template]
+	 */
+	template_close {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 0;
+			$popIndent();
+			stack[sp] = vf.string(templateBuilder.toString());
+			templateBuilder = templateBuilderStack.pop();
+			return sp + 1;
+		}
+	},
+
 	/******************************************************************************************/
 	/*			Fields and Field updates							 						  */
 	/******************************************************************************************/
-	
+
 	/**
 	 * Runtime check whether given constructor has a named field
 	 * 
 	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., IBool true if cons does have fieldName ]
 	 */
-	
 	adt_has_field {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2015,7 +6870,7 @@ public enum RascalPrimitive {
 			else {
 				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
 					IConstructor prod = ((ITree) cons).getProduction();
-					
+
 					for(IValue elem : ProductionAdapter.getSymbols(prod)) {
 						IConstructor arg = (IConstructor) elem;
 						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
@@ -2029,9 +6884,9 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
 	/**
-	 * Retrieve valeu of named field of constructor
+	 * Retrieve value of named field of constructor
 	 * 
 	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., IValue value of field fieldName ]
 	 */
@@ -2075,30 +6930,35 @@ public enum RascalPrimitive {
 							}
 						}
 					}
-					
+
 				}
-//				if(cons.getName().equals("appl")){
-//					IList appl_args = (IList) cons.get("args");
-//					IConstructor prod = (IConstructor) cons.get("prod");
-//					IList prod_symbols = (IList) prod.get("symbols");
-//
-//					for(int i = 0; i < prod_symbols.length(); i++){
-//						IConstructor arg = (IConstructor) prod_symbols.get(i);
-//						if(arg.getName().equals("label")){
-//							if(((IString) arg.get(0)).equals(field)){
-//								stack[sp - 2] = appl_args.get(i);
-//								return sp - 1;
-//							}
-//						}
-//					}
-//				}
+				//				if(cons.getName().equals("appl")){
+				//					IList appl_args = (IList) cons.get("args");
+				//					IConstructor prod = (IConstructor) cons.get("prod");
+				//					IList prod_symbols = (IList) prod.get("symbols");
+				//
+				//					for(int i = 0; i < prod_symbols.length(); i++){
+				//						IConstructor arg = (IConstructor) prod_symbols.get(i);
+				//						if(arg.getName().equals("label")){
+				//							if(((IString) arg.get(0)).equals(field)){
+				//								stack[sp - 2] = appl_args.get(i);
+				//								return sp - 1;
+				//							}
+				//						}
+				//					}
+				//				}
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			}
 		}
 	},
-	
+
+	/**
+	 * Retrieve value of named field of datetime value
+	 * 
+	 * [ ..., IDateTime dt, IString fieldName ] => [ ..., IValue value of field fieldName ]
+	 */
 	datetime_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2204,6 +7064,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+
+	/**
+	 * Update value of named field of datetime value
+	 * 
+	 * [ ..., IDateTime dt, IString fieldName, IValue repl ] => [ ...,  new IDateTime value with updated value for field fieldName ]
+	 */
 	datetime_field_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2312,6 +7178,12 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+
+	/**
+	 * Retrieve value of named field of loc value
+	 * 
+	 * [ ..., ISourceLocation sloc, IString fieldName ] => [ ...,  IValue value of field fieldName ]
+	 */
 	loc_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
@@ -2487,6 +7359,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Update value of named field of loc value
+	 * 
+	 * [ ..., ISourceLocation sloc, IString fieldName, IValue repl ] => [ ...,  new ISourceLocation value with updated value for field fieldName ]
+	 */
 	loc_field_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2498,6 +7376,12 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+
+	/**
+	 * retrieve value of named field of lrel value
+	 * 
+	 * [ ..., IListRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
+	 */
 	lrel_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2507,6 +7391,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * retrieve value of named field of rel value
+	 * 
+	 * [ ..., IRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
+	 */
 	rel_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2516,6 +7406,9 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	// TODO
+
 	reified_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2526,15 +7419,21 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * retrieve value of named field of nonterminal value
+	 * 
+	 * [ ..., IConstructor appl, IString fieldName ] => [ ...,  IValue value for field fieldName ]
+	 */
 	nonterminal_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-			
+
 			ITree appl = (ITree) stack[sp - 2];
 			IString field = ((IString) stack[sp - 1]);
 			IList appl_args = (IList) appl.get("args");	// TODO getArgs() gives UnsupportedOperation
-			
+
 			// Note: the "args" fields is used to access the arguments of concrete lists
 			// So far, there has been no need to support other fields but more fields might
 			// be added here.
@@ -2545,13 +7444,13 @@ public enum RascalPrimitive {
 			IConstructor prod = appl.getProduction();
 			IList prod_symbols = (IList) prod.get("symbols");
 			int n = prod_symbols.length();
-			
+
 			for(int i = 0; i < n; i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Conditional){
 					arg = (IConstructor) arg.get(0);
 				}
-		
+
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 					if(((IString) arg.get(0)).equals(field)){
 						stack[sp - 2] = appl_args.get(i);
@@ -2559,38 +7458,43 @@ public enum RascalPrimitive {
 					}
 				}
 			}
-			
+
 			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
 		}
 	},
-	
+
+	/**
+	 * Update value of named field of nonterminal value
+	 * 
+	 * [ ..., IConstructor appl, IString fieldName, IValue repl ] => [ ...,  new IConstructor value with updated value for field fieldName  ]
+	 */
 	nonterminal_field_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 3;
-			
+
 			ITree appl = (ITree) stack[sp - 3];
 			IString field = ((IString) stack[sp - 2]);
 			ITree repl = (ITree) stack[sp - 1];
 			IList appl_args = (IList) appl.get("args");	// TODO getArgs() gives UnsupportedOperation
-			
-//			// Note: the "args" fields is used to access the arguments of concrete lists
-//			// So far, there has been no need to support other fields but more fields might
-//			// be added here.
-//			if(field.getValue().equals("args")){
-//				stack[sp - 2] = appl_args;
-//				return sp - 1;
-//			}
+
+			//			// Note: the "args" fields is used to access the arguments of concrete lists
+			//			// So far, there has been no need to support other fields but more fields might
+			//			// be added here.
+			//			if(field.getValue().equals("args")){
+			//				stack[sp - 2] = appl_args;
+			//				return sp - 1;
+			//			}
 			IConstructor prod = appl.getProduction();
 			IList prod_symbols = (IList) prod.get("symbols");
 			int n = prod_symbols.length();
-			
+
 			for(int i = 0; i < n; i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Conditional){
 					arg = (IConstructor) arg.get(0);
 				}
-		
+
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 					if(((IString) arg.get(0)).equals(field)){
 						appl_args = appl_args.put(i, repl);
@@ -2599,11 +7503,16 @@ public enum RascalPrimitive {
 					}
 				}
 			}
-			
+
 			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
 		}
 	},
-	
+
+	/**
+	 * Run-time check that nonterminal value has a given named field.
+	 * 
+	 * [ ..., IConstructor appl, IString fieldName ] => [ ...,  IBool true if named field is present ]
+	 */
 	nonterminal_has_field {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2613,7 +7522,7 @@ public enum RascalPrimitive {
 			IConstructor prod = appl.getProduction();
 			IList prod_symbols = (IList) prod.get("symbols");
 			int n = prod_symbols.length();
-			
+
 			for(int i = 0; i < n; i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Conditional){
@@ -2630,65 +7539,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	/*
-	 * Annotations
-	 */
 
-	annotation_get {
-		@SuppressWarnings("deprecation")
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue val = (IValue) stack[sp - 2];
-			String label = ((IString) stack[sp - 1]).getValue();
-			try {
-				
-				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
-			
-				if(stack[sp - 2] == null) {
-					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
-				}
-				return sp - 1;
-			} catch (FactTypeUseException e) {
-				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
-			}
-		}
-	},
-	is_defined_annotation_get {
-		@SuppressWarnings("deprecation")
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue val = (IValue) stack[sp - 2];
-			String label = ((IString) stack[sp - 1]).getValue();
-			try {
-				IValue v = val.asAnnotatable().getAnnotation(label);
-				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-				temp_array_of_2[1] = v;
-			} catch (FactTypeUseException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
-			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
-		}
-	},
-	annotation_set {
-		@SuppressWarnings("deprecation")
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			IValue val = (IValue) stack[sp - 3];
-			String label = ((IString) stack[sp - 2]).getValue();
-			IValue repl = (IValue) stack[sp - 1];
-			stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
-			
-// 				stdout.println("annotation_SET: label  = " + label + ", repl=" + repl + ", on=" + val);
-// 				stdout.println("annotation_SET: result = " + stack[sp - 3]);
-		
-			return sp - 2;
-		}
-	},
+	
+	/**
+	 * Get value of a named field of a tuple
+	 * 
+	 * [ ..., ITuple tup, IString fieldName ] => [ ...,  IValue value of field fieldName  ]
+	 */
 	tuple_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2697,11 +7554,13 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
-	/*
-	 * ..._field_update
+
+	/**
+	 * Set value of a named field of a tuple
+	 * 
+	 * [ ..., ITuple tup, IString fieldName, IValue repl ] => [ ...,  new ITuple with field fieldName set to repl ]
 	 */
-	
+
 	tuple_field_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2710,6 +7569,12 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+
+	/**
+	 * Get projection of tuple elements by field name or index
+	 * 
+	 * [ ..., ITuple tup, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new ITuple containing the projected elements ]
+	 */
 	tuple_field_project {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2725,6 +7590,12 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+
+	/**
+	 * Set named field of constructor value
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName, IValue repl... ] => [ ...,  new IConstructor with named field set to repl ]
+	 */
 	adt_field_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2737,11 +7608,12 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-	
-	/*
-	 * ..._field_project
+
+	/**
+	 * Get projection of a relation consisting of tuple elements projected by field name or index
+	 * 
+	 * [ ..., IRelation rel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IRelation containing the projected elements ]
 	 */
-	
 	rel_field_project {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2765,6 +7637,12 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+
+	/**
+	 * Get projection of a list relation consisting of tuple elements projected by field name or index
+	 * 
+	 * [ ..., IListRelation lrel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IListRelation containing the projected elements ]
+	 */
 	lrel_field_project {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2788,6 +7666,12 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+
+	/**
+	 * Get projection of a map with elements projected by field name or index
+	 * 
+	 * [ ..., IMap map, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IMap containing the projected elements ]
+	 */
 	map_field_project {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -2812,937 +7696,18 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}	
 	},
-	
-	// greater on int
-	
-	int_greater_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greater_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greater_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greater_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greater on num
-	
-	num_greater_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greater_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greater_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greater_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greater on rat
-	
-	rat_greater_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greater_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greater_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greater_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greater on real
-	
-	real_greater_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greater_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greater_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greater_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greater on other types
-	
-	greater {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = lessequal.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	adt_greater_adt {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			return node_greater_node.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	bool_greater_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IBool) stack[sp - 2]).and(((IBool) stack[sp - 1]).not());
-			return sp - 1;
-		}
-	},
-	datetime_greater_datetime {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
-			return sp - 1;
-		}
-	},
-	list_greater_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	lrel_greater_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	loc_greater_loc {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = loc_lessequal_loc.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	map_greater_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
 
-			stack[sp - 2] = vf.bool(right.isSubMap(left) && !left.isSubMap(right));
-			return sp - 1;
-		}
-	},
-	node_greater_node {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int newsp = node_lessequal_node.execute(stack, sp, arity, currentFrame);
-			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
-			return newsp;
-		}
-	},
-	set_greater_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
-			return sp - 1;
-		}
-	},
-	rel_greater_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
-			return sp - 1;
-		}
-	},
-	str_greater_str {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1);
-			return sp - 1;
-		}
-	},
-	tuple_greater_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
+
+	/************************************************************************************************/
+	/*								Various getters													*/
+	/************************************************************************************************/
 	
-	// greaterequal on int
-	
-	int_greaterequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greaterequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greaterequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_greaterequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greaterequal on num
-	
-	num_greaterequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greaterequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greaterequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_greaterequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greaterequal on rat
-	
-	rat_greaterequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greaterequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greaterequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_greaterequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greaterequal on real
-	
-	real_greaterequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greaterequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greaterequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_greaterequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// greaterequal on other types
-	
-	greaterequal {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = less.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	adt_greaterequal_adt {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			return node_greaterequal_node.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	bool_greaterequal_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
-			stack[sp - 2] = vf.bool((left && !right) || (left == right));
-			return sp - 1;
-		}
-	},
-	datetime_greaterequal_datetime {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
-			return sp - 1;
-		}
-	},
-	list_greaterequal_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = list_less_list.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	lrel_greaterequal_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = list_less_list.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	loc_greaterequal_loc {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = loc_less_loc.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	node_greaterequal_node {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int newsp = node_less_node.execute(stack, sp, arity, currentFrame);
-			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
-			return newsp;
-		}
-	},
-	map_greaterequal_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = vf.bool(right.isSubMap(left));
-			return sp - 1;
-		}
-	},
-	set_greaterequal_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
-			return sp - 1;
-		}
-	},
-	rel_greaterequal_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
-			return sp - 1;
-		}
-	},
-	str_greaterequal_str {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == 0 || c == 1);
-			return sp - 1;
-		}
-	},
-	tuple_greaterequal_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			int spnew = tuple_less_tuple.execute(stack, sp, arity, currentFrame);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
-		}
-	},
-	
-	/*
-	 * intersect
+	/**
+	 * Get the non-layout arguments of a nonterminal value
 	 * 
-	 * infix intersect "&" {
-	 *		list[&L] x list[&R]                  -> list[LUB(&L,&R)],
-	 *		set[&L] x set[&R]                    -> set[LUB(&L,&R)],
-	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
-	 * } 
+	 * [ ... ITree val1] => [ ..., IList args ]
 	 */
-	
-	intersect {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
 
-			IValue left = (IValue) stack[sp - 2];
-			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
-			Type rightType = right.getType();
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-			case LIST:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case LIST:
-					return list_intersect_list.execute(stack, sp, arity, currentFrame);
-				case LREL:
-					return list_intersect_lrel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-			case SET:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case SET:
-					return set_intersect_set.execute(stack, sp, arity, currentFrame);
-				case REL:
-					return set_intersect_rel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-			case MAP:
-				return map_intersect_map.execute(stack, sp, arity, currentFrame);
-
-			default:
-				throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	list_intersect_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	list_intersect_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	lrel_intersect_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	lrel_intersect_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	map_intersect_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rel_intersect_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	rel_intersect_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	set_intersect_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	set_intersect_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	
-	/*
-	 * in
-	 */
-	
-	// Generic in
-	
-	in {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			IValue left = (IValue) stack[sp - 2];
-			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
-			Type rightType = right.getType();
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-			case LIST:
-				return elm_in_list.execute(stack, sp, arity, currentFrame);
-			case LREL:
-				return elm_in_lrel.execute(stack, sp, arity, currentFrame);
-			case SET:
-				return elm_in_set.execute(stack, sp, arity, currentFrame);
-			case REL:
-				return elm_in_rel.execute(stack, sp, arity, currentFrame);
-			case MAP:
-				return elm_in_map.execute(stack, sp, arity, currentFrame);
-			default:
-				throw new CompilerError("in: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	
-	// elm_in_...: in for specific types
-	
-	elm_in_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-
-	},
-	elm_in_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return elm_in_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	elm_in_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-
-	},
-	elm_in_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return elm_in_set.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	elm_in_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-	},
-	
-	/*
-	 * is
-	 * 
-	 */
-	
-	// Generic is
-	
-	is {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue val  = (IValue) stack[sp - 2];
-			Type tp = val.getType();
-			String name = ((IString) stack[sp - 1]).getValue();
-			stack[sp - 2] = Rascal_FALSE;
-			if(tp.isAbstractData()){
-				if(tp.getName().equals("Tree")){
-					IConstructor cons = (IConstructor) val;
-					if(cons.getName().equals("appl")){
-						IConstructor prod = (IConstructor) cons.get(0);
-						IConstructor def = (IConstructor) prod.get(0);
-						if(def.getName().equals("label")){
-							stack[sp - 2] = vf.bool(((IString) def.get(0)).getValue().equals(name));
-						}
-					}
-				} else {
-					String consName = ((IConstructor)val).getConstructorType().getName();
-					if(consName.startsWith("\\")){
-						consName = consName.substring(1);
-					}
-					stack[sp - 2] = vf.bool(consName.equals(name));
-				}
-			} else if(tp.isNode()){
-				String nodeName = ((INode) val).getName();
-				if(nodeName.startsWith("\\")){
-					nodeName = nodeName.substring(1);
-				}
-				stack[sp - 2] = vf.bool(nodeName.equals(name));
-			} 
-			return sp - 1;
-		}
-	},
-	
-	/*
-	 * is_...: check the type of an IValue
-	 */
-	
-	is_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
-			return sp;
-		}
-
-	},
-	is_datetime {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
-			return sp;
-		}
-	},
-	is_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
-			return sp;
-		}
-
-	},
-	is_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
-			return sp;
-		}
-
-	},
-	is_loc {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
-			return sp;
-		}
-
-	},
-	is_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
-			return sp;
-		}
-
-	},
-	is_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
-			return sp;
-		}
-
-	},
-	is_node {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
-			return sp;
-		}
-
-	},
-	is_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
-			return sp;
-		}
-
-	},
-	is_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
-			return sp;
-		}
-
-	},
-	is_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
-			return sp;
-		}
-
-	},
-	is_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
-			return sp;
-		}
-
-	},
-	is_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
-			return sp;
-		}
-
-	},
-	is_str {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
-			return sp;
-		}
-
-	},
-	is_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
-			return sp;
-		}	
-	},
-	
-	is_appl {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			Object treeSubject = stack[sp - 1];
-			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
-			return sp;
-		}	
-	},
-	is_amb {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			Object treeSubject = stack[sp - 1];
-			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
-			return sp;
-		}	
-	},
-	is_layout {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
-			return sp;
-		}	
-	},
-	is_concretelist {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
-			return sp;
-		}	
-	},
-	
-	is_lexical {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
-			return sp;
-		}	
-	},
-	
-	is_char {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
-			return sp;
-		}	
-	},
-	
 	get_nonlayout_args {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3752,6 +7717,12 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
+
+	/**
+	 * Get the arguments of a nonterminal value
+	 * 
+	 * [ ... ITree val1] => [ ..., IList args ]
+	 */
 	get_appl_args {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3761,7 +7732,12 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	
+
+	/**
+	 * Get the alternmatives of an amb value
+	 * 
+	 * [ ... ITree val1] => [ ..., IList alternatives ]
+	 */
 	get_amb_alternatives {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3771,7 +7747,12 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	
+
+	/**
+	 * Get the non-layout elements of a concrete list
+	 * 
+	 * [ ... ITree val1] => [ ..., IList elements ]
+	 */
 	get_concrete_list_elements {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3793,7 +7774,7 @@ public enum RascalPrimitive {
 				}
 			}
 			int delta = layoutPresent ? 2 : 1;
-			
+
 			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
 				IList separators = SymbolAdapter.getSeparators(symbol);
 				boolean nonLayoutSeparator = false;
@@ -3816,7 +7797,12 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	
+
+	/**
+	 * Strip a conditional from a lexical node
+	 * 
+	 * [ ... IConstructor val1] => [ ..., IConstructor val2 ]
+	 */
 	strip_lexical {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3825,12 +7811,17 @@ public enum RascalPrimitive {
 			if(lexSubject.getName().equals("conditional")){
 				lexSubject = (IConstructor) lexSubject.get("symbol");
 			}
-			
+
 			stack[sp - 1] = lexSubject;
 			return sp;
 		}	
 	},
-	
+
+	/**
+	 * Get the type of a nonterminal value as Symbol
+	 * 
+	 * [ ... ITree val1] => [ ..., IConstructor type ]
+	 */
 	get_tree_type_as_symbol {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3840,7 +7831,12 @@ public enum RascalPrimitive {
 			return sp;
 		}	
 	},
-	
+
+	/**
+	 * Get the type of a nonterminal value as Type
+	 * 
+	 * [ ... ITree val1] => [ ..., IConstructor type ]
+	 */
 	get_tree_type_as_type {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -3849,1481 +7845,87 @@ public enum RascalPrimitive {
 			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			stack[sp - 1] = 
-					
 					vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
 			return sp;
 		}	
 	},
-	
-	/*
-	 * join
+
+
+
+	/************************************************************************************************/
+	/*					Slices																		*/
+	/************************************************************************************************/
+
+	/**
+	 * Replace a list slice
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IList repl ] => [ ..., new IList lst with slice elements replaced by elements of repl ]
 	 */
-	
-	// Generic join
-	// TODO note: how can join not know the types of its arguments yet?
-	join {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			IValue left = (IValue) stack[sp - 2];
-			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
-			Type rightType = right.getType();
-
-			// TODO: why dynamic dispatch here if the type checker should know about these cases?
-			switch (ToplevelType.getToplevelType(leftType)) {
-			case LIST:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case LIST:
-					return list_join_list.execute(stack, sp, arity, currentFrame);
-				case LREL:
-					return list_join_lrel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-			case LREL:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case LIST:
-					return lrel_join_list.execute(stack, sp, arity, currentFrame);
-				case LREL:
-					return lrel_join_lrel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-			case SET:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case SET:
-					return set_join_set.execute(stack, sp, arity, currentFrame);
-				case REL:
-					return set_join_rel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-
-			case REL:
-				switch (ToplevelType.getToplevelType(rightType)) {
-				case SET:
-					return rel_join_set.execute(stack, sp, arity, currentFrame);
-				case REL:
-					return rel_join_rel.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-				}
-
-			default:
-				throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	
-	// join for specific types
-	
-	list_join_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_product_list.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	list_join_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type rightType = right.get(0).getType();
-			assert rightType.isTuple();
-
-			int rarity = rightType.getArity();
-			IValue fieldValues[] = new IValue[1 + rarity];
-			IListWriter w =vf.listWriter();
-
-			for (IValue lval : left){
-				fieldValues[0] = lval;
-				for (IValue rtuple: right) {
-					for (int i = 0; i < rarity; i++) {
-						fieldValues[i + 1] = ((ITuple)rtuple).get(i);
-					}
-					w.append(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	lrel_join_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type leftType = left.get(0).getType();
-			Type rightType = right.get(0).getType();
-			assert leftType.isTuple();
-			assert rightType.isTuple();
-
-			int larity = leftType.getArity();
-			int rarity = rightType.getArity();
-			IValue fieldValues[] = new IValue[larity + rarity];
-			IListWriter w =vf.listWriter();
-
-			for (IValue ltuple : left){
-				for (IValue rtuple: right) {
-					for (int i = 0; i < larity; i++) {
-						fieldValues[i] = ((ITuple)ltuple).get(i);
-					}
-					for (int i = larity; i < larity + rarity; i++) {
-						fieldValues[i] = ((ITuple)rtuple).get(i - larity);
-					}
-					w.append(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	lrel_join_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type leftType = left.get(0).getType();
-			assert leftType.isTuple();
-
-			int larity = leftType.getArity();
-			IValue fieldValues[] = new IValue[larity + 1];
-			IListWriter w =vf.listWriter();
-
-			for (IValue ltuple : left){
-				for (IValue rval: right) {
-					for (int i = 0; i < larity; i++) {
-						fieldValues[i] = ((ITuple)ltuple).get(i);
-					}
-					fieldValues[larity] = rval;
-					w.append(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	set_join_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_product_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	set_join_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type rightType = right.getElementType();
-			assert rightType.isTuple();
-
-			int rarity = rightType.getArity();
-			IValue fieldValues[] = new IValue[1 + rarity];
-			ISetWriter w =vf.setWriter();
-
-			for (IValue lval : left){
-				for (IValue rtuple: right) {
-					fieldValues[0] = lval;
-					for (int i = 0; i <  rarity; i++) {
-						fieldValues[i + 1] = ((ITuple)rtuple).get(i);
-					}
-					w.insert(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	rel_join_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type leftType = left.getElementType();
-			Type rightType = right.getElementType();
-			assert leftType.isTuple();
-			assert rightType.isTuple();
-
-			int larity = leftType.getArity();
-			int rarity = rightType.getArity();
-			IValue fieldValues[] = new IValue[larity + rarity];
-			ISetWriter w =vf.setWriter();
-
-			for (IValue ltuple : left){
-				for (IValue rtuple: right) {
-					for (int i = 0; i < larity; i++) {
-						fieldValues[i] = ((ITuple)ltuple).get(i);
-					}
-					for (int i = larity; i < larity + rarity; i++) {
-						fieldValues[i] = ((ITuple)rtuple).get(i - larity);
-					}
-					w.insert(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	rel_join_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
-			}
-			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
-			}
-			Type leftType = left.getElementType();
-			assert leftType.isTuple();
-
-			int larity = leftType.getArity();
-			IValue fieldValues[] = new IValue[larity + 1];
-			ISetWriter w =vf.setWriter();
-
-			for (IValue ltuple : left){
-				for (IValue rval: right) {
-					for (int i = 0; i < larity; i++) {
-						fieldValues[i] = ((ITuple)ltuple).get(i);
-					}
-					fieldValues[larity] = rval;
-					w.insert(vf.tuple(fieldValues));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-	},
-	
-	/*
-	 * less
-	 */
-
-	// Generic less
-	
-	less {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			Type leftType = ((IValue) stack[sp - 2]).getType();
-			Type rightType = ((IValue) stack[sp - 1]).getType();
-
-			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
-				return num_less_num.execute(stack, sp, arity, currentFrame);
-			}
-
-			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
-			case BOOL:
-				return bool_less_bool.execute(stack, sp, arity, currentFrame);
-			case STR:
-				return str_less_str.execute(stack, sp, arity, currentFrame);
-			case DATETIME:
-				return datetime_less_datetime.execute(stack, sp, arity, currentFrame);
-			case LOC:
-				return loc_less_loc.execute(stack, sp, arity, currentFrame);
-			case LIST:
-			case LREL:
-				return list_less_list.execute(stack, sp, arity, currentFrame);
-			case SET:
-			case REL:
-				return set_less_set.execute(stack, sp, arity, currentFrame);
-			case MAP:
-				return map_less_map.execute(stack, sp, arity, currentFrame);
-			case CONSTRUCTOR:
-			case NODE:
-				return node_less_node.execute(stack, sp, arity, currentFrame);
-			case ADT:
-				return adt_less_adt.execute(stack, sp, 2, currentFrame);
-			case TUPLE:
-				return tuple_less_tuple.execute(stack, sp, arity, currentFrame);
-			default:
-				throw new CompilerError("less: unexpected type " + leftType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	
-	// less on int
-
-	int_less_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_less_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_less_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_less_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// less on num
-	
-	num_less_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_less_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_less_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_less_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// less on rat
-	
-	rat_less_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_less_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_less_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_less_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// less on real
-	
-	real_less_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_less_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_less_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_less_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// less on other types
-	
-	adt_less_adt {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			return node_less_node.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	bool_less_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
-
-			stack[sp - 2] = vf.bool(!left && right);
-			return sp - 1;
-		}
-	},
-	bool_or_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
-
-			stack[sp - 2] = vf.bool(left || right);
-			return sp - 1;
-		}
-	},
-	datetime_less_datetime {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1);
-			return sp - 1;
-		}
-	},
-	list_less_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			stack[sp - 2] = $list_less_list(left, right);
-			return sp - 1;
-		}
-	},
-	lrel_less_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			stack[sp - 2] = $list_less_list(left, right);
-			return sp - 1;
-		}
-	},
-	loc_less_loc {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISourceLocation left = (ISourceLocation) stack[sp - 2];
-			ISourceLocation right = (ISourceLocation) stack[sp - 1];
-
-			int compare = left.top().toString().compareTo(right.top().toString());
-			if (compare < 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-			}
-			else if (compare > 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			// but the uri's are the same
-			// note that line/column information is superfluous and does not matter for ordering
-
-			if (left.hasOffsetLength()) {
-				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-
-				int roffset = right.getOffset();
-				int rlen = right.getLength();
-				int loffset = left.getOffset();
-				int llen = left.getLength();
-
-				if (loffset == roffset) {
-					stack[sp - 2] = vf.bool(llen < rlen);
-					return sp - 1;
-				}
-				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
-				return sp - 1;
-			}
-			else if (compare == 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			if (!right.hasOffsetLength()) {
-				throw new CompilerError("offset length missing", rvm.getStdErr(), currentFrame);
-			}
-			stack[sp - 2] = Rascal_FALSE;
-			return sp - 1;
-		}
-	},
-	map_less_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IMap left = ((IMap) stack[sp - 2]);
-			IMap right = ((IMap) stack[sp - 1]);
-
-			stack[sp - 2] = vf.bool(left.isSubMap(right) && !right.isSubMap(left));
-			return sp - 1;
-		}
-	},
-	node_less_node {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			INode left = (INode) stack[sp - 2];
-			INode right = (INode) stack[sp - 1];
-
-			int compare = left.getName().compareTo(right.getName());
-
-			if (compare <= -1) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-			}
-
-			if (compare >= 1){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			// if the names are not ordered, then we order lexicographically on the arguments:
-
-			int leftArity = left.arity();
-			int rightArity = right.arity();
-
-			Object[] fakeStack = new Object[2];
-			fakeStack[0] = Rascal_FALSE;
-			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-
-				fakeStack[0] = left.get(i);
-				fakeStack[1] = right.get(i);
-				if(leftArity < rightArity || i < leftArity - 1)
-					lessequal.execute(fakeStack, 2, 2, currentFrame);
-				else
-					less.execute(fakeStack, 2, 2, currentFrame);
-
-				if(!((IBool)fakeStack[0]).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-			}
-			
-			if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
-		    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
-		    		// bail out 
-		    		stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-		    	}
-		    }
-		    
-		    if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
-		    	stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-		    }
-
-		    if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
-		    	stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-		    }
-		    
-		    if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
-		    	Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
-		    	Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
-		    	if (paramsLeft.size() < paramsRight.size()) {
-		    		stack[sp - 2] = Rascal_TRUE;
-					return sp - 1;
-		    	}
-		    	if (paramsLeft.size() > paramsRight.size()) {
-		    		stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-		    	}
-		    	if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
-		    		stack[sp - 2] = Rascal_TRUE;
-					return sp - 1;
-		    	}
-		    	if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
-		    		stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-		    	}
-		    	//assert paramsLeft.keySet().equals(paramsRight.keySet());
-		    	for (String k: paramsLeft.keySet()) {
-		    		fakeStack[0] = paramsLeft.get(k);
-					fakeStack[1] = paramsRight.get(k);
-					less.execute(fakeStack, 2, 2, currentFrame);
-		    		
-					if(!((IBool)fakeStack[0]).getValue()){
-						stack[sp - 2] = Rascal_FALSE;
-						return sp - 1;
-					}
-		    	}
-		     }
-			
-			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
-			return sp - 1;
-		}
-	},
-	set_less_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet lhs = (ISet) stack[sp - 2];
-			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
-			return sp - 1;
-		}
-	},
-	rel_less_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet lhs = (ISet) stack[sp - 2];
-			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
-			return sp - 1;
-		}
-	},
-	str_less_str {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == -1);
-			return sp - 1;
-		}
-	},
-	tuple_less_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			ITuple left = (ITuple)stack[sp - 2];
-			int leftArity = left.arity();
-			ITuple right = (ITuple)stack[sp - 1];
-			int rightArity = right.arity();
-
-			Object[] fakeStack = new Object[2];
-			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-				fakeStack[0] = left.get(i);
-				fakeStack[1] = right.get(i);
-				if(leftArity < rightArity || i < leftArity - 1)
-					equal.execute(fakeStack, 2, 2, currentFrame);
-				else
-					less.execute(fakeStack, 2, 2, currentFrame);
-
-				if(!((IBool)fakeStack[0]).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-			}
-
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
-		}
-	},
-
-	/*
-	 * lessequal
-	 */
-
-	// Generic lessequal
-
-	lessequal {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			Type leftType = ((IValue) stack[sp - 2]).getType();
-			Type rightType = ((IValue) stack[sp - 1]).getType();
-
-			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
-				return num_lessequal_num.execute(stack, sp, arity, currentFrame);
-			}
-
-			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-
-			case BOOL:
-				return bool_lessequal_bool.execute(stack, sp, arity, currentFrame);
-
-			case STR:
-				return str_lessequal_str.execute(stack, sp, arity, currentFrame);
-
-			case DATETIME:
-				return datetime_lessequal_datetime.execute(stack, sp, arity, currentFrame);
-
-			case LOC:
-				return loc_lessequal_loc.execute(stack, sp, arity, currentFrame);
-
-			case LIST:
-			case LREL:
-				return list_lessequal_list.execute(stack, sp, arity, currentFrame);
-			case SET:
-			case REL:
-				return set_lessequal_set.execute(stack, sp, arity, currentFrame);
-			case MAP:
-				return map_lessequal_map.execute(stack, sp, arity, currentFrame);
-			case CONSTRUCTOR:
-			case NODE:
-				return node_lessequal_node.execute(stack, sp, arity, currentFrame);
-			case ADT:
-				return adt_lessequal_adt.execute(stack, sp, 2, currentFrame);
-			case TUPLE:
-				return tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame);
-			default:
-				throw new CompilerError("lessequal: unexpected type " + leftType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	
-	// lessequal on int
-	
-	int_lessequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_lessequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_lessequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_lessequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// lessequal on num
-	
-	num_lessequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_lessequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_lessequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_lessequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// lessequal on rat
-	
-	rat_lessequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_lessequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_lessequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_lessequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// lessequal on real
-	
-	real_lessequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_lessequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_lessequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_lessequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// lessequal on other types
-	
-	adt_lessequal_adt {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			return node_lessequal_node.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	bool_lessequal_bool {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
-
-			stack[sp - 2] = vf.bool((!left && right) || (left == right));
-			return sp - 1;
-
-		}
-
-	},
-	datetime_lessequal_datetime {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			int c = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]);
-			stack[sp - 2] =  vf.bool(c == -1 || c == 0);
-			return sp - 1;
-		}
-
-
-
-	},
-	list_lessequal_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-
-			stack[sp - 2] = $list_lessequal_list(left, right);
-			return sp - 1;
-		}
-
-	},
-	lrel_lessequal_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-
-			stack[sp - 2] = $list_lessequal_list(left, right);
-			return sp - 1;
-		}
-
-	},
-	loc_lessequal_loc {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISourceLocation left = (ISourceLocation) stack[sp - 2];
-			ISourceLocation right = (ISourceLocation) stack[sp - 1];
-
-			int compare = left.top().toString().compareTo(right.top().toString());
-			if (compare < 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-			}
-			else if (compare > 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			// but the uri's are the same
-			// note that line/column information is superfluous and does not matter for ordering
-
-			if (left.hasOffsetLength()) {
-				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-
-				int roffset = right.getOffset();
-				int rlen = right.getLength();
-				int loffset = left.getOffset();
-				int llen = left.getLength();
-
-				if (loffset == roffset) {
-					stack[sp - 2] = vf.bool(llen <= rlen);
-					return sp - 1;
-				}
-				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
-				return sp - 1;
-			}
-			else if (compare == 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-			}
-
-			if (!right.hasOffsetLength()) {
-				throw new CompilerError("missing offset length", rvm.getStdErr(), currentFrame);
-			}
-			stack[sp - 2] = Rascal_FALSE;
-			return sp - 1;
-
-		}
-
-	},
-	map_lessequal_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isSubMap(right));
-			return sp - 1;
-		}
-
-	},
-	node_lessequal_node {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			INode left = (INode) stack[sp - 2];
-			INode right = (INode) stack[sp - 1];
-
-			int compare = left.getName().compareTo(right.getName());
-
-			if (compare <= -1) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
-			}
-
-			if (compare >= 1){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
-			}
-
-			// if the names are not ordered, then we order lexicographically on the arguments:
-
-			int leftArity = left.arity();
-			int rightArity = right.arity();
-
-			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-			}
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
-		}
-
-	},
-	set_lessequal_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
-			return sp - 1;
-		}	
-
-	},
-	rel_lessequal_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
-			return sp - 1;
-		}	
-
-	},
-	str_lessequal_str {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == -1 || c == 0);
-			return sp - 1;
-		}
-
-	},
-	tuple_lessequal_tuple {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			ITuple left = (ITuple)stack[sp - 2];
-			int leftArity = left.arity();
-			ITuple right = (ITuple)stack[sp - 1];
-			int rightArity = right.arity();
-
-			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
-				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
-				}
-			}
-
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
-		}
-	},
-	list_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity >= 0;
-			
-			if(arity == 0){
-				stack[sp] = emptyList;
-				return sp + 1;
-			}
-			
-			IListWriter writer = vf.listWriter();
-
-			for (int i = arity - 1; i >= 0; i--) {
-				writer.append((IValue) stack[sp - 1 - i]);
-			}
-			int sp1 = sp - arity + 1;
-			stack[sp1 - 1] = writer.done();
-
-			return sp1;
-		}
-	},
-	
-	/*
-	 * ...writer_open and ...writer_close
-	 */
-	
-	listwriter_open {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 0;	// For now, later type can be added
-			IListWriter writer = vf.listWriter();
-			stack[sp] = writer;
-			return sp + 1;
-		}
-
-	},
-	
-	listwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IListWriter writer = (IListWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-
-	},
-	
-	setwriter_open {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 0;	// For now, later type can be added
-			ISetWriter writer = vf.setWriter();
-			stack[sp] = writer;
-			return sp + 1;
-		}
-
-	},
-	
-	setwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISetWriter writer = (ISetWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-
-	},
-	mapwriter_open {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 0;	// For now, later type can be added
-			IMapWriter writer = vf.mapWriter();
-			stack[sp] = writer;
-			return sp + 1;
-		}
-	},
-	
-	mapwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IMapWriter writer = (IMapWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
-		}
-	},
-	
-	// ..._create: create values of various types
-	
-	map_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity >= 0;
-			
-			if(arity == 0){
-				stack[sp] = emptyMap;
-				return sp + 1;
-			}
-			
-			IMapWriter writer = vf.mapWriter();
-
-			for (int i = arity; i > 0; i -= 2) {
-				writer.put((IValue) stack[sp - i], (IValue) stack[sp - i + 1]);
-			}
-			int sp1 = sp - arity + 1;
-			stack[sp1 - 1] = writer.done();
-
-			return sp1;
-		}
-	},
-	set_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity >= 0;
-			
-			if(arity == 0){
-				stack[sp] = emptySet;
-				return sp + 1;
-			}
-			
-			ISetWriter writer = vf.setWriter();
-
-			for (int i = arity - 1; i >= 0; i--) {
-				writer.insert((IValue) stack[sp - 1 - i]);
-			}
-			int sp1 = sp - arity + 1;
-			stack[sp1 - 1] = writer.done();
-
-			return sp1;
-		}
-
-	},
-	set2elm {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISet set = (ISet) stack[sp - 1];
-			if(set.size() != 1)
-				throw new CompilerError("set2elm: set should have a single element", rvm.getStdErr(), currentFrame);
-			IValue elm = set.iterator().next();
-			stack[sp - 1] = elm;
-			return sp;
-		}
-
-	},
-	set_size {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISet set = (ISet) stack[sp - 1];		
-			stack[sp - 1] = vf.integer(set.size());
-			return sp;
-		}
-
-	},
-	tuple_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity >= 0;
-			IValue[] elems = new IValue[arity];
-
-			for (int i = arity - 1; i >= 0; i--) {
-				elems[i] = (IValue) stack[sp - arity + i];
-			}
-			int sp1 = sp - arity + 1;
-			stack[sp1 - 1] = vf.tuple(elems);
-			return sp1;
-		}
-	},
-	
-	/*
-	 * notin
-	 *
-	 */
-	
-	// Generic notin
-	
-	notin {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			IValue left = (IValue) stack[sp - 2];
-			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
-			Type rightType = right.getType();
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-			case LIST:
-				return elm_notin_list.execute(stack, sp, arity, currentFrame);
-			case LREL:
-				return elm_notin_lrel.execute(stack, sp, arity, currentFrame);
-			case SET:
-				return elm_notin_set.execute(stack, sp, arity, currentFrame);
-			case REL:
-				return elm_notin_rel.execute(stack, sp, arity, currentFrame);
-			case MAP:
-				return elm_notin_map.execute(stack, sp, arity, currentFrame);
-			default:
-				throw new CompilerError("notin: illegal combination " + leftType + " and " + rightType, rvm.getStdErr(), currentFrame);
-			}
-		}
-	},
-	
-	// elm_notin_...: notin for specific types
-	
-	elm_notin_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-
-	},
-	elm_notin_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return elm_notin_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	elm_notin_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-
-	},
-	elm_notin_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return elm_notin_set.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	elm_notin_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
-			return sp - 1;
-		}
-	},
-	list_size {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
-			return sp;
-		}
-
-	},
 	list_slice_replace {
 		@Override
-		
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.replace(), currentFrame);
 		}
-		
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 5;
-//			IList lst = (IList) stack[sp - 5];
-//			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), currentFrame);
-//			IList repl = (IList) stack[sp - 1];
-//			stack[sp - 5] = $updateListSlice(lst, sd, SliceOperator.replace(), repl, currentFrame);
-//			return sp - 4;
-//		}
-
 	},
-	
+
+	/**
+	 * Add value to a list slice
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IValue val ] => [ ..., new IList lst with val added to slice elements ]
+	 */
 	list_slice_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.add(), currentFrame);
 		}
 	},
+
+	/**
+	 * Subtract value from a list slice
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IValue val ] => [ ..., new IList lst with val subtracted from slice elements ]
+	 */
 	list_slice_subtract {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.subtract(), currentFrame);
 		}
 	},
+
+	/**
+	 * Multiply elements of a list slice by a value
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IValue val ] => [ ..., new IList lst with slice elements multiplied by val ]
+	 */
 	list_slice_product {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.product(), currentFrame);
 		}
 	},
+
+	/**
+	 * Divide elements of a list slice by a value
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IValue val ] => [ ..., new IList lst with slice elements divided by val ]
+	 */
 	list_slice_divide {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.divide(), currentFrame);
 		}
 	},
+
+	/**
+	 * Intersect elements of a list slice
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to, IValue val ] => [ ..., new IList lst with slice elements intersected with val ]
+	 */
 	list_slice_intersect {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.intersect(), currentFrame);
 		}
 	},
+
+	/**
+	 * Replace string slice by a value
+	 * [ ... IString s, IInteger from, IInteger by, IInteger to, IString val ] => [ ..., new IString s with slice elements replaced by val ]
+	 */
 	str_slice_replace {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5334,8 +7936,12 @@ public enum RascalPrimitive {
 			stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
 			return sp - 4;
 		}
-
 	},
+
+	/**
+	 * Replace elements in node slice
+	 * [ ... IString s, IInteger from, IInteger by, IInteger to, IList val ] => [ ..., new INode s with slice elements replaced by elements in val ]
+	 */
 	node_slice_replace {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5348,6 +7954,11 @@ public enum RascalPrimitive {
 			return sp - 4;
 		}
 	},
+
+	/**
+	 * Create list slice
+	 * [ ... IList s, IInteger from, IInteger by, IInteger to] => [ ..., new IList with slice elements ]
+	 */
 	list_slice {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5357,8 +7968,12 @@ public enum RascalPrimitive {
 			stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length(), currentFrame));
 			return sp - 3;
 		}
-
 	},
+
+	/**
+	 * Create str slice
+	 * [ ... IString s s, IInteger from, IInteger by, IInteger to] => [ ..., new IString with slice elements ]
+	 */
 	str_slice {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5369,34 +7984,11 @@ public enum RascalPrimitive {
 			return sp - 3;
 		}
 	},
-	node_create {
-		@SuppressWarnings("unchecked")
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity >= 1;
 
-			String name = ((IString) stack[sp - arity]).getValue();
-			IValue[] args = new IValue[arity - 2];
-			for(int i = 0; i < arity - 2; i ++){
-				args[i] = (IValue) stack[sp - arity + 1 + i];
-			}
-			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
-			return sp - arity + 1;
-		}
-
-	},
-	appl_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue prod = (IValue) stack[sp - 2];
-			IValue args = (IValue) stack[sp -1];
-
-			stack[sp - 2] = vf.constructor(RascalValueFactory.Tree_Appl, prod, args);
-			return sp - 1;
-		}
-
-	},
+	/**
+	 * Create node slice
+	 * [ ... INode s s, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
 	node_slice {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5408,51 +8000,12 @@ public enum RascalPrimitive {
 			return sp - 3;
 		}
 	},
-	
-	/*
-	 * stringwriter_*
-	 */
-	
-	stringwriter_open {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 0;
-			stack[sp] = new StringBuilder();
-			return sp + 1;
-		}
 
-	},
-	stringwriter_add {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			StringBuilder b = (StringBuilder) stack[sp - 2];
-			IValue v = ((IValue) stack[sp - 1]);
-			String s;
-			if(v.getType().isString()){
-				s = ((IString) v).getValue();
-			} else {
-				s = v.toString();
-			}
-			stack[sp - 2] = b.append(s);
-			return sp - 1;
-		}
-
-	},
-	stringwriter_close {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			StringBuilder b = (StringBuilder) stack[sp - 1];
-			stack[sp - 1] = vf.string(b.toString());
-			return sp;
-		}
-	},
-	
-	/*
-	 * ...writer_splice
+	/**
+	 * Splice elements in a list writer
+	 * 
+	 * [ ..., IListWriter w, IListOrISet val ] => [ ..., w with val's elements spliced in ]
 	 */
-	
 	listwriter_splice {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5474,8 +8027,13 @@ public enum RascalPrimitive {
 			stack[sp - 2] = writer;
 			return sp - 1;
 		}
-
 	},
+
+	/**
+	 * Splice elements in a set writer
+	 * 
+	 * [ ..., ISetWriter w, IListOrISet val ] => [ ..., w with val's elements spliced in ]
+	 */
 	setwriter_splice {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5498,343 +8056,58 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Splice elements of a concrete list in a list writer
+	 * 
+	 * [ ..., IListWriter w, ConcreteList val ] => [ ..., w with val's elements spliced in ]
+	 */
 	listwriter_splice_concrete_list_var {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			IListWriter writer = (IListWriter)stack[sp - 2];
 			IConstructor nonterm = (IConstructor) stack[sp - 1];
-//			stdout.println("nonterm = " + nonterm);
-			
+			//			stdout.println("nonterm = " + nonterm);
+
 			IList nonterm_args = (IList) nonterm.get("args");
-//			stdout.println("nonterm_args = " + nonterm_args);
-			
+			//			stdout.println("nonterm_args = " + nonterm_args);
+
 			if($getIter((IConstructor) ((IConstructor) nonterm.get("prod")).get(0)) >= 0){
 				for(IValue v : nonterm_args) {
-//					stdout.println("append: " + v);
+					//					stdout.println("append: " + v);
 					writer.append(v);
 				}
 			} else {
 				IConstructor iter = (IConstructor) nonterm_args.get(0);
-//				stdout.println("iter = " + iter);
-				
+				//				stdout.println("iter = " + iter);
+
 				IList iter_args = (IList) iter.get("args");
-//				stdout.println("iter_args = " + iter_args);
-				
+				//				stdout.println("iter_args = " + iter_args);
+
 				for(IValue v : iter_args) {
-//					stdout.println("append: " + v);
+					//					stdout.println("append: " + v);
 					writer.append(v);
 				}
 			}
-			
+
 			stack[sp - 2] = writer;
 			return sp - 1;
 		}
 	},
-	sublist {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			IList lst = (IList) stack[sp - 3];
-			int offset = ((IInteger) stack[sp - 2]).intValue();
-			int length = ((IInteger) stack[sp - 1]).intValue();
-			stack[sp - 3] = lst.sublist(offset, length);
-			return sp - 2;
-		}
-	},
+
 	
-	
-	/*
-	 * product
+
+
+	/************************************************************************************************/
+	/*					Test reports																*/
+	/************************************************************************************************/
+
+	/**
+	 * Open a test report
 	 * 
-	 * infix Product "*" {
-	 *		&L <: num x &R <: num                -> LUB(&L, &R),
-	 * 		list[&L] x list[&R]                  -> lrel[&L,&R],
-	 *		set[&L] x set[&R]                    -> rel[&L,&R]
-	 * }
+	 * [ ... ] => [ ..., IListWriter w ]
 	 */
-	
-	product {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
-			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-			switch (lhsType) {
-			case INT:
-				switch (rhsType) {
-				case INT:
-					return int_product_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return int_product_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return int_product_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return int_product_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
-				}
-			case NUM:
-				switch (rhsType) {
-				case INT:
-					return num_product_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return num_product_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return num_product_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return num_product_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
-				}
-			case REAL:
-				switch (rhsType) {
-				case INT:
-					return real_product_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return real_product_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return real_product_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return real_product_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
-				}
-			case RAT:
-				switch (rhsType) {
-				case INT:
-					return rat_product_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return rat_product_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return rat_product_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return rat_product_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
-				}
-			default:
-				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-			}
-		}
-	},
-	
-	// product on int
-	
-	int_product_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_product_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_product_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_product_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// product on num
-	
-	num_product_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_product_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_product_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_product_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
-		}	
-	},
-	
-	// product on rat
-	
-	rat_product_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_product_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_product_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_product_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// product on real
-	
-	real_product_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_product_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_product_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_product_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// product on non-numeric types
-	
-	list_product_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			IListWriter w = vf.listWriter();
-			for(IValue l : left){
-				for(IValue r : right){
-					w.append(vf.tuple(l,r));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-
-	},
-	lrel_product_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_product_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	set_product_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			ISetWriter w = vf.setWriter();
-			for(IValue l : left){
-				for(IValue r : right){
-					w.insert(vf.tuple(l,r));
-				}
-			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
-		}
-
-	},
-	rel_product_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_product_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	
-	/*
-	 * remainder
-	 */
-	
-	remainder {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
-			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
-				return int_remainder_int.execute(stack, sp, arity, currentFrame);
-			}
-			throw new CompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
-		}
-
-	},
-	int_remainder_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
 	testreport_open {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5844,8 +8117,13 @@ public enum RascalPrimitive {
 			stack[sp] = null;
 			return sp + 1;
 		}
-
 	},
+
+	/**
+	 * Close a test report
+	 * 
+	 * [ ..., IListWriter w] => [ ..., IList test results ]
+	 */
 	testreport_close {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5854,8 +8132,13 @@ public enum RascalPrimitive {
 			stack[sp] = test_results.done();
 			return sp + 1;
 		}
-
 	},
+
+	/**
+	 * Execute test results for function fun to a test report
+	 * 
+	 * [ ..., IListWriter w, IString fun, IBool ignore, IString expected, ISourceLocation src ] => [ ..., w ]
+	 */
 	testreport_add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -5928,292 +8211,21 @@ public enum RascalPrimitive {
 			if(passed)
 				message = "";
 			test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
-			
+
 			testResultListener.report(passed, $computeTestName(fun, src), src, message, exception);
 			return sp - 4;
 		}
 	},
-	
-	/*
-	 * notequal
-	 */
-	
-	// notequal int
-	
-	int_notequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
-		}
 
-	},
-	int_notequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
-		}
+	/************************************************************************************************/
+	/*                               Subscripting													*/
+	/************************************************************************************************/
 
-	},
-	int_notequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	int_notequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
-		}
-	},
-	
-	// notequal on num
-	
-	num_notequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	num_notequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	num_notequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	num_notequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
-		}
-	},
-	
-	// notequal on real
-	
-	real_notequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	real_notequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	real_notequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	real_notequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
-		}
-	},
-	
-	// notequal on rat
-	
-	rat_notequal_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	rat_notequal_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	rat_notequal_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
-		}
-
-	},
-	rat_notequal_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
-		}
-	},
-	
-	// Notequal on other types
-	
-	notequal {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
-			return sp - 1;
-		}
-	},
-	
-	/*
-	 * negative
+	/**
+	 * Get subscripted element from adt
 	 * 
-	 * prefix UnaryMinus "-" { &L <: num -> &L }
+	 * [ ..., IConstructor cons, IInteger idx ] => [ ..., IValue argument idx from cons ]
 	 */
-	
-	negative {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-
-			IValue left = (IValue) stack[sp - 1];
-			Type leftType = left.getType();
-
-			switch (ToplevelType.getToplevelType(leftType)) {
-			case INT: return negative_int.execute(stack, sp, arity, currentFrame);
-			case NUM: return negative_num.execute(stack, sp, arity, currentFrame);
-			case REAL: return negative_real.execute(stack, sp, arity, currentFrame);
-			case RAT: return negative_rat.execute(stack, sp, arity, currentFrame);
-			default:
-				throw new CompilerError("negative: unexpected type " + leftType, currentFrame);
-
-			}
-		}
-	},
-	negative_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
-			return sp;
-		}
-	},
-	negative_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = ((IReal) stack[sp - 1]).negate();
-			return sp;
-		}
-
-	},
-	negative_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = ((IRational) stack[sp - 1]).negate();
-			return sp;
-		}
-
-	},
-	negative_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
-			return sp;
-		}
-	},
-	num_to_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-				stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
-			return sp;
-		}
-	},
-	parse {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 3;
-			IString module_name = (IString) stack[sp - 3];
-			IConstructor type = (IConstructor) stack[sp - 2];
-			IValue source = (IValue) stack[sp - 1];
-			if(source.getType().isString()){
-				IString s = (IString) source;
-				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame.src, currentFrame);
-			} else {
-				ISourceLocation s = (ISourceLocation) source;
-				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
-			}
-			return sp - 2;
-		}
-
-	},
-	parse_fragment {
-		// TODO: @paulklint how can parse fragment be a run-time primitive? 
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 5;
-			IString module_name = (IString) stack[sp - 5];
-			IValue start = (IValue) stack[sp - 4];
-			ITree ctree = (ITree) stack[sp - 3];
-			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
-			IMap grammar = (IMap) stack[sp - 1];
-
-			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc, grammar);
-			stack[sp - 5] = tree;
-			return sp - 4;
-		}
-	},
-	println {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			stdout.println(">>>>> " + stack[sp - 1]);
-			return sp;
-		}
-	},
-	
-	/*
-	 * subscript
-	 */
-	
 	adt_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6228,7 +8240,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
+	/**
+	 * Has adt constructor an argument with given index?
+	 * 
+	 * [ ..., IConstructor cons, IInteger idx ] => [ ..., IBool true if idx is legal index]
+	 */
 	is_defined_adt_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6240,12 +8257,17 @@ public enum RascalPrimitive {
 				temp_array_of_2[0] = Rascal_TRUE;
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
-				
 			}
 			stack[sp - 2] = temp_array_of_2;
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Get subscripted element from node
+	 * 
+	 * [ ..., INode nd, IInteger idx ] => [ ..., IValue argument idx from nd ]
+	 */
 	node_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6263,6 +8285,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Has node an argument with given index?
+	 * 
+	 * [ ..., INode nd, IInteger idx ] => [ ..., IBool true if idx is legal index]
+	 */
 	is_defined_node_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6282,6 +8310,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Get element with given index from list
+	 * 
+	 * [ ..., IList lst, IInteger idx ] => [ ..., IValue list element with index idx ]
+	 */
 	list_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6296,6 +8330,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Has list an element with given index?
+	 * 
+	 * [ ..., IList lst, IInteger idx ] => [ ...,  IBool true if idx is legal index ]
+	 */
 	is_defined_list_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6312,21 +8352,33 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Get element with given key from map
+	 * 
+	 * [ ..., IMap mp, IValue key ] => [ ..., mp[key] ]
+	 */
 	map_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
-//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-//					stdout.println("\t" + f.toString());
-//				}
+				//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+				//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+				//					stdout.println("\t" + f.toString());
+				//				}
 				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
 			}
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Has map an element with given key?
+	 * 
+	 * [ ..., IMap mp, IValue key ] => [ ...,  IBool true if key is legal key ]
+	 */
 	is_defined_map_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6338,6 +8390,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Get element with given index from str
+	 * 
+	 * [ ..., IString s, IInteger idx ] => [ ..., IString s[idx] ]
+	 */
 	str_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6353,6 +8411,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Has str an element with given index? str
+	 * 
+	 * [ ..., IString s, IInteger idx ] => [ ..., IBool true if idx is legal index in s ]
+	 */
 	is_defined_str_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6362,7 +8426,7 @@ public enum RascalPrimitive {
 			try {
 				temp_array_of_2[0] = Rascal_TRUE;
 				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
-						              : str.substring(str.length() + idx, str.length() + idx + 1);
+						: str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
@@ -6370,6 +8434,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Get element with given index from tuple
+	 * 
+	 * [ ..., ITuple tup, IInteger idx ] => [ ..., IValue tup[idx] ]
+	 */
 	tuple_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6384,6 +8454,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+
+	/**
+	 * Has tuple an element with given index?
+	 * 
+	 * [ ..., ITuple tup, IInteger idx ] => [ ..., IBool true if idx is legal index in tup ]
+	 */
 	is_defined_tuple_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6400,7 +8476,12 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
-	
+
+	/**
+	 * Subscript of a rel
+	 * 
+	 * [ ..., IRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
+	 */
 	rel_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6451,6 +8532,12 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+
+	/**
+	 * Subscript of a lrel
+	 * 
+	 * [ ..., IListRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
+	 */
 	lrel_subscript {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -6501,14 +8588,19 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
-	
+
+	/**
+	 * Get argument with given index from nonterminal
+	 * 
+	 * [ ..., ITree tree, IInteger idx ] => [ ..., tree[idx] ]
+	 */
 	nonterminal_subscript_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 2;
-			
+
 			// TODO: this code can be optimized and simplified via TreeAdapter
-			
+
 			ITree appl = (ITree) stack[sp - 2];
 			IList appl_args = (IList) appl.get("args");
 			IConstructor prod = (IConstructor) appl.getProduction();
@@ -6522,610 +8614,41 @@ public enum RascalPrimitive {
 					appl_args = (IList) child.get(1);
 					delta = $getIter(symbol);
 					if(delta < 0){
-					  throw new CompilerError("subscript not supported on " + symbol, currentFrame);
+						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
 					}
 				}
 			}
-//			IConstructor appl = (IConstructor) stack[sp - 2];
-//			IList appl_args = (IList) appl.get("args");
-//			IConstructor prod = (IConstructor) appl.get("prod");
-//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-//			int delta = $getIter(symbol);
-//			if(delta < 0){
-//				if(appl_args.length() == 1){
-//					IConstructor child = (IConstructor) appl_args.get(0);
-//					prod = (IConstructor) child.get("prod");
-//					symbol = $removeLabel((IConstructor) prod.get("def"));
-//					appl_args = (IList) child.get(1);
-//					delta = $getIter(symbol);
-//					if(delta < 0){
-//					  throw new CompilerError("subscript not supported on " + symbol, currentFrame);
-//					}
-//				}
-//			}
+			//			IConstructor appl = (IConstructor) stack[sp - 2];
+			//			IList appl_args = (IList) appl.get("args");
+			//			IConstructor prod = (IConstructor) appl.get("prod");
+			//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
+			//			int delta = $getIter(symbol);
+			//			if(delta < 0){
+			//				if(appl_args.length() == 1){
+			//					IConstructor child = (IConstructor) appl_args.get(0);
+			//					prod = (IConstructor) child.get("prod");
+			//					symbol = $removeLabel((IConstructor) prod.get("def"));
+			//					appl_args = (IList) child.get(1);
+			//					delta = $getIter(symbol);
+			//					if(delta < 0){
+			//					  throw new CompilerError("subscript not supported on " + symbol, currentFrame);
+			//					}
+			//				}
+			//			}
 			int index = ((IInteger) stack[sp - 1]).intValue();
 			stack[sp - 2] = appl_args.get(index * delta);
 			return sp - 1;
 		}
 	},
-	
-	/*
-	 * subtraction
-	 * 
-	 * infix Difference "-" {
-	 *		&L <: num x &R <: num                -> LUB(&L, &R),
-	 * 		list[&L] x list[&R]                  -> list[LUB(&L,&R)],
-	 *		set[&L] x set[&R]                    -> set[LUB(&L,&R)],
-	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
-	 * }
-	 */
-	
-	subtract {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
-			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-			switch (lhsType) {
-			case INT:
-				switch (rhsType) {
-				case INT:
-					return int_subtract_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return int_subtract_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return int_subtract_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return int_subtract_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-				}
-			case NUM:
-				switch (rhsType) {
-				case INT:
-					return num_subtract_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return num_subtract_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return num_subtract_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return num_subtract_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-				}
-			case REAL:
-				switch (rhsType) {
-				case INT:
-					return real_subtract_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return real_subtract_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return real_subtract_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return real_subtract_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-				}
-			case RAT:
-				switch (rhsType) {
-				case INT:
-					return rat_subtract_int.execute(stack, sp, arity, currentFrame);
-				case NUM:
-					return rat_subtract_num.execute(stack, sp, arity, currentFrame);
-				case REAL:
-					return rat_subtract_real.execute(stack, sp, arity, currentFrame);
-				case RAT:
-					return rat_subtract_rat.execute(stack, sp, arity, currentFrame);
-				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-				}
-			default:
-				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
-			}
-		}
-	},
-	
-	// subtract on int
-	
-	int_subtract_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_subtract_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_subtract_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	int_subtract_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
-		}	
-	},
-	
-	// subtract on num
-	
-	num_subtract_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_subtract_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_subtract_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	num_subtract_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// subtract on rat
-	
-	rat_subtract_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_subtract_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_subtract_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	rat_subtract_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
-		}	
-	},
-	
-	// subtract on real
-	
-	real_subtract_num {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_subtract_int {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_subtract_real {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	real_subtract_rat {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
-		}
-	},
-	
-	// subtract on non-numeric types
-	
-	list_subtract_elm {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
-			return sp - 1;
-		}
 
-	},
-	list_subtract_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
-			return sp - 1;
-		}
+	/*************************************************************************************************/
+	/*         			Update parts of a structured value 											 */
+	/*************************************************************************************************/
 
-	},
-	list_subtract_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	lrel_subtract_lrel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	lrel_subtract_list {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	lrel_subtract_elm {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return list_subtract_elm.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	map_subtract_map {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
-			return sp - 1;
-		}
-
-	},
-	rel_subtract_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	rel_subtract_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	rel_subtract_elm {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_subtract_elm.execute(stack, sp, arity, currentFrame);
-		}
-
-	},
-	set_subtract_elm {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
-			return sp - 1;
-		}
-
-	},
-	set_subtract_set {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
-			return sp - 1;
-		}
-
-	},
-	set_subtract_rel {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame);
-		}
-	},
-	subtype {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype((Type) stack[sp - 2], (Type) stack[sp - 1]));
-			return sp - 1;
-		}
-	},
-	
-	subtype_value_type {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-		
-			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
-			return sp - 1;
-		}
-	},
-	
-	/*
-	 * transitiveClosure
-	 * 
-	 * postfix Closure "+", "*" { 
-	 *  	lrel[&L,&L]			-> lrel[&L,&L],
-	 * 		rel[&L,&L]  		-> rel[&L,&L]
-	 * }
-	 */
-	
-	transitive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue lhs = (IValue) stack[sp - 1];
-			Type lhsType = lhs.getType();
-			if(lhsType.isListRelation()){
-				return lrel_transitive_closure.execute(stack, sp, arity, currentFrame);
-			}
-			if(lhsType.isRelation()){
-				return rel_transitive_closure.execute(stack, sp, arity, currentFrame);
-			}
-			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
-		}
-
-	},
-	lrel_transitive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closure();
-			return sp;
-		}
-
-	},
-	rel_transitive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closure();
-			return sp;
-		}
-	},
-	
-	/*
-	 * transitiveReflexiveClosure
-	 */
-	
-	transitive_reflexive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IValue lhs = (IValue) stack[sp - 1];
-			Type lhsType = lhs.getType();
-			if(lhsType.isListRelation()){
-				return lrel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame);
-			}
-			if(lhsType.isRelation()){
-				return rel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame);
-			}
-			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
-		}
-	},
-	lrel_transitive_reflexive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closureStar();
-			return sp;
-		}
-
-	},
-	rel_transitive_reflexive_closure {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closureStar();
-			return sp;
-		}
-	},
-
-	@SuppressWarnings("unchecked")
-	typeOf {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
-				// Move to muPrimitives?
-				HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
-				if(mset.isEmpty()){
-					stack[sp - 1] = tf.setType(tf.voidType());
-				} else {
-					IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
-					stack[sp - 1] =tf.setType(v.getType());
-				}
-
-			} else {
-				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-			}
-			return sp;
-		}
-	},
-	reifiedType_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			
-			IConstructor type_cons = (IConstructor) stack[sp - 2];
-			IMap idefinitions = (IMap) stack[sp - 1];
-			typeReifier = new TypeReifier(vf);
-			
-			Type type = typeReifier.symbolToType(type_cons, idefinitions);
-			
-			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(RascalValueFactory.TypeParam, type);
-			
-			stack[sp - 2] = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
-			
-			return sp - 1;
-		}
-	},
-	
-	type2symbol {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			
-			Type type = (Type) stack[sp - 2];
-			stack[sp - 2] = $type2symbol(type);
-//			IMap idefinitions = (IMap) stack[sp - 1];
-//			typeReifier = new TypeReifier(vf);
-//			
-//			new ReifiedType(type);
-//			
-//			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-//			bindings.put(Factory.TypeParam, type);
-//			
-//			Symbols.typeToSymbol(type, false,  "");
-//			
-//			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
-//			
-			return sp - 1;
-		}
-	},
-
-	elementTypeOf {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			Type tp = (Type) stack[sp - 1];
-			stack[sp - 1] = tp.getElementType();
-			return sp;
-		}
-	},
-	
 	/**
-	 * Given a subject value and a descriptor, should we descent in it as abstract value?
+	 * Update argument of adt constructor by its field name
 	 * 
-	 * [ ..., subject value, descriptor] => true/false
-	 *
-	 */
-	should_descent_in_abstract {
-		@Override
-		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
-			assert arity == 2;
-			
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			stack[sp - 2] = descriptor.shouldDescentInAbstractValue(subject);
-			return sp - 1;
-		}
-	},
-	
-	/**
-	 * Given a subject value and a descriptor, should we descent in it as concrete value?
-	 * 
-	 * [ ..., subject value, descriptor] => true/false
-	 *
-	 */
-	should_descent_in_concrete {
-		@Override
-		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
-			assert arity == 2;
-			
-			ITree subject = (ITree) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			stack[sp - 2] = descriptor.shouldDescentInConcreteValue(subject);
-			return sp - 1;
-		}
-	},
-	
-	/**
-	 * Given a map subject value and a descriptor, should we descent in its keys?
-	 * 
-	 * [ ..., map subject value, symbolset] => true/false
-	 *
-	 */
-	
-	should_descent_mapkey {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			Type key_type = subject.getType().getKeyType();
-			
-			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
-			return sp - 1;
-		}
-	},
-	/**
-	 * Given a map subject value and a set of allowed symbols, should we descent in its values?
-	 * 
-	 * [ ..., map subject value, symbolset] => true/false
-	 *
-	 */
-	should_descent_mapval {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-			
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			
-			Type val_type = subject.getType().getValueType();
-			
-			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
-			return sp - 1;
-		}
-	},
-	/*
-	 * update_...
+	 * [ ..., IConstructor cons, IString fieldName, IValue repl ] => [ ..., new IConmstructor with cons.fieldName == repl ]
 	 */
 	adt_update {
 		@Override
@@ -7136,8 +8659,13 @@ public enum RascalPrimitive {
 			stack[sp - 3] = cons.set(field, (IValue) stack[sp - 1]);
 			return sp - 2;
 		}
-
 	},
+
+	/**
+	 * Update list element
+	 * 
+	 * [ ..., IList cons, IInteger idx, IValue repl ] => [ ..., new IList with lst[idx] == repl ]
+	 */
 	list_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -7151,8 +8679,13 @@ public enum RascalPrimitive {
 				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame);
 			}
 		}
-
 	},
+
+	/**
+	 * Update map element
+	 * 
+	 * [ ..., IMap mp, IValue key, IValue repl ] => [ ..., new IMap with mp[key] == repl ]
+	 */
 	map_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -7162,8 +8695,13 @@ public enum RascalPrimitive {
 			stack[sp - 3] = map.put(key, (IValue) stack[sp - 1]);
 			return sp - 2;
 		}
-
 	},
+
+	/**
+	 * Update tuple element
+	 * 
+	 * [ ..., ITuple tup, IInteger idx, IValue repl ] => [ ..., new ITuple with tup[idx] == repl ]
+	 */
 	tuple_update {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
@@ -7178,90 +8716,284 @@ public enum RascalPrimitive {
 			}
 		}
 	},
-	loc_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 1;
-			IString uri = ((IString) stack[sp - 1]);
-
-			try {
-				stack[sp - 1] = vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
-				return sp;
-			} 
-			catch (URISyntaxException e) {
-				// this is actually an unexpected run-time exception since Rascal prevents you from 
-				// creating non-encoded 
-				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
-			}
-		}
-	},
-	loc_with_offset_create {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 5;
-			ISourceLocation loc = (ISourceLocation) stack[sp - arity];
-			int offset = ((IInteger) stack [sp - arity + 1]).intValue();
-			int length = ((IInteger) stack [sp - arity + 2]).intValue();
-
-			ITuple begin = (ITuple) stack [sp - arity + 3];
-			int beginLine = ((IInteger) begin.get(0)).intValue();
-			int beginCol = ((IInteger) begin.get(1)).intValue();
-
-			ITuple end = (ITuple) stack [sp - arity + 4];
-			int endLine = ((IInteger) end.get(0)).intValue();
-			int endCol = ((IInteger)  end.get(1)).intValue();
-
-			stack[sp - arity] = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
-			return sp - arity + 1;
-		}
-	},
 	
-	non_negative {
+	/************************************************************************************************/
+	/*				Annotations																		*/
+	/************************************************************************************************/
+
+	/**
+	 * Get value of an annotation
+	 * 
+	 * [ ..., IConstructor val, IString label ] => [ ...,  IValue value of annotation label  ]
+	 */
+	annotation_get {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val = (IValue) stack[sp - 2];
+			String label = ((IString) stack[sp - 1]).getValue();
+			try {
+
+				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+
+				if(stack[sp - 2] == null) {
+					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
+				}
+				return sp - 1;
+			} catch (FactTypeUseException e) {
+				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
+			}
+		}
+	},
+
+	/**
+	 * Get value of an annotation, if it is defined
+	 * 
+	 * [ ..., IConstructor val, IString label ] => [ ...,  [ IBool present, IValue value of annotation label]  ]
+	 */
+	is_defined_annotation_get {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+			IValue val = (IValue) stack[sp - 2];
+			String label = ((IString) stack[sp - 1]).getValue();
+			try {
+				IValue v = val.asAnnotatable().getAnnotation(label);
+				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
+				temp_array_of_2[1] = v;
+			} catch (FactTypeUseException e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Set value of an annotation
+	 * 
+	 * [ ..., IConstructor val, IString label, IValue repl ] => [ ...,  IConstructor val with annotation label set to repl  ]
+	 */
+	annotation_set {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IValue val = (IValue) stack[sp - 3];
+			String label = ((IString) stack[sp - 2]).getValue();
+			IValue repl = (IValue) stack[sp - 1];
+			stack[sp - 3] = val.asAnnotatable().setAnnotation(label, repl);
+			return sp - 2;
+		}
+	},
+
+
+	/**********************************************************************************************/
+	/*			Type reachability for descendant match       									  */
+	/**********************************************************************************************/
+
+	/**
+	 * Given a subject value and a descriptor, should we descent in it as abstract value?
+	 * 
+	 * [ ..., subject value, descriptor] => true/false
+	 */
+	should_descent_in_abstract {
+		@Override
+		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
+			assert arity == 2;
+
+			IValue subject = (IValue) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			stack[sp - 2] = descriptor.shouldDescentInAbstractValue(subject);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Given a subject value and a descriptor, should we descent in it as concrete value?
+	 * 
+	 * [ ..., subject value, descriptor] => true/false
+	 */
+	should_descent_in_concrete {
+		@Override
+		public int execute(Object[] stack, int sp, int arity, Frame currentFrame) {
+			assert arity == 2;
+
+			ITree subject = (ITree) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			stack[sp - 2] = descriptor.shouldDescentInConcreteValue(subject);
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Given a map subject value and a descriptor, should we descent in its keys?
+	 * 
+	 * [ ..., map subject value, symbolset] => true/false
+	 */
+	should_descent_mapkey {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue subject = (IValue) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			Type key_type = subject.getType().getKeyType();
+
+			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
+			return sp - 1;
+		}
+	},
+
+	/**
+	 * Given a map subject value and a set of allowed symbols, should we descent in its values?
+	 * 
+	 * [ ..., map subject value, symbolset] => true/false
+	 */
+	should_descent_mapval {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 2;
+
+			IValue subject = (IValue) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+
+			Type val_type = subject.getType().getValueType();
+
+			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
+			return sp - 1;
+		}
+	},
+
+
+	/************************************************************************************************/
+	/*				Miscellaneous																	*/
+	/************************************************************************************************/
+
+	/**
+	 * Report a failing assertion
+	 * 
+	 * [ ..., IValue msg ] => raise assertionFailedException
+	 *
+	 */
+	assert_fails {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
 			assert arity == 1;
-			if(((IInteger)stack[sp -1]).intValue() < 0){
-				throw RascalRuntimeException.indexOutOfBounds(((IInteger)stack[sp -1]), currentFrame);
+			IString message = (IString) stack[sp - 1];
+			stdout.println("Assertion failed" + message + " at " + currentFrame.src);
+			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
+		}
+	},
+
+	/**
+	 * str_escape_for_regexp: escape the regexp meta-characters in a string
+	 * 
+	 * [ ... IValue val] => [ ..., IString escaped_val]
+	 */
+
+	str_escape_for_regexp {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			IValue v = ((IValue) stack[sp - 1]);
+			String s;
+			if(v.getType().isString()){
+				s = ((IString) v).getValue();
+			} else {
+				s = v.toString();
 			}
+			StringBuilder b = new StringBuilder();
+
+			for (int i = 0; i < s.length(); i++) {
+				char ch = s.charAt(i);
+				if ("^.|?*+()[\\".indexOf(ch) != -1) {
+					b.append('\\');
+				}
+				b.append(ch);
+			}
+			stack[sp - 1] = vf.string(b.toString());
 			return sp;
 		}
-	}
-//	,
-//	traverse_bottom_up {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 8;
-//			OverloadedFunctionInstance phi = (OverloadedFunctionInstance) stack[sp - 8];
-//			IValue iSubject = (IValue) stack[sp - 7];
-//			Reference rHasMatch = (Reference) stack[sp - 6];
-//			Reference rBeenChanged = (Reference) stack[sp - 5];
-//			Reference rLeaveVisit = (Reference) stack[sp - 4];
-//			Reference rBegin = (Reference) stack[sp - 3];
-//			Reference rEnd = (Reference) stack[sp - 2];
-//			IValue descendantDescriptor = (IValue) stack[sp - 1];
-//			
-//			Object[] localStack = new Object[2];
-//			Reference rMatched = new Reference(localStack, 0);
-//			Reference rChanged = new Reference(localStack, 1);
-//			
-//			localStack[0] = vf.bool(false);
-//			localStack[1] = vf.bool(false);
-//			
-//			iSubject = VISIT_CHILDREN(iSubject, traverse_bottom_up, rHasMatch, phi, rBegin, rEnd, descendantDescriptor);
-//			iSubject = 
-//			rBeenChanged.setValue(((IBool)rChanged).or((IBool) rBeenChanged));
-//			return sp - 7;
-//		}
-//
-//		private IValue VISIT_CHILDREN(IValue iSubject,
-//				RascalPrimitive traverseBottomUp, Reference rHasMatch,
-//				OverloadedFunctionInstance phi, Reference rBegin,
-//				Reference rEnd, IValue descendantDescriptor) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//	}
-	
+	},
+
+	/**
+	 * Convert a value to string
+	 * 
+	 * [ ..., IValue val] => [ ..., IString converted_value]
+	 */
+	value_to_string {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = vf.string($value_to_string(stack[sp - 1], currentFrame));
+			return sp;
+		}
+	},
+
+	/**
+	 * Convert num to real
+	 * 
+	 * [ ..., INumber nval ] => [ ,,,., IReal rval ]
+	 */
+	num_to_real {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			stack[sp - 1] = ((INumber) stack[sp - 1]).toReal();
+			return sp;
+		}
+	},
+
+	/**
+	 * parse a string according to type defined in moduleName
+	 * 
+	 * [ ..., IString moduleName, IConstructor type, IStringOrSourceLocation src ] => [ ..., ITree parseTree ]
+	 */
+	parse {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 3;
+			IString module_name = (IString) stack[sp - 3];
+			IConstructor type = (IConstructor) stack[sp - 2];
+			IValue source = (IValue) stack[sp - 1];
+			if(source.getType().isString()){
+				IString s = (IString) source;
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame.src, currentFrame);
+			} else {
+				ISourceLocation s = (ISourceLocation) source;
+				stack[sp - 3] = parsingTools.parse(module_name, type, s, currentFrame);
+			}
+			return sp - 2;
+		}
+
+	},
+	//	parse_fragment {
+	//		// TODO: @paulklint how can parse fragment be a run-time primitive? 
+	//		@Override
+	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//			assert arity == 5;
+	//			IString module_name = (IString) stack[sp - 5];
+	//			IValue start = (IValue) stack[sp - 4];
+	//			ITree ctree = (ITree) stack[sp - 3];
+	//			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
+	//			IMap grammar = (IMap) stack[sp - 1];
+	//
+	//			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc, grammar);
+	//			stack[sp - 5] = tree;
+	//			return sp - 4;
+	//		}
+	//	},
+
+	//	println {
+	//		@Override
+	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+	//			stdout.println(">>>>> " + stack[sp - 1]);
+	//			return sp;
+	//		}
+	//	},
 	;
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
@@ -7286,15 +9018,15 @@ public enum RascalPrimitive {
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
-	
+
 	public static IBool Rascal_TRUE;
 	public static IBool Rascal_FALSE;
 	private static final Object[] temp_array_of_2 = new Object[2];
-	
+
 	private static ITestResultListener testResultListener;
 
 	public static ParsingTools getParsingTools() { assert parsingTools != null; return parsingTools; }
-	
+
 	private static long timeSpent[];
 	private static boolean profileRascalPrimitives = false;
 
@@ -7326,7 +9058,7 @@ public enum RascalPrimitive {
 		testResultListener = rex.getTestResultListener();
 		timeSpent = new long[values.length];
 	}
-	
+
 	public static void reset(){
 		parsingTools = new ParsingTools(vf);
 		parsingTools.setContext(rex);
@@ -7335,7 +9067,7 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();
 	}
-	
+
 	public static void restoreRVMAndContext(RVM usedRvm, RascalExecutionContext usedRex){
 		if(rvm != usedRvm || rex != usedRex){
 			rvm = usedRvm;
@@ -7347,7 +9079,7 @@ public enum RascalPrimitive {
 		System.err.println("Not implemented mufunction");
 		return 0 ;
 	}
-	
+
 	public static void recordTime(int n, long duration){
 		timeSpent[n] += duration;
 	}
@@ -7375,7 +9107,7 @@ public enum RascalPrimitive {
 	/************************************************************************************
 	 * 					AUXILIARY VARIABLES USED BY AUXILIARY FUNCTIONS					*	
 	 ************************************************************************************/
-	
+
 	/* 
 	 * testreport_...
 	 */
@@ -7383,26 +9115,26 @@ public enum RascalPrimitive {
 	static final int MAXDEPTH = 5;
 	static final int TRIES = 500;
 	static IListWriter test_results;
-	
+
 	/*
 	 * String templates
 	 */
 
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 	private static Stack<String> indentStack = new Stack<String>();
-	
+
 	private static StringBuilder templateBuilder = null;
 	private static final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
-	
+
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
 	 ************************************************************************************/
 
-	
+
 	private static String $computeTestName(String name, ISourceLocation loc){
-		 return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+		return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
 	}
-	
+
 	/*
 	 * String templates
 	 */
@@ -7411,7 +9143,7 @@ public enum RascalPrimitive {
 		//stdout.println("$indent: " + indentStack.size() + ", \"" + s + "\"");
 		indentStack.push(s);
 	}
-	
+
 	private static void $popIndent(){
 		indentStack.pop();
 	}
@@ -7419,13 +9151,13 @@ public enum RascalPrimitive {
 	public static String $getCurrentIndent() {
 		return indentStack.isEmpty() ? "" : indentStack.peek();
 	}
-	
+
 	public static String $indent(String s) {
 		String ind = indentStack.pop();		// TODO: check empty?
 		indentStack.push(ind + s);
 		return s;
 	}
-	
+
 	public static String $unindent(String s) {
 		String ind = indentStack.pop();		// TODO: check empty?
 		int indLen = ind.length();
@@ -7434,14 +9166,14 @@ public enum RascalPrimitive {
 		indentStack.push(ind.substring(0, endIndex));
 		return s;
 	}
-	
+
 	private static IString $removeMargins(IString s) {
 		// NB: ignored margin indents can only start *after* a new line.
 		// So atBeginning is initially false.
 		boolean atBeginning = false;
 		StringBuffer buf = new StringBuffer();
 		String indent = $getCurrentIndent();
-		
+
 		StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			int ch = s.charAt(i);
@@ -7475,7 +9207,7 @@ public enum RascalPrimitive {
 			}
 			sb.appendCodePoint(ch);
 		}
-		
+
 		// Add trailing whitespace (fixes #543)
 		sb.append(buf.toString());
 		String jstr = sb.toString();
@@ -7628,7 +9360,7 @@ public enum RascalPrimitive {
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
-				
+
 				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
@@ -7762,7 +9494,7 @@ public enum RascalPrimitive {
 		}
 		return vf.bool(left.length() != right.length());
 	}
-	
+
 	static IValue $add(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7770,7 +9502,7 @@ public enum RascalPrimitive {
 		add.execute(fakeStack, 2, 2, currentFrame);
 		return (IValue)fakeStack[0];
 	}
-	
+
 	static IValue $subtract(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7778,7 +9510,7 @@ public enum RascalPrimitive {
 		subtract.execute(fakeStack, 2, 2, currentFrame);
 		return (IValue)fakeStack[0];
 	}
-	
+
 	static IValue $product(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7786,7 +9518,7 @@ public enum RascalPrimitive {
 		product.execute(fakeStack, 2, 2, currentFrame);
 		return (IValue)fakeStack[0];
 	}
-	
+
 	static IValue $divide(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7794,7 +9526,7 @@ public enum RascalPrimitive {
 		divide.execute(fakeStack, 2, 2, currentFrame);
 		return (IValue)fakeStack[0];
 	}
-	
+
 	static IValue $intersect(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7810,7 +9542,7 @@ public enum RascalPrimitive {
 		equal.execute(fakeStack, 2, 2, currentFrame);
 		return (IBool)fakeStack[0];
 	}
-	
+
 	private static IBool $lessequal(IValue left, IValue right,Frame currentFrame){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
@@ -7883,7 +9615,7 @@ public enum RascalPrimitive {
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
-	
+
 	// Slices on list
 
 	public static IList $makeSlice(IList lst, SliceDescriptor sd){
@@ -7903,7 +9635,7 @@ public enum RascalPrimitive {
 			}
 		return w.done();
 	}
-	
+
 	public static int $list_slice_operator(Object[] stack, int sp,  int arity, SliceOperator op, Frame currentFrame) {
 		assert arity == 5;
 		IList lst = (IList) stack[sp - 5];
@@ -7912,7 +9644,7 @@ public enum RascalPrimitive {
 		stack[sp - 5] = $updateListSlice(lst, sd, op, repl, currentFrame);
 		return sp - 4;
 	}
-	
+
 	public static IList $updateListSlice(IList lst, SliceDescriptor sd, SliceOperator op, IList repl, Frame currentFrame){
 		IListWriter w = vf.listWriter();
 		int increment = sd.second - sd.first;
@@ -7971,11 +9703,11 @@ public enum RascalPrimitive {
 						w.insert(repl.get(replIndex++));
 					}
 				}
-				
+
 				while(j >= 0){
 					w.insert(lst.get(j--));
 				}
-				
+
 			}
 		return w.done();
 	}
@@ -8020,7 +9752,7 @@ public enum RascalPrimitive {
 	private static boolean $isTree(IValue v){
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
-	
+
 	private static int $getIter(IConstructor cons){
 		// TODO: optimize away string equality
 		switch(cons.getName()){
@@ -8031,13 +9763,13 @@ public enum RascalPrimitive {
 		}
 		return -1;
 	}
-	
+
 	private static IConstructor $removeLabel(IConstructor cons){
 		if(cons.getName().equals("label"))
 			return (IConstructor) cons.get(1);
 		return cons;
 	}
-	
+
 	public static String $unescape(String s) {
 		StringBuilder b = new StringBuilder(s.length() * 2); 
 
@@ -8057,9 +9789,9 @@ public enum RascalPrimitive {
 		}
 		return b.toString();
 	}
-	
+
 	// TODO: merge the following two functions
-	
+
 	private static String $value_to_string(Object given, Frame currentFrame) {
 		String res;
 		if(given instanceof IValue){
@@ -8087,7 +9819,7 @@ public enum RascalPrimitive {
 		}
 		return res;
 	}
-		
+
 	private static String $value2string(IValue val){
 		if(val.getType().isString()){
 			return ((IString) val).getValue();
@@ -8106,19 +9838,19 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
-	
+
 	static HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
-	
+
 	/**
 	 * @param t the given type
 	 * @return t converted to a symbol
 	 */
 	private static IConstructor $type2symbol(final Type t){
-		 IConstructor result = type2symbolCache.get(t);
-		 if(result != null){
-			 return result;
-		 }
-		 result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
+		IConstructor result = type2symbolCache.get(t);
+		if(result != null){
+			return result;
+		}
+		result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
 
 			@Override
 			public IConstructor visitReal(Type type) throws RuntimeException {
@@ -8258,11 +9990,11 @@ public enum RascalPrimitive {
 					throws RuntimeException {
 				return vf.constructor(RascalValueFactory.Symbol_Datetime);
 			}
-			
-		 });
-		 
-		 type2symbolCache.put(t, result);
-		 return result;
+
+		});
+
+		type2symbolCache.put(t, result);
+		return result;
 	}
 
 	boolean $subtype(final Type t1, final Type t2){
@@ -8326,14 +10058,14 @@ enum SliceOperator {
 			return RascalPrimitive.$product(left, right, currentFrame);
 		}
 	}, 
-	
+
 	divide(4){
 		@Override
 		public IValue execute(IValue left, IValue right, Frame currentFrame) {
 			return RascalPrimitive.$divide(left, right, currentFrame);
 		}
 	}, 
-	
+
 	intersect(5){
 		@Override
 		public IValue execute(IValue left, IValue right, Frame currentFrame) {
