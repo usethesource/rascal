@@ -26,14 +26,18 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -44,6 +48,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -69,6 +74,7 @@ import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.URIContributor;
@@ -1679,6 +1685,64 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public TraversalEvaluator __popTraversalEvaluator() {
 		return teStack.pop();
 	}
+	public Collection<String> completePartialIdentifier(String partialIdentifier) {
+		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
+			throw new IllegalArgumentException("The behavior with empty string is undefined.");
+		}
+		if (partialIdentifier.startsWith("\\")) {
+			partialIdentifier = partialIdentifier.substring(1);
+		}
+		SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
+			@Override
+			public int compare(String a, String b) {
+				if (a.charAt(0) == '\\') {
+					a = a.substring(1);
+				}
+				if (b.charAt(0) == '\\') {
+					b = b.substring(1);
+				}
+				return a.compareTo(b);
+			}
+		});
+		List<ModuleEnvironment> todo = new ArrayList<>();
+		todo.add(__getRootScope());
+		for (String mod: __getRootScope().getImports()) {
+			todo.add(__getRootScope().getImport(mod));
+		}
+		for (ModuleEnvironment env: todo) {
+			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
+				addIt(result, p.getFirst(), partialIdentifier);
+			}
+			for (String v : env.getVariables().keySet()) {
+				addIt(result, v, partialIdentifier);
+			}
+			for (IValue key: env.getSyntaxDefinition()) {
+				addIt(result, ((IString)key).getValue(), partialIdentifier);
+			}
+			for (Type t: env.getAbstractDatatypes()) {
+				addIt(result, t.getName(), partialIdentifier);
+			}
+			for (Type t: env.getAliases()) {
+				addIt(result, t.getName(), partialIdentifier);
+			}
+			Map<Type, Map<String, Type>> annos = env.getAnnotations();
+			for (Type t: annos.keySet()) {
+				for (String k: annos.get(t).keySet()) {
+					addIt(result, k, partialIdentifier);
+				}
+			}
+		}
 
+		return result;
+	}
+
+	private static void addIt(SortedSet<String> result, String v, String originalTerm) {
+		if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
+			if (v.contains("-")) {
+				v = "\\" + v;
+			}
+			result.add(v);
+		}
+	}
  
 }

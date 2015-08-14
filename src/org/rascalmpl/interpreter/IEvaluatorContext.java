@@ -18,6 +18,7 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -60,4 +61,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
+	
+	
+	public Collection<String> completePartialIdentifier(String partialIdentifier);
 }
