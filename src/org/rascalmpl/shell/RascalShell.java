@@ -96,6 +96,7 @@ public class RascalShell {
 		addExtraSourceFolders(evaluator);
 		StringBuilder input = new StringBuilder();
 		String line;
+		console.addCompleter(new RascalCompleter(evaluator));
 		
 		next:while (running) {
 			try {
