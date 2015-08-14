@@ -137,9 +137,9 @@ public final class StringUtils {
 	    this.length = length;
 	    this.term = term;
     }
-	  public int offset;
-	  public int length;
-	  public String term;
+	  public final int offset;
+	  public final int length;
+	  public final String term;
 	}
 	public static OffsetLengthTerm findRascalIdentifierAtOffset(String buffer, int offset) {
 		Matcher m = getLastIdentifier.matcher(buffer);
