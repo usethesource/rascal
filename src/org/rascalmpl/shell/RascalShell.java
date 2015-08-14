@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URL;
@@ -31,7 +32,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Manifest;
 
-import jline.ConsoleReader;
+import jline.Terminal;
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -83,8 +86,8 @@ public class RascalShell {
 		running = true;
 	}
 	
-	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout, List<ClassLoader> classLoaders, RascalSearchPath uriResolver) throws IOException {
-		console = new ConsoleReader(stdin, new PrintWriter(stdout));
+	public RascalShell(InputStream stdin, PrintWriter stderr, OutputStream stdout, List<ClassLoader> classLoaders, RascalSearchPath uriResolver) throws IOException {
+	  console = new ConsoleReader(stdin, stdout);
 		running = true;
 	}
 	
@@ -107,7 +110,7 @@ public class RascalShell {
 					}
 					
 					if (line.trim().length() == 0) {
-						console.printString("cancelled\n");
+						console.println("cancelled");
 						continue next;
 					}
 					
@@ -116,27 +119,22 @@ public class RascalShell {
 				} while (!completeStatement(evaluator, input.toString()));
 
 				String output = handleInput(evaluator, input.toString());
-				console.printString(output);
-				console.printNewline();
+				console.println(output);
 			}
 			catch (ParseError pe) {
-				console.printString(parseErrorMessage(input.toString(), "prompt", pe));
-				console.printNewline();
+				console.println(parseErrorMessage(input.toString(), "prompt", pe));
 			}
 			catch (StaticError e) {
-				console.printString(staticErrorMessage(e));
-				console.printNewline();
+				console.println(staticErrorMessage(e));
 			}
 			catch (Throw e) {
-				console.printString(throwMessage(e));
-				console.printNewline();
+				console.println(throwMessage(e));
 			}
 			catch (QuitException q) {
 				break next;
 			}
 			catch (Throwable e) {
-				console.printString(throwableMessage(e, evaluator.getStackTrace()));
-				console.printNewline();
+				console.println(throwableMessage(e, evaluator.getStackTrace()));
 			}
 		}
 	}
