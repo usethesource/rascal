@@ -8828,44 +8828,44 @@ public enum RascalPrimitive {
 		}
 	},
 
-	/**
-	 * Given a map subject value and a descriptor, should we descent in its keys?
-	 * 
-	 * [ ..., map subject value, symbolset] => true/false
-	 */
-	should_descent_mapkey {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			Type key_type = subject.getType().getKeyType();
-
-			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
-			return sp - 1;
-		}
-	},
-
-	/**
-	 * Given a map subject value and a set of allowed symbols, should we descent in its values?
-	 * 
-	 * [ ..., map subject value, symbolset] => true/false
-	 */
-	should_descent_mapval {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-			assert arity == 2;
-
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-
-			Type val_type = subject.getType().getValueType();
-
-			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
-			return sp - 1;
-		}
-	},
+//	/**
+//	 * Given a map subject value and a descriptor, should we descent in its keys?
+//	 * 
+//	 * [ ..., map subject value, symbolset] => true/false
+//	 */
+//	should_descent_mapkey {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 2;
+//
+//			IValue subject = (IValue) stack[sp - 2];
+//			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+//			Type key_type = subject.getType().getKeyType();
+//
+//			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
+//			return sp - 1;
+//		}
+//	},
+//
+//	/**
+//	 * Given a map subject value and a set of allowed symbols, should we descent in its values?
+//	 * 
+//	 * [ ..., map subject value, symbolset] => true/false
+//	 */
+//	should_descent_mapval {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+//			assert arity == 2;
+//
+//			IValue subject = (IValue) stack[sp - 2];
+//			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+//
+//			Type val_type = subject.getType().getValueType();
+//
+//			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
+//			return sp - 1;
+//		}
+//	},
 
 
 	/************************************************************************************************/
