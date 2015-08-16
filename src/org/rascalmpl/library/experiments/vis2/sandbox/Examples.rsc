@@ -1,6 +1,7 @@
 module experiments::vis2::sandbox::Examples
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import util::Math;
 import Prelude;
 
 void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, align = centerMid);
@@ -14,12 +15,14 @@ Figure WB = box(fillColor="antiquewhite", lineWidth = 6, lineColor = "grey",
        size=<50,100>);
 Figure RB = box(fillColor="red", lineWidth = 1, size=<20,20>);
 
-public Figure box1 = hcat(lineWidth = 6, lineColor = "grey", figs=[rotate(45, box(fillColor="red", size=<50,50>)),
-rotate(45, box(fillColor="red", size=<50,50>))]);
-void tbox1(){ render(box1, align = centerMid, debug = false); }  
+public Figure box1 = hcat(lineWidth = 0, lineColor = "grey", figs=[
+    rotate(45, box(size=<70, 70>, fig= box(lineWidth = 6, fillColor="red", size=<50,50>))),
+    rotate(45, box(size=<70, 70>, fig= box(lineWidth = 6, fillColor="red", size=<50,50>)))
+]);
+void tbox1(){ render(box1, align = centerMid, debug = false, size=<-1, -1>); }  
 
 public Figure box2 = box(fillColor="yellow", size=<200,200>, lineColor = "red", 
-        lineWidth=10);
+        lineWidth=10, tooltip="aap");
 void tbox2(){ render(box2); } 
 
 public Figure box3 = box(fillColor="red", lineColor="lightgrey", lineWidth=30,  size=<200,200>);
@@ -975,3 +978,26 @@ public void main() {
     }
      
  void tgeo()= render(geo(), align = topLeft, size=<800, 800>);   
+ 
+
+void img() {
+    ex("image", image(src="./Rozen.jpg", size=<200, 200>));
+    }
+    
+tuple[num, num] ff1(t) = <1.5*cos(t)+0.5*cos(7*t), 1.5*sin(t)-0.5*sin(7*t)>;
+
+tuple[num, num] ff2(t) = <cos(t)+t*sin(t), sin(t)-t*cos(t)>;
+    
+void plt1() {
+     ex("plot", box(fig=plot([ff1(t)|t<-[0,PI()/100..(2*PI()+PI()/100)]], <<-4,4>,<0, 400>>, <<-4,4>,<400, 0>>
+     shapeCurved = false, fillColor = "red", fillEvenOdd = false
+     // , width = 400, height = 400
+    )));
+     }
+     
+void plt2() {
+     ex("plot", box(fig=plot([ff2(t)|t<-[0,0.1..100.1]], <<-100,100>,<0, 400>>, <<-100,100>,<400, 0>>
+     shapeCurved = false
+     // , width = 400, height = 400
+    )));
+     }

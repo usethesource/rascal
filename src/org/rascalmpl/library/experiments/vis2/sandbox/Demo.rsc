@@ -168,7 +168,19 @@ void demo() = render(demoFig(),
       }
 
 
-Figure butt() = button("Click me");
+Figure butt() = hcat(figs= [
+    button("Click me", id = "aap"
+    , event = on("click", 
+    void (str n, str e) {
+       if (getStyle("mies").fillColor=="green")
+          setStyle("mies", style(fillColor="red"));
+       else 
+          setStyle("mies", style(fillColor="green"));
+       }
+    ))
+    , box(size=<50, 50>, id = "mies")  
+    ]);
+    
 void tbutt()= render(butt(), debug = false);
 
 void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
@@ -484,4 +496,4 @@ void tbig() = render(big());
 
 Figure demo18() = flower();
 
-void tflower() = render(big());
+void tflower() = render(flower());
