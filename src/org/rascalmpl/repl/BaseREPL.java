@@ -4,14 +4,15 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
-
-import org.fusesource.jansi.Ansi;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
+
+import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
   protected final ConsoleReader reader;
@@ -99,11 +100,18 @@ public abstract class BaseREPL {
       runningThread = Thread.currentThread();
       while(keepRunning) {
         updatePrompt();
-        handleInput(reader.readLine());
+        String line = reader.readLine();
+        if (line == null) { // EOF
+          break;
+        }
+        handleInput(line);
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+      try (PrintWriter err = new PrintWriter(stdErr)) {
+        err.println("REPL Failed: ");
+        e.printStackTrace(err);
+      }
     }
     finally {
       stopped = true;
@@ -127,7 +135,18 @@ public abstract class BaseREPL {
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * stop the REPL without waiting for it to stop
+   */
+  public void signalStop() {
+    keepRunning = false;
+    try {
+      reader.getInput().close();
+    }
+    catch (IOException e) {
     }
   }
   
