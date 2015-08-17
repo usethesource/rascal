@@ -46,11 +46,11 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(InputStream stdin, Writer stdout, Writer stderr) {
-    eval = constructEvaluator(stdin, stdout, stderr);
+  protected void initialize(Writer stdout, Writer stderr) {
+    eval = constructEvaluator(stdout, stderr);
   }
   
-  protected abstract Evaluator constructEvaluator(InputStream stdin, Writer stdout, Writer stderr);
+  protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
   
   @Override
   protected PrintWriter getErrorWriter() {
