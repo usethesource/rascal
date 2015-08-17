@@ -513,7 +513,7 @@ public class TreeAdapter {
 		}
 	}
 
-  public static void yield(IConstructor tree, OutputStreamWriter out) throws IOException {
+  public static void yield(IConstructor tree, Writer out) throws IOException {
     unparse(tree, out);
   }
 
