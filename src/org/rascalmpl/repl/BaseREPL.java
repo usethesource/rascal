@@ -35,7 +35,7 @@ public abstract class BaseREPL {
     else {
       this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
     }
-    initialize(reader.getInput(), reader.getOutput(), stdErr);
+    initialize(reader.getOutput(), stdErr);
     if (supportsCompletion()) {
       reader.addCompleter(new Completer(){
         @Override
@@ -63,7 +63,7 @@ public abstract class BaseREPL {
   }
 
 
-  protected abstract void initialize(InputStream stdin, Writer stdout, Writer stderr);
+  protected abstract void initialize(Writer stdout, Writer stderr);
   protected abstract String getPrompt();
   protected abstract void handleInput(String line);
   protected abstract boolean supportsCompletion();
