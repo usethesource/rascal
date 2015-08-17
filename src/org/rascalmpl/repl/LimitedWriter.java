@@ -1,10 +1,9 @@
 package org.rascalmpl.repl;
 
-import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-public class LimitedWriter extends FilterWriter {
+public class LimitedWriter extends NonClosingFilterWriter {
 
   private final long limit;
   private long written;

@@ -109,9 +109,14 @@ public abstract class BaseREPL {
       }
     }
     catch (IOException e) {
-      try (PrintWriter err = new PrintWriter(stdErr)) {
+      try (PrintWriter err = new PrintWriter(stdErr, true)) {
         err.println("REPL Failed: ");
-        e.printStackTrace(err);
+        if (!err.checkError()) {
+          e.printStackTrace(err);
+        }
+        else {
+          e.printStackTrace();
+        }
       }
     }
     finally {
