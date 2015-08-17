@@ -96,7 +96,7 @@ public abstract class BaseREPL {
    *  <li> either the input or output stream throws an IOException 
    * </ul>
    */
-  public void run() {
+  public void run() throws IOException {
     try {
       runningThread = Thread.currentThread();
       while(keepRunning) {
@@ -118,6 +118,7 @@ public abstract class BaseREPL {
           e.printStackTrace();
         }
       }
+      throw e;
     }
     finally {
       stopped = true;
