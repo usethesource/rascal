@@ -24,6 +24,7 @@ public abstract class BaseREPL {
 
   public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal) throws IOException {
     this.reader = new ConsoleReader(stdin, stdout, terminal);
+    prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
     this.allowColors = allowColors;
     if (prettyPrompt && allowColors) {
