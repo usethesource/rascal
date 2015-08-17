@@ -98,6 +98,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
       prettyPrinter.write(value, wrt);
     }
+    out.println();
   }
 
   protected abstract PrintWriter getErrorWriter();
