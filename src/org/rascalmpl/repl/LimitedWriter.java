@@ -28,11 +28,11 @@ public class LimitedWriter extends FilterWriter {
   
   @Override
   public void write(char[] cbuf, int off, int len) throws IOException {
-    if (limit == written) {
+    if (written == limit) {
       return;
     }
-    if (limit + len >= written) {
-      len = (int)(written - limit);
+    if (written + len >= limit) {
+      len = (int)(limit - written);
     }
     out.write(cbuf, off, len);
     written += len;
@@ -43,11 +43,11 @@ public class LimitedWriter extends FilterWriter {
   
   @Override
   public void write(String str, int off, int len) throws IOException {
-    if (limit == written) {
+    if (written == limit) {
       return;
     }
-    if (limit + len >= written) {
-      len = (int)(written - limit);
+    if (written + len >= limit) {
+      len = (int)(limit - written);
     }
     out.write(str, off, len);
     written += len;
@@ -55,5 +55,4 @@ public class LimitedWriter extends FilterWriter {
       out.write("...");
     }
   }
-
 }
