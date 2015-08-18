@@ -16,6 +16,7 @@ import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
   protected final ConsoleReader reader;
+  private final InputStream originalStdIn;
   protected final boolean prettyPrompt;
   protected final boolean allowColors;
   protected final Writer stdErr;
@@ -23,6 +24,7 @@ public abstract class BaseREPL {
   protected volatile boolean stopped = false;
 
   public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal) throws IOException {
+    this.originalStdIn = stdin;
     this.reader = new ConsoleReader(stdin, stdout, terminal);
     prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
@@ -136,7 +138,7 @@ public abstract class BaseREPL {
   public void stop() {
     keepRunning = false;
     try {
-      reader.getInput().close();
+      originalStdIn.close();
       if (runningThread != null && runningThread != Thread.currentThread()) {
         while (!stopped) Thread.yield();
       }
@@ -151,7 +153,7 @@ public abstract class BaseREPL {
   public void signalStop() {
     keepRunning = false;
     try {
-      reader.getInput().close();
+      originalStdIn.close();
     }
     catch (IOException e) {
     }
