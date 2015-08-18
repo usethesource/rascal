@@ -83,8 +83,8 @@ public int getLoc2uid(loc l){
     	return loc2uid[l];
     }
     l = normalize(l);
-    println("getLoc2uid: <l>");
-    iprintln(loc2uid);
+    //println("getLoc2uid: <l>");
+    //iprintln(loc2uid);
     assert loc2uid[l]? : "getLoc2uid <l>";
     return loc2uid[l];
 }
@@ -97,7 +97,7 @@ public loc normalize(loc l) {
   	   		res = res(l.offset, l.length, l.begin,l.end);
   	   } catch: ;
   	   
-  	   println("normalize: <l> =\> <res>");
+  	  // println("normalize: <l> =\> <res>");
   	   return res;
     }
     //println("normalize: unchanged: <l>");
@@ -653,7 +653,7 @@ Symbol getType(loc l) {
     	return config.locationTypes[l];
     }
     l = normalize(l);
-    iprintln(config.locationTypes);
+    //iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];

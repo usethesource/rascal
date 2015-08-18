@@ -88,7 +88,7 @@ default tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, list[M
  
 bool isMuOne(MuExp e) = e is muOne1 || e is muOne1;
 
-tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, [ e:muMulti(_) ], loc src) = <e,[]>;
+tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, [ e:muMulti(_) ], loc src) = <e,[]> when operator != "RASCAL_ALL";
 
 tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, [ e:muOne1(MuExp exp) ], loc src) = makeMultiValuedBoolExp(e, fuid, src);
 
@@ -160,6 +160,9 @@ default tuple[MuExp,list[MuFunction]] makeSingleValuedBoolExp(str operator, str 
     return res;
 }
 
+// TODO: It is better to check this at the source level
+private bool isEnumerator(MuExp e) = /"Library/ENUMERATE_AND_ASSIGN" := e || /"Library/ENUMERATE_CHECK_AND_ASSIGN"  := e;
+
 private tuple[MuExp,list[MuFunction]] generateMuCode("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str all_uid = "<fuid>/ALL_<getNextAll()>(0)";
@@ -189,21 +192,28 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("RASCAL_ALL", str fuid, lis
         if(backtrackfree[j]) {
             body = [ muIfelse(nextLabel(), exps[j], body, [ muReturn1(muCon(false)) ]) ];
         } else {
-        	k = size(localvars);
-        	localvars += muVar("b_<k>", all_uid, k);
-            body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), 
-                     muAssign("b_<k>", all_uid, k, muCon(false)),  
-                     muWhile(nextLabel(), muNext1(localvars[j]), 
-                             [ muAssign("b_<k>", all_uid, k, muCon(true)),
-                               *body
-                             ]), 
-                     muIfelse(nextLabel(), muVar("b_<k>", all_uid, k),
-                                           [ muCon(666) ],
-                      					   [ muReturn1(muCon(false)) ])
-                   ];
+        	if(isEnumerator(exps[j])){
+        		body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), 
+        		 		 muWhile(nextLabel(), muNext1(localvars[j]), body)
+        		 	   ];
+        	} else {
+	        	k = size(localvars);
+	        	localvars += muVar("b_<k>", all_uid, k);		// true after at least one successful iteration through loop
+	            body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), 
+	                     muAssign("b_<k>", all_uid, k, muCon(false)),  
+	                     muWhile(nextLabel(), muNext1(localvars[j]), 
+	                             [ muAssign("b_<k>", all_uid, k, muCon(true)),  
+	                               *body
+	                             ]), 
+	                     muIfelse(nextLabel(), muVar("b_<k>", all_uid, k),
+	                                           [ muCon(666) ],
+	                      					   [ muReturn1(muCon(false)) ])
+	                   ];
+             }      
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muReturn1(muCon(true)) ];
+
     functions += muFunction(all_uid, "RASCAL_ALL", Symbol::func(\int(), []), fuid, 0, size(localvars), false, false, src, [], (), false, 0, 0, muBlock(body));
     return <muCall(muFun2(all_uid, fuid),[]),functions>;
 }

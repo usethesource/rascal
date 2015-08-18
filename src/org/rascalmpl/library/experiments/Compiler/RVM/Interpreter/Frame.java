@@ -183,7 +183,7 @@ public class Frame {
 		return newFrame;
 	}
 	
-	private int MAXLEN = 80;
+	private final int MAXLEN = 200;
 	public int hotEntryPoint;
 	public Frame nextFrame;
 	

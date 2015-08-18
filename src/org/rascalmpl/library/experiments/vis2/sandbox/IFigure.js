@@ -67,7 +67,14 @@ function askServer(path, parameters, callback) {
  rxL= function(rx, ry) {return rx * Math.sqrt(rx*rx+ry*ry)/ry;};
  ryL= function(rx, ry) {return ry * Math.sqrt(rx*rx+ry*ry)/rx;};
  
- 
+ function svgStyle(s, svg) {
+     switch (s) {
+          case "fillColor": return svg?"fill":"background";
+          case "lineColor": return svg?"stroke":"border-color";
+          case "lineWidth": return svg?"stroke-width":"border-width";
+          }
+     return s;
+     }
  
  function adjust0(id0, id1, lw, hpad, vpad) { 
     var d = d3.select("#"+id0);
