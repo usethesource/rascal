@@ -55,6 +55,11 @@ public Figure visParsetree(Tree t){
     case char(int c) : {
         return  box(text(escape(stringChar(c)), fontColor("blue")));
     }
+
+    case cycle(Symbol symbol, int cycleLength) : {
+         FProperty p = popup("Cycle-<cycleLength> of <symbol>");
+         return tree(ellipse(size(10), fillColor("yellow"), p), []);
+    }
   }
   throw "viewTree1: missing case for: <t>";
 }
