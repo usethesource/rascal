@@ -487,3 +487,7 @@ int simulate(CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2), int sp)	= sp + 1;
 int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
 int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
+
+int simulate(VISIT(bool direction, bool fixedpoint, 
+                   bool progress, bool rebuild),
+                   int sp)          					= sp - 8 + 1;

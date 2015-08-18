@@ -116,7 +116,7 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted4.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted5.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
@@ -275,20 +275,32 @@ void main(){
   run_benchmarks(10, toList(domain(jobs)));
 }
 
+void main_visit(){
+	run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"]);	
+}
+
+void main_fac(){
+	run_benchmarks(10, ["BFac"]);	
+}
+
+void main_money(){
+	run_benchmarks(10, ["BSendMoreMoney"]);	
+}
+
 void main_paper(){
   main_paper1();
   main_paper2();
 }
 
 void main_paper1(){
-   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
              		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
              	]);
 }
 
 void main_paper2(){
-   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
+   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
    						//"BRSFCalls",
    						"BSendMoreMoney",
    						"BSendMoreMoneyNotTyped",

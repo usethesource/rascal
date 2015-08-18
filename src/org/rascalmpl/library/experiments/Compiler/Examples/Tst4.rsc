@@ -1,10 +1,16 @@
+
 module experiments::Compiler::Examples::Tst4
 
-import lang::rascal::tests::types::StaticTestingUtils;
+data NODE1 = nd(NODE1 left, NODE1 right) | n(int x) | s(str y);
 
-import ParseTree;
+NODE1 N1 = nd(n(3), s("abc"));
 
-test bool PicoQuoted1() = 
-	checkOK("Program program := t1;",
-			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
-			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
+int cnt(NODE1 t) {
+	int C = 0;
+	top-down visit(t) {
+		case int N: C = C + 1;
+	}
+	return C;
+}
+
+value main(list[value] args) = cnt(N1);

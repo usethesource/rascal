@@ -32,6 +32,7 @@ private int nlabel = -1;
 private str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 private str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
+private str surroundingFunctionScope = "";		// scope name of surrounding function
 
 public void setFunctionScope(str scopeId){
 	functionScope = scopeId;
@@ -234,6 +235,7 @@ RVMProgram mu2rvm(muModule(str module_name,
  
   for(fun <- functions){
     functionScope = fun.qname;
+    surroundingFunctionScope = fun.scopeIn;
     localNames = ();
     exceptionTable = [];
     catchBlocks = [[]];
@@ -404,6 +406,7 @@ INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 // Variables and assignment
 
 INS tr(muVar(str id, str fuid, int pos)) {
+   
     if(fuid == functionScope){
        localNames[pos] = id;
        return [ LOADLOC(pos) ];
@@ -475,6 +478,20 @@ INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src))
 	= [ *tr(args),
 	    *tr(fun), 
 		OCALLDYN(types, size(args), src)];
+		
+// Visit
+INS tr(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd))
+	= [ *tr(phi),
+	    *tr(subject),
+	    *tr(refHasMatch),
+	    *tr(refBeenChanged),
+	    *tr(refLeaveVisit),
+	    *tr(refBegin),
+	    *tr(refEnd),
+	    *tr(descriptor),
+	    VISIT(direction, fixedpoint, progress, rebuild)
+	  ];
+
 
 // Calls to Rascal primitives
 

@@ -20,7 +20,7 @@ value main(list[value] args) {
 	calls = [];
 	patterns = [];
 	
-	for(int i <- [0..1]){
+	for(int i <- [0..20]){
 		declarations = [ d | /Declaration d := m];
 		functions = [f | /FunctionDeclaration f := m ];
 		statements = [ s | /Statement s := m ];

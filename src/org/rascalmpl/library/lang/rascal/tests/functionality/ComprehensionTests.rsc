@@ -138,19 +138,28 @@ test bool all16()  = !(all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y));
   		
 test bool all17()  = all(int i <- [0, 1] && [0, 1][i] == i);
   		
-		// The following were all asserTrue, how can this have worked?
-  		
-@ignore{Changed semantics}
-test bool all18()  = !(all(_ <- []));
-		@ignore{Changed semantics}
-test bool all19()  = !(all(_ <- {}));
-@ignore{Changed semantics}
-test bool all20()  = !(all(_ <- ()));
-  		
-test bool all21()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1)?true:false);
+@ignoreInterpreter{Changed semantics}
+test bool all18a()  = all(_ <- []) == true;
+@ignoreCompiler{Changed semantics}
+test bool all18b()  = all(_ <- []) == false;
 
-test bool all22()  = all(k <- [10,10,10], 10 := k);
-test bool all23()  = !all(k <- [10,20,30], 20 := k);
+@ignoreInterpreter{Changed semantics}
+test bool all19a()  = all(_ <- {}) == true;
+@ignoreCompiler{Changed semantics}
+test bool all19b()  = all(_ <- {}) == false;
+
+@ignoreInterpreter{Changed semantics}
+test bool all20a()  = all(_ <- ()) == true;
+@ignoreCompiler{Changed semantics}
+test bool all20b()  = all(_ <- ()) == false;
+
+@ignoreInterpreter{Gives wrong answer}
+test bool all21()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1));
+
+test bool all22()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1) ? true : false);
+
+test bool all23()  = all(k <- [10,10,10], 10 := k);
+test bool all24()  = !all(k <- [10,20,30], 20 := k);
   
 // setComprehension
   		

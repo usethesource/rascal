@@ -43,6 +43,12 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove impor
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
@@ -57,6 +63,8 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = false;
+	private final boolean profileRascalPrimtives = false;
+	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
 //	private boolean listing = false;
 	private boolean trackCalls = false;
@@ -377,7 +385,38 @@ public class RVM implements java.io.Serializable {
 		return narrow(o); 
 	}
 	
+	public Frame makeFrameForVisit(FunctionInstance func){
+		return new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+	}
+	
+	public IValue executeFunctionInVisit(Frame root){
+		Frame cf = root;
+		// Pass the subject argument
+		
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return (IValue)o;
+	}
+	
 	public IValue executeFunction(FunctionInstance func, IValue[] args){
+		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+		Frame cf = root;
+		
+		// Pass the program arguments to main
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		RascalPrimitive.restoreRVMAndContext(this, rex);
+		return narrow(o);
+	}
+	
+	public IValue executeFunction(FunctionInstance func, Object[] args){
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		Frame cf = root;
 		
@@ -497,7 +536,7 @@ public class RVM implements java.io.Serializable {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[varScope]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {					
 				stack[sp++] = fr.stack[pos];
 				return sp;
@@ -511,7 +550,7 @@ public class RVM implements java.io.Serializable {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[varScope]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {					
 				stack[sp++] = new Reference(fr.stack, pos);
 				return sp;
@@ -521,7 +560,7 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	int LOADVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
 				stack[sp++] = ref.stack[ref.pos];
@@ -537,7 +576,7 @@ public class RVM implements java.io.Serializable {
 			moduleVariables.put(mvar, (IValue)stack[sp -1]);
 			return sp;
 		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
 				fr.stack[pos] = stack[sp - 1];
@@ -564,7 +603,7 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	int STOREVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) { 
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) { 
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
 				ref.stack[ref.pos] = stack[sp - 1];
@@ -576,7 +615,7 @@ public class RVM implements java.io.Serializable {
 	
 	@SuppressWarnings("unchecked")
 	int LOADVARKWP(int varScope, String name, Frame cf, Object[] stack, int sp){
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {	
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
@@ -608,7 +647,7 @@ public class RVM implements java.io.Serializable {
 	@SuppressWarnings("unchecked")
 	int STOREVARKWP(int varScope, String name, Frame cf, Object[] stack, int sp){
 		IValue val = (IValue) stack[sp - 1];
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
@@ -715,12 +754,32 @@ public class RVM implements java.io.Serializable {
 		return sp;
 	}
 	
+	int VISIT(boolean direction,  boolean progress, boolean fixedpoint, boolean rebuild, Object[] stack, int sp){
+		FunctionInstance phi = (FunctionInstance)stack[sp - 8];
+		IValue subject = (IValue) stack[sp - 7];
+		Reference refMatched = (Reference) stack[sp - 6];
+		Reference refChanged = (Reference) stack[sp - 5];
+		Reference refLeaveVisit = (Reference) stack[sp - 4];
+		Reference refBegin = (Reference) stack[sp - 3];
+		Reference refEnd = (Reference) stack[sp - 2];
+		DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+		DIRECTION tr_direction = direction ? DIRECTION.BottomUp : DIRECTION.TopDown;
+		PROGRESS tr_progress = progress ? PROGRESS.Continuing : PROGRESS.Breaking;
+		FIXEDPOINT tr_fixedpoint = fixedpoint ? FIXEDPOINT.Yes : FIXEDPOINT.No;
+		REBUILD tr_rebuild = rebuild ? REBUILD.Yes :REBUILD.No;
+		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
+		stack[sp - 8] = res;
+		sp -= 7;
+		// Dirty trick: we return a negative sp to force a function return;
+		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
+	}
+	
 	private Object executeProgram(Frame root, Frame cf) {
-		return executeProgram(root, cf, /*cf.function.nlocals,*/ /*cf.function.codeblock.getInstructions(),*/ null);
+		return executeProgram(root, cf, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Object executeProgram(final Frame root, Frame cf, /*final int nlocals,*/ /*long[] instructions, */OverloadedFunctionInstanceCall c_ofun_call) {
+	private Object executeProgram(final Frame root, Frame cf, OverloadedFunctionInstanceCall c_ofun_call) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -853,6 +912,8 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
+
+					
 				case Opcode.OP_LOADBOOL:
 					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
@@ -870,7 +931,14 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM:	
-					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+					int n = CodeBlock.fetchArg1(instruction);
+//					if(profileMuPrimitives){
+//						long start = System.nanoTime();
+//						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+//						MuPrimitive.recordTime(n, System.nanoTime() - start);
+//					} else {
+						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+//					}
 					assert stack[sp - 1] != null: "MuPrimitive returns null";
 					continue NEXT_INSTRUCTION;
 				
@@ -904,8 +972,6 @@ public class RVM implements java.io.Serializable {
 					IList labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
 					continue NEXT_INSTRUCTION;
-					
-
 				
 				case Opcode.OP_SWITCH:
 					val = (IValue) stack[--sp];
@@ -940,13 +1006,6 @@ public class RVM implements java.io.Serializable {
 					stack[pos] = stack[sp - 1];
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_UNWRAPTHROWNLOC: {
-					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
-					stack[pos] = ((Thrown) stack[--sp]).value;
-					continue NEXT_INSTRUCTION;
-				}
-				
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
 					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
@@ -993,13 +1052,13 @@ public class RVM implements java.io.Serializable {
 					sp = STOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_UNWRAPTHROWNVAR:
-					sp = UNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
-					continue NEXT_INSTRUCTION;
+				
 									
 				case Opcode.OP_STOREVARDEREF:
 					sp = STOREVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
+					
+				
 									
 				case Opcode.OP_CALLCONSTR:
 					sp = CALLCONSTR(constructorStore.get(CodeBlock.fetchArg1(instruction)), CodeBlock.fetchArg2(instruction), stack, sp);
@@ -1187,6 +1246,19 @@ public class RVM implements java.io.Serializable {
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
 					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_VISIT:
+					boolean direction = ((IBool) cf.function.constantStore[CodeBlock.fetchArg1(instruction)]).getValue();
+					boolean progress = ((IBool) cf.function.constantStore[CodeBlock.fetchArg2(instruction)]).getValue();
+					boolean fixedpoint = ((IBool) cf.function.constantStore[(int)instructions[pc++]]).getValue();
+					boolean rebuild = ((IBool) cf.function.constantStore[(int)instructions[pc++]]).getValue();
+					sp = VISIT(direction, progress, fixedpoint, rebuild, stack, sp);
+					if(sp > 0){
+						continue NEXT_INSTRUCTION;
+					}
+					// Fall through to force a function return;
+					sp = -sp;
+					op = Opcode.OP_RETURN1;
 					
 				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
@@ -1445,7 +1517,14 @@ public class RVM implements java.io.Serializable {
 					locationCollector.registerLocation(cf.src);
 					try {
 						//sp1 = sp;
-						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
+						n = CodeBlock.fetchArg1(instruction);
+//						if(profileRascalPrimtives){
+//							long start = System.nanoTime();
+//							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
+//							RascalPrimitive.recordTime(n, System.nanoTime() - start);
+//						} else {
+							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
+//						}
 						//assert sp == sp1 - arity + 1;
 					} catch (Thrown exception) {
 						thrown = exception;
@@ -1455,6 +1534,17 @@ public class RVM implements java.io.Serializable {
 						break INSTRUCTION;
 					}
 					
+					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_UNWRAPTHROWNLOC: {
+					pos = CodeBlock.fetchArg1(instruction);
+					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
+					stack[pos] = ((Thrown) stack[--sp]).value;
+					continue NEXT_INSTRUCTION;
+				}
+				
+				case Opcode.OP_UNWRAPTHROWNVAR:
+					sp = UNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
 					
 				// Some specialized MuPrimitives
