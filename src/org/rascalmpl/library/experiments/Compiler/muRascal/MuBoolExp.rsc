@@ -213,7 +213,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("RASCAL_ALL", str fuid, lis
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muReturn1(muCon(true)) ];
-    iprintln(body);
+
     functions += muFunction(all_uid, "RASCAL_ALL", Symbol::func(\int(), []), fuid, 0, size(localvars), false, false, src, [], (), false, 0, 0, muBlock(body));
     return <muCall(muFun2(all_uid, fuid),[]),functions>;
 }

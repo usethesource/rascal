@@ -315,7 +315,12 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					]   );
 }
                     
-private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString(removeMargins("<constant>")));
+private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) {
+	//println("RascalExpression::translateStringLiteral constant = <constant>");
+	v = muCon(readTextValueString(removeMargins("<constant>")));
+	//println("RascalExpression::translateStringLiteral <s>, <v>");
+	return v;
+}	
 
 // --- translateExpInStringLiteral
 
@@ -334,7 +339,9 @@ private str removeMargins(str s) {
 	if(findFirst(s, "\n") < 0){
 		return s;
 	} else {
-		return visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
+		res = visit(s) { case /^[ \t]*\\?'/m => ""  /*case /^[ \t]+$/m => ""*/};
+		//println("RascalExpression::removeMargins: <s> =\> <res>");
+		return res;
 	}
 }
 
@@ -1353,7 +1360,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
                return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
-           throw "Ups, unexpected type of the call receiver expression!";
+           throw "Unexpected type <ftype> of call receiver expression";
        }
        
   //     println("e = <expression@\loc>");

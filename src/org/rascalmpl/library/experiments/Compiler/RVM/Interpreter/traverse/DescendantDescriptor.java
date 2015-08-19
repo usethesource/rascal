@@ -81,12 +81,12 @@ public class DescendantDescriptor {
 		return RascalPrimitive.Rascal_FALSE;
 	}
 	
-	public IBool shouldDescentInType(Type type) {
-		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
-		if (containsNodeOrValueType) {
-			return RascalPrimitive.Rascal_TRUE;
-		}
-		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
-	}
+//	public IBool shouldDescentInType(Type type) {
+//		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
+//		if (containsNodeOrValueType) {
+//			return RascalPrimitive.Rascal_TRUE;
+//		}
+//		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
+//	}
 	
 }
