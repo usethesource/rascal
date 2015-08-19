@@ -72,6 +72,8 @@ function askServer(path, parameters, callback) {
           case "fillColor": return svg?"fill":"background";
           case "lineColor": return svg?"stroke":"border-color";
           case "lineWidth": return svg?"stroke-width":"border-width";
+          case "fillOpacity": return svg?"fill-opacity":"opacity";
+          case "lineOpacity": return svg?"stroke-opacity":"opacity";
           }
      return s;
      }
