@@ -23,10 +23,17 @@ public abstract class BaseRascalREPL extends BaseREPL {
   private final static int CHAR_LIMIT = LINE_LIMIT * 20;
   protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
   private StringBuffer currentCommand;
+  private final StandardTextWriter prettyPrinter; 
   
   public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal)
       throws IOException {
     super(stdin, stdout, prettyPrompt, allowColors, terminal);
+    if (terminal.isAnsiSupported() && allowColors) {
+      prettyPrinter = new ReplTextWriter();
+    }
+    else {
+      prettyPrinter = new StandardTextWriter();
+    }
   }
 
   @Override
@@ -72,7 +79,6 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
   }
   
-  private final static StandardTextWriter prettyPrinter = new StandardTextWriter(true);
   private void printResult(IRascalResult result) throws IOException {
     if (result == null) {
       return;
