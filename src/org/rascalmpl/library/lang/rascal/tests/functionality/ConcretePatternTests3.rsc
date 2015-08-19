@@ -5,15 +5,15 @@ import ParseTree;
 import lang::rascal::\syntax::Rascal;
 import Set;
 
-rel[Sym, Name] extractPatternTree1(Tree concrete){  
+rel[Sym, Name] extractPatternTree1(Concrete concrete){  
   psList = {<sym, n> | /hole(\one(Sym sym, Name n)) := concrete };
   return psList;
 }
 
-test bool concrete1() = size(extractPatternTree1(T)) == 1;
-test bool concrete2() = extractPatternTree1(T) == ThePsList;
+test bool concrete1() =  Concrete CT := T ?  size(extractPatternTree1(CT)) == 1 : false;
+test bool concrete2() =  Concrete CT := T ? extractPatternTree1(CT) == ThePsList : false;
 
-rel[Sym, Name]  extractPatternTree2(Tree concrete){  
+rel[Sym, Name]  extractPatternTree2(Concrete concrete){  
   psList = {};
   visit(concrete){
     case hole(\one(Sym sym, Name n)):  psList += {<sym, n>};
@@ -21,8 +21,8 @@ rel[Sym, Name]  extractPatternTree2(Tree concrete){
   return psList;
 }
 
-test bool concrete3() = size(extractPatternTree2(T)) == 1;
-test bool concrete4() = extractPatternTree2(T) == ThePsList;
+test bool concrete3() = Concrete CT := T ? size(extractPatternTree2(CT)) == 1 : false;
+test bool concrete4() = Concrete CT := T ? extractPatternTree2(CT) == ThePsList : false;
 
 
 // Parse tree of (Concrete) `<A a>`

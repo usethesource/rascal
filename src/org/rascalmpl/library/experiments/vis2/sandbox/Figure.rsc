@@ -26,6 +26,8 @@ alias Rescale = tuple[tuple[num, num], tuple[num, num]];
 
 // Alignment for relative placement of figure in parent
 
+
+
 public alias Alignment = tuple[num hpos, num vpos];
 
 public Alignment topLeft      	= <0.0, 0.0>;
@@ -46,7 +48,9 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 data Event 
 	= on()
-	| on(str eventName, void(str, str) callback)
+	| on(str eventName, void(str, str, str) callbackS)
+	| on(str eventName, void(str, str, real) callbackR)
+	| on(str eventName, void(str, str, int) callbackI)
 	;
 		
 //alias Cursor[&T] = &T;
@@ -110,6 +114,35 @@ public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
 
+public data Attr (
+    int width = -1,
+    int height =  -1,
+    int r = -1,
+    num grow = 1.0,
+    num curN = 50.0,
+    str curS = "0"
+    ) = attr();
+    
+public data Style (	
+    bool svg = false,
+    int width = -1,
+    int height = -1,	
+    int lineWidth = -1,			
+    str lineColor = "", 
+    str fillColor= "", 
+    num fillOpacity = -1.0, 
+    num lineOpacity= -1.0   
+    ) = style();
+    
+    
+public data Text (		
+    str text = ""  
+    ) = text();
+    
+public alias Prop =
+    tuple[Attr attr, Style style,  Text text];
+    
+    
 public data Figure(
         // Naming
         str id = "",
@@ -203,7 +236,7 @@ public data Figure(
    			Figure midMarker=emptyFigure(), 
    			Figure endMarker=emptyFigure())
    
-   | image(loc url=|home:///|)
+   | image(str src="")
 
 // Figure composers
                    
@@ -230,7 +263,7 @@ public data Figure(
    | buttonInput(str trueText = "", str falseText = "")
    | button(str txt)
    | checkboxInput()
-   | choiceInput(list[str] choices = [])
+   | choiceInput(list[str] choices = ["0"], str checked = choices[0])
    | colorInput()
    
    // date
@@ -243,7 +276,7 @@ public data Figure(
    // url
    
    | numInput()
-   | rangeInput(int low=0, int high=100, int step=1)
+   | rangeInput(num low=0, num high=100, num step=1, num val = 50)
    | strInput()
    
 // Visibility control elements
@@ -549,4 +582,162 @@ public Figure overlayBox(int width, int height, list[Figure] figs) {
       list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
       return overlay(figs = b);
       }
+      
+public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
+      ,str lineColor = "", int lineWidth = -1, str fillColor = ""
+      , int width = -1, int height = -1
+      , bool fillEvenOdd = true
+      ) {
+      Vertices v = [move(head(xy)[0], head(xy)[1])]
+                  +[line(d[0], d[1])|d<-tail(xy)];
+      return shape(v, scaleX = x, scaleY = y, shapeCurved = shapeCurved,
+      lineColor = lineColor, lineWidth = lineWidth, fillColor = fillColor,
+      width = width, height = height, fillEvenOdd = fillEvenOdd);
+      }
+      
+
+public list[str] colors = 
+["aliceblue",
+            "antiquewhite",
+            "aqua",
+            "aquamarine",
+            "azure",
+            "beige",
+            "bisque",
+            "black",
+            "blanchedalmond",
+            "blue",
+            "blueviolet",
+            "brown",
+            "burlywood",
+            "cadetblue",
+            "chartreuse",
+            "chocolate",
+            "coral",
+            "cornflowerblue",
+            "cornsilk",
+            "crimson",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgoldenrod",
+            "darkgray",
+            "darkgreen",
+            "darkkhaki",
+            "darkmagenta",
+            "darkolivegreen",
+            "darkorange",
+            "darkorchid",
+            "darkred",
+            "darksalmon",
+            "darkseagreen",
+            "darkslateblue",
+            "darkslategray",
+            "darkturquoise",
+            "darkviolet",
+            "deeppink",
+            "deepskyblue",
+            "dimgray",
+            "dodgerblue",
+            "firebrick",
+            "floralwhite",
+            "forestgreen",
+            "fuchsia",
+            "gainsboro",
+            "ghostwhite",
+            "gold",
+            "goldenrod",
+            "gray",
+            "green",
+            "greenyellow",
+            "honeydew",
+            "hotpink",
+            "indianred",
+            "indigo",
+            "ivory",
+            "khaki",
+            "lavender",
+            "lavenderblush",
+            "lawngreen",
+            "lemonchiffon",
+            "lightblue",
+            "lightcoral",
+            "lightcyan",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightgreen",
+            "lightpink",
+            "lightsalmon",
+            "lightseagreen",
+            "lightskyblue",
+            "lightslategray",
+            "lightsteelblue",
+            "lightyellow",
+            "lime",
+            "limegreen",
+            "linen",
+            "magenta",
+            "maroon",
+            "mediumaquamarine",
+            "mediumblue",
+            "mediumorchid",
+            "mediumpurple",
+            "mediumseagreen",
+            "mediumslateblue",
+            "mediumspringgreen",
+            "mediumturquoise",
+            "mediumvioletred",
+            "midnightblue",
+            "mintcream",
+            "mistyrose",
+            "moccasin",
+            "navajowhite",
+            "navy",
+            "oldlace",
+            "olive",
+            "olivedrab",
+            "orange",
+            "orangered",
+            "orchid",
+            "palegoldenrod",
+            "palegreen",
+            "paleturquoise",
+            "palevioletred",
+            "papayawhip",
+            "peachpuff",
+            "peru",
+            "pink",
+            "plum",
+            "powderblue",
+            "purple",
+            "rebeccapurple",
+            "red",
+            "rosybrown",
+            "royalblue",
+            "saddlebrown",
+            "salmon",
+            "sandybrown",
+            "seagreen",
+            "seashell",
+            "sienna",
+            "silver",
+            "skyblue",
+            "slateblue",
+            "slategray",
+            "snow",
+            "springgreen",
+            "steelblue",
+            "tan",
+            "teal",
+            "thistle",
+            "tomato",
+            "turquoise",
+            "violet",
+            "wheat",
+            "white",
+            "whitesmoke",
+            "yellow",
+            "yellowgreen"
+        ];
+        
    

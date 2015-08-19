@@ -179,7 +179,7 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
        } else if(elm[0] == "\\"){
          fragment += elm[0..];
        } else if((NamedRegExp) `\<<Name name2>\>` := nr){
-         println("Name case: <name2>");
+         //println("Name case: <name2>");
          if(fragment != ""){
             exps += muCon(fragment);
             fragment = "";
@@ -891,10 +891,12 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 Symbol stripStart(\start(Symbol s)) = s;
 default Symbol stripStart(Symbol s) = s;
 
-// is  a pattern a concretePattern?
+// Is  a pattern a concretePattern?
+// Note that a callOrTree pattern always requires a visit of the production to inspect labeled fields and is etherefore
+// NOT a concrete pattern
 
 bool isConcretePattern(Pattern p) = 
-	isNonTerminalType(getType(p@\loc));
+	isNonTerminalType(getType(p@\loc)) && !(p is callOrTree);
 	
 bool isConcreteType(Symbol subjectType) =
 	(  isNonTerminalType(subjectType)
