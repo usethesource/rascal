@@ -21,6 +21,11 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/caffeine-1.2.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jline-2.13.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/jline-2.13-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
