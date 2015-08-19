@@ -23,16 +23,19 @@ public abstract class BaseRascalREPL extends BaseREPL {
   private final static int CHAR_LIMIT = LINE_LIMIT * 20;
   protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
   private StringBuffer currentCommand;
-  private final StandardTextWriter prettyPrinter; 
+  private final StandardTextWriter prettyPrinter;
+  private final StandardTextWriter linePrettyPrinter;
   
   public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal)
       throws IOException {
     super(stdin, stdout, prettyPrompt, allowColors, terminal);
     if (terminal.isAnsiSupported() && allowColors) {
       prettyPrinter = new ReplTextWriter();
+      linePrettyPrinter = new ReplTextWriter(false);
     }
     else {
       prettyPrinter = new StandardTextWriter();
+      linePrettyPrinter = new StandardTextWriter(false);
     }
   }
 
@@ -92,17 +95,25 @@ public abstract class BaseRascalREPL extends BaseREPL {
     Type type = result.getType();
 
     if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
+    	out.print(type.toString());
+        out.print(": ");
       // we first unparse the tree
       out.print("`");
-      TreeAdapter.yield((IConstructor)result, out);
+      TreeAdapter.yield((IConstructor)result.getValue(), true, out);
       out.print("`\n");
+      // write parse tree out one a single line for reference
+      out.print("Tree: ");
+      try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
+    	  linePrettyPrinter.write(value, wrt);
+      }
     }
-
-    out.print(type.toString());
-    out.print(": ");
-    // limit both the lines and the characters
-    try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-      prettyPrinter.write(value, wrt);
+    else {
+    	out.print(type.toString());
+    	out.print(": ");
+    	// limit both the lines and the characters
+    	try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+    		prettyPrinter.write(value, wrt);
+    	}
     }
     out.println();
   }

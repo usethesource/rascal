@@ -17,6 +17,11 @@ public class ReplTextWriter extends StandardTextWriter {
   public ReplTextWriter() {
     super(true);
   }
+  
+  public ReplTextWriter(boolean indent) {
+	  super(indent);
+  }
+  
   public void write(IValue value, final java.io.Writer stream) throws IOException {
     value.accept(new VisitorAdapter<IValue, IOException>(new Writer(stream, this.indent, this.tabSize)) {
       @Override
