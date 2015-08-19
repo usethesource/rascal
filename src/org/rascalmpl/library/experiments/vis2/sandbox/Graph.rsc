@@ -5,15 +5,15 @@ import Prelude;
 
 public Figure fsm(){
     // Figure b(str label) = emptyFigure();
-	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>, padding=<0,6, 0, 6>);
+	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>, padding=<0,6, 0, 6>, tooltip = label);
     states = [ 	
-                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<0, 5,0, 5>)>, 
+                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSED")>, 
     			<"LISTEN", 		b("LISTEN")>,
     			<"SYN RCVD", 	b("SYN RCVD")>,
 				<"SYN SENT", 	b("SYN SENT")>,
-                <"ESTAB",	 	box(size=<100, 30>, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<0, 5,0, 5>)>,
+                <"ESTAB",	 	box(size=<100, 30>, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "ESTAB")>,
                 <"FINWAIT-1", 	b("FINWAIT-1")>,
-                <"CLOSE WAIT", 	box(size=<120, 30>, fig=text("CLOSE WAIT",fontWeight="bold"), fillColor="antiquewhite", lineDashing=[1,1,1,1],  rounded=<5,5>, padding=<0, 5,0, 5>)>,
+                <"CLOSE WAIT", 	box(size=<120, 30>, fig=text("CLOSE WAIT",fontWeight="bold"), fillColor="antiquewhite", lineDashing=[1,1,1,1],  rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSE_WAIT")>,
                 <"FINWAIT-2", 	b("FINWAIT-2")>,    
                 <"CLOSING", b("CLOSING")>,
                 <"LAST-ACK", b("LAST-ACK")>,
@@ -59,7 +59,7 @@ Figure gbox1()= box(lineWidth = 1, size=<60, 60>,
 Figure grap() = graph([
 <"a", gbox1()>
 , <"b", box(fig=text("noot"), rounded=<15, 15>, fillColor = "antiquewhite")>
-, <"c", ellipse(padding=<0, 15, 0, 15>, fig = text("HALLO"), fillColor = "pink")>
+, <"c", ellipse(padding=<0, 15, 0, 15>, grow=1.0, id=  "aap", fig = text("HALLO"), fillColor = "pink")>
 // , <"d", ngon(n=3, r= 30, size=<50, 50>, fillColor = "lightgreen")>
 ]
 , [edge("a", "b", lineInterpolate="basis"), edge("b","c", lineInterpolate="basis"), edge("c", "a", lineInterpolate="basis")
@@ -67,12 +67,18 @@ Figure grap() = graph([
 // , edge("d", "a")
 ], width = 150, height = 300);
 
-void tgraph()= render(hcat(hgap=5, figs = [gbox1(), grap()], align = centerMid), align = centerMid);
+void tgraph()= render(hcat(hgap=5, figs = [gbox1(), box(grow=1.0,  fig=grap())
+   , rangeInput(low = 0.0, val = 1.0, high = 2.0, step=0.1, event=on("change", void(str e, str n, real v)
+            {
+               println(v);
+                attr("aap", grow = v);
+            }))
+   ], align = centerMid), align = centerMid);
 // render(overlay(figs=[grap(), box(size=<40, 40>)]));
 
 void fgraph(loc l) = writeFile(l, toHtmlString(hcat(hgap=5, figs = [gbox1(), grap()])));
 
-Figure mbox(str txt) = box(lineWidth = 1, rounded=<5, 5>,size=<100, 50>, fig=text(txt));
+Figure mbox(str txt) = box(lineWidth = 1, rounded=<5, 5>,size=<100, 50>, fig=text(txt), tooltip = txt);
 
 Figure model() = graph([<"a", mbox("Figure")>
                        , <"b", box(lineWidth = 0, rounded=<15, 15>,size=<100, 60>, fig=
