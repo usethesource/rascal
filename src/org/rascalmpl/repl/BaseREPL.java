@@ -46,17 +46,8 @@ public abstract class BaseREPL {
           CompletionResult res = completeFragment(buffer, cursor);
           candidates.clear();
           if (res != null && res.getOffset() > -1 && !res.getSuggestions().isEmpty()) {
-            String fragment = buffer.substring(res.getOffset(), res.getOffset() + res.getLength());
-            boolean removePrefix = res.getSuggestions().stream().findAny().orElse("").startsWith(fragment);
-            if (removePrefix) {
-              res.getSuggestions().stream()
-                .map(s -> s.substring(res.getLength()))
-                .forEachOrdered(s -> candidates.add(s));
-            }
-            else {
-              candidates.addAll(res.getSuggestions());
-            }
-            return res.getOffset() + res.getLength();
+            candidates.addAll(res.getSuggestions());
+            return res.getOffset();
           }
           return -1;
         }
