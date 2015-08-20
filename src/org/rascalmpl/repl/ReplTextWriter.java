@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.visitors.VisitorAdapter;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
@@ -23,7 +22,7 @@ public class ReplTextWriter extends StandardTextWriter {
   }
   
   public void write(IValue value, final java.io.Writer stream) throws IOException {
-    value.accept(new VisitorAdapter<IValue, IOException>(new Writer(stream, this.indent, this.tabSize)) {
+    value.accept(new Writer(stream, this.indent, this.tabSize) {
       @Override
       public IValue visitSourceLocation(ISourceLocation o) throws IOException {
         stream.write(SOURCE_LOCATION_PREFIX);
