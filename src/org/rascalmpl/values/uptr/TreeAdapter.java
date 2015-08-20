@@ -321,11 +321,11 @@ public class TreeAdapter {
 			
 			ansi.put(NORMAL, Ansi.ansi().reset());
 			ansi.put(NONTERMINAL_LABEL, Ansi.ansi().a(Attribute.ITALIC).fg(Color.CYAN));
-			ansi.put(META_KEYWORD, Ansi.ansi().a(Attribute.INTENSITY_BOLD).fgBright(Color.BLUE));
+			ansi.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
 			ansi.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
 			ansi.put(META_AMBIGUITY,  Ansi.ansi().a(Attribute.INTENSITY_BOLD).fgBright(Color.RED));
 			ansi.put(META_SKIPPED,  Ansi.ansi().bgBright(Color.RED));
-			ansi.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
+			ansi.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
 		}
 		
 		/**
