@@ -45,7 +45,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   }
 
   @Override
-  protected void handleInput(String line) {
+  protected void handleInput(String line) throws InterruptedException {
     assert line != null;
 
     try {
@@ -122,6 +122,6 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected abstract PrintWriter getOutputWriter();
 
   protected abstract boolean isStatementComplete(String command);
-  protected abstract IRascalResult evalStatement(String statement, String lastLine);
+  protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 
 }
