@@ -44,7 +44,7 @@ public class Inferences {
 			ITuple t = (ITuple) v;
 			INumber exp = (INumber) t.get(0);
 			INumber obs = (INumber) t.get(1);
-			expected[i] = (long) exp.toReal().doubleValue();
+			expected[i] = (long) exp.toReal(values.getPrecision()).doubleValue();
 			observed[i] = obs.toInteger().longValue();
 			
 			if(expected[i] < 0 || observed[i] < 0) throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Chi test requires positive values");
@@ -58,7 +58,7 @@ public class Inferences {
 	
 		for(int i = 0; i < n; i++){
 			INumber d = (INumber) dataValues.get(i);
-			data[i] = d.toReal().doubleValue();
+			data[i] = d.toReal(values.getPrecision()).doubleValue();
 		}
 		
 		return data;
@@ -111,7 +111,7 @@ public class Inferences {
 		double s1[] = makeT(sample1);
 		double s2[] = makeT(sample2);
 		try {
-			return values.bool(new TTestImpl().tTest(s1, s2, alpha.toReal().doubleValue()));
+			return values.bool(new TTestImpl().tTest(s1, s2, alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
 		} catch (MathException e) {
@@ -122,7 +122,7 @@ public class Inferences {
 	public IValue tTest(INumber mu, IList sample, INumber alpha){
 		double s[] = makeT(sample);
 		try {
-			return values.bool(new TTestImpl().tTest( mu.toReal().doubleValue(), s, alpha.toReal().doubleValue()));
+			return values.bool(new TTestImpl().tTest( mu.toReal(values.getPrecision()).doubleValue(), s, alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(sample, null, null, e.getMessage());
 		} catch (MathException e) {
@@ -142,7 +142,7 @@ public class Inferences {
 		double xvalues[] = new double[dataValues.length()];
 		for(int i = 0; i < dataValues.length(); i++){
 			ITuple T = (ITuple) dataValues.get(i);
-			xvalues[i] = ((INumber) T.get(0)).toReal().doubleValue();
+			xvalues[i] = ((INumber) T.get(0)).toReal(values.getPrecision()).doubleValue();
 		}
 		
 		// Create a natural ranking: largest first.
@@ -155,7 +155,7 @@ public class Inferences {
 		
 		for(int i = 0; i < dataValues.length(); i++){
 			ITuple T = (ITuple) dataValues.get(i);
-			double Y = ((INumber) T.get(1)).toReal().doubleValue();
+			double Y = ((INumber) T.get(1)).toReal(values.getPrecision()).doubleValue();
 			if(Y < 0)
 				throw RuntimeExceptionFactory.illegalArgument(T, null, null, "Frequency should be positive");
 			
@@ -176,7 +176,7 @@ public class Inferences {
 			int m = cat.length();
 			double[] dat = new double[m];
 			for(int j = 0; j < m; j++){
-				dat[i] = ((INumber) cat.get(j)).toReal().doubleValue();
+				dat[i] = ((INumber) cat.get(j)).toReal(values.getPrecision()).doubleValue();
 			}
 			res.add(dat);
 		}
@@ -205,7 +205,7 @@ public class Inferences {
 	
 	public IValue anovaTest(IList categoryData, INumber alpha){
 		try {
-			return values.bool(new OneWayAnovaImpl().anovaTest(makeAnova(categoryData), alpha.toReal().doubleValue()));
+			return values.bool(new OneWayAnovaImpl().anovaTest(makeAnova(categoryData), alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
 		} catch (MathException e) {

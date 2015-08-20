@@ -43,8 +43,8 @@ public class Correlations {
 			ITuple t = (ITuple) v;
 			INumber x = (INumber) t.get(0);
 			INumber y = (INumber) t.get(1);
-			xvalues[i] = xyvalues[i][0] = x.toReal().doubleValue();
-			yvalues[i] = xyvalues[i][0] = y.toReal().doubleValue();
+			xvalues[i] = xyvalues[i][0] = x.toReal(values.getPrecision()).doubleValue();
+			yvalues[i] = xyvalues[i][0] = y.toReal(values.getPrecision()).doubleValue();
 			i++;
 		}
 	}

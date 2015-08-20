@@ -113,10 +113,10 @@ public class LinearProgramming {
 
 	// begin handwritten code
 
-	private static double[] convertRealList(IList l) {
+	private double[] convertRealList(IList l) {
 		double[] elems = new double[l.length()];
 		for (int i = 0; i < l.length(); i++) {
-			elems[i] = ((INumber) l.get(i)).toReal().doubleValue();
+			elems[i] = ((INumber) l.get(i)).toReal(values.getPrecision()).doubleValue();
 		}
 		return elems;
 	}
@@ -130,7 +130,7 @@ public class LinearProgramming {
 		return writer.done();
 	}
 
-	private static LinearObjectiveFunction 
+	private LinearObjectiveFunction 
 		convertLinObjFun(IConstructor c) {
 		double[] coefficients =  convertRealList(LLObjectiveFun_llObjFun_coefficients(c));
 		double constant =  LLObjectiveFun_llObjFun_const(c);
@@ -147,7 +147,7 @@ public class LinearProgramming {
 		}
 	}
 
-	private static LinearConstraint convertConstraint(IConstructor c) {
+	private LinearConstraint convertConstraint(IConstructor c) {
 		double[] coeffients = convertRealList(LLConstraint_llConstraint_coefficients(c));
 		double constant = LLConstraint_llConstraint_const(c);
 		Relationship r = convertConstraintType(LLConstraint_llConstraint_ctype(c));
