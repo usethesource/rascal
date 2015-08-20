@@ -63,7 +63,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected IRascalResult evalStatement(String statement, String lastLine) {
+  protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
     try {
       Timing tm = new Timing();
       tm.start();
@@ -88,8 +88,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
     catch (QuitException q) {
       eval.getStdErr().println("Quiting REPL");
-      signalStop();
-      return null;
+      throw new InterruptedException();
     }
     catch (Throwable e) {
       eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));

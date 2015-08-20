@@ -12,20 +12,20 @@ import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 
+import org.apache.commons.compress.utils.Charsets;
 import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
   protected final ConsoleReader reader;
-  private final InputStream originalStdIn;
+  private final OutputStream originalStdOut;
   protected final boolean prettyPrompt;
   protected final boolean allowColors;
   protected final Writer stdErr;
   protected volatile boolean keepRunning = true;
-  protected volatile boolean stopped = false;
 
   public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal) throws IOException {
-    this.originalStdIn = stdin;
-    this.reader = new ConsoleReader(stdin, stdout, terminal);
+    this.originalStdOut = stdout;
+    this.reader = new ConsoleReader(stdin, stdout);//, terminal);
     prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
     this.allowColors = allowColors;
@@ -59,7 +59,7 @@ public abstract class BaseREPL {
 
   protected abstract void initialize(Writer stdout, Writer stderr);
   protected abstract String getPrompt();
-  protected abstract void handleInput(String line);
+  protected abstract void handleInput(String line) throws InterruptedException;
   protected abstract boolean supportsCompletion();
   protected abstract CompletionResult completeFragment(String line, int cursor);
   
@@ -80,7 +80,6 @@ public abstract class BaseREPL {
     }
   }
   
-  private Thread runningThread = null;
   /**
    * This will run the console in the current thread, and will block until it is either:
    * <ul>
@@ -91,7 +90,6 @@ public abstract class BaseREPL {
    */
   public void run() throws IOException {
     try {
-      runningThread = Thread.currentThread();
       while(keepRunning) {
         updatePrompt();
         String line = reader.readLine();
@@ -113,45 +111,21 @@ public abstract class BaseREPL {
       }
       throw e;
     }
+    catch (InterruptedException e) {
+      // we are closing down, so do nothing, the finally clause will take care of it
+    }
     finally {
-      stopped = true;
+      reader.getOutput().flush();
+      originalStdOut.flush();
       reader.shutdown();
-    }
-  }
-  
-  /**
-   * Stop the REPL, normally it will block until the REPL is stopped, except:
-   * <ul>
-   *  <li> stop is called from the same thread as run is on (e.g. run is higher up the stack somewhere)
-   *  <li> run was never called
-   * </ul>
-   */
-  public void stop() {
-    keepRunning = false;
-    try {
-      originalStdIn.close();
-      if (runningThread != null && runningThread != Thread.currentThread()) {
-        while (!stopped) Thread.yield();
-      }
-    }
-    catch (IOException e) {
     }
   }
   
   /**
    * stop the REPL without waiting for it to stop
    */
-  public void signalStop() {
+  public void stop() {
     keepRunning = false;
-    try {
-      originalStdIn.close();
-    }
-    catch (IOException e) {
-    }
+    reader.shutdown();
   }
-  
-  public boolean isStopped() {
-    return stopped;
-  }
-
 }
