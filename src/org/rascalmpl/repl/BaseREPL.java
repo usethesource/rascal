@@ -1,5 +1,6 @@
 package org.rascalmpl.repl;
 
+import java.io.File;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,9 @@ import java.util.List;
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
+import jline.console.history.FileHistory;
+import jline.internal.ShutdownHooks;
+import jline.internal.ShutdownHooks.Task;
 
 import org.fusesource.jansi.Ansi;
 
@@ -21,10 +25,24 @@ public abstract class BaseREPL {
   protected final boolean allowColors;
   protected final Writer stdErr;
   protected volatile boolean keepRunning = true;
+  private volatile Task historyFlusher = null;
+  private volatile FileHistory history = null;
 
-  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal) throws IOException {
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException {
     this.originalStdOut = stdout;
-    this.reader = new ConsoleReader(stdin, stdout, terminal);
+    reader = new ConsoleReader(stdin, stdout, terminal);
+    if (persistentHistory != null) {
+      history = new FileHistory(persistentHistory);
+      reader.setHistory(history);
+      historyFlusher = new Task() {
+        @Override
+        public void run() throws Exception {
+          history.flush();
+        }
+      };
+      ShutdownHooks.add(historyFlusher);
+    }
+
     prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
     this.allowColors = allowColors;
@@ -146,6 +164,10 @@ public abstract class BaseREPL {
     finally {
       reader.getOutput().flush();
       originalStdOut.flush();
+      if (historyFlusher != null) {
+        ShutdownHooks.remove(historyFlusher);
+        history.flush();
+      }
       reader.shutdown();
     }
   }
