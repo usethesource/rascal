@@ -42,6 +42,7 @@ public abstract class BaseREPL {
       };
       ShutdownHooks.add(historyFlusher);
     }
+    reader.setExpandEvents(false);
 
     prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
