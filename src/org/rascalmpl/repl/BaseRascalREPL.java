@@ -1,5 +1,6 @@
 package org.rascalmpl.repl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,9 +27,9 @@ public abstract class BaseRascalREPL extends BaseREPL {
   private final StandardTextWriter indentedPrettyPrinter;
   private final StandardTextWriter singleLinePrettyPrinter;
   
-  public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal)
+  public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory,Terminal terminal)
       throws IOException {
-    super(stdin, stdout, prettyPrompt, allowColors, terminal);
+    super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
     if (terminal.isAnsiSupported() && allowColors) {
       indentedPrettyPrinter = new ReplTextWriter();
       singleLinePrettyPrinter = new ReplTextWriter(false);
