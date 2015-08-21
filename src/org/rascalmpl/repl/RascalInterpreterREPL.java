@@ -70,7 +70,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
       Result<IValue> value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
       long duration = tm.duration();
       if (measureCommandTime) {
-        eval.getStdErr().println("Time: " + duration + "ms");
+        eval.getStdErr().println("\nTime: " + duration + "ms");
       }
       return value;
     }

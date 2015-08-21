@@ -12,7 +12,6 @@ import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 
-import org.apache.commons.compress.utils.Charsets;
 import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
@@ -57,10 +56,38 @@ public abstract class BaseREPL {
   }
 
 
+  /**
+   * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
+   * @param stdout the output stream to write normal output to.
+   * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
+   */
   protected abstract void initialize(Writer stdout, Writer stderr);
+
+  /**
+   * Will be called everytime a new prompt is printed.
+   * @return The string representing the prompt.
+   */
   protected abstract String getPrompt();
+
+  /**
+   * After a newline is pressed, the current line is handed to this method.
+   * @param line the current line entered.
+   * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+   */
   protected abstract void handleInput(String line) throws InterruptedException;
+  
+  /**
+   * Test if completion of statement in the current line is supported
+   * @return true if the completeFragment method can provide completions
+   */
   protected abstract boolean supportsCompletion();
+  
+  /**
+   * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.
+   * @param line The current line.
+   * @param cursor The cursor offset in the line.
+   * @return suggestions for the line.
+   */
   protected abstract CompletionResult completeFragment(String line, int cursor);
   
   private String previousPrompt = "";
@@ -83,8 +110,8 @@ public abstract class BaseREPL {
   /**
    * This will run the console in the current thread, and will block until it is either:
    * <ul>
-   *  <li> stopped using .stop() (from another thread!)
-   *  <li> handleInput throws an exception.
+   *  <li> handleInput throws an InteruptedException.
+   *  <li> input reaches the end of the stream
    *  <li> either the input or output stream throws an IOException 
    * </ul>
    */
@@ -108,6 +135,8 @@ public abstract class BaseREPL {
         else {
           e.printStackTrace();
         }
+        err.flush();
+        stdErr.flush();
       }
       throw e;
     }
