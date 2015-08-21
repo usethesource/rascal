@@ -7,7 +7,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
@@ -27,6 +30,7 @@ public abstract class BaseREPL {
   protected volatile boolean keepRunning = true;
   private volatile Task historyFlusher = null;
   private volatile FileHistory history = null;
+  private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
   public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException {
     this.originalStdOut = stdout;
@@ -126,6 +130,10 @@ public abstract class BaseREPL {
     }
   }
   
+  public void queueCommand(String command) {
+    commandQueue.addAll(Arrays.asList(command.split("[\\n\\r]")));
+  }
+  
   /**
    * This will run the console in the current thread, and will block until it is either:
    * <ul>
@@ -138,11 +146,26 @@ public abstract class BaseREPL {
     try {
       while(keepRunning) {
         updatePrompt();
-        String line = reader.readLine();
+        String line = reader.readLine(reader.getPrompt(), null, null);
         if (line == null) { // EOF
           break;
         }
         handleInput(line);
+
+        boolean handledQueue = false;
+        String queuedCommand;
+        while ((queuedCommand = commandQueue.poll()) != null) {
+          handledQueue = true;
+          reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
+          reader.println();
+          reader.getHistory().add(queuedCommand);
+          handleInput(queuedCommand);
+        }
+        if (handledQueue) {
+          String oldPrompt = reader.getPrompt();
+          reader.resetPromptLine("", "", 0);
+          reader.setPrompt(oldPrompt);
+        }
       }
     }
     catch (IOException e) {
