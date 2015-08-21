@@ -130,6 +130,9 @@ public abstract class BaseREPL {
     }
   }
   
+  /**
+   * Queue a command (separated by newlines) to be "entered"
+   */
   public void queueCommand(String command) {
     commandQueue.addAll(Arrays.asList(command.split("[\\n\\r]")));
   }
@@ -144,14 +147,8 @@ public abstract class BaseREPL {
    */
   public void run() throws IOException {
     try {
+      updatePrompt();
       while(keepRunning) {
-        updatePrompt();
-        String line = reader.readLine(reader.getPrompt(), null, null);
-        if (line == null) { // EOF
-          break;
-        }
-        handleInput(line);
-
         boolean handledQueue = false;
         String queuedCommand;
         while ((queuedCommand = commandQueue.poll()) != null) {
@@ -166,6 +163,14 @@ public abstract class BaseREPL {
           reader.resetPromptLine("", "", 0);
           reader.setPrompt(oldPrompt);
         }
+
+        updatePrompt();
+        String line = reader.readLine(reader.getPrompt(), null, null);
+        if (line == null) { // EOF
+          break;
+        }
+        handleInput(line);
+
       }
     }
     catch (IOException e) {
