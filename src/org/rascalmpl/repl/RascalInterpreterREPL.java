@@ -1,5 +1,11 @@
 package org.rascalmpl.repl;
 
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,19 +28,14 @@ import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
-
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
   protected Evaluator eval;
   private boolean measureCommandTime;
   
-  public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal)
+  public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
       throws IOException {
-    super(stdin, stdout, prettyPrompt, allowColors, terminal);
+    super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
   }
 
   public void setMeasureCommandTime(boolean measureCommandTime) {
@@ -70,7 +71,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
       Result<IValue> value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
       long duration = tm.duration();
       if (measureCommandTime) {
-        eval.getStdErr().println("Time: " + duration + "ms");
+        eval.getStdErr().println("\nTime: " + duration + "ms");
       }
       return value;
     }
