@@ -171,5 +171,7 @@ public data Instruction =
 		// Visit
 		| VISIT(bool direction, bool fixedpoint, 
 		        bool progress, bool rebuild)		// Visit expression
+		        
+		| CHECKMEMO()								// Check args of memo function
 ;
 	

@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -75,6 +76,7 @@ public class Function implements Serializable {
 	
 	// transient fields 
 	transient static IValueFactory vf;
+	transient SoftReference<MemoizationCache> memoization;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
