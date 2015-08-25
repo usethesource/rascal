@@ -21,13 +21,13 @@ import Set;
 
 alias ImportGraph = Graph[RName];
 
-public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}) {
 	// Set up the imports for the "top" module
 	mname = convertName(m.header.name);
 	minfoMap = ( mname : getImports(m) );
 	
 	// Add in any defaults that are not currently present
-	for (<mn,ie> <- extraImports) {
+	for (<mn,ie> <- defaultImports, mn != mname, prettyPrintName(mn) notin minfoMap[mname].extendedModules, prettyPrintName(mn) notin minfoMap[mname].importedModules) {
 		if (ie) {
 			minfoMap[mname].extendedModules = minfoMap[mname].extendedModules + prettyPrintName(mn);
 		} else {
@@ -46,6 +46,13 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 			pt = getModuleParseTree(prettyPrintName(wlName));
 			if (Module mImp := pt.top) {
 				minfoMap[wlName] = getImports(mImp);
+				for (<mn,ie> <- defaultImports, mn != wlName, prettyPrintName(mn) notin minfoMap[wlName].extendedModules, prettyPrintName(mn) notin minfoMap[wlName].importedModules) {
+					if (ie) {
+						minfoMap[wlName].extendedModules = minfoMap[wlName].extendedModules + prettyPrintName(mn);
+					} else {
+						minfoMap[wlName].importedModules = minfoMap[wlName].importedModules + prettyPrintName(mn);		
+					}
+				}
 			} else {
 				throw "Unexpected parse, pt is not a module";
 			}
