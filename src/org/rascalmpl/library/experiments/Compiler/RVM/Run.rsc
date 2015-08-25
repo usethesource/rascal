@@ -24,7 +24,8 @@ public java tuple[value,int] executeProgram(loc executable,
 										    bool profile,
 										    bool trackCalls,
 										    bool coverage,
-										    bool useJVM);	
+										    bool useJVM,
+										    bool serialize);	
 										    
 										    
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Execute}
