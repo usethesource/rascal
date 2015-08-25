@@ -7139,30 +7139,65 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
 }
 
-@doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
-	moduleName = getHeaderName(header);
-	importList = getHeaderImports(header);
-	set[RName] notImported = { };
-	map[RName,str] moduleHashes = ( );
+data IGComponent = singleton(RName item) | component(set[RName] items);
+
+public Graph[IGComponent] directedConnectedComponents(RName entryNode, ImportGraph ig) {
+	Graph[IGComponent] res = { };
+	set[IGComponent] newNodes = { };
+	igrtrans = ig+;
+	firstIter = true;
+	allNodes = carrier(ig);
+	currentNode = entryNode;
 	
-	if (exists(moduleLoc) && exists(cachedHashMap(moduleLoc, bindir))) {
-		moduleHashes = getCachedHashMap(moduleLoc, bindir);
+	while (!isEmpty(allNodes)) {
+		if (firstIter) {
+			firstIter = false;
+		} else {
+			currentNode = getOneFrom(allNodes);
+		} 
+		allNodes = allNodes - currentNode;
+			
+		if (currentNode in igrtrans[currentNode]) {
+			newComponent = component(currentNode + { n | n <- igrtrans[currentNode], currentNode in igrtrans[n] });
+			newNodes = newNodes + newComponent;
+			allNodes - allNodes - newComponent.items;
+		} else {
+			newNodes = newNodes + singleton(currentNode);
+		}
 	}
 	
-	// A relation from imported module names to bool, with true meaning this is an extending import
-	rel[RName mname, bool isext] modulesToImport = 
-		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
-		importItem <- importList, 
-		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
-	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
-	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
-	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
+	//newNodes = newNodes + { singleton(n) | n <- bottom(ig) };
 	
-	// Get the transitive modules that will be imported
-	< ig, infomap > = getImportGraphAndInfo(md, extraImports=defaultModules);
+	nodeMapping = ( n : c | n <- carrier(ig), c <- newNodes, singleton(n) := c || (component(ns) := c && n in ns) );
+
+	for (n <- carrier(ig)) {
+		if (n notin nodeMapping) {
+			println("We are missing <prettyPrintName(n)>");
+		//} else {
+		//	println("<prettyPrintName(n)> = <nodeMapping[n]>");
+		}
+	}
+
+	res = { < nodeMapping[n1], nodeMapping[n2] > | < n1, n2 > <- ig };
+	solve(res) {
+		if ( { < a, b >, < b, b >, c* } := res ) res = { *c, < a, b > };
+	}
+	return res;
+}
+
+public rel[RName mname, bool isext] getDefaultImports() {
+	return { < RSimpleName("Exception"), false > };
+}
+
+@doc{Check a given module, including loading the imports and extends items for the module.}
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {	
+	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
+	// has changed, in which case we need to recheck the modules on paths with changed modules
+	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports());
 	c.importGraph = ig;
+	
+	// Get back hashes for the various modules we import; these are the actual hashes, not those
+	// that are cached, so we can see if they have changed
 	map[RName,str] currentHashes = ( );
 	for (imn <- carrier(ig)) {
 		try {
@@ -7171,105 +7206,143 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				currentHashes[imn] = md5HashFile(chloc);
 			}
 		} catch : {
-			;
+			; // we don't do anything here, missing hashes are handled below
 		}
 	}
+	
+	// Compute the transitive closure, this lets us know if one module is reachable from another
 	igTrans = ig*;
 
-	// Do we have a cycle in the import graph? If so, get the modules involved in the cycle.
-	modulesInCycles = { ign | <ign,ign> <- ig+ };
-		
-	// TODO: What should we do if we detect the cycle? If it involves this module, we should do
-	// something about it. Make sure this is local to the module checker, so we don't need another
-	// module to tell us we are in a cycle (after all, the top-level module may be in the cycle).
+	// We keep track of the hashes of all imported modules to see if they have changed since we
+	// last checked this one. If the hash for this module exists, load it. 
+	map[RName,str] moduleHashes = ( );
+	if (exists(moduleLoc) && exists(cachedHashMap(moduleLoc, bindir))) {
+		moduleHashes = getCachedHashMap(moduleLoc, bindir);
+	}
 	
-	map[RName,Configuration] checkedModules = ( );
-	bool dirty = false;
-
-	// Before checking the module, see if any of the imports need to be recomputed. If so, we need
-	// to recompute those imports, and we need to recompute the checker results for the current
-	// module as well. 
+	// Now, check to see if we have hashes for the imports and if those are the same as the
+	// current hash. This also checks to see if we have cached configurations.
+	moduleName = getHeaderName(header);
+	map[RName, loc] moduleLocations = ( moduleName : md@\loc );
 	dirtyModules = { };
-	for (wl <- allImports) {
-		reachable = igTrans[wl];
-		for (r <- reachable) {
-			try {
-				dependencyLoc = getModuleLocation(prettyPrintName(r));
-				if (!exists(cachedHash(dependencyLoc, bindir))) {
-					// If we import this module, but the saved cache doesn't exist, we need
-					// to rebuild this import. 
-					dirtyModules = dirtyModules + r;
-				} else {
-					existingHash = getCachedHash(dependencyLoc, bindir);
-					if (r in currentHashes) {
-						fileHash = currentHashes[r];
-						if (! (existingHash == fileHash && existingHash == moduleHashes[r])) {
-							// If we import this module, and the saved cache exists, but it
-							// either differs from the current hash or the saved hash, we need
-							// to rebuild this import. 
-							dirtyModules = dirtyModules + r;
-						}
-					} else {
-						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
-						// will generate the hash for r eventually, since it is a dependency.
-						dirtyModules = dirtyModules + r;
+	for (wl <- carrier(ig)) {
+		try {
+			dependencyLoc = getModuleLocation(prettyPrintName(wl));
+			moduleLocations[wl] = dependencyLoc;
+			if (!exists(cachedConfig(dependencyLoc, bindir))) {
+				// If we don't have a saved config for the module, we need to
+				// check it and save the config.
+				dirtyModules = dirtyModules + wl;
+			} else if (!exists(cachedHash(dependencyLoc, bindir))) {
+				// If we don't have a saved hash for the module, it hasn't been checked
+				// before or the has info was deleted, so we need to check it now. 
+				dirtyModules = dirtyModules + wl;
+			} else {
+				existingHash = getCachedHash(dependencyLoc, bindir);
+				if (wl in currentHashes) {
+					fileHash = currentHashes[wl];
+					if (! (existingHash == fileHash && existingHash == moduleHashes[wl])) {
+						// If we import this module, and the saved cache exists, but it
+						// either differs from the current hash or the saved hash, we need
+						// to rebuild this import. 
+						dirtyModules = dirtyModules + wl;
 					}
+				} else {
+					// Just to be safe, if we weren't aware of this module when we last
+					// typechecked, check it again -- this could be wasted effort, but
+					// it also protects against the case where A imports B, B has been
+					// changed and checked again, but A hasn't been rechecked even
+					// though it hasn't changed (so the md5 would be the same).
+					dirtyModules = dirtyModules + wl;
 				}
-
-				// If all the hash info is fine, but we don't have a config saved for some
-				// reason, we need to rebuild this import. We will rebuild rl, since this will
-				// then eventually rebuild r (which is a dependency).
-				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					dirtyModules = dirtyModules + r;
-				}
-			} catch : {
-				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
-		}
-		
-		c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
-		
-		if (size(dirtyModules) > 0) {
-			try {
-				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
-			} catch cfgerror: {
-				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: : <cfgerror>", md@\loc);
-			}
-			dirty = true;
-		} else {
-			try {
-				importLoc = getModuleLocation(prettyPrintName(wl));
-				checkedModules[wl] = getCachedConfig(importLoc, bindir);
-			} catch cherror: {
-				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: <cherror>", md@\loc);
-			}
+		} catch : {
+			// If we had an error in the above process, we cannot trust the information we
+			// have on the module and/or its hash, so rebuild it.
+			dirtyModules = dirtyModules + wl;
 		}
 	}
+	
+	// Save the modules that we are recomputing; this is any dirty modules plus anything
+	// that imports them.
+	c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
 
-	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing hash for this module is the same as the current cache, and we have a config, return that
+	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing hash 
+	// for this module is the same as the current cache, and we have a config, return that, we don't
+	// need to recompute anything.
 	fileHash = "";
 	if (exists(moduleLoc)) {
 		fileHash = md5HashFile(moduleLoc); 
-		if (!dirty && !forceCheck && exists(cachedHash(moduleLoc, bindir)) && getCachedHash(moduleLoc, bindir) == fileHash && exists(cachedConfig(moduleLoc, bindir))) {
+		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedHash(moduleLoc, bindir)) && getCachedHash(moduleLoc, bindir) == fileHash && exists(cachedConfig(moduleLoc, bindir))) {
 			return getCachedConfig(moduleLoc, bindir);
 		}
 	}
 		
-	c = addModule(c, moduleName, md@\loc);
-	currentModuleId = head(c.stack);
-	c = popModule(c);
+	// For each of the dirty modules, get the information we will need to check it, including
+	// the parse tree for the module and lists of imports.
+	moduleTrees = ( moduleName : md );
+	for (mn <- c.dirtyModules, mn != moduleName ) {
+		try {
+			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn)));    
+			if (t has top && Module m := t.top) {
+				moduleTrees[mn] = m;
+			}
+		} catch _ : {
+			println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
+			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
+			return c;
+		}
+	}
+	
+	importLists = ( mn : getHeaderImports(moduleTrees[mn].header) | mn <- moduleTrees );
+	map[RName, rel[RName iname, bool isext]] modulesToImport = ( );
+	map[RName, set[RName]] extendedModules = ( );
+	map[RName, set[RName]] allImports = ( );
+	for (mn <- moduleTrees) {
+		modulesToImport[mn] =
+			{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
+			importItem <- importLists[mn], 
+			(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
+		defaultModules = domainX(getDefaultImports(), { mn } + modulesToImport[mn]<0> );
+		extendedModules[mn] = { mname | < mname, true > <- modulesToImport[mn] };
+		allImports[mn] = modulesToImport[mn]<0> + defaultModules<0>;
+	}
+
+	// Compute a new import graph, with cycles collapsed into connected components.
+	igComponents = directedConnectedComponents(moduleName, ig);
+
+	// Set up initial configurations for all the modules we need to recheck	
+	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration() | mn <- c.dirtyModules, mn != moduleName);
+	map[RName,int] moduleIds = ( );
+	for (mn <- workingConfigs) {
+		c = workingConfigs[mn];
+		c = addModule(c, mn, moduleTrees[mn]@\loc);
+		moduleIds[mn] = head(c.stack);
+		c = popModule(c);
+		workingConfigs[mn] = c;
+	}
 	
 	// For a given import, we want to bring in just the names declared in that module, not the names declared
 	// in modules it also imports. The exception is that we also want to bring in names of modules it extends,
 	// since these appear as local declarations. So, for each import, this computes the modules that provide
-	// importable names, based on this rule.		
-	importFrom = { < m2i, m2i > | m2i <- ( modulesToImport<0> + defaultModules<0> ) };
-	importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[moduleName].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
-	solve(importFrom) {
-		importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
+	// importable names, based on this rule.
+	map[RName,rel[RName,RName]] importFilter = ( );
+	for (mn <- workingConfigs) {		
+		importFrom = { < m2i, m2i > | m2i <- allImports[mn] };
+		importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[mn].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
+		solve(importFrom) {
+			importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
+		}
+		importFilter[mn] = importFrom;
 	}	
+
+	// Now, go through the connected components, processing them in dependency order
+	worklist = reverse(order(igComponents));
+	for (wlItem <- worklist) {
+		println("Processing <wlItem>");
+	}
+	
+	return workingConfigs[moduleName];
 	
 	// Using the checked type information, load in the info for each module
 	for (wl <- allImports, wl notin notImported) {
@@ -7340,21 +7413,6 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// conflict with the type names just added.
 		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- (modulesToImport + defaultModules), mn notin notImported });
 		
-		//// Now that we have a signature for each module, actually perform the import for each, creating
-		//// a configuration for each with just the items from that module signature.
-		//dt1 = now();
-		//for (< modName, isExt > <- defaultModules, modName notin notImported) {
-		//	// This loads a default module. In this case, the defaults should stay in the
-		//	// configuration, since each module can "see" these definitions.
-		//	c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		//}
-		//for (< modName, isExt > <- modulesToImport, modName notin notImported) {
-		//	// This loads a non-default module. We start each time with the environment we
-		//	// had after all the defaults loaded.
-		//	c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		//}
-		//c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
-	            
 		// Now, actually process the aliases
 		bool modified = true;
 		definitions = invert(c.definitions);
