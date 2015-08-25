@@ -118,7 +118,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   }
  
   isPub = !fd.visibility is \private;
-  tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
+  isMemo = ttags["memo"]?;
+  tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
  
   formals = [formal | formal <- fd.signature.parameters.formals.formals];
   //if(nformals > 0) println("formals[0] = <formals[0]>");
