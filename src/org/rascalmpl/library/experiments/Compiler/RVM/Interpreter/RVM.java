@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -770,8 +771,28 @@ public class RVM implements java.io.Serializable {
 		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
 		stack[sp - 8] = res;
 		sp -= 7;
-		// Dirty trick: we return a negative sp to force a function return;
+		// Trick: we return a negative sp to force a function return;
 		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
+	}
+	
+	@SuppressWarnings("unchecked")
+	int CHECKMEMO(Function fun, Object[] stack, int sp){;
+		if(fun.memoization == null){
+			MemoizationCache cache = new MemoizationCache();
+			fun.memoization = new SoftReference<>(cache);
+		}
+		int nformals = fun.nformals;
+		IValue[] args = new IValue[nformals - 1];
+		for(int i = 0; i < nformals - 1; i++){
+			args[i] = (IValue) stack[i];
+		}
+
+		IValue result = fun.memoization.get().getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
+		if(result == null){
+			return sp + 1;
+		}
+		stack[sp++] = result;
+		return -sp;					// Trick: we return a negative sp to force a function return;
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
@@ -1245,6 +1266,48 @@ public class RVM implements java.io.Serializable {
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CHECKMEMO:
+					sp = CHECKMEMO(cf.function, stack, sp);
+					if(sp > 0){
+						continue NEXT_INSTRUCTION;
+					}
+					sp = - sp;
+					op = Opcode.OP_RETURN1;
+					
+					// Specialized copy of RETURN code
+					
+					// Overloading specific
+					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
+						ocalls.pop();
+						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+					}
+					
+					rval = stack[sp - 1];
+
+					assert sp ==  cf.function.nlocals + 1
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
+					
+					// if the current frame is the frame of a top active coroutine, 
+					// then pop this coroutine from the stack of active coroutines
+					if(cf == ccf) {
+						activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					}
+					
+					if(trackCalls) { cf.printBack(stdout, rval); }
+					cf = cf.previousCallFrame;
+					
+					if(cf == null) {
+						return rval; 
+					}
+					
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = rval;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_VISIT:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@ package org.rascalmpl.values.uptr;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -30,6 +31,9 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
+import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -37,6 +41,19 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
+	public static final String NORMAL = "Normal";
+	public static final String TYPE = "Type";
+	public static final String IDENTIFIER = "Identifier";
+	public static final String VARIABLE = "Variable";
+	public static final String CONSTANT = "Constant";
+	public static final String COMMENT = "Comment";
+	public static final String TODO = "Todo";
+	public static final String QUOTE = "Quote";
+	public static final String META_AMBIGUITY = "MetaAmbiguity";
+	public static final String META_VARIABLE = "MetaVariable";
+	public static final String META_KEYWORD = "MetaKeyword";
+	public static final String META_SKIPPED = "MetaSkipped";
+	public static final String NONTERMINAL_LABEL = "NonterminalLabel";
 
 	private TreeAdapter() {
 		super();
@@ -295,9 +312,20 @@ public class TreeAdapter {
 
 	private static class Unparser extends TreeVisitor<IOException> {
 		private final Writer fStream;
-
-		public Unparser(Writer stream) {
+		private final boolean fHighlight;
+		private final Map<String,Ansi> ansi = new HashMap<>();
+		
+		public Unparser(Writer stream, boolean highlight) {
 			fStream = stream;
+			fHighlight = highlight;
+			
+			ansi.put(NORMAL, Ansi.ansi().reset());
+			ansi.put(NONTERMINAL_LABEL, Ansi.ansi().a(Attribute.ITALIC).fg(Color.CYAN));
+			ansi.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
+			ansi.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
+			ansi.put(META_AMBIGUITY,  Ansi.ansi().a(Attribute.INTENSITY_BOLD).fgBright(Color.RED));
+			ansi.put(META_SKIPPED,  Ansi.ansi().bgBright(Color.RED));
+			ansi.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
 		}
 		
 		/**
@@ -363,14 +391,46 @@ public class TreeAdapter {
 		}
 		
 		public ITree visitTreeChar(ITree arg) throws IOException {
-		  fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
+			fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
 			return arg;
 		}
 		
 		public ITree visitTreeAppl(ITree arg) throws IOException {
+			boolean reset = false;
+			
+			if (fHighlight) {
+				IConstructor prod = TreeAdapter.getProduction(arg);
+				String category = ProductionAdapter.getCategory(prod);
+				
+				if (category == null) {
+					if ((TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
+						category = META_KEYWORD;
+
+						for (IValue child : TreeAdapter.getArgs(arg)) {
+							int c = TreeAdapter.getCharacter((ITree) child);
+							if (c != '-' && !Character.isJavaIdentifierPart(c)){
+								category = null;
+							}
+						}
+					}
+				}
+				
+				if (category != null) {
+					Ansi code = ansi.get(category);
+					if (code != null) {
+						fStream.write(code.toString());
+						reset = true;
+					}
+				}
+			}
+			
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
 				child.accept(this);
+			}
+			
+			if (fHighlight && reset) {
+				fStream.write(Ansi.ansi().reset().toString());
 			}
 			return arg;
 		}
@@ -478,21 +538,25 @@ public class TreeAdapter {
 		return null;
 	}
 
-	public static void unparse(IConstructor tree, Writer stream)
+	public static void unparse(IConstructor tree, Writer stream) throws FactTypeUseException, IOException {
+		unparse(tree, false, stream);
+	}
+	
+	public static void unparse(IConstructor tree, boolean highlight, Writer stream)
 			throws IOException, FactTypeUseException {
 	  if (tree instanceof ITree) { 
-	    tree.accept(new Unparser(stream));
+	    tree.accept(new Unparser(stream, highlight));
 	  } else {
 	    throw new ImplementationError("Can not unparse this " + tree + " (type = "
 	        + tree.getType() + ")") ;
 	  }
 	}
 
-	public static String yield(IConstructor tree, int limit) throws FactTypeUseException {
+	public static String yield(IConstructor tree, boolean highlight, int limit) throws FactTypeUseException {
 		Writer stream = new LimitedResultWriter(limit);
 		
 		try {
-			unparse(tree, stream);
+			unparse(tree, highlight, stream);
 			return stream.toString();
 		}
 		catch (IOLimitReachedException e) {
@@ -503,19 +567,31 @@ public class TreeAdapter {
 		}
 	}
 	
+	public static String yield(IConstructor tree, int limit) throws FactTypeUseException {
+		return yield(tree, false, limit);
+	}
+	
 	public static String yield(IConstructor tree) throws FactTypeUseException {
+		return yield(tree, false);
+	}
+	
+	public static String yield(IConstructor tree, boolean highlight) throws FactTypeUseException {
 		try {
 			Writer stream = new CharArrayWriter();
-			unparse(tree, stream);
+			unparse(tree, highlight, stream);
 			return stream.toString();
 		} catch (IOException e) {
 			throw new ImplementationError("Method yield failed", e);
 		}
 	}
 
-  public static void yield(IConstructor tree, Writer out) throws IOException {
-    unparse(tree, out);
-  }
+	public static void yield(IConstructor tree, Writer out) throws IOException {
+		unparse(tree, out);
+	}
+
+	public static void yield(IConstructor tree, boolean highlight, Writer out) throws IOException {
+		unparse(tree, highlight, out);
+	}
 
 	public static boolean isInjectionOrSingleton(ITree tree) {
 		IConstructor prod = getProduction(tree);

@@ -3,7 +3,7 @@ import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
 import Prelude;
 
-str current = "yellow";
+str current = "white";
 
 Figure butt() = hcat(figs= [
     button("Click me", id = "aap"
@@ -27,7 +27,7 @@ void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
 Figure counter() = hcat(figs= [
     button("Incr", id = "aap"
     , event = on("click", 
-    void (str n, str e) {   
+    void (str e, str n, str v) {  
        str t1 = textLabel("mies1").text;
        int d1 = isEmpty(t1)?0:toInt(t1);
        str t2 = textLabel("mies2").text;
@@ -44,7 +44,7 @@ Figure counter() = hcat(figs= [
     )
     , button("Decr", id = "noot"
     , event = on("click", 
-    void (str n, str e) {
+    void (str e, str n, str v) {
        str t1 = textLabel("mies1").text;
        int d1 = isEmpty(t1)?0:toInt(t1);
        str t2 = textLabel("mies2").text;
@@ -77,7 +77,7 @@ void tcounter()= render(counter(), debug = false);
    
 Figure cell(str color) = vcat(figs=[button("", size=<120, 20>, fillColor=color
    , id = color, event= on( "click", 
-        void(str e, str n) {
+        void(str e, str n, str v) {
                current = n;
           }
         )
@@ -85,8 +85,10 @@ Figure cell(str color) = vcat(figs=[button("", size=<120, 20>, fillColor=color
    text(color, fontSize=12, fontWeight="bold")]);
 
 list[list[Figure]] colorArr() {
+      int n = size(colors);
+      // int n = 1;
       int c = 6;
-      int r = size(colors)/c;
+      int r = n/c;
       int pt = 0;
       list[list[Figure]] res = [];
       for (int i<-[0..r]) { 
@@ -98,7 +100,7 @@ list[list[Figure]] colorArr() {
           res+=[fs];
       }
     list[Figure] ts = [];
-    while (pt<size(colors)) {
+    while (pt< n) {
         ts+=cell(colors[pt]);
         pt+=1;
         }
@@ -110,16 +112,67 @@ Figure palette() = vcat(figs=[
     grid(figArray=colorArr(), vgap = 2, hgap = 2)
        ,hcat(figs=[    
          button("choose 1", id = "c1"
-         ,event = on("click", void(str e, str n) {
+         ,event = on("click", void(str e, str n, str v) {
                 style("b1", fillColor = current);
                 })
          )
          ,button("choose 2", id = "c2"
-         , event = on("click", void (str e, str n) {
+         , event = on("click", void (str e, str n, str v) {
                 style("b2", fillColor = current);})
-         )])
+         )             
+         ])
 
 , box(id="b1", size=<400, 150>, fig = circle(r=40, id="b2"))
+ ,
+         rangeInput(val=1.0, low = 0.0, high = 1.0, step= 0.1, 
+         event=on("mouseup", void(str e, str n, real v)
+            {
+            // println(d);
+            style("b1", fillOpacity = v);
+            }
+            )
+          )
+   ,
+         rangeInput(val=100, 
+         event=on("mouseup", void(str e, str n, real v)
+            {
+            style("b2", fillOpacity = v);
+            }
+            )
+          )
 ]);
 
 void tpalette() = render(palette());
+
+
+Figure range() = vcat(
+     figs= [rangeInput(id="q", low=0, high = 2, val = 1, step = 0.01, event=on("change", void(str e, str n, real v)
+            {
+                attr("aap", grow = v);
+            }))
+            , 
+            box(size=<200, 200>, fillColor = "antiquewhite"
+            , fig = overlay(size=<100, 100>, lineWidth = 1, grow = 1.0, id="aap", figs=[
+                   box(fillColor= "red", size=<50, 50>),                
+                   box(fillColor="yellow", size=<20, 20>)
+                   ,text("Hallo")]
+              )
+            )
+            ,
+            button("push", event = on ("click", void(str e, str n, str v) {println(getValue("q"));}))
+            ]
+
+)
+;
+
+void trange()= render(range());
+void frange(loc l) = writeFile(l, toHtmlString(range()));
+
+
+Figure choice() = hcat(figs=[
+     choiceInput(id = "c1", choices = ["aap", "noot", "mies"], checked="noot", event = 
+      on("click", void(str e, str n , str v) {println(getChecked("c2"));}))
+      ,choiceInput(id = "c2", choices = ["x", "y", "z"], event = 
+      on("click", void(str e, str n , str v) {println(v);}))
+      ]);
+void tchoice()= render(choice());

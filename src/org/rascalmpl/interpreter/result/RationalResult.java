@@ -369,7 +369,7 @@ public class RationalResult extends ElementResult<IRational> {
 	}
 
 	<U extends IValue> Result<U> widenToReal() {
-		return makeResult(getTypeFactory().realType(), getValue().toReal(), ctx);
+		return makeResult(getTypeFactory().realType(), getValue().toReal(getValueFactory().getPrecision()), ctx);
 	}
 	
 	@Override  
