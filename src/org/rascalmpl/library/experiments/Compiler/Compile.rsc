@@ -79,7 +79,7 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(loc moduleLoc, loc bindir = |home:///bin|){
 
    // moduleLoc = getSearchPathLocation(moduleLoc.path);
     println("moduleLoc = <moduleLoc>");

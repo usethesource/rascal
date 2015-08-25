@@ -58,7 +58,7 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |
   	return functions; 
 }
 
-tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, 
+tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments, bool debug=false, 
 									bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
 									bool coverage = false, bool useJVM = false, loc bindir = |home:///bin|){
 									
@@ -254,15 +254,15 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
 }
 
 
-value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
-	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, bindir=bindir);
+value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
+	<v, t> = execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, bindir=bindir);
 	//if(testsuite){
  //  	   return printTestReport(v);
  //   }
    return v;
 }
 
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
@@ -276,12 +276,12 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool li
       }
    }
    
-   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
-   //<cfg, mainProgram> = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+   mainProgram = compile(rascalSource, bindir=bindir);
+   //<cfg, mainProgram> = compile(rascalSource, bindir=bindir);
    return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM);
 }
 
-value executeBinary(loc executable, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, loc bindir = |home:///bin|){
+value executeBinary(loc executable, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, loc bindir = |home:///bin|){
   if(exists(executable)){
      println("Using <executable>");
   	 <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
@@ -292,19 +292,19 @@ value executeBinary(loc executable, list[value] arguments, bool debug=false, boo
   }
 }
 
-//value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
-//   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+//value execute(str rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
+//   mainProgram = compile(rascalSource, recompile=recompile, bindir=bindir);
 //   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
 //}
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
-   mainProgram = compile(rascalSource, listing=listing, recompile=recompile, bindir=bindir);
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, loc bindir = |home:///bin|){
+   mainProgram = compile(rascalSource, recompile=recompile, bindir=bindir);
    return execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM);
 }
 
 value executeTests(loc rascalSource){
    mainProgram = compile(rascalSource);
-   return execute(mainProgram, [], testsuite=true, listing=true);
+   return execute(mainProgram, [], testsuite=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
