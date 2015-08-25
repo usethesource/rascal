@@ -1,31 +1,53 @@
 package org.rascalmpl.repl;
 
+import java.io.File;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
+import jline.console.history.FileHistory;
+import jline.internal.ShutdownHooks;
+import jline.internal.ShutdownHooks.Task;
 
 import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
   protected final ConsoleReader reader;
-  private final InputStream originalStdIn;
+  private final OutputStream originalStdOut;
   protected final boolean prettyPrompt;
   protected final boolean allowColors;
   protected final Writer stdErr;
   protected volatile boolean keepRunning = true;
-  protected volatile boolean stopped = false;
+  private volatile Task historyFlusher = null;
+  private volatile FileHistory history = null;
+  private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
-  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, Terminal terminal) throws IOException {
-    this.originalStdIn = stdin;
-    this.reader = new ConsoleReader(stdin, stdout, terminal);
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException {
+    this.originalStdOut = stdout;
+    reader = new ConsoleReader(stdin, stdout, terminal);
+    if (persistentHistory != null) {
+      history = new FileHistory(persistentHistory);
+      reader.setHistory(history);
+      historyFlusher = new Task() {
+        @Override
+        public void run() throws Exception {
+          history.flush();
+        }
+      };
+      ShutdownHooks.add(historyFlusher);
+    }
+    reader.setExpandEvents(false);
+
     prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
     this.prettyPrompt = prettyPrompt;
     this.allowColors = allowColors;
@@ -46,17 +68,8 @@ public abstract class BaseREPL {
           CompletionResult res = completeFragment(buffer, cursor);
           candidates.clear();
           if (res != null && res.getOffset() > -1 && !res.getSuggestions().isEmpty()) {
-            String fragment = buffer.substring(res.getOffset(), res.getOffset() + res.getLength());
-            boolean removePrefix = res.getSuggestions().stream().findAny().orElse("").startsWith(fragment);
-            if (removePrefix) {
-              res.getSuggestions().stream()
-                .map(s -> s.substring(res.getLength()))
-                .forEachOrdered(s -> candidates.add(s));
-            }
-            else {
-              candidates.addAll(res.getSuggestions());
-            }
-            return res.getOffset() + res.getLength();
+            candidates.addAll(res.getSuggestions());
+            return res.getOffset();
           }
           return -1;
         }
@@ -66,10 +79,38 @@ public abstract class BaseREPL {
   }
 
 
+  /**
+   * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
+   * @param stdout the output stream to write normal output to.
+   * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
+   */
   protected abstract void initialize(Writer stdout, Writer stderr);
+
+  /**
+   * Will be called everytime a new prompt is printed.
+   * @return The string representing the prompt.
+   */
   protected abstract String getPrompt();
-  protected abstract void handleInput(String line);
+
+  /**
+   * After a newline is pressed, the current line is handed to this method.
+   * @param line the current line entered.
+   * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+   */
+  protected abstract void handleInput(String line) throws InterruptedException;
+  
+  /**
+   * Test if completion of statement in the current line is supported
+   * @return true if the completeFragment method can provide completions
+   */
   protected abstract boolean supportsCompletion();
+  
+  /**
+   * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.
+   * @param line The current line.
+   * @param cursor The cursor offset in the line.
+   * @return suggestions for the line.
+   */
   protected abstract CompletionResult completeFragment(String line, int cursor);
   
   private String previousPrompt = "";
@@ -89,25 +130,47 @@ public abstract class BaseREPL {
     }
   }
   
-  private Thread runningThread = null;
+  /**
+   * Queue a command (separated by newlines) to be "entered"
+   */
+  public void queueCommand(String command) {
+    commandQueue.addAll(Arrays.asList(command.split("[\\n\\r]")));
+  }
+  
   /**
    * This will run the console in the current thread, and will block until it is either:
    * <ul>
-   *  <li> stopped using .stop() (from another thread!)
-   *  <li> handleInput throws an exception.
+   *  <li> handleInput throws an InteruptedException.
+   *  <li> input reaches the end of the stream
    *  <li> either the input or output stream throws an IOException 
    * </ul>
    */
   public void run() throws IOException {
     try {
-      runningThread = Thread.currentThread();
+      updatePrompt();
       while(keepRunning) {
+        boolean handledQueue = false;
+        String queuedCommand;
+        while ((queuedCommand = commandQueue.poll()) != null) {
+          handledQueue = true;
+          reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
+          reader.println();
+          reader.getHistory().add(queuedCommand);
+          handleInput(queuedCommand);
+        }
+        if (handledQueue) {
+          String oldPrompt = reader.getPrompt();
+          reader.resetPromptLine("", "", 0);
+          reader.setPrompt(oldPrompt);
+        }
+
         updatePrompt();
-        String line = reader.readLine();
+        String line = reader.readLine(reader.getPrompt(), null, null);
         if (line == null) { // EOF
           break;
         }
         handleInput(line);
+
       }
     }
     catch (IOException e) {
@@ -119,48 +182,30 @@ public abstract class BaseREPL {
         else {
           e.printStackTrace();
         }
+        err.flush();
+        stdErr.flush();
       }
       throw e;
     }
+    catch (InterruptedException e) {
+      // we are closing down, so do nothing, the finally clause will take care of it
+    }
     finally {
-      stopped = true;
-      reader.shutdown();
-    }
-  }
-  
-  /**
-   * Stop the REPL, normally it will block until the REPL is stopped, except:
-   * <ul>
-   *  <li> stop is called from the same thread as run is on (e.g. run is higher up the stack somewhere)
-   *  <li> run was never called
-   * </ul>
-   */
-  public void stop() {
-    keepRunning = false;
-    try {
-      originalStdIn.close();
-      if (runningThread != null && runningThread != Thread.currentThread()) {
-        while (!stopped) Thread.yield();
+      reader.getOutput().flush();
+      originalStdOut.flush();
+      if (historyFlusher != null) {
+        ShutdownHooks.remove(historyFlusher);
+        history.flush();
       }
-    }
-    catch (IOException e) {
+      reader.shutdown();
     }
   }
   
   /**
    * stop the REPL without waiting for it to stop
    */
-  public void signalStop() {
+  public void stop() {
     keepRunning = false;
-    try {
-      originalStdIn.close();
-    }
-    catch (IOException e) {
-    }
+    reader.shutdown();
   }
-  
-  public boolean isStopped() {
-    return stopped;
-  }
-
 }

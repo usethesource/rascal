@@ -498,6 +498,8 @@ INS tr(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuE
 INS tr(muCallPrim3("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
 INS tr(muCallPrim3("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
 INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
+INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
+
 
 default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
 

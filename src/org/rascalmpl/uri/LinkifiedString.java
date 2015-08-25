@@ -126,4 +126,16 @@ public class LinkifiedString {
 			return sb.toString();
 		}
 	}
+
+  public String getLinkAt(int offset) {
+    if (!containsLinks()) {
+      return null;
+    }
+    for (int i = 0; i < linkOffsets.size() && linkOffsets.get(i) <= offset; i++) {
+      if (linkOffsets.get(i) + linkLengths.get(i) >= offset) {
+        return linkTargets.get(i);
+      }
+    }
+    return null;
+  }
 }

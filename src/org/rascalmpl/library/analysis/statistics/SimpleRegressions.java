@@ -33,7 +33,7 @@ public class SimpleRegressions {
 			ITuple t = (ITuple) v;
 			INumber x = (INumber) t.get(0);
 			INumber y = (INumber) t.get(1);
-			simple.addData(x.toReal().doubleValue(), y.toReal().doubleValue());
+			simple.addData(x.toReal(values.getPrecision()).doubleValue(), y.toReal(values.getPrecision()).doubleValue());
 		}
 		return simple;
 	}
@@ -117,7 +117,7 @@ public class SimpleRegressions {
 	
 	public IValue slopeConfidenceInterval(IList dataValues, INumber alpha) {
 		try {
-			return values.real(make(dataValues).getSlopeConfidenceInterval(alpha.toReal().doubleValue()));
+			return values.real(make(dataValues).getSlopeConfidenceInterval(alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (MathException e) {
 			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
 		} catch(NumberFormatException e){
@@ -168,7 +168,7 @@ public class SimpleRegressions {
 	
 	public IValue predict(IList dataValues, INumber x) {
 		try {
-			return values.real(make(dataValues).predict(x.toReal().doubleValue()));
+			return values.real(make(dataValues).predict(x.toReal(values.getPrecision()).doubleValue()));
 		} catch(NumberFormatException e){
 			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
 		}

@@ -48,7 +48,9 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 data Event 
 	= on()
-	| on(str eventName, void(str, str) callback)
+	| on(str eventName, void(str, str, str) callbackS)
+	| on(str eventName, void(str, str, real) callbackR)
+	| on(str eventName, void(str, str, int) callbackI)
 	;
 		
 //alias Cursor[&T] = &T;
@@ -115,7 +117,10 @@ public num nullFunction(list[num] x) { return 0;}
 public data Attr (
     int width = -1,
     int height =  -1,
-    int r = -1	
+    int r = -1,
+    num grow = 1.0,
+    num curN = 50.0,
+    str curS = "0"
     ) = attr();
     
 public data Style (	
@@ -124,7 +129,9 @@ public data Style (
     int height = -1,	
     int lineWidth = -1,			
     str lineColor = "", 
-    str fillColor= ""  
+    str fillColor= "", 
+    num fillOpacity = -1.0, 
+    num lineOpacity= -1.0   
     ) = style();
     
     
@@ -256,7 +263,7 @@ public data Figure(
    | buttonInput(str trueText = "", str falseText = "")
    | button(str txt)
    | checkboxInput()
-   | choiceInput(list[str] choices = [])
+   | choiceInput(list[str] choices = ["0"], str checked = choices[0])
    | colorInput()
    
    // date
@@ -269,7 +276,7 @@ public data Figure(
    // url
    
    | numInput()
-   | rangeInput(int low=0, int high=100, int step=1)
+   | rangeInput(num low=0, num high=100, num step=1, num val = 50)
    | strInput()
    
 // Visibility control elements

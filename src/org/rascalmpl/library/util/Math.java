@@ -59,7 +59,7 @@ public class Math {
 	
 	public IValue cos(INumber x){
 		try {
-			return x.toReal().cos(values.getPrecision());
+			return x.toReal(values.getPrecision()).cos(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -78,7 +78,7 @@ public class Math {
 	
 	public IValue exp(INumber x){
 		try {
-			return x.toReal().exp(values.getPrecision());
+			return x.toReal(values.getPrecision()).exp(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -86,7 +86,7 @@ public class Math {
 	
 	public IValue ln(INumber x) {
 		try {
-			return x.toReal().ln(values.getPrecision());
+			return x.toReal(values.getPrecision()).ln(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -94,7 +94,7 @@ public class Math {
 
 	public IValue log(INumber x, INumber base) {
 		try {
-			return x.toReal().log(base.toReal(), values.getPrecision());
+			return x.toReal(values.getPrecision()).log(base.toReal(values.getPrecision()), values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -107,7 +107,7 @@ public class Math {
 
 	public IValue nroot(INumber x, IInteger y){
 		try {
-			return x.toReal().nroot(y, values.getPrecision());
+			return x.toReal(values.getPrecision()).nroot(y, values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -121,14 +121,14 @@ public class Math {
 	
 	public IValue pow(INumber x, IInteger y){
 		try {
-			return x.toReal().pow(y);
+			return x.toReal(values.getPrecision()).pow(y);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
 	}
 	public IValue pow(INumber x, IReal y){
 		try {
-			return x.toReal().pow(y, values.getPrecision());
+			return x.toReal(values.getPrecision()).pow(y, values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -137,11 +137,11 @@ public class Math {
 	public IValue precision(INumber x){
 		if(x.getType().isInteger()){
 			IInteger k = (IInteger) x;
-			return values.integer(k.toReal().precision());
+			return values.integer(k.toReal(values.getPrecision()).precision());
 		}
 		if(x.getType().isRational()){
 			IRational k = (IRational) x;
-			return values.integer(k.toReal().precision());
+			return values.integer(k.toReal(values.getPrecision()).precision());
 		}
 		return values.integer(((IReal) x).precision());
 	}
@@ -162,11 +162,11 @@ public class Math {
 		try {
 			if(x.getType().isInteger()){
 				IInteger k = (IInteger) x;
-				return values.integer(k.toReal().scale());
+				return values.integer(k.toReal(values.getPrecision()).scale());
 			}
 			if(x.getType().isRational()){
 				IRational k = (IRational) x;
-				return values.integer(k.toReal().scale());
+				return values.integer(k.toReal(values.getPrecision()).scale());
 			}
 			return values.integer(((IReal) x).scale());
 		} catch (ArithmeticException ae) {
@@ -180,12 +180,12 @@ public class Math {
 	}
 	
 	public IValue round(INumber d) {
-		return d.toReal().round().toInteger();
+		return d.toReal(values.getPrecision()).round().toInteger();
 	}
 	
 	public IValue sin(INumber x){
 		try {
-			return x.toReal().sin(values.getPrecision());
+			return x.toReal(values.getPrecision()).sin(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -193,7 +193,7 @@ public class Math {
 	
 	public IValue sqrt(INumber x){
 		try {
-			return x.toReal().sqrt(values.getPrecision());
+			return x.toReal(values.getPrecision()).sqrt(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -201,7 +201,7 @@ public class Math {
 	
 	public IValue tan(INumber x){
 		try {
-			return x.toReal().tan(values.getPrecision());
+			return x.toReal(values.getPrecision()).tan(values.getPrecision());
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
@@ -222,7 +222,7 @@ public class Math {
 	public IValue toReal(INumber n)
 	//@doc{toReal -- convert a number value to a real value.}
 	{
-	  return n.toReal();
+	  return n.toReal(values.getPrecision());
 	}
 
 	public IValue toString(INumber d)
@@ -234,7 +234,7 @@ public class Math {
 	public IValue toReal(IRational n)
 	//@doc{toReal -- convert a rational value to a real value.}
 	{
-	  return n.toReal();
+	  return n.toReal(values.getPrecision());
 	}
 
 	public IValue toInt(IRational n)
