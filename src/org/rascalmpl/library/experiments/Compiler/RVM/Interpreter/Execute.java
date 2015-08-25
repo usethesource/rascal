@@ -73,6 +73,7 @@ public class Execute {
 								 IBool trackCalls, 
 								 IBool coverage,
 								 IBool useByteCode,
+								 IBool serialize,
 								 IEvaluatorContext ctx) {
 		
 		TypeStore typeStore = new TypeStore(); // new TypeStore(Factory.getStore());
@@ -89,20 +90,22 @@ public class Execute {
 								 useByteCode.getValue());
 		/*** Serialization  */
 		
-		RVMExecutable executable2 = null;
-	
-		executable.write(rvmExecutable);
-				
-		/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-		executable2 = RVMExecutable.read(rvmExecutable);
-		if(!executable.comparable(executable2)){
-			System.err.println("RVMExecutables differ");
+		if(serialize.getValue()){
+			RVMExecutable executable2 = null;
+
+			executable.write(rvmExecutable);
+
+			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
+			executable2 = RVMExecutable.read(rvmExecutable);
+			if(!executable.comparable(executable2)){
+				System.err.println("RVMExecutables differ");
+			}
+
+			//		 TODO: Decide here to use the orignal executable or the serialized version.
+			executable = executable2;
 		}
 		
 		/*** Start execution */
-		
-//		 TODO: Decide here to use the orignal executable or the serialized version.
-		executable = executable2;
 		
 		return executeProgram(executable,  
 							  argumentsAsList,
