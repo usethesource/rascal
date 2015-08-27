@@ -47,7 +47,7 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final String resolverScheme;
     protected final Map<String, IValue> tags;
 
-    private SoftReference<MemoizationCache> memoization;
+    private SoftReference<MemoizationCache<Result<IValue>>> memoization;
     protected final boolean hasMemoization;
 
     public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, String name,
@@ -88,7 +88,7 @@ abstract public class NamedFunction extends AbstractFunction {
 
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
         if (hasMemoization()) {
-            MemoizationCache memoizationActual = getMemoizationCache(false);
+            MemoizationCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
             if (memoizationActual == null) {
                 return null;
             }
@@ -97,17 +97,17 @@ abstract public class NamedFunction extends AbstractFunction {
         return null;
     }
 
-    private MemoizationCache getMemoizationCache(boolean returnFresh) {
-        MemoizationCache result = null;
+    private MemoizationCache<Result<IValue>> getMemoizationCache(boolean returnFresh) {
+        MemoizationCache<Result<IValue>> result = null;
         if (memoization == null) {
-            result = new MemoizationCache();
+            result = new MemoizationCache<Result<IValue>>();
             memoization = new SoftReference<>(result);
             return returnFresh ? result : null;
 
         }
         result = memoization.get();
         if (result == null ) {
-            result = new MemoizationCache();
+            result = new MemoizationCache<Result<IValue>>();
             memoization = new SoftReference<>(result);
             return returnFresh ? result : null;
         }
