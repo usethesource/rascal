@@ -41,6 +41,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
@@ -534,8 +535,9 @@ public class RVM implements java.io.Serializable {
 	
 	@SuppressWarnings("unchecked")
 	int CHECKMEMO(Function fun, Object[] stack, int sp){;
+		MemoizationCache<IValue> cache = null;
 		if(fun.memoization == null){
-			MemoizationCache cache = new MemoizationCache();
+			cache = new MemoizationCache<>();
 			fun.memoization = new SoftReference<>(cache);
 		}
 		int nformals = fun.nformals;
@@ -543,8 +545,11 @@ public class RVM implements java.io.Serializable {
 		for(int i = 0; i < nformals - 1; i++){
 			args[i] = (IValue) stack[i];
 		}
+		if (cache == null) {
+		  cache = fun.memoization.get();
+		}
 
-		IValue result = fun.memoization.get().getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
+		IValue result = cache == null ? null : cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
 		if(result == null){
 			return sp + 1;
 		}
