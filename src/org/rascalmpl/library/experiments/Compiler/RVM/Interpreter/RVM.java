@@ -535,8 +535,8 @@ public class RVM implements java.io.Serializable {
 	
 	@SuppressWarnings("unchecked")
 	int CHECKMEMO(Function fun, Object[] stack, int sp){;
-		MemoizationCache<IValue> cache = null;
-		if(fun.memoization == null){
+		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
+		if(cache == null){
 			cache = new MemoizationCache<>();
 			fun.memoization = new SoftReference<>(cache);
 		}
@@ -545,11 +545,8 @@ public class RVM implements java.io.Serializable {
 		for(int i = 0; i < nformals - 1; i++){
 			args[i] = (IValue) stack[i];
 		}
-		if (cache == null) {
-		  cache = fun.memoization.get();
-		}
 
-		IValue result = cache == null ? null : cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
+		IValue result = cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
 		if(result == null){
 			return sp + 1;
 		}
