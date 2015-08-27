@@ -15,9 +15,7 @@ import java.util.Collection;
 
 import jline.Terminal;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -29,10 +27,8 @@ import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
-public abstract class RascalInterpreterREPL extends BaseRascalREPL<IRascalResult> {
+public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
   protected Evaluator eval;
   private boolean measureCommandTime;
@@ -99,42 +95,6 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL<IRascalResult
       eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
       return null;
     }
-  }
-  
-  protected void printResult(IRascalResult result) throws IOException {
-	  if (result == null) {
-		  return;
-	  }
-	  PrintWriter out = getOutputWriter();
-	  IValue value = result.getValue();
-	  if (value == null) {
-		  out.println("ok");
-		  return;
-	  }
-	  Type type = result.getType();
-
-	  if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
-		  out.print(type.toString());
-		  out.print(": ");
-		  // we first unparse the tree
-		  out.print("`");
-		  TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-		  out.print("`\n");
-		  // write parse tree out one a single line for reference
-		  out.print("Tree: ");
-		  try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
-			  singleLinePrettyPrinter.write(value, wrt);
-		  }
-	  }
-	  else {
-		  out.print(type.toString());
-		  out.print(": ");
-		  // limit both the lines and the characters
-		  try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-			  indentedPrettyPrinter.write(value, wrt);
-		  }
-	  }
-	  out.println();
   }
 
   @Override
