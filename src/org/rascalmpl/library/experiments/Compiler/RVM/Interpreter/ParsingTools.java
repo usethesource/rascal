@@ -360,21 +360,21 @@ public class ParsingTools {
 		  return rex.bootstrapParser(moduleName); 
 	  }
 	 
-//	  // Rascal library function (interpreter version)
-//	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-//		  if(rex == null){
-//			  rex = new RascalExecutionContext(vf, new PrintWriter(stdout), new PrintWriter(stderr), null, null, null, false, false, false, false, false, null);
-//		  }
-//		  return parseFragment(name, start, tree, loc, grammar);
-//	  }
-//		
-//	// Rascal library function (compiler version)
-//	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
-//		if(this.rex == null){
-//			this.rex = rex;
-//		}
-//		return parseFragment(name, start, tree, loc, grammar);
-//	}
+	  // Rascal library function (interpreter version)
+	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+		  if(rex == null){
+			  rex = new RascalExecutionContext(vf, new PrintWriter(stdout), new PrintWriter(stderr), null, null, null, false, false, false, false, false, null);
+		  }
+		  return parseFragment(name, start, tree, loc, grammar);
+	  }
+		
+	  // Rascal library function (compiler version)
+	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+		  if(this.rex == null){
+			  this.rex = rex;
+		  }
+		  return parseFragment(name, start, tree, loc, grammar);
+	  }
 	
 	/**
 	 * This function will reconstruct a parse tree of a single nested concrete syntax fragment
@@ -382,7 +382,7 @@ public class ParsingTools {
 	 * 
 	 */
 
-	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+	ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
 	    ITree symTree = TreeAdapter.getArg((ITree) tree, "symbol");
 	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
 	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();
