@@ -1,6 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,13 +14,15 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.CompressedStreamResolver;
@@ -35,14 +39,14 @@ import org.rascalmpl.uri.URIUtil;
  * Provide all context information that is needed during the execution of a compiled Rascal program
  *
  */
-public class RascalExecutionContext {
+public class RascalExecutionContext implements IRascalMonitor {
 
-	private final IRascalMonitor monitor;
+	private IRascalMonitor monitor;
 	private final PrintWriter stderr;
 	private final Configuration config;
 	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
-	private final IEvaluatorContext ctx;
+	//private final IEvaluatorContext ctx;
 	private final IValueFactory vf;
 	private final TypeStore typeStore;
 	private final boolean debug;
@@ -59,7 +63,7 @@ public class RascalExecutionContext {
 	private boolean useJVM;
 	private final IMap moduleTags;
 	
-	RascalExecutionContext(IValueFactory vf, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, boolean useByteCode, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	public RascalExecutionContext(IValueFactory vf, PrintWriter stdout, PrintWriter stderr, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, boolean useByteCode, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.moduleTags = moduleTags;
@@ -73,17 +77,16 @@ public class RascalExecutionContext {
 		
 		currentModuleName = "UNDEFINED";
 		
-		// TODO: Search path initialization: compare with Evaluator!
-		rascalSearchPath = ctx.getEvaluator().getRascalResolver();
+		this.rascalSearchPath = new RascalSearchPath();
+		registerCommonSchemes();
 		
 		//System.out.println("RascalExecutionContext: " + rascalSearchPath);
-		monitor = ctx.getEvaluator().getMonitor();
-		stdout = ctx.getEvaluator().getStdOut();
-		stderr = ctx.getEvaluator().getStdErr();
-		config = ctx.getEvaluator().getConfiguration();
-		classLoaders = ctx.getEvaluator().getClassLoaders();
+		monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
+		this.stdout = stdout;
+		this.stderr = stderr;
+		config = new Configuration();
+		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 		this.testResultListener = testResultListener;
-		this.ctx = ctx;
 	}
 
 	IValueFactory getValueFactory(){ return vf; }
@@ -110,7 +113,26 @@ public class RascalExecutionContext {
 	
 	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 	
+	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+		rascalSearchPath.addPathContributor(contrib);
+	}
+	
+	public void addRascalSearchPath(final ISourceLocation uri) {
+		rascalSearchPath.addPathContributor(new URIContributor(uri));
+	}
+	
+	public void addClassLoader(ClassLoader loader) {
+		// later loaders have precedence
+		classLoaders.add(0, loader);
+	}
+	
+	List<ClassLoader> getClassLoaders() { return classLoaders; }
+	
 	IRascalMonitor getMonitor() {return monitor;}
+	
+	void setMonitor(IRascalMonitor monitor) {
+		this.monitor = monitor;
+	}
 	
 	public PrintWriter getStdErr() { return stderr; }
 	
@@ -118,9 +140,7 @@ public class RascalExecutionContext {
 	
 	Configuration getConfiguration() { return config; }
 	
-	List<ClassLoader> getClassLoaders() { return classLoaders; }
-	
-	IEvaluatorContext getEvaluatorContext() { return ctx; }
+	//IEvaluatorContext getEvaluatorContext() { return ctx; }
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
 	
@@ -161,6 +181,8 @@ public class RascalExecutionContext {
 	public void startJob(String name, int workShare, int totalWork) {
 		if (monitor != null)
 			monitor.startJob(name, workShare, totalWork);
+		stdout.println(name);
+		stdout.flush();
 	}
 	
 	public void startJob(String name, int totalWork) {
@@ -171,11 +193,25 @@ public class RascalExecutionContext {
 	public void startJob(String name) {
 		if (monitor != null)
 			monitor.startJob(name);
+		stdout.println(name);
+		stdout.flush();
 	}
 		
 	public void todo(int work) {
 		if (monitor != null)
 			monitor.todo(work);
+	}
+	
+	@Override
+	public boolean isCanceled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void warning(String message, ISourceLocation src) {
+		stdout.println("Warning: " + message);
+		stdout.flush();
 	}
 
 	/**
@@ -218,4 +254,94 @@ public class RascalExecutionContext {
 		
 		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
+	
+	void registerCommonSchemes(){
+		URIResolverRegistry resolverRegistry = rascalSearchPath.getRegistry();
+
+		// register some schemes
+		FileURIResolver files = new FileURIResolver();
+		resolverRegistry.registerInputOutput(files);
+
+		HttpURIResolver http = new HttpURIResolver();
+		resolverRegistry.registerInput(http);
+
+		//added
+		HttpsURIResolver https = new HttpsURIResolver();
+		resolverRegistry.registerInput(https);
+
+		CWDURIResolver cwd = new CWDURIResolver();
+		resolverRegistry.registerLogical(cwd);
+
+		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
+		resolverRegistry.registerInput(library);
+
+		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
+		resolverRegistry.registerInput(testdata);
+
+		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		resolverRegistry.registerInput(benchmarkdata);
+
+		resolverRegistry.registerInput(new JarURIResolver());
+
+		resolverRegistry.registerLogical(new HomeURIResolver());
+		resolverRegistry.registerInputOutput(new TempURIResolver());
+
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
+
+		// here we have code that makes sure that courses can be edited by
+		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
+		final String courseSrc = System.getProperty("rascal.courses");
+		if (courseSrc != null) {
+			FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
+
+			resolverRegistry.registerInputOutput(fileURIResolver);
+		}
+		else {
+			resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
+		}
+
+		FileURIResolver testModuleResolver = new TestModuleResolver();
+
+		resolverRegistry.registerInputOutput(testModuleResolver);
+		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+
+		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
+		resolverRegistry.registerInput(tutor);
+	}
+
+
+	private static final class CourseResolver extends FileURIResolver {
+		private final String courseSrc;
+
+		private CourseResolver(String courseSrc) {
+			this.courseSrc = courseSrc;
+		}
+
+		@Override
+		public String scheme() {
+			return "courses";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+			String path = uri.getPath();
+			return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		}
+	}
+
+	private static final class TestModuleResolver extends TempURIResolver {
+		@Override
+		public String scheme() {
+			return "test-modules";
+		}
+
+		@Override
+		protected String getPath(ISourceLocation uri) {
+			String path = uri.getPath();
+			path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
+			return System.getProperty("java.io.tmpdir") + path;
+		}
+	}
+
+	
 }

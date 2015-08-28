@@ -53,8 +53,8 @@ public class Execute {
 				  			  profile, 
 				  			  trackCalls, 
 				  			  coverage,
-				  			  useByteCode,
-				  			  ctx);
+				  			  useByteCode
+				  			  /*ctx*/);
 	}
 	
 	// Library function to execute a RVM program from Rascal
@@ -91,17 +91,16 @@ public class Execute {
 		/*** Serialization  */
 		
 		if(serialize.getValue()){
-			RVMExecutable executable2 = null;
-
-			executable.write(rvmExecutable);
+			
+			executable.write(rvmExecutable);			
 
 			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-			executable2 = RVMExecutable.read(rvmExecutable);
+			RVMExecutable executable2 = RVMExecutable.read(rvmExecutable);
 			if(!executable.comparable(executable2)){
 				System.err.println("RVMExecutables differ");
 			}
 
-			//		 TODO: Decide here to use the orignal executable or the serialized version.
+			//TODO: Use the serialized version.
 			executable = executable2;
 		}
 		
@@ -114,8 +113,8 @@ public class Execute {
 							  profile, 
 							  trackCalls, 
 							  coverage,
-							  useByteCode,
-							  ctx);
+							  useByteCode
+							  /*ctx*/);
 	}
 		
 	public ITuple executeProgram(RVMExecutable executable,  
@@ -125,11 +124,11 @@ public class Execute {
 								 IBool profile, 
 								 IBool trackCalls, 
 								 IBool coverage,
-								 IBool useByteCode,
-								 IEvaluatorContext ctx){
+								 IBool useByteCode
+								 /*IEvaluatorContext ctx*/){
 		
-		PrintWriter stdout = ctx.getStdOut();
-		PrintWriter stderr = ctx.getStdErr();
+		PrintWriter stdout = new PrintWriter(System.out);
+		PrintWriter stderr = new PrintWriter(System.err);
 		
 		if(testResultListener == null){
 			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
@@ -137,15 +136,17 @@ public class Execute {
 		
 		RascalExecutionContext rex = 
 				new RascalExecutionContext(vf, 
+										   stdout, 
+										   stderr, 
 										   executable.moduleTags, 
-										   executable.symbol_definitions, 
+										   executable.symbol_definitions,
 										   new TypeStore(), 
-										   debug.getValue(),
+										   debug.getValue(), 
 										   profile.getValue(), 
 										   trackCalls.getValue(), 
 										   coverage.getValue(), 
 										   useByteCode.getValue(), 
-										   ctx, testResultListener);
+										   testResultListener);
 		
 		RVM rvm = useByteCode.getValue() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		

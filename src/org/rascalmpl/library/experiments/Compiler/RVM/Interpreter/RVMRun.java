@@ -115,9 +115,9 @@ public class RVMRun extends RVM {
 	private boolean finalized;
 	protected ILocationCollector locationCollector;
 
-	public IEvaluatorContext getEvaluatorContext() {
-		return rex.getEvaluatorContext();
-	}
+//	public IEvaluatorContext getEvaluatorContext() {
+//		return rex.getEvaluatorContext();
+//	}
 
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -507,7 +507,7 @@ public class RVMRun extends RVM {
 			}
 
 			if (reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] = m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
