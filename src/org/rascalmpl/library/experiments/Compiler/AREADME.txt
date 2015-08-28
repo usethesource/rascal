@@ -7,7 +7,7 @@ Used file extensions:
 rsc				Rascal source code
 rvm				RVM code for single module
 rvm.gz			Compressed RVM code for single module
-rvm.ser.gz		Compressed RVM code for linked Rascal application
+rvm.ser.gz		Serialized and compressed RVM code for linked Rascal application
 
 Conventions:
 
@@ -29,6 +29,7 @@ execute			value execute(						// Execute a Rascal file
 					bool trackCalls=false,  		// Print a traca of called functions and their arguments
 					bool coverage=false, 			// Measure code coverage
 					bool useJVM=false, 				// Generate JVM code
+					bool serialize=false,			// Write serialized version of linked RVM code
 					loc bindir = |home:///bin|)		// directory where binaries reside
 
 inspect			void inspect(						// Inspect a compiled Rascal file
