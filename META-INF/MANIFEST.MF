@@ -81,6 +81,7 @@ Export-Package:
  org.rascalmpl.parser.gtd.util,
  org.rascalmpl.parser.uptr,
  org.rascalmpl.repl,
+ org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl,
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
  org.rascalmpl.tasks.facts,
