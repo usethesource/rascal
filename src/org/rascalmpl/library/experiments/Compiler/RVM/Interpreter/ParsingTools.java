@@ -48,6 +48,7 @@ public class ParsingTools {
 	private IValueFactory vf;
 	private IRascalMonitor monitor;
 	private List<ClassLoader> classLoaders;
+	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parsers;
 	private RascalExecutionContext rex;
@@ -56,6 +57,7 @@ public class ParsingTools {
 		super();
 		this.vf = vf; 
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
+		stdout = new PrintWriter(System.out);
 		stderr = new PrintWriter(System.err);
 	}
 	
@@ -66,6 +68,7 @@ public class ParsingTools {
 	public void setContext(RascalExecutionContext rex){
 		this.rex = rex;
 		monitor = rex.getMonitor();
+		stdout = rex.getStdOut();
 		stderr = rex.getStdErr();
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
 		classLoaders = rex.getClassLoaders();
@@ -357,21 +360,21 @@ public class ParsingTools {
 		  return rex.bootstrapParser(moduleName); 
 	  }
 	 
-	  // Rascal library function (interpreter version)
-	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, false, ctx, null);
-		  }
-		  return parseFragment(name, start, tree, loc, grammar);
-	  }
-		
-	// Rascal library function (compiler version)
-	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
-		if(this.rex == null){
-			this.rex = rex;
-		}
-		return parseFragment(name, start, tree, loc, grammar);
-	}
+//	  // Rascal library function (interpreter version)
+//	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+//		  if(rex == null){
+//			  rex = new RascalExecutionContext(vf, new PrintWriter(stdout), new PrintWriter(stderr), null, null, null, false, false, false, false, false, null);
+//		  }
+//		  return parseFragment(name, start, tree, loc, grammar);
+//	  }
+//		
+//	// Rascal library function (compiler version)
+//	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+//		if(this.rex == null){
+//			this.rex = rex;
+//		}
+//		return parseFragment(name, start, tree, loc, grammar);
+//	}
 	
 	/**
 	 * This function will reconstruct a parse tree of a single nested concrete syntax fragment
@@ -379,7 +382,7 @@ public class ParsingTools {
 	 * 
 	 */
 
-	ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
 	    ITree symTree = TreeAdapter.getArg((ITree) tree, "symbol");
 	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
 	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();
