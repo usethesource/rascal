@@ -189,7 +189,7 @@ public class RVM implements java.io.Serializable {
 	
 	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
 	
-	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+	//IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
 	public void setLocationCollector(ILocationCollector collector){
 		this.locationCollector = collector;
@@ -1919,7 +1919,7 @@ public class RVM implements java.io.Serializable {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
@@ -1950,6 +1950,7 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.stopProfile",
 			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.getProfile",
 			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.reportProfile",
+			
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
