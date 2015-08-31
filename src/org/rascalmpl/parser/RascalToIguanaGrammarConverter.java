@@ -345,7 +345,7 @@ public class RascalToIguanaGrammarConverter {
 							
 						case "prod":
 							IList rhs = (IList) alt.get("symbols");
-							if (rhs.length() >= 2) {
+							if (rhs.length() >= 1) {
 								Symbol first = getSymbol((IConstructor) rhs.get(0));
 								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
 								
@@ -586,8 +586,14 @@ public class RascalToIguanaGrammarConverter {
 		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT_REC));
 		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT_REC));
 		
-		boolean isiLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.iLEFT_REC, leftEnds));
-		boolean isiRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.iRIGHT_REC, rightEnds));
+		IsRecursive visitor = new IsRecursive(head, Recursion.iLEFT_REC, leftEnds);
+		
+		boolean isiLeft = body.size() == 0? false : body.get(0).accept(visitor);
+		String leftEnd = visitor.end;
+		
+		visitor = new IsRecursive(head, Recursion.iRIGHT_REC, rightEnds);
+		boolean isiRight = body.size() == 0? false : body.get(body.size() - 1).accept(visitor);
+		String rightEnd = visitor.end;
 		
 		Recursion recursion = Recursion.NON_REC;
 		Recursion irecursion = Recursion.NON_REC;
@@ -618,6 +624,8 @@ public class RascalToIguanaGrammarConverter {
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
 									.setRecursion(recursion)
 									.setiRecursion(irecursion)
+									.setLeftEnd(leftEnd)
+									.setRightEnd(rightEnd)
 									.setLeftEnds(leftEnds.get(head.getName()))
 									.setRightEnds(rightEnds.get(head.getName()))
 									.setAssociativity(associativity)
@@ -1334,6 +1342,7 @@ public class RascalToIguanaGrammarConverter {
 		private final Map<String, Set<String>> ends;
 		
 		private String otherwise = "";
+		private String end = "";
 		
 		public IsRecursive(Nonterminal head, Recursion recursion) {
 			this(head, recursion, null);
@@ -1422,6 +1431,7 @@ public class RascalToIguanaGrammarConverter {
 				
 			} else {
 				if (ends.get(symbol.getName()).contains(head.getName())) {
+					end = symbol.getName();
 					return true;
 				}
 			}
@@ -1436,6 +1446,7 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Terminal symbol) {
+			otherwise = "$";
 			return false;
 		}
 
