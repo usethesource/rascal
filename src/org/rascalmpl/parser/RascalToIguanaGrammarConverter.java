@@ -118,6 +118,9 @@ public class RascalToIguanaGrammarConverter {
 	private IMap definitions;
 	
 	private Symbol layout;
+	
+	private Map<String, Set<String>> leftEnds = new HashMap<>();
+	private Map<String, Set<String>> rightEnds = new HashMap<>();
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
@@ -128,6 +131,56 @@ public class RascalToIguanaGrammarConverter {
 		rulesMap = new HashMap<>();
 		
 		layout = getLayoutNonterminal(rascalGrammar);
+		
+		for (IValue nonterminal : definitions) {
+			
+			IConstructor constructor = (IConstructor) nonterminal;
+			
+			switch (constructor.getName()) {
+				case "empty": 
+					break;
+				case "start": computeEnds(nonterminal, definitions); 
+					break;
+				case "token":
+				case "layouts":
+				case "lex":
+				case "keywords":
+					break;
+				case "sort": computeEnds(nonterminal, definitions);
+					break;
+				default:
+					System.out.println("Unkonwn construct: " + constructor);
+					break;
+ 			}
+		}
+		
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			for (String head : leftEnds.keySet()) {
+				Set<String> ends = leftEnds.get(head);
+				int size = ends.size();
+				for (String end : ends) {
+					ends.addAll(leftEnds.get(end));
+					if (ends.size() != size)
+						changed = true;
+				}
+			}
+		}
+		
+		changed = true;
+		while (changed) {
+			changed = false;
+			for (String head : rightEnds.keySet()) {
+				Set<String> ends = rightEnds.get(head);
+				int size = ends.size();
+				for (String end : ends) {
+					ends.addAll(rightEnds.get(end));
+					if (ends.size() != size)
+						changed = true;
+				}
+			}
+		}
 		
 		for (IValue nonterminal : definitions) {
 
@@ -206,8 +259,22 @@ public class RascalToIguanaGrammarConverter {
 		
 		List<Rule> rules = new ArrayList<>();
 		
+		Nonterminal head = getHead(nonterminal);
+		
+		IConstructor choice = (IConstructor) definitions.get(nonterminal);
+		assert choice.getName().equals("choice");
+		
+		level = PrecedenceLevel.getFirst();
+		getAlternatives(head, choice, strategy, rules, true);
+		
+		return rules;
+	}
+	
+	private Nonterminal getHead(IValue nonterminal) {
+		
 		Nonterminal head = Nonterminal.withName(getName((IConstructor) nonterminal));
 		IList formals = (IList) nonterminal.asWithKeywordParameters().getParameters().get("formals");
+		
 		if (formals != null) {
 			Builder builder = Nonterminal.builder(head);
 			String[] parameters = new String[formals.length()];
@@ -224,13 +291,7 @@ public class RascalToIguanaGrammarConverter {
 			head = builder.addParameters(parameters).build();
 		}
 		
-		IConstructor choice = (IConstructor) definitions.get(nonterminal);
-		assert choice.getName().equals("choice");
-		
-		level = PrecedenceLevel.getFirst();
-		getAlternatives(head, choice, strategy, rules, true);
-		
-		return rules;
+		return head;
 	}
 	
 	private Terminal getTokenDefinition(IConstructor constructor, IMap definitions) {
@@ -243,6 +304,139 @@ public class RascalToIguanaGrammarConverter {
 			return Terminal.builder((RegularExpression) symbols.get(0)).setName(getName(constructor)).build();
 		else 
 			return Terminal.builder(Sequence.from(symbols)).setName(getName(constructor)).build();
+	}
+	
+	private List<Rule> computeEnds(IValue nonterminal, IMap definitions) {
+		
+		List<Rule> rules = new ArrayList<>();
+		
+		Nonterminal head = getHead(nonterminal);
+		
+		IConstructor choice = (IConstructor) definitions.get(nonterminal);
+		assert choice.getName().equals("choice");
+		
+		computeEnds(head, choice);
+		
+		return rules;
+	}
+	
+	private void computeEnds(Nonterminal head, IConstructor production) {
+		
+		switch (production.getName()) {
+			
+			case "priority":
+				IList choices = (IList) production.get("choices");
+			
+				for (IValue choice : choices.reverse()) {
+					
+					IConstructor alt = (IConstructor) choice;
+					
+					switch(alt.getName()) {
+					
+						case "choice":
+							computeEnds(head, alt);
+							break;
+							
+						case "associativity":
+							ISet alternatives = (ISet) alt.get("alternatives");
+							for (IValue alternative : alternatives)
+								computeEnds(head, (IConstructor) alternative);
+							break;
+							
+						case "prod":
+							IList rhs = (IList) alt.get("symbols");
+							if (rhs.length() >= 2) {
+								Symbol first = getSymbol((IConstructor) rhs.get(0));
+								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
+								
+								IsRecursive isLeft = new IsRecursive(head, Recursion.LEFT_REC);
+								
+								if(!first.accept(isLeft) && !isLeft.getName().isEmpty()) {
+									Set<String> ends = leftEnds.get(head.getName());
+									if (ends == null) {
+										ends = new HashSet<>();
+										leftEnds.put(head.getName(), ends);
+									}
+									ends.add(isLeft.getName());
+								}
+								
+								IsRecursive isRight = new IsRecursive(head, Recursion.RIGHT_REC);
+								
+								if(!last.accept(isRight) && !isRight.getName().isEmpty()) {
+									Set<String> ends = rightEnds.get(head.getName());
+									if (ends == null) {
+										ends = new HashSet<>();
+										rightEnds.put(head.getName(), ends);
+									}
+									ends.add(isLeft.getName());
+								}
+							}
+							break;
+							
+						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
+					}
+				}
+				
+				break;
+				
+			case "choice":
+				ISet alternatives = (ISet) production.get("alternatives");
+				
+				for (IValue alternative : alternatives) {
+					
+					IConstructor alt = (IConstructor) alternative;
+					
+					switch(alt.getName()) {
+					
+						case "priority": // Should only happen at the root
+							computeEnds(head, alt); break;
+						
+						case "associativity":
+							ISet alts = (ISet) alt.get("alternatives");
+							for (IValue a : alts)
+								computeEnds(head, (IConstructor) a);
+							break;
+							
+						case "prod":
+							IList rhs = (IList) alt.get("symbols");
+							if (rhs.length() >= 2) {
+								Symbol first = getSymbol((IConstructor) rhs.get(0));
+								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
+								
+								IsRecursive isLeft = new IsRecursive(head, Recursion.LEFT_REC);
+								
+								if(!first.accept(isLeft) && !isLeft.getName().isEmpty()) {
+									Set<String> ends = leftEnds.get(head.getName());
+									if (ends == null) {
+										ends = new HashSet<>();
+										leftEnds.put(head.getName(), ends);
+									}
+									ends.add(isLeft.getName());
+								}
+								
+								IsRecursive isRight = new IsRecursive(head, Recursion.RIGHT_REC);
+								
+								if(!last.accept(isRight) && !isRight.getName().isEmpty()) {
+									Set<String> ends = rightEnds.get(head.getName());
+									if (ends == null) {
+										ends = new HashSet<>();
+										rightEnds.put(head.getName(), ends);
+									}
+									ends.add(isLeft.getName());
+								}
+							}
+							break;
+							
+						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
+					}
+					
+				}
+				
+				break;
+				
+			default: throw new RuntimeException("Unexpected type of a production: " + production.getName());
+			
+		}
 	}
 	
 	private void getAlternatives(Nonterminal head, IConstructor production, LayoutStrategy strategy, List<Rule> rules, boolean isRoot) {
@@ -392,7 +586,11 @@ public class RascalToIguanaGrammarConverter {
 		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT_REC));
 		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT_REC));
 		
+		boolean isiLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.iLEFT_REC, leftEnds));
+		boolean isiRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.iRIGHT_REC, rightEnds));
+		
 		Recursion recursion = Recursion.NON_REC;
+		Recursion irecursion = Recursion.NON_REC;
 		int precedence = -1;
 		
 		if (isLeft && isRight)
@@ -402,15 +600,26 @@ public class RascalToIguanaGrammarConverter {
 		else if (isRight)
 			recursion = Recursion.RIGHT_REC;
 		
-		if (recursion == Recursion.NON_REC)
-				associativity = Associativity.UNDEFINED;
+		if (isiLeft && isiRight)
+			irecursion = Recursion.iLEFT_RIGHT_REC;
+		else if (isiLeft)
+			irecursion = Recursion.iLEFT_REC;
+		else
+			irecursion = Recursion.iRIGHT_REC;
 		
-		if ((recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC)
-						&& associativity != Associativity.NON_ASSOC) 
-				associativity = Associativity.UNDEFINED;
+		if (recursion == Recursion.NON_REC && irecursion == Recursion.NON_REC)
+			associativity = Associativity.UNDEFINED;
+		
+		if ((recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC 
+					|| irecursion == Recursion.iLEFT_REC || irecursion == Recursion.iRIGHT_REC)
+							&& associativity != Associativity.NON_ASSOC) 
+			associativity = Associativity.UNDEFINED;
 			
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
 									.setRecursion(recursion)
+									.setiRecursion(irecursion)
+									.setLeftEnds(leftEnds.get(head.getName()))
+									.setRightEnds(rightEnds.get(head.getName()))
 									.setAssociativity(associativity)
 									.setPrecedence(precedence)
 									.setPrecedenceLevel(level)
@@ -1111,7 +1320,8 @@ public class RascalToIguanaGrammarConverter {
 		
 		@Override
 		public AbstractAST visitStringConstantLexical(org.rascalmpl.ast.StringConstant.Lexical x) {
-			return string(x.getString());
+			String substring = x.getString().substring(1, x.getString().length() - 1);
+			return string(substring);
 		}
 		
 	}
@@ -1121,9 +1331,22 @@ public class RascalToIguanaGrammarConverter {
 		private final Recursion recursion;
 		private final Nonterminal head;
 		
+		private final Map<String, Set<String>> ends;
+		
+		private String otherwise = "";
+		
 		public IsRecursive(Nonterminal head, Recursion recursion) {
+			this(head, recursion, null);
+		}
+		
+		public IsRecursive(Nonterminal head, Recursion recursion, Map<String, Set<String>> ends) {
 			this.recursion = recursion;
 			this.head = head;
+			this.ends = ends;
+		}
+		
+		private String getName() {
+			return otherwise;
 		}
 
 		@Override
@@ -1134,7 +1357,7 @@ public class RascalToIguanaGrammarConverter {
 		@Override
 		public Boolean visit(Block symbol) {
 			Symbol[] symbols = symbol.getSymbols();
-			if (recursion == Recursion.LEFT_REC)
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.iLEFT_REC)
 				return symbols[0].accept(this);
 			else
 				return symbols[symbols.length - 1].accept(this);
@@ -1188,9 +1411,22 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Nonterminal symbol) {
-			return symbol.getName().equals(head.getName())
-					&& ((head.getParameters() == null && symbol.getArguments() == null)
-							|| (head.getParameters().length == symbol.getArguments().length));
+			
+			otherwise = symbol.getName();
+			
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
+				if (symbol.getName().equals(head.getName())
+						&& ((head.getParameters() == null && symbol.getArguments() == null)
+								|| (head.getParameters().length == symbol.getArguments().length)))
+					return true;
+				
+			} else {
+				if (ends.get(symbol.getName()).contains(head.getName())) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 
 		@Override
