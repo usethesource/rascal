@@ -160,17 +160,19 @@ public class RascalToIguanaGrammarConverter {
 			for (String head : leftEnds.keySet()) {
 				Set<String> ends = leftEnds.get(head);
 				int size = ends.size();
+				Set<String> delta = new HashSet<>();
 				for (String end : ends) {
 					Set<String> lefts = leftEnds.get(end);
 					if (lefts != null) {
 						for (String left : lefts) {
 							if (!left.equals(head))
-								ends.add(left);
+								delta.add(left);
 						}
-						if (ends.size() != size)
-							changed = true;
 					}
 				}
+				ends.addAll(delta);
+				if (ends.size() != size)
+					changed = true;
 			}
 		}
 		
@@ -180,17 +182,19 @@ public class RascalToIguanaGrammarConverter {
 			for (String head : rightEnds.keySet()) {
 				Set<String> ends = rightEnds.get(head);
 				int size = ends.size();
+				Set<String> delta = new HashSet<>();
 				for (String end : ends) {
 					Set<String> rights = rightEnds.get(end);
 					if (rights != null) {
 						for (String right : rights) {
 							if (!right.equals(head))
-								ends.add(right);
+								delta.add(right);
 						}
-						if (ends.size() != size)
-							changed = true;
 					}
 				}
+				ends.addAll(delta);
+				if (ends.size() != size)
+					changed = true;
 			}
 		}
 		
@@ -411,7 +415,7 @@ public class RascalToIguanaGrammarConverter {
 							
 						case "prod":
 							IList rhs = (IList) alt.get("symbols");
-							if (rhs.length() >= 2) {
+							if (rhs.length() >= 1) {
 								Symbol first = getSymbol((IConstructor) rhs.get(0));
 								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
 								
@@ -622,7 +626,7 @@ public class RascalToIguanaGrammarConverter {
 			irecursion = Recursion.iLEFT_RIGHT_REC;
 		else if (isiLeft)
 			irecursion = Recursion.iLEFT_REC;
-		else
+		else if (isiRight)
 			irecursion = Recursion.iRIGHT_REC;
 		
 		if (recursion == Recursion.NON_REC && irecursion == Recursion.NON_REC)
@@ -1459,7 +1463,7 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Terminal symbol) {
-			if (recursion == Recursion.iLEFT_REC || recursion == Recursion.iRIGHT_REC)
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC)
 				otherwise = "$" + head.getName();
 			return false;
 		}
