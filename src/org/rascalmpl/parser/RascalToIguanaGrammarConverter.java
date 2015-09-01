@@ -632,9 +632,13 @@ public class RascalToIguanaGrammarConverter {
 		if (recursion == Recursion.NON_REC && irecursion == Recursion.NON_REC)
 			associativity = Associativity.UNDEFINED;
 		
-		if ((recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC 
-					|| irecursion == Recursion.iLEFT_REC || irecursion == Recursion.iRIGHT_REC)
-							&& associativity != Associativity.NON_ASSOC) 
+		// Mixed cases
+		boolean isPrefixOrCanBePrefix = (irecursion != Recursion.iLEFT_REC && recursion == Recursion.RIGHT_REC)
+										  || (recursion != Recursion.LEFT_REC && irecursion == Recursion.iRIGHT_REC);
+		boolean isPostfixOrCanBePostfix = (recursion == Recursion.LEFT_REC && irecursion != Recursion.iRIGHT_REC)
+											|| (irecursion == Recursion.iLEFT_REC && recursion != Recursion.RIGHT_REC);
+		
+		if ((isPrefixOrCanBePrefix || isPostfixOrCanBePostfix) && associativity != Associativity.NON_ASSOC) 
 			associativity = Associativity.UNDEFINED;
 			
 		return Rule.withHead(head).addSymbols(body).setObject(object).setLayoutStrategy(strategy)
