@@ -67,6 +67,7 @@ import org.iguana.grammar.symbol.Rule;
 import org.iguana.grammar.symbol.Symbol;
 import org.iguana.grammar.symbol.Terminal;
 import org.iguana.grammar.symbol.While;
+import org.iguana.grammar.transformation.EBNFToBNF;
 import org.iguana.regex.Alt;
 import org.iguana.regex.Opt;
 import org.iguana.regex.Plus;
@@ -230,8 +231,10 @@ public class RascalToIguanaGrammarConverter {
  			}
 		}
 		
-		List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
-		List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
+		// List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
+		// List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
+		List<PrecedencePattern> precedencePatterns = new ArrayList<>();
+	    List<ExceptPattern> exceptPatterns = new ArrayList<>();
 		builder.addPrecedencePatterns(precedencePatterns);
 		builder.addExceptPatterns(exceptPatterns);
 		
@@ -360,33 +363,7 @@ public class RascalToIguanaGrammarConverter {
 							break;
 							
 						case "prod":
-							IList rhs = (IList) alt.get("symbols");
-							if (rhs.length() >= 1) {
-								Symbol first = getSymbol((IConstructor) rhs.get(0));
-								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
-								
-								IsRecursive isLeft = new IsRecursive(head, Recursion.LEFT_REC);
-								
-								if(!first.accept(isLeft) && !isLeft.getName().isEmpty()) {
-									Set<String> ends = leftEnds.get(head.getName());
-									if (ends == null) {
-										ends = new HashSet<>();
-										leftEnds.put(head.getName(), ends);
-									}
-									ends.add(isLeft.getName());
-								}
-								
-								IsRecursive isRight = new IsRecursive(head, Recursion.RIGHT_REC);
-								
-								if(!last.accept(isRight) && !isRight.getName().isEmpty()) {
-									Set<String> ends = rightEnds.get(head.getName());
-									if (ends == null) {
-										ends = new HashSet<>();
-										rightEnds.put(head.getName(), ends);
-									}
-									ends.add(isRight.getName());
-								}
-							}
+							computeEnds(head, (IList) alt.get("symbols"));
 							break;
 							
 						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
@@ -414,33 +391,7 @@ public class RascalToIguanaGrammarConverter {
 							break;
 							
 						case "prod":
-							IList rhs = (IList) alt.get("symbols");
-							if (rhs.length() >= 1) {
-								Symbol first = getSymbol((IConstructor) rhs.get(0));
-								Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
-								
-								IsRecursive isLeft = new IsRecursive(head, Recursion.LEFT_REC);
-								
-								if(!first.accept(isLeft) && !isLeft.getName().isEmpty()) {
-									Set<String> ends = leftEnds.get(head.getName());
-									if (ends == null) {
-										ends = new HashSet<>();
-										leftEnds.put(head.getName(), ends);
-									}
-									ends.add(isLeft.getName());
-								}
-								
-								IsRecursive isRight = new IsRecursive(head, Recursion.RIGHT_REC);
-								
-								if(!last.accept(isRight) && !isRight.getName().isEmpty()) {
-									Set<String> ends = rightEnds.get(head.getName());
-									if (ends == null) {
-										ends = new HashSet<>();
-										rightEnds.put(head.getName(), ends);
-									}
-									ends.add(isRight.getName());
-								}
-							}
+							computeEnds(head, (IList) alt.get("symbols"));
 							break;
 							
 						default: throw new RuntimeException("Unexpected type of a production: " + alt.getName());
@@ -452,6 +403,39 @@ public class RascalToIguanaGrammarConverter {
 				
 			default: throw new RuntimeException("Unexpected type of a production: " + production.getName());
 			
+		}
+	}
+	
+	private void computeEnds(Nonterminal head, IList rhs) {
+		if (rhs.length() >= 1) {
+			Symbol first = getSymbol((IConstructor) rhs.get(0));
+			Symbol last = getSymbol((IConstructor) rhs.get(rhs.length() - 1));
+			
+			IsRecursive isLeft = new IsRecursive(head, Recursion.LEFT_REC);
+			
+			if(!first.accept(isLeft) && !isLeft.getName().isEmpty()) {
+				Set<String> ends = leftEnds.get(head.getName());
+				if (ends == null) {
+					ends = new HashSet<>();
+					leftEnds.put(head.getName(), ends);
+				}
+				ends.add(isLeft.getName());
+				if (!isLeft.ends.isEmpty()) // EBNF related
+					leftEnds.putAll(isLeft.ends);
+			}
+			
+			IsRecursive isRight = new IsRecursive(head, Recursion.RIGHT_REC);
+			
+			if(!last.accept(isRight) && !isRight.getName().isEmpty()) {
+				Set<String> ends = rightEnds.get(head.getName());
+				if (ends == null) {
+					ends = new HashSet<>();
+					rightEnds.put(head.getName(), ends);
+				}
+				ends.add(isRight.getName());
+				if (!isRight.ends.isEmpty()) // EBNF related
+					rightEnds.putAll(isRight.ends);
+			}
 		}
 	}
 	
@@ -602,12 +586,12 @@ public class RascalToIguanaGrammarConverter {
 		boolean isLeft = body.size() == 0? false : body.get(0).accept(new IsRecursive(head, Recursion.LEFT_REC));
 		boolean isRight = body.size() == 0? false : body.get(body.size() - 1).accept(new IsRecursive(head, Recursion.RIGHT_REC));
 		
-		IsRecursive visitor = new IsRecursive(head, Recursion.iLEFT_REC, leftEnds);
+		IsRecursive visitor = new IsRecursive(head, Recursion.iLEFT_REC, leftEnds, layout);
 		
 		boolean isiLeft = body.size() == 0? false : body.get(0).accept(visitor);
 		String leftEnd = visitor.end;
 		
-		visitor = new IsRecursive(head, Recursion.iRIGHT_REC, rightEnds);
+		visitor = new IsRecursive(head, Recursion.iRIGHT_REC, rightEnds, layout);
 		boolean isiRight = body.size() == 0? false : body.get(body.size() - 1).accept(visitor);
 		String rightEnd = visitor.end;
 		
@@ -1358,6 +1342,7 @@ public class RascalToIguanaGrammarConverter {
 		
 		private final Recursion recursion;
 		private final Nonterminal head;
+		private final Symbol layout;
 		
 		private final Map<String, Set<String>> ends;
 		
@@ -1365,12 +1350,13 @@ public class RascalToIguanaGrammarConverter {
 		private String end = "";
 		
 		public IsRecursive(Nonterminal head, Recursion recursion) {
-			this(head, recursion, null);
+			this(head, recursion, new HashMap<>(), null);
 		}
 		
-		public IsRecursive(Nonterminal head, Recursion recursion, Map<String, Set<String>> ends) {
+		public IsRecursive(Nonterminal head, Recursion recursion, Map<String, Set<String>> ends, Symbol layout) {
 			this.recursion = recursion;
 			this.head = head;
+			this.layout = layout;
 			this.ends = ends;
 		}
 		
@@ -1484,26 +1470,57 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public <E extends Symbol> Boolean visit(Alt<E> symbol) {
+			System.out.println("Warning: indirect recursion isn't yet supported for (.|.).");
 			return false;
 		}
 
 		@Override
 		public Boolean visit(Opt symbol) {
+			System.out.println("Warning: indirect recursion isn't yet supported for options.");
 			return false;
 		}
 
 		@Override
-		public Boolean visit(Plus symbol) {
+		public Boolean visit(Plus symbol) { // TODO: For the general case, should be done differently
+			String name = EBNFToBNF.getName(symbol.getSymbol(), symbol.getSeparators(), (Nonterminal) layout) + "+";
+			otherwise = name;
+			
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
+				ends.put(name, new HashSet<String>(Arrays.asList(symbol.getSymbol().getName())));
+				return false;
+			} else {
+				Set<String> set = ends.get(name);
+				if (set != null && set.contains(head.getName())) {
+					end = name;
+					return true;
+				}
+			}
 			return false;
 		}
 
 		@Override
 		public <E extends Symbol> Boolean visit(Sequence<E> symbol) {
+			System.out.println("Warning: indirect recursion isn't yet supported for (. .).");
 			return false;
 		}
 
 		@Override
-		public Boolean visit(Star symbol) {
+		public Boolean visit(Star symbol) { // TODO: For the general case, should be done differently
+			
+			String base = EBNFToBNF.getName(symbol.getSymbol(), symbol.getSeparators(), (Nonterminal) layout);
+			String name = base + "*";
+			otherwise = name;
+			
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
+				ends.put(name, new HashSet<String>(Arrays.asList(base + "+")));
+				return false;
+			} else {
+				Set<String> set = ends.get(name);
+				if (set != null && set.contains(head.getName())) {
+					end = name;
+					return true;
+				}
+			}
 			return false;
 		}
 		
