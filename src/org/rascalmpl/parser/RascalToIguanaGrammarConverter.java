@@ -161,9 +161,12 @@ public class RascalToIguanaGrammarConverter {
 				Set<String> ends = leftEnds.get(head);
 				int size = ends.size();
 				for (String end : ends) {
-					ends.addAll(leftEnds.get(end));
-					if (ends.size() != size)
-						changed = true;
+					Set<String> lefts = leftEnds.get(end);
+					if (lefts != null) {
+						ends.addAll(lefts);
+						if (ends.size() != size)
+							changed = true;
+					}
 				}
 			}
 		}
@@ -175,9 +178,12 @@ public class RascalToIguanaGrammarConverter {
 				Set<String> ends = rightEnds.get(head);
 				int size = ends.size();
 				for (String end : ends) {
-					ends.addAll(rightEnds.get(end));
-					if (ends.size() != size)
-						changed = true;
+					Set<String> rights = rightEnds.get(end);
+					if (rights != null) {
+						ends.addAll(rights);
+						if (ends.size() != size)
+							changed = true;
+					}
 				}
 			}
 		}
@@ -1430,7 +1436,8 @@ public class RascalToIguanaGrammarConverter {
 					return true;
 				
 			} else {
-				if (ends.get(symbol.getName()).contains(head.getName())) {
+				Set<String> set = ends.get(symbol.getName());
+				if (set != null && set.contains(head.getName())) {
 					end = symbol.getName();
 					return true;
 				}
@@ -1446,7 +1453,7 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Terminal symbol) {
-			otherwise = "$";
+			otherwise = "$" + head.getName();
 			return false;
 		}
 
