@@ -380,7 +380,7 @@ public class RascalToIguanaGrammarConverter {
 										ends = new HashSet<>();
 										rightEnds.put(head.getName(), ends);
 									}
-									ends.add(isLeft.getName());
+									ends.add(isRight.getName());
 								}
 							}
 							break;
@@ -434,7 +434,7 @@ public class RascalToIguanaGrammarConverter {
 										ends = new HashSet<>();
 										rightEnds.put(head.getName(), ends);
 									}
-									ends.add(isLeft.getName());
+									ends.add(isRight.getName());
 								}
 							}
 							break;
@@ -1459,7 +1459,8 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public Boolean visit(Terminal symbol) {
-			otherwise = "$" + head.getName();
+			if (recursion == Recursion.iLEFT_REC || recursion == Recursion.iRIGHT_REC)
+				otherwise = "$" + head.getName();
 			return false;
 		}
 
