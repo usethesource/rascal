@@ -163,7 +163,10 @@ public class RascalToIguanaGrammarConverter {
 				for (String end : ends) {
 					Set<String> lefts = leftEnds.get(end);
 					if (lefts != null) {
-						ends.addAll(lefts);
+						for (String left : lefts) {
+							if (!left.equals(head))
+								ends.add(left);
+						}
 						if (ends.size() != size)
 							changed = true;
 					}
@@ -180,7 +183,10 @@ public class RascalToIguanaGrammarConverter {
 				for (String end : ends) {
 					Set<String> rights = rightEnds.get(end);
 					if (rights != null) {
-						ends.addAll(rights);
+						for (String right : rights) {
+							if (!right.equals(head))
+								ends.add(right);
+						}
 						if (ends.size() != size)
 							changed = true;
 					}
