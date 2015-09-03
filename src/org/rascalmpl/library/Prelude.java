@@ -2097,6 +2097,7 @@ public class Prelude {
 			writer.println("package " + pkg + ";");
 			writer.println();
 			writer.println("import java.util.Arrays;");
+			writer.println("import java.util.HashSet;");
 			writer.println("import org.iguana.datadependent.ast.AST;");
 			writer.println("import org.iguana.grammar.Grammar;");
 			writer.println("import org.iguana.grammar.GrammarGraph;");
@@ -2167,7 +2168,7 @@ public class Prelude {
 			writer.println("         // Visualization.generateSPPFGraph(\"" + file.getAbsolutePath().replaceAll(name + ".java", "") + "\","); 
 			writer.println("         //                   result.asParseSuccess().getRoot(), input);");
 			writer.println();
-			writer.println("         Assert.assertTrue(result.asParseSuccess().getStatistics().getCountAmbiguousNodes() == 0);");
+			writer.println("         Assert.assertEquals(0, result.asParseSuccess().getStatistics().getCountAmbiguousNodes());");
 			writer.println("    }");
 			writer.println("}");
 			writer.close();
