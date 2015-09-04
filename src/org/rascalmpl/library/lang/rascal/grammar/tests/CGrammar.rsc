@@ -60,7 +60,7 @@ sort("StructDeclarator"): choice(sort("StructDeclarator"),{prod(sort("StructDecl
 )
 );
 
-loc CParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/CParser.java.gz|;
+loc CParserLoc = |std:///lang/rascal/grammar/tests/generated_parsers/CParser.java.gz|;
 
 str generateCParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
 
