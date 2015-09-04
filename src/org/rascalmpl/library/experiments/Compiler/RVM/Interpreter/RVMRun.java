@@ -329,7 +329,7 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 
-	public IValue executeFunction(String uid_func, IValue[] args) {
+	public IValue executeFunction(String uid_func, IValue[] args, IMap kwArgs) {
 		ArrayList<Frame> oldstacktrace = stacktrace;
 		Thrown oldthrown = thrown;
 
