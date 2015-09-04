@@ -419,6 +419,10 @@ public class RascalToIguanaGrammarConverter {
 				
 				break;
 				
+			case "prod": 
+				computeEnds(head, (IList) production.get("symbols"));
+				break;
+				
 			default: throw new RuntimeException("Unexpected type of a production: " + production.getName());
 			
 		}
