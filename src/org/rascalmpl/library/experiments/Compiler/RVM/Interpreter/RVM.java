@@ -158,14 +158,14 @@ public class RVM implements java.io.Serializable {
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
 		
-		this.functionMap = rrs.functionMap;
-		this.functionStore = rrs.functionStore;
+		this.functionMap = rrs.getFunctionMap();
+		this.functionStore = rrs.getFunctionStore();
 		
-		this.constructorMap = rrs.constructorMap;
-		this.constructorStore = rrs.constructorStore;
+		this.constructorMap = rrs.getConstructorMap();
+		this.constructorStore = rrs.getConstructorStore();
 
-		this.resolver = rrs.resolver;
-		this.overloadedStore = rrs.overloadedStore;
+		this.resolver = rrs.getResolver();
+		this.overloadedStore = rrs.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
@@ -193,6 +193,10 @@ public class RVM implements java.io.Serializable {
 	
 	public void setLocationCollector(ILocationCollector collector){
 		this.locationCollector = collector;
+	}
+	
+	public ILocationCollector getLocationCollector(){
+		return locationCollector;
 	}
 	
 	public void resetLocationCollector(){
@@ -367,7 +371,15 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
-	public IValue executeFunction(String uid_func, IValue[] args){
+	/**
+	 * execute a single function, on-overloaded, function
+	 * 
+	 * @param uid_func	Internal function name
+	 * @param args		Argumens
+	 * @param kwArgs	Keyword arguments
+	 * @return
+	 */
+	public IValue executeFunction(String uid_func, IValue[] args, IMap kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
@@ -378,7 +390,8 @@ public class RVM implements java.io.Serializable {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		cf.stack[args.length] = new HashMap<String, IValue>();
+		cf.stack[func.nformals-1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
+		cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -485,28 +498,25 @@ public class RVM implements java.io.Serializable {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, IMap kwArgs) {
 		
 		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
 		
-		//finalizeInstructions();
-		
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
-		
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
 		}
 		
-		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
-			throw new CompilerError("Function " + uid_main + " should have two arguments");
-		}
+//		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
+//			throw new CompilerError("Function " + uid_main + " should have two arguments");
+//		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = new HashMap<String, IValue>();
+		cf.stack[1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		cf.src = main_function.src;
 		
 		Object o = executeProgram(root, cf);
@@ -828,20 +838,20 @@ public class RVM implements java.io.Serializable {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
-				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
-				assert cf.function.isCoroutine || 
-				       cf.function.name.contains("Library/") ||
-				       cf.function.name.contains("/RASCAL_ALL") ||
-				       cf.function.name.contains("/PHI") ||
-				       cf.function.name.contains("/GEN_") ||
-				       cf.function.name.contains("/ALL_") ||
-				       cf.function.name.contains("/OR_") ||
-				       cf.function.name.contains("/IMPLICATION_") ||
-				       cf.function.name.contains("/EQUIVALENCE_") ||
-				       cf.function.name.contains("/closure") ||
-				       cf.stack[cf.function.nformals - 1] instanceof HashMap<?,?>:
-															 "HashMap with keyword parameters expected, got " + cf.stack[cf.function.nformals - 1];
+//				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
+//				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
+//				assert cf.function.isCoroutine || 
+//				       cf.function.name.contains("Library/") ||
+//				       cf.function.name.contains("/RASCAL_ALL") ||
+//				       cf.function.name.contains("/PHI") ||
+//				       cf.function.name.contains("/GEN_") ||
+//				       cf.function.name.contains("/ALL_") ||
+//				       cf.function.name.contains("/OR_") ||
+//				       cf.function.name.contains("/IMPLICATION_") ||
+//				       cf.function.name.contains("/EQUIVALENCE_") ||
+//				       cf.function.name.contains("/closure") ||
+//				       cf.stack[cf.function.nformals - 1] instanceof HashMap<?,?>:
+//															 "HashMap with keyword parameters expected, got " + cf.stack[cf.function.nformals - 1];
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
@@ -934,8 +944,6 @@ public class RVM implements java.io.Serializable {
 					}
 					stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
-					
-
 					
 				case Opcode.OP_LOADBOOL:
 					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
@@ -1074,14 +1082,10 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_STOREVAR:
 					sp = STOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
-					
-				
-									
+						
 				case Opcode.OP_STOREVARDEREF:
 					sp = STOREVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
-					
-				
 									
 				case Opcode.OP_CALLCONSTR:
 					sp = CALLCONSTR(constructorStore.get(CodeBlock.fetchArg1(instruction)), CodeBlock.fetchArg2(instruction), stack, sp);
@@ -1570,8 +1574,6 @@ public class RVM implements java.io.Serializable {
 					sp = UNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
 					
-	
-					
 				// Some specialized MuPrimitives
 					
 				case Opcode.OP_SUBSCRIPTARRAY:
@@ -1722,58 +1724,6 @@ public class RVM implements java.io.Serializable {
 					pc = cf.pc;
 					stack[sp++] = rval;
 					continue NEXT_INSTRUCTION;
-
-// Experimental, will be removed soon
-					
-//					case Opcode.OP_JMPINDEXED:
-//					labelIndex = ((IInteger) stack[--sp]).intValue();
-//					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-//					pc = ((IInteger) labels.get(labelIndex)).intValue();
-//					continue NEXT_INSTRUCTION;
-					
-//				case Opcode.OP_LOADCONT:
-//					s = CodeBlock.fetchArg1(instruction);
-//					assert stack[0] instanceof Coroutine;
-//					for(Frame fr = cf; fr != null; fr = fr.previousScope) {
-//						if (fr.scopeId == s) {
-//							// TODO: unsafe in general case (the coroutine object should be copied)
-//							stack[sp++] = fr.stack[0];
-//							continue NEXT_INSTRUCTION;
-//						}
-//					}
-//					throw new CompilerError("LOADCONT cannot find matching scope: " + s, cf);
-				
-//				case Opcode.OP_RESET:
-//					fun_instance = (FunctionInstance) stack[--sp]; // A function of zero arguments
-//					cf.pc = pc;
-//					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
-//					activeCoroutines.push(new Coroutine(cf));
-//					ccf = cf;
-//					instructions = cf.function.codeblock.getInstructions();
-//					stack = cf.stack;
-//					sp = cf.sp;
-//					pc = cf.pc;
-//					continue NEXT_INSTRUCTION;
-					
-//				case Opcode.OP_SHIFT:
-//					fun_instance = (FunctionInstance) stack[--sp]; // A function of one argument (continuation)
-//					coroutine = activeCoroutines.pop();
-//					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-//					cf.pc = pc;
-//					cf.sp = sp;
-//					prev = coroutine.start.previousCallFrame;
-//					coroutine.suspend(cf);
-//					cf = prev;
-//					sp = cf.sp;
-//					fun_instance.args = new Object[] { coroutine };
-//					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
-//					activeCoroutines.push(new Coroutine(cf));
-//					ccf = cf;
-//					instructions = cf.function.codeblock.getInstructions();
-//					stack = cf.stack;
-//					sp = cf.sp;
-//					pc = cf.pc;
-//					continue NEXT_INSTRUCTION;
 								
 				default:
 					throw new CompilerError("RVM main loop -- cannot decode instruction", cf);
@@ -1896,26 +1846,39 @@ public class RVM implements java.io.Serializable {
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
 			Object[] parameters = new Object[arity + kwArity + reflect];
-			int i = 0;
-			while(i < arity){
+			for(int i = arity - 1; i >= 0; i--){
 				parameters[i] = stack[sp - arity - kwMaps + i];
-				i++;
 			}
+//			int i = 0;
+//			while(i < arity){
+//				parameters[i] = stack[sp - arity - kwMaps + i];
+//				i++;
+//			}
 			if(kwArity > 0){
 				@SuppressWarnings("unchecked")
 				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
 				@SuppressWarnings("unchecked")
 				Map<String, Map.Entry<Type, IValue>> kwDefaultMap = (Map<String, Map.Entry<Type, IValue>>) stack[sp - 1];
-
-				while(i < arity + kwArity){
+				
+				for(int i = arity + kwArity - 1; i >= arity; i--){
 					String key = keywordTypes.getFieldName(i - arity);
 					IValue val = kwMap.get(key);
 					if(val == null){
 						val = kwDefaultMap.get(key).getValue();
 					}
 					parameters[i] = val;
-					i++;
 				}
+				
+//				int i = arity;
+//				while(i < arity + kwArity){
+//					String key = keywordTypes.getFieldName(i - arity);
+//					IValue val = kwMap.get(key);
+//					if(val == null){
+//						val = kwDefaultMap.get(key).getValue();
+//					}
+//					parameters[i] = val;
+//					i++;
+//				}
 			}
 			
 			if(reflect == 1) {
@@ -1943,6 +1906,7 @@ public class RVM implements java.io.Serializable {
 	
 	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage",
@@ -1982,9 +1946,6 @@ public class RVM implements java.io.Serializable {
 			 * cobra::util::outputlogger::getLog
 			 * cobra::quickcheck::_quickcheck
 			 * cobra::quickcheck::arbitrary
-			 * 
-			 * experiments::Compiler::RVM::Interpreter::ParsingTools::parseFragment
-			 * experiments::Compiler::RVM::Run::executeProgram
 			 * 
 			 * experiments::resource::Resource::registerResource
 			 * experiments::resource::Resource::getTypedResource
