@@ -54,7 +54,7 @@ public class ParserGenerator {
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
-		monitor.startJob("Loading parser generator", 100, 139);
+		monitor.startJob("Compiled -- Loading parser generator, 2", 100, 139);
 		try {
 			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 			evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
@@ -87,7 +87,7 @@ public class ParserGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		monitor.startJob("Generating parser:" + name, 100, 90);
+		monitor.startJob("Compiled -- Generating parser: " + name, 100, 90);
 
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
@@ -242,7 +242,7 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
   public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
-  	monitor.startJob("Generating parser:" + name, 100, 60);
+  	monitor.startJob("Compiled -- Generating new parser:" + name, 100, 60);
   	try {
 
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
