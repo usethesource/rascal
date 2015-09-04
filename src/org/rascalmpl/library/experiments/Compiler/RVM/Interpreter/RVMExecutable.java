@@ -48,30 +48,30 @@ public class RVMExecutable implements Serializable{
 	
 	// Serializable fields
 	
-	public String module_name;
-	public IMap moduleTags;
-	public IMap symbol_definitions;
+	private String module_name;
+	private IMap moduleTags;
+	private IMap symbol_definitions;
 	
-	public ArrayList<Function> functionStore;
-	public  Map<String, Integer> functionMap;
+	private ArrayList<Function> functionStore;
+	private  Map<String, Integer> functionMap;
 	
 	// Constructors
-	public ArrayList<Type> constructorStore;
-	public Map<String, Integer> constructorMap;
+	private ArrayList<Type> constructorStore;
+	private Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	public ArrayList<OverloadedFunction> overloadedStore;
-	public Map<String, Integer> resolver;
+	private ArrayList<OverloadedFunction> overloadedStore;
+	private Map<String, Integer> resolver;
 	
-	public ArrayList<String> initializers;
-	public ArrayList<String> testsuites;
-	public String uid_module_init;
-	public String uid_module_main;
-	public String uid_module_main_testsuite;
+	private ArrayList<String> initializers;
+	private ArrayList<String> testsuites;
+	private String uid_module_init;
+	private String uid_module_main;
+	private String uid_module_main_testsuite;
 	
-	public byte[] jvmByteCode;
-	public String fullyQualifiedName ;
-	public String fullyQualifiedDottedName;
+	private byte[] jvmByteCode;
+	private String fullyQualifiedName ;
+	private String fullyQualifiedDottedName;
 	
 	public RVMExecutable(
 			final String module_name,
@@ -124,7 +124,87 @@ public class RVMExecutable implements Serializable{
 		}
 	}
 	
-	public void buildRunnerByteCode(boolean profile, boolean debug) {
+	public String getModuleName() {
+		return module_name;
+	}
+
+	public IMap getModuleTags() {
+		return moduleTags;
+	}
+
+	IMap getSymbolDefinitions() {
+		return symbol_definitions;
+	}
+
+	ArrayList<Function> getFunctionStore() {
+		return functionStore;
+	}
+
+	Map<String, Integer> getFunctionMap() {
+		return functionMap;
+	}
+
+	ArrayList<Type> getConstructorStore() {
+		return constructorStore;
+	}
+
+	Map<String, Integer> getConstructorMap() {
+		return constructorMap;
+	}
+	
+	ArrayList<OverloadedFunction> getOverloadedStore() {
+		return overloadedStore;
+	}
+	
+	Map<String, Integer> getResolver() {
+		return resolver;
+	}
+	
+	ArrayList<String> getInitializers() {
+		return initializers;
+	}
+
+	ArrayList<String> getTestSuites() {
+		return testsuites;
+	}
+
+	String getUidModuleInit() {
+		return uid_module_init;
+	}
+
+	String getUidModuleMain() {
+		return uid_module_main;
+	}
+
+	String getUidModuleMainTestsuite() {
+		return uid_module_main_testsuite;
+	}
+
+	byte[] getJvmByteCode() {
+		return jvmByteCode;
+	}
+
+	void setJvmByteCode(byte[] jvmByteCode) {
+		this.jvmByteCode = jvmByteCode;
+	}
+
+	String getFullyQualifiedName() {
+		return fullyQualifiedName;
+	}
+
+	void setFullyQualifiedName(String fullyQualifiedName) {
+		this.fullyQualifiedName = fullyQualifiedName;
+	}
+
+	String getFullyQualifiedDottedName() {
+		return fullyQualifiedDottedName;
+	}
+
+	void setFullyQualifiedDottedName(String fullyQualifiedDottedName) {
+		this.fullyQualifiedDottedName = fullyQualifiedDottedName;
+	}
+
+	void buildRunnerByteCode(boolean profile, boolean debug) {
 		try {
 			// TODO; in the future create multiple classes with the same name as a Rascal module
 			String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
@@ -143,14 +223,7 @@ public class RVMExecutable implements Serializable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-}
-	
-//	private static ISourceLocation compressedLoc(ISourceLocation exec) throws URISyntaxException{
-//		String scheme = "compressed+" + exec.getScheme();
-//		String authority = exec.getAuthority();
-//		String path = exec.getPath() + ".gz";
-//		return vf.sourceLocation(scheme, authority, path);
-//	}
+	}
 	
 	public void write(ISourceLocation rvmExecutable){		
 		OutputStream fileOut;
@@ -165,9 +238,8 @@ public class RVMExecutable implements Serializable{
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 
 		try {
-			ISourceLocation compOut = rvmExecutable; //compressedLoc(rvmExecutable);
+			ISourceLocation compOut = rvmExecutable;
 			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-			//fileOut = new GZIPOutputStream(fileOut, 8 * 1024);
 			FSTObjectOutput out = new FSTObjectOutput(fileOut, RascalLinker.conf);
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
@@ -180,10 +252,6 @@ public class RVMExecutable implements Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-//		catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) {
@@ -201,9 +269,8 @@ public class RVMExecutable implements Serializable{
 	
 		FSTObjectInput in = null;
 		try {
-			ISourceLocation compIn = rvmExecutable; //compressedLoc(rvmExecutable);
+			ISourceLocation compIn = rvmExecutable;
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			//fileIn = new GZIPInputStream(fileIn);
 			in = new FSTObjectInput(fileIn, RascalLinker.conf);
 			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
@@ -235,7 +302,7 @@ public class RVMExecutable implements Serializable{
 	
 	public boolean comparable(RVMExecutable other){
 		
-		boolean nameOk = this.module_name.equals(other.module_name);
+		boolean nameOk = this.getModuleName().equals(other.getModuleName());
 		boolean symbol_definitionsOk = true;
 		
 		IMap defs1 = this.symbol_definitions;
@@ -358,73 +425,73 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		// public String module_name;
 
-		out.writeObject(ex.module_name);
+		out.writeObject(ex.getModuleName());
 
 		// public IMap moduleTags;
 	
-		out.writeObject(new FSTSerializableIValue(ex.moduleTags));
+		out.writeObject(new FSTSerializableIValue(ex.getModuleTags()));
 
 		// public IMap symbol_definitions;
 
-		out.writeObject(new FSTSerializableIValue(ex.symbol_definitions));
+		out.writeObject(new FSTSerializableIValue(ex.getSymbolDefinitions()));
 
 		// public ArrayList<Function> functionStore;
 		// public Map<String, Integer> functionMap;
 
-		out.writeObject(ex.functionStore);
+		out.writeObject(ex.getFunctionStore());
 
 		// public ArrayList<Type> constructorStore;
 
-		n = ex.constructorStore.size();
+		n = ex.getConstructorStore().size();
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(ex.constructorStore.get(i)));
+			out.writeObject(new FSTSerializableType(ex.getConstructorStore().get(i)));
 		}
 
 		// public Map<String, Integer> constructorMap;
 
-		out.writeObject(ex.constructorMap);
+		out.writeObject(ex.getConstructorMap());
 
 		// public ArrayList<OverloadedFunction> overloadedStore;
 
-		out.writeObject(ex.overloadedStore);
+		out.writeObject(ex.getOverloadedStore());
 
 		// public Map<String, Integer> resolver;
 
-		out.writeObject(ex.resolver);
+		out.writeObject(ex.getResolver());
 
 		// ArrayList<String> initializers;
 
-		out.writeObject(ex.initializers);
+		out.writeObject(ex.getInitializers());
 
 		// ArrayList<String> testsuites;
 
-		out.writeObject(ex.testsuites);
+		out.writeObject(ex.getTestSuites());
 
 		// public String uid_module_init;
 
-		out.writeObject(ex.uid_module_init);
+		out.writeObject(ex.getUidModuleInit());
 
 		// public String uid_module_main;
 
-		out.writeObject(ex.uid_module_main);
+		out.writeObject(ex.getUidModuleMain());
 
 		// public String uid_module_main_testsuite;
 
-		out.writeObject(ex.uid_module_main_testsuite);
+		out.writeObject(ex.getUidModuleMainTestsuite());
 		
 		// public byte[] jvmByteCode;
 		
-		out.writeObject(ex.jvmByteCode);
+		out.writeObject(ex.getJvmByteCode());
 		
 		// public String fullyQualifiedName ;
 		
-		out.writeObject(ex.fullyQualifiedName);
+		out.writeObject(ex.getFullyQualifiedName());
 		
 		// public String fullyQualifiedDottedName;
 		
-		out.writeObject(ex.fullyQualifiedDottedName);
+		out.writeObject(ex.getFullyQualifiedDottedName());
 	}
 
 
@@ -516,9 +583,9 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
 								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
-		ex.jvmByteCode = jvmByteCode;
-		ex.fullyQualifiedName = fullyQualifiedName;
-		ex.fullyQualifiedDottedName = fullyQualifiedDottedName;
+		ex.setJvmByteCode(jvmByteCode);
+		ex.setFullyQualifiedName(fullyQualifiedName);
+		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		
 		return ex;
 	
