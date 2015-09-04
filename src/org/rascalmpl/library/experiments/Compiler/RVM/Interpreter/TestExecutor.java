@@ -30,7 +30,7 @@ public class TestExecutor {
 		this.eval = eval;
 		this.testResultListener = testResultListener;
 		// Make listener known to compiler's run-time system
-		Execute.setTestResultListener(testResultListener);
+		ExecuteProgram.setTestResultListener(testResultListener);
 	}
 
 	public void test(String moduleName, int nTests) {
