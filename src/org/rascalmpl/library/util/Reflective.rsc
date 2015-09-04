@@ -108,7 +108,7 @@ loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool 
 		}	
 	}
 	
-	//println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
+	println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
 	return res;
 }
 
