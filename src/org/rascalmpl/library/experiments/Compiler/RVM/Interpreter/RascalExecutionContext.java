@@ -15,11 +15,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
@@ -50,6 +52,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final IValueFactory vf;
 	private final TypeStore typeStore;
 	private final boolean debug;
+	private final boolean testsuite;
 	private final boolean profile;
 	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
@@ -63,30 +66,45 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private boolean useJVM;
 	private final IMap moduleTags;
 	
-	public RascalExecutionContext(IValueFactory vf, PrintWriter stdout, PrintWriter stderr, IMap moduleTags, IMap symbol_definitions, TypeStore typeStore, boolean debug, boolean profile, boolean trackCalls, boolean coverage, boolean useByteCode, ITestResultListener testResultListener){
+	public RascalExecutionContext(
+			IValueFactory vf, 
+			PrintWriter stdout, 
+			PrintWriter stderr, 
+			IMap moduleTags, 
+			IMap symbol_definitions, 
+			TypeStore typeStore, 
+			boolean debug, 
+			boolean testsuite, 
+			boolean profile, 
+			boolean trackCalls, 
+			boolean coverage, 
+			boolean useJVM, 
+			ITestResultListener testResultListener
+	){
 		
 		this.vf = vf;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = typeStore;
 		this.debug = debug;
+		this.testsuite = testsuite;
 		this.profile = profile;
 		this.coverage = coverage;
-		this.useJVM = useByteCode;
+		this.useJVM = useJVM;
 		this.trackCalls = trackCalls;
 		
 		currentModuleName = "UNDEFINED";
 		
 		this.rascalSearchPath = new RascalSearchPath();
 		registerCommonSchemes();
-		
-		//System.out.println("RascalExecutionContext: " + rascalSearchPath);
+	
 		monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
 		this.stdout = stdout;
 		this.stderr = stderr;
 		config = new Configuration();
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-		this.testResultListener = testResultListener;
+		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
+															  : testResultListener;
 	}
 
 	IValueFactory getValueFactory(){ return vf; }
@@ -99,27 +117,19 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getDebug() { return debug; }
 	
+	boolean getTestSuite() { return testsuite; }
+	
 	boolean getProfile(){ return profile; }
 	
 	boolean getCoverage(){ return coverage; }
 	
-	boolean getUseByteCode() { return useJVM; }
+	boolean getUseJVM() { return useJVM; }
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
 	public RVM getRVM(){ return rvm; }
 	
 	void setRVM(RVM rvm){ this.rvm = rvm; }
-	
-	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
-	
-	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
-		rascalSearchPath.addPathContributor(contrib);
-	}
-	
-	public void addRascalSearchPath(final ISourceLocation uri) {
-		rascalSearchPath.addPathContributor(new URIContributor(uri));
-	}
 	
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
@@ -146,7 +156,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public String getCurrentModuleName(){ return currentModuleName; }
 	
-	void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	public void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
@@ -214,6 +224,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 		stdout.flush();
 	}
 
+	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
+	
+	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+		rascalSearchPath.addPathContributor(contrib);
+	}
+	
+	public void addRascalSearchPath(final ISourceLocation uri) {
+		rascalSearchPath.addPathContributor(new URIContributor(uri));
+	}
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
@@ -257,7 +276,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	void registerCommonSchemes(){
 		URIResolverRegistry resolverRegistry = rascalSearchPath.getRegistry();
-
+		
+		
 		// register some schemes
 		FileURIResolver files = new FileURIResolver();
 		resolverRegistry.registerInputOutput(files);
@@ -302,6 +322,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 		FileURIResolver testModuleResolver = new TestModuleResolver();
 
+		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		
 		resolverRegistry.registerInputOutput(testModuleResolver);
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 
