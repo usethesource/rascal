@@ -8050,7 +8050,7 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					IValue res = rvm.executeFunction(fun, args); 
+					IValue res = rvm.executeFunction(fun, args, null); 
 					passed = ((IBool) res).getValue();
 					if(!passed){
 						break;
@@ -8871,8 +8871,10 @@ public enum RascalPrimitive {
 		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
+		if(parsingTools == null){
+			parsingTools = new ParsingTools(vf);
+			parsingTools.setContext(rex);
+		}
 		tf = TypeFactory.getInstance();
 		typeStore = rex.getTypeStore();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
@@ -8890,9 +8892,9 @@ public enum RascalPrimitive {
 	}
 
 	public static void reset(){
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
-		//parsingTools.reset();
+//		parsingTools = new ParsingTools(vf);
+//		parsingTools.setContext(rex);
+		parsingTools.reset();
 		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();
