@@ -71,12 +71,16 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
     try {
+        if(statement.equals(":quit")){
+    		stop();
+    		return null;
+    	}
       Timing tm = new Timing();
       tm.start();
       IValue value = executor.eval(null, statement, URIUtil.rootLocation("prompt"));
       long duration = tm.duration();
       if (measureCommandTime) {
-        executor.getStdErr().println("\nTime: " + duration + "ms");
+        executor.getStdErr().println("\nTime: " + (duration / 1000000) + "ms");
       }
       return new IRascalResult() {
 		
