@@ -30,7 +30,7 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 
   public CompiledREPLRunner(InputStream stdin, OutputStream stdout) throws IOException {
     super(stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get());
-    setMeasureCommandTime(false);
+    setMeasureCommandTime(true);
   }
 
   @Override
