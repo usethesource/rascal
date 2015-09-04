@@ -49,7 +49,9 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	}
 
 	public Object createRootEnvironment() {
-		throw new CompilerError("Cannot execite createRootEnvironment");
+		rex.getStdErr().println("Cannot execute createRootEnvironment");
+		return null;
+		
 		//return rex.getEvaluatorContext().getCurrentEnvt();		// TODO: change
 	}
 
