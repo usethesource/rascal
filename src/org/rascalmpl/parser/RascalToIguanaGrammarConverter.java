@@ -1501,15 +1501,29 @@ public class RascalToIguanaGrammarConverter {
 		}
 
 		@Override
-		public Boolean visit(Plus symbol) { // TODO: For the general case, should be done differently
-			String name = EBNFToBNF.getName(symbol.getSymbol(), symbol.getSeparators(), null) + "+";
-			end = name;
+		public Boolean visit(Plus symbol) {
 			
 			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
-				ends.put(name, new HashSet<String>(Arrays.asList(symbol.getSymbol().getName())));
+				
+				IsRecursive visitor = new IsRecursive(head, recursion, ebnfs);
+				symbol.getSymbol().accept(visitor);
+				
+				String name = EBNFToBNF.getName(Nonterminal.withName(visitor.end), symbol.getSeparators(), null) + "+";
+				end = name;
+				
+				ends.putAll(visitor.ends);
+				ends.put(name, new HashSet<String>(Arrays.asList(visitor.end)));
 				ebnfs.add(name);
+				
 				return false;
 			} else {
+				
+				IsRecursive visitor = new IsRecursive(head, recursion, ends, ebnfs, null);
+				symbol.getSymbol().accept(visitor);
+				
+				String name = EBNFToBNF.getName(Nonterminal.withName(visitor.end), symbol.getSeparators(), null) + "+";
+				end = name;
+				
 				Set<String> set = ends.get(name);
 				if (set != null && set.contains(head.getName()))
 					return true;
@@ -1519,25 +1533,69 @@ public class RascalToIguanaGrammarConverter {
 
 		@Override
 		public <E extends Symbol> Boolean visit(Sequence<E> symbol) {
-			System.out.println("Warning: indirect recursion isn't yet supported for (. .).");
+			
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
+				
+				IsRecursive visitor = new IsRecursive(head, recursion, ebnfs);
+				
+				if (recursion == Recursion.LEFT_REC)
+					symbol.get(0).accept(visitor);
+				else
+					symbol.getSymbols().get(symbol.getSymbols().size() - 1).accept(visitor);
+				
+				String name = symbol.getName();
+				end = name;
+				
+				ends.putAll(visitor.ends);
+				ends.put(name, new HashSet<String>(Arrays.asList(visitor.end)));
+				ebnfs.add(name);
+				
+			} else {
+				IsRecursive visitor = new IsRecursive(head, recursion, ends, ebnfs, null);
+				
+				if (recursion == Recursion.iLEFT_REC)
+					symbol.getSymbols().get(0).accept(visitor);
+				else
+					symbol.getSymbols().get(symbol.getSymbols().size() - 1).accept(visitor);
+				
+				String name = symbol.getName();
+				end = name;
+				
+				Set<String> set = ends.get(name);
+				if (set != null && set.contains(head.getName()))
+					return true;
+			}
+			
 			return false;
 		}
 
 		@Override
-		public Boolean visit(Star symbol) { // TODO: For the general case, should be done differently
+		public Boolean visit(Star symbol) {
 			
-			String base = EBNFToBNF.getName(symbol.getSymbol(), symbol.getSeparators(), null);
-			String name = base + "*";
-			end = name;
-			
-			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
-				// TODO: not good, there should be also left and right ends
+			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) { // TODO: not good, there should be also left and right ends
+				
+				IsRecursive visitor = new IsRecursive(head, recursion, ebnfs);
+				symbol.getSymbol().accept(visitor);
+				
+				String base = EBNFToBNF.getName(Nonterminal.withName(visitor.end), symbol.getSeparators(), null);
+				String name = base + "*";
+				end = name;
+				
+				ends.putAll(visitor.ends);
 				ends.put(name, new HashSet<String>(Arrays.asList(base + "+")));
-				ends.put(base + "+", new HashSet<String>(Arrays.asList(symbol.getSymbol().getName())));
+				ends.put(base + "+", new HashSet<String>(Arrays.asList(visitor.end)));
 				ebnfs.add(name);
 				ebnfs.add(base + "+");
 				return false;
 			} else {
+				
+				IsRecursive visitor = new IsRecursive(head, recursion, ends, ebnfs, null);
+				symbol.getSymbol().accept(visitor);
+				
+				String base = EBNFToBNF.getName(Nonterminal.withName(visitor.end), symbol.getSeparators(), null);
+				String name = base + "*";
+				end = name;
+				
 				Set<String> set = ends.get(name);
 				if (set != null && set.contains(head.getName()))
 					return true;
