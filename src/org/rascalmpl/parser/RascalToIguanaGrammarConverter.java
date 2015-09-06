@@ -1462,8 +1462,6 @@ public class RascalToIguanaGrammarConverter {
 				Set<String> set = ends.get(symbol.getName());
 				if (set != null && set.contains(head.getName()))
 					return true;
-				else
-					end = "NREC";
 			}
 			
 			return false;
@@ -1515,8 +1513,6 @@ public class RascalToIguanaGrammarConverter {
 				Set<String> set = ends.get(name);
 				if (set != null && set.contains(head.getName()))
 					return true;
-				else
-					end = "NREC";
 			}
 			return false;
 		}
@@ -1545,8 +1541,6 @@ public class RascalToIguanaGrammarConverter {
 				Set<String> set = ends.get(name);
 				if (set != null && set.contains(head.getName()))
 					return true;
-				else
-					end = "NREC";
 			}
 			return false;
 		}
