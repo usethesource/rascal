@@ -7,10 +7,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -41,9 +45,13 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
@@ -68,9 +76,7 @@ public class RVM implements java.io.Serializable {
 	private final boolean profileRascalPrimtives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
-//	private boolean listing = false;
 	private boolean trackCalls = false;
-//	private boolean finalized = false;
 	
 	final ArrayList<Function> functionStore;
 	protected final Map<String, Integer> functionMap;
@@ -78,9 +84,6 @@ public class RVM implements java.io.Serializable {
 	// Function overloading
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
-	
-//	private final TypeStore typeStore;
-//	private final Types types;
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
@@ -96,13 +99,11 @@ public class RVM implements java.io.Serializable {
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
 	Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics 
-	//IEvaluatorContext ctx;
 	RascalExecutionContext rex;
 	List<ClassLoader> classLoaders;
 	
 	private final Map<Class<?>, Object> instanceCache;
 	private final Map<String, Class<?>> classCache;
-	//private OverloadedFunction res;
 	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -133,7 +134,7 @@ public class RVM implements java.io.Serializable {
 		}  
 	};
 
-	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
+	public RVM(RVMLinked rrs, RascalExecutionContext rex) {
 		
 		super();
 
@@ -330,19 +331,6 @@ public class RVM implements java.io.Serializable {
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
-	
-//	private void finalizeInstructions(){
-//		// Finalize the instruction generation of all functions, if needed
-//		if(!finalized){
-//			finalized = true;
-//			for(Function f : functionStore) {
-//				f.finalize(functionMap, constructorMap, resolver, listing);
-//			}
-//			for(OverloadedFunction of : overloadedStore) {
-//				of.finalize(functionMap);
-//			}
-//		}
-//	}
 
 	private String getFunctionName(int n) {
 		for(String fname : functionMap.keySet()) {
@@ -391,7 +379,7 @@ public class RVM implements java.io.Serializable {
 			cf.stack[i] = args[i]; 
 		}
 		cf.stack[func.nformals-1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
-		cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
+		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -473,16 +461,15 @@ public class RVM implements java.io.Serializable {
 		return narrow(o); 
 	}
 			
-	private String trace = "";
-	
-	
-	public String getTrace() {
-		return trace;
-	}
-	
-	public void appendToTrace(String trace) {
-		this.trace = this.trace + trace + "\n";
-	}
+//	private String trace = "";
+//	
+//	public String getTrace() {
+//		return trace;
+//	}
+//	
+//	public void appendToTrace(String trace) {
+//		this.trace = this.trace + trace + "\n";
+//	}
 	
 	public String findVarName(Frame cf, int s, int pos){
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -524,10 +511,10 @@ public class RVM implements java.io.Serializable {
 			throw (Thrown) o;
 		}
 		IValue res = narrow(o);
-		if(debug) {
-			stdout.println("TRACE:");
-			stdout.println(getTrace());
-		}
+//		if(debug) {
+//			stdout.println("TRACE:");
+//			stdout.println(getTrace());
+//		}
 		rex.setCurrentModuleName(oldModuleName);
 		return res;
 	}
@@ -808,7 +795,14 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		return executeProgram(root, cf, null);
+		long start = Timing.getCpuTime();
+		//trackCalls = true;
+		Object res = executeProgram(root, cf, null);
+		long duration = (Timing.getCpuTime() - start)/1000000;
+		if(duration > 50){
+			System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
+		}
+		return res;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1767,11 +1761,11 @@ public class RVM implements java.io.Serializable {
 						}
 					}
 					// If a handler has not been found in the caller functions...
-					stdout.println("EXCEPTION " + thrown + " at: " + cf.src);
-					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						stdout.println("\t" + f.toString());
-					}
-					stdout.flush();
+//					stdout.println("EXCEPTION " + thrown + " at: " + cf.src);
+//					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+//						stdout.println("\t" + f.toString());
+//					}
+//					stdout.flush();
 					return thrown;
 				}
 				
@@ -2133,4 +2127,6 @@ public class RVM implements java.io.Serializable {
 			return IDateTime.class;
 		}
 	}
+	
+	
 }
