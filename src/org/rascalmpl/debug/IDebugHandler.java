@@ -7,19 +7,14 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.debug;
 
-import java.util.EventListener;
-
-public interface IInterpreterEventListener extends EventListener {
-
-	/**
-	 * Notification about a runtime-specific event.
-	 * 
-	 * @param event the notification
-	 */
-	void handleInterpreterEvent(InterpreterEvent event);
+/**
+ * Internal debugging support interface to be used within the interpreter.
+ */
+public interface IDebugHandler extends IDebugSupport,
+		IRascalSuspendTriggerListener {
 	
 }

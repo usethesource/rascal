@@ -9,7 +9,7 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
 /**
  * Specification of messages that are exchanged between the debugger and the

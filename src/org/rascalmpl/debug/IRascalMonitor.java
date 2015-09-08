@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
 *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.debug;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 

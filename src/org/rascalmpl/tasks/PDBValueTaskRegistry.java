@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> implements ITaskRegistry<Type, IValue, IValue> {

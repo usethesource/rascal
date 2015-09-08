@@ -9,16 +9,15 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.debug;
 
 /**
  * Interface to mark an class as an event trigger, where you can register for as
  * a listener.
  */
-public interface IInterpreterEventTrigger {
+public interface IRascalEventTrigger {
 
-	void addInterpreterEventListener(IInterpreterEventListener listener);
-
-	void removeInterpreterEventListener(IInterpreterEventListener listener);
+	void addRascalEventListener(IRascalEventListener listener);
+	void removeRascalEventListener(IRascalEventListener listener);
 	
 }
