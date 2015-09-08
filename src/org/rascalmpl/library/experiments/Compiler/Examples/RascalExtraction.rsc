@@ -8,8 +8,10 @@ import IO;
 import ValueIO;
 import util::Reflective;
 
-value main(list[value] args) {
-	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
+value main(list[value] args) = compareAll(args);
+
+value compareAll(list[value] args) {
+	moduleLoc = |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
 	//moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst3.rsc|;
 	m = parse(#start[Module], moduleLoc).top;
 	t = cpuTime();
@@ -20,11 +22,13 @@ value main(list[value] args) {
 	calls = [];
 	patterns = [];
 	
-	for(int i <- [0..20]){
+	for(int i <- [0..10]){
 		declarations = [ d | /Declaration d := m];
 		functions = [f | /FunctionDeclaration f := m ];
 		statements = [ s | /Statement s := m ];
 		expressions = [ e | /Expression e := m ];
+		int cnt = 0;
+		visit(m) { case Expression e: cnt += 1; };
 		calls = [ e | /Expression e := m, e is callOrTree];
 		patterns = [ p | /Pattern p := m ];
 	}
@@ -34,7 +38,7 @@ value main(list[value] args) {
 			size(declarations), 
 			size(functions),
 			size(statements), 
-			size(expressions), 
+			size(expressions),
 			size(calls), 
 			size(patterns)
 			];
