@@ -330,7 +330,7 @@ public class ParsingTools {
 	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
 		if(getBootstrap(name)){
-			stderr.println("Compiled -- getParser: " + name + " returns RascalParser");
+			//stderr.println("Compiled -- getParser: " + name + " returns RascalParser");
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator();
