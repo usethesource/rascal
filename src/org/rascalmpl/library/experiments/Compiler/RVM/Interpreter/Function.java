@@ -136,11 +136,11 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
+	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
 		if(constructorMap == null){
 			System.out.println("finalize: null");
 		}
-		codeblock.done(name, codeMap, constructorMap, resolver, listing);
+		codeblock.done(name, codeMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn.length() != 0) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
