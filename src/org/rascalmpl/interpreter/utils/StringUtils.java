@@ -129,7 +129,7 @@ public final class StringUtils {
 		return result.toString();
 	}
 	
-	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z][\\-_a-zA-Z0-9]*)\\s*$");
+	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z:][\\-_a-zA-Z0-9]*)\\s*$");
 
 	public static class OffsetLengthTerm {
 	  public OffsetLengthTerm(int offset, int length, String term) {
@@ -149,7 +149,16 @@ public final class StringUtils {
 		}
 		if (m.matches()) {
 			String originalTerm = m.group(1).trim();
-			return new OffsetLengthTerm(m.start(1), originalTerm.length(), originalTerm);
+			int startPos = m.start(1);
+			if(originalTerm.startsWith(":") && startPos != 0){
+				if(originalTerm.length() > 1){
+					originalTerm = originalTerm.substring(1);
+					startPos++;
+				} else {
+					return null;
+				}
+			}
+			return new OffsetLengthTerm(startPos, originalTerm.length(), originalTerm);
 		}
 		return null;
 	}
@@ -158,7 +167,7 @@ public final class StringUtils {
 		return (c >= 'A' && c <= 'Z') 
 			|| (c >= 'a' && c <= 'z')
 			|| (c >= '0' && c <= '9')
-			|| c == '_' || c == '-'
+			|| c == '_' || c == '-' || c == ':'
 			;
 	}
 
