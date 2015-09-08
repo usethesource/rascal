@@ -43,10 +43,10 @@ test bool notEqual(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(
 test bool intersection(set[&T] A, set[&T] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B);
 
 test bool lesseq(set[int] A, set[int] B)  = A <= (A + B);
-test bool less(set[int] A, set[int] B) = isEmpty(B) || A < (A + B);
+test bool less(set[int] A, set[int] B) = A != B && !isEmpty(B) ==> A < (A + B);
 
 test bool greatereq(set[int] A, set[int] B)  = (A + B) >= A;
-test bool greater(set[int] A, set[int] B)  = isEmpty(B) || (A + B) > A;
+test bool greater(set[int] A, set[int] B)  = A != B && !isEmpty(B) ==> (A + B) > A;
 
 test bool tst_in(int A, set[int] B) = A in (A + B) && A in (B + A);
 test bool tst_notin(int A, set[int] B) = A notin (B - A);
