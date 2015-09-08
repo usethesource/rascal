@@ -9,11 +9,11 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.debug;
 
 import java.util.EventObject;
 
-public class InterpreterEvent extends EventObject {
+public class RascalEvent extends EventObject {
 
 	/**
 	 * Generated serialization version ID.
@@ -38,11 +38,11 @@ public class InterpreterEvent extends EventObject {
 	private final Detail detail;
 	private Object data = null;
 
-	public InterpreterEvent(Object eventSource, Kind kind) {
+	public RascalEvent(Object eventSource, Kind kind) {
 		this(eventSource, kind, Detail.UNSPECIFIED);
 	}
 
-	public InterpreterEvent(Object eventSource, Kind kind, Detail detail) {
+	public RascalEvent(Object eventSource, Kind kind, Detail detail) {
 		super(eventSource);
 		this.kind = kind;
 		this.detail = detail;

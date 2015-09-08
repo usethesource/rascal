@@ -14,19 +14,15 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
+import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
 import java.util.Set;
+import java.util.function.IntSupplier;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
-import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.debug.IDebugMessage.Detail;
 
 public final class DebugHandler implements IDebugHandler {
 
@@ -51,12 +47,12 @@ public final class DebugHandler implements IDebugHandler {
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
 	/**
-	 * Referring to {@link AbstractAST} responsible for last suspension.
+	 * Referring to {@link ISourceLocation} responsible for last suspension.
 	 */
-	private AbstractAST referenceAST = null;	
+	private ISourceLocation referenceAST = null;	
 
 	/**
-	 * Referring to the {@link Environment} stack depth at last suspension suspension.
+	 * Referring to the stack depth at last suspension suspension.
 	 * This information is used to determine if stepping enters a function call.
 	 * {@see #suspend(IEvaluator, AbstractAST)}
 	 */	
@@ -92,34 +88,32 @@ public final class DebugHandler implements IDebugHandler {
 		setSuspended(false);
 	}	
 	
-	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	protected void updateSuspensionState(int callStackSize, ISourceLocation currentAST) {
 		setReferenceAST(currentAST);
 		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
+		setReferenceEnvironmentStackSize(callStackSize);
 		setSuspended(true);
 	}
 	
 	@Override
-	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	public void suspended(Object runtime, IntSupplier getCallStackSize, ISourceLocation currentAST) {
 	    if (isSuspendRequested()) {
-	        updateSuspensionState(evaluator, currentAST);
+	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
 	        setSuspendRequested(false);
 	    } 
 	    else {
-	        ISourceLocation location = currentAST.getLocation();
+	        ISourceLocation location = currentAST;
 	        switch (getStepMode()) {
 
 	        case STEP_INTO:
-	            updateSuspensionState(evaluator, currentAST);
+	            updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	            getEventTrigger().fireSuspendByStepEndEvent();
 	            break;
 
 	        case STEP_OVER:
-	            // TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-	            // TODO: optimize {@link Evaluator.getCallStack()}; currently it is expensive because of environment traversal
-	            Integer currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
+	            Integer currentEnvironmentStackSize = getCallStackSize.getAsInt();
 
 	            /*
 	             * Stepping over implies:
@@ -136,8 +130,8 @@ public final class DebugHandler implements IDebugHandler {
 	                 * frame, positions are compared to ensure that the
 	                 * statement was finished executing.
 	                 */
-	                int referenceStart = getReferenceAST().getLocation().getOffset();
-	                int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
+	                int referenceStart = getReferenceAST().getOffset();
+	                int referenceAfter = getReferenceAST().getOffset() + getReferenceAST().getLength();
 	                int currentStart = location.getOffset();
 	                int currentAfter = location.getOffset() + location.getLength();
 
@@ -145,14 +139,14 @@ public final class DebugHandler implements IDebugHandler {
 	                        || currentStart >= referenceAfter
 	                        || currentStart == referenceStart
 	                        && currentAfter == referenceAfter) {
-	                    updateSuspensionState(evaluator, currentAST);
+	                    updateSuspensionState(currentEnvironmentStackSize, currentAST);
 	                    getEventTrigger().fireSuspendByStepEndEvent();
 	                }
 	                break;
 
 	            case -1:
 	                // lower stack size: left scope, thus over
-	                updateSuspensionState(evaluator, currentAST);
+	                updateSuspensionState(currentEnvironmentStackSize, currentAST);
 	                getEventTrigger().fireSuspendByStepEndEvent();
 	                break;
 
@@ -168,7 +162,7 @@ public final class DebugHandler implements IDebugHandler {
 
 	        case NO_STEP:
 	            if (hasBreakpoint(location)) {
-	                updateSuspensionState(evaluator, currentAST);
+	                updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	                getEventTrigger().fireSuspendByBreakpointEvent(location);
 	            }
 	            break;
@@ -181,18 +175,18 @@ public final class DebugHandler implements IDebugHandler {
 	     */
 	    while (isSuspended()) {
 	        try {
-	            evaluator.wait(50);
+	            runtime.wait(50);
 	        } catch (InterruptedException e) {
 	            // Ignore
 	        }
 	    }
 	}
 
-	protected AbstractAST getReferenceAST() {
+	protected ISourceLocation getReferenceAST() {
 	  return referenceAST;
 	}
 
-	protected void setReferenceAST(AbstractAST referenceAST) {
+	protected void setReferenceAST(ISourceLocation referenceAST) {
 	  this.referenceAST = referenceAST;
 	}
 
