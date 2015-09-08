@@ -32,7 +32,7 @@ public final class DebugHandler implements IDebugHandler {
 
 	private AbstractInterpreterEventTrigger eventTrigger;
 
-	private final Set<String> breakpoints = new java.util.HashSet<String>();
+	private final Set<ISourceLocation> breakpoints = new java.util.HashSet<>();
 			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
@@ -75,15 +75,15 @@ public final class DebugHandler implements IDebugHandler {
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		return breakpoints.contains(b.toString());
+		return breakpoints.contains(b);
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.add(breakpointLocation.toString());
+		breakpoints.add(breakpointLocation);
 	}
 
 	private void removeBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.remove(breakpointLocation.toString());
+		breakpoints.remove(breakpointLocation);
 	}
 	
 	protected void clearSuspensionState() {
