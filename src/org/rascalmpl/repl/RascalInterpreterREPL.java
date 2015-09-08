@@ -66,10 +66,14 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
     try {
-      Timing tm = new Timing();
-      tm.start();
-      Result<IValue> value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
-      long duration = tm.duration();
+      Result<IValue> value;
+      long duration;
+      synchronized (eval) {
+          Timing tm = new Timing();
+          tm.start();
+          value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
+          duration = tm.duration();
+      }
       if (measureCommandTime) {
         eval.getStdErr().println("\nTime: " + duration + "ms");
       }
