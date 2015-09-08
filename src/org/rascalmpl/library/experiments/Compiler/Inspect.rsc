@@ -20,7 +20,6 @@ import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-
 /*
  * A mini-query language to query .rvm and .tc files
  */
@@ -94,9 +93,11 @@ void inspect(loc srcLoc,                // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
           Query select = none(),     	// select function names to be shown
           int line = -1,				// select line of function to be shown
-          bool listing = false          // show instruction listing
+          bool listing = false,         // show instruction listing
+          bool linked = false           // inspect the fully linked version of the program
           ){
-    rvmLoc = RVMProgramLocation(srcLoc, bindir);
+    rvmLoc = linked ? RVMExecutableCompressedLocation(srcLoc, bindir) : RVMProgramLocation(srcLoc, bindir);
+    println("rvmLoc = <rvmLoc>");
     RVMProgram p;
     listing = listing || line >= 0;
     try {
