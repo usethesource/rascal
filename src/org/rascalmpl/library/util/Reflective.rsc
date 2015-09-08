@@ -19,7 +19,12 @@ import IO;
 
 public Tree getModuleParseTree(str modulePath) {
     mloc = getModuleLocation(modulePath);
-    return parseModule(mloc);
+    return getModuleParseTree1(mloc, lastModified(mloc));
+}
+
+@memo
+private Tree getModuleParseTree1(loc mloc, datetime lastMod){
+   return parseModule(mloc);
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
@@ -108,7 +113,7 @@ loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool 
 		}	
 	}
 	
-	println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
+	//println("getDerivedLocation: <src>, <extension>, <bindir> =\> <res>");
 	return res;
 }
 
