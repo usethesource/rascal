@@ -23,8 +23,8 @@ import Map;
 delete(("apple":1,"pear":2), "apple");
 </screen>
 }
-public map[&K,&V] delete(map[&K,&V] m, &K k) = 
-  (key: m[key] | &K key <- m, key != k);
+public map[&K,&V] delete(map[&K,&V] m, &K k) = m - (k:0); 
+  
 
 @doc{
 Synopsis: Determine the domain (set of keys) of a map.
