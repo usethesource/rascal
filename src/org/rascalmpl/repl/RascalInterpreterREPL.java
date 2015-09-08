@@ -65,40 +65,39 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
-    try {
-      Result<IValue> value;
-      long duration;
-      synchronized (eval) {
+      try {
+          Result<IValue> value;
+          synchronized(eval) {
           Timing tm = new Timing();
           tm.start();
           value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
-          duration = tm.duration();
+          long duration = tm.duration();
+          }
+          if (measureCommandTime) {
+              eval.getStdErr().println("\nTime: " + duration + "ms");
+          }
+          return value;
       }
-      if (measureCommandTime) {
-        eval.getStdErr().println("\nTime: " + duration + "ms");
+      catch (ParseError pe) {
+          eval.getStdErr().println(parseErrorMessage(lastLine, "prompt", pe));
+          return null;
       }
-      return value;
-    }
-    catch (ParseError pe) {
-      eval.getStdErr().println(parseErrorMessage(lastLine, "prompt", pe));
-      return null;
-    }
-    catch (StaticError e) {
-      eval.getStdErr().println(staticErrorMessage(e));
-      return null;
-    }
-    catch (Throw e) {
-      eval.getStdErr().println(throwMessage(e));
-      return null;
-    }
-    catch (QuitException q) {
-      eval.getStdErr().println("Quiting REPL");
-      throw new InterruptedException();
-    }
-    catch (Throwable e) {
-      eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
-      return null;
-    }
+      catch (StaticError e) {
+          eval.getStdErr().println(staticErrorMessage(e));
+          return null;
+      }
+      catch (Throw e) {
+          eval.getStdErr().println(throwMessage(e));
+          return null;
+      }
+      catch (QuitException q) {
+          eval.getStdErr().println("Quiting REPL");
+          throw new InterruptedException();
+      }
+      catch (Throwable e) {
+          eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
+          return null;
+      }
   }
 
   @Override

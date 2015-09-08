@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullE
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
@@ -103,96 +102,90 @@ public final class DebugHandler implements IDebugHandler {
 	
 	@Override
 	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		if (Display.getDefault().getThread().equals(Thread.currentThread())) {
-			return;
-		}
-		if(isSuspendRequested()) {
-			updateSuspensionState(evaluator, currentAST);
-			getEventTrigger().fireSuspendByClientRequestEvent();			
-		
-			setSuspendRequested(false);
-			
-		} else {
+	    if (isSuspendRequested()) {
+	        updateSuspensionState(evaluator, currentAST);
+	        getEventTrigger().fireSuspendByClientRequestEvent();			
+	        setSuspendRequested(false);
+	    } 
+	    else {
+	        ISourceLocation location = currentAST.getLocation();
+	        switch (getStepMode()) {
 
-			ISourceLocation location = currentAST.getLocation();
-      switch (getStepMode()) {
-			
-			case STEP_INTO:
-				updateSuspensionState(evaluator, currentAST);
-				getEventTrigger().fireSuspendByStepEndEvent();
-				break;
-				
-			case STEP_OVER:
-				// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-				// TODO: optimize {@link Evaluator.getCallStack()}; currently it is expensive because of environment traversal
-				Integer currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
+	        case STEP_INTO:
+	            updateSuspensionState(evaluator, currentAST);
+	            getEventTrigger().fireSuspendByStepEndEvent();
+	            break;
 
-				/*
-				 * Stepping over implies:
-				 * * either there is a next statement in the same environment stack frame (which might
-				 *   equal the reference statement in case of recursion or single statement loops)
-				 * * or there is no next statement in the same stack frame and thus the stack frame 
-				 *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
-				 *   are executed, no action needs to be taken.
-				 */
-				switch (currentEnvironmentStackSize.compareTo(getReferenceEnvironmentStackSize())) {
-				case 0:
-				  /*
-				   * For the case that we are still within the same stack
-				   * frame, positions are compared to ensure that the
-				   * statement was finished executing.
-				   */
-				  int referenceStart = getReferenceAST().getLocation().getOffset();
-				  int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-				  int currentStart = location.getOffset();
-				  int currentAfter = location.getOffset() + location.getLength();
+	        case STEP_OVER:
+	            // TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
+	            // TODO: optimize {@link Evaluator.getCallStack()}; currently it is expensive because of environment traversal
+	            Integer currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
 
-				  if (currentStart < referenceStart
-				      || currentStart >= referenceAfter
-				      || currentStart == referenceStart
-				      && currentAfter == referenceAfter) {
-				    updateSuspensionState(evaluator, currentAST);
-				    getEventTrigger().fireSuspendByStepEndEvent();
-				  }
-				  break;
+	            /*
+	             * Stepping over implies:
+	             * * either there is a next statement in the same environment stack frame (which might
+	             *   equal the reference statement in case of recursion or single statement loops)
+	             * * or there is no next statement in the same stack frame and thus the stack frame 
+	             *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
+	             *   are executed, no action needs to be taken.
+	             */
+	            switch (currentEnvironmentStackSize.compareTo(getReferenceEnvironmentStackSize())) {
+	            case 0:
+	                /*
+	                 * For the case that we are still within the same stack
+	                 * frame, positions are compared to ensure that the
+	                 * statement was finished executing.
+	                 */
+	                int referenceStart = getReferenceAST().getLocation().getOffset();
+	                int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
+	                int currentStart = location.getOffset();
+	                int currentAfter = location.getOffset() + location.getLength();
 
-				case -1:
-				  // lower stack size: left scope, thus over
-				  updateSuspensionState(evaluator, currentAST);
-				  getEventTrigger().fireSuspendByStepEndEvent();
-				  break;
+	                if (currentStart < referenceStart
+	                        || currentStart >= referenceAfter
+	                        || currentStart == referenceStart
+	                        && currentAfter == referenceAfter) {
+	                    updateSuspensionState(evaluator, currentAST);
+	                    getEventTrigger().fireSuspendByStepEndEvent();
+	                }
+	                break;
 
-				case +1:
-				  // higher stack size: not over yet
-				  break;
+	            case -1:
+	                // lower stack size: left scope, thus over
+	                updateSuspensionState(evaluator, currentAST);
+	                getEventTrigger().fireSuspendByStepEndEvent();
+	                break;
 
-				default:
-				  throw new RuntimeException(
-				      "Requires compareTo() to return exactly either -1, 0, or +1.");
-				}
-				break;
+	            case +1:
+	                // higher stack size: not over yet
+	                break;
 
-			case NO_STEP:
-			  if (hasBreakpoint(location)) {
-			    updateSuspensionState(evaluator, currentAST);
-			    getEventTrigger().fireSuspendByBreakpointEvent(location);
-			  }
-			  break;
+	            default:
+	                throw new RuntimeException(
+	                        "Requires compareTo() to return exactly either -1, 0, or +1.");
+	            }
+	            break;
 
-      }
-		}
+	        case NO_STEP:
+	            if (hasBreakpoint(location)) {
+	                updateSuspensionState(evaluator, currentAST);
+	                getEventTrigger().fireSuspendByBreakpointEvent(location);
+	            }
+	            break;
 
-		/*
-		 * Waiting until GUI triggers end of suspension.
-		 */
-		while (isSuspended()) {
-		  try {
-		    evaluator.wait(50);
-		  } catch (InterruptedException e) {
-		    // Ignore
-		  }
-		}		
+	        }
+	    }
 
+	    /*
+	     * Waiting until GUI triggers end of suspension.
+	     */
+	    while (isSuspended()) {
+	        try {
+	            evaluator.wait(50);
+	        } catch (InterruptedException e) {
+	            // Ignore
+	        }
+	    }
 	}
 
 	protected AbstractAST getReferenceAST() {
