@@ -27,9 +27,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;						// remove import: NO
 import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import: YES
-import org.rascalmpl.interpreter.IRascalMonitor;					// remove import: NO
 import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import: LATER
 import org.rascalmpl.interpreter.env.GlobalEnvironment;				// TODO: remove import: YES
 import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove import: YES

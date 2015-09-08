@@ -76,7 +76,7 @@ public class QuickCheck {
 	public boolean quickcheck(AbstractFunction function, int maxDepth,
 			int tries, boolean verbose, PrintWriter out) {
 
-		String fname = function.getName();
+		String fname = function.getEnv().getName() + "::" + function.getName();
 	
 		Environment declEnv = function.getEnv();
 		IValueFactory vf = function.getEval().getValueFactory();

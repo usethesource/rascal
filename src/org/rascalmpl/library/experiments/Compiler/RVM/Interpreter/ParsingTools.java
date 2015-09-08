@@ -21,8 +21,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: YES
-import org.rascalmpl.interpreter.IRascalMonitor;				// remove import: NO
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;

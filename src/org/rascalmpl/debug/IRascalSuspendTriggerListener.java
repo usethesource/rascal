@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2013 CWI
+ * Copyright (c) 2012-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,11 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.IEvaluator;
+import java.util.function.IntSupplier;
+
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 /**
  * Interface for suspending an program interpretation.
@@ -26,6 +27,6 @@ public interface IRascalSuspendTriggerListener {
 	 * @param evaluator the evaluator in charge of interpreting @param context.
 	 * @param currentAST the AST that is causes the suspension.
 	 */
-	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST);
+	public void suspended(Object runtime, IntSupplier getCallStackSize, ISourceLocation currentAST);
 	
 }

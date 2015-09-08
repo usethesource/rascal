@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
