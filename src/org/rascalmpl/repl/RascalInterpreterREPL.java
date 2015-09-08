@@ -64,6 +64,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
+  public void stop() {
+      super.stop();
+      eval.interrupt();
+  }
+  
+  @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
       try {
           Result<IValue> value;
