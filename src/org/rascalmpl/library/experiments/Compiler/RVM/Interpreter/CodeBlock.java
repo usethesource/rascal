@@ -727,7 +727,7 @@ public class CodeBlock implements Serializable {
 		return add(new CheckMemo(this));
 	}
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
@@ -752,10 +752,7 @@ public class CodeBlock implements Serializable {
 		if(typeConstantStore.size() >= maxArg){
 			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
 		}
-		
-		if(listing){
-			listing(fname);
-		}
+	
     	return this;
     }
     
