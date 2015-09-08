@@ -9,12 +9,12 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
-/**
- * Internal debugging support interface to be used within the interpreter.
- */
-public interface IDebugHandler extends IDebugSupport,
-		IRascalSuspendTriggerListener {
+public interface IRascalSuspendTrigger {
 	
+	public void addSuspendTriggerListener(IRascalSuspendTriggerListener listener);
+	
+	public void removeSuspendTriggerListener(IRascalSuspendTriggerListener listener);
+		
 }

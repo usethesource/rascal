@@ -11,7 +11,7 @@
  *   * Emilie Balland - (CWI)
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
 /**
  * External debugging support interface to be in an front-end / UI.

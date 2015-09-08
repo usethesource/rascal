@@ -36,7 +36,7 @@ test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 bool isEqual(list[&T] A, list[&T] B) { 
     if(size(A) == size(B)){
         for(int i <-[0 .. size(A)]){
-            if(A[i] != B[i])
+            if("<A[i]>" != "<B[i]>") // use strings to avoid coercion
                 return false;
         }
         return true;
@@ -391,15 +391,16 @@ test bool tstMix(list[&T] L, list[&U] R) {
 
 public int factorial(int n) = (n <= 0) ? 1 : n * factorial(n -1);
 
-test bool tstPermutations(list[&T] L) =
-  size(permutations(L)) <= factorial(size(L)) &&
-  all(P <- permutations(L), size(P) == size(L), isEmpty(L - P), isEmpty(P - L));
+test bool tstPermutations(list[int] L) =
+  size(L) == size({*L}) ==>
+    (size(permutations(L)) <= factorial(size(L)) &&
+   all(P <- permutations(L), size(P) == size(L), isEmpty(L - P), isEmpty(P - L)));
   
-test bool tstPop(list[&T] L) = isEmpty(L) || pop(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
+test bool tstPop(list[value] L) = isEmpty(L) || pop(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
 
-test bool tstPrefix(list[&T] L) = prefix(L) == (isEmpty(L) ? [] : L[..-1]);
+test bool tstPrefix(list[value] L) = prefix(L) == (isEmpty(L) ? [] : L[..-1]);
 
-test bool tstPush(&T elem, list[&T] L) = push(elem, L) == [elem, *L];
+test bool tstPush(value elem, list[value] L) = push(elem, L) == [elem, *L];
 
 test bool tstReverse(list[&T] L) = reverse(reverse(L)) == L;
 
@@ -450,7 +451,7 @@ test bool tstTakeWhile(list[int] L){
   return takeWhile(L, isEven) == takeEven(L);
 }
 
-test bool tstToMap(lrel[&A, &B] L)
+test bool tstToMap(lrel[int, rat] L)
 {
 	mapFromLRel = ListRelation::toMap(L);
 	mapFromRel = toMap(toSet(L));
@@ -545,8 +546,9 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		rhs = [ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-		check = check && lhs == rhs && typeOf(lhs) == typeOf(rhs);
+		// we use string comparison to avoid problems with coercion for `==`
+		rhs = [ *( ("<elem>" == "<el>" && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		check = check && "<lhs>" == "<rhs>" && typeOf(lhs) == typeOf(rhs);
 	}
 	return check;
 }

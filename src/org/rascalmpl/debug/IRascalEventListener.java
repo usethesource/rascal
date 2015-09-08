@@ -7,14 +7,19 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
-public interface IRascalSuspendTrigger {
+import java.util.EventListener;
+
+public interface IRascalEventListener extends EventListener {
+
+	/**
+	 * Notification about a runtime-specific event.
+	 * 
+	 * @param event the notification
+	 */
+	void handleRascalEvent(RascalEvent event);
 	
-	public void addSuspendTriggerListener(IRascalSuspendTriggerListener listener);
-	
-	public void removeSuspendTriggerListener(IRascalSuspendTriggerListener listener);
-		
 }
