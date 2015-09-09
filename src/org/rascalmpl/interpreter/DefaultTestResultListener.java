@@ -62,8 +62,10 @@ public class DefaultTestResultListener implements ITestResultListener{
 	}
 
     private void progress() {
-        err.print(String.format("%s testing %d/%d ", 
-                roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
+        if (count > 0) {
+            err.print(String.format("%s testing %d/%d ", 
+                    roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
+        }
     }
 	
 	@Override
