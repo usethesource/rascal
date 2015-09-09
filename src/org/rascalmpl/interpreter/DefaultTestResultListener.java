@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter;
 import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.repl.ReplTextWriter;
 
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;
@@ -62,14 +63,17 @@ public class DefaultTestResultListener implements ITestResultListener{
 	}
 
     private void progress() {
-        err.print(String.format("%s testing %d/%d ", 
-                roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
+        if (count > 0) {
+            err.print(String.format("%s testing %d/%d ", 
+                    roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
+        }
     }
 	
 	@Override
 	public void done() {
+	    progress();
 	    if (count > 0) {
-	        err.println("\nTest report for " + context);
+	        err.println("\rTest report for " + context);
 	        if (errors + failures == 0) {
 	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
 	        }
@@ -96,13 +100,13 @@ public class DefaultTestResultListener implements ITestResultListener{
 		}
 		else if (t != null) {
 		    errors++;
-		    err.print("error: " + loc + "\n");
+		    err.print("error: " + ReplTextWriter.valueToString(loc) + "\n");
 		    err.println("\t" + t.getMessage());
 		    t.printStackTrace(err);
 		}
 		else {
 		    failures++;
-		    err.print("failure: " + loc + "\n");
+		    err.print("failure: " + ReplTextWriter.valueToString(loc) + "\n");
 		    err.println(message);
 		}
 		

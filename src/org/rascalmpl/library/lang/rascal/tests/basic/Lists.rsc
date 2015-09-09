@@ -547,12 +547,11 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		// we use string comparison to avoid problems with coercion for `==`
 		rhs = [ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
 		
 		if (<lhs> != <rhs> || typeOf(lhs) != typeOf(rhs)) {
-		  println("Error: removed <elem> from <lst> resulted in <lhs> instead of <rhs>");
-		  return false;
+		  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
+		  
 		}
 	}
 	return true;
