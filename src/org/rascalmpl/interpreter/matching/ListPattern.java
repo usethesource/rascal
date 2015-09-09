@@ -213,7 +213,7 @@ public class ListPattern extends AbstractMatchingResult  {
           isBindingVar[i] = true;
         } else {
           allVars.add(name);
-          Result<IValue> varRes = env.getVariable(name);
+          Result<IValue> varRes = env.getFrameVariable(name);
 
           if (varRes == null || multiVar.bindingInstance()) {
             isBindingVar[i] = true;
@@ -263,7 +263,7 @@ public class ListPattern extends AbstractMatchingResult  {
            * Nothing to do
            */
         } else {
-          Result<IValue> varRes = env.getVariable(name);
+          Result<IValue> varRes = env.getFrameVariable(name);
 
           if(varRes == null || qualName.bindingInstance()){ 
             // A completely new non-list variable, nothing to do
@@ -570,11 +570,11 @@ public class ListPattern extends AbstractMatchingResult  {
       } 
       else if(isListVar[patternCursor] && 
           !isBindingVar[patternCursor] && 
-          ctx.getCurrentEnvt().getVariable(varName[patternCursor]).getType().isList()){
+          ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]).getType().isList()){
         if(forward){
           listVarStart[patternCursor] = subjectCursor;
 
-          Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(varName[patternCursor]);
+          Result<IValue> varRes = ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]);
           IValue varVal = varRes.getValue();
 
           if(varRes.getType().isList()){

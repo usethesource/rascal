@@ -41,6 +41,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -421,7 +422,7 @@ public class ModuleEnvironment extends Environment {
 		
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return getVariable(cons);
+				return getFrameVariable(cons);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -433,7 +434,7 @@ public class ModuleEnvironment extends Environment {
 			return imported.getVariable(name);
 		}
 		
-		return getVariable(cons);
+		return getFrameVariable(cons);
 	}
 	
 	@Override
@@ -443,7 +444,7 @@ public class ModuleEnvironment extends Environment {
 //			return;
 //		}
 		
-		Result<IValue> result = super.getVariable(name);
+		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);

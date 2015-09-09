@@ -65,6 +65,8 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
+import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -121,7 +123,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
+public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
 	private static final class CourseResolver extends FileURIResolver {
 		private final String courseSrc;
 
@@ -1478,8 +1480,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	  return config;
 	}
 	
-	public Stack<Environment> getCallStack() {
-		Stack<Environment> stack = new Stack<Environment>();
+	public Stack<IRascalFrame> getCallStack() {
+		Stack<IRascalFrame> stack = new Stack<>();
 		Environment env = currentEnvt;
 		while (env != null) {
 			stack.add(0, env);
@@ -1742,5 +1744,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			result.add(v);
 		}
 	}
+
+    @Override
+    public Stack<IRascalFrame> getCurrentStack() {
+        return getCallStack();
+    }
+
+    @Override
+    public IRascalFrame getTopFrame() {
+        return getCurrentEnvt();
+    }
+
+    @Override
+    public ISourceLocation getCurrentPointOfExecution() {
+        AbstractAST cpe = getCurrentAST();
+        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getLocation();
+    }
+
+    @Override
+    public IRascalFrame getModule(String name) {
+        return heap.getModule(name);
+    }
  
 }
