@@ -41,7 +41,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;

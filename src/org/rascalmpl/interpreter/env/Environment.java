@@ -37,7 +37,6 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.debug.IRascalFrame;
-import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
