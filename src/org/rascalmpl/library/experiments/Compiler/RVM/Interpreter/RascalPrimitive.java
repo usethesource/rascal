@@ -8020,6 +8020,7 @@ public enum RascalPrimitive {
 
 			if(ignore){
 				test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+				testResultListener.ignored("", src);
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);

@@ -261,7 +261,12 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		}
 
 		@Override
-		public void start(int count) {
+		public void ignored(String test, ISourceLocation loc) {
+		    notifier.fireTestIgnored(getDescription(test, loc));
+		}
+		
+		@Override
+		public void start(String context, int count) {
 			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
 			notifier.fireTestRunStarted(module);
 		}

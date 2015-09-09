@@ -6,18 +6,29 @@ import Prelude;
 str current = "white";
 
 Figure butt() = hcat(figs= [
-    button("Click me", id = "aap"
-    , event = on("click", 
-    void (str n, str e) {
+    buttonInput("Click me", id = "aap"
+    
+    )
+    , box(size=<50, 50>
+        , fig=label("teun", id="teun"
+        , fillColor = "yellow"      
+        ) 
+       , id = "mies"
+      , event = on("click", 
+    void (str n, str e, str v) {
        if (style("mies").fillColor=="green") {       
           style("mies", fillColor="red");
+          //style("mies", visibility="hidden");
+          //style("teun", visibility="hidden");
           }
-       else 
+       else {
+          //style("mies", visibility="visible");
+          //style("teun", visibility="visible");
           style("mies", fillColor="green");
+          }
        }
     )
-    )
-    , box(size=<50, 50>, id = "mies")  
+    )  
     ]);
     
 void tbutt()= render(butt(), debug = false);
@@ -25,7 +36,7 @@ void tbutt()= render(butt(), debug = false);
 void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
 
 Figure counter() = hcat(figs= [
-    button("Incr", id = "aap"
+    buttonInput("Incr", id = "aap"
     , event = on("click", 
     void (str e, str n, str v) {  
        str t1 = textLabel("mies1").text;
@@ -42,7 +53,7 @@ Figure counter() = hcat(figs= [
        }
     )
     )
-    , button("Decr", id = "noot"
+    , buttonInput("Decr", id = "noot"
     , event = on("click", 
     void (str e, str n, str v) {
        str t1 = textLabel("mies1").text;
@@ -75,7 +86,7 @@ void tcounter()= render(counter(), debug = false);
 //   )),
 //   text(color, fontSize=12, fontWeight="bold")]);
    
-Figure cell(str color) = vcat(figs=[button("", size=<120, 20>, fillColor=color
+Figure cell(str color) = vcat(figs=[buttonInput("", size=<120, 20>, fillColor=color
    , id = color, event= on( "click", 
         void(str e, str n, str v) {
                current = n;
@@ -111,12 +122,12 @@ list[list[Figure]] colorArr() {
 Figure palette() = vcat(figs=[
     grid(figArray=colorArr(), vgap = 2, hgap = 2)
        ,hcat(figs=[    
-         button("choose 1", id = "c1"
+         buttonInput("choose 1", id = "c1"
          ,event = on("click", void(str e, str n, str v) {
                 style("b1", fillColor = current);
                 })
          )
-         ,button("choose 2", id = "c2"
+         ,buttonInput("choose 2", id = "c2"
          , event = on("click", void (str e, str n, str v) {
                 style("b2", fillColor = current);})
          )             
@@ -146,7 +157,7 @@ void tpalette() = render(palette());
 
 
 Figure range() = vcat(
-     figs= [rangeInput(id="q", low=0, high = 2, val = 1, step = 0.01, event=on("change", void(str e, str n, real v)
+     figs= [rangeInput(id="q", low=0, high = 2, \value = 1, step = 0.01, event=on("change", void(str e, str n, real v)
             {
                 attr("aap", grow = v);
             }))
@@ -159,7 +170,9 @@ Figure range() = vcat(
               )
             )
             ,
-            button("push", event = on ("click", void(str e, str n, str v) {println(getValue("q"));}))
+            buttonInput("push", event = on ("click", void(str e, str n, str v) {
+                println(property("q", \value = 2));
+               }))
             ]
 
 )
@@ -170,9 +183,94 @@ void frange(loc l) = writeFile(l, toHtmlString(range()));
 
 
 Figure choice() = hcat(figs=[
-     choiceInput(id = "c1", choices = ["aap", "noot", "mies"], checked="noot", event = 
-      on("click", void(str e, str n , str v) {println(getChecked("c2"));}))
+     choiceInput(id = "c1", choices = ["aap", "noot", "mies"], \value="noot", event = 
+      on( void(str e, str n , str v) {println(property("c2"));}))
       ,choiceInput(id = "c2", choices = ["x", "y", "z"], event = 
-      on("click", void(str e, str n , str v) {println(v);}))
+      on( void(str e, str n , str v) {
+         println(v);
+         property("c1", \value = "mies");
+      }))
       ]);
 void tchoice()= render(choice());
+
+Figure string() = strInput(event=on( 
+    void(str e, str n , str v) {
+       println(v);
+       }
+     ));
+void tstring()= render(string());
+
+Figure checkbox() = hcat(figs= [
+    checkboxInput(id="check", choices=["aap","noot", "mies"], \value=("noot":true)
+    ,event = on(void(str e, str n , int v) {2;})
+    )
+    ,buttonInput("flip", event=
+         on(
+           void(str e, str n , str v) {
+               value x = property("check").\value; 
+               if (map[str, bool] y := x){
+                  y["noot"]= !y["noot"];
+                  property("check", \value = y);
+               }
+            }
+         ))]);
+     
+void tcheckbox()= render(checkbox());
+
+Figure button(int i, int j) = buttonInput("<i*3+j+1>", size=<50, 30>,
+  event = on(update));
+  
+str buf = "";
+
+str bufa = "";
+
+void update(str e, str n, str v) {
+    buf+=v;
+    textLabel("display",text= buf);
+    }
+
+void clear(str e, str n, str v) {
+    bufa = buf;
+    buf=""; 
+    clearTextLabel("display");
+    }
+    
+void op(str e, str n, str v) {
+    int d1 = toInt(bufa);
+    int d2 = toInt(buf);
+    switch (v) {
+        case "+": buf = "<d1+d2>";
+        case "-": buf = "<d1-d2>";
+        case "*": buf = "<d1*d2>";
+        case "/": buf = "<d1/d2>";
+    }
+    textLabel("display",text= buf);
+    }
+
+list[list[Figure]] buttonArr() {
+      list[list[Figure]] res = [];
+      for (int i<-[0..3]) { 
+          list[Figure] fs = [];
+          for (int j<-[0..3]) {
+              fs+= button(i, j);
+          }
+          res+=[fs];
+      }
+    list[Figure] last1= [ 
+        buttonInput("0", size=<50, 30>, event=on(update)),
+        buttonInput("ac", size=<50, 30>, event=on(clear)),
+        buttonInput("+", size=<50, 30>, event = on(op))];
+     list[Figure] last2= [ 
+        buttonInput("-", size=<50, 30>, event=on(op)),
+        buttonInput("*", size=<50, 30>, event=on(op)),
+        buttonInput("/", size=<50, 30>, event = on(op))];
+    return res+=[last1, last2];
+    }
+
+
+Figure pocket() {
+     return vcat(figs = [box(size=<150, 30>, fig = text("", id = "display", size=<140, 20> ))
+         , grid(figArray = buttonArr())]);
+     }
+     
+void tpocket() = render(pocket());
