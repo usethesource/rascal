@@ -95,7 +95,5 @@ public class DebugMessageFactory {
 		public Object getPayload() {
 			return payload;
 		}
-		
 	}	
-	
 }
