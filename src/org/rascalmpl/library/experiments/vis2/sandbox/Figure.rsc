@@ -24,6 +24,7 @@ alias Rotate = tuple[num angle, num x, num y];
 
 alias Rescale = tuple[tuple[num, num], tuple[num, num]];
 
+
 // Alignment for relative placement of figure in parent
 
 
@@ -47,10 +48,15 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 
 data Event 
-	= on()
+	= on(void(str, str, str) callBackS)
+	| on(void(str, str, real) callBackR)
+	| on(void(str, str, int) callBackI)
 	| on(str eventName, void(str, str, str) callbackS)
 	| on(str eventName, void(str, str, real) callbackR)
 	| on(str eventName, void(str, str, int) callbackI)
+	| on(list[str] eventList, void(str, str, str) callbackS)
+	| on(list[str] eventList, void(str, str, real) callbackR)
+	| on(list[str] eventList, void(str, str, int) callbackI)
 	;
 		
 //alias Cursor[&T] = &T;
@@ -114,17 +120,22 @@ public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
 
+void nullCallback(str x, str y, str z) = "";
+
 public data Attr (
     int width = -1,
     int height =  -1,
     int r = -1,
-    num grow = 1.0,
-    num curN = 50.0,
-    str curS = "0"
+    num grow = 1.0  
     ) = attr();
+    
+public data Property (
+     value \value = ""
+    ) = property();
     
 public data Style (	
     bool svg = false,
+    str visibility = "", 
     int width = -1,
     int height = -1,	
     int lineWidth = -1,			
@@ -140,12 +151,13 @@ public data Text (
     ) = text();
     
 public alias Prop =
-    tuple[Attr attr, Style style,  Text text];
+    tuple[Attr attr, Style style,  Property property, Text text];
     
     
 public data Figure(
         // Naming
         str id = "",
+        str visibility = "", 
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
@@ -186,10 +198,9 @@ public data Figure(
 		str fontWeight = "",// "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
 		str fontColor = "", // "black",
 		str textDecoration	= "", //"none",	// none|underline|overline|line-through|initial|inherit
-		
 		// Interaction
 	
-		Event event = on(),
+		Event event = on(nullCallback),
 		
 		// Tooltip
 		str tooltip = ""
@@ -200,7 +211,8 @@ public data Figure(
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | text(value text)		    			// text label
+   | text(value text)		    			// text label html
+   | label(value text)		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -260,10 +272,9 @@ public data Figure(
 
 // Input elements
 
-   | buttonInput(str trueText = "", str falseText = "")
-   | button(str txt)
-   | checkboxInput()
-   | choiceInput(list[str] choices = ["0"], str checked = choices[0])
+   | buttonInput(str txt)
+   | checkboxInput(list[str] choices = ["0"], value \value = ())
+   | choiceInput(list[str] choices = ["0"], value \value = choices[0])
    | colorInput()
    
    // date
@@ -276,8 +287,8 @@ public data Figure(
    // url
    
    | numInput()
-   | rangeInput(num low=0, num high=100, num step=1, num val = 50)
-   | strInput()
+   | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
+   | strInput(int nchars=20, value \value="")
    
 // Visibility control elements
 
@@ -306,7 +317,8 @@ public data Figure(
      GraphOptions options = graphOptions())
  
 // Trees
-	| tree(Figure root, Figures children)
+	| tree(Figure root, Figures figs, int scaleX=5, int scaleY=5, int rasterHeight=100
+	       ,int xSeparation = 5, int ySeparation = 10)
    ;
    
 data GraphOptions = graphOptions(
