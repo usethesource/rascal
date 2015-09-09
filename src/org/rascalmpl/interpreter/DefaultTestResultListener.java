@@ -70,6 +70,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 	
 	@Override
 	public void done() {
+	    progress();
 	    if (count > 0) {
 	        err.println("\nTest report for " + context);
 	        if (errors + failures == 0) {
