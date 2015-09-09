@@ -2737,7 +2737,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 			
 			// TODO: should allow qualified names in TypeVariables?!?
-			Result<IValue> result = __eval.getCurrentEnvt().getVariable(
+			Result<IValue> result = __eval.getCurrentEnvt().getFrameVariable(
 					org.rascalmpl.interpreter.utils.Names.name(this.getName()));
 
 			if (result != null && result.getValue() != null) {

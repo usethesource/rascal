@@ -36,6 +36,8 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
@@ -48,9 +50,8 @@ import org.rascalmpl.interpreter.utils.Names;
 
 /**
  * A simple environment for variables and functions and types.
- * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
  */
-public class Environment {
+public class Environment implements IRascalFrame {
 	
 	// TODO: these NameFlags should also be used to implement Public & Private ??
 	protected static class NameFlags {
@@ -222,11 +223,11 @@ public class Environment {
 		}
 
 		String varName = Names.name(Names.lastName(name));
-		return getVariable(varName);
+		return getFrameVariable(varName);
 	}
 
 	public Result<IValue> getVariable(Name name) {
-		return getVariable(Names.name(name));
+		return getFrameVariable(Names.name(name));
 	}
 	
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
@@ -255,7 +256,7 @@ public class Environment {
 		return getSimpleVariable(varName);
 	}
 	
-	public Result<IValue> getVariable(String name) {
+	public Result<IValue> getFrameVariable(String name) {
 		Result<IValue> t = getSimpleVariable(name);
 		
 		if (t != null) {
@@ -816,25 +817,6 @@ public class Environment {
 		  }
 	}
 	
-//	// Ugh, ugly, expensive, WRONG!
-//	protected Set<AbstractFunction> toBeRebound = new HashSet<>();
-//
-//	// To be called just before becoming initialized
-//	public void rebindExtendedFunctions() {
-//		if (functionEnvironment == null) {
-//			return;
-//		}
-//		for (String name: functionEnvironment.keySet()) {
-//			List<AbstractFunction> funcs = functionEnvironment.get(name);
-//			for (int i = 0; i < funcs.size(); i++) {
-//				if (toBeRebound.contains(funcs.get(i))) {
-//					System.err.println("Rebinding " + funcs.get(i) + " to " + this);
-//					funcs.set(i, (AbstractFunction) funcs.get(i).cloneInto(this));
-//				}
-//			}
-//		}
-//	}
-	
 	protected void extendFunctionEnv(Environment other) {
 		if (other.functionEnvironment != null) {
 		    if (this.functionEnvironment == null) {
@@ -911,5 +893,10 @@ public class Environment {
 	public Map<String, Type> getKeywordParameterTypes(Type ontype) {
 		return getRoot().getKeywordParameterTypes(ontype);
 	}
+
+    @Override
+    public Set<String> getFrameVariables() {
+        return getVariables().keySet();
+    }
 }
 
