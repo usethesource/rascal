@@ -140,9 +140,7 @@ public class RascalJUnitTestRunner extends Runner {
 			  desc.addChild(modDesc);
 				// the order of the tests aren't decided by this list so no need to randomly order them.
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
 				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
-				  }
 				}
 			}
 			
