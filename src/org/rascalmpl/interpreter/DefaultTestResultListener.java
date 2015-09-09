@@ -72,7 +72,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 	public void done() {
 	    progress();
 	    if (count > 0) {
-	        err.println("\nTest report for " + context);
+	        err.println("\rTest report for " + context);
 	        if (errors + failures == 0) {
 	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
 	        }
