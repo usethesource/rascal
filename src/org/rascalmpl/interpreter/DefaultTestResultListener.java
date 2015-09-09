@@ -54,7 +54,9 @@ public class DefaultTestResultListener implements ITestResultListener{
 	public void start(String context, int count) {
 	    this.context = context;
 	    reset();
-	    err.println("Running tests for " + context);
+	    if (count != 0) {
+	        err.println("Running tests for " + context);
+	    }
 		this.count = count;
 		progress();
 	}
@@ -66,18 +68,20 @@ public class DefaultTestResultListener implements ITestResultListener{
 	
 	@Override
 	public void done() {
-	    err.println("\nTest report for " + context);
-	    if (errors + failures == 0) {
-	        err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
-	    }
-	    else {
-	        err.println("\t" + successes + "/" + count + " tests succeeded");
-	        err.println("\t" + failures + "/" + count + " tests failed");
-	        err.println("\t" + errors + "/" + count + " tests threw exceptions");
-	    }
-	    
-	    if (ignored != 0) {
-	        err.println("\t" + ignored + "/" + count + " tests ignored");
+	    if (count > 0) {
+	        err.println("\nTest report for " + context);
+	        if (errors + failures == 0) {
+	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
+	        }
+	        else {
+	            err.println("\t" + successes + "/" + count + " tests succeeded");
+	            err.println("\t" + failures + "/" + count + " tests failed");
+	            err.println("\t" + errors + "/" + count + " tests threw exceptions");
+	        }
+
+	        if (ignored != 0) {
+	            err.println("\t" + ignored + "/" + count + " tests ignored");
+	        }
 	    }
 	}
 	
