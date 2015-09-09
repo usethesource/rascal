@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -15,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
@@ -75,6 +77,7 @@ public class Function implements Serializable {
 	
 	// transient fields 
 	transient static IValueFactory vf;
+	transient SoftReference<MemoizationCache<IValue>> memoization;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
@@ -133,11 +136,11 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver, final boolean listing){
+	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
 		if(constructorMap == null){
 			System.out.println("finalize: null");
 		}
-		codeblock.done(name, codeMap, constructorMap, resolver, listing);
+		codeblock.done(name, codeMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn.length() != 0) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);

@@ -789,16 +789,29 @@ default MuExp translate(Statement s){
 /*                  End of Statements                                */
 /*********************************************************************/
 
+MuExp returnFromFunction(MuExp body, bool isMemo, loc src) {
+  res = muReturn1(body);
+  if(isMemo){
+     res = visit(res){
+     	case muReturn1(e) => muReturn1(muCallPrim3("memoize", [body], src))
+     }
+  }
+  return res;   
+}
+         
+MuExp functionBody(MuExp body, bool isMemo, loc src) =
+   isMemo ? muBlock([muCallPrim3("check_memo", [body], src), body])  // Directly mapped to the CHECKMEMO instruction that returns when args are in cache
+          : body;
 
-MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
+MuExp translateFormals(list[Pattern] formals, bool isVarArgs, bool isMemo, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
    if(isEmpty(formals)) {
       if(isEmpty(when_conditions)){
-        return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
+        return muBlock([ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, src) ]);
     } else {
         ifname = nextLabel();
         enterBacktrackingScope(ifname);
         conditions = [ translate(cond) | cond <- when_conditions];
-        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, src) ], [ muFailReturn() ]);
         leaveBacktrackingScope();
         return mubody;
     }
@@ -809,7 +822,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
-                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+                   [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
                    [ muFailReturn() ]
                   );
       leaveBacktrackingScope();
@@ -829,7 +842,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
                                                                                                      : translateType(tp) ), 
                                                         muCon(pos)
                                                     ]),
-             [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+             [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
              [ muFailReturn() ]);
       leaveBacktrackingScope();
       //println("translateFormals returns:");
@@ -838,14 +851,15 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
     }
 }
 
-MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
+MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, bool isMemo, list[Expression] when_conditions){
   bool simpleArgs = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
       simpleArgs = false;
   }
   if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-     return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
+     return functionBody(muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, isMemo, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]),
+                         isMemo, formals@\loc);
   } else {
      list[MuExp] conditions = [];
      int i = 0;
@@ -858,7 +872,8 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       };
       conditions += [ translate(cond) | cond <- when_conditions];
 
-      mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+      mubody = functionBody(muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, formals@\loc) ], [ muFailReturn() ]),
+                            isMemo, formals@\loc);
       leaveBacktrackingScope();
       return mubody;
   }

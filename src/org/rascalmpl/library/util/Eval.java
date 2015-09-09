@@ -68,14 +68,14 @@ public class Eval {
 	}
 
 	private ModuleEnvironment getUniqueModuleEnvironment(IEvaluatorContext ctx) {
-		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount++ , ctx.getHeap());
+		ModuleEnvironment mod = new ModuleEnvironment("$evalinstance$" + evalCount++ , ctx.getHeap());
 		return mod;
 	}
 
 	private Evaluator getSharedEvaluator(IEvaluatorContext ctx) {
 		if (this.eval == null) {
 			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("___EVAL___", heap);
+			ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
 			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
 			this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 		}

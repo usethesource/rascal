@@ -319,7 +319,7 @@ public class SetPattern extends AbstractMatchingResult {
 					 */
 					if(debug)System.err.println("Non-anonymous var, not seen before: " + name);
 					
-					Result<IValue> varRes = env.getVariable(name);
+					Result<IValue> varRes = env.getFrameVariable(name);
 					
 					if(varRes == null || qualName.bindingInstance()){
 						// Completely new variable that was not yet declared in this pattern or its subpatterns
@@ -490,7 +490,7 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			// Binding occurrence of this variable?
-			if(isBinding[i] || qualName.isAnonymous() || env.getVariable(name) == null || env.getVariable(name).getValue() == null){
+			if(isBinding[i] || qualName.isAnonymous() || env.getFrameVariable(name) == null || env.getFrameVariable(name).getValue() == null){
 				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
@@ -500,7 +500,7 @@ public class SetPattern extends AbstractMatchingResult {
 				}
 			} else {
 				// Variable has been set before, use its dynamic type to distinguish set variables.
-				IValue val = env.getVariable(name).getValue();
+				IValue val = env.getFrameVariable(name).getValue();
 				
 				if (val != null) {
 				  if (val != null && val.getType().isSet()){
@@ -625,7 +625,7 @@ public class SetPattern extends AbstractMatchingResult {
 							varVal[currentVar] = v;
 							ctx.getCurrentEnvt().storeVariable(varName[currentVar], r);
 							if(debug)System.err.println("Store in " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType() + " / " +
-							ctx.getCurrentEnvt().getVariable(varName[currentVar]).getType());
+							ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getType());
 						}
 					}
 			} else if(isBinding[currentVar]){
@@ -639,7 +639,7 @@ public class SetPattern extends AbstractMatchingResult {
 						varVal[currentVar] = v;
 						ctx.getCurrentEnvt().storeVariable(varName[currentVar], r);
 						if(debug)System.err.println("Store in " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType() + " / " +
-								ctx.getCurrentEnvt().getVariable(varName[currentVar]).getType());
+								ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getType());
 					}
 				}
 			} else 	if(varPat[currentVar] instanceof QualifiedNamePattern && ((QualifiedNamePattern)varPat[currentVar] ).isAnonymous()){

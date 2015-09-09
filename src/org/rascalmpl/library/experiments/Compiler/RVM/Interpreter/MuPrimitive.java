@@ -971,13 +971,13 @@ public enum MuPrimitive {
 			assert arity == 4;
 			IString id = (IString) stack[sp - 4];
 			DescendantDescriptor desc = descendantDescriptorMap.get(id);
-			//if(desc == null){
+			if(desc == null){
 				ISet symbolset = (ISet) stack[sp - 3];
 				IBool concreteMatch = (IBool) stack[sp - 2];
 				IMap definitions = (IMap) stack[sp - 1];
 				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
 				descendantDescriptorMap.put(id,  desc);
-			//}
+			}
 			stack[sp - 4] = desc;
 			return sp - 3;
 		};
@@ -2206,7 +2206,7 @@ public enum MuPrimitive {
 	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
 	
 	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
-
+	
 	private static long timeSpent[];
 	
 	public static MuPrimitive fromInteger(int muprim) {

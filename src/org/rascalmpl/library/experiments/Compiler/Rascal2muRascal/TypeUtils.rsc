@@ -82,14 +82,16 @@ public int getLoc2uid(loc l){
     if(loc2uid[l]?){
     	return loc2uid[l];
     }
-    l = normalize(l);
-    //println("getLoc2uid: <l>");
-    //iprintln(loc2uid);
-    assert loc2uid[l]? : "getLoc2uid <l>";
-    return loc2uid[l];
+    throw "getLoc2uid: <l>";
+ 	//l = normalize(l);
+  //  //println("getLoc2uid: <l>");
+  //  //iprintln(loc2uid);
+  //  assert loc2uid[l]? : "getLoc2uid <l>";
+  //  return loc2uid[l];
 }
 
 public loc normalize(loc l) {
+
     if(l.scheme == "std"){
       
   	   res = getSearchPathLocation(l.path);
@@ -97,10 +99,10 @@ public loc normalize(loc l) {
   	   		res = res(l.offset, l.length, l.begin,l.end);
   	   } catch: ;
   	   
-  	  // println("normalize: <l> =\> <res>");
+  	  println("**** normalize: <l> =\> <res>");
   	   return res;
     }
-    //println("normalize: unchanged: <l>");
+    println("**** normalize: unchanged: <l>");
     return l;
 }
 
@@ -284,8 +286,8 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   config = visit (c) { case loc l => normalize(l) };
-   
+   //config = visit (c) { case loc l => normalize(l) };
+   config = c;
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
@@ -432,9 +434,9 @@ void extractScopes(Configuration c){
     }
     
     // Make sure that the original and the normalized location is present.
-    for(l <- config.locationTypes){
-    	config.locationTypes[l] = config.locationTypes[l];
-    }
+    //for(l <- config.locationTypes){
+    //	config.locationTypes[l] = config.locationTypes[l];
+    //}
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
@@ -631,7 +633,8 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
      
     // Fill in uid2name
     uid2name[uid] = fuid;
-    loc2uid[normalize(src)] = uid;
+    //////loc2uid[normalize(src)] = uid;
+    loc2uid[src] = uid;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
     if(!uid2str[uid]?){
@@ -652,7 +655,7 @@ Symbol getType(loc l) {
     if(config.locationTypes[l]?){
     	return config.locationTypes[l];
     }
-    l = normalize(l);
+    //////l = normalize(l);
     //iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
@@ -976,7 +979,7 @@ public UID declaredScope(UID uid) {
 }
 
 public list[UID] accessibleAlts(list[UID] uids, loc luse){
-  luse = normalize(luse);
+  //////luse = normalize(luse);
   inScope = config.usedIn[luse] ? 0; // All generated functions are placed in scope 0
   
   key = <uids, inScope>;
@@ -1003,7 +1006,7 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
 }
  
 MuExp mkVar(str name, loc l) {
-  l = normalize(l);
+  //////l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
   uid = getLoc2uid(l);
@@ -1042,7 +1045,7 @@ MuExp mkVar(str name, loc l) {
 // Generate a MuExp to reference a variable
 
 MuExp mkVarRef(str name, loc l){
-  l = normalize(l);
+  //////l = normalize(l);
   <fuid, pos> = getVariableScope("<name>", l);
   return muVarRef("<name>", fuid, pos);
 }

@@ -30,86 +30,80 @@ import org.rascalmpl.library.cobra.QuickCheck;
 
 public class TestEvaluator {
 
-	private final Evaluator eval;
-	private final ITestResultListener testResultListener;
+    private final Evaluator eval;
+    private final ITestResultListener testResultListener;
 
-	public TestEvaluator(Evaluator eval, ITestResultListener testResultListener){
-		super();
+    public TestEvaluator(Evaluator eval, ITestResultListener testResultListener){
+        super();
 
-		this.eval = eval;
-		this.testResultListener = testResultListener;
-	}
+        this.eval = eval;
+        this.testResultListener = testResultListener;
+    }
 
-	public void test(String moduleName) {
-		ModuleEnvironment topModule = eval.getHeap().getModule(moduleName);
+    public void test(String moduleName) {
+        ModuleEnvironment topModule = eval.getHeap().getModule(moduleName);
 
-		if (topModule != null) {
-			runTests(topModule, topModule.getTests());
-		}
-	}
+        if (topModule != null) {
+            runTests(topModule, topModule.getTests());
+        }
+    }
 
-	public void test() {
-		ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
+    public void test() {
+        ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
 
-		runTests(topModule, topModule.getTests());
-		List<String> imports = new ArrayList<>(topModule.getImports());
-		Collections.shuffle(imports);
+        runTests(topModule, topModule.getTests());
+        List<String> imports = new ArrayList<>(topModule.getImports());
+        Collections.shuffle(imports);
 
-		for (String i : imports) {
-			ModuleEnvironment mod = topModule.getImport(i);
-			
-			if (mod != null) {
-			  runTests(mod, mod.getTests());
-			}
-		}
-	}
+        for (String i : imports) {
+            ModuleEnvironment mod = topModule.getImport(i);
 
-	private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
-		testResultListener.start(tests.size());
-		// first, let's shuffle the tests
-		tests = new ArrayList<>(tests); // just to be sure, clone the list
-		Collections.shuffle(tests);
+            if (mod != null) {
+                runTests(mod, mod.getTests());
+            }
+        }
+    }
 
-//		try {
-		for (AbstractFunction test: tests) {
-		  if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
-			  continue;
-		  }
+    private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
+        testResultListener.start(env.getName(), tests.size());
+        // first, let's shuffle the tests
+        tests = new ArrayList<>(tests); // just to be sure, clone the list
+        Collections.shuffle(tests);
 
-		  try{
-		    QuickCheck qc = QuickCheck.getInstance();
-		    StringWriter sw = new StringWriter();
-		    PrintWriter out = new PrintWriter(sw);
-		    int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-		    int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
+        //		try {
+        for (AbstractFunction test: tests) {
+            if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
+                testResultListener.ignored(test.getName(), test.getAst().getLocation());
+                continue;
+            }
 
-		    boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
-		    if (!result) {
-		      out.flush();
-		      testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-		          .toString(), null);
-		    } else {
-		      testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-		          .toString(), null);
-		    }
-		  }
-		  catch(StaticError e) {
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-		  }
-		  catch(Throw e){
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-		  }
-		  catch(Throwable e){
-		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-		  }
-		}
-		//		}
-		//		finally {
-		testResultListener.done();
-		//		}
-	}
+            try{
+                QuickCheck qc = QuickCheck.getInstance();
+                StringWriter sw = new StringWriter();
+                PrintWriter out = new PrintWriter(sw);
+                int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
+                int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
 
-
-
-
+                boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
+                if (!result) {
+                    out.flush();
+                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+                            .toString(), null);
+                } else {
+                    testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+                            .toString(), null);
+                }
+            }
+            catch(StaticError e) {
+                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+            }
+            catch(Throw e){
+                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+            }
+            catch(Throwable e){
+                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+            }
+        }
+        testResultListener.done();
+    }
 }

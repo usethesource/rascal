@@ -137,9 +137,13 @@ public class SourceConverter extends M3Converter {
 		  	}
 		}
 		else if (parent instanceof EnumConstantDeclaration) {
-			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
-			IConstructor type = bindingsResolver.resolveType(((EnumConstantDeclaration) parent).resolveVariable().getType(), false);
-		  	insert(types, ownValue, type);
+			IVariableBinding var = ((EnumConstantDeclaration) parent).resolveVariable();
+            insert(typeDependency, ownValue, resolveBinding(var));
+            
+            if (var != null) {
+                IConstructor type = bindingsResolver.resolveType(var.getType(), false);
+                insert(types, ownValue, type);
+            }
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);

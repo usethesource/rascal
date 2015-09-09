@@ -178,7 +178,7 @@ test bool lesseq(map[&K, &V] A, map[&K, &V] B)  = A <= (B + A); // right overwri
 test bool less(map[&K, &V] A, map[&K, &V] B) = (A != B + A) ==> A < (B + A);
 
 test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (B + A) >= A;
-test bool greater(map[int, str] A, map[int, str] B)  = B <= A || (B + A) > A;
+test bool greater(map[int, str] A, map[int, str] B)  = A<0> & B<0> == {} ==> B <= A || (B + A) > A;
 
 test bool intKeyHandling(){
     N = 10000;

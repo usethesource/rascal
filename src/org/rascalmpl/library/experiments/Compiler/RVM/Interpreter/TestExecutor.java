@@ -30,11 +30,11 @@ public class TestExecutor {
 		this.eval = eval;
 		this.testResultListener = testResultListener;
 		// Make listener known to compiler's run-time system
-		Execute.setTestResultListener(testResultListener);
+		ExecuteProgram.setTestResultListener(testResultListener);
 	}
 
 	public void test(String moduleName, int nTests) {
-		testResultListener.start(nTests);
+		testResultListener.start(moduleName, nTests);
 		try {
 			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
 			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");

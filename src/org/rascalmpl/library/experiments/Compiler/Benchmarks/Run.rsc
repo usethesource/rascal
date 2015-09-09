@@ -116,7 +116,7 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted5.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted6.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
@@ -154,7 +154,7 @@ void initialize(int n){
 
 void precompile(list[str] jobs) {
   for(job <- jobs) {
-      compile(base + (job + ".rsc"), recompile=true);
+      execute(base + (job + ".rsc"), [], recompile=true, serialize=true);
   }
 }
 

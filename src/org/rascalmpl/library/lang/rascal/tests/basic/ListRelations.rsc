@@ -36,8 +36,10 @@ test bool subscription2(lrel[int,str] X) =
   
 test bool tclosure(lrel[int, int] X) = 
   isEmpty(X) ||
-  X <= (X+) && (X+) + (X+) o X == (X+);
+  X <= (X+) && squeeze((X+) + (X+) o X) == squeeze(X+);
   
+private list[&T] squeeze(list[&T] xs) = ( [] | (ix in it) ? it : it + [ix] | &T ix <- xs);
+   
 test bool rtclosure(lrel[int, int] X) =
   isEmpty(X) ||
   X <= X* && all(x <- (X*) o X, x in X*) && all(x <- carrier(X), y <- carrier(X), <x, x> in X*, <y, y> in X*);
