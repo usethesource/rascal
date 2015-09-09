@@ -295,5 +295,8 @@ function askServer(path, parameters, callback) {
        d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
        d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
        }
-       
+   
+function isObject (item) {
+  return (typeof item === "object" && !Array.isArray(item) && item !== null);
+  }    
   
