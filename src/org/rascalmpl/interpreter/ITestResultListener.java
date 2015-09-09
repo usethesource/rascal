@@ -15,8 +15,9 @@ package org.rascalmpl.interpreter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public interface ITestResultListener{
-	void start(int count);
+	void start(String context, int count);
 	void report(boolean successful, String test, ISourceLocation loc, String message, Throwable exception);
+	void ignored(String test, ISourceLocation loc);
 	void done();
 }
 

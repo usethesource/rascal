@@ -421,7 +421,7 @@ public class ModuleEnvironment extends Environment {
 		
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return getVariable(cons);
+				return getFrameVariable(cons);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -433,7 +433,7 @@ public class ModuleEnvironment extends Environment {
 			return imported.getVariable(name);
 		}
 		
-		return getVariable(cons);
+		return getFrameVariable(cons);
 	}
 	
 	@Override
@@ -443,7 +443,7 @@ public class ModuleEnvironment extends Environment {
 //			return;
 //		}
 		
-		Result<IValue> result = super.getVariable(name);
+		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);

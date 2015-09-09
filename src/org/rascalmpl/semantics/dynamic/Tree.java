@@ -94,7 +94,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			Result<IValue> variable = eval.getCurrentEnvt().getVariable(name);
+			Result<IValue> variable = eval.getCurrentEnvt().getFrameVariable(name);
 
 			if (variable == null) {
 				throw new UndeclaredVariable(name, this);
@@ -372,7 +372,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
 			wrap.add(setMatcher);
 
-			Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
+			Result<IValue> ambCons = eval.getCurrentEnvt().getFrameVariable("amb");
 			return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, RascalValueFactory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 		} 
 	}

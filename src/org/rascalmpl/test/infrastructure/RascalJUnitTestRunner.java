@@ -192,10 +192,15 @@ public class RascalJUnitTestRunner extends Runner {
 
 		
 		@Override
-		public void start(int count) {
+		public void start(String context, int count) {
 			notifier.fireTestRunStarted(module);
 		}
 	
+		@Override
+		public void ignored(String test, ISourceLocation loc) {
+		    notifier.fireTestIgnored(getDescription(test, loc));
+		}
+		
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc,	String message, Throwable t) {
 			Description desc = getDescription(test, loc);

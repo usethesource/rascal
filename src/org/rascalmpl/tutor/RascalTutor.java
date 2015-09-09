@@ -44,7 +44,7 @@ public class RascalTutor {
 	
 	public RascalTutor() {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___TUTOR___", heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$tutor$", heap));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
