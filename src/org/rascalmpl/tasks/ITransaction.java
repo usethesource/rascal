@@ -14,7 +14,7 @@ package org.rascalmpl.tasks;
 import java.util.Collection;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 
 public interface ITransaction<K,N,V> {
 

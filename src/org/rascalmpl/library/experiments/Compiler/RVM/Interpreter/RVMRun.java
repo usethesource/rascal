@@ -115,9 +115,9 @@ public class RVMRun extends RVM {
 	private boolean finalized;
 	protected ILocationCollector locationCollector;
 
-	public IEvaluatorContext getEvaluatorContext() {
-		return rex.getEvaluatorContext();
-	}
+//	public IEvaluatorContext getEvaluatorContext() {
+//		return rex.getEvaluatorContext();
+//	}
 
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -152,7 +152,7 @@ public class RVMRun extends RVM {
 		return rex;
 	}
 
-	public RVMRun(RVMExecutable rrs, RascalExecutionContext rex) {
+	public RVMRun(RVMLinked rrs, RascalExecutionContext rex) {
 		super(rrs, rex);
 
 		this.vf = rex.getValueFactory();
@@ -329,7 +329,7 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("PANIC: undefined function index " + n);
 	}
 
-	public IValue executeFunction(String uid_func, IValue[] args) {
+	public IValue executeFunction(String uid_func, IValue[] args, IMap kwArgs) {
 		ArrayList<Frame> oldstacktrace = stacktrace;
 		Thrown oldthrown = thrown;
 
@@ -507,7 +507,7 @@ public class RVMRun extends RVM {
 			}
 
 			if (reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] = m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;

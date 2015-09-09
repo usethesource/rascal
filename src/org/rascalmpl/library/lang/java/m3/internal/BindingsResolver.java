@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
@@ -469,79 +470,89 @@ public class BindingsResolver {
 	}
 	
 	private ISourceLocation resolveBinding(ITypeBinding binding) {
-		if (binding == null) {
-			return makeBinding("unresolved", null, null);
+	    try {
+	        if (binding == null) {
+	            return makeBinding("unresolved", null, null);
+	        }
+
+	        if (EclipseJavaCompiler.cache.containsKey(binding.getKey())) {
+	            return EclipseJavaCompiler.cache.get(binding.getKey());
+	        }
+
+	        String scheme = binding.isInterface() ? "java+interface" : "java+class";
+	        String qualifiedName = binding.getTypeDeclaration().getQualifiedName();
+
+	        if (qualifiedName.isEmpty()) {
+	            if (binding.getDeclaringMethod() != null) {
+	                qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath();
+	            }
+	            else if (binding.getDeclaringClass() != null) {
+	                qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
+	            }
+	            else {
+	                System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+	                System.err.println("Most probably anonymous class in initializer");
+	            }
+	        }
+
+	        if (binding.isEnum()) {
+	            scheme = "java+enum";
+	        }
+
+	        if (binding.isArray()) {
+	            scheme = "java+array";
+	        }
+
+	        if (binding.isTypeVariable()) {
+	            scheme = "java+typeVariable";
+	            if (binding.getDeclaringMethod() != null) {
+	                qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath() + "/" + qualifiedName;
+	            } else if (binding.getDeclaringClass() != null) {
+	                qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath() + "/" + qualifiedName;
+	            }
+	        }
+
+	        if (binding.isPrimitive()) {
+	            scheme = "java+primitiveType";
+	        }
+
+	        if (binding.isWildcardType()) {
+	            return makeBinding("unknown", null, null);
+	        }
+
+	        if (binding.isLocal()) {
+	            qualifiedName = qualifiedName.concat("/").concat(binding.getName());
+	        }
+
+	        if (binding.isAnonymous()) {
+	            String key = binding.getKey();
+	            if (resolvedAnonymousClasses.containsKey(key)) {
+	                qualifiedName = resolvedAnonymousClasses.get(key);
+	            }
+	            else {
+	                int anonCounter = 1;
+	                if (anonymousClassCounter.containsKey(qualifiedName)) {
+	                    anonCounter = anonymousClassCounter.get(qualifiedName) + 1;
+	                }
+	                else { 
+	                    anonCounter = 1;
+	                }
+	                anonymousClassCounter.put(qualifiedName, anonCounter);
+	                qualifiedName += "$anonymous" + anonCounter;
+	                resolvedAnonymousClasses.put(key, qualifiedName);
+	            }
+	            scheme = "java+anonymousClass";
+	        }
+	        ISourceLocation result = makeBinding(scheme, null, qualifiedName.replaceAll("\\.", "/"));
+	        EclipseJavaCompiler.cache.put(binding.getKey(), result);
+	        return result;
 		}
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
-		
-		String scheme = binding.isInterface() ? "java+interface" : "java+class";
-		String qualifiedName = binding.getTypeDeclaration().getQualifiedName();
-		
-		if (qualifiedName.isEmpty()) {
-			if (binding.getDeclaringMethod() != null) {
-				qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath();
-			}
-			else if (binding.getDeclaringClass() != null) {
-				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
-			}
-			else {
-				System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
-				System.err.println("Most probably anonymous class in initializer");
-			}
-		}
-		
-		if (binding.isEnum()) {
-			scheme = "java+enum";
-		}
-		
-		if (binding.isArray()) {
-			scheme = "java+array";
-		}
-		
-		if (binding.isTypeVariable()) {
-		  scheme = "java+typeVariable";
-		  if (binding.getDeclaringMethod() != null) {
-			  qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath() + "/" + qualifiedName;
-		  } else if (binding.getDeclaringClass() != null) {
-			  qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath() + "/" + qualifiedName;
-		  }
-		}
-		
-		if (binding.isPrimitive()) {
-			scheme = "java+primitiveType";
-		}
-		
-		if (binding.isWildcardType()) {
-			return makeBinding("unknown", null, null);
-		}
-		
-		if (binding.isLocal()) {
-			qualifiedName = qualifiedName.concat("/").concat(binding.getName());
-		}
-		
-		if (binding.isAnonymous()) {
-			String key = binding.getKey();
-			if (resolvedAnonymousClasses.containsKey(key)) {
-				qualifiedName = resolvedAnonymousClasses.get(key);
-			}
-			else {
-				int anonCounter = 1;
-				if (anonymousClassCounter.containsKey(qualifiedName)) {
-					anonCounter = anonymousClassCounter.get(qualifiedName) + 1;
-				}
-				else { 
-					anonCounter = 1;
-				}
-				anonymousClassCounter.put(qualifiedName, anonCounter);
-				qualifiedName += "$anonymous" + anonCounter;
-				resolvedAnonymousClasses.put(key, qualifiedName);
-			}
-			scheme = "java+anonymousClass";
-		}
-		ISourceLocation result = makeBinding(scheme, null, qualifiedName.replaceAll("\\.", "/"));
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
-		return result;
+        catch (@SuppressWarnings("restriction") AbortCompilation e) {
+            // work around internal error of JDT compiler which can throw this exception 
+            // after calling getKey()
+            
+            return makeBinding("unknown", null, null);
+        }
 	}
 	
 	private ISourceLocation resolveBinding(IVariableBinding binding) {

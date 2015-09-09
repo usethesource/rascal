@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -12,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -44,6 +44,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -151,122 +152,6 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
-	//	// Rebuild a constructor or node, reusing its annotations
-	//	rebuild {
-	//		@Override
-	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-	//			assert arity == 3;
-	//			IValue subject = (IValue) stack[sp - 3];
-	//			IValue[] args = (IValue[]) stack[sp - 2];
-	//			@SuppressWarnings("unchecked")
-	//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-	//			
-	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-	//			// TODO: jurgen can be optimized for the ITree case
-	//			if(subject.getType().isAbstractData()){
-	//				IConstructor cons1 = (IConstructor) subject;
-	//				IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
-	//				if(annotations.size() > 0){
-	//					// TODO: @paulklint what about the keyword parameters?
-	//					cons2 = cons2.asAnnotatable().setAnnotations(annotations);
-	//				}
-	//				stack[sp - 3] = cons2;
-	//				return sp - 2;
-	//			} else {
-	//				INode node1 = (INode) subject;
-	//				INode node2 = vf.node(node1.getName(), args, kwargs);
-	//				if(annotations.size() > 0){
-	//					node2 = node2.asAnnotatable().setAnnotations(annotations);
-	//				}
-	//				stack[sp - 3] = node2;
-	//				return sp - 2;
-	//			}
-	//		}
-	//	},
-	//	// Rebuild a concrete node, reusing its annotations
-	//	rebuild_concrete {
-	//		@Override
-	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-	//			assert arity == 3;
-	//			ITree subject = (ITree) stack[sp - 3];
-	//			IValue[] args = (IValue[]) stack[sp - 2];
-	//			IValue prod = subject.getProduction();
-	//			@SuppressWarnings("unchecked")
-	//			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-	//
-	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-	//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-	//			for(int i = 0; i < args.length; i++){
-	//				writer.append(args[i]);
-	//			}
-	//			IValue[] args2 = {prod, writer.done() };
-	//			
-	//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), args2);
-	//			if(annotations.size() > 0){
-	//				// TODO: @paulklint what about the keyword parameters?
-	//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-	//			}
-	//			stack[sp - 3] = isubject2;
-	//			return sp - 2;
-	//		}
-	//	},
-	//	// Rebuild a concrete list, reusing its annotations
-	//	rebuild_concrete_list {
-	//		@Override
-	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-	//			assert arity == 2;
-	//			ITree subject = (ITree) stack[sp - 2];
-	//			IValue[] args = (IValue[]) stack[sp - 1];
-	//			IValue prod = subject.getProduction();
-	//			IList children = TreeAdapter.getArgs(subject);
-	////			@SuppressWarnings("unchecked")
-	////			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
-	//
-	//			Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
-	//
-	//			IConstructor symbol = TreeAdapter.getType(subject);
-	//			boolean layoutPresent = false;
-	//			if(children.length() > 1){
-	//				ITree child1 = (ITree)children.get(1);
-	//				if(TreeAdapter.isLayout(child1)){
-	//					layoutPresent = true;
-	//				}
-	//			}
-	//			int delta = layoutPresent ? 2 : 1;
-	//
-	//			if(SymbolAdapter.isIterPlusSeps(symbol) || SymbolAdapter.isIterStarSeps(symbol)){
-	//				IList separators = SymbolAdapter.getSeparators(symbol);
-	//				boolean nonLayoutSeparator = false;
-	//				for(IValue sep : separators){
-	//					if(!((IConstructor) sep).getName().equals("layouts")){
-	//						nonLayoutSeparator = true;
-	//						break;
-	//					}
-	//				}
-	//				delta = nonLayoutSeparator && layoutPresent ? 4 : 2;
-	//			}
-	//
-	//			IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-	//			for (int i = 0; i < args.length; i++) {
-	//				IValue kid = args[i];
-	//				writer.append(kid);
-	//				// copy layout and/or separators
-	//				if(i < args.length - 1){
-	//					for(int j = 1; j < delta; j++){
-	//						writer.append(children.get(i*delta + j));
-	//					}
-	//				}
-	//			}
-	//
-	//			ITree isubject2 = (ITree) vf.constructor(subject.getConstructorType(), prod, writer.done());
-	//			if(annotations.size() > 0){
-	//				// TODO: @paulklint what about the keyword parameters?
-	//				isubject2 = (ITree) isubject2.asAnnotatable().setAnnotations(annotations);
-	//			}
-	//			stack[sp - 2] = isubject2;
-	//			return sp - 1;
-	//		}
-	//	},
 
 	/**
 	 * Build a list, given list of elements
@@ -774,27 +659,33 @@ public enum RascalPrimitive {
 	/*								Operators																*/
 	/********************************************************************************************************/
 
-	// addition
-	// compose
-	// division
-	// equal
-	// greater
-	// greaterequal
-	// in
-	// intersect
-	// join
-	// less
-	// lessequal
-	// mod
-	// negative
-	// notequal
-	// notin
-	// non_negative
-	// product
-	// remainder
-	// subtract
-	// transitive_closure
-	// transitive_reflexive_closure
+	/**
+	 * Definitions of all operators. The general strategy is to define a gegenric version of each operator (e.g. 'add') that
+	 * works for all argument types as well as a collection of specialized versions (e.g., 'int_add_int') that only work for specific argument types
+	 * 
+	 * The following operators are defined here:
+	 * addition
+	 * compose
+	 * division
+	 * equal
+	 * greater
+	 * greaterequal
+	 * in
+	 * intersect
+	 * join
+	 * less
+	 * lessequal
+	 * mod
+	 * negative
+	 * notequal
+	 * notin
+	 * non_negative
+	 * product
+	 * remainder
+	 * subtract
+	 * transitive_closure
+	 * transitive_reflexive_closure
+	 */
 	
 	/**
 	 * addition
@@ -899,23 +790,11 @@ public enum RascalPrimitive {
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rvm.getStdErr(), currentFrame);
 				}
 			case SET:
-				//			switch (rhsType) {
-				//			case SET:
-				//				return set_add_set(stack, sp, arity, currentFrame);
-				//			case REL:
-				//				return set_add_rel(stack, sp, arity, currentFrame);
-				//			default:
 				return set_add_elm.execute(stack, sp, arity, currentFrame);
-				//			}
+				
 			case LIST:
-				//			switch (rhsType) {
-				//			case LIST:
-				//				return list_add_list(stack, sp, arity, currentFrame);
-				//			case LREL:
-				//				return list_add_lrel(stack, sp, arity, currentFrame);
-				//			default:
 				return list_add_elm.execute(stack, sp, arity, currentFrame);
-				//			}
+
 			case LOC:
 				switch (rhsType) {
 				case STR:
@@ -6715,18 +6594,6 @@ public enum RascalPrimitive {
 
 			Type type = (Type) stack[sp - 2];
 			stack[sp - 2] = $type2symbol(type);
-			//			IMap idefinitions = (IMap) stack[sp - 1];
-			//			typeReifier = new TypeReifier(vf);
-			//			
-			//			new ReifiedType(type);
-			//			
-			//			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			//			bindings.put(Factory.TypeParam, type);
-			//			
-			//			Symbols.typeToSymbol(type, false,  "");
-			//			
-			//			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
-			//			
 			return sp - 1;
 		}
 	},
@@ -8153,6 +8020,7 @@ public enum RascalPrimitive {
 
 			if(ignore){
 				test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+				testResultListener.ignored("", src);
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
@@ -8183,7 +8051,7 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					IValue res = rvm.executeFunction(fun, args); 
+					IValue res = rvm.executeFunction(fun, args, null); 
 					passed = ((IBool) res).getValue();
 					if(!passed){
 						break;
@@ -8828,46 +8696,6 @@ public enum RascalPrimitive {
 		}
 	},
 
-//	/**
-//	 * Given a map subject value and a descriptor, should we descent in its keys?
-//	 * 
-//	 * [ ..., map subject value, symbolset] => true/false
-//	 */
-//	should_descent_mapkey {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 2;
-//
-//			IValue subject = (IValue) stack[sp - 2];
-//			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-//			Type key_type = subject.getType().getKeyType();
-//
-//			stack[sp - 2] = descriptor.shouldDescentInType(key_type);	
-//			return sp - 1;
-//		}
-//	},
-//
-//	/**
-//	 * Given a map subject value and a set of allowed symbols, should we descent in its values?
-//	 * 
-//	 * [ ..., map subject value, symbolset] => true/false
-//	 */
-//	should_descent_mapval {
-//		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-//			assert arity == 2;
-//
-//			IValue subject = (IValue) stack[sp - 2];
-//			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-//
-//			Type val_type = subject.getType().getValueType();
-//
-//			stack[sp - 2] = descriptor.shouldDescentInType(val_type);	
-//			return sp - 1;
-//		}
-//	},
-
-
 	/************************************************************************************************/
 	/*				Miscellaneous																	*/
 	/************************************************************************************************/
@@ -8970,30 +8798,33 @@ public enum RascalPrimitive {
 		}
 
 	},
-	//	parse_fragment {
-	//		// TODO: @paulklint how can parse fragment be a run-time primitive? 
-	//		@Override
-	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-	//			assert arity == 5;
-	//			IString module_name = (IString) stack[sp - 5];
-	//			IValue start = (IValue) stack[sp - 4];
-	//			ITree ctree = (ITree) stack[sp - 3];
-	//			ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
-	//			IMap grammar = (IMap) stack[sp - 1];
-	//
-	//			IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc, grammar);
-	//			stack[sp - 5] = tree;
-	//			return sp - 4;
-	//		}
-	//	},
-
-	//	println {
-	//		@Override
-	//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
-	//			stdout.println(">>>>> " + stack[sp - 1]);
-	//			return sp;
-	//		}
-	//	},
+	/**
+	 * memoize result of executing a function for given parameters
+	 * 
+	 * [ ..., IValue result ] => [ ..., IValue result ]
+	 */
+	memoize {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame) {
+			assert arity == 1;
+			
+			IValue result = (IValue) stack[sp - 1];
+			Function fun = currentFrame.function;
+			int nformals = fun.nformals;
+			IValue[] args = new IValue[nformals - 1];
+			for(int i = 0; i < nformals - 1; i++){
+				args[i] = (IValue) currentFrame.stack[i];
+			}
+			MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
+			if(cache == null){
+				cache = new MemoizationCache<>();
+	      fun.memoization = new SoftReference<>(cache);
+			}
+			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
+			return sp;
+		}
+	}
 	;
 
 	static RascalPrimitive[] values = RascalPrimitive.values();
@@ -9012,7 +8843,7 @@ public enum RascalPrimitive {
 	private static IMap emptyMap;
 	private static IList emptyList;
 	private static ISet emptySet;
-	private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
+	//private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
 	private static final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 
 	private static PrintWriter stdout;
@@ -9041,8 +8872,10 @@ public enum RascalPrimitive {
 		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
+		if(parsingTools == null){
+			parsingTools = new ParsingTools(vf);
+			parsingTools.setContext(rex);
+		}
 		tf = TypeFactory.getInstance();
 		typeStore = rex.getTypeStore();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
@@ -9060,9 +8893,9 @@ public enum RascalPrimitive {
 	}
 
 	public static void reset(){
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
-		//parsingTools.reset();
+//		parsingTools = new ParsingTools(vf);
+//		parsingTools.setContext(rex);
+		parsingTools.reset();
 		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();
@@ -9120,7 +8953,7 @@ public enum RascalPrimitive {
 	 * String templates
 	 */
 
-	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
+	//private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 	private static Stack<String> indentStack = new Stack<String>();
 
 	private static StringBuilder templateBuilder = null;

@@ -8,8 +8,8 @@ import Set;
 value main(list[value] args) = compare3();
 
 value compare1() {
- INT = split("\n", readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/CParserINT.java|));
- COMP = split("\n", readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/CParserCOMP.java|));
+ INT = split("\n", readFile(|std:///lang/rascal/grammar/tests/generated_parsers/CParserINT.java|));
+ COMP = split("\n", readFile(|std://lang/rascal/grammar/tests/generated_parsers/CParserCOMP.java|));
  
  INTSET = toSet(INT);
  COMPSET = toSet(COMP);

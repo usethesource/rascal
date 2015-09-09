@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import: NOT YET
+import org.rascalmpl.debug.IRascalMonitor;
 
 
 public class FunctionInstance implements ICallableCompiledValue, IExternalValue {

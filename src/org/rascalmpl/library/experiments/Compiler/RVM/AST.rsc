@@ -38,7 +38,7 @@ public data Declaration =
 
 public data RVMProgram = 
 		  rvm(str name,
-		  	  map[str,str] tags,
+		  	  map[str, map[str,str]] module_tags,
 		      set[Message] messages,
 			  list[str] imports,
 			  list[str] extends,
@@ -171,5 +171,7 @@ public data Instruction =
 		// Visit
 		| VISIT(bool direction, bool fixedpoint, 
 		        bool progress, bool rebuild)		// Visit expression
+		        
+		| CHECKMEMO()								// Check args of memo function
 ;
 	

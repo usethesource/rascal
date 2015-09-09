@@ -692,7 +692,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     list[MuExp] kwps = translateKeywordParameters(parameters, fuid, getFormals(uid), e@\loc);
     
     // TODO: we plan to introduce keyword patterns as formal parameters
-    MuExp body = translateFunction("CLOSURE", parameters.formals.formals, isVarArgs, kwps, cbody, []);
+    MuExp body = translateFunction("CLOSURE", parameters.formals.formals, isVarArgs, kwps, cbody, false, []);
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
     
@@ -871,7 +871,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	tc = getTypesAndConstructorsInVisit(cases);
 	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	println("reachableTypesInVisit: <reachable>");
+	//println("reachableTypesInVisit: <reachable>");
 	
 	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
 	

@@ -231,11 +231,11 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
       prog = base + (tst + ".rsc");
-      for(str ext <- [/*"sig", "sigs", "tc"*/ "rvm.gz", "rvm.ser.gz"]){
+      for(str ext <- ["sig", "sigs", "tc", "rvm.gz", "rvm.ser.gz"]){
       	try { remove(getDerivedLocation(prog, ext)); } catch:;
       }
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false, bindir=|home:///bin|)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, bindir=|home:///bin|)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -257,7 +257,9 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
   return all_test_results;
 }
   
-value main(list[value] args){
+value main(list[value] args) = allRascalTests();
+  
+value allRascalTests(){
   timestamp = now();
   crashes = [];
   partial_results = [];
@@ -271,7 +273,7 @@ value main(list[value] args){
   all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
   all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);  
   all_results += runTests(files_with_tests, |std:///|);
-  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  //all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

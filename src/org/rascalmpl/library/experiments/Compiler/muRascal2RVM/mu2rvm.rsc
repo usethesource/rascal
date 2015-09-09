@@ -195,7 +195,8 @@ RVMProgram mu2rvm(muModule(str module_name,
                            map[Symbol, Production] grammar, 
                            rel[str,str] importGraph,
                            loc src), 
-                  bool listing=false){
+                  bool listing=false,
+                  bool verbose=true){
  
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMProgram(module_name, messages, src);
@@ -227,7 +228,7 @@ RVMProgram mu2rvm(muModule(str module_name,
       case muAssignTmp(str id, str fuid, _): getTmp(id,fuid);
   }
     
-  println("mu2rvm: Compiling module <module_name>");
+  if(verbose) println("mu2rvm: Compiling module <module_name>");
   
   for(fun <- functions) {
     scopeIn[fun.qname] = fun.scopeIn;
@@ -337,7 +338,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, importGraph, src);
+  res = rvm(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
 
@@ -498,6 +499,8 @@ INS tr(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuE
 INS tr(muCallPrim3("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
 INS tr(muCallPrim3("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
 INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
+INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
+
 
 default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
 

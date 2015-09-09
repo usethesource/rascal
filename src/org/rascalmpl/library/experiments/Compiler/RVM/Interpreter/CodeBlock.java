@@ -25,6 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckMemo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
@@ -722,8 +723,11 @@ public class CodeBlock implements Serializable {
 				getConstantIndex(vf.bool(rebuild))));
 	}
 	
+	public CodeBlock CHECKMEMO(){
+		return add(new CheckMemo(this));
+	}
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
@@ -748,10 +752,7 @@ public class CodeBlock implements Serializable {
 		if(typeConstantStore.size() >= maxArg){
 			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
 		}
-		
-		if(listing){
-			listing(fname);
-		}
+	
     	return this;
     }
     

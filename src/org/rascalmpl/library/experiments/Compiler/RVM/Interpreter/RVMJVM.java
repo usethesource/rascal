@@ -25,7 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 
 public class RVMJVM extends RVM {
 
-	RVMExecutable rrs;
+	RVMLinked rrs;
 	RascalExecutionContext rex;
 	byte[] generatedRunner = null;
 	String generatedName = null;
@@ -40,11 +40,11 @@ public class RVMJVM extends RVM {
 	 * @param rrs
 	 * @param rex
 	 */
-	public RVMJVM(RVMExecutable rrs, RascalExecutionContext rex) {
+	public RVMJVM(RVMLinked rrs, RascalExecutionContext rex) {
 		super(rrs, rex);
 		//if (rrs instanceof RVMJVMExecutable) {
-			generatedRunner = rrs.jvmByteCode;
-			generatedName = rrs.fullyQualifiedDottedName;
+			generatedRunner = rrs.getJvmByteCode();
+			generatedName = rrs.getFullyQualifiedDottedName();
 		//}
 		this.rrs = rrs;
 		this.rex = rex;
@@ -79,7 +79,7 @@ public class RVMJVM extends RVM {
 
 			runner = (RVMRun) cons[0].newInstance(rrs, rex);
 			// Inject is obsolete the constructor holds rrs.
-			runner.inject(rrs.functionStore, rrs.constructorStore, RVMExecutable.store, rrs.functionMap);
+			runner.inject(rrs.getFunctionStore(), rrs.getConstructorStore(), RVMLinked.store, rrs.getFunctionMap());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -87,9 +87,9 @@ public class RVMJVM extends RVM {
 	}
 
 	boolean useRVMInterpreter = false;
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, IMap kwArgs) {
 		if (useRVMInterpreter) {
-			return super.executeProgram(moduleName, uid_main, args);
+			return super.executeProgram(moduleName, uid_main, args, kwArgs);
 		} else {
 			rex.setCurrentModuleName(moduleName);
 
