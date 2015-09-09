@@ -541,16 +541,21 @@ test bool dtstPrefix(list[&T] lst) {
 }
 
 test bool dtstDifference(list[&T] lst) {
-	if(isEmpty(lst)) return true;
-	bool check = true;
+	if(isEmpty(lst)) 
+	  return true;
+	  
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
 		// we use string comparison to avoid problems with coercion for `==`
 		rhs = [ *( ("<elem>" == "<el>" && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-		check = check && "<lhs>" == "<rhs>" && typeOf(lhs) == typeOf(rhs);
+		
+		if ("<lhs>" != "<rhs>" || typeOf(lhs) != typeOf(rhs)) {
+		  println("Error: removed <elem> from <lst> resulted in <lhs> instead of <rhs>");
+		  return false;
+		}
 	}
-	return check;
+	return true;
 }
 
 test bool dtstIntersection(list[&T] lst) {
