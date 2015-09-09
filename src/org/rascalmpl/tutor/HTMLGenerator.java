@@ -69,7 +69,7 @@ public class HTMLGenerator {
 	private Evaluator createEvaluator(IEvaluatorContext ctx) {
 		if (this.evaluator == null) {
 			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("___SCREEN___", heap);
+			ModuleEnvironment root = new ModuleEnvironment("$screen$", heap);
 			errString = new StringWriter();
 			outString = new StringWriter();
 			err = new PrintWriter(errString);
@@ -82,7 +82,7 @@ public class HTMLGenerator {
 	}
 	
 	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
-		ModuleEnvironment mod = new ModuleEnvironment("___SCREEN_INSTANCE___", eval.getHeap());
+		ModuleEnvironment mod = new ModuleEnvironment("$screenInstance$", eval.getHeap());
 		eval.getHeap().addModule(mod);
 		return mod;	
 	}
