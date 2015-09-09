@@ -542,9 +542,9 @@ public abstract class Import {
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
 
     if (parser == null || force) {
-      String parserName = currentModule.getName(); // .replaceAll("::", ".");
+      String parserName = currentModule.getName();
       parser = pg.getNewParser(eval, loc, parserName, definitions);
-      eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
+      eval.getHeap().storeObjectParser(parserName, definitions, parser);
     }
 
     try {
