@@ -1532,8 +1532,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				}
 
 				@Override
-				public void start(int count) {
-					l.start(count);
+				public void ignored(String test, ISourceLocation loc) {
+				    l.ignored(test, loc);
+				}
+				
+				@Override
+				public void start(String context, int count) {
+					l.start(context, count);
 				}
 			}).test();
 			return allOk[0];

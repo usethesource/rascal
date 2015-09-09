@@ -23,64 +23,93 @@ public class DefaultTestResultListener implements ITestResultListener{
 	private int failures;
 	private int errors;
 	private int count;
+	private int ignored;
+    private String context;
+	private static char[] roller = new char[] {'|', '/', '-', '\\', '|', '/', '-', '\\', '|'};
 	
 	public DefaultTestResultListener(PrintWriter errorStream){
 		super();
 
 		this.err = errorStream;
-		this.successes = 0;
+		reset();
+	}
+
+    private void reset() {
+        this.successes = 0;
 		this.failures = 0;
 		this.errors = 0;
-	}
+		this.ignored = 0;
+    }
 	
 	public void setErrorStream(PrintWriter errorStream) {
 		this.err = errorStream;
 	}
 	
 	@Override
-	public void start(int count) {
-		this.count = count;
+	public void ignored(String test, ISourceLocation loc) {
+	    this.ignored++;
 	}
 	
 	@Override
+	public void start(String context, int count) {
+	    this.context = context;
+	    reset();
+	    err.println("Running tests for " + context);
+		this.count = count;
+		progress();
+	}
+
+    private void progress() {
+        err.print(String.format("%s testing %d/%d ", 
+                roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
+    }
+	
+	@Override
 	public void done() {
-		err.print(successes + " of " + count + " tests succeeded\n");
-		err.println(failures + " of " + count + " tests failed\n");
+	    err.println("\nTest report for " + context);
+	    if (errors + failures == 0) {
+	        err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
+	    }
+	    else {
+	        err.println("\t" + successes + "/" + count + " tests succeeded");
+	        err.println("\t" + failures + "/" + count + " tests failed");
+	        err.println("\t" + errors + "/" + count + " tests threw exceptions");
+	    }
+	    
+	    if (ignored != 0) {
+	        err.println("\t" + ignored + "/" + count + " tests ignored");
+	    }
 	}
 	
 
 	@Override
 	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
-		err.print(loc.getURI());
-		err.print(":");
-		err.print(loc.getBeginLine());
-		err.print(",");
-		err.print(loc.getBeginColumn());
-		err.print(":");
-		err.print(successful ? "success : " : "failed  : ");
+		progress();
+		
 		if (successful) {
-			successes++;
+		    successes++;
+		    err.print("success                                                       \r");
+		}
+		else if (t != null) {
+		    errors++;
+		    err.print("error: " + loc + "\n");
+		    err.println("\t" + t.getMessage());
+		    t.printStackTrace(err);
 		}
 		else {
-			failures++;
+		    failures++;
+		    err.print("failure: " + loc + "\n");
+		    err.println(message);
 		}
 		
-		if (test.length() <= 50) {
-			err.println(test);
-		} else {
-			err.print(test.substring(0, 47));
-			err.println("...");
-		}
-		err.print("\t" + message + "\n");
-		if (t != null) {
-		  t.printStackTrace(err);
-		}
+	
+		
 		err.flush();
 	}
 
 
 	public int getNumberOfTests(){
-		return successes + failures + errors;
+		return successes + failures + errors + ignored;
 	}
 	
 	public int getSuccesses(){

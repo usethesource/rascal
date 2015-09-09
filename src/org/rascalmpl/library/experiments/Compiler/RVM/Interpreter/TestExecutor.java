@@ -34,7 +34,7 @@ public class TestExecutor {
 	}
 
 	public void test(String moduleName, int nTests) {
-		testResultListener.start(nTests);
+		testResultListener.start(moduleName, nTests);
 		try {
 			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
 			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
