@@ -8818,7 +8818,7 @@ public enum RascalPrimitive {
 			MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
 			if(cache == null){
 				cache = new MemoizationCache<>();
-	      fun.memoization = new SoftReference<>(cache);
+	            fun.memoization = new SoftReference<>(cache);
 			}
 			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
 			return sp;
