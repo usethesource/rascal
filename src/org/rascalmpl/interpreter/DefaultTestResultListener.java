@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter;
 import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.repl.ReplTextWriter;
 
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;
@@ -99,13 +100,13 @@ public class DefaultTestResultListener implements ITestResultListener{
 		}
 		else if (t != null) {
 		    errors++;
-		    err.print("error: " + loc + "\n");
+		    err.print("error: " + ReplTextWriter.valueToString(loc) + "\n");
 		    err.println("\t" + t.getMessage());
 		    t.printStackTrace(err);
 		}
 		else {
 		    failures++;
-		    err.print("failure: " + loc + "\n");
+		    err.print("failure: " + ReplTextWriter.valueToString(loc) + "\n");
 		    err.println(message);
 		}
 		
