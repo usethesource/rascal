@@ -482,7 +482,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 }
 
 @doc{Add a user-defined ADT into the configuration}
-public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true) {
+public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true, bool updateType=false) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -509,34 +509,40 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		return c; 	
 	}
 
-	if (n notin c.typeEnv && n notin c.globalAdtMap) {
-		// No type of this name already exists. Add a new data type item, and link it in
-		// using both the qualified and unqualified names.
-		itemId = addDataType();
-		if (registerName) {
-			c.typeEnv[n] = itemId;
-			c.typeEnv[fullName] = itemId;
-		}
-	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
+	if (updateType && n in c.globalAdtMap) {
 		existingId = c.globalAdtMap[n];
+		c.store[itemId].rtype = rt;
 		c = extendDataType(c, existingId);
-		if (registerName) {
-			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
-			c.typeEnv[fullName] = existingId;
-		}
-	} else if (c.store[c.typeEnv[n]] is datatype) {
-		// A datatype of this name already exists. Use this existing data type item, adding
-		// a link to it using the qualified name. NOTE: This means that the same type may be available
-		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
-		c = extendDataType(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) {
-		// A sort or alias with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them.
-		itemId = addDataType();
-		if (registerName) {
-			c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+	} else {
+		if (n notin c.typeEnv && n notin c.globalAdtMap) {
+			// No type of this name already exists. Add a new data type item, and link it in
+			// using both the qualified and unqualified names.
+			itemId = addDataType();
+			if (registerName) {
+				c.typeEnv[n] = itemId;
+				c.typeEnv[fullName] = itemId;
+			}
+		} else if (n notin c.typeEnv && n in c.globalAdtMap) {
+			existingId = c.globalAdtMap[n];
+			c = extendDataType(c, existingId);
+			if (registerName) {
+				if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+				c.typeEnv[fullName] = existingId;
+			}
+		} else if (c.store[c.typeEnv[n]] is datatype) {
+			// A datatype of this name already exists. Use this existing data type item, adding
+			// a link to it using the qualified name. NOTE: This means that the same type may be available
+			// using multiple qualified names, but all will point to the same instance.
+			existingId = c.typeEnv[n];
+			c = extendDataType(c, existingId);
+		} else if (c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) {
+			// A sort or alias with this name already exists in the same module. We cannot perform this
+			// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+			// to distinguish them.
+			itemId = addDataType();
+			if (registerName) {
+				c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+			}
 		}
 	}
 	
@@ -563,7 +569,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 }
 
 @doc{Add a user-defined non-terminal type into the configuration}
-public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true) {
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true, bool updateType=false) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -599,30 +605,36 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		return c; 	
 	}
 		    
-	if (n notin c.typeEnv && n notin c.globalSortMap) {
-		// No type of this name already exists. Add a new nonterminal item, and link it in
-		// using both the qualified and unqualified names.
-		itemId = addNonTerminal();
-		if (registerName) {
-			c.typeEnv[n] = itemId;
-			c.typeEnv[fullName] = itemId;
-		}
-	} else if (n notin c.typeEnv && n in c.globalSortMap) {
+	if (updateType && n in c.globalSortMap) {
 		existingId = c.globalSortMap[n];
+		c.store[itemId].rtype = rt;
 		c = extendNonTerminal(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is sorttype) {
-		// A nonterminal of this name already exists. Use this existing nonterminal item, adding
-		// a link to it using the qualified name. NOTE: This means that the same type may be available
-		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
-		c = extendNonTerminal(c, existingId);
-	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
-		// An adt or alias with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them.
-		itemId = addNonTerminal();
-		if (registerName) {
-			c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+	} else {
+		if (n notin c.typeEnv && n notin c.globalSortMap) {
+			// No type of this name already exists. Add a new nonterminal item, and link it in
+			// using both the qualified and unqualified names.
+			itemId = addNonTerminal();
+			if (registerName) {
+				c.typeEnv[n] = itemId;
+				c.typeEnv[fullName] = itemId;
+			}
+		} else if (n notin c.typeEnv && n in c.globalSortMap) {
+			existingId = c.globalSortMap[n];
+			c = extendNonTerminal(c, existingId);
+		} else if (c.store[c.typeEnv[n]] is sorttype) {
+			// A nonterminal of this name already exists. Use this existing nonterminal item, adding
+			// a link to it using the qualified name. NOTE: This means that the same type may be available
+			// using multiple qualified names, but all will point to the same instance.
+			existingId = c.typeEnv[n];
+			c = extendNonTerminal(c, existingId);
+		} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
+			// An adt or alias with this name already exists in the same module. We cannot perform this
+			// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+			// to distinguish them.
+			itemId = addNonTerminal();
+			if (registerName) {
+				c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+			}
 		}
 	}
 	
@@ -649,7 +661,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 }
 
 @doc{Add a new alias into the configuration}
-public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
+public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt, bool updateType=false) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -665,23 +677,27 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		return itemId;
 	}
 
-	if (n notin c.typeEnv) {
-		itemId = addAliasAux();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
-	} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
-		if (c.store[c.typeEnv[n]].rtype == rt) {
-			c.definitions = c.definitions + < c.typeEnv[n], l >;
-		} else {
+	if (updateType && n in typeEnv && c.store[c.typeEnv[n]] is \alias) {
+		c.store[c.typeEnv[n]].rtype = rt;
+	} else {
+		if (n notin c.typeEnv) {
 			itemId = addAliasAux();
-			c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
+			c.typeEnv[n] = itemId;
+			c.typeEnv[fullName] = itemId;
+		} else if (n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
+			if (c.store[c.typeEnv[n]].rtype == rt) {
+				c.definitions = c.definitions + < c.typeEnv[n], l >;
+			} else {
+				itemId = addAliasAux();
+				c = addScopeError(c, "A non-equivalent alias named <prettyPrintName(n)> is already in scope", l);
+			}
+		} else if (n in c.typeEnv) {
+			// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
+			// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+			// to distinguish them.
+			itemId = addAliasAux();
+			c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
 		}
-	} else if (n in c.typeEnv) {
-		// An adt, alias, or sort with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them.
-		itemId = addAliasAux();
-		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
 	}
 	
 	return c;
