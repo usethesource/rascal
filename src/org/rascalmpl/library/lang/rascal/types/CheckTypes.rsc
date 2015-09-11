@@ -5995,7 +5995,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
     
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     // First, check to see if we have processed this declaration before. If we have, just get back the
     // id for the function, we don't want to create a new entry for it.
@@ -6062,7 +6062,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
@@ -6133,7 +6133,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
@@ -6216,7 +6216,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
     
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
@@ -6697,15 +6697,90 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 		}
 	}
 		
-	// Add the items from d into c
-	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
-	// since there are order dependencies -- we cannot load an annotation until type types
-	// that are annotated are loaded, and we cannot load a constructor until the ADT is
-	// loaded, for instance.
 	for (itemId <- d.typeEnv<1>) {
 		loadItem(itemId);		
 	}
 	
+	c = popModule(c);
+	
+	minfo = modInfo(mName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	c.moduleInfo[mName] = minfo;
+	
+	// Add any of the modules that this information depends upon but that are not yet loaded
+	for (mn <- toImport - allImports, mn in d.modEnv) {
+		mRec = d.store[d.modEnv[mn]];
+		c = addModule(c, mn, mRec.at);
+		c = popModule(c);
+	}
+	
+	return c;
+}
+
+public Configuration loadConfigurationConsAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+	cOrig = c;
+
+	c = loadConfigurationCons(c, d, mName, toImport, allImports);
+	
+	c.labelEnv = cOrig.labelEnv; 
+	c.fcvEnv = cOrig.fcvEnv; 
+	c.typeEnv = cOrig.typeEnv; 
+	c.annotationEnv = cOrig.annotationEnv; 
+	c.tagEnv = cOrig.tagEnv;
+	
+	return c;
+}
+
+@doc{Copy top-level information on module mName from d to c}
+public Configuration loadConfigurationCons(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+	// Add module mName into the configuration
+	mRec = d.store[d.modEnv[mName]];
+	if (mName notin c.modEnv) {
+		c = addModule(c, mName, mRec.at);
+	} else {
+		c.stack = c.modEnv[mName] + c.stack;
+	}
+	mId = c.modEnv[mName];
+	
+	map[int,int] containerMap = ( d.modEnv[mName] : mId );
+	set[int] loadedIds = { };
+	
+	// For each ID we have loaded, figure out which module provides it, and filter the IDs
+	// so we don't import ones that we cannot actually reach
+	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
+	
+	// Here we just load productions and constructors, since we need these to continue
+	// with the rest of the load.
+	void loadItem(int itemId) {
+		AbstractValue av = d.store[itemId];
+				
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items, item in filteredIds) {
+				loadItem(item);
+			}
+			loadedIds = loadedIds + itemId;
+		} else if (itemId in filteredIds) {
+			switch(av) {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
+					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+					c = addConstructor(c, name, at, rtype, [], kpList);
+					loadedIds = loadedIds + itemId;
+				}
+				
+				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+					//c = importProduction(p, at, c); 
+					//c = addProduction(c, name, at, p); 
+					loadedIds = loadedIds + itemId;
+				}
+			}
+		}
+	}
+			
+	for (itemId <- d.fcvEnv<1>) {
+		loadItem(itemId);		
+	}
+
 	c = popModule(c);
 	
 	minfo = modInfo(mName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
@@ -7187,6 +7262,89 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 	return c;
 }
 
+public Configuration loadImportedCPNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+	// TODO: Handle scope
+	
+	// Build relations with info on all functions, constructors, productions, and vars 
+	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
+	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
+	
+	justVars = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is variable, ti in c.visibilities, c.visibilities[ti] == publicVis() };
+	varNames = justVars<0>;
+	
+	justFunctions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is function, (ti notin c.visibilities || (ti in c.visibilities && c.visibilities[ti] != privateVis())) };
+	functionNames = justFunctions<0>;
+	
+	justConstructors = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is constructor };
+	constructorNames = justConstructors<0>;
+	
+	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
+	productionNames = justProductions<0>;
+	
+	// We can add a production into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the production name).
+	for (tn <- productionNames, tn notin varNamesToDeclare) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
+			for (ti <- justProductions[tn]) {
+				c = addImportedProduction(c, tn, ti);
+			}
+		}
+	}
+
+	// We can add a constructor into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the constructor name).
+	for (tn <- constructorNames, tn notin varNamesToDeclare) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
+			for (ti <- justConstructors[tn]) {
+				c = addImportedConstructor(c, tn, ti);
+			}
+		}
+	}
+	
+	return c;
+}
+
+public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+	// TODO: Handle scope
+	
+	// Build relations with info on all functions, constructors, productions, and vars 
+	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
+	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
+	
+	justVars = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is variable, ti in c.visibilities, c.visibilities[ti] == publicVis() };
+	varNames = justVars<0>;
+	
+	justFunctions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is function, (ti notin c.visibilities || (ti in c.visibilities && c.visibilities[ti] != privateVis())) };
+	functionNames = justFunctions<0>;
+	
+	justConstructors = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is constructor };
+	constructorNames = justConstructors<0>;
+	
+	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
+	productionNames = justProductions<0>;
+	
+	// We can always add functions -- it's fine if they overlap with constructors or productions. The one
+	// exception is that we cannot add a function if it would clash with a module-level variable that is
+	// already in scope or will be in scope in the top-level module.
+	for (tn <- functionNames, tn notin varNamesToDeclare, ( tn notin c.fcvEnv || ( ! (c.store[c.fcvEnv[tn]] is variable))), tid <- justFunctions[tn]) {
+		c = addImportedFunction(c, tn, tid); 
+	}
+	
+	// Add variables. We can only do so if they are not already in the environment and if there is only
+	// one var with this name.
+	for (tn <- varNames, tn notin c.fcvEnv, tn notin varNamesToDeclare, tn notin funNamesToDeclare, size(justVars[tn]) == 1, tid <- justVars[tn]) {
+		c = addImportedVariable(c, tn, tid);
+	}	
+	
+	return c;
+}
+
 loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
 loc cachedHash(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
 loc cachedHashMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
@@ -7583,13 +7741,276 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		return ci;
 	}
 	
-	Configuration checkSingleModuleThroughAliases(Configuration ci, RName itemName) {
+	Configuration checkSingleModuleThroughAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations for modules that are not in the same connected component (so they do not
+		// depend on the results of checking the current module) 
+		for (wl <- allImports[itemName], wl notin componentMembers) {
+			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. We start by merging in everything from the modules we are
+		// extending to give an initial "seed" for our environment. We will just use the standard
+		// add functions for this. NOTE: We assume that we do not extend a module that is part of
+		// the connected component. Allowing this seems like it would be semantically problematic.
+		// TODO: Add a check to ensure we don't allow this inadvertently.
+		ci.stack = moduleIds[itemName] + ci.stack;
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+	
+		// Now process all the syntax nonterminals for the current module. At this point we just
+		// introduce the nonterminals, not the productions, since these could use nonterminals
+		// defined in other modules that are part of the same connected component.
+		syntaxConfig = processSyntax(itemName, importLists[itemName]);
+		for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals) {
+			ci = importNonterminal(item.sortName, item.sort, item.at, ci);
+		}
+	
+		// Now process the non-syntax module contents. We process just type declarations at this
+		// point, since constructors, functions, etc may depend on declarations given in other
+		// modules that are part of this connected component.
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+	
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+				}
+			}
+	
+			// Introduce the type names into the environment
+			for (t <- typesAndTags) ci = checkDeclaration(t,false,ci);
+			for (t <- aliases) ci = checkDeclaration(t,false,ci);
+	
+			ci = pushTiming(ci, "Checked current module stage 1", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
 		return ci;
 	}
 	
-	Configuration checkSingleModulePastAliases(Configuration ci, RName itemName) {
+	Configuration checkSingleModulePastAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations of the modules in the connected component. At this point, this will just
+		// load type information.
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName) {
+			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. At this point we can bring in syntax and perform some name
+		// declarations. We have types, but not constructors or productions, so we have to wait
+		// on function names which may use constructors or productions as part of keyword
+		// parameters.
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		// Bring in the productions and check the syntax, we should have everything we need at this
+		// point to do this (all the nonterminals are loaded)	
+		syntaxConfig = processSyntax(itemName, importLists[itemName]);
+		for (prodItem <- syntaxConfig.publicProductions) {
+			<p,ci> = resolveProduction(prodItem.prod, prodItem.at, ci, false);
+			prodItem.prod = p;
+			ci = importProduction(prodItem, ci);
+		}
+		ci = checkSyntax(importLists[itemName], ci);  
+	
+		// Now process the non-syntax module contents. We have already added type names and aliases,
+		// but can now resolve the aliased types. We also want to add functions, etc but not check
+		// the bodies yet, since we may not have loaded names used in the bodies.
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+			list[Declaration] annotations = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+						annotations = annotations + decl;
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in type names from the imported modules as long as they don't
+			// conflict with the type names just added. This will import these names
+			// from all imports, including those in the same connected component.
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			
+			// Now, actually process the aliases
+			bool modified = true;
+			definitions = invert(ci.definitions);
+			while(modified) {
+				modified = false;
+				for(t <- aliases) {
+					int aliasId = getOneFrom(definitions[t@\loc]);
+					Symbol aliasedType = ci.store[aliasId].rtype;
+					ci = checkDeclaration(t,true,ci);
+					if(aliasedType != ci.store[aliasId].rtype) {
+						modified = true;
+					}
+				}
+			}
+	
+			// Now, actually process the type declarations, which will add any constructors.
+			for (t <- typesAndTags) ci = checkDeclaration(t,true,ci);
+	
+			// Process the current module. We start by merging in everything from the modules we are
+			// extending to give an initial "seed" for our environment. We will just use the standard
+			// add functions for this.
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+	
+			// Next, process the annotations. These just need type information to allow them to be
+			// declared, so this can be done in this step.
+			for (t <- annotations) ci = checkDeclaration(t,true,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 2", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
 		return ci;
 	}
+	
+	Configuration checkSingleModuleNamesOnly(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations of the modules in the connected component. At this point, this will just
+		// load information on constructors and productions.
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName) {
+			println("Loading constructors into module <prettyPrintName(itemName)>");
+			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. During this pass, we only load function and variable
+		// names, but we do not process bodies. 
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+			list[Declaration] annotations = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+						annotations = annotations + decl;
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in names from the imported modules as long as they don't
+			// conflict with the names just added. This just brings in constructors
+			// and productions at this point.
+			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+
+			for (t <- names) ci = checkDeclaration(t,false,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 3", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
+	}
+		
+	Configuration checkSingleModuleAndFinalize(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Using the checked type information, load in the info for each module. This will replace the already
+		// loaded info, and will include functions, variables, etc that are exported from the module.
+		for (wl <- allImports[itemName], wl in componentMembers) {
+			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
+		}
+			
+		// Process the current module. Syntax is types are done at this point, so we focus on cleaning up
+		// remaining declaration information, e.g., we actually check the bodies of functions since we
+		// can now load in the names of all imported functions along with their type signatures.
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in annotations from the imported modules as long as they don't
+			// conflict with the annotations just added.
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+					
+			// Bring in names from the imported modules as long as they don't
+			// conflict with the names just added. We brought in constructor
+			// and production names before, so this brings in functions and vars.
+			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			
+			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
+	
+			// Process the names
+			for (t <- names) ci = checkDeclaration(t,true,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 4", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
+	}	
 	
 	// Now, go through the connected components, processing them in dependency order
 	worklist = reverse(order(igComponents));
@@ -7604,12 +8025,19 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			}
 		} else if (component(itemNames) := wlItem) {
 			for (itemName <- itemNames, itemName in workingConfigs) {
-				workingConfigs[itemName] = checkSingleModuleThroughAliases(workingConfigs[itemName], itemName);
+				workingConfigs[itemName] = checkSingleModuleThroughAliases(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
 			}
 			for (itemName <- itemNames, itemName in workingConfigs) {
-				workingConfigs[itemName] = checkSingleModulePastAliases(workingConfigs[itemName], itemName);
+				workingConfigs[itemName] = checkSingleModulePastAliases(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
 			}
 			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModuleNamesOnly(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			}
+			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModuleAndFinalize(workingConfigs[itemName], itemName, itemNames);
 				existingConfigs[itemName] = workingConfigs[itemName];
 			}
 		}
