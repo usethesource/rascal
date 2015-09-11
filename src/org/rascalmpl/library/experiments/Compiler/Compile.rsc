@@ -7,6 +7,7 @@ import String;
 import Message;
 import ParseTree;
 import util::Reflective;
+import util::Benchmark;
 import Map;
 import Relation;
 
@@ -44,14 +45,16 @@ bool validRVM(loc src, loc bindir = |home:///bin|){
 	return res;
 }
 
-tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///bin|){
+tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
    	try {
-   	    println("rascal2rvm: Parsing and checking <moduleLoc>");
+   	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
+   	    start_checking = cpuTime();
    		M = parse(#start[Module], moduleLoc).top;
    	    config  = checkModule(M, newConfiguration(), bindir=bindir);
+   	    println("Checking <moduleLoc>: <(cpuTime() - start_checking)/1000000> ms");
    	} catch e: {
    	    throw e;
    	}
@@ -65,11 +68,11 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
    	
    	rvmProgramLoc = RVMProgramLocation(moduleLoc, bindir);
    	
-    println("rascal2rvm: Compiling <moduleLoc>");
-   	muMod = r2mu(M, config);
+    if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+   	muMod = r2mu(M, config, verbose=verbose);
    	
-    rvmProgram = mu2rvm(muMod); 
-    println("compile: Writing RVMProgram <rvmProgramLoc>");
+    rvmProgram = mu2rvm(muMod, verbose=verbose); 
+    if(verbose) println("compile: Writing RVMProgram <rvmProgramLoc>");
     writeBinaryValueFile(rvmProgramLoc, rvmProgram);
     for(msg <- rvmProgram.messages){
         println(msg);
@@ -79,12 +82,12 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, loc bindir = |home:///b
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
 
    // moduleLoc = getSearchPathLocation(moduleLoc.path);
-    println("moduleLoc = <moduleLoc>");
-    moduleLoc = normalize(moduleLoc);
-	<cfg, rvmProgram> = compile1(moduleLoc, bindir=bindir);
+    if(verbose) println("moduleLoc = <moduleLoc>");
+    //moduleLoc = normalize(moduleLoc);
+	<cfg, rvmProgram> = compile1(moduleLoc, verbose=verbose, bindir=bindir);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
    	warnings = [ w | w:warning(_,_) <- cfg.messages ];
@@ -97,8 +100,10 @@ RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc 
    	for(dirtyLoc <- dirtyModulesLoc){
    		println("\tdirty: <dirtyLoc>");
    	}
-   	for(<m1, m2> <- cfg.importGraph){
-   		println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
+   	if(verbose){
+   	   for(<m1, m2> <- cfg.importGraph){
+   		   println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
+   	   }
    	}
    	
    	importedByStar = invert(cfg.importGraph)*;
@@ -110,7 +115,7 @@ RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc 
    	
    	allDependencies = { getModuleLocation(prettyPrintName(rname)) | rname <- carrier(cfg.importGraph) } - moduleLoc;
    	
-   	println("allDependencies: <allDependencies>");
+   	//println("allDependencies: <allDependencies>");
    	
     for(dependency <- allDependencies){
         if(dependency in dirtyModulesLoc || !validRVM(dependency)){

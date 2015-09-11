@@ -9,7 +9,7 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
@@ -95,7 +95,5 @@ public class DebugMessageFactory {
 		public Object getPayload() {
 			return payload;
 		}
-		
 	}	
-	
 }

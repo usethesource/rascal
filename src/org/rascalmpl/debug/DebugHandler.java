@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,26 +14,21 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.debug;
+package org.rascalmpl.debug;
 
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
+import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
 import java.util.Set;
+import java.util.function.IntSupplier;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.swt.widgets.Display;
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
-import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.debug.IDebugMessage.Detail;
 
 public final class DebugHandler implements IDebugHandler {
 
 	private AbstractInterpreterEventTrigger eventTrigger;
 
-	private final Set<String> breakpoints = new java.util.HashSet<String>();
+	private final Set<ISourceLocation> breakpoints = new java.util.HashSet<>();
 			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
@@ -52,12 +47,12 @@ public final class DebugHandler implements IDebugHandler {
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
 	/**
-	 * Referring to {@link AbstractAST} responsible for last suspension.
+	 * Referring to {@link ISourceLocation} responsible for last suspension.
 	 */
-	private AbstractAST referenceAST = null;	
+	private ISourceLocation referenceAST = null;	
 
 	/**
-	 * Referring to the {@link Environment} stack depth at last suspension suspension.
+	 * Referring to the stack depth at last suspension suspension.
 	 * This information is used to determine if stepping enters a function call.
 	 * {@see #suspend(IEvaluator, AbstractAST)}
 	 */	
@@ -76,15 +71,15 @@ public final class DebugHandler implements IDebugHandler {
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		return breakpoints.contains(b.toString());
+		return breakpoints.contains(b);
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.add(breakpointLocation.toString());
+		breakpoints.add(breakpointLocation);
 	}
 
 	private void removeBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.remove(breakpointLocation.toString());
+		breakpoints.remove(breakpointLocation);
 	}
 	
 	protected void clearSuspensionState() {
@@ -93,113 +88,105 @@ public final class DebugHandler implements IDebugHandler {
 		setSuspended(false);
 	}	
 	
-	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	protected void updateSuspensionState(int callStackSize, ISourceLocation currentAST) {
 		setReferenceAST(currentAST);
 		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
+		setReferenceEnvironmentStackSize(callStackSize);
 		setSuspended(true);
 	}
 	
 	@Override
-	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		if (Display.getDefault().getThread().equals(Thread.currentThread())) {
-			return;
-		}
-		if(isSuspendRequested()) {
-			updateSuspensionState(evaluator, currentAST);
-			getEventTrigger().fireSuspendByClientRequestEvent();			
-		
-			setSuspendRequested(false);
-			
-		} else {
+	public void suspended(Object runtime, IntSupplier getCallStackSize, ISourceLocation currentAST) {
+	    if (isSuspendRequested()) {
+	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+	        getEventTrigger().fireSuspendByClientRequestEvent();			
+	        setSuspendRequested(false);
+	    } 
+	    else {
+	        ISourceLocation location = currentAST;
+	        switch (getStepMode()) {
 
-			ISourceLocation location = currentAST.getLocation();
-      switch (getStepMode()) {
-			
-			case STEP_INTO:
-				updateSuspensionState(evaluator, currentAST);
-				getEventTrigger().fireSuspendByStepEndEvent();
-				break;
-				
-			case STEP_OVER:
-				// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
-				// TODO: optimize {@link Evaluator.getCallStack()}; currently it is expensive because of environment traversal
-				Integer currentEnvironmentStackSize = ((Evaluator) evaluator).getCallStack().size();
+	        case STEP_INTO:
+	            updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+	            getEventTrigger().fireSuspendByStepEndEvent();
+	            break;
 
-				/*
-				 * Stepping over implies:
-				 * * either there is a next statement in the same environment stack frame (which might
-				 *   equal the reference statement in case of recursion or single statement loops)
-				 * * or there is no next statement in the same stack frame and thus the stack frame 
-				 *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
-				 *   are executed, no action needs to be taken.
-				 */
-				switch (currentEnvironmentStackSize.compareTo(getReferenceEnvironmentStackSize())) {
-				case 0:
-				  /*
-				   * For the case that we are still within the same stack
-				   * frame, positions are compared to ensure that the
-				   * statement was finished executing.
-				   */
-				  int referenceStart = getReferenceAST().getLocation().getOffset();
-				  int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-				  int currentStart = location.getOffset();
-				  int currentAfter = location.getOffset() + location.getLength();
+	        case STEP_OVER:
+	            Integer currentEnvironmentStackSize = getCallStackSize.getAsInt();
 
-				  if (currentStart < referenceStart
-				      || currentStart >= referenceAfter
-				      || currentStart == referenceStart
-				      && currentAfter == referenceAfter) {
-				    updateSuspensionState(evaluator, currentAST);
-				    getEventTrigger().fireSuspendByStepEndEvent();
-				  }
-				  break;
+	            /*
+	             * Stepping over implies:
+	             * * either there is a next statement in the same environment stack frame (which might
+	             *   equal the reference statement in case of recursion or single statement loops)
+	             * * or there is no next statement in the same stack frame and thus the stack frame 
+	             *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
+	             *   are executed, no action needs to be taken.
+	             */
+	            switch (currentEnvironmentStackSize.compareTo(getReferenceEnvironmentStackSize())) {
+	            case 0:
+	                /*
+	                 * For the case that we are still within the same stack
+	                 * frame, positions are compared to ensure that the
+	                 * statement was finished executing.
+	                 */
+	                int referenceStart = getReferenceAST().getOffset();
+	                int referenceAfter = getReferenceAST().getOffset() + getReferenceAST().getLength();
+	                int currentStart = location.getOffset();
+	                int currentAfter = location.getOffset() + location.getLength();
 
-				case -1:
-				  // lower stack size: left scope, thus over
-				  updateSuspensionState(evaluator, currentAST);
-				  getEventTrigger().fireSuspendByStepEndEvent();
-				  break;
+	                if (currentStart < referenceStart
+	                        || currentStart >= referenceAfter
+	                        || currentStart == referenceStart
+	                        && currentAfter == referenceAfter) {
+	                    updateSuspensionState(currentEnvironmentStackSize, currentAST);
+	                    getEventTrigger().fireSuspendByStepEndEvent();
+	                }
+	                break;
 
-				case +1:
-				  // higher stack size: not over yet
-				  break;
+	            case -1:
+	                // lower stack size: left scope, thus over
+	                updateSuspensionState(currentEnvironmentStackSize, currentAST);
+	                getEventTrigger().fireSuspendByStepEndEvent();
+	                break;
 
-				default:
-				  throw new RuntimeException(
-				      "Requires compareTo() to return exactly either -1, 0, or +1.");
-				}
-				break;
+	            case +1:
+	                // higher stack size: not over yet
+	                break;
 
-			case NO_STEP:
-			  if (hasBreakpoint(location)) {
-			    updateSuspensionState(evaluator, currentAST);
-			    getEventTrigger().fireSuspendByBreakpointEvent(location);
-			  }
-			  break;
+	            default:
+	                throw new RuntimeException(
+	                        "Requires compareTo() to return exactly either -1, 0, or +1.");
+	            }
+	            break;
 
-      }
-		}
+	        case NO_STEP:
+	            if (hasBreakpoint(location)) {
+	                updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+	                getEventTrigger().fireSuspendByBreakpointEvent(location);
+	            }
+	            break;
 
-		/*
-		 * Waiting until GUI triggers end of suspension.
-		 */
-		while (isSuspended()) {
-		  try {
-		    evaluator.wait(50);
-		  } catch (InterruptedException e) {
-		    // Ignore
-		  }
-		}		
+	        }
+	    }
 
+	    /*
+	     * Waiting until GUI triggers end of suspension.
+	     */
+	    while (isSuspended()) {
+	        try {
+	            runtime.wait(50);
+	        } catch (InterruptedException e) {
+	            // Ignore
+	        }
+	    }
 	}
 
-	protected AbstractAST getReferenceAST() {
+	protected ISourceLocation getReferenceAST() {
 	  return referenceAST;
 	}
 
-	protected void setReferenceAST(AbstractAST referenceAST) {
+	protected void setReferenceAST(ISourceLocation referenceAST) {
 	  this.referenceAST = referenceAST;
 	}
 

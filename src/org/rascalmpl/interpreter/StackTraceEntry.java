@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 class StackTraceEntry {

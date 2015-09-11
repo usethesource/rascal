@@ -91,6 +91,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     IValue value = result.getValue();
     if (value == null) {
       out.println("ok");
+      out.flush();
       return;
     }
     Type type = result.getType();
@@ -101,7 +102,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
       // we first unparse the tree
       out.print("`");
       TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-      out.print("`\n");
+      out.println("`");
       // write parse tree out one a single line for reference
       out.print("Tree: ");
       try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
@@ -117,6 +118,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     	}
     }
     out.println();
+    out.flush();
   }
 
   protected abstract PrintWriter getErrorWriter();

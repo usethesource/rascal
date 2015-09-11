@@ -25,7 +25,7 @@ public class TypeReachability {
 
 	static private boolean mayOccurIn(final Type small, final Type large, final Set<Type> seen, final Environment env) {
 		// TODO: this should probably be a visitor as well
-	  if (small.isBottom()) {
+	  if (small.isBottom() && !large.isBottom()) {
 	    return false;
 	  }
 	  

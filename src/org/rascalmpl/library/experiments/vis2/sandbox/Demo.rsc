@@ -156,7 +156,7 @@ Figure demoFig() = grid(figArray=[
              ,[demo15(), demo13()]
              ,[demo14(), demo11()]
              ,[demo16(), demo17()]
-             ,[demo18()]
+             ,[demo18(), demo19()]
             ]);
                   
 void demo() = render(demoFig(),
@@ -497,3 +497,39 @@ void tbig() = render(big());
 Figure demo18() = flower();
 
 void tflower() = render(flower());
+
+Figure cell(str s, int r = 15) = 
+     circle(
+         lineColor = "black", fillColor = "antiquewhite",
+          r = r, id = s   , fig = label(s, fontWeight="bold")
+         ,event=on(["mouseenter", "mouseleave"], void(str e, str n, str v){
+            if (e=="mouseleave")
+           style(n, fillColor="antiquewhite");
+            else
+              style(n, fillColor="red");
+        }));
+   
+public Figure wirth() {
+   Figure r = box(fig = 
+       tree(
+         box(fig=label("A", size=<15, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, size=<100, 35>, rounded= <25, 25>), [
+           tree(cell("B"), [
+              tree(cell("D"), [cell("I")])
+              ,tree(cell("E"),
+                 [cell("J"), cell("K"), cell("L")])
+               ])
+            , tree(cell("C", r = 25), [
+               tree(cell("F"), [cell("O")])
+              ,tree(cell("G", r = 30), [cell("M"), cell("N")])
+              ,tree(cell("H"), [ cell("P")])           
+              ])
+            ]
+          )
+       );
+   return r;         
+   }
+
+
+Figure demo19() = wirth();
+
+void twirth() = render(wirth());

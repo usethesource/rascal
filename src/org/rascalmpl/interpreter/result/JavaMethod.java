@@ -214,7 +214,7 @@ public class JavaMethod extends NamedFunction {
 			
 			// then we add the resulting values in order to the actual parameter array for the Java method
 			for (int i = 0; i < amountOfKWArguments; i++) {
-				newActuals[oldActuals.length + i] = env.getVariable(kwType.getFieldName(i)).getValue();
+				newActuals[oldActuals.length + i] = env.getFrameVariable(kwType.getFieldName(i)).getValue();
 			}
 			
 			return newActuals;

@@ -151,7 +151,7 @@ lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-
 
 str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
 
-loc RascalParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|;
+loc RascalParserLoc = |std:///lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|;
 
 void generateAndWriteRascalParser(){
 	writeFile(RascalParserLoc, generateRascalParser());

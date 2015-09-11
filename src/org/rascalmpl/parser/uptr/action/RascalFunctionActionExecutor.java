@@ -99,7 +99,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 		
 		Environment env = (Environment) environment;
 		
-		Result<IValue> var = env.getVariable("amb");
+		Result<IValue> var = env.getFrameVariable("amb");
 		
 		if (var != null && var instanceof ICallableValue) {
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(ambCluster);
@@ -163,7 +163,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 		
 		if (cons != null) {
 			Environment env = (Environment) environment;
-			Result<IValue> var = env.getVariable(cons);
+			Result<IValue> var = env.getFrameVariable(cons);
 			
 			if (var != null && var instanceof ICallableValue) {
 				ICallableValue function = (ICallableValue) var;

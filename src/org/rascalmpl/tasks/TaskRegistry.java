@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {

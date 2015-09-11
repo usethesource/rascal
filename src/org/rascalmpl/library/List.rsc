@@ -38,7 +38,7 @@ hint: <H>
 test: concat(<L>) == <?>
 }
 public list[&T] concat(list[list[&T]] xxs) =
-  ([] | it + xs | xs <- xxs);
+  [*xs | list[&T] xs <- xxs];
 
 @doc{
 Synopsis: Delete an element from a list.

@@ -9,7 +9,7 @@ public class LimitedLineWriter extends NonClosingFilterWriter {
   private final int limit;
   private int written;
 
-  protected LimitedLineWriter(Writer out, int limit) {
+  public LimitedLineWriter(Writer out, int limit) {
     super(out);
     this.limit = limit;
     written = 0;

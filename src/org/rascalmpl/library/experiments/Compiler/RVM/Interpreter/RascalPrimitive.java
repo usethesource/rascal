@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -45,6 +44,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -8020,6 +8020,7 @@ public enum RascalPrimitive {
 
 			if(ignore){
 				test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+				testResultListener.ignored("", src);
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
@@ -8050,7 +8051,7 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					IValue res = rvm.executeFunction(fun, args); 
+					IValue res = rvm.executeFunction(fun, args, null); 
 					passed = ((IBool) res).getValue();
 					if(!passed){
 						break;
@@ -8815,11 +8816,12 @@ public enum RascalPrimitive {
 			for(int i = 0; i < nformals - 1; i++){
 				args[i] = (IValue) currentFrame.stack[i];
 			}
-			if(fun.memoization == null){
-				MemoizationCache cache = new MemoizationCache();
-	            fun.memoization = new SoftReference<>(cache);
+			MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
+			if(cache == null){
+				cache = new MemoizationCache<>();
+	      fun.memoization = new SoftReference<>(cache);
 			}
-			fun.memoization.get().storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
+			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
 			return sp;
 		}
 	}
@@ -8870,8 +8872,10 @@ public enum RascalPrimitive {
 		rex = usedRex;
 		vf = rex.getValueFactory();
 		stdout = rex.getStdOut();
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
+		if(parsingTools == null){
+			parsingTools = new ParsingTools(vf);
+			parsingTools.setContext(rex);
+		}
 		tf = TypeFactory.getInstance();
 		typeStore = rex.getTypeStore();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
@@ -8889,9 +8893,9 @@ public enum RascalPrimitive {
 	}
 
 	public static void reset(){
-		parsingTools = new ParsingTools(vf);
-		parsingTools.setContext(rex);
-		//parsingTools.reset();
+//		parsingTools = new ParsingTools(vf);
+//		parsingTools.setContext(rex);
+		parsingTools.reset();
 		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();

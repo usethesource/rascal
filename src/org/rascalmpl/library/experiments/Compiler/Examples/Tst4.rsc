@@ -1,16 +1,24 @@
 
 module experiments::Compiler::Examples::Tst4
 
-data NODE1 = nd(NODE1 left, NODE1 right) | n(int x) | s(str y);
+import ParseTree;
+syntax A = "a";
+syntax B = "b";
 
-NODE1 N1 = nd(n(3), s("abc"));
+syntax M[&T] = "[[" &T "]]";
 
-int cnt(NODE1 t) {
-	int C = 0;
-	top-down visit(t) {
-		case int N: C = C + 1;
-	}
-	return C;
-}
+syntax MA = M[A];
+syntax MB = M[B];
 
-value main(list[value] args) = cnt(N1);
+syntax N[&T,&U] = "\<\<" &T "," &U "\>\>";
+
+syntax NAB = N[A,B];
+
+test bool parameterized1() = /A a := (M[A]) `[[a]]`;
+test bool parameterized2() = /A a !:= (M[B]) `[[b]]`;
+
+test bool parameterized3() = /B b := (M[B]) `[[b]]`;
+test bool parameterized4() = /B b !:= (M[A]) `[[a]]`;
+
+test bool parameterized5() = /A a := (N[A,B]) `\<\<a,b\>\>`;
+test bool parameterized6() = /B b := (N[A,B]) `\<\<a,b\>\>`;

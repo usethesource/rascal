@@ -43,7 +43,8 @@ public class DescendantDescriptor {
 					mSymbolSet.add(tp);							// Otherwise add as TYPE to the set
 				}
 			} catch (Throwable e) {
-				System.err.println("Problem with " + v + ", " + e);
+				// TODO: a DuplicateFieldDeclaration occurs on some occasions, explore!!
+				//System.err.println("DescendantDescriptor: problem with " + v + ", " + e);
 			}
 		}
 		containsNodeOrValueType = mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);

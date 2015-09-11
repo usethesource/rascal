@@ -85,7 +85,7 @@ public class Reflective {
 			
 			
 			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
+			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$parser$", heap));
 			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
 			
 			// Update the classpath so it is the same as in the context interpreter.
