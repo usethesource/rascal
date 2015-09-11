@@ -511,7 +511,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 	if (updateType && n in c.globalAdtMap) {
 		existingId = c.globalAdtMap[n];
-		c.store[itemId].rtype = rt;
+		c.store[existingId].rtype = rt;
 		c = extendDataType(c, existingId);
 	} else {
 		if (n notin c.typeEnv && n notin c.globalAdtMap) {
@@ -677,7 +677,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		return itemId;
 	}
 
-	if (updateType && n in typeEnv && c.store[c.typeEnv[n]] is \alias) {
+	if (updateType && n in c.typeEnv && c.store[c.typeEnv[n]] is \alias) {
 		c.store[c.typeEnv[n]].rtype = rt;
 	} else {
 		if (n notin c.typeEnv) {
