@@ -7386,8 +7386,8 @@ void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
 	}
 }
 
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
-	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
+	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
 }
 
 data IGComponent = singleton(RName item) | component(set[RName] items);
@@ -7441,7 +7441,7 @@ public rel[RName mname, bool isext] getDefaultImports() {
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {	
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {	
 	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
 	// has changed, in which case we need to recheck the modules on paths with changed modules
 	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports());
@@ -7493,12 +7493,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			if (!exists(cachedConfig(dependencyLoc, bindir))) {
 				// If we don't have a saved config for the module, we need to
 				// check it and save the config.
-				println("No config exists for module <prettyPrintName(wl)>");
+				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else if (!exists(cachedHash(dependencyLoc, bindir))) {
 				// If we don't have a saved hash for the module, it hasn't been checked
 				// before or the has info was deleted, so we need to check it now. 
-				println("No cached hash exists for module <prettyPrintName(wl)>");
+				if (verbose) println("No cached hash exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else {
 				existingHash = getCachedHash(dependencyLoc, bindir);
@@ -7569,7 +7569,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				moduleTrees[mn] = m;
 			}
 		} catch _ : {
-			println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
+			if (verbose) println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
 			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
 			return c;
 		}
@@ -7896,7 +7896,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load information on constructors and productions.
 		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName) {
-			println("Loading constructors into module <prettyPrintName(itemName)>");
+			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
 			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -8017,11 +8017,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (wlItem <- worklist) {
 		if (singleton(itemName) := wlItem) {
 			if (itemName in workingConfigs) {
-				println("Checking module <prettyPrintName(itemName)>");
+				if (verbose) println("Checking module <prettyPrintName(itemName)>");
 				workingConfigs[itemName] = fullyCheckSingleModule(workingConfigs[itemName], itemName);
 				existingConfigs[itemName] = workingConfigs[itemName];
 			} else {
-				println("No need to recheck <prettyPrintName(itemName)>");
+				if (verbose) println("No need to recheck <prettyPrintName(itemName)>");
 			}
 		} else if (component(itemNames) := wlItem) {
 			for (itemName <- itemNames, itemName in workingConfigs) {
@@ -8219,7 +8219,7 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
 					}
 				} else {
-					println("Maybe the debugger will deign to stop here...");
+					if (verbose) println("Maybe the debugger will deign to stop here...");
 					throw "User type should not refer to type <prettyPrintType(ut)>";
 				}
 			} else {
@@ -8898,16 +8898,16 @@ public anno map[loc,str] Module@docStrings;
 public anno map[loc,set[loc]] Module@docLinks;
 
 
-public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false) {
-	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck);
+public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
+	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck, verbose=verbose);
 }
 
-public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration();
 	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
-			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck);
+			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
 	//}
