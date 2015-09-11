@@ -8,7 +8,7 @@ public class LimitedWriter extends NonClosingFilterWriter {
   private final long limit;
   private long written;
 
-  protected LimitedWriter(Writer out, long limit) {
+  public LimitedWriter(Writer out, long limit) {
     super(out);
     this.limit = limit;
     this.written = 0;

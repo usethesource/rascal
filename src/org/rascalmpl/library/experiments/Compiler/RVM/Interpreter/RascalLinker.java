@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTConfiguration;
@@ -47,7 +48,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		   
 		   // Specific serializers
 		   rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-		   conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+		   conf.registerSerializer(RVMLinked.class, rvmExecutableSerializer, false);
 		   
 		   functionSerializer = new FSTFunctionSerializer();
 		   conf.registerSerializer(Function.class, functionSerializer, false);
@@ -281,7 +282,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			} else {
 				//System.out.println("finalizeInstructions: " + f.name);
 			}
-			f.finalize(functionMap, constructorMap, resolver, false /*listing*/);
+			f.finalize(functionMap, constructorMap, resolver);
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
@@ -289,15 +290,16 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	public RVMExecutable link(
+	public RVMLinked link(
 				 IConstructor program,
 				 IMap imported_module_tags,
 				 IMap imported_types,
 				 IList imported_functions,
 				 IList imported_overloaded_functions,
 				 IMap imported_overloading_resolvers,
-				 IList argumentsAsList, 
 				 boolean useJVM) {
+		
+		long start = Timing.getCpuTime();
 		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
@@ -308,7 +310,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 		
-		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("tags"));
+		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("module_tags"));
 
 		/** Imported types */
 
@@ -422,7 +424,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		return new RVMExecutable(((IString) program.get("name")).getValue(),
+		System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
+		return new RVMLinked(((IString) program.get("name")).getValue(),
 							     moduleTags,
 								 (IMap) program.get("symbol_definitions"),
 								 functionMap, 

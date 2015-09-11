@@ -10,9 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.Result;
 
-public class MemoizationCache {
+public class MemoizationCache<TResult> {
 	
 	private static final int PRIME1 = (int) 2654435761L;
 	private static final int PRIME2 = (int) 2246822519L;
@@ -69,7 +68,7 @@ public class MemoizationCache {
 		return h;
 	}
 	
-	private class CacheKey {
+	private static class CacheKey {
 		private final int storedHash;
 		@SuppressWarnings("rawtypes")
 		private final KeySoftReference[] params;
@@ -118,7 +117,7 @@ public class MemoizationCache {
 	// need to make sure the lookup key references
 	// aren't released during lookup
 	// and avoid creating extra SoftReferences
-	private class LookupKey {
+	private static class LookupKey {
 		
 		private final int storedHash;
 		private final IValue[] params;
@@ -173,11 +172,11 @@ public class MemoizationCache {
 	}
 	
 	// Special SoftReference to have a reference to the Key in the HashMap
-	private class KeySoftReference<T> extends SoftReference<T> {
+	private static class KeySoftReference<K> extends SoftReference<K> {
 		private CacheKey key;
 
 		@SuppressWarnings("unchecked")
-		public KeySoftReference(T ref, CacheKey key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+		public KeySoftReference(K ref, CacheKey key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
 			super(ref, queue);
 			this.key = key;
 		}
@@ -186,7 +185,7 @@ public class MemoizationCache {
 	
 	// Extra class to store CacheKeys in the HashSet
 	// should only use instance equality.
-	private class CacheKeyWrapper {
+	private static class CacheKeyWrapper {
 		private final CacheKey key;
 
 		public CacheKeyWrapper(CacheKey key) {
@@ -235,11 +234,11 @@ public class MemoizationCache {
 	
 	@SuppressWarnings("rawtypes")
 	private final ReferenceQueue queue = new ReferenceQueue();
-	private final Map<Object, KeySoftReference<Result<IValue>>> cache = new HashMap<>();
+	private final Map<Object, KeySoftReference<TResult>> cache = new HashMap<>();
 	
-	public Result<IValue> getStoredResult(IValue[] params, Map<String, IValue> keyArgs) {
+	public TResult getStoredResult(IValue[] params, Map<String, IValue> keyArgs) {
 		cleanupCache();
-		KeySoftReference<Result<IValue>> result = cache.get(new LookupKey(params, keyArgs));
+		KeySoftReference<TResult> result = cache.get(new LookupKey(params, keyArgs));
 		return result == null ? null : result.get();
 	}
 	
@@ -247,9 +246,9 @@ public class MemoizationCache {
 	/**
 	 * This method assumes that the getStoredResult is first called to assure there was no result already there beforehand.
 	 */
-	public void storeResult(IValue[] params, Map<String, IValue> keyArgs, Result<IValue> result) {
+	public void storeResult(IValue[] params, Map<String, IValue> keyArgs, TResult result) {
 		cleanupCache();
 		CacheKey newKey = new CacheKey(params, keyArgs, queue);
-		cache.put(newKey, new KeySoftReference<Result<IValue>>(result, newKey, queue));
+		cache.put(newKey, new KeySoftReference<TResult>(result, newKey, queue));
 	}
 }

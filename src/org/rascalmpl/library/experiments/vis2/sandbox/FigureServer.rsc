@@ -26,7 +26,7 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
 
 
 public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -1,
-     num fillOpacity = -1.0, num lineOpacity = -1.0) {
+     num fillOpacity = -1.0, num lineOpacity = -1.0, str visibility = "") {
      Style v = _getStyle(id);
      v.svg = isSvg(id);
      if (lineWidth!=-1) v.lineWidth = lineWidth;
@@ -34,20 +34,33 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
+     if (!isEmpty(visibility)) v.visibility = visibility;
      _setStyle(id, v);
      return v;
      }
+
+bool isEmptyValue(value v) {
+    if (str x:=v) return isEmpty(x);
+    return false;
+    }
      
 public Attr attr(str id, int width = -1, int height = -1, int r = -1
      , num grow = 1.0) {
      Attr v = _getAttr(id);
      if (width!=-1) v.width = width;
      if (height!=-1) v.height = height;
-     if (grow>=0) v.grow = grow;
+     if (grow>=0) v.grow = grow;    
      if (r!=-1) v.r = r;
      _setAttr(id, v);
      return v;
      }
+     
+public Property property(str id, value \value = "") {
+    Property v = _getProperty(id);
+    if (!isEmptyValue(\value)) v.\value = \value;
+     _setProperty(id, v);
+     return v;
+    }
 
 public Text textLabel(str id, str text = "") {
      Text v = _getText(id);
@@ -57,13 +70,10 @@ public Text textLabel(str id, str text = "") {
      return v;
      }
      
-public str getChecked(str id) {
-     Attr v = _getAttr(id);
-     return v.curS;   
+public Text clearTextLabel(str id) {
+     Text v = _getText(id);
+     v.text = "";
+     _setText(id, v);
+     //  println(v);
+     return v;
      }
-
-public num getValue(str id) {
-     Attr v = _getAttr(id);
-     return v.curN;   
-     }
-

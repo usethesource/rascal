@@ -13,7 +13,7 @@ package org.rascalmpl.tasks;
 
 import java.util.Collection;
 
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 
 public interface ITaskRegistry<K, N, V> extends ITask<K, N, V> {
 

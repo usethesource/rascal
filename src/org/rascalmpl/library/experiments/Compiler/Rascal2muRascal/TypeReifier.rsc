@@ -178,7 +178,7 @@ private void computeReachableTypesAndConstructors(){
 	                              ;
 	reachableTypes = containment+;
 	
-	println("reachableTypes [<size(reachableTypes)>] ="); //for(elm <- reachableTypes) { println("\t<elm>"); }
+	//println("reachableTypes [<size(reachableTypes)>] ="); //for(elm <- reachableTypes) { println("\t<elm>"); }
 	computeReachableConcreteTypes();
 }
 
@@ -269,7 +269,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	
 	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
 		// We just give up when abstract and concrete symbols occur together
-		println("descent_into (abstract) [1]: {value()}");
+		//println("descent_into (abstract) [1]: {value()}");
 	   return {\value()};
 	}
 	println("desiredSubjectTypes = <desiredSubjectTypes>");
@@ -306,7 +306,7 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 	//}
 	tuples = { Symbol::\tuple(symbols) | sym <- descent_into, \rel(symbols) := sym || \lrel(symbols) := sym };
 	descent_into += tuples;
-	println("descent_into (abstract) [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
+	//println("descent_into (abstract) [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
 	return descent_into;
 }

@@ -35,6 +35,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
@@ -123,7 +124,8 @@ public class JavaBridge {
 		} catch (ClassCastException e) {
 			throw new JavaCompilation(e.getMessage(), loc);
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilation("with classpath [" + config.getRascalJavaClassPathProperty() + "]: " + e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), loc);
+			Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+            throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "], code: " + source, loc);
 		}
 	}
 

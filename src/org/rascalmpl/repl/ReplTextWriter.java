@@ -1,6 +1,7 @@
 package org.rascalmpl.repl;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -21,6 +22,16 @@ public class ReplTextWriter extends StandardTextWriter {
 	  super(indent);
   }
   
+  public static String valueToString(IValue value) {
+      try(StringWriter stream = new StringWriter()) {
+          new ReplTextWriter().write(value, stream);
+          return stream.toString();
+      } catch (IOException ioex) {
+          throw new RuntimeException("Should have never happened.", ioex);
+      }
+  }
+  
+  @Override
   public void write(IValue value, final java.io.Writer stream) throws IOException {
     value.accept(new Writer(stream, this.indent, this.tabSize) {
       @Override

@@ -71,12 +71,12 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 //}
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
    try {
     resetModuleInfo();
     module_name = "<M.header.name>";
     setModuleName(module_name);
-    println("r2mu: entering ... <module_name>");
+    if(verbose) println("r2mu: entering ... <module_name>");
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
    	  

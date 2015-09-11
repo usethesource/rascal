@@ -38,7 +38,7 @@ public data Declaration =
 
 public data RVMProgram = 
 		  rvm(str name,
-		  	  map[str,str] tags,
+		  	  map[str, map[str,str]] module_tags,
 		      set[Message] messages,
 			  list[str] imports,
 			  list[str] extends,

@@ -6,10 +6,13 @@ Issues:
 - lang::rascal::grammar::definition::Symbols:sym2symbol
   - The Symbol:: qualifier should be unnneccessary
   - empty (from Rascal.rsc) can cause trouble.
+- Various type chcker tests still fail
 
 Still to be implemented:
 x memo functions
 - resources
+- keyword parameters across imports
+- ignored tests are not even compiled, but keep a count of ignored tests for test reporting
 
 Bootstrapping
 x Compile and test parser generator 

@@ -63,14 +63,18 @@ import org.rascalmpl.ast.EvalCommand;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
+import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.debug.IRascalSuspendTrigger;
+import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.Return;
-import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
-import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -119,7 +123,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
+public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
 	private static final class CourseResolver extends FileURIResolver {
 		private final String courseSrc;
 
@@ -1476,8 +1480,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	  return config;
 	}
 	
-	public Stack<Environment> getCallStack() {
-		Stack<Environment> stack = new Stack<Environment>();
+	public Stack<IRascalFrame> getCallStack() {
+		Stack<IRascalFrame> stack = new Stack<>();
 		Environment env = currentEnvt;
 		while (env != null) {
 			stack.add(0, env);
@@ -1528,8 +1532,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				}
 
 				@Override
-				public void start(int count) {
-					l.start(count);
+				public void ignored(String test, ISourceLocation loc) {
+				    l.ignored(test, loc);
+				}
+				
+				@Override
+				public void start(String context, int count) {
+					l.start(context, count);
 				}
 			}).test();
 			return allOk[0];
@@ -1615,12 +1624,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	@Override
 	public void notifyAboutSuspension(AbstractAST currentAST) {
 		if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
-			 /* 
-			  * NOTE: book-keeping of the listeners and notification takes place here,
-			  * delegated from the individual AST nodes.
-			  */
 			for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-				listener.suspended(this, currentAST);
+				listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
 			}
 		}
 	}
@@ -1744,5 +1749,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			result.add(v);
 		}
 	}
+
+    @Override
+    public Stack<IRascalFrame> getCurrentStack() {
+        return getCallStack();
+    }
+
+    @Override
+    public IRascalFrame getTopFrame() {
+        return getCurrentEnvt();
+    }
+
+    @Override
+    public ISourceLocation getCurrentPointOfExecution() {
+        AbstractAST cpe = getCurrentAST();
+        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getLocation();
+    }
+
+    @Override
+    public IRascalFrame getModule(String name) {
+        return heap.getModule(name);
+    }
  
 }
