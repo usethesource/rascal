@@ -7292,61 +7292,91 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// Get back hashes for the various modules we import; these are the actual hashes, not those
 	// that are cached, so we can see if they have changed
 	map[RName,str] currentHashes = ( );
+	map[RName,loc] moduleLocations = ( );
 	for (imn <- carrier(ig)) {
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn));
+			moduleLocations[imn] = chloc;
 			if (exists(chloc)) {
 				currentHashes[imn] = md5HashFile(chloc);
+			} else {
+				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch : {
-			; // we don't do anything here, missing hashes are handled below
+			; // TODO: Add a warning here, this means we are importing something that we cannot find
 		}
 	}
 	
 	// Compute the transitive closure, this lets us know if one module is reachable from another
 	igTrans = ig+;
 
+	// Compute the inverted version of this relation as well, so we know which modules import
+	// a given module
+	igRev = invert(igTrans);
+	
 	// We keep track of the hashes of all imported modules to see if they have changed since we
 	// last checked this one. If the hash for this module exists, load it. 
-	map[RName,str] moduleHashes = ( );
-	if (exists(moduleLoc) && exists(cachedHashMap(moduleLoc, bindir))) {
-		moduleHashes = getCachedHashMap(moduleLoc, bindir);
+	map[RName,map[RName,str]] moduleHashes = ( );
+	for (wl <- carrier(ig)) {
+		dependencyLoc = moduleLocations[wl];
+		moduleLocations[wl] = dependencyLoc;
+		if (exists(dependencyLoc) && exists(cachedHashMap(dependencyLoc, bindir))) {
+			moduleHashes[wl] = getCachedHashMap(dependencyLoc, bindir);
+		}
 	}
-	
+		
 	// Now, check to see if we have hashes for the imports and if those are the same as the
 	// current hash. This also checks to see if we have cached configurations.
 	moduleName = getHeaderName(header);
-	map[RName, loc] moduleLocations = ( moduleName : moduleLoc );
 	dirtyModules = { };
 	for (wl <- carrier(ig)) {
 		try {
-			dependencyLoc = getModuleLocation(prettyPrintName(wl));
-			moduleLocations[wl] = dependencyLoc;
+			dependencyLoc = moduleLocations[wl];
 			if (!exists(cachedConfig(dependencyLoc, bindir))) {
 				// If we don't have a saved config for the module, we need to
 				// check it and save the config.
+				println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else if (!exists(cachedHash(dependencyLoc, bindir))) {
 				// If we don't have a saved hash for the module, it hasn't been checked
 				// before or the has info was deleted, so we need to check it now. 
+				println("No cached hash exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else {
 				existingHash = getCachedHash(dependencyLoc, bindir);
 				if (wl in currentHashes) {
 					fileHash = currentHashes[wl];
-					if (! (existingHash == fileHash && existingHash == moduleHashes[wl])) {
-						// If we import this module, and the saved cache exists, but it
-						// either differs from the current hash or the saved hash, we need
-						// to rebuild this import. 
+					if (existingHash != fileHash) {
+						// If we have a saved hash for this module but it differs from the current
+						// hash, we need to recheck it. 
 						dirtyModules = dirtyModules + wl;
+					} else {
+						// Here, we check the modules that import wl. It has a saved hash that has not
+						// changed, but it may be the case that an importing module did not know
+						// about it or used a different version.
+						importers = igRev[wl];
+						for (i <- importers) {
+							if (i in moduleHashes) {
+								if (wl in moduleHashes[i]) {
+									if (moduleHashes[i][wl] != fileHash) {
+										// We have a saved hash map and wl is in it, but the saved hash
+										// differs. So, recheck i.
+										dirtyModules = dirtyModules + i;
+									}
+								} else {
+									// We have a saved hash map, but wl is not in it. So, recheck i.
+									dirtyModules = dirtyModules + i;
+								}
+							} else {
+								// We have no saved hashes for i, so recheck it
+								dirtyModules = dirtyModules + i;
+							}
+						}
 					}
 				} else {
-					// Just to be safe, if we weren't aware of this module when we last
-					// typechecked, check it again -- this could be wasted effort, but
-					// it also protects against the case where A imports B, B has been
-					// changed and checked again, but A hasn't been rechecked even
-					// though it hasn't changed (so the md5 would be the same).
-					dirtyModules = dirtyModules + wl;
+					// TODO: This is an error state, this means we could not compute a current hash
+					// for the file, so most likely there is some problem with it
+					;
 				}
 			}
 		} catch : {
@@ -7358,7 +7388,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 	// Save the modules that we are recomputing; this is any dirty modules plus anything
 	// that imports them.
-	c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
+	c.dirtyModules = dirtyModules + igRev[dirtyModules];
 
 	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing hash 
 	// for this module is the same as the current cache, and we have a config, return that, we don't
@@ -7431,7 +7461,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}	
 
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),binDir) | wl <- carrier(ig), wl notin c.dirtyModules );
+	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
 
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
@@ -7455,7 +7485,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// First, resolve names in the productions
 			<p,ci> = resolveProduction(prodItem.prod, prodItem.at, ci, false);
 			prodItem.prod = p;
-			ci = importProduction(prodItem, c);
+			ci = importProduction(prodItem, ci);
 		}
 		ci = checkSyntax(importLists[itemName], ci);  
 	
@@ -7564,18 +7594,22 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// Now, go through the connected components, processing them in dependency order
 	worklist = reverse(order(igComponents));
 	for (wlItem <- worklist) {
-		println("Processing <wlItem>");
 		if (singleton(itemName) := wlItem) {
-			workingConfigs[itemName] = fullyCheckSingleModule(workingConfigs[itemName], itemName);
-			existingConfigs[itemName] = workingConfigs[itemName];
+			if (itemName in workingConfigs) {
+				println("Checking module <prettyPrintName(itemName)>");
+				workingConfigs[itemName] = fullyCheckSingleModule(workingConfigs[itemName], itemName);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			} else {
+				println("No need to recheck <prettyPrintName(itemName)>");
+			}
 		} else if (component(itemNames) := wlItem) {
-			for (itemName <- itemNames) {
+			for (itemName <- itemNames, itemName in workingConfigs) {
 				workingConfigs[itemName] = checkSingleModuleThroughAliases(workingConfigs[itemName], itemName);
 			}
-			for (itemName <- itemNames) {
+			for (itemName <- itemNames, itemName in workingConfigs) {
 				workingConfigs[itemName] = checkSingleModulePastAliases(workingConfigs[itemName], itemName);
 			}
-			for (itemName <- itemNames) {
+			for (itemName <- itemNames, itemName in workingConfigs) {
 				existingConfigs[itemName] = workingConfigs[itemName];
 			}
 		}
