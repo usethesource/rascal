@@ -6631,6 +6631,14 @@ public Configuration startModuleImport(Configuration c, RSignature sig, RName mo
 public Configuration loadConfigurationTypesAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	cOrig = c;
 
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+
 	c = loadConfigurationTypes(c, d, mName, toImport, allImports);
 	
 	c.labelEnv = cOrig.labelEnv; 
@@ -6719,6 +6727,14 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 public Configuration loadConfigurationConsAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	cOrig = c;
 
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+
 	c = loadConfigurationCons(c, d, mName, toImport, allImports);
 	
 	c.labelEnv = cOrig.labelEnv; 
@@ -6799,6 +6815,14 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports, bool updateTypes=false) {
 	cOrig = c;
 
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+	
 	c = loadConfiguration(c, d, mName, toImport, allImports, updateTypes=updateTypes);
 	
 	c.labelEnv = cOrig.labelEnv; 
@@ -8013,7 +8037,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}	
 	
 	// Now, go through the connected components, processing them in dependency order
-	worklist = reverse(order(igComponents));
+	worklist = order(invert(igComponents));
 	for (wlItem <- worklist) {
 		if (singleton(itemName) := wlItem) {
 			if (itemName in workingConfigs) {
