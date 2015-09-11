@@ -607,7 +607,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		    
 	if (updateType && n in c.globalSortMap) {
 		existingId = c.globalSortMap[n];
-		c.store[itemId].rtype = rt;
+		c.store[existingId].rtype = sort;
 		c = extendNonTerminal(c, existingId);
 	} else {
 		if (n notin c.typeEnv && n notin c.globalSortMap) {
