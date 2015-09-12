@@ -7114,18 +7114,19 @@ public Configuration loadExtendedModuleTypes(Configuration c, set[RName] extende
 	for (mn <- extendedModules) {
 		if (mn notin c.moduleInfo) {
 			println("Error, module <mn> has not been loaded");
-		}
-		for (tn <- c.moduleInfo[mn].typeEnv) {
-			tid = c.moduleInfo[mn].typeEnv[tn];
-			if (c.store[tid] is datatype) {
-				c = addImportedADT(c, tn, tid, addFullName = true);
-			} else if (c.store[tid] is sorttype) {
-				c = addImportedNonterminal(c, tn, tid, addFullName = true);
-			} else if (c.store[tid] is \alias) {
-				c = addImportedAlias(c, tn, tid, addFullName = true);
-			} else {
-				println("WARNING: Trying to load <getName(c.store[tid])> as a type");
-				; // TODO: this is an error, add something here
+		} else {
+			for (tn <- c.moduleInfo[mn].typeEnv) {
+				tid = c.moduleInfo[mn].typeEnv[tn];
+				if (c.store[tid] is datatype) {
+					c = addImportedADT(c, tn, tid, addFullName = true);
+				} else if (c.store[tid] is sorttype) {
+					c = addImportedNonterminal(c, tn, tid, addFullName = true);
+				} else if (c.store[tid] is \alias) {
+					c = addImportedAlias(c, tn, tid, addFullName = true);
+				} else {
+					println("WARNING: Trying to load <getName(c.store[tid])> as a type");
+					; // TODO: this is an error, add something here
+				}
 			}
 		}
 	}
@@ -7135,7 +7136,7 @@ public Configuration loadExtendedModuleTypes(Configuration c, set[RName] extende
 public Configuration loadExtendedModuleNames(Configuration c, set[RName] extendedModules) {
 	// Skipping tags and labels for now; we don't use the former, the latter shouldn't
 	// matter from one module to the next
-	for (mn <- extendedModules) {
+	for (mn <- extendedModules, mn in c.moduleInfo) {
 		for (fn <- c.moduleInfo[mn].fcvEnv) {
 			ids = (c.store[c.moduleInfo[mn].fcvEnv[fn]] is overload) ? c.store[c.moduleInfo[mn].fcvEnv[fn]].items : { c.moduleInfo[mn].fcvEnv[fn] };
 			for (fid <- ids) {
@@ -7467,7 +7468,7 @@ public rel[RName mname, bool isext] getDefaultImports() {
 public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {	
 	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
 	// has changed, in which case we need to recheck the modules on paths with changed modules
-	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports());
+	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports(),bindir=bindir);
 	c.importGraph = ig;
 	
 	// Get back last modified dates for the various modules we import; these are not the cached dates
@@ -7484,7 +7485,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch : {
-			; // TODO: Add a warning here, this means we are importing something that we cannot find
+			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}
 	
@@ -7498,7 +7499,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// We keep track of the hashes of all imported modules to see if they have changed since we
 	// last checked this one. If the hash for this module exists, load it. 
 	map[RName,map[RName,datetime]] moduleDates = ( );
-	for (wl <- carrier(ig)) {
+	for (wl <- carrier(ig), wl in moduleLocations) {
 		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
 		dependencyLoc = moduleLocations[wl];
 		moduleLocations[wl] = dependencyLoc;
@@ -7511,7 +7512,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// current hash. This also checks to see if we have cached configurations.
 	moduleName = getHeaderName(header);
 	dirtyModules = { };
-	for (wl <- carrier(ig)) {
+	for (wl <- carrier(ig), wl in moduleLocations) {
 		try {
 			dependencyLoc = moduleLocations[wl];
 			if (!exists(cachedConfig(dependencyLoc, bindir))) {
@@ -7635,7 +7636,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	map[RName,rel[RName,RName]] importFilter = ( );
 	for (mn <- workingConfigs) {		
 		importFrom = { < m2i, m2i > | m2i <- allImports[mn] };
-		importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[mn].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
+		importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[mn].extendedModules, m2tc := convertNameString(m2t), m2tc in infomap, m2j <- infomap[m2tc].importedModules }; 
 		solve(importFrom) {
 			importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
 		}
@@ -7643,11 +7644,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}	
 
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
-
+	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
+	
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
-		for (wl <- allImports[itemName]) {
+		for (wl <- allImports[itemName], wl in moduleLocations) {
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7655,7 +7656,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
 		ci.stack = moduleIds[itemName] + ci.stack;
-		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 	
 		// Now process all the syntax in the current module. We first "extract" information about all
 		// the syntax (using the existing functionality for extracting module signatures), then add
@@ -7713,7 +7714,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 			// Bring in type names from the imported modules as long as they don't
 			// conflict with the type names just added.
-			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 			
 			// Now, actually process the aliases
 			bool modified = true;
@@ -7736,18 +7737,18 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Process the current module. We start by merging in everything from the modules we are
 			// extending to give an initial "seed" for our environment. We will just use the standard
 			// add functions for this.
-			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 	
 			// Next, process the annotations
 			for (t <- annotations) ci = checkDeclaration(t,true,ci);
 	
 			// Bring in annotations from the imported modules as long as they don't
 			// conflict with the annotations just added.
-			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 					
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added.
-			ci = loadImportedNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 			
 			// Next, introduce names into the environment
 			for (t <- names) ci = checkDeclaration(t,false,ci);
@@ -7768,7 +7769,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleThroughAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations for modules that are not in the same connected component (so they do not
 		// depend on the results of checking the current module) 
-		for (wl <- allImports[itemName], wl notin componentMembers) {
+		for (wl <- allImports[itemName], wl notin componentMembers, wl in moduleLocations) {
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7778,7 +7779,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// the connected component. Allowing this seems like it would be semantically problematic.
 		// TODO: Add a check to ensure we don't allow this inadvertently.
 		ci.stack = moduleIds[itemName] + ci.stack;
-		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 	
 		// Now process all the syntax nonterminals for the current module. At this point we just
 		// introduce the nonterminals, not the productions, since these could use nonterminals
@@ -7821,7 +7822,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModulePastAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load type information.
-		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
 			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7880,7 +7881,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Bring in type names from the imported modules as long as they don't
 			// conflict with the type names just added. This will import these names
 			// from all imports, including those in the same connected component.
-			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 			
 			// Now, actually process the aliases
 			bool modified = true;
@@ -7903,7 +7904,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Process the current module. We start by merging in everything from the modules we are
 			// extending to give an initial "seed" for our environment. We will just use the standard
 			// add functions for this.
-			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 	
 			// Next, process the annotations. These just need type information to allow them to be
 			// declared, so this can be done in this step.
@@ -7919,7 +7920,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleNamesOnly(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load information on constructors and productions.
-		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
 			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
 			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
@@ -7964,7 +7965,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added. This just brings in constructors
 			// and productions at this point.
-			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 
 			for (t <- names) ci = checkDeclaration(t,false,ci);
 	
@@ -7978,7 +7979,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleAndFinalize(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Using the checked type information, load in the info for each module. This will replace the already
 		// loaded info, and will include functions, variables, etc that are exported from the module.
-		for (wl <- allImports[itemName], wl in componentMembers) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl in moduleLocations) {
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
 		}
 			
@@ -8016,12 +8017,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 			// Bring in annotations from the imported modules as long as they don't
 			// conflict with the annotations just added.
-			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 					
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added. We brought in constructor
 			// and production names before, so this brings in functions and vars.
-			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]) });
+			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 			
 			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
 			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
