@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 @SuppressWarnings("rawtypes")
@@ -58,14 +59,19 @@ public class EclipseJavaCompiler {
 	EclipseJavaCompiler.cache.clear();
     classPathEntries.clear();
     sourcePathEntries.clear();
+    
+    URIResolverRegistry uriResolverRegistery = URIResolverRegistry.getInstance();
+    
     for (IValue path : classPaths) {
-        assert ((ISourceLocation) path).getScheme().equals("file");
-        classPathEntries.add(((ISourceLocation) path).getPath());
+    	ISourceLocationInput resolver = uriResolverRegistery.getInputResolver(((ISourceLocation) path).getScheme());
+    	assert (resolver.supportsToFileURI());
+        classPathEntries.add(resolver.toFileURI((ISourceLocation)path).getPath());
     }
 
     for (IValue path : sourcePaths) {
-        assert ((ISourceLocation) path).getScheme().equals("file");
-		sourcePathEntries.add(((ISourceLocation) path).getPath());
+    	ISourceLocationInput resolver = uriResolverRegistery.getInputResolver(((ISourceLocation) path).getScheme());
+    	assert (resolver.supportsToFileURI());
+        sourcePathEntries.add(resolver.toFileURI((ISourceLocation)path).getPath());
     }
   }
   
@@ -80,9 +86,9 @@ public class EclipseJavaCompiler {
       return converter.getModel(false);
   }
 
-  public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
+  public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IBool resetEnvironment, IEvaluatorContext eval) {
     try {
-      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion);
+      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, resetEnvironment.getValue(), javaVersion);
 
       TypeStore store = new TypeStore();
       store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
@@ -108,7 +114,7 @@ public class EclipseJavaCompiler {
   
   public IValue createM3FromString(ISourceLocation loc, IString contents, IString javaVersion, IEvaluatorContext eval) {
 	  try {
-	      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion);
+	      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, true, javaVersion);
 
 	      TypeStore store = new TypeStore();
 	      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
@@ -137,7 +143,7 @@ public class EclipseJavaCompiler {
   public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString javaVersion,
       IEvaluatorContext eval) {
     try {
-      CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion);
+      CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), true, javaVersion);
 
       TypeStore store = new TypeStore();
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
@@ -157,7 +163,7 @@ public class EclipseJavaCompiler {
   public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IString javaVersion,
 		  IEvaluatorContext eval) {
 	  try {
-	      CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion);
+	      CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), true, javaVersion);
 
 	      TypeStore store = new TypeStore();
 	      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
@@ -174,7 +180,7 @@ public class EclipseJavaCompiler {
 	    }
   }
 
-  protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion) 
+  protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, boolean resetEnvironment, IString javaVersion) 
 		  throws IOException {
     ASTParser parser = ASTParser.newParser(AST.JLS4);
     parser.setUnitName(unitName);
@@ -191,6 +197,11 @@ public class EclipseJavaCompiler {
 
     parser.setCompilerOptions(options);
 
+    if (resetEnvironment) {
+    	EclipseJavaCompiler.cache.clear();
+        classPathEntries.clear();
+        sourcePathEntries.clear();
+    }
     parser.setEnvironment(classPathEntries.toArray(new String[classPathEntries.size()]),
         sourcePathEntries.toArray(new String[sourcePathEntries.size()]), null, true);
 

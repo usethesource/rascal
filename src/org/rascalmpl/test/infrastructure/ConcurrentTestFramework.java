@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,6 +124,16 @@ public class ConcurrentTestFramework {
 		@Override
 		public Charset getCharset(ISourceLocation uri) throws IOException {
 			return null;
+		}
+
+		@Override
+		public boolean supportsToFileURI() {
+			return false;
+		}
+
+		@Override
+		public URI toFileURI(ISourceLocation uri) {
+			throw new UnsupportedOperationException("Cannot convert TestModule to File URI");
 		}
 	}
 

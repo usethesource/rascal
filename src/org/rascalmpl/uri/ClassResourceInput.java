@@ -16,10 +16,12 @@ package org.rascalmpl.uri;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -129,5 +131,15 @@ public class ClassResourceInput implements ISourceLocationInput {
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return registry.getCharset(resolve(uri));
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert resources to File URI");
 	}
 }

@@ -15,12 +15,15 @@ package org.rascalmpl.uri;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -167,5 +170,15 @@ public class JarURIResolver implements ISourceLocationInput {
   public Charset getCharset(ISourceLocation uri) throws IOException {
     // TODO need to see if we can detect the charset inside a jar
     return null;
+  }
+
+  @Override
+  public boolean supportsToFileURI() {
+	  return false;
+  }
+
+  @Override
+  public URI toFileURI(ISourceLocation uri) {
+	  throw new UnsupportedOperationException("Cannot convert jar to File URI");
   }
 }

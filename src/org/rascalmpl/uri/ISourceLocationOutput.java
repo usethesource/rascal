@@ -15,6 +15,7 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 
 import org.apache.commons.compress.utils.Charsets;
@@ -29,4 +30,7 @@ public interface ISourceLocationOutput {
 	default Charset getCharset(ISourceLocation uri) throws IOException {
 		return Charsets.UTF_8;
 	}
+
+	boolean supportsToFileURI();
+	URI toFileURI(ISourceLocation uri);
 }

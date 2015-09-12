@@ -14,6 +14,7 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -28,4 +29,6 @@ public interface ISourceLocationInput {
 	String[] list(ISourceLocation uri)  throws IOException;
 	String scheme();
 	boolean supportsHost();
+	boolean supportsToFileURI();
+	URI toFileURI(ISourceLocation uri);
 }
