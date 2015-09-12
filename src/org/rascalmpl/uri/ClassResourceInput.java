@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 

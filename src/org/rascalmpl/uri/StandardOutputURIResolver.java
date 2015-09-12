@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 
 public class StandardOutputURIResolver implements ISourceLocationOutput {
 

@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class HttpURIResolver implements ISourceLocationInput {

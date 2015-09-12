@@ -17,9 +17,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 
 public class StandardInputURIResolver implements ISourceLocationInput {
 	public boolean exists(ISourceLocation uri) {
