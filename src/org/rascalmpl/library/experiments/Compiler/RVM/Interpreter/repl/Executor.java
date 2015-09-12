@@ -19,8 +19,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CoverageLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMLinked;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -41,14 +43,14 @@ public class Executor {
 	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private final IValueFactory vf;
-	private ISourceLocation executeBinaryLocation;
+	private ISourceLocation compilerBinaryLocation;
 	private ISourceLocation consoleInputLocation;
-	private final RVMLinked rvmExecutable;
+	private final RVMLinked rvmCompilerExecutable;
 	private RVMLinked rvmConsoleExecutable;
 	private final Prelude prelude;
 	private final ExecuteProgram execute;
 	private final RascalExecutionContext rex;
-	private RVM rvm;
+	private RVM rvmCompiler;
 	
 	IBool debug;
 	IBool testsuite;
@@ -58,8 +60,7 @@ public class Executor {
 	IBool useJVM;
 	IBool verbose;
 	IBool serialize;
-	private final String executeFunId;
-	private final IValue[] executeArgs;
+	private final IList executeArgs;
 	
 	private ArrayList<String> imports;
 	private ArrayList<String> syntaxDefinitions;
@@ -68,7 +69,9 @@ public class Executor {
 	private HashMap<String, Variable> variables = new HashMap<String, Variable>();
 	
 	private final String shellModuleName = "CompiledRascalShell";
-	private ISourceLocation consoleInputLinked;
+
+	private IValue[] compileArgs;
+	private String compileFunId;
 	
 	public Executor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
@@ -77,9 +80,8 @@ public class Executor {
 		prelude = new Prelude(vf);
 		execute = new ExecuteProgram(vf);
 		try {
-			executeBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
-			consoleInputLocation = vf.sourceLocation("home", "", "ConsoleInput.rsc");
-			consoleInputLinked = vf.sourceLocation("compressed+home", "", "/bin/rascal/ConsoleInput.rvm.ser.gz");
+			compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Compile.rvm.ser.gz");
+			consoleInputLocation = vf.sourceLocation("test-modules", "", "/ConsoleInput.rsc");
 			
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
@@ -92,7 +94,8 @@ public class Executor {
 		coverage = vf.bool(false);
 		useJVM = vf.bool(false);
 		verbose = vf.bool(false);
-		serialize = vf.bool(true);
+		
+		serialize = vf.bool(false);
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -102,21 +105,29 @@ public class Executor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		rex = new RascalExecutionContext(vf,stdout,stderr, moduleTags, null, null, false, false, false, false, false, false, null);
+		rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, false, false, false, false, null);
 		rex.setCurrentModuleName(shellModuleName);
-		rvmExecutable = RVMLinked.read(executeBinaryLocation);
-		rvm = execute.initializedRVM(rvmExecutable, rex);
-		RascalPrimitive.init(rvm, rex);
+		rvmCompilerExecutable = RVMLinked.read(compilerBinaryLocation);
+		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
+		RascalPrimitive.init(rvmCompiler, rex);
 		
-		executeFunId = "experiments::Compiler::Execute/execute(\\loc();list(value());)#334";
-		executeArgs = new IValue[] {consoleInputLocation, vf.list()};
+		compileFunId = "experiments::Compiler::Compile/compile(\\loc();)#84";
+		compileArgs = new IValue[] {consoleInputLocation};
+		
+		executeArgs =  vf.list();
 		
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
 		declarations = new ArrayList<String>();
 	}
 	
-	private IMap makeKwParams(){
+	private IMap makeCompileKwParams(){
+		IMapWriter w = vf.mapWriter();
+		w.put(vf.string("verbose"), vf.bool(false));
+		return w.done();
+	}
+	
+	private IMap makeExecuteKwParams(){
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("debug"), debug);
 		w.put(vf.string("testsuite"), testsuite);
@@ -131,7 +142,7 @@ public class Executor {
 	
 	IValue executeModule(String main){
 		StringWriter w = new StringWriter();
-		w.append("@bootstrapParser module TMP\n");
+		w.append("@bootstrapParser module ConsoleInput\n");
 		for(String imp : imports){
 			w.append("import ").append(imp).append(";\n");
 		}
@@ -147,12 +158,32 @@ public class Executor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		//stdout.println(modString);
-		prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-		
-		IValue val = rvm.executeFunction(executeFunId, executeArgs, makeKwParams());
-		rvmConsoleExecutable = RVMLinked.read(consoleInputLinked);
-		return val;
+		stdout.println(modString);
+		try {
+			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
+
+			IConstructor consoleRVM = (IConstructor) rvmCompiler.executeFunction(compileFunId, compileArgs, makeCompileKwParams());
+			
+			rvmConsoleExecutable = execute.linkProgram(consoleInputLocation, consoleRVM, useJVM);
+			
+			//rvmConsoleExecutable = execute.linkProgram(consoleInputLocation, useJVM, rvmCompilerExecutable.getTypeStore());
+			
+			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.list(), rex);
+
+			//IValue val = execute.executeProgram(rvmConsoleExecutable, executeArgs, rex);
+
+			if(profile.getValue()){
+				((ProfileLocationCollector) rvmCompiler.getLocationCollector()).report(rvmCompiler.getStdOut());
+			} else if(coverage.getValue()){
+				((CoverageLocationCollector) rvmCompiler.getLocationCollector()).report(rvmCompiler.getStdOut());
+			}
+			//rvmConsoleExecutable = RVMLinked.read(consoleInputLinked);
+			return val;
+		} catch (Exception e){
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	private boolean is(ITree tree, String consName){
@@ -399,6 +430,14 @@ public class Executor {
 				
 			case "coverage":
 				coverage = vf.bool(getBooleanValue(val));
+				return report(name + " set to "  + coverage.getValue());
+				
+			case "debug":
+				debug = vf.bool(getBooleanValue(val));
+				return report(name + " set to "  + coverage.getValue());
+				
+			case "testsuite":
+				testsuite = vf.bool(getBooleanValue(val));
 				return report(name + " set to "  + coverage.getValue());
 				
 			default:

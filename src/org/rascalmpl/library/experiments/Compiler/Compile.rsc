@@ -25,7 +25,7 @@ import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMProgramLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
+loc RVMModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
 
 loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
 loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
@@ -37,7 +37,7 @@ loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir =
 
 
 bool validRVM(loc src, loc bindir = |home:///bin|){
-	rvmLoc = RVMProgramLocation(src, bindir);
+	rvmLoc = RVMModuleLocation(src, bindir);
 	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
 	//println("lastModified(<rvmLoc>) \>= lastModified(<src>): <lastModified(rvmLoc) >= lastModified(src)>");
 	res = exists(rvmLoc) && lastModified(rvmLoc) >= lastModified(src);
@@ -45,7 +45,7 @@ bool validRVM(loc src, loc bindir = |home:///bin|){
 	return res;
 }
 
-tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
+tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
@@ -53,6 +53,7 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool verbose = true, lo
    	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
    	    start_checking = cpuTime();
    		M = parse(#start[Module], moduleLoc).top;
+   		//M = parseModuleAndGetTop(moduleLoc);
    	    config  = checkModule(M, newConfiguration(), bindir=bindir);
    	    println("Checking <moduleLoc>: <(cpuTime() - start_checking)/1000000> ms");
    	} catch e: {
@@ -62,38 +63,38 @@ tuple[Configuration, RVMProgram] compile1(loc moduleLoc, bool verbose = true, lo
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
    	if(size(errors) > 0) {
-   		rvmProgram = errorRVMProgram("<M.header.name>", config.messages, moduleLoc);
-   	    return <config, rvmProgram>;
+   		rvmModule = errorRVMModule("<M.header.name>", config.messages, moduleLoc);
+   	    return <config, rvmModule>;
    	}
    	
-   	rvmProgramLoc = RVMProgramLocation(moduleLoc, bindir);
+   	rvmModuleLoc = RVMModuleLocation(moduleLoc, bindir);
    	
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
    	muMod = r2mu(M, config, verbose=verbose);
    	
-    rvmProgram = mu2rvm(muMod, verbose=verbose); 
-    if(verbose) println("compile: Writing RVMProgram <rvmProgramLoc>");
-    writeBinaryValueFile(rvmProgramLoc, rvmProgram);
-    for(msg <- rvmProgram.messages){
+    rvmModule = mu2rvm(muMod, verbose=verbose); 
+    if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
+    writeBinaryValueFile(rvmModuleLoc, rvmModule);
+    for(msg <- rvmModule.messages){
         println(msg);
     }
-    return <config, rvmProgram>;  
+    return <config, rvmModule>;  
 }	
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-RVMProgram compile(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
+RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|){
 
    // moduleLoc = getSearchPathLocation(moduleLoc.path);
     if(verbose) println("moduleLoc = <moduleLoc>");
     //moduleLoc = normalize(moduleLoc);
-	<cfg, rvmProgram> = compile1(moduleLoc, verbose=verbose, bindir=bindir);
+	<cfg, rvmModule> = compile1(moduleLoc, verbose=verbose, bindir=bindir);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
    	warnings = [ w | w:warning(_,_) <- cfg.messages ];
    
    	if(size(errors) > 0) {
-   	    return rvmProgram;
+   	    return rvmModule;
    	}
    	
    	dirtyModulesLoc = { getModuleLocation(prettyPrintName(dirty)) | dirty <- cfg.dirtyModules };
@@ -124,5 +125,5 @@ RVMProgram compile(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin
     }
    
    	clearDirtyModules(moduleLoc, bindir);
-   	return rvmProgram ;
+   	return rvmModule ;
 }	

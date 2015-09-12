@@ -383,6 +383,14 @@ public class ParsingTools {
 	 */
 
 	ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+		IConstructor prod = (IConstructor) tree.get("prod");
+		IConstructor def = (IConstructor) prod.get("def");
+		if(def.getName().equals("label")){
+			String defName = ((IString) def.get("name")).getValue();
+			boolean b = defName.equals("$parsed");
+			if(b) return (ITree) tree;
+		}
+		
 	    ITree symTree = TreeAdapter.getArg((ITree) tree, "symbol");
 	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
 	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();

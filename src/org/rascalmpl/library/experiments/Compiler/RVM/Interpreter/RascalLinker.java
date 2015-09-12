@@ -330,6 +330,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 
+				//System.out.println("IMPORTED FUNCTION: " + name);
+				
 				if(name.endsWith("_init(list(value());)#0")){
 					initializers.add(name);
 				}
@@ -371,14 +373,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		String uid_module_init = "";
 		String uid_module_main_testsuite = "";
 
-		IMap declarations = (IMap) program.get("declarations");
-		for (IValue dname : declarations) {
-			IConstructor declaration = (IConstructor) declarations.get(dname);
-			
+		IList declarations = (IList) program.get("declarations");
+		for (IValue ideclaration : declarations) {
+			IConstructor declaration = (IConstructor) ideclaration;
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
-					
+				
 				//System.out.println("FUNCTION: " + name);
 				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {

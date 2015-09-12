@@ -13,10 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -39,6 +42,10 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 public class ReflectiveCompiled extends Reflective {
 	
@@ -75,14 +82,51 @@ public class ReflectiveCompiled extends Reflective {
 		throw RascalRuntimeException.notImplemented("parseCommands", null, null);
 	}
 	
-	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-		 IActionExecutor<ITree> actions = new NoActionExecutor();	
-		
-	     try {
-			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
-		} catch (IOException e) {
-			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+	private IValue lastModified(ISourceLocation sloc) {
+		try {
+			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+	}
+	
+	//Map<String, IValue> parseModuleCache = new HashMap<>();
+	
+	Cache<String, IValue> cache = Caffeine.newBuilder().build();
+	
+	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
+		
+		String key = loc.toString() + lastModified(loc).toString();
+		return cache.get(key, k -> {
+			IActionExecutor<ITree> actions = new NoActionExecutor();	
+
+			try {
+				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+				System.err.println("parseModule (from loc), cache new tree " + key);
+				return tree;
+			} catch (IOException e) {
+				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+			}
+		});
+//		IValue tree = parseModuleCache.get(key);
+//		if(tree != null){
+//			//System.err.println("parseModule (from loc), use cached result " + key);
+//			return tree;
+//		}	
+//
+//		IActionExecutor<ITree> actions = new NoActionExecutor();	
+
+//		try {
+//			IValue tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+////			parseModuleCache.put(key, tree);
+//			//System.err.println("parseModule (from loc), cache new tree " + key);
+//			return tree;
+//		} catch (IOException e) {
+//			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+//		}
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
