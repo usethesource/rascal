@@ -36,7 +36,9 @@ public data Declaration =
 		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		;
 
-public data RVMProgram = 
+public data Stage = unlinked() | linked(datetime time) ;
+
+public data RVMModule = 
 		  rvm(str name,
 		  	  map[str, map[str,str]] module_tags,
 		      set[Message] messages,
@@ -44,15 +46,28 @@ public data RVMProgram =
 			  list[str] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
-              map[str, Declaration] declarations, 
+              list[Declaration] declarations, // map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
               lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
               rel[str,str] importGraph,
-              loc src)
+              loc src,
+              Stage stage)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], {}, src);
+RVMModule errorRVMModule(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), [], [], (), [], {}, src, unlinked());
+
+public data MergedRVMModule =
+            rvmMergedModule(
+                RVMModule  main,
+                map[str, map[str,str]] imported_module_tags,
+                map[str,Symbol] imported_types,
+                list[Declaration] imported_declarations,
+                 map[str,int] imported_overloading_resolvers,
+                lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions
+                )
+         ;
+
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

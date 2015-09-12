@@ -589,8 +589,8 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
 } 
 
 public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
-    //fragType = getType(e@\loc);
-    //println("translateConcrete, fragType = <fragType>");
+    fragType = getType(e@\loc);
+    println("translateConcrete, fragType = <fragType>");
     //reifiedFragType = symbolToValue(fragType);
     //println("translateConcrete, reified: <reifiedFragType>");
     //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());

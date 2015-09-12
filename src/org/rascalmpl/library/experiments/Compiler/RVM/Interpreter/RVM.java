@@ -7,14 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -45,9 +41,6 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
@@ -182,9 +175,9 @@ public class RVM implements java.io.Serializable {
 	
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-	PrintWriter getStdErr() { return rex.getStdErr(); }
+	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
-	PrintWriter getStdOut() { return rex.getStdOut(); }
+	public PrintWriter getStdOut() { return rex.getStdOut(); }
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
@@ -378,8 +371,8 @@ public class RVM implements java.io.Serializable {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
-		cf.stack[func.nformals-1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
-		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;  // TODO or -1?
+		cf.stack[func.nformals-1] =  new HashMap<String, IValue>();
+		cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;

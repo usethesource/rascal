@@ -3,6 +3,8 @@ module experiments::Compiler::muRascal2RVM::mu2rvm
 import IO;
 import Type;
 import List;
+import Set;
+import Map;
 import ListRelation;
 import Node;
 import Message;
@@ -181,7 +183,7 @@ void resetShiftCounter() {
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, 
+RVMModule mu2rvm(muModule(str module_name, 
 						   map[str,str] tags,
 						   set[Message] messages, 
 						   list[str] imports,
@@ -199,7 +201,7 @@ RVMProgram mu2rvm(muModule(str module_name,
                   bool verbose=true){
  
   if(any(m <- messages, error(_,_) := m)){
-    return errorRVMProgram(module_name, messages, src);
+    return errorRVMModule(module_name, messages, src);
   }
  
   main_fun = getUID(module_name,[],"MAIN",2);
@@ -338,7 +340,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, importGraph, src);
+  res = rvm(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src, unlinked());
   return res;
 }
 

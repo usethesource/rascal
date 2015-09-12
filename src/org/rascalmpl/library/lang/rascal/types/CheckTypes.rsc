@@ -9,7 +9,7 @@
 @contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascal::types::CheckTypes
-
+ 
 import analysis::graphs::Graph;
 import IO;
 import Set;

@@ -243,7 +243,7 @@ public class RVMLinked implements Serializable{
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
 			out.close();
-			//System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -275,7 +275,7 @@ public class RVMLinked implements Serializable{
 			executable = (RVMLinked) in.readObject(RVMLinked.class);
 			in.close();
 			in = null;
-			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 

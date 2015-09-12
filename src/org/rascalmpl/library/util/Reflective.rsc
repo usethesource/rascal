@@ -16,15 +16,10 @@ import Exception;
 import Message;
 import ParseTree;
 import IO;
+import lang::rascal::\syntax::Rascal;
 
 public Tree getModuleParseTree(str modulePath) {
-    mloc = getModuleLocation(modulePath);
-    return getModuleParseTree1(mloc, lastModified(mloc));
-}
-
-@memo
-private Tree getModuleParseTree1(loc mloc, datetime lastMod){
-   return parseModule(mloc);
+    return parseModule(getModuleLocation(modulePath));
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
@@ -39,6 +34,18 @@ public java Tree parseCommands(str commands, loc location);
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module from a string, in its own evaluator context}
 public java Tree parseModule(str moduleContent, loc location);
+
+
+lang::rascal::\syntax::Rascal::Module parseModuleAndGetTop(loc moduleLoc){
+    tree = parseModule(moduleLoc);
+    if(tree has top){
+        tree = tree.top;
+    }
+    if(lang::rascal::\syntax::Rascal::Module M := tree){
+        return M;
+    }
+    throw tree;
+}
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}

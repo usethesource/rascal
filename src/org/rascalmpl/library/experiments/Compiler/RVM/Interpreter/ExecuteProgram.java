@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -56,29 +57,27 @@ public class ExecuteProgram {
 				   	null);
 	}
 	
-	// Library function
-	// Note: we do not return the result (but serialize it to file) since we do not want to reify it into a Rascal datatype
 	
-	public void linkProgram(
+	public RVMLinked linkProgram(
 					 ISourceLocation linkedRVM,
 					 IConstructor program,
-					 IMap imported_module_tags,
-					 IMap imported_types,
-					 IList imported_functions,
-					 IList imported_overloaded_functions,
-					 IMap imported_overloading_resolvers,
 					 IBool useJVM	
     ) {
-		link(
+		
+		IList emptyList = vf.list();
+		
+		IMapWriter ww =vf.mapWriter();
+		IMap emptyMap = ww.done();
+		return link(
 					linkedRVM,
 				    program, 
-				    imported_module_tags,
-				    imported_types,
-				    imported_functions,
-				    imported_overloaded_functions,
-				    imported_overloading_resolvers,
+				    (IMap)program.get("module_tags"),
+				    (IMap)program.get("types"),
+				    (IList)program.get("declarations"),
+				    (IList)program.get("overloaded_functions"),
+				    (IMap)program.get("resolver"),
 				    useJVM,
-				    vf.bool(true)
+				    vf.bool(false)
 				    );
 	}
 	
