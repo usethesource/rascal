@@ -7370,27 +7370,26 @@ public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToD
 }
 
 loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
-loc cachedHash(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
-loc cachedHashMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
+loc cachedDate(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
+loc cachedDateMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
 
-str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(src,bindir));
+datetime getCachedDate(loc src, loc bindir) = readBinaryValueFile(#datetime, cachedDate(src,bindir));
 
 Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
-map[RName,str] getCachedHashMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,str], cachedHashMap(src,bindir));
+map[RName,datetime] getCachedDateMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,datetime], cachedDateMap(src,bindir));
 
-void writeCachedHash(loc src, loc bindir, str hashval) {
-	l = cachedHash(src,bindir);
+void writeCachedDate(loc src, loc bindir, datetime dateval) {
+	l = cachedDate(src,bindir);
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, hashval, compression=false); 
-	//assert hashval == getCachedHash(src, bindir);
+	writeBinaryValueFile(l, dateval, compression=false); 
 }
 void writeCachedConfig(loc src, loc bindir, Configuration c) {
 	l = cachedConfig(src,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, c, compression=false); 
 }
-void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
-	l = cachedHashMap(src,bindir); 
+void writeCachedDateMap(loc src, loc bindir, map[RName,datetime] m) {
+	l = cachedDateMap(src,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, m, compression=false); 
 }
@@ -7471,16 +7470,16 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports());
 	c.importGraph = ig;
 	
-	// Get back hashes for the various modules we import; these are the actual hashes, not those
-	// that are cached, so we can see if they have changed
-	map[RName,str] currentHashes = ( );
+	// Get back last modified dates for the various modules we import; these are not the cached dates
+	// so we can see if they have changed
+	map[RName,datetime] currentDates = ( );
 	map[RName,loc] moduleLocations = ( );
 	for (imn <- carrier(ig)) {
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn));
 			moduleLocations[imn] = chloc;
 			if (exists(chloc)) {
-				currentHashes[imn] = md5HashFile(chloc);
+				currentDates[imn] = lastModified(chloc);
 			} else {
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
@@ -7498,12 +7497,13 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 	// We keep track of the hashes of all imported modules to see if they have changed since we
 	// last checked this one. If the hash for this module exists, load it. 
-	map[RName,map[RName,str]] moduleHashes = ( );
+	map[RName,map[RName,datetime]] moduleDates = ( );
 	for (wl <- carrier(ig)) {
+		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
 		dependencyLoc = moduleLocations[wl];
 		moduleLocations[wl] = dependencyLoc;
-		if (exists(dependencyLoc) && exists(cachedHashMap(dependencyLoc, bindir))) {
-			moduleHashes[wl] = getCachedHashMap(dependencyLoc, bindir);
+		if (exists(dependencyLoc) && exists(cachedDateMap(dependencyLoc, bindir))) {
+			moduleDates[wl] = getCachedDateMap(dependencyLoc, bindir);
 		}
 	}
 		
@@ -7519,51 +7519,51 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// check it and save the config.
 				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
-			} else if (!exists(cachedHash(dependencyLoc, bindir))) {
-				// If we don't have a saved hash for the module, it hasn't been checked
+			} else if (!exists(cachedDate(dependencyLoc, bindir))) {
+				// If we don't have a saved date for the module, it hasn't been checked
 				// before or the has info was deleted, so we need to check it now. 
-				if (verbose) println("No cached hash exists for module <prettyPrintName(wl)>");
+				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else {
-				existingHash = getCachedHash(dependencyLoc, bindir);
-				if (wl in currentHashes) {
-					fileHash = currentHashes[wl];
-					if (existingHash != fileHash) {
-						// If we have a saved hash for this module but it differs from the current
-						// hash, we need to recheck it. 
+				existingDate = getCachedDate(dependencyLoc, bindir);
+				if (wl in currentDates) {
+					modifiedDate = currentDates[wl];
+					if (existingDate != modifiedDate) {
+						// If we have a saved date for this module but it differs from the current
+						// date, we need to recheck it. 
 						dirtyModules = dirtyModules + wl;
 					} else {
-						// Here, we check the modules that import wl. It has a saved hash that has not
+						// Here, we check the modules that import wl. It has a saved date that has not
 						// changed, but it may be the case that an importing module did not know
 						// about it or used a different version.
 						importers = igRev[wl];
 						for (i <- importers) {
-							if (i in moduleHashes) {
-								if (wl in moduleHashes[i]) {
-									if (moduleHashes[i][wl] != fileHash) {
-										// We have a saved hash map and wl is in it, but the saved hash
+							if (i in moduleDates) {
+								if (wl in moduleDates[i]) {
+									if (moduleDates[i][wl] != modifiedDate) {
+										// We have a saved date map and wl is in it, but the saved date
 										// differs. So, recheck i.
 										dirtyModules = dirtyModules + i;
 									}
 								} else {
-									// We have a saved hash map, but wl is not in it. So, recheck i.
+									// We have a saved date map, but wl is not in it. So, recheck i.
 									dirtyModules = dirtyModules + i;
 								}
 							} else {
-								// We have no saved hashes for i, so recheck it
+								// We have no saved dates for i, so recheck it
 								dirtyModules = dirtyModules + i;
 							}
 						}
 					}
 				} else {
-					// TODO: This is an error state, this means we could not compute a current hash
+					// TODO: This is an error state, this means we could not compute a current date
 					// for the file, so most likely there is some problem with it
 					;
 				}
 			}
 		} catch : {
 			// If we had an error in the above process, we cannot trust the information we
-			// have on the module and/or its hash, so rebuild it.
+			// have on the module and/or its date, so rebuild it.
 			dirtyModules = dirtyModules + wl;
 		}
 	}
@@ -7572,13 +7572,13 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// that imports them.
 	c.dirtyModules = dirtyModules + igRev[dirtyModules];
 
-	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing hash 
-	// for this module is the same as the current cache, and we have a config, return that, we don't
-	// need to recompute anything.
-	fileHash = "";
+	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing date 
+	// for this module is the same as the current last modified date, and we have a config, return
+	// that, we don't need to recompute anything.
+	modifiedDate = now();
 	if (exists(moduleLoc)) {
-		fileHash = md5HashFile(moduleLoc); 
-		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedHash(moduleLoc, bindir)) && getCachedHash(moduleLoc, bindir) == fileHash && exists(cachedConfig(moduleLoc, bindir))) {
+		modifiedDate = lastModified(moduleLoc); 
+		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedDate(moduleLoc, bindir)) && getCachedDate(moduleLoc, bindir) == modifiedDate && exists(cachedConfig(moduleLoc, bindir))) {
 			return getCachedConfig(moduleLoc, bindir);
 		}
 	}
@@ -8070,9 +8070,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 		if (exists(moduleLocations[mn])) {
-			writeCachedHash(moduleLocations[mn], bindir, currentHashes[mn]);
+			writeCachedDate(moduleLocations[mn], bindir, currentDates[mn]);
 			writeCachedConfig(moduleLocations[mn], bindir, workingConfigs[mn]);
-			writeCachedHashMap(moduleLocations[mn], bindir, currentHashes);
+			writeCachedDateMap(moduleLocations[mn], bindir, currentDates);
 		}
 	}
 			
