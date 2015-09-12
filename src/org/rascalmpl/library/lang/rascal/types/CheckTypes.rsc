@@ -7603,16 +7603,16 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	importLists = ( mn : getHeaderImports(moduleTrees[mn].header) | mn <- moduleTrees );
 	map[RName, rel[RName iname, bool isext]] modulesToImport = ( );
 	map[RName, set[RName]] extendedModules = ( );
-	map[RName, set[RName]] defaultModules = ( );
+	map[RName, rel[RName iname, bool isext]] defaultModules = ( );
 	map[RName, set[RName]] allImports = ( );
 	for (mn <- moduleTrees) {
 		modulesToImport[mn] =
 			{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
 			importItem <- importLists[mn], 
 			(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-		defaultModules[mn] = (domainX(getDefaultImports(), { mn } + modulesToImport[mn]<0> ))<0>;
+		defaultModules[mn] = domainX(getDefaultImports(), { mn } + modulesToImport[mn]<0> );
 		extendedModules[mn] = { mname | < mname, true > <- modulesToImport[mn] };
-		allImports[mn] = modulesToImport[mn]<0> + defaultModules[mn];
+		allImports[mn] = modulesToImport[mn]<0> + defaultModules[mn]<0>;
 	}
 
 	// Compute a new import graph, with cycles collapsed into connected components.
@@ -8244,7 +8244,6 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
 					}
 				} else {
-					if (verbose) println("Maybe the debugger will deign to stop here...");
 					throw "User type should not refer to type <prettyPrintType(ut)>";
 				}
 			} else {
