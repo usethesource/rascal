@@ -18,16 +18,31 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import String;
 import Set;
+import IO;
+import ValueIO;
+
+
+data CachedImportInfo = ciInfo(datetime dt, ImportsInfo ii);
+
+public loc cachedImports(loc src, loc bindir) = getDerivedLocation(src, "imps", bindir = bindir);
+
+public CachedImportInfo getCachedImports(loc src, loc bindir) = readBinaryValueFile(#CachedImportInfo, cachedImports(src,bindir));
+
+public void writeCachedImports(loc src, loc bindir, datetime dt, ImportsInfo imps) {
+	l = cachedImports(src,bindir);
+	if (!exists(l.parent)) mkDirectory(l.parent);
+	writeBinaryValueFile(l, ciInfo(dt,imps), compression=false); 
+}
 
 alias ImportGraph = Graph[RName];
 
-public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}, loc bindir = |home:///bin|) {
 	// Set up the imports for the "top" module
 	mname = convertName(m.header.name);
 	minfoMap = ( mname : getImports(m) );
 	
 	// Add in any defaults that are not currently present
-	for (<mn,ie> <- extraImports) {
+	for (<mn,ie> <- defaultImports, mn != mname, prettyPrintName(mn) notin minfoMap[mname].extendedModules, prettyPrintName(mn) notin minfoMap[mname].importedModules) {
 		if (ie) {
 			minfoMap[mname].extendedModules = minfoMap[mname].extendedModules + prettyPrintName(mn);
 		} else {
@@ -35,7 +50,11 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		}
 	}
 	
-	// Build an initial worklist based on the imports of m
+	return getImportGraphAndInfo(mname, minfoMap, removeExtends=removeExtends, defaultImports=defaultImports, bindir=bindir);
+}
+
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(RName mname, map[RName,ImportsInfo] minfoMap, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}, loc bindir = |home:///bin|) {
+	// Build an initial worklist based on the imports of module mname
 	worklist = { convertNameString(wli) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
 	set[RName] worked = { mname };
 	
@@ -43,15 +62,38 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	while (!isEmpty(worklist)) {
 		< wlName, worklist > = takeOneFrom(worklist);
 		try {
-			pt = getModuleParseTree(prettyPrintName(wlName));
-			if (Module mImp := pt.top) {
-				minfoMap[wlName] = getImports(mImp);
-			} else {
-				throw "Unexpected parse, pt is not a module";
+			wlLoc = getModuleLocation(prettyPrintName(wlName));
+					
+			if (exists(cachedImports(wlLoc,bindir))) {
+				ci = getCachedImports(wlLoc, bindir);
+				if (ci.dt == lastModified(wlLoc)) {
+					minfoMap[wlName] = ci.ii;
+				}
 			}
-		} catch : {
-			;
-		}		
+			
+			if (wlName notin minfoMap) {
+				dt = lastModified(wlLoc);
+				pt = getModuleParseTree(prettyPrintName(wlName));
+				if (Module mImp := pt.top) {
+					minfoMap[wlName] = getImports(mImp);
+
+					for (<mn,ie> <- defaultImports, mn != wlName, prettyPrintName(mn) notin minfoMap[wlName].extendedModules, prettyPrintName(mn) notin minfoMap[wlName].importedModules) {
+						if (ie) {
+							minfoMap[wlName].extendedModules = minfoMap[wlName].extendedModules + prettyPrintName(mn);
+						} else {
+							minfoMap[wlName].importedModules = minfoMap[wlName].importedModules + prettyPrintName(mn);		
+						}
+					}
+
+					writeCachedImports(wlLoc, bindir, dt, minfoMap[wlName]); 
+				} else {
+					throw "Unexpected parse, pt is not a module";
+				}
+			}
+		} catch x : {
+			; // TODO: Add code here to handle cases where we could not find an imported module, generally we can leave this to the checker though...
+		}
+		
 		if (wlName in minfoMap) {
 			worked = worked + wlName;
 			worklist = worklist + ( { convertNameString(wli) | wli <- (minfoMap[wlName].importedModules + minfoMap[wlName].extendedModules) } - worked );		

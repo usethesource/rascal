@@ -5995,7 +5995,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
     
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     // First, check to see if we have processed this declaration before. If we have, just get back the
     // id for the function, we don't want to create a new entry for it.
@@ -6062,7 +6062,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
@@ -6133,7 +6133,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
 
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
@@ -6216,7 +6216,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         throwsTypes += ttypeC; 
     }
 
-    println("Checking function <prettyPrintName(rn)>");
+    //println("Checking function <prettyPrintName(rn)>");
     
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
@@ -6628,10 +6628,18 @@ public Configuration startModuleImport(Configuration c, RSignature sig, RName mo
 	return c;
 }
 
-public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+public Configuration loadConfigurationTypesAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	cOrig = c;
 
-	c = loadConfiguration(c, d, mName, toImport, allImports);
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+
+	c = loadConfigurationTypes(c, d, mName, toImport, allImports);
 	
 	c.labelEnv = cOrig.labelEnv; 
 	c.fcvEnv = cOrig.fcvEnv; 
@@ -6643,7 +6651,191 @@ public Configuration loadConfigurationAndReset(Configuration c, Configuration d,
 }
 
 @doc{Copy top-level information on module mName from d to c}
-public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+public Configuration loadConfigurationTypes(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+	// Add module mName into the configuration
+	mRec = d.store[d.modEnv[mName]];
+	if (mName notin c.modEnv) {
+		c = addModule(c, mName, mRec.at);
+	} else {
+		c.stack = c.modEnv[mName] + c.stack;
+	}
+	mId = c.modEnv[mName];
+	
+	map[int,int] containerMap = ( d.modEnv[mName] : mId );
+	set[int] loadedIds = { };
+	
+	// For each ID we have loaded, figure out which module provides it, and filter the IDs
+	// so we don't import ones that we cannot actually reach
+	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
+
+	// This step only goes up through aliases, so we just load those items that can be referenced as
+	// part of an alias. This includes data and sort definitions as well as the aliases themselves.
+	void loadItem(int itemId) {
+		AbstractValue av = d.store[itemId];
+				
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items, item in filteredIds) {
+				loadItem(item);
+			}
+			loadedIds = loadedIds + itemId;
+		} else if (itemId in filteredIds) {
+			switch(av) {
+				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					for (at <- ats) {
+						c = addADT(c, name, itemVis, at, rtype);
+					}
+					loadedIds = loadedIds + itemId;
+				}
+				
+				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+					for (at <- ats) {
+						c = addNonterminal(c, name, at, rtype);
+					} 
+					loadedIds = loadedIds + itemId;
+				}
+				
+				case \alias(RName name, Symbol rtype, int containedIn, loc at) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					c = addAlias(c, name, itemVis, at, rtype);
+					loadedIds = loadedIds + itemId;
+				}
+			}
+		}
+	}
+		
+	for (itemId <- d.typeEnv<1>) {
+		loadItem(itemId);		
+	}
+	
+	c = popModule(c);
+	
+	minfo = modInfo(mName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	c.moduleInfo[mName] = minfo;
+	
+	// Add any of the modules that this information depends upon but that are not yet loaded
+	for (mn <- toImport - allImports, mn in d.modEnv) {
+		mRec = d.store[d.modEnv[mn]];
+		c = addModule(c, mn, mRec.at);
+		c = popModule(c);
+	}
+	
+	return c;
+}
+
+public Configuration loadConfigurationConsAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+	cOrig = c;
+
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+
+	c = loadConfigurationCons(c, d, mName, toImport, allImports);
+	
+	c.labelEnv = cOrig.labelEnv; 
+	c.fcvEnv = cOrig.fcvEnv; 
+	c.typeEnv = cOrig.typeEnv; 
+	c.annotationEnv = cOrig.annotationEnv; 
+	c.tagEnv = cOrig.tagEnv;
+	
+	return c;
+}
+
+@doc{Copy top-level information on module mName from d to c}
+public Configuration loadConfigurationCons(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
+	// Add module mName into the configuration
+	mRec = d.store[d.modEnv[mName]];
+	if (mName notin c.modEnv) {
+		c = addModule(c, mName, mRec.at);
+	} else {
+		c.stack = c.modEnv[mName] + c.stack;
+	}
+	mId = c.modEnv[mName];
+	
+	map[int,int] containerMap = ( d.modEnv[mName] : mId );
+	set[int] loadedIds = { };
+	
+	// For each ID we have loaded, figure out which module provides it, and filter the IDs
+	// so we don't import ones that we cannot actually reach
+	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
+	
+	// Here we just load productions and constructors, since we need these to continue
+	// with the rest of the load.
+	void loadItem(int itemId) {
+		AbstractValue av = d.store[itemId];
+				
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items, item in filteredIds) {
+				loadItem(item);
+			}
+			loadedIds = loadedIds + itemId;
+		} else if (itemId in filteredIds) {
+			switch(av) {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
+					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
+					c = addConstructor(c, name, at, rtype, [], kpList);
+					loadedIds = loadedIds + itemId;
+				}
+				
+				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+					//c = importProduction(p, at, c); 
+					//c = addProduction(c, name, at, p); 
+					loadedIds = loadedIds + itemId;
+				}
+			}
+		}
+	}
+			
+	for (itemId <- d.fcvEnv<1>) {
+		loadItem(itemId);		
+	}
+
+	c = popModule(c);
+	
+	minfo = modInfo(mName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	c.moduleInfo[mName] = minfo;
+	
+	// Add any of the modules that this information depends upon but that are not yet loaded
+	for (mn <- toImport - allImports, mn in d.modEnv) {
+		mRec = d.store[d.modEnv[mn]];
+		c = addModule(c, mn, mRec.at);
+		c = popModule(c);
+	}
+	
+	return c;
+}
+
+public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports, bool updateTypes=false) {
+	cOrig = c;
+
+	if (mName in c.moduleInfo) {
+		c.labelEnv = c.moduleInfo[mName].labelEnv;
+		c.fcvEnv = c.moduleInfo[mName].fcvEnv;
+		c.typeEnv = c.moduleInfo[mName].typeEnv;
+		c.annotationEnv = c.moduleInfo[mName].annotationEnv;
+		c.tagEnv = c.moduleInfo[mName].tagEnv;
+	}
+	
+	c = loadConfiguration(c, d, mName, toImport, allImports, updateTypes=updateTypes);
+	
+	c.labelEnv = cOrig.labelEnv; 
+	c.fcvEnv = cOrig.fcvEnv; 
+	c.typeEnv = cOrig.typeEnv; 
+	c.annotationEnv = cOrig.annotationEnv; 
+	c.tagEnv = cOrig.tagEnv;
+	
+	return c;
+}
+
+@doc{Copy top-level information on module mName from d to c}
+public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports, bool updateTypes=false) {
 	// Add module mName into the configuration
 	mRec = d.store[d.modEnv[mName]];
 	if (mName notin c.modEnv) {
@@ -6691,14 +6883,14 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					for (at <- ats) {
-						c = addADT(c, name, itemVis, at, rtype);
+						c = addADT(c, name, itemVis, at, rtype, updateType=updateTypes);
 					}
 					loadedIds = loadedIds + itemId;
 				}
 				
 				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
 					for (at <- ats) {
-						c = addNonterminal(c, name, at, rtype);
+						c = addNonterminal(c, name, at, rtype, updateType=updateTypes);
 					} 
 					loadedIds = loadedIds + itemId;
 				}
@@ -6723,7 +6915,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				
 				case \alias(RName name, Symbol rtype, int containedIn, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-					c = addAlias(c, name, itemVis, at, rtype);
+					c = addAlias(c, name, itemVis, at, rtype, updateType=updateTypes);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6922,18 +7114,19 @@ public Configuration loadExtendedModuleTypes(Configuration c, set[RName] extende
 	for (mn <- extendedModules) {
 		if (mn notin c.moduleInfo) {
 			println("Error, module <mn> has not been loaded");
-		}
-		for (tn <- c.moduleInfo[mn].typeEnv) {
-			tid = c.moduleInfo[mn].typeEnv[tn];
-			if (c.store[tid] is datatype) {
-				c = addImportedADT(c, tn, tid, addFullName = true);
-			} else if (c.store[tid] is sorttype) {
-				c = addImportedNonterminal(c, tn, tid, addFullName = true);
-			} else if (c.store[tid] is \alias) {
-				c = addImportedAlias(c, tn, tid, addFullName = true);
-			} else {
-				println("WARNING: Trying to load <getName(c.store[tid])> as a type");
-				; // TODO: this is an error, add something here
+		} else {
+			for (tn <- c.moduleInfo[mn].typeEnv) {
+				tid = c.moduleInfo[mn].typeEnv[tn];
+				if (c.store[tid] is datatype) {
+					c = addImportedADT(c, tn, tid, addFullName = true);
+				} else if (c.store[tid] is sorttype) {
+					c = addImportedNonterminal(c, tn, tid, addFullName = true);
+				} else if (c.store[tid] is \alias) {
+					c = addImportedAlias(c, tn, tid, addFullName = true);
+				} else {
+					println("WARNING: Trying to load <getName(c.store[tid])> as a type");
+					; // TODO: this is an error, add something here
+				}
 			}
 		}
 	}
@@ -6943,7 +7136,7 @@ public Configuration loadExtendedModuleTypes(Configuration c, set[RName] extende
 public Configuration loadExtendedModuleNames(Configuration c, set[RName] extendedModules) {
 	// Skipping tags and labels for now; we don't use the former, the latter shouldn't
 	// matter from one module to the next
-	for (mn <- extendedModules) {
+	for (mn <- extendedModules, mn in c.moduleInfo) {
 		for (fn <- c.moduleInfo[mn].fcvEnv) {
 			ids = (c.store[c.moduleInfo[mn].fcvEnv[fn]] is overload) ? c.store[c.moduleInfo[mn].fcvEnv[fn]].items : { c.moduleInfo[mn].fcvEnv[fn] };
 			for (fid <- ids) {
@@ -7094,236 +7287,110 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 	return c;
 }
 
-@doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModuleUsingSignatures(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c) {
-	moduleName = getHeaderName(header);
-	importList = getHeaderImports(header);
-
-	map[RName,RSignature] sigMap = ( );
-	map[RName,int] moduleIds = ( );
-	map[RName,loc] moduleLocs = ( );
-	set[RName] notImported = { };
-
-	c = addModule(c, moduleName, md@\loc);
-	currentModuleId = head(c.stack);
-	c = popModule(c);
+public Configuration loadImportedCPNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+	// TODO: Handle scope
 	
-	//ImportGraph ig = getImportGraph(md, removeExtend = true);
+	// Build relations with info on all functions, constructors, productions, and vars 
+	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
+	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
-	// A relation from imported module names to bool, with true meaning this is an extending import
-	rel[RName mname, bool isext] modulesToImport = 
-		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
-		importItem <- importList, 
-		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	//rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
-	rel[RName mname, bool isext] defaultModules = { < convertNameString("Exception"), false >, < convertNameString("ParseTree"), false >};
-	defaultModules = domainX(defaultModules,{moduleName});	
-	println("defaultModules = <defaultModules>");
+	justVars = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is variable, ti in c.visibilities, c.visibilities[ti] == publicVis() };
+	varNames = justVars<0>;
 	
-	// Now, for each module being imported, create a module in the configuration
-	// and generate a signature. This also brings in extra imports via the extends
-	// mechanism (if we extend module A, we also import everything A imports).
-	worklist = modulesToImport + defaultModules;
-	while (! isEmpty(worklist)) {
-		wlitem = getOneFrom(worklist);
-		modName = wlitem.mname;
-		worklist = worklist - wlitem;
-		
-		try {
-			dt1 = now();
-			modTree = parse(#start[Module], getModuleLocation(prettyPrintName(modName))).top;
-			sigMap[modName] = getModuleSignature(modTree);
-			moduleLocs[modName] = modTree@\loc;
-			c = addModule(c,modName,modTree@\loc);
-			moduleIds[modName] = head(c.stack);
-			c = popModule(c);
-			
-			// If we extend a module, add all the imports for this module into
-			// our local list of imports. 
-			if (wlitem.isext) {
-				for (exti <- sigMap[modName].imports, true notin modulesToImport[exti]) {
-					modulesToImport = modulesToImport + < exti, false >;
-					worklist = worklist + < exti, false >;
-				}
-			}
-			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-		} catch perror : {
-			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>: <perror>", md@\loc);
-			notImported = notImported + modName;
-		}
-	}
-
-	// Now that we have a signature for each module, actually perform the import for each, creating
-	// a configuration for each with just the items from that module signature.
-	dt1 = now();
-	for (< modName, isExt > <- defaultModules, modName notin notImported) {
-		// This loads a default module. In this case, the defaults should stay in the
-		// configuration, since each module can "see" these definitions.
-		c = startModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
-	}
-	for (< modName, isExt > <- modulesToImport, modName notin notImported) {
-		// This loads a non-default module. We start each time with the environment we
-		// had after all the defaults loaded.
-		c = startModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
-	}
-	c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
-            
-	// Process the current module. We start by merging in everything from the modules we are
-	// extending to give an initial "seed" for our environment. We will just use the standard
-	// add functions for this.
-	c.stack = currentModuleId + c.stack;
-	c = loadExtendedModuleTypes(c, { mn | < mn, true > <- modulesToImport });
-
-	// Now process all the syntax in the current module. We first "extract" information about all
-	// the syntax (using the existing functionality for extracting module signatures), then add
-	// this into the configuration and check it.	
-	syntaxConfig = processSyntax(moduleName, importList);
-	for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-		c = importNonterminal(item.sortName, item.sort, item.at, c);
-	for (prodItem <- syntaxConfig.publicProductions) {
-		// First, resolve names in the productions
-		<p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
-		prodItem.prod = p;
-		c = importProduction(prodItem, c);
-	}
-	c = checkSyntax(importList, c);  
-
-	// Now process the non-syntax module contents. This also loads imported information at
-	// various points, once we know what definitions in this module would shadow imported
-	// definitions.
-	if ((Body)`<Toplevel* tls>` := body) {
-		dt1 = now();
-		list[Declaration] typesAndTags = [ ];
-		list[Declaration] aliases = [ ];
-		list[Declaration] annotations = [ ];
-		list[Declaration] names = [ ];
-
-		c.stack = currentModuleId + c.stack;
-
-		set[RName] varNamesToDeclare = { };
-		set[RName] funNamesToDeclare = { };
-		
-		for ((Toplevel)`<Declaration decl>` <- tls) {
-			switch(decl) {
-				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
-					names = names + decl;
-					varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
-				}
-				case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
-					annotations = annotations + decl;
-				case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
-					aliases = aliases + decl;
-				case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<FunctionDeclaration _>` : { 
-					names = names + decl;
-					funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
-				}
+	justFunctions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is function, (ti notin c.visibilities || (ti in c.visibilities && c.visibilities[ti] != privateVis())) };
+	functionNames = justFunctions<0>;
+	
+	justConstructors = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is constructor };
+	constructorNames = justConstructors<0>;
+	
+	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
+	productionNames = justProductions<0>;
+	
+	// We can add a production into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the production name).
+	for (tn <- productionNames, tn notin varNamesToDeclare) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
+			for (ti <- justProductions[tn]) {
+				c = addImportedProduction(c, tn, ti);
 			}
 		}
-
-		// Introduce the type names into the environment
-		for (t <- typesAndTags) c = checkDeclaration(t,false,c);
-		for (t <- aliases) c = checkDeclaration(t,false,c);
-
-		// Bring in type names from the imported modules as long as they don't
-		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
-		
-		// Now that we have a signature for each module, actually perform the import for each, creating
-		// a configuration for each with just the items from that module signature.
-		dt1 = now();
-		for (< modName, isExt > <- defaultModules, modName notin notImported) {
-			// This loads a default module. In this case, the defaults should stay in the
-			// configuration, since each module can "see" these definitions.
-			c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		}
-		for (< modName, isExt > <- modulesToImport, modName notin notImported) {
-			// This loads a non-default module. We start each time with the environment we
-			// had after all the defaults loaded.
-			c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		}
-		c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
-	            
-		// Now, actually process the aliases
-		bool modified = true;
-		definitions = invert(c.definitions);
-		while(modified) {
-			modified = false;
-			for(t <- aliases) {
-				int aliasId = getOneFrom(definitions[t@\loc]);
-				Symbol aliasedType = c.store[aliasId].rtype;
-				c = checkDeclaration(t,true,c);
-				if(aliasedType != c.store[aliasId].rtype) {
-					modified = true;
-				}
-			}
-		}
-
-		// Now, actually process the type declarations, which will add any constructors.
-		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
-		
-		// Process the current module. We start by merging in everything from the modules we are
-		// extending to give an initial "seed" for our environment. We will just use the standard
-		// add functions for this.
-		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport, mn notin notImported });
-
-		// Next, process the annotations
-		for (t <- annotations) c = checkDeclaration(t,true,c);
-
-		// Bring in annotations from the imported modules as long as they don't
-		// conflict with the annotations just added.
-		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
-				
-		// Bring in names from the imported modules as long as they don't
-		// conflict with the names just added.
-		c = loadImportedNames(c,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- modulesToImport, mn notin notImported });
-		
-		// Next, introduce names into the environment
-		for (t <- names) c = checkDeclaration(t,false,c);
-
-		// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
-		for (t <- typesAndTags) c = checkConstructorKeywordParams(t,c);
-
-		// Process the names
-		for (t <- names) c = checkDeclaration(t,true,c);
-
-		c.stack = tail(c.stack);
-		c = pushTiming(c, "Checked current module", dt1, now());
 	}
 
-	// TODO: We currently leave the environment "dirty" by not removing the items
-	// added in this scope. If we ever want to call this as part of a multi-module
-	// checker we need to do so.    
+	// We can add a constructor into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the constructor name).
+	for (tn <- constructorNames, tn notin varNamesToDeclare) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
+			for (ti <- justConstructors[tn]) {
+				c = addImportedConstructor(c, tn, ti);
+			}
+		}
+	}
+	
+	return c;
+}
+
+public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+	// TODO: Handle scope
+	
+	// Build relations with info on all functions, constructors, productions, and vars 
+	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
+	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
+	
+	justVars = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is variable, ti in c.visibilities, c.visibilities[ti] == publicVis() };
+	varNames = justVars<0>;
+	
+	justFunctions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is function, (ti notin c.visibilities || (ti in c.visibilities && c.visibilities[ti] != privateVis())) };
+	functionNames = justFunctions<0>;
+	
+	justConstructors = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is constructor };
+	constructorNames = justConstructors<0>;
+	
+	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
+	productionNames = justProductions<0>;
+	
+	// We can always add functions -- it's fine if they overlap with constructors or productions. The one
+	// exception is that we cannot add a function if it would clash with a module-level variable that is
+	// already in scope or will be in scope in the top-level module.
+	for (tn <- functionNames, tn notin varNamesToDeclare, ( tn notin c.fcvEnv || ( ! (c.store[c.fcvEnv[tn]] is variable))), tid <- justFunctions[tn]) {
+		c = addImportedFunction(c, tn, tid); 
+	}
+	
+	// Add variables. We can only do so if they are not already in the environment and if there is only
+	// one var with this name.
+	for (tn <- varNames, tn notin c.fcvEnv, tn notin varNamesToDeclare, tn notin funNamesToDeclare, size(justVars[tn]) == 1, tid <- justVars[tn]) {
+		c = addImportedVariable(c, tn, tid);
+	}	
+	
 	return c;
 }
 
 loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
-loc cachedHash(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
-loc cachedHashMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
+loc cachedDate(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
+loc cachedDateMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
 
-str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(src,bindir));
+datetime getCachedDate(loc src, loc bindir) = readBinaryValueFile(#datetime, cachedDate(src,bindir));
 
 Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
-map[RName,str] getCachedHashMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,str], cachedHashMap(src,bindir));
+map[RName,datetime] getCachedDateMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,datetime], cachedDateMap(src,bindir));
 
-void writeCachedHash(loc src, loc bindir, str hashval) {
-	l = cachedHash(src,bindir);
+void writeCachedDate(loc src, loc bindir, datetime dateval) {
+	l = cachedDate(src,bindir);
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, hashval, compression=false); 
-	//assert hashval == getCachedHash(src, bindir);
+	writeBinaryValueFile(l, dateval, compression=false); 
 }
 void writeCachedConfig(loc src, loc bindir, Configuration c) {
 	l = cachedConfig(src,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, c, compression=false); 
 }
-void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
-	l = cachedHashMap(src,bindir); 
+void writeCachedDateMap(loc src, loc bindir, map[RName,datetime] m) {
+	l = cachedDateMap(src,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, m, compression=false); 
 }
@@ -7343,291 +7410,674 @@ void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
 	}
 }
 
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
-	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
+	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+}
+
+data IGComponent = singleton(RName item) | component(set[RName] items);
+
+public Graph[IGComponent] directedConnectedComponents(RName entryNode, ImportGraph ig) {
+	Graph[IGComponent] res = { };
+	set[IGComponent] newNodes = { };
+	igrtrans = ig+;
+	firstIter = true;
+	allNodes = carrier(ig);
+	currentNode = entryNode;
+	
+	while (!isEmpty(allNodes)) {
+		if (firstIter) {
+			firstIter = false;
+		} else {
+			currentNode = getOneFrom(allNodes);
+		} 
+		allNodes = allNodes - currentNode;
+			
+		if (currentNode in igrtrans[currentNode]) {
+			newComponent = component(currentNode + { n | n <- igrtrans[currentNode], currentNode in igrtrans[n] });
+			newNodes = newNodes + newComponent;
+			allNodes - allNodes - newComponent.items;
+		} else {
+			newNodes = newNodes + singleton(currentNode);
+		}
+	}
+	
+	//newNodes = newNodes + { singleton(n) | n <- bottom(ig) };
+	
+	nodeMapping = ( n : c | n <- carrier(ig), c <- newNodes, singleton(n) := c || (component(ns) := c && n in ns) );
+
+	for (n <- carrier(ig)) {
+		if (n notin nodeMapping) {
+			println("We are missing <prettyPrintName(n)>");
+		//} else {
+		//	println("<prettyPrintName(n)> = <nodeMapping[n]>");
+		}
+	}
+
+	res = { < nodeMapping[n1], nodeMapping[n2] > | < n1, n2 > <- ig };
+	solve(res) {
+		if ( { < a, b >, < b, b >, c* } := res ) res = { *c, < a, b > };
+	}
+	return res;
+}
+
+public rel[RName mname, bool isext] getDefaultImports() {
+	return { < RSimpleName("Exception"), false > };
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
-	moduleName = getHeaderName(header);
-	importList = getHeaderImports(header);
-	set[RName] notImported = { };
-	map[RName,str] moduleHashes = ( );
-	
-	if (exists(moduleLoc) && exists(cachedHashMap(moduleLoc, bindir))) {
-		moduleHashes = getCachedHashMap(moduleLoc, bindir);
-	}
-	
-	// A relation from imported module names to bool, with true meaning this is an extending import
-	rel[RName mname, bool isext] modulesToImport = 
-		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
-		importItem <- importList, 
-		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
-	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
-	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
-	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
-	
-	// Get the transitive modules that will be imported
-	< ig, infomap > = getImportGraphAndInfo(md, extraImports=defaultModules);
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {	
+	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
+	// has changed, in which case we need to recheck the modules on paths with changed modules
+	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports(),bindir=bindir);
 	c.importGraph = ig;
-	map[RName,str] currentHashes = ( );
+	
+	// Get back last modified dates for the various modules we import; these are not the cached dates
+	// so we can see if they have changed
+	map[RName,datetime] currentDates = ( );
+	map[RName,loc] moduleLocations = ( );
 	for (imn <- carrier(ig)) {
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn));
+			moduleLocations[imn] = chloc;
 			if (exists(chloc)) {
-				currentHashes[imn] = md5HashFile(chloc);
+				currentDates[imn] = lastModified(chloc);
+			} else {
+				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch : {
-			;
+			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}
-	igTrans = ig*;
 	
-	// Do we have a cycle in the graph? If so, fall back to using signatures for now. We may need to calculate
-	// finer-grained dependencies to allow correct typing, since signatures have some problems with multiply-defined
-	// types.
-	if (size({ign | <ign,ign> <- ig+}) > 0) {
-		println("Falling back to using type signatures, cyclic imports encountered.");
-		return checkModuleUsingSignatures(md, c);
+	// Compute the transitive closure, this lets us know if one module is reachable from another
+	igTrans = ig+;
+
+	// Compute the inverted version of this relation as well, so we know which modules import
+	// a given module
+	igRev = invert(igTrans);
+	
+	// We keep track of the hashes of all imported modules to see if they have changed since we
+	// last checked this one. If the hash for this module exists, load it. 
+	map[RName,map[RName,datetime]] moduleDates = ( );
+	for (wl <- carrier(ig), wl in moduleLocations) {
+		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
+		dependencyLoc = moduleLocations[wl];
+		moduleLocations[wl] = dependencyLoc;
+		if (exists(dependencyLoc) && exists(cachedDateMap(dependencyLoc, bindir))) {
+			moduleDates[wl] = getCachedDateMap(dependencyLoc, bindir);
+		}
 	}
-
-	// Make sure each module we depend on has been checked -- invert the graph and work
-	// our way in from the leaves...
-	//igFlipped = invert(ig);
-	//list[RName] worklist = [ ];
-	//while (!isEmpty(igFlipped)) {
-	//	worklist += toList(top(igFlipped));
-	//	igFlipped = domainX(igFlipped, top(igFlipped));
-	//}
-	//worklist += toList(carrier(igFlipped) - toSet(worklist));
-	
-	map[RName,Configuration] checkedModules = ( );
-	bool dirty = false;
-
-	// Before checking the module, see if any of the imports need to be recomputed. If so, we need
-	// to recompute those imports, and we need to recompute the checker results for the current
-	// module as well. 
+		
+	// Now, check to see if we have hashes for the imports and if those are the same as the
+	// current hash. This also checks to see if we have cached configurations.
+	moduleName = getHeaderName(header);
 	dirtyModules = { };
-	for (wl <- allImports) {
-		reachable = igTrans[wl];
-		for (r <- reachable) {
-			try {
-				dependencyLoc = getModuleLocation(prettyPrintName(r));
-				if (!exists(cachedHash(dependencyLoc, bindir))) {
-					// If we import this module, but the saved cache doesn't exist, we need
-					// to rebuild this import. 
-					dirtyModules = dirtyModules + r;
-				} else {
-					existingHash = getCachedHash(dependencyLoc, bindir);
-					if (r in currentHashes) {
-						fileHash = currentHashes[r];
-						if (! (existingHash == fileHash && existingHash == moduleHashes[r])) {
-							// If we import this module, and the saved cache exists, but it
-							// either differs from the current hash or the saved hash, we need
-							// to rebuild this import. 
-							dirtyModules = dirtyModules + r;
-						}
+	for (wl <- carrier(ig), wl in moduleLocations) {
+		try {
+			dependencyLoc = moduleLocations[wl];
+			if (!exists(cachedConfig(dependencyLoc, bindir))) {
+				// If we don't have a saved config for the module, we need to
+				// check it and save the config.
+				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
+				dirtyModules = dirtyModules + wl;
+			} else if (!exists(cachedDate(dependencyLoc, bindir))) {
+				// If we don't have a saved date for the module, it hasn't been checked
+				// before or the has info was deleted, so we need to check it now. 
+				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
+				dirtyModules = dirtyModules + wl;
+			} else {
+				existingDate = getCachedDate(dependencyLoc, bindir);
+				if (wl in currentDates) {
+					modifiedDate = currentDates[wl];
+					if (existingDate != modifiedDate) {
+						// If we have a saved date for this module but it differs from the current
+						// date, we need to recheck it. 
+						dirtyModules = dirtyModules + wl;
 					} else {
-						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
-						// will generate the hash for r eventually, since it is a dependency.
-						dirtyModules = dirtyModules + r;
+						// Here, we check the modules that import wl. It has a saved date that has not
+						// changed, but it may be the case that an importing module did not know
+						// about it or used a different version.
+						importers = igRev[wl];
+						for (i <- importers) {
+							if (i in moduleDates) {
+								if (wl in moduleDates[i]) {
+									if (moduleDates[i][wl] != modifiedDate) {
+										// We have a saved date map and wl is in it, but the saved date
+										// differs. So, recheck i.
+										dirtyModules = dirtyModules + i;
+									}
+								} else {
+									// We have a saved date map, but wl is not in it. So, recheck i.
+									dirtyModules = dirtyModules + i;
+								}
+							} else {
+								// We have no saved dates for i, so recheck it
+								dirtyModules = dirtyModules + i;
+							}
+						}
 					}
+				} else {
+					// TODO: This is an error state, this means we could not compute a current date
+					// for the file, so most likely there is some problem with it
+					;
 				}
-
-				// If all the hash info is fine, but we don't have a config saved for some
-				// reason, we need to rebuild this import. We will rebuild rl, since this will
-				// then eventually rebuild r (which is a dependency).
-				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					dirtyModules = dirtyModules + r;
-				}
-			} catch : {
-				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
-		}
-		
-		c.dirtyModules = dirtyModules + invert(igTrans)[dirtyModules];
-		
-		if (size(dirtyModules) > 0) {
-			try {
-				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
-			} catch cfgerror: {
-				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: : <cfgerror>", md@\loc);
-			}
-			dirty = true;
-		} else {
-			try {
-				importLoc = getModuleLocation(prettyPrintName(wl));
-				checkedModules[wl] = getCachedConfig(importLoc, bindir);
-			} catch cherror: {
-				notImported = notImported + wl;
-				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>: <cherror>", md@\loc);
-			}
+		} catch : {
+			// If we had an error in the above process, we cannot trust the information we
+			// have on the module and/or its date, so rebuild it.
+			dirtyModules = dirtyModules + wl;
 		}
 	}
+	
+	// Save the modules that we are recomputing; this is any dirty modules plus anything
+	// that imports them.
+	c.dirtyModules = dirtyModules + igRev[dirtyModules];
 
-	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing hash for this module is the same as the current cache, and we have a config, return that
-	fileHash = "";
+	// If we aren't forcing the check, and none of the dependencies are dirty, and the existing date 
+	// for this module is the same as the current last modified date, and we have a config, return
+	// that, we don't need to recompute anything.
+	modifiedDate = now();
 	if (exists(moduleLoc)) {
-		fileHash = md5HashFile(moduleLoc); 
-		if (!dirty && !forceCheck && exists(cachedHash(moduleLoc, bindir)) && getCachedHash(moduleLoc, bindir) == fileHash && exists(cachedConfig(moduleLoc, bindir))) {
+		modifiedDate = lastModified(moduleLoc); 
+		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedDate(moduleLoc, bindir)) && getCachedDate(moduleLoc, bindir) == modifiedDate && exists(cachedConfig(moduleLoc, bindir))) {
 			return getCachedConfig(moduleLoc, bindir);
 		}
 	}
 		
-	c = addModule(c, moduleName, md@\loc);
-	currentModuleId = head(c.stack);
-	c = popModule(c);
+	// For each of the dirty modules, get the information we will need to check it, including
+	// the parse tree for the module and lists of imports.
+	moduleTrees = ( moduleName : md );
+	for (mn <- c.dirtyModules, mn != moduleName ) {
+		try {
+			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn)));    
+			if (t has top && Module m := t.top) {
+				moduleTrees[mn] = m;
+			}
+		} catch _ : {
+			if (verbose) println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
+			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
+			return c;
+		}
+	}
+	
+	importLists = ( mn : getHeaderImports(moduleTrees[mn].header) | mn <- moduleTrees );
+	map[RName, rel[RName iname, bool isext]] modulesToImport = ( );
+	map[RName, set[RName]] extendedModules = ( );
+	map[RName, set[RName]] defaultModules = ( );
+	map[RName, set[RName]] allImports = ( );
+	for (mn <- moduleTrees) {
+		modulesToImport[mn] =
+			{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
+			importItem <- importLists[mn], 
+			(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
+		defaultModules[mn] = (domainX(getDefaultImports(), { mn } + modulesToImport[mn]<0> ))<0>;
+		extendedModules[mn] = { mname | < mname, true > <- modulesToImport[mn] };
+		allImports[mn] = modulesToImport[mn]<0> + defaultModules[mn];
+	}
+
+	// Compute a new import graph, with cycles collapsed into connected components.
+	igComponents = directedConnectedComponents(moduleName, ig);
+
+	// Set up initial configurations for all the modules we need to recheck	
+	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration() | mn <- c.dirtyModules, mn != moduleName);
+	map[RName,int] moduleIds = ( );
+	for (mn <- workingConfigs) {
+		c = workingConfigs[mn];
+		c = addModule(c, mn, moduleTrees[mn]@\loc);
+		moduleIds[mn] = head(c.stack);
+		c = popModule(c);
+		workingConfigs[mn] = c;
+	}
 	
 	// For a given import, we want to bring in just the names declared in that module, not the names declared
 	// in modules it also imports. The exception is that we also want to bring in names of modules it extends,
 	// since these appear as local declarations. So, for each import, this computes the modules that provide
-	// importable names, based on this rule.		
-	importFrom = { < m2i, m2i > | m2i <- ( modulesToImport<0> + defaultModules<0> ) };
-	importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[moduleName].extendedModules, m2j <- infomap[convertNameString(m2t)].importedModules }; 
-	solve(importFrom) {
-		importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
+	// importable names, based on this rule.
+	map[RName,rel[RName,RName]] importFilter = ( );
+	for (mn <- workingConfigs) {		
+		importFrom = { < m2i, m2i > | m2i <- allImports[mn] };
+		importFrom = importFrom + { < convertNameString(m2t), convertNameString(m2j) > | m2t <- infomap[mn].extendedModules, m2tc := convertNameString(m2t), m2tc in infomap, m2j <- infomap[m2tc].importedModules }; 
+		solve(importFrom) {
+			importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
+		}
+		importFilter[mn] = importFrom;
 	}	
+
+	// Load configs for the modules that we do not need to re-check
+	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
 	
-	// Using the checked type information, load in the info for each module
-	for (wl <- allImports, wl notin notImported) {
-		c = loadConfigurationAndReset(c, checkedModules[wl], wl, importFrom[wl], allImports - notImported);
-	}
-		
-	// Process the current module. We start by merging in everything from the modules we are
-	// extending to give an initial "seed" for our environment. We will just use the standard
-	// add functions for this.
-	c.stack = currentModuleId + c.stack;
-	c = loadExtendedModuleTypes(c, { mn | < mn, true > <- (modulesToImport + defaultModules) });
-
-	// Now process all the syntax in the current module. We first "extract" information about all
-	// the syntax (using the existing functionality for extracting module signatures), then add
-	// this into the configuration and check it.	
-	syntaxConfig = processSyntax(moduleName, importList);
-	for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-		c = importNonterminal(item.sortName, item.sort, item.at, c);
-	for (prodItem <- syntaxConfig.publicProductions) {
-		// First, resolve names in the productions
-		<p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
-		prodItem.prod = p;
-		c = importProduction(prodItem, c);
-	}
-	c = checkSyntax(importList, c);  
-
-	// Now process the non-syntax module contents. This also loads imported information at
-	// various points, once we know what definitions in this module would shadow imported
-	// definitions.
-	if ((Body)`<Toplevel* tls>` := body) {
-		dt1 = now();
-		list[Declaration] typesAndTags = [ ];
-		list[Declaration] aliases = [ ];
-		list[Declaration] annotations = [ ];
-		list[Declaration] names = [ ];
-
-		set[RName] varNamesToDeclare = { };
-		set[RName] funNamesToDeclare = { };
-		
-		for ((Toplevel)`<Declaration decl>` <- tls) {
-			switch(decl) {
-				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
-					names = names + decl;
-					varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
-				}
-				case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
-					annotations = annotations + decl;
-				case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
-					aliases = aliases + decl;
-				case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
-					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<FunctionDeclaration _>` : { 
-					names = names + decl;
-					funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
-				}
-			}
+	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
+		// Using the checked type information, load in the info for each module
+		for (wl <- allImports[itemName], wl in moduleLocations) {
+			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
-
-		// Introduce the type names into the environment
-		for (t <- typesAndTags) c = checkDeclaration(t,false,c);
-		for (t <- aliases) c = checkDeclaration(t,false,c);
-
-		// Bring in type names from the imported modules as long as they don't
-		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- (modulesToImport + defaultModules), mn notin notImported });
-		
-		//// Now that we have a signature for each module, actually perform the import for each, creating
-		//// a configuration for each with just the items from that module signature.
-		//dt1 = now();
-		//for (< modName, isExt > <- defaultModules, modName notin notImported) {
-		//	// This loads a default module. In this case, the defaults should stay in the
-		//	// configuration, since each module can "see" these definitions.
-		//	c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		//}
-		//for (< modName, isExt > <- modulesToImport, modName notin notImported) {
-		//	// This loads a non-default module. We start each time with the environment we
-		//	// had after all the defaults loaded.
-		//	c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
-		//}
-		//c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
-	            
-		// Now, actually process the aliases
-		bool modified = true;
-		definitions = invert(c.definitions);
-		while(modified) {
-			modified = false;
-			for(t <- aliases) {
-				int aliasId = getOneFrom(definitions[t@\loc]);
-				Symbol aliasedType = c.store[aliasId].rtype;
-				c = checkDeclaration(t,true,c);
-				if(aliasedType != c.store[aliasId].rtype) {
-					modified = true;
-				}
-			}
-		}
-
-		// Now, actually process the type declarations, which will add any constructors.
-		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
-
+			
 		// Process the current module. We start by merging in everything from the modules we are
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
-		c = loadExtendedModuleNames(c, { mn | < mn, true > <- (modulesToImport + defaultModules), mn notin notImported });
-
-		// Next, process the annotations
-		for (t <- annotations) c = checkDeclaration(t,true,c);
-
-		// Bring in annotations from the imported modules as long as they don't
-		// conflict with the annotations just added.
-		c = loadImportedAnnotations(c, { mn | < mn, false > <- (modulesToImport + defaultModules), mn notin notImported });
-				
-		// Bring in names from the imported modules as long as they don't
-		// conflict with the names just added.
-		c = loadImportedNames(c,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport + defaultModules), mn notin notImported });
-		
-		// Next, introduce names into the environment
-		for (t <- names) c = checkDeclaration(t,false,c);
-
-		// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
-		for (t <- typesAndTags) c = checkConstructorKeywordParams(t,c);
-
-		// Process the names
-		for (t <- names) c = checkDeclaration(t,true,c);
-
-		c = pushTiming(c, "Checked current module", dt1, now());
+		ci.stack = moduleIds[itemName] + ci.stack;
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+	
+		// Now process all the syntax in the current module. We first "extract" information about all
+		// the syntax (using the existing functionality for extracting module signatures), then add
+		// this into the configuration and check it.	
+		syntaxConfig = processSyntax(itemName, importLists[itemName]);
+		for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+			ci = importNonterminal(item.sortName, item.sort, item.at, ci);
+		for (prodItem <- syntaxConfig.publicProductions) {
+			// First, resolve names in the productions
+			<p,ci> = resolveProduction(prodItem.prod, prodItem.at, ci, false);
+			prodItem.prod = p;
+			ci = importProduction(prodItem, ci);
+		}
+		ci = checkSyntax(importLists[itemName], ci);  
+	
+		// Now process the non-syntax module contents. This also loads imported information at
+		// various points, once we know what definitions in this module would shadow imported
+		// definitions.
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+			list[Declaration] annotations = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+						annotations = annotations + decl;
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Introduce the type names into the environment
+			for (t <- typesAndTags) ci = checkDeclaration(t,false,ci);
+			for (t <- aliases) ci = checkDeclaration(t,false,ci);
+	
+			// Bring in type names from the imported modules as long as they don't
+			// conflict with the type names just added.
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			
+			// Now, actually process the aliases
+			bool modified = true;
+			definitions = invert(ci.definitions);
+			while(modified) {
+				modified = false;
+				for(t <- aliases) {
+					int aliasId = getOneFrom(definitions[t@\loc]);
+					Symbol aliasedType = ci.store[aliasId].rtype;
+					ci = checkDeclaration(t,true,ci);
+					if(aliasedType != ci.store[aliasId].rtype) {
+						modified = true;
+					}
+				}
+			}
+	
+			// Now, actually process the type declarations, which will add any constructors.
+			for (t <- typesAndTags) ci = checkDeclaration(t,true,ci);
+	
+			// Process the current module. We start by merging in everything from the modules we are
+			// extending to give an initial "seed" for our environment. We will just use the standard
+			// add functions for this.
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+	
+			// Next, process the annotations
+			for (t <- annotations) ci = checkDeclaration(t,true,ci);
+	
+			// Bring in annotations from the imported modules as long as they don't
+			// conflict with the annotations just added.
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+					
+			// Bring in names from the imported modules as long as they don't
+			// conflict with the names just added.
+			ci = loadImportedNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			
+			// Next, introduce names into the environment
+			for (t <- names) ci = checkDeclaration(t,false,ci);
+	
+			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
+	
+			// Process the names
+			for (t <- names) ci = checkDeclaration(t,true,ci);
+	
+			ci = pushTiming(ci, "Checked current module", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
 	}
+	
+	Configuration checkSingleModuleThroughAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations for modules that are not in the same connected component (so they do not
+		// depend on the results of checking the current module) 
+		for (wl <- allImports[itemName], wl notin componentMembers, wl in moduleLocations) {
+			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. We start by merging in everything from the modules we are
+		// extending to give an initial "seed" for our environment. We will just use the standard
+		// add functions for this. NOTE: We assume that we do not extend a module that is part of
+		// the connected component. Allowing this seems like it would be semantically problematic.
+		// TODO: Add a check to ensure we don't allow this inadvertently.
+		ci.stack = moduleIds[itemName] + ci.stack;
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+	
+		// Now process all the syntax nonterminals for the current module. At this point we just
+		// introduce the nonterminals, not the productions, since these could use nonterminals
+		// defined in other modules that are part of the same connected component.
+		syntaxConfig = processSyntax(itemName, importLists[itemName]);
+		for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals) {
+			ci = importNonterminal(item.sortName, item.sort, item.at, ci);
+		}
+	
+		// Now process the non-syntax module contents. We process just type declarations at this
+		// point, since constructors, functions, etc may depend on declarations given in other
+		// modules that are part of this connected component.
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+	
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+				}
+			}
+	
+			// Introduce the type names into the environment
+			for (t <- typesAndTags) ci = checkDeclaration(t,false,ci);
+			for (t <- aliases) ci = checkDeclaration(t,false,ci);
+	
+			ci = pushTiming(ci, "Checked current module stage 1", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
+	}
+	
+	Configuration checkSingleModulePastAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations of the modules in the connected component. At this point, this will just
+		// load type information.
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. At this point we can bring in syntax and perform some name
+		// declarations. We have types, but not constructors or productions, so we have to wait
+		// on function names which may use constructors or productions as part of keyword
+		// parameters.
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		// Bring in the productions and check the syntax, we should have everything we need at this
+		// point to do this (all the nonterminals are loaded)	
+		syntaxConfig = processSyntax(itemName, importLists[itemName]);
+		for (prodItem <- syntaxConfig.publicProductions) {
+			<p,ci> = resolveProduction(prodItem.prod, prodItem.at, ci, false);
+			prodItem.prod = p;
+			ci = importProduction(prodItem, ci);
+		}
+		ci = checkSyntax(importLists[itemName], ci);  
+	
+		// Now process the non-syntax module contents. We have already added type names and aliases,
+		// but can now resolve the aliased types. We also want to add functions, etc but not check
+		// the bodies yet, since we may not have loaded names used in the bodies.
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+			list[Declaration] annotations = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+						annotations = annotations + decl;
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in type names from the imported modules as long as they don't
+			// conflict with the type names just added. This will import these names
+			// from all imports, including those in the same connected component.
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			
+			// Now, actually process the aliases
+			bool modified = true;
+			definitions = invert(ci.definitions);
+			while(modified) {
+				modified = false;
+				for(t <- aliases) {
+					int aliasId = getOneFrom(definitions[t@\loc]);
+					Symbol aliasedType = ci.store[aliasId].rtype;
+					ci = checkDeclaration(t,true,ci);
+					if(aliasedType != ci.store[aliasId].rtype) {
+						modified = true;
+					}
+				}
+			}
+	
+			// Now, actually process the type declarations, which will add any constructors.
+			for (t <- typesAndTags) ci = checkDeclaration(t,true,ci);
+	
+			// Process the current module. We start by merging in everything from the modules we are
+			// extending to give an initial "seed" for our environment. We will just use the standard
+			// add functions for this.
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+	
+			// Next, process the annotations. These just need type information to allow them to be
+			// declared, so this can be done in this step.
+			for (t <- annotations) ci = checkDeclaration(t,true,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 2", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
+	}
+	
+	Configuration checkSingleModuleNamesOnly(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Load in the configurations of the modules in the connected component. At this point, this will just
+		// load information on constructors and productions.
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
+			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
+		}
+			
+		// Process the current module. During this pass, we only load function and variable
+		// names, but we do not process bodies. 
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] aliases = [ ];
+			list[Declaration] annotations = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+						annotations = annotations + decl;
+					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+						aliases = aliases + decl;
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in names from the imported modules as long as they don't
+			// conflict with the names just added. This just brings in constructors
+			// and productions at this point.
+			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
 
-	c.stack = tail(c.stack);
-	if (exists(moduleLoc)) {
-		writeCachedHash(moduleLoc, bindir, fileHash);
-		writeCachedConfig(moduleLoc, bindir, c);
-		writeCachedHashMap(moduleLoc, bindir, currentHashes);
+			for (t <- names) ci = checkDeclaration(t,false,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 3", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
 	}
 		
-	return c;
+	Configuration checkSingleModuleAndFinalize(Configuration ci, RName itemName, set[RName] componentMembers) {
+		// Using the checked type information, load in the info for each module. This will replace the already
+		// loaded info, and will include functions, variables, etc that are exported from the module.
+		for (wl <- allImports[itemName], wl in componentMembers, wl in moduleLocations) {
+			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
+		}
+			
+		// Process the current module. Syntax is types are done at this point, so we focus on cleaning up
+		// remaining declaration information, e.g., we actually check the bodies of functions since we
+		// can now load in the names of all imported functions along with their type signatures.
+		ci.stack = moduleIds[itemName] + ci.stack;
+	
+		if ((Body)`<Toplevel* tls>` := moduleTrees[itemName].body) {
+			dt1 = now();
+			list[Declaration] typesAndTags = [ ];
+			list[Declaration] names = [ ];
+	
+			set[RName] varNamesToDeclare = { };
+			set[RName] funNamesToDeclare = { };
+			
+			for ((Toplevel)`<Declaration decl>` <- tls) {
+				switch(decl) {
+					case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
+						names = names + decl;
+						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+					}
+					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<FunctionDeclaration _>` : { 
+						names = names + decl;
+						funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+					}
+				}
+			}
+	
+			// Bring in annotations from the imported modules as long as they don't
+			// conflict with the annotations just added.
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+					
+			// Bring in names from the imported modules as long as they don't
+			// conflict with the names just added. We brought in constructor
+			// and production names before, so this brings in functions and vars.
+			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			
+			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
+	
+			// Process the names
+			for (t <- names) ci = checkDeclaration(t,true,ci);
+	
+			ci = pushTiming(ci, "Checked current module, stage 4", dt1, now());
+		}
+	
+		ci.stack = tail(ci.stack);
+		return ci;
+	}	
+	
+	// Now, go through the connected components, processing them in dependency order
+	worklist = order(invert(igComponents));
+	for (wlItem <- worklist) {
+		if (singleton(itemName) := wlItem) {
+			if (itemName in workingConfigs) {
+				if (verbose) println("Checking module <prettyPrintName(itemName)>");
+				workingConfigs[itemName] = fullyCheckSingleModule(workingConfigs[itemName], itemName);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			} else {
+				if (verbose) println("No need to recheck <prettyPrintName(itemName)>");
+			}
+		} else if (component(itemNames) := wlItem) {
+			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModuleThroughAliases(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			}
+			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModulePastAliases(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			}
+			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModuleNamesOnly(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			}
+			for (itemName <- itemNames, itemName in workingConfigs) {
+				workingConfigs[itemName] = checkSingleModuleAndFinalize(workingConfigs[itemName], itemName, itemNames);
+				existingConfigs[itemName] = workingConfigs[itemName];
+			}
+		}
+	}
+	
+	for (mn <- moduleLocations, mn in workingConfigs) {
+		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
+		if (exists(moduleLocations[mn])) {
+			writeCachedDate(moduleLocations[mn], bindir, currentDates[mn]);
+			writeCachedConfig(moduleLocations[mn], bindir, workingConfigs[mn]);
+			writeCachedDateMap(moduleLocations[mn], bindir, currentDates);
+		}
+	}
+			
+	return workingConfigs[moduleName];	
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
@@ -7794,7 +8244,7 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
 					}
 				} else {
-					println("Maybe the debugger will deign to stop here...");
+					if (verbose) println("Maybe the debugger will deign to stop here...");
 					throw "User type should not refer to type <prettyPrintType(ut)>";
 				}
 			} else {
@@ -8473,16 +8923,16 @@ public anno map[loc,str] Module@docStrings;
 public anno map[loc,set[loc]] Module@docLinks;
 
 
-public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false) {
-	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck);
+public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
+	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck, verbose=verbose);
 }
 
-public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false) {
+public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration();
 	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
-			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck);
+			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
 	//}
