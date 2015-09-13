@@ -679,8 +679,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
         } else if (size(productionMatches) > 1) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Multiple productions found which could be applied",exp@\loc));
-        } else if (size(productionMatches) >= 1 && size(constructorMatches) >= 1)
+        } else if (size(productionMatches) >= 1 && size(constructorMatches) >= 1) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Both a constructor and a concrete syntax production could be applied",exp@\loc));
+        }
         
         set[Symbol] finalNonDefaultMatches = {};
         set[Symbol] finalDefaultMatches = {};
@@ -5939,8 +5940,8 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 			} 
 			for (KeywordFormal kfi <- commonParamList + kfl) {
 				< cSig, kfT > = convertAndExpandType(kfi.\type, cSig);
-				cSig = addLocalVariable(cSig, convertName(kfi.name), false, kfi@\loc, kfT);
 				< cSig, _ > = calculateKeywordParamRel(cSig, [ kfi ], typesOnly = false ); 
+				cSig = addLocalVariable(cSig, convertName(kfi.name), false, kfi@\loc, kfT);
 			}
 			
 			//< cSig, ckfrel > = calculateKeywordParamRel(cSig, commonParamList, typesOnly = false);
