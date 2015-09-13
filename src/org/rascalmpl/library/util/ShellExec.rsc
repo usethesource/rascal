@@ -32,7 +32,7 @@ public java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list
 Synopsis: start, run and kill an external process returning its output as a string.
 }
 public str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
-   pid = createProcess(processCommand, workingDir=workingDir, args=args, env=env);
+   pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
    killProcess(pid);
    return result;
