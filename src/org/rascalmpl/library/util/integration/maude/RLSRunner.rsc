@@ -30,7 +30,7 @@ public PID startMaude(loc maudeLocation) {
 
 @doc{Start running a Maude process with a specific .maude file.}
 public PID startMaude(loc maudeLocation, loc maudeStartupFile) {
-    PID pid = createProcess(maudeLocation.path,[maudeStartupFile.path]);
+    PID pid = createProcess(maudeLocation.path,args=[maudeStartupFile.path]);
     res = readFrom(pid);
     while (/Maude\>\s*$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt
     return pid;
@@ -38,7 +38,7 @@ public PID startMaude(loc maudeLocation, loc maudeStartupFile) {
 
 @doc{Start running a Maude process with a specific .maude file in the given working directory.}
 public PID startMaude(loc maudeLocation, loc maudeStartupFile, loc workingDir) {
-    PID pid = createProcess(maudeLocation.path,[maudeStartupFile.path], workingDir);
+    PID pid = createProcess(maudeLocation.path,args=[maudeStartupFile.path], workingDir=workingDir);
     res = readFrom(pid);
     while (/Maude\>\s+$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt 
     return pid;
