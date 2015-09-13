@@ -9,7 +9,7 @@ module experiments::Concept::FcaLattices
 import vis::Figure;
 import vis::Render; 
 import lang::dot::Dot;
-import experiments::Concept::DotVis;
+import analysis::formalconcepts::DotVis;
 
 public void renderLegacy() {
    Figure g = dot2fig(legacy);
