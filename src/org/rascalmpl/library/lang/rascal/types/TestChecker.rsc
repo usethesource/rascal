@@ -34,9 +34,11 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		'<for (id <- initialDecls) {>
 		'<id><}>
 		";
+    moduleLoc = |test-modules:///CheckStatementsString.rsc|;
+    writeFile(moduleLoc, moduleToCheck);
 	c = newConfiguration();
 	try {
-		pt = parseModuleWithSpaces(moduleToCheck);
+		pt = parseModuleWithSpaces(moduleLoc);
 
 		if (pt has top && Module m := pt.top) {
 			c = checkModule(m, c);
