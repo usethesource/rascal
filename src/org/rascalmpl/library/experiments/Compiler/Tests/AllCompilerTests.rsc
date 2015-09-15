@@ -49,7 +49,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
       	try { remove(getDerivedLocation(prog, ext)); } catch:;
       }
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false, bindir=|home:///bin|)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, debug=false, bindir=|home:///bin|)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;

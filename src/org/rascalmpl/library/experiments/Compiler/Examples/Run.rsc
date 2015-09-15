@@ -15,8 +15,8 @@ import experiments::Compiler::Examples::RascalExtraction;
 
 loc base = |std:///experiments/Compiler/Examples/|;
 
-value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =
-  execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile, profile=profile);
+value demo(str example bool debug = false, bool testsuite=false, bool recompile=true, bool profile=false) =
+  execute(base + (example + ".rsc"), [], debug=debug, testsuite=testsuite, recompile=recompile, profile=profile);
 
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
