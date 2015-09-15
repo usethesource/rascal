@@ -4,6 +4,8 @@ import Type;
 import Message;
 import ParseTree;
 
+// Declarations for functions and coroutines
+
 public data Declaration = 
 		  FUNCTION(str qname,
 		  		   str uqname, 
@@ -36,10 +38,11 @@ public data Declaration =
 		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		;
 
-public data Stage = unlinked() | linked(datetime time) ;
+// A single RVMmodule is a container for declarations
+// Each Rascal module is mapped to one RVMModule
 
 public data RVMModule = 
-		  rvm(str name,
+		  rvmModule(str name,
 		  	  map[str, map[str,str]] module_tags,
 		      set[Message] messages,
 			  list[str] imports,
@@ -51,15 +54,17 @@ public data RVMModule =
               map[str,int] resolver, 
               lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
               rel[str,str] importGraph,
-              loc src,
-              Stage stage)
+              loc src)
         ;
 
-RVMModule errorRVMModule(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), [], [], (), [], {}, src, unlinked());
+RVMModule errorRVMModule(str name, set[Message] messages, loc src) = rvmModule(name, (), messages, [], [], (), (), [], [], (), [], {}, src);
 
-public data MergedRVMModule =
-            rvmMergedModule(
-                RVMModule  main,
+// A program is a completely linked collection of modules and is ready for loading.
+// A top-level Rascal module (that contains a main function) is mapped to an RVMProgram
+
+public data RVMProgram =
+            rvmProgram(
+                RVMModule  main_module,
                 map[str, map[str,str]] imported_module_tags,
                 map[str,Symbol] imported_types,
                 list[Declaration] imported_declarations,
@@ -73,7 +78,7 @@ public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
-	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMProgram
+	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMModule
 	   												// This is necessary to guarantee correct (de)serialization and can be removed
 	   												// when (de)serialization has been improved.
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
