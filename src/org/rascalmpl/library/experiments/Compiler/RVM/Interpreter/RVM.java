@@ -127,7 +127,7 @@ public class RVM implements java.io.Serializable {
 		}  
 	};
 
-	public RVM(RVMLinked rrs, RascalExecutionContext rex) {
+	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		
 		super();
 
