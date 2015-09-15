@@ -393,9 +393,9 @@ str kidsToString(list[value] kids)
   = ("" | it + kidToString(k) | k <- kids );
 
 str kidToString(HTML5Node elt)  = toString(elt);
+str kidToString(HTML5Attr x)  = "";
 
-default str kidToString(str x)  = x;
-default str kidToString(value x)  = "";
+default str kidToString(value x)  = "<x>";
   
 str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
       str s = "";
