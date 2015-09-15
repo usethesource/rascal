@@ -103,7 +103,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
     try {
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
-    		p = rvm("Library",
+    		p = rvmModule("Library",
     		  (),
 		      {},
 			  [],
@@ -155,8 +155,8 @@ void inspect(loc srcLoc,                // location of Rascal source file
         printSymbolDefinitions(p.symbol_definitions);
        
         println("DECLARATIONS:");
-        for(dname <- p.declarations){
-            printDecl(p.declarations[dname]);
+        for(decl <- p.declarations){
+            printDecl(decl);
         }
         
         init = p.initialization;
@@ -266,12 +266,13 @@ bool containsLine(loc src, int line) =
 	line >= 0 && line >= src.begin.line && line <= src.end.line;
 
 void listDecls(RVMModule p, Query select, int line, bool listing){
-    for(dname <- p.declarations){
-        uqname = p.declarations[dname].uqname;
-        if(matchesSelection(uqname, select, atStart = true) || containsLine(p.declarations[dname].src, line)){
-        	printDecl(p.declarations[dname]);
+    for(decl <- p.declarations){
+        dname = decl.uqname;
+        uqname = decl.uqname;
+        if(matchesSelection(uqname, select, atStart = true) || containsLine(decl.src, line)){
+        	printDecl(decl);
             if(listing){
- 				for(ins <- p.declarations[dname].instructions){
+ 				for(ins <- decl.instructions){
 					println("\t\t<ins>");                
 				}
             }
@@ -279,7 +280,7 @@ void listDecls(RVMModule p, Query select, int line, bool listing){
     }
 }
 
-void statistics(loc root = |project://rascal/src/|,
+void statistics(loc root = |std:///|,
                 loc bindir = |home:///bin|,
                 bool printMessages = false
                 ){
@@ -313,8 +314,7 @@ void statistics(loc root = |project://rascal/src/|,
         	   }
         	} 
            
-            for(dname <- p.declarations){
-                decl = p.declarations[dname];
+            for(decl <- p.declarations){
                 if(decl is FUNCTION)
                     nfunctions += 1;
                 else {
