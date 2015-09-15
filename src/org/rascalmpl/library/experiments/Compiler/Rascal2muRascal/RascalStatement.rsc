@@ -392,7 +392,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
 	  default_table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, c.patternWithAction, default_table, fingerprintDefault);
    }
    
-   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   //println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    return < [ muCase(key, table[key]) | key <- table], default_table[fingerprintDefault] >;
 }
 
