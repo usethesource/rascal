@@ -14,10 +14,6 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-//import experiments::Compiler::muRascal::Implode;
-
-//import experiments::Compiler::Rascal2muRascal::RascalModule;
-//import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
@@ -340,7 +336,7 @@ RVMModule mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src, unlinked());
+  res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
 
