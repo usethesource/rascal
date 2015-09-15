@@ -25,7 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 
 public class RVMJVM extends RVM {
 
-	RVMLinked rrs;
+	RVMExecutable rrs;
 	RascalExecutionContext rex;
 	byte[] generatedRunner = null;
 	String generatedName = null;
@@ -40,7 +40,7 @@ public class RVMJVM extends RVM {
 	 * @param rrs
 	 * @param rex
 	 */
-	public RVMJVM(RVMLinked rrs, RascalExecutionContext rex) {
+	public RVMJVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		super(rrs, rex);
 		//if (rrs instanceof RVMJVMExecutable) {
 			generatedRunner = rrs.getJvmByteCode();
@@ -79,7 +79,7 @@ public class RVMJVM extends RVM {
 
 			runner = (RVMRun) cons[0].newInstance(rrs, rex);
 			// Inject is obsolete the constructor holds rrs.
-			runner.inject(rrs.getFunctionStore(), rrs.getConstructorStore(), RVMLinked.store, rrs.getFunctionMap());
+			runner.inject(rrs.getFunctionStore(), rrs.getConstructorStore(), RVMExecutable.store, rrs.getFunctionMap());
 
 		} catch (Exception e) {
 			e.printStackTrace();
