@@ -590,7 +590,7 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
 
 public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
-    println("translateConcrete, fragType = <fragType>");
+    //println("translateConcrete, fragType = <fragType>");
     //reifiedFragType = symbolToValue(fragType);
     //println("translateConcrete, reified: <reifiedFragType>");
     //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
@@ -866,7 +866,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	concreteMatch = hasConcretePatternsOnly(cases) 
 	                && isConcreteType(subjectType); // || subjectType == adt("Tree",[]));
 	
-	println("visit: <subjectType>, <concreteMatch>");
+	//println("visit: <subjectType>, <concreteMatch>");
 	MuExp body = translateVisitCases(phi_fuid, subjectType, concreteMatch, cases);
 	
 	tc = getTypesAndConstructorsInVisit(cases);
