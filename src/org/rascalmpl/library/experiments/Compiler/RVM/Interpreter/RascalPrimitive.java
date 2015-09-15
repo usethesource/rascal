@@ -8844,7 +8844,7 @@ public enum RascalPrimitive {
 	private static IList emptyList;
 	private static ISet emptySet;
 	//private static final Map<String, IValue> emptyAnnotationsMap = new HashMap<String, IValue>();
-	private static final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
+	private static Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
@@ -8893,12 +8893,13 @@ public enum RascalPrimitive {
 	}
 
 	public static void reset(){
-//		parsingTools = new ParsingTools(vf);
-//		parsingTools.setContext(rex);
+		parsingTools = new ParsingTools(vf);
+		parsingTools.setContext(rex);
 		parsingTools.reset();
 		typeStore = rex.getTypeStore();
 		indentStack = new Stack<String>();
 		type2symbolCache = new HashMap<Type,IConstructor>();
+		subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 	}
 
 	public static void restoreRVMAndContext(RVM usedRvm, RascalExecutionContext usedRex){
