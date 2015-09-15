@@ -9,8 +9,6 @@ module experiments::Compiler::Rascal2muRascal::TypeReifier
  */
 
 import lang::rascal::types::CheckerConfig;
-//import lang::rascal::types::TestChecker;
-//import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
@@ -250,7 +248,7 @@ private void computeReachableConcreteTypes(){
 // - a set of patternTypes that occur in the patterns
 
 set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
-	println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
+	//println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
 	
 	consNames = {unescape(name) | name <- consNames};
 	if(concreteMatch){
@@ -272,8 +270,8 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 		//println("descent_into (abstract) [1]: {value()}");
 	   return {\value()};
 	}
-	println("desiredSubjectTypes = <desiredSubjectTypes>");
-	println("desiredTypes = <desiredTypes>");
+	//println("desiredSubjectTypes = <desiredSubjectTypes>");
+	//println("desiredTypes = <desiredTypes>");
 	prunedReachableTypes = reachableTypes ;
 	if(\value() notin desiredSubjectTypes){
 	    // if specific subject types are given, the reachability relation can be further pruned
@@ -318,7 +316,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	desiredSubjectTypes = { s | /Symbol s := subjectType};
 	desiredTypes = desiredPatternTypes;
 	
-	println("desiredPatternTypes = <desiredPatternTypes>");
+	//println("desiredPatternTypes = <desiredPatternTypes>");
 	
 	prunedReachableConcreteTypes = reachableConcreteTypes;
 	if(\value() notin desiredSubjectTypes){
@@ -360,7 +358,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	    descent_into += regular(itr);
 	    if(isAltOrSeq(s)) descent_into += regular(s);
 	}	
-	println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
+	//println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
 	return descent_into;
 }
 
