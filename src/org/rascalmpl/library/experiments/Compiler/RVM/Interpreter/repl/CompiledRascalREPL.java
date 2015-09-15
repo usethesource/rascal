@@ -14,7 +14,6 @@ import java.util.Collection;
 
 import jline.Terminal;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
@@ -27,15 +26,11 @@ import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.CompletionResult;
-import org.rascalmpl.repl.LimitedLineWriter;
-import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
-  protected Executor executor;
+  protected CommandExecutor executor;
   private boolean measureCommandTime;
   private boolean semiColonAdded = false;
   
@@ -57,7 +52,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
     executor = constructExecutor(stdout, stderr);
   }
   
-  protected abstract Executor constructExecutor(Writer stdout, Writer stderr);
+  protected abstract CommandExecutor constructExecutor(Writer stdout, Writer stderr);
   
   @Override
   protected PrintWriter getErrorWriter() {
