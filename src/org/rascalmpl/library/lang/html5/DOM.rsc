@@ -394,7 +394,8 @@ str kidsToString(list[value] kids)
 
 str kidToString(HTML5Node elt)  = toString(elt);
 
-default str kidToString(value x)  = "<x>";
+default str kidToString(str x)  = x;
+default str kidToString(value x)  = "";
   
 str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
       str s = "";
@@ -431,7 +432,7 @@ public HTML5Node example
           li("foo", 3, img(href("someref"))))));
   
 str toString(HTML5Node x) {
-  attrs = {k | /HTML5Attr k <- x.kids};
+  attrs = {k | HTML5Attr k <- x.kids};
   kids = x.kids - attrs;
   return nodeToString(x.name, attrs, kids); 
 }
