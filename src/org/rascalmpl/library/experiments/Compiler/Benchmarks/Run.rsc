@@ -200,8 +200,8 @@ void runInterpreted(str job) {
 // Remove the smalles and largest number from a list of observations
 
 list[num] removeExtremes(list[num] results){
-   results = delete(results, indexOf(results, min(results)));
-   return delete(results, indexOf(results, max(results)));
+   results = delete(results, indexOf(results, List::min(results)));
+   return delete(results, indexOf(results, List::max(results)));
 }
 
 // Analyze the timings for on benchmark job
@@ -250,8 +250,8 @@ void report(list[Analysis] results){
      report_one(a);
   }
   println("Average speedup: <precision(mean(results.speedup), 5)>");
-  println("Minimal speedup: <precision(min(results.speedup), 5)>");
-  println("Maximal speedup: <precision(max(results.speedup), 5)>");
+  println("Minimal speedup: <precision(List::min(results.speedup), 5)>");
+  println("Maximal speedup: <precision(List::max(results.speedup), 5)>");
   println("<sep>");
 }
 

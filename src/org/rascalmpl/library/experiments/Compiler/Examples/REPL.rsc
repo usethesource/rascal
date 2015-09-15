@@ -18,12 +18,12 @@ loc makeTMP(){
    return mloc;
 }
 
-value run(str exp, bool listing=false, bool debug=false, bool recompile=true, bool profile=false) {
+value run(str exp, bool debug=false, bool recompile=true, bool profile=false) {
     msrc = "module experiments::Compiler::Tests::TMP  value main(list[value] args) = <exp>;";
     TMP = makeTMP();
 	writeFile(TMP, msrc);
 	
-	return execute(TMP, [], listing=listing, debug=debug, recompile=recompile, profile=profile);
+	return execute(TMP, [], debug=debug, recompile=recompile, profile=profile);
 }	
 
 void main(list[value] args){
