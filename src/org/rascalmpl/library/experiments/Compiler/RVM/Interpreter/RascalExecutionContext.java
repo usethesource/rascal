@@ -1,11 +1,19 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -24,7 +32,6 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.CompressedStreamResolver;
@@ -32,6 +39,7 @@ import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.HttpsURIResolver;
+import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -320,7 +328,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 
-		FileURIResolver testModuleResolver = new TestModuleResolver();
+		ISourceLocationInputOutput testModuleResolver = new TestModuleResolver();
 
 		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		
@@ -351,17 +359,112 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 	}
 
-	private static final class TestModuleResolver extends TempURIResolver {
+	/**
+	 * The scheme "test-modules" is used, amongst others, to generate modules during tests.
+	 * These modules are implemented via an in-memory "file system" that guarantees
+	 * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
+	 * is ALWAYS larger than for the previous version of the same file.
+	 * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
+	 * unfortunately, not guaranteed on all operating systems.
+	 *
+	 */
+	private static final class TestModuleResolver implements ISourceLocationInputOutput {
+		
 		@Override
 		public String scheme() {
 			return "test-modules";
 		}
+		
+		private static final class File {
+			byte[] contents;
+			long timestamp;
+			public File() {
+				contents = new byte[0];
+				timestamp = System.currentTimeMillis();
+			}
+			public void newContent(byte[] byteArray) {
+				long newTimestamp = System.currentTimeMillis();
+				if (newTimestamp <= timestamp) {
+					newTimestamp =  timestamp +1;
+				}
+				timestamp = newTimestamp;
+				contents = byteArray;
+			}
+		}
+		
+		private final Map<ISourceLocation, File> files = new HashMap<>();
 
 		@Override
-		protected String getPath(ISourceLocation uri) {
-			String path = uri.getPath();
-			path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-			return System.getProperty("java.io.tmpdir") + path;
+		public InputStream getInputStream(ISourceLocation uri)
+				throws IOException {
+			File file = files.get(uri);
+			if (file == null) {
+				throw new IOException();
+			}
+			return new ByteArrayInputStream(file.contents);
+		}
+
+		@Override
+		public OutputStream getOutputStream(ISourceLocation uri, boolean append)
+				throws IOException {
+			File file = files.get(uri);
+			final File result = file == null ? new File() : file; 
+			return new ByteArrayOutputStream() {
+				@Override
+				public void close() throws IOException {
+					super.close();
+					result.newContent(this.toByteArray());
+					files.put(uri, result);
+				}
+			};
+		}
+		
+		@Override
+		public long lastModified(ISourceLocation uri) throws IOException {
+			File file = files.get(uri);
+			if (file == null) {
+				throw new IOException();
+			}
+			return file.timestamp;
+		}
+		
+		@Override
+		public Charset getCharset(ISourceLocation uri) throws IOException {
+			return null;
+		}
+
+		@Override
+		public boolean exists(ISourceLocation uri) {
+			return files.containsKey(uri);
+		}
+
+		@Override
+		public boolean isDirectory(ISourceLocation uri) {
+			return false;
+		}
+
+		@Override
+		public boolean isFile(ISourceLocation uri) {
+			return files.containsKey(uri);
+		}
+
+		@Override
+		public String[] list(ISourceLocation uri) throws IOException {
+			return null;
+		}
+
+		@Override
+		public boolean supportsHost() {
+			return false;
+		}
+
+		@Override
+		public void mkDirectory(ISourceLocation uri) throws IOException {
+		}
+
+		@Override
+		public void remove(ISourceLocation uri) throws IOException {
+			files.remove(uri);
 		}
 	}
 
