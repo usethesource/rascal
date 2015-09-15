@@ -10,7 +10,7 @@ import java.io.Writer;
 import jline.TerminalFactory;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.Executor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.shell.ShellRunner;
 
 public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunner {
@@ -34,8 +34,8 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
   }
 
   @Override
-  protected Executor constructExecutor(Writer stdout, Writer stderr) {
-    return new Executor(new PrintWriter(stdout), new PrintWriter(stderr));
+  protected CommandExecutor constructExecutor(Writer stdout, Writer stderr) {
+    return new CommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
   }
 
   @Override
