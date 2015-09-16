@@ -6011,7 +6011,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	    
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 	    
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6029,7 +6029,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
    
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     // Normally we would now descend into the body. Here we don't have one.
@@ -6072,7 +6072,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6088,7 +6088,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6143,7 +6143,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6159,7 +6159,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6226,7 +6226,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6242,7 +6242,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
