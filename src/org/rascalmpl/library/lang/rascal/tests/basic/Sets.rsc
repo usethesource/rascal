@@ -118,7 +118,7 @@ data X = y(int y);
 anno int X@z;
 test bool tst_toMapAnnotations(int a, int b) {
 	m = toMap({<y(1)[@z = a], a>, <y(1)[@z = b], b>});
-	return m[y(1)] == {a, b};
+	return eq(m[y(1)],{a, b});
 }
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
@@ -138,8 +138,8 @@ test bool dtstDifference(set[&T] s) {
 	for(int i <- [0..size(s)]) {
 		&T elem = getOneFrom(s);
 		lhs = s - {elem};
-		rhs = { el | &T el <- s, "<el>" != "<elem>" };
-		check = check && "<lhs>" == "<rhs>" && typeOf(lhs) == typeOf(rhs);
+		rhs = { el | &T el <- s, !eq(el, elem) };
+		check = check && eq(lhs,rhs) && typeOf(lhs) == typeOf(rhs);
 	}
 	return check;
 }
@@ -151,7 +151,7 @@ test bool dtstIntersection(set[&T] s) {
 	for(set[&T] sub <- subs) {
 	lhs = s & sub;
 	rhs = { el | &T el <- s, el in sub };
-		check = check && "<lhs>" == "<rhs>" && typeOf(lhs) == typeOf(rhs);
+		check = check && eq(lhs,rhs) && typeOf(lhs) == typeOf(rhs);
 		}	
 	return check;
 }
