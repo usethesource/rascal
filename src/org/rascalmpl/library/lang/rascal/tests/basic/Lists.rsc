@@ -36,7 +36,7 @@ test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 bool isEqual(list[&T] A, list[&T] B) { 
     if(size(A) == size(B)){
         for(int i <-[0 .. size(A)]){
-            if("<A[i]>" != "<B[i]>") // use strings to avoid coercion
+            if(!eq(A[i],B[i])) 
                 return false;
         }
         return true;
@@ -58,13 +58,13 @@ test bool notEqual1(list[&T] A) = !(A != A);
 test bool notEqual2(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual(A,B);
       
 // x in L?
-bool isIn(&T x, list[&T] L) = (false | it || (x == e) | e <- L);
+bool isIn(&T x, list[&T] L) = (false | it || eq(x,e) | e <- L);
 
 // Is L sorted?
 public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
 
 // Frequency of x in L
-int freq(&T x, list[&T] L) = (0 | e == x ? it + 1 : it | e <- L);
+int freq(&T x, list[&T] L) = (0 | eq(e,x) ? it + 1 : it | e <- L);
 
 // Merge two lists, keeping their order
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
@@ -319,12 +319,12 @@ test bool tstDup(list[&T] L) {  // L = [{{{[<-121590445r651299473>]}},{},{{[]},{
 
 test bool tstGetOneFrom(list[&T] L) = isEmpty(L) || getOneFrom(L) in L;
 
-test bool tstHead(list[&T] L) = isEmpty(L) || head(L) == elementAt(L,0);
+test bool tstHead(list[&T] L) = isEmpty(L) || eq(head(L), elementAt(L,0));
 
 test bool tstHeadN(list[&T] L) {
   if(size(L) > 1){
     n = arbInt(size(L));
-    return head(L, n) == L[..n];
+    return eq(head(L, n),L[..n]);
   }
   return true;
 }
@@ -337,9 +337,9 @@ test bool tstIndexOf(list[int] L) {
   int n = -1;
   e = isEmpty(L) ? 0 : getOneFrom(L);
   for(int i <- index(L)){
-    if(elementAt(L,i) == e){ n = i; break; }
+    if(eq(elementAt(L,i),e)) { n = i; break; }
   }
-  return indexOf(L, e) == n;
+  return eq(indexOf(L, e), n);
 }
 
 test bool tstInsertAt(list[&T] L, &T e){
@@ -355,13 +355,13 @@ test bool tstIntercalate(str sep, list[value] L) =
 
 test bool tstIsEmpty(list[&T] L) = isEmpty(L) ==> (size(L) == 0);
 
-test bool tstLast(list[&T] L) = isEmpty(L) || last(L) == elementAt(L,-1);
+test bool tstLast(list[&T] L) = isEmpty(L) || eq(last(L),elementAt(L,-1));
 
 test bool tstLastIndexOf(list[int] L) {
   int n = -1;
   e = isEmpty(L) ? 0 : getOneFrom(L);
   for(int i <- reverse(index(L))){
-    if(elementAt(L,i) == e){ n = i; break; }
+    if(eq(elementAt(L,i),e)){ n = i; break; }
   }
   return lastIndexOf(L, e) == n;
 }
@@ -461,7 +461,7 @@ test bool tstToMap(lrel[int, rat] L)
 test bool tstToMapUnique(list[tuple[&A, &B]] L) =
   (size(L<0>) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
 
-test bool tstTop(list[&T] L) = isEmpty(L) || top(L) == elementAt(L,0);
+test bool tstTop(list[&T] L) = isEmpty(L) || eq(top(L),elementAt(L,0));
 
 test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), elementAt(L,i+1)> | i <- [0 .. size(L) - 1]};
 
@@ -547,9 +547,9 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		rhs = [ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
 		
-		if (<lhs> != <rhs> || typeOf(lhs) != typeOf(rhs)) {
+		if (!eq(lhs,rhs) || typeOf(lhs) != typeOf(rhs)) {
 		  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
 		  
 		}
