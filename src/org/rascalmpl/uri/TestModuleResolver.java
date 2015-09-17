@@ -57,6 +57,15 @@ public class TestModuleResolver implements ISourceLocationInputOutput {
 			timestamp = newTimestamp;
 			contents = byteArray;
 		}
+		public String toString(){
+			StringBuffer buf = new StringBuffer();
+			buf.append(String.valueOf(timestamp));
+			buf.append(":\n");
+			for(byte bt : contents){
+				buf.append(String.valueOf((char) bt));
+			}
+			return buf.toString();
+		}
 	}
 	
 	private final Map<ISourceLocation, File> files = new HashMap<>();
@@ -68,6 +77,7 @@ public class TestModuleResolver implements ISourceLocationInputOutput {
 		if (file == null) {
 			throw new IOException();
 		}
+		System.err.println("getInputStream: " + uri + "?" + file.toString());
 		return new ByteArrayInputStream(file.contents);
 	}
 
@@ -75,13 +85,20 @@ public class TestModuleResolver implements ISourceLocationInputOutput {
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
 		File file = files.get(uri);
-		final File result = file == null ? new File() : file; 
+		File result;
+		if(file == null) {
+			result = new File();
+			files.put(uri, result);
+		} else {
+			result = file;
+		}
 		return new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
 				super.close();
 				result.newContent(this.toByteArray());
 				files.put(uri, result);
+				System.err.println("getOutputStream.close " + uri + "?" + result.toString());
 			}
 		};
 	}
