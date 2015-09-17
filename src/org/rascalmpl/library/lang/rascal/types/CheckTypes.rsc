@@ -354,7 +354,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
         failures += rt; 
     }  
     
-    varName = convertName(n)[@at = n@\loc];
+    varName = convertName(n)[at=n@\loc];
     
     if (fcvExists(c, varName)) {
         c.uses = c.uses + < c.fcvEnv[varName], n@\loc >;
@@ -421,7 +421,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		// If the function is parametric, we need to calculate the actual types of the
     	// parameters and make sure they fall within the proper bounds.
     	formalArgs = getFunctionArgumentTypes(targetType);
-		bool varArgs = ( ((targetType@isVarArgs)?) ? targetType@isVarArgs : false );
+		bool varArgs = ( ((targetType.isVarArgs)?) ? targetType.isVarArgs : false );
 		set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
 		map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
     	bool canInstantiate = true;            
@@ -510,7 +510,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             // NOTE: We cannot assume the annotation is set, since we only set it when we add a
             // function (and have the info available); we don't have the information when we only
             // have a function type, such as with a function parameter.
-            bool varArgs = ( ((a@isVarArgs)?) ? a@isVarArgs : false );
+            bool varArgs = ( ((a.isVarArgs)?) ? a.isVarArgs : false );
             if (!varArgs) {
                 //if (size(epsList) == size(args) && size(epsList) == 0) {
                 //    matches += a;
@@ -654,11 +654,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 
 		// TODO: To make this work for type hints with type vars we need to instantiate the vars; until we do that,
 		// just skip using the hint in those cases, since it then breaks cases where the hints are not needed.
-		if ( (exp@typeHint)? && (!typeContainsTypeVars(exp@typeHint))) {
-			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
-			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
-			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp@typeHint) };
-			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
+		if ( (exp.typeHint)? && (!typeContainsTypeVars(exp.typeHint))) {
+			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp.typeHint) };
+			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp.typeHint) };
+			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp.typeHint) };
+			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp.typeHint) };
 		}
         
 		set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
@@ -2903,51 +2903,51 @@ public alias BindResult = tuple[Configuration,PatternTree];
 public BindResult extractPatternTree(Pattern pat:(Pattern)`{ <{Pattern ","}* ps> }`, Configuration c) {
     list[PatternTree] tpList = [ ];
     for (p <- ps) { < c, pti > = extractPatternTree(p,c); tpList = tpList + pti; }
-    return < c, setNode(tpList)[@at = pat@\loc] >;
+    return < c, setNode(tpList)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <{Pattern ","}* ps> ]`, Configuration c) {
     list[PatternTree] tpList = [ ];
     for (p <- ps) { < c, pti > = extractPatternTree(p,c); tpList = tpList + pti; }
-    return < c, listNode(tpList)[@at = pat@\loc] >;
+    return < c, listNode(tpList)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>`, Configuration c) {
-    return < c, nameNode(convertName(qn), 0)[@at = pat@\loc] >;
+    return < c, nameNode(convertName(qn), 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>*`, Configuration c) {
-    return < c, multiNameNode(convertName(qn), 0)[@at = pat@\loc] >;
+    return < c, multiNameNode(convertName(qn), 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodeStar(convertName(qn), 0)[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(qn), 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodeStar(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(n), n@\loc, rt, 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodePlus(convertName(qn), 0)[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(qn), 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodePlus(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(n), n@\loc, rt, 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`- <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, negativeNode(pti)[@at = pat@\loc] >;
+    return < c, negativeNode(pti)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<IntegerLiteral il>`, Configuration c) {
-    return < c, literalNode(Symbol::\int())[@at = pat@\loc] >;
+    return < c, literalNode(Symbol::\int())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<RealLiteral rl>`, Configuration c) {
-    return < c, literalNode(Symbol::\real())[@at = pat@\loc] >;
+    return < c, literalNode(Symbol::\real())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<BooleanLiteral bl>`, Configuration c) {
-    return < c, literalNode(Symbol::\bool())[@at = pat@\loc] >;
+    return < c, literalNode(Symbol::\bool())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<DateTimeLiteral dtl>`, Configuration c) {
-    return < c, literalNode(\datetime())[@at = pat@\loc] >;
+    return < c, literalNode(\datetime())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<RationalLiteral rl>`, Configuration c) {
-    return < c, literalNode(\rat())[@at = pat@\loc] >;
+    return < c, literalNode(\rat())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, Configuration c) {
     list[LiteralNodeInfo] names = [ ];
@@ -2967,25 +2967,25 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, 
         	}
     }
     
-    return < c, literalNode(names)[@at = pat@\loc] >;
+    return < c, literalNode(names)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<StringLiteral sl>`, Configuration c) {
 	< c, t1 > = checkStringLiteral(sl,c);
-    return < c, literalNode(\str())[@at = pat@\loc] >;
+    return < c, literalNode(\str())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<LocationLiteral ll>`, Configuration c) {
 	< c, t1 > = checkLocationLiteral(ll,c);
-    return < c, literalNode(Symbol::\loc())[@at = pat@\loc] >;
+    return < c, literalNode(Symbol::\loc())[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`\< <Pattern p1>, <{Pattern ","}* ps> \>`, Configuration c) {
     < c, pt1 > = extractPatternTree(p1, c);
     list[PatternTree] ptlist = [ pt1 ];
     for (p <- ps) { < c, pti > = extractPatternTree(p,c); ptlist = ptlist + pti; }
-    return < c, tupleNode(ptlist)[@at = pat@\loc] >;
+    return < c, tupleNode(ptlist)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, typedNameNode(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
+    return < c, typedNameNode(convertName(n), n@\loc, rt, 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`( <{Mapping[Pattern] ","}* mps> )`, Configuration c) {
     list[MapNodeInfo] res = [ ];
@@ -2994,12 +2994,12 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`( <{Mapping[Pattern] 
         < c, prt > = extractPatternTree(pr,c);
         res += mapNodeInfo(pdt, prt);
     }
-    return < c, mapNode(res)[@at = pat@\loc] >;
+    return < c, mapNode(res)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`, Configuration c) {
     < c, pti1 > = extractPatternTree(s,c);
     < c, pti2 > = extractPatternTree(d,c);
-    return < c, reifiedTypeNode(pti1,pti2)[@at = pat@\loc] >;
+    return < c, reifiedTypeNode(pti1,pti2)[at=pat@\loc] >;
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
@@ -3009,11 +3009,11 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`,
   psList = for (/hole(\one(Sym sym, Name n)) := concrete) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
    
-    append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
+    append typedNameNode(convertName(n), n@\loc, rt, 0)[at=n@\loc];
   }
   
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
-  return <c, concreteSyntaxNode(sym,psList)[@at = pat@\loc]>;
+  return <c, concreteSyntaxNode(sym,psList)[at=pat@\loc]>;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> <KeywordArguments[Pattern] keywordArguments>)`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
@@ -3027,29 +3027,29 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Patte
 			keywordArgs[convertName(kn)] = ptk;
 		}
 	}
-    return < c, callOrTreeNode(pti[@headPosition=true], psList, keywordArgs)[@at = pat@\loc] >;
+    return < c, callOrTreeNode(pti[headPosition=true], psList, keywordArgs)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, varBecomesNode(convertName(n), n@\loc, pti, 0)[@at = pat@\loc] >;
+    return < c, varBecomesNode(convertName(n), n@\loc, pti, 0)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <Type t> ] <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
     < c, rt > = convertAndExpandType(t,c);
-    return < c, asTypeNode(rt, pti)[@at = pat@\loc] >;
+    return < c, asTypeNode(rt, pti)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`/ <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, deepNode(pti)[@at = pat@\loc] >;
+    return < c, deepNode(pti)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`! <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, antiNode(pti)[@at = pat@\loc] >;
+    return < c, antiNode(pti)[at=pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
     < c, rt > = convertAndExpandType(t,c);
-    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti,0)[@at = pat@\loc] >;
+    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti,0)[at=pat@\loc] >;
 }
 
 @doc{Allows PatternTree nodes to be annotated with types.}
@@ -3089,8 +3089,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     
     // Init: extract the pattern tree, which gives us an abstract representation of the pattern
     < c, pt > = extractPatternTree(pat,c);
-    if ( (pat@typeHint)? ) {
-    	pt@typeHint = pat@typeHint;
+    if ( (pat.typeHint)? ) {
+    	pt.typeHint = pat.typeHint;
     }
     
     Configuration cbak = c;
@@ -3140,8 +3140,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			
 			case callOrTreeNode(pth, ptargs, kpargs) : {
 				< pth, c > = assignInitialPatternTypes(pth, c);
-				if (pth is nameNode && isInferredType(pth@rtype)) {
-					failures += makeFailType("The declaration for constructor or production <prettyPrintName(pth.name)> is not in scope.", pth@\at);
+				if (pth is nameNode && isInferredType(pth.rtype)) {
+					failures += makeFailType("The declaration for constructor or production <prettyPrintName(pth.name)> is not in scope.", pth.\at);
 				}
 				list[PatternTree] ptres = [ ];
 				for (pti <- ptargs) {
@@ -3161,41 +3161,41 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        c = addUnnamedVariable(c, ptns[idx].at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else {
 		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 		                	// a set pattern or, below, a list pattern)
-		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx].at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+		                    c = addUnnamedVariable(c, ptns[idx].at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx].at, \set(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } else {
-		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-		                    c.usedIn[ptn@at] = head(c.stack);
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx].at >;
+		                    c.usedIn[ptn.at] = head(c.stack);
 		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 	                        ptns[idx].nameId = c.fcvEnv[n];
 		                    // TODO: Keep this now that we have splicing?
 		                    if (isSetType(rt))
-		                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
+		                        ptns[idx] = ptns[idx][rtype=getSetElementType(rt)];
 		                    else
-		                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
-		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx].at);
+		                    c = addNameWarning(c,n,ptns[idx].at);
 		                }
 	        		} else {
 		        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
@@ -3211,38 +3211,38 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        c = addUnnamedVariable(c, ptns[idx].at, \list(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else {
-		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx].at, \list(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } 
 	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+		                    c = addUnnamedVariable(c, ptns[idx].at, \list(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx].at, \list(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
-		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } else {
-		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-		                    c.usedIn[ptn@at] = head(c.stack);
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx].at >;
+		                    c.usedIn[ptn.at] = head(c.stack);
 	                        ptns[idx].nameId = c.fcvEnv[n];
 		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
 		                    // TODO: Keep this now that we have splicing?
 		                    if (isListType(rt))
-		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
+		                        ptns[idx] = ptns[idx][rtype=getListElementType(rt)];
 		                    else
-		                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
-		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx].at); 
+		                    c = addNameWarning(c,n,ptns[idx].at);
 		                }	        		
 					} else {
 		        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
@@ -3258,32 +3258,32 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	            if (RSimpleName("_") == n) {
 	                rt = \inferred(c.uniqueify);
 	                c.uniqueify = c.uniqueify + 1;
-	                c = addUnnamedVariable(c, ptn@at, rt);
+	                c = addUnnamedVariable(c, ptn.at, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	                return < ptn[rtype=rt][defs={ c.nextLoc - 1 }], c >;
 	            } else if (!fcvExists(c, n)) {
 	                rt = \inferred(c.uniqueify);
 	                c.uniqueify = c.uniqueify + 1;
-	                c = addLocalVariable(c, n, true, ptn@at, rt);
+	                c = addLocalVariable(c, n, true, ptn.at, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            } else {
-	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-	                c.usedIn[ptn@at] = head(c.stack);
+	                c.uses = c.uses + < c.fcvEnv[n], ptn.at >;
+	                c.usedIn[ptn.at] = head(c.stack);
                     ptn.nameId = c.fcvEnv[n];
-	                if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
+	                if ( !((ptn.headPosition)?) || ((ptn.headPosition)? && !ptn.headPosition)) {
 	                    if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-	                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn.at);
 	                    } else {
-	                        c = addNameWarning(c,n,ptn@at);
+	                        c = addNameWarning(c,n,ptn.at);
 	                    }
 	                }
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            }
 	        }
 	        
 	        case ptn:literalNode(Symbol rt) : {
-	        	return < ptn[@rtype = rt], c >;
+	        	return < ptn[rtype=rt], c >;
 	        }
 	        
 	        case ptn:literalNode(list[LiteralNodeInfo] names) : {
@@ -3295,7 +3295,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                    names[idx] = lni;
 	                } else if (use(n,nid) := d) {
 	                    if (!fcvExists(c, n)) {
-	                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
+	                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn.at);
 	                    } else {
 	                        c.uses = c.uses + < c.fcvEnv[n], l >; 
 	                        c.usedIn[l] = head(c.stack);
@@ -3306,18 +3306,18 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                } 
 	            }
 	            ptn.names = names;
-	            return < ptn[@rtype = \str()], c >;
+	            return < ptn[rtype=\str()], c >;
 	        }
 	        
 	        case ptn:typedNameNode(n, l, rt, nid) : { 
 	            if (RSimpleName("_") == n) {
 	                c = addUnnamedVariable(c, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	                return < ptn[rtype=rt][defs={ c.nextLoc - 1 }], c >;
 	            } else {
 	                c = addLocalVariable(c, n, false, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            }
 	        }
 	        
@@ -3330,23 +3330,23 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                c.uniqueify = c.uniqueify + 1;
 	                c = addUnnamedVariable(c, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	                return < ptn[rtype=rt][defs={ c.nextLoc - 1 }], c >;
 	            } else if (!fcvExists(c, n)) {
 	                rt = \inferred(c.uniqueify);
 	                c.uniqueify = c.uniqueify + 1;
 	                c = addLocalVariable(c, n, true, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            }  else {
 	                c.uses = c.uses + < c.fcvEnv[n], l >;
-	                c.usedIn[ptn@at] = head(c.stack);
+	                c.usedIn[ptn.at] = head(c.stack);
 	                if (!(c.store[c.fcvEnv[n]] is variable)) {
-	                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn.at);
 	                } else {
-	                    c = addNameWarning(c,n,ptn@at);
+	                    c = addNameWarning(c,n,ptn.at);
 	                }
                     ptn.nameId = c.fcvEnv[n];
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            }
 	        }
 	
@@ -3356,25 +3356,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 
 				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
-				return < ptn[@rtype = rt], c >;
+				return < ptn[rtype=rt], c >;
 			}
 			
 	        case ptn:asTypeNode(rt, ptc) : {
 	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
 	        	ptn.child = ptc;
 
-	        	return < ptn[@rtype = rt], c >;
+	        	return < ptn[rtype=rt], c >;
 	        }
 	        
 			case ptn:antiNode(ptc) : {
-				cBool = enterBooleanScope(c, ptn@at);
+				cBool = enterBooleanScope(c, ptn.at);
 	        	< ptc, cBool > = assignInitialPatternTypes(ptc, cBool);
 	        	ptn.child = ptc;
 	        	c = exitBooleanScope(cBool, c);
 
 				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
-				return < ptn[@rtype = rt], c >;
+				return < ptn[rtype=rt], c >;
 			}
 			
 			case ptn:reifiedTypeNode(tSymbol,pDefs) : {
@@ -3383,23 +3383,23 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				ptn.s = tSymbol;
 				ptn.d = pDefs;
 				 
-				return < ptn[@rtype = makeReifiedType(makeValueType())], c >;
+				return < ptn[rtype=makeReifiedType(makeValueType())], c >;
 			}
 			
 			// TODO: This is the common case, we need to propagate type hints
 			// to handle the uncommon cases
 	        case ptn:tvarBecomesNode(rt, n, l, ptc, nid) : { 
 	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
-	        	ptn.child = ptc[@typeHint = rt];
+	        	ptn.child = ptc[typeHint=rt];
 
 	            if (RSimpleName("_") == n) {
 	                c = addUnnamedVariable(c, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	                return < ptn[rtype=rt][defs={ c.nextLoc - 1 }], c >;
 	            } else {
 	                c = addLocalVariable(c, n, false, l, rt);
                     ptn.nameId = c.nextLoc - 1;
-	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	                return < ptn[rtype=c.store[c.fcvEnv[n]].rtype], c >;
 	            }
 	        }
 	        
@@ -3409,7 +3409,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        		plist[idx] = pti;
 	        	}
 	            ptn.args = plist;
-	        	return < ptn[@rtype = rt], c >;
+	        	return < ptn[rtype=rt], c >;
 	        }
 	    }
 	    
@@ -3427,15 +3427,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     bool modified = true;
 
     PatternTree updateRT(PatternTree pt, Symbol rt) {
-        if ( (pt@rtype)? && (pt@rtype == rt) ) return pt;
+        if ( (pt.rtype)? && (pt.rtype == rt) ) return pt;
         modified = true;
-        return pt[@rtype = rt];
+        return pt[rtype=rt];
     }
 
     PatternTree updateBindProblems(PatternTree pt, set[Symbol] arityMismatches, set[Symbol] tooManyMatches) {
     	// We intentionally don't set modified here, since these are just error markers.
     	if (size(tooManyMatches) > 0) arityMismatches = { }; // only report arity problems if they are the only ones we have
-        return pt[@arityMismatches = arityMismatches][@tooManyMatches = tooManyMatches];
+        return pt[arityMismatches=arityMismatches][tooManyMatches=tooManyMatches];
     }
     
     // Step 2: push types up from the leaves to the root, and back down from the root to the leaves,
@@ -3450,50 +3450,50 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         pt = bottom-up visit(pt) {
             case ptn:setNode([]) => updateRT(ptn, \set(Symbol::\void()))
             
-            case ptn:setNode(ptns) => updateRT(ptn,\set(lubList([pti@rtype | pti <- ptns]))) 
-                                      when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
+            case ptn:setNode(ptns) => updateRT(ptn,\set(lubList([pti.rtype | pti <- ptns]))) 
+                                      when all(idx <- index(ptns), (ptns[idx].rtype)?, concreteType(ptns[idx].rtype))
                                       
             case ptn:listNode([]) => updateRT(ptn, \list(Symbol::\void()))
             
             case ptn:listNode(ptns) : {
-            	if (all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))) {
-            		insert(updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))));
+            	if (all(idx <- index(ptns), (ptns[idx].rtype)?, concreteType(ptns[idx].rtype))) {
+            		insert(updateRT(ptn,\list(lubList([pti.rtype | pti <- ptns]))));
             	} 
 			}
                                       
-            case ptn:negativeNode(cp) => updateRT(ptn, cp@rtype) 
-            							 when (cp@rtype)? && concreteType(cp@rtype) && !isVoidType(cp@rtype) && subtype(cp@rtype, Symbol::\num())
+            case ptn:negativeNode(cp) => updateRT(ptn, cp.rtype) 
+            							 when (cp.rtype)? && concreteType(cp.rtype) && !isVoidType(cp.rtype) && subtype(cp.rtype, Symbol::\num())
     
             case ptn:negativeNode(cp) :
-                if ( (cp@rtype)? && concreteType(cp@rtype))
-                    failures += makeFailType("Cannot apply negative pattern to subpattern of type <prettyPrintType(cp@rtype)>", ptn@at);
+                if ( (cp.rtype)? && concreteType(cp.rtype))
+                    failures += makeFailType("Cannot apply negative pattern to subpattern of type <prettyPrintType(cp.rtype)>", ptn.at);
                     
-            case ptn:tupleNode(ptns) => updateRT(ptn,\tuple([pti@rtype|pti <- ptns]))
-                                        when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
+            case ptn:tupleNode(ptns) => updateRT(ptn,\tuple([pti.rtype|pti <- ptns]))
+                                        when all(idx <- index(ptns), (ptns[idx].rtype)?, concreteType(ptns[idx].rtype))
                                         
             case ptn:mapNode([]) => updateRT(ptn,\map(Symbol::\void(),Symbol::\void()))
                                         
-            case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|mapNodeInfo(d,_) <- ptns]),lubList([r@rtype|mapNodeInfo(_,r)<-ptns])))
-                                      when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
+            case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d.rtype|mapNodeInfo(d,_) <- ptns]),lubList([r.rtype|mapNodeInfo(_,r)<-ptns])))
+                                      when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d.rtype)?, (r.rtype)?, concreteType(d.rtype), concreteType(r.rtype))
                                       
             //case ptn:deepNode(cp) => updateRT(ptn, \void()) when (cp@rtype)? && concreteType(cp@rtype)
 
-            case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
+            case ptn:antiNode(cp) => updateRT(ptn, cp.rtype) when (cp.rtype)? && concreteType(cp.rtype)
             
             case ptn:varBecomesNode(n,l,cp,nid) : {
-                if ( c.store[nid] is variable && ((cp@rtype)? && concreteType(cp@rtype))) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
+                if ( c.store[nid] is variable && ((cp.rtype)? && concreteType(cp.rtype))) {
+                    Symbol rt = (RSimpleName("_") == n) ? ptn.rtype : c.store[nid].rtype;
                     bool isInferred = (RSimpleName("_") == n) ? true : c.store[nid].inferred;
                     if (isInferred) {
                         if (isInferredType(rt)) {
                             if (RSimpleName("_") == n) {
-                                c.store[nid].rtype = cp@rtype; 
+                                c.store[nid].rtype = cp.rtype; 
                             } else {
-                                c.store[nid].rtype = cp@rtype;
+                                c.store[nid].rtype = cp.rtype;
                             }
-                            insert updateRT(ptn, cp@rtype);
+                            insert updateRT(ptn, cp.rtype);
                         } else {
-                            Symbol rtNew = lub(rt, cp@rtype);
+                            Symbol rtNew = lub(rt, cp.rtype);
                             if (!equivalent(rtNew,rt)) {
                                 if (RSimpleName("_") == n) {
                                     c.store[nid].rtype = rtNew; 
@@ -3504,8 +3504,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             }
                         }
                     } else {
-                        if (!comparable(cp@rtype, rt))
-                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
+                        if (!comparable(cp.rtype, rt))
+                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp.rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn.at);
                     }
                 }
             }
@@ -3518,35 +3518,35 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             	} catch : {
             		; // If we bind successfully, we take advantage of that, otherwise we ignore it -- this lets us propagate the type
             	}
-                if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol tvType = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
-                    if (!comparable(cp@rtype, tvType))
-                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(tvType)>", ptn@at);
+                if ( (cp.rtype)? && concreteType(cp.rtype)) {
+                    Symbol tvType = (RSimpleName("_") == n) ? ptn.rtype : c.store[nid].rtype;
+                    if (!comparable(cp.rtype, tvType))
+                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp.rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(tvType)>", ptn.at);
                 }
             }
             
             case ptn:reifiedTypeNode(sp,dp) : {
-                if ( (sp@rtype)? && concreteType(sp@rtype) && !subtype(sp@rtype,\adt("Symbol",[])) ) {
-                	failures += makeFailType("The first pattern parameter in a reified type parameter must be of type Symbol, not <prettyPrintType(sp@rtype)>", ptn@at);
+                if ( (sp.rtype)? && concreteType(sp.rtype) && !subtype(sp.rtype,\adt("Symbol",[])) ) {
+                	failures += makeFailType("The first pattern parameter in a reified type parameter must be of type Symbol, not <prettyPrintType(sp.rtype)>", ptn.at);
                 }
-                if ( (dp@rtype)? && concreteType(dp@rtype) && !subtype(dp@rtype,\map(\adt("Symbol",[]), \adt("Production",[]))) ) { 
-                	failures += makeFailType("The second pattern parameter in a reified type parameter must be of type map[Symbol,Production], not <prettyPrintType(dp@rtype)>", ptn@at);
+                if ( (dp.rtype)? && concreteType(dp.rtype) && !subtype(dp.rtype,\map(\adt("Symbol",[]), \adt("Production",[]))) ) { 
+                	failures += makeFailType("The second pattern parameter in a reified type parameter must be of type map[Symbol,Production], not <prettyPrintType(dp.rtype)>", ptn.at);
                 }
 			}
                 
     
             case ptn:callOrTreeNode(ph,pargs,kpargs) : {
-            	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
-                    if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
+            	if ( (ph.rtype)? && concreteType(ph.rtype) ) {
+                    if (isConstructorType(ph.rtype) || isOverloadedType(ph.rtype) || isProductionType(ph.rtype)) {
                         // default alternatives contain all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
+                        set[Symbol] alts = (isOverloadedType(ph.rtype)) ? (filterSet(getDefaultOverloadOptions(ph.rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph.rtype), isProductionType)) : {ph.rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
 				        rel[Symbol,KeywordParamMap] matches = { };
 				        rel[Symbol,KeywordParamMap] nonMatches = { };
-                        ptn@arityMismatches = { };
-                        ptn@tooManyMatches = { };
+                        ptn.arityMismatches = { };
+                        ptn.tooManyMatches = { };
                         
-					    usedItems = invert(c.uses)[ph@at];
+					    usedItems = invert(c.uses)[ph.at];
 					    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
 					    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
 
@@ -3564,9 +3564,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                for (idx <- index(pargs)) {
 	                                	bool pseudoMatch = false;
 	                                	argType = getConstructorArgumentTypes(a)[idx];
-	                                	if ((pargs[idx]@rtype)?) {
-	                                		if (concreteType(pargs[idx]@rtype)) {
-	                                			if (!subtype(pargs[idx]@rtype, argType)) {
+	                                	if ((pargs[idx].rtype)?) {
+	                                		if (concreteType(pargs[idx].rtype)) {
+	                                			if (!subtype(pargs[idx].rtype, argType)) {
 	                                				badMatches = badMatches + idx;
 	                                			}
 	                                		} else {
@@ -3580,7 +3580,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                		if (! ( (isListType(argType) && pargs[idx] is listNode) ||
 	                                			    (isSetType(argType) && pargs[idx] is setNode) ||
 	                                			    (isMapType(argType) && pargs[idx] is mapNode) ||
-	                                			    ( !(pargs[idx] is listNode || pargs[idx] is setNode || pargs[idx] is mapNode) && (!((pargs[idx]@rtype)?) || !(concreteType(pargs[idx]@rtype)))))) {
+	                                			    ( !(pargs[idx] is listNode || pargs[idx] is setNode || pargs[idx] is mapNode) && (!((pargs[idx].rtype)?) || !(concreteType(pargs[idx].rtype)))))) {
 	                                			badMatches = badMatches + idx;
 	                                		}
 	                                	}
@@ -3593,9 +3593,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				                 			for (kpname <- kpargs) {
 			                                	bool pseudoMatch = false;
 			                                	argType = kpm[kpname];
-			                                	if ((kpargs[kpname]@rtype)?) {
-			                                		if (concreteType(kpargs[kpname]@rtype)) {
-			                                			if (!subtype(kpargs[kpname]@rtype, argType)) {
+			                                	if ((kpargs[kpname].rtype)?) {
+			                                		if (concreteType(kpargs[kpname].rtype)) {
+			                                			if (!subtype(kpargs[kpname].rtype, argType)) {
 			                                				badMatches = badMatches + kpname;
 			                                			}
 			                                		} else {
@@ -3609,7 +3609,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			                                		if (! ( (isListType(argType) && kpargs[kpname] is listNode) ||
 			                                			    (isSetType(argType) && kpargs[kpname] is setNode) ||
 			                                			    (isMapType(argType) && kpargs[kpname] is mapNode) ||
-			                                			    ( !(kpargs[kpname] is listNode || kpargs[kpname] is setNode || kpargs[kpname] is mapNode) && (!((kpargs[kpname]@rtype)?) || !(concreteType(kpargs[kpname]@rtype)))))) {
+			                                			    ( !(kpargs[kpname] is listNode || kpargs[kpname] is setNode || kpargs[kpname] is mapNode) && (!((kpargs[kpname].rtype)?) || !(concreteType(kpargs[kpname].rtype)))))) {
 			                                			badMatches = badMatches + kpname;
 			                                		}
 			                                	}
@@ -3623,7 +3623,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx].rtype)?, concreteType(pargs[idx].rtype), !subtype(pargs[idx].rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += < a, kpm >;
@@ -3634,12 +3634,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         //}
                         
                         if (size(matches) > 1) {
-                        	if ( (ptn@typeHint)? ) {
+                        	if ( (ptn.typeHint)? ) {
                         		newMatches = { };
                         		for ( < a, kpm > <- matches) {
-                        			if (isConstructorType(a) && equivalent(getConstructorResultType(a),ptn@typeHint)) {
+                        			if (isConstructorType(a) && equivalent(getConstructorResultType(a),ptn.typeHint)) {
                         				newMatches += < a, kpm >;
-                        			} else if (isProductionType(a) && equivalent(getProductionSortType(a),ptn@typeHint)) {
+                        			} else if (isProductionType(a) && equivalent(getProductionSortType(a),ptn.typeHint)) {
                         				newMatches += < a, kpm >;
                         			} else if (! (isConstructorType(a) || isProductionType(a))) {
                         				newMatches += < a, kpm >;
@@ -3663,8 +3663,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             // TODO: Find a better place for this huge chunk of code!
                             if (concreteType(matchType) && (false notin { concreteType(justUsedParams[kpn]) | kpn <- justUsedParams }) && 
                                 (typeContainsTypeVars(matchType) || (true in { typeContainsTypeVars(justUsedParams[kpn]) | kpn <- justUsedParams })) && 
-                                ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx]@rtype))) &&
-                                ( size(justUsedParams) == 0 || all(kpn <- justUsedParams, concreteType(kpargs[kpn]@rtype)))) {
+                                ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx].rtype))) &&
+                                ( size(justUsedParams) == 0 || all(kpn <- justUsedParams, concreteType(kpargs[kpn].rtype)))) {
                                 // If the constructor is parametric, we need to calculate the actual types of the
                                 // parameters and make sure they fall within the proper bounds. Note that we can only
                                 // do this when the match type is concrete and when we either have no pargs or we have
@@ -3676,17 +3676,17 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 for (idx <- index(formalArgs)) {
                                     try {
-                                        bindings = match(unlabeledArgs[idx],pargs[idx]@rtype,bindings);
+                                        bindings = match(unlabeledArgs[idx],pargs[idx].rtype,bindings);
                                     } catch : {
-                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(pargs[idx]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", pargs[idx]@at));
+                                        insert updateRT(ptn[head=ph[rtype=matchType]], makeFailType("Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(pargs[idx].rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", pargs[idx].at));
                                         cannotInstantiate = true;  
                                     }
                                 }
                                 for (kpn <- justUsedParams) {
                                 	try {
-                                		bindings = match(unlabeledParams[kpn],kpargs[kpn]@rtype,bindings);
+                                		bindings = match(unlabeledParams[kpn],kpargs[kpn].rtype,bindings);
                                 	} catch : {
-                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate keyword parameter <prettyPrintName(kpn)>, parameter type <prettyPrintType(kpargs[kpn]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(unlabeledParams[kpn])>", kpargs[kpn]@at));
+                                        insert updateRT(ptn[head=ph[rtype=matchType]], makeFailType("Cannot instantiate keyword parameter <prettyPrintName(kpn)>, parameter type <prettyPrintType(kpargs[kpn].rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(unlabeledParams[kpn])>", kpargs[kpn].at));
                                         cannotInstantiate = true;                                  	
                                 	}
                                 }
@@ -3705,7 +3705,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         	unlabeledParams[kpn] = instantiate(unlabeledParams[kpn], bindings);
                                         }
                                     } catch : {
-                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate type parameters in constructor", ptn@at));
+                                        insert updateRT(ptn[head=ph[rtype=matchType]], makeFailType("Cannot instantiate type parameters in constructor", ptn.at));
                                         cannotInstantiate = true;
                                     }
                                 }
@@ -3734,12 +3734,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 } catch v : {
                                 	newParamChildren = kpargs;
                                 }
-                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren][keywordArgs=newParamChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
+                                insert updateRT(ptn[head=ph[rtype=matchType]][args=newChildren][keywordArgs=newParamChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
                             }
                         } else {
                         	insert updateBindProblems(ptn, nonMatches<0>, matches<0>);
                         }
-                    } else if (isStrType(ph@rtype)) {
+                    } else if (isStrType(ph.rtype)) {
                     	// TODO: How do we handle keyword parameters for nodes? Treat them all as value?
                         list[PatternTree] newChildren = [];
                         map[RName,PatternTree] newKPChildren = ( );
@@ -3768,8 +3768,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             return < c, collapseFailTypes(failures) >;
         }
         
-        if (size(subjects) == 1 || (pt@typeHint)?) {
-        	bindType = (size(subjects) == 1) ? getOneFrom(subjects) : pt@typeHint;
+        if (size(subjects) == 1 || (pt.typeHint)?) {
+        	bindType = (size(subjects) == 1) ? getOneFrom(subjects) : pt.typeHint;
             try {
                 < c, pt > = bind(pt, bindType, c);
                 // Why do this? Because we want to bind at least once, and the first bind could
@@ -3782,8 +3782,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             } catch v : {
                 //println("Bind attempt failed, now have <pt>");
-                if(pt@rtype? && !hasInferredType(pt@rtype)) {
-                	failures += makeFailType("Cannot match an expression of type: <type(bindType,())> against a pattern of type <type(pt@rtype,())>", pt@at);
+                if(pt.rtype? && !hasInferredType(pt.rtype)) {
+                	failures += makeFailType("Cannot match an expression of type: <type(bindType,())> against a pattern of type <type(pt.rtype,())>", pt.at);
                	}
             }
         } else if (firstTime) {
@@ -3799,60 +3799,60 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
-        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
+        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_,_) := pt, (ptih.rtype)?, isInferredType(ptih.rtype) };
     }
 
     set[PatternTree] arityFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti.arityMismatches)?, size(pti.arityMismatches) > 0 };
     }
 
     set[PatternTree] tooManyMatchesFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti.tooManyMatches)?, size(pti.tooManyMatches) > 0 };
     }
 
 	set[PatternTree] unresolved = { };
-    if ( (pt@rtype)? ) {
-        unresolved = { pti | /PatternTree pti := pt, !((pti@rtype)?) || ((pti@rtype)? && !concreteType(pti@rtype)) };
+    if ( (pt.rtype)? ) {
+        unresolved = { pti | /PatternTree pti := pt, !((pti.rtype)?) || ((pti.rtype)? && !concreteType(pti.rtype)) };
     }
     
-    if ( (pt@rtype)? == false || size(unresolved) > 0) {
+    if ( (pt.rtype)? == false || size(unresolved) > 0) {
         unknowns = unknownConstructorFailures(pt);
         arityProblems = arityFailures(pt);
         tooManyMatches = tooManyMatchesFailures(pt);
         if (size(unknowns) == 0 && size(arityProblems) == 0 && size(tooManyMatches) == 0) {
             //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
             newMessages = c.messages - startingMessages;
-            return < c, collapseFailTypes(extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) + { pti@rtype | /PatternTree pti := pt, (pti@rtype)?, isFailType(pti@rtype) }) >;
+            return < c, collapseFailTypes(extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) + { pti.rtype | /PatternTree pti := pt, (pti.rtype)?, isFailType(pti.rtype) }) >;
         } else {
     		for (PatternTree pTree <- tooManyMatches)
-    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pTree@at);
+    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pTree.at);
         	
     		for (PatternTree pTree <- arityProblems)
-    			failures += makeFailType("Only constructors or productions with a different arity are available", pTree@at);
+    			failures += makeFailType("Only constructors or productions with a different arity are available", pTree.at);
 
             for (unk <- unknowns)
-            	failures += makeFailType("Constructor or production name is not in scope", unk@at);
+            	failures += makeFailType("Constructor or production name is not in scope", unk.at);
         	
         	failures += makeFailType("Type of pattern could not be computed", pat@\loc);
             return < c, collapseFailTypes(failures) >;
         }
     } else {
-		c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );
+		c.locationTypes = c.locationTypes + ( ptnode.at : ptnode.rtype | /PatternTree ptnode := pt, (ptnode.rtype)? );
 
 		for (/ptn:callOrTreeNode(ph,pargs,kpargs) := pt) {
-			ctType = ptn@rtype;
+			ctType = ptn.rtype;
 
-			baseItems = invert(c.uses)[ph@at];
+			baseItems = invert(c.uses)[ph.at];
 			usedItems = baseItems + { uii | ui <- baseItems, c.store[ui] is overload, uii <- c.store[ui].items };
 			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is constructor || c.store[ui] is production, comparable(c.store[ui].rtype,ctType) };
 
 			if (size(actuallyUsed) > 0) {
-				c.narrowedUses = c.narrowedUses + (actuallyUsed*{ph@at});
+				c.narrowedUses = c.narrowedUses + (actuallyUsed*{ph.at});
 			}  
 			
 		}
 				  
-		return < c, pt@rtype >;
+		return < c, pt.rtype >;
     }
 }
 
@@ -3900,16 +3900,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case nameNode(RSimpleName("_"),nid) : {
-            Symbol currentType = pt@rtype;
+            Symbol currentType = pt.rtype;
             if (isTypeVar(currentType) && getTypeVarName(currentType) in bindings) {
             	c.store[nid].rtype = bindings[getTypeVarName(currentType)];
-            	return < c, pt[@rtype=c.store[nid].rtype] >;
+            	return < c, pt[rtype=c.store[nid].rtype] >;
             } else if (isInferredType(currentType)) {
                 c.store[nid].rtype = rt;
-                return < c, pt[@rtype = rt] >;
+                return < c, pt[rtype=rt] >;
             } else {
                 c.store[nid].rtype = lub(currentType, rt);
-                return < c, pt[@rtype = lub(currentType, rt)] >;
+                return < c, pt[rtype=lub(currentType, rt)] >;
             }
         }
         
@@ -3923,28 +3923,28 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
                 } else {
                     c.store[nid].rtype = lub(currentType, rt);
                 }
-                return < c, pt[@rtype = c.store[nid].rtype] >;
+                return < c, pt[rtype=c.store[nid].rtype] >;
             } else {
                 if (isTypeVar(currentType) && getTypeVarName(currentType) in bindings) {
     	        	c.store[nid].rtype = bindings[getTypeVarName(currentType)];
-        	    	return < c, pt[@rtype=c.store[nid].rtype] >;
+        	    	return < c, pt[rtype=c.store[nid].rtype] >;
                 } else if (comparable(currentType, rt)) {
                     return < c, pt >;
 	            } else {
-                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
                 }
             }
         }
         
 		// TODO: Do we also need a case here for a type parameter?
         case multiNameNode(RSimpleName("_"),nid) : {
-            Symbol currentType = pt@rtype;
+            Symbol currentType = pt.rtype;
             if (isInferredType(currentType)) {
                 c.store[nid].rtype = rt;
-                return < c, pt[@rtype = rt] >;
+                return < c, pt[rtype=rt] >;
             } else {
                 c.store[nid].rtype = lub(currentType, rt);
-                return < c, pt[@rtype = lub(currentType, rt)] >;
+                return < c, pt[rtype=lub(currentType, rt)] >;
             }
         }
 
@@ -3954,16 +3954,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
                     c.store[nid].rtype = \set(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
                     c.store[nid].rtype = \list(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isSetType(currentType)) {
                     c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
                     c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt))
@@ -3971,7 +3971,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
                 else if (isListType(currentType) && comparable(getListElementType(currentType), rt))
                     return < c, pt >;
                 else
-                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
             }
         }
         
@@ -3991,16 +3991,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
                     c.store[nid].rtype = \set(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
                     c.store[nid].rtype = \list(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isSetType(currentType)) {
                     c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
                     c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -4008,7 +4008,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
                 } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
                     return < c, pt >;
                 } else {
-                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
                 }
             }
         }
@@ -4031,7 +4031,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
                 return < c, pt >;
             } else {
-            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
             }
         }
         
@@ -4051,16 +4051,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
                     c.store[nid].rtype = \set(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
                     c.store[nid].rtype = \list(rt);
-                    return < c, pt[@rtype = rt] >;
+                    return < c, pt[rtype=rt] >;
                 } else if (isSetType(currentType)) {
                     c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
                     c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
+                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -4068,7 +4068,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
                 } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
                     return < c, pt >;
                 } else {
-                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
                 }
             }
         }
@@ -4091,7 +4091,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
                 return < c, pt >;
             } else {
-            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            	throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
             }
         }
         
@@ -4101,18 +4101,18 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case literalNode(Symbol nt) : {
-        	if (isNonTerminalType(rt) && isStrType(pt@rtype)) {
+        	if (isNonTerminalType(rt) && isStrType(pt.rtype)) {
         		return < c, pt >;
-        	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+        	} else if (!isInferredType(rt) && !comparable(pt.rtype,rt)) {
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
             } else {
                 return < c, pt >;
 			}
         }
         
         case literalNode(list[LiteralNodeInfo] names) : {
-            if (!isInferredType(rt) && !comparable(pt@rtype,rt))
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            if (!isInferredType(rt) && !comparable(pt.rtype,rt))
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
             else
                 return < c, pt >;
         }
@@ -4125,7 +4125,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
                     for (idx <- index(tfields)) { < c, pti > = bind(cs[idx], tfields[idx], c); res += pti; }
                     return < c, pt[children = res] >; 
                 } else {
-                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                    throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
                 }
             } else if (isValueType(rt)) {
                 return < c, pt >;
@@ -4134,11 +4134,11 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         
 		// TODO: Do we also need a case here for a type parameter?
         case typedNameNode(n, l, nt, nid) : {
-            Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[nid].rtype;
+            Symbol currentType = (RSimpleName("_") == n) ? pt.rtype : c.store[nid].rtype;
             if (comparable(currentType, rt))
                 return < c, pt >;
             else
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
         }
         
         case mapNode(list[MapNodeInfo] mapChildren) : {
@@ -4166,24 +4166,24 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case callOrTreeNode(ph, cs, kp) : {
-        	if ( (pt@rtype)? ) {
-	            Symbol currentType = pt@rtype;
+        	if ( (pt.rtype)? ) {
+	            Symbol currentType = pt.rtype;
 	            if (comparable(currentType, rt)) {
 	                return < c, pt >;
 	            } else {
-	                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+	                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
 	            }
-	        } else if ((pt@tooManyMatches)?) {
+	        } else if ((pt.tooManyMatches)?) {
 	        	// Add a type hint, based on the subject type, which should be usable in
 	        	// the next iteration of the matcher.
-	        	return < c, pt[@typeHint=rt] >;
+	        	return < c, pt[typeHint=rt] >;
 	        }
             //return < c, pt >;
         }
         
 		// TODO: Do we also need a case here for a type parameter?
         case varBecomesNode(n, l, cp, nid) : {
-            Symbol currentType = pt@rtype;
+            Symbol currentType = pt.rtype;
             < c, cpnew > = bind(cp, rt, c);
             return < c, pt[child=cpnew] >;
         }
@@ -4199,14 +4199,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             	< c, cpNew> = bind(cp, nt, c);
             }
             
-            if ( (cpNew@rtype)? ) {
+            if ( (cpNew.rtype)? ) {
 	            if (isNonTerminalType(nt)) {
-	            	if (!equivalent(makeStrType(), cpNew@rtype)) {
-	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew@rtype)> in as node pattern with a non-terminal type";
+	            	if (!equivalent(makeStrType(), cpNew.rtype)) {
+	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew.rtype)> in as node pattern with a non-terminal type";
 	            	} 
 	            } else {
-	            	if (!comparable(rt, cpNew@rtype)) {
-	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew@rtype)> in as type pattern with type <prettyPrintType(nt)>";
+	            	if (!comparable(rt, cpNew.rtype)) {
+	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew.rtype)> in as type pattern with type <prettyPrintType(nt)>";
 	            	}
 	            }
             }
@@ -4215,9 +4215,9 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case deepNode(cp) : {
-            Symbol currentType = pt@rtype;
+            Symbol currentType = pt.rtype;
             < c, cpNew > = bind(cp, Symbol::\value(), c);
-            return < c, pt[child = cpNew][@rtype=rt] >;
+            return < c, pt[child = cpNew][rtype=rt] >;
         }
 
 		// TODO: Is this right? Technically, the type of the antinode
@@ -4226,7 +4226,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
 		// good warnings when things cannot happen                
         case antiNode(cp) : {
             < c, cpNew > = bind(cp, rt, c);
-            return < c, pt[child = cpNew][@rtype=rt] >;
+            return < c, pt[child = cpNew][rtype=rt] >;
         }
         
 		// TODO: Do we also need a case here for a type parameter?
@@ -4236,10 +4236,10 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case concreteSyntaxNode(nt,plist) : {
-            if (comparable(pt@rtype, rt)) {
+            if (comparable(pt.rtype, rt)) {
                 return < c, pt >;
             }
-            throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt.rtype)>";
         }
     }
     
@@ -4278,7 +4278,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`assert <Expression e> : 
 
 @doc{Check the type of Rascal statements: Expression (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Expression e>;`, Configuration c) {
-    < c, t1 > = ( (stmt@typeHint)? ) ? checkExp(e[@typeHint=stmt@typeHint],c) : checkExp(e,c);
+    < c, t1 > = ( (stmt.typeHint)? ) ? checkExp(e[typeHint=stmt.typeHint],c) : checkExp(e,c);
     if (isFailType(t1))
         return markLocationFailed(c, stmt@\loc, t1);
     else
@@ -4903,7 +4903,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignme
 
 @doc{Check the type of Rascal statements: Return (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`return <Statement s>`, Configuration c) {
-    < c, t1 > = checkStmt(s[@typeHint=c.expectedReturnType], c);
+    < c, t1 > = checkStmt(s[typeHint=c.expectedReturnType], c);
     if (!isFailType(t1) && !subtype(t1, c.expectedReturnType))
         return markLocationFailed(c, stmt@\loc, makeFailType("Invalid return type <prettyPrintType(t1)>, expected return type <prettyPrintType(c.expectedReturnType)>", stmt@\loc)); 
     return markLocationType(c, stmt@\loc, Symbol::\void());
@@ -5026,15 +5026,16 @@ data AssignableTree
     | annotationNode(AssignableTree receiver, RName name)
     ;
     
-@doc{Mark assignable trees with the source location of the assignable}
-public anno loc AssignableTree@at;
+@doc{Mark assignable trees with the source location of the assignable} 
+data AssignableTree(loc at = |unknown:///|);
 
-@doc{Allows AssignableTree nodes to keep track of which ids they define.}
-public anno set[int] AssignableTree@defs;
+@doc{Allows AssignableTree nodes to keep track of which ids they define.} 
+data AssignableTree(set[int] defs = {});
 
-@doc{Allows AssignableTree nodes to be annotated with types.}
-public anno Symbol AssignableTree@otype;
-public anno Symbol AssignableTree@atype;
+@doc{Allows AssignableTree nodes to be annotated with types.} 
+data AssignableTree(Symbol otype = Symbol () { throw "no default value"; }());
+ 
+data AssignableTree(Symbol atype = Symbol () { throw "no default value"; }());
 
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
@@ -5042,7 +5043,7 @@ alias ATResult = tuple[Configuration, AssignableTree];
 @doc{Extract a tree representation of the assignable and perform basic checks: Bracket (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar>)`, bool top, Configuration c) {
     < c, atree > = buildAssignableTree(ar, top, c);
-    return < c, bracketNode(atree)[@atype=atree@atype][@at=assn@\loc] >;
+    return < c, bracketNode(atree)[atype=atree.atype][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
@@ -5052,7 +5053,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         rt = \inferred(c.uniqueify);
         c.uniqueify = c.uniqueify + 1;  
         c = addUnnamedVariable(c, qn@\loc, rt);
-        return < c, variableNode(n)[@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
+        return < c, variableNode(n)[atype=rt][at=assn@\loc][defs={c.nextLoc-1}] >;
     } else if (fcvExists(c, n)) {
         if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
@@ -5063,23 +5064,23 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
 	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
 		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
 		        	failType = makeFailType("Cannot resolve imported types in type of variable <prettyPrintName(n)>", assn@\loc);
-		        	return < c, variableNode(n)[@atype=failType][@at=assn@\loc] >;
+		        	return < c, variableNode(n)[atype=failType][at=assn@\loc] >;
 		        }
 	        }
 
             rt = c.store[c.fcvEnv[n]].rtype;
             c = addNameWarning(c,n,assn@\loc);
-            return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
+            return < c, variableNode(n)[atype=rt][at=assn@\loc] >;
         } else {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
-            return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][@at=assn@\loc] >;
+            return < c, variableNode(n)[atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][at=assn@\loc] >;
         }
     } else {
         rt = \inferred(c.uniqueify);
         c.uniqueify = c.uniqueify + 1;  
         c = addLocalVariable(c, n, true, qn@\loc, rt);
-        return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
+        return < c, variableNode(n)[atype=rt][at=assn@\loc] >;
     }
 }
 
@@ -5088,45 +5089,45 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     < c, atree > = buildAssignableTree(ar, false, c);
     < c, tsub > = checkExp(sub, c);
     
-    if (isFailType(atree@atype) || isFailType(tsub))
-        return < c, subscriptNode(atree,tsub)[@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
+    if (isFailType(atree.atype) || isFailType(tsub))
+        return < c, subscriptNode(atree,tsub)[atype=collapseFailTypes({atree.atype,tsub})][at=assn@\loc] >;
 
-    if (!concreteType(atree@atype)) {
+    if (!concreteType(atree.atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
-        return < c, subscriptNode(atree,tsub)[@atype=failtype][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=failtype][at=assn@\loc] >;
     }
 
-    if (isListType(atree@atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+    if (isListType(atree.atype) && isIntType(tsub))
+        return < c, subscriptNode(atree,tsub)[atype=getListElementType(atree.atype)][at=assn@\loc] >;
 
-    if (isNodeType(atree@atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+    if (isNodeType(atree.atype) && isIntType(tsub))
+        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
 
-    if (isTupleType(atree@atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+    if (isTupleType(atree.atype) && isIntType(tsub))
+        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
 
-    if (isMapType(atree@atype)) {
+    if (isMapType(atree.atype)) {
         if (avar:variableNode(vname) := atree) {
-            if (!equivalent(getMapDomainType(atree@atype), tsub)) {
+            if (!equivalent(getMapDomainType(atree.atype), tsub)) {
                 if (top) {
                     if (c.store[c.fcvEnv[vname]].inferred) {
                         Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
                         c.store[c.fcvEnv[vname]].rtype = newMapType;
-                        atree@atype=newMapType;
+                        atree.atype=newMapType;
                     }
                 }
             }
         }
-		if (!comparable(getMapDomainType(atree@atype), tsub)) {
-			atree@atype = makeFailType("Cannot subscript map of type <prettyPrintType(atree@atype)> using subscript of type <prettyPrintType(tsub)>", assn@\loc);
+		if (!comparable(getMapDomainType(atree.atype), tsub)) {
+			atree.atype = makeFailType("Cannot subscript map of type <prettyPrintType(atree.atype)> using subscript of type <prettyPrintType(tsub)>", assn@\loc);
 		}
-        return < c, subscriptNode(atree,tsub)[@atype=(isMapType(atree@atype))?getMapRangeType(atree@atype):atree@atype][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=(isMapType(atree.atype))?getMapRangeType(atree.atype):atree.atype][at=assn@\loc] >;
     }
 
-    if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0]))
-        return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
+    if (isRelType(atree.atype) && size(getRelFields(atree.atype)) == 2 && subtype(tsub,getRelFields(atree.atype)[0]))
+        return < c, subscriptNode(atree,tsub)[atype=getRelFields(atree.atype)[1]][at=assn@\loc] >;
 
-    return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+    return < c, subscriptNode(atree,tsub)[atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree.atype)>",assn@\loc)][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Slice (DONE)}
@@ -5142,27 +5143,27 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     if ((OptionalExpression)`<Expression eLast>` := optLast)
     	< c, tLast > = checkExp(eLast, c);
     
-    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tLast))
-        return < c, sliceNode(atree,tFirst,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tLast})][@at=assn@\loc] >;
+    if (isFailType(atree.atype) || isFailType(tFirst) || isFailType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[atype=collapseFailTypes({atree.atype,tFirst,tLast})][at=assn@\loc] >;
 
-    if (!concreteType(atree@atype)) {
+    if (!concreteType(atree.atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
-        return < c, sliceNode(atree,tFirst,tLast)[@atype=failtype][@at=assn@\loc] >;
+        return < c, sliceNode(atree,tFirst,tLast)[atype=failtype][at=assn@\loc] >;
     }
 
-    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
-        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isListType(atree.atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[atype=atree.atype][at=assn@\loc] >;
 
-    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
-        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isNodeType(atree.atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[atype=atree.atype][at=assn@\loc] >;
 
-    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
-        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isStrType(atree.atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[atype=atree.atype][at=assn@\loc] >;
 
 	if (!isIntType(tFirst) || !isIntType(tLast))
-		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		return < c, sliceNode(atree,tFirst,tLast)[atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tLast)>",assn@\loc)][at=assn@\loc] >;
 		
-    return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+    return < c, sliceNode(atree,tFirst,tLast)[atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree.atype)>",assn@\loc)][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Slice Step (DONE)}
@@ -5179,27 +5180,27 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     if ((OptionalExpression)`<Expression eLast>` := optLast)
     	< c, tLast > = checkExp(eLast, c);
     
-    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tSecond) || isFailType(tLast))
-        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tSecond,tLast})][@at=assn@\loc] >;
+    if (isFailType(atree.atype) || isFailType(tFirst) || isFailType(tSecond) || isFailType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=collapseFailTypes({atree.atype,tFirst,tSecond,tLast})][at=assn@\loc] >;
 
-    if (!concreteType(atree@atype)) {
+    if (!concreteType(atree.atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
-        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=failtype][@at=assn@\loc] >;
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=failtype][at=assn@\loc] >;
     }
 
-    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
-        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isListType(atree.atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=atree.atype][at=assn@\loc] >;
 
-    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
-        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isNodeType(atree.atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=atree.atype][at=assn@\loc] >;
 
-    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
-        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+    if (isStrType(atree.atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=atree.atype][at=assn@\loc] >;
 
 	if (!isIntType(tFirst) || !isIntType(tSecond) || !isIntType(tLast))
-		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tSecond)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		return < c, sliceNode(atree,tFirst,tLast)[atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tSecond)>, <prettyPrintType(tLast)>",assn@\loc)][at=assn@\loc] >;
 		
-    return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+    return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree.atype)>",assn@\loc)][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
@@ -5207,31 +5208,31 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     < c, atree > = buildAssignableTree(ar, false, c);
     fldName = convertName(fld);
     
-    if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
+    if (!isFailType(atree.atype) && !concreteType(atree.atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before assigning to a field", assn@\loc);
-        return < c, fieldAccessNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
+        return < c, fieldAccessNode(atree, fldName)[atype=failtype][at=assn@\loc] >;
     }
     
-    if (!isFailType(atree@atype)) {
-        tfield = computeFieldType(atree@atype, fldName, assn@\loc, c);
+    if (!isFailType(atree.atype)) {
+        tfield = computeFieldType(atree.atype, fldName, assn@\loc, c);
     
         if (!isFailType(tfield)) {
-            if ((isLocType(atree@atype) || isDateTimeType(atree@atype)) && "<fld>" notin writableFields[atree@atype]) {
-                tfield = makeFailType("Cannot update field <fld> on type <prettyPrintType(atree@atype)>",assn@\loc);
+            if ((isLocType(atree.atype) || isDateTimeType(atree.atype)) && "<fld>" notin writableFields[atree.atype]) {
+                tfield = makeFailType("Cannot update field <fld> on type <prettyPrintType(atree.atype)>",assn@\loc);
             }
         } 
         
-        return < c, fieldAccessNode(atree, fldName)[@atype=tfield][@at=assn@\loc] >;
+        return < c, fieldAccessNode(atree, fldName)[atype=tfield][at=assn@\loc] >;
     }
     
-    return < c, fieldAccessNode(atree,fldName)[@atype=atree@atype][@at=assn@\loc] >;
+    return < c, fieldAccessNode(atree,fldName)[atype=atree.atype][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: IfDefinedOrDefault (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> ? <Expression dflt>`, bool top, Configuration c) {
     < c, atree > = buildAssignableTree(ar, top, c);
     < c, tdef > = checkExp(dflt, c);
-    return < c, ifDefinedOrDefaultNode(atree,tdef)[@atype=lub(atree@atype,tdef)][@at=assn@\loc] >;
+    return < c, ifDefinedOrDefaultNode(atree,tdef)[atype=lub(atree.atype,tdef)][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Constructor (DONE)}
@@ -5248,12 +5249,12 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`\< <{Assignable
         trees = trees + atree;
     }
     
-    failures = { t@atype | t <- trees, isFailType(t@atype) };
+    failures = { t.atype | t <- trees, isFailType(t.atype) };
     
     if (size(failures) > 0)
-        return < c, tupleNodeAT(trees)[@atype=collapseFailTypes(failures)][@at=assn@\loc] >;
+        return < c, tupleNodeAT(trees)[atype=collapseFailTypes(failures)][at=assn@\loc] >;
     else
-        return < c, tupleNodeAT(trees)[@atype=\tuple([t@atype|t<-trees])][@at=assn@\loc] >;
+        return < c, tupleNodeAT(trees)[atype=\tuple([t.atype|t<-trees])][at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Annotation (DONE)}
@@ -5265,13 +5266,13 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 
     // Then, check the assignment type of the receiver -- for us to proceed, it cannot be fail and
     // it has to be concrete, since we need to know the type before we can look up the annotation.
-    if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
+    if (!isFailType(atree.atype) && !concreteType(atree.atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before assigning to an annotation", assn@\loc);
-        return < c, annotationNode(atree,aname)[@atype=failtype][@at=assn@\loc] >;
+        return < c, annotationNode(atree,aname)[atype=failtype][at=assn@\loc] >;
     }
     
     // Now, check the assignment type to make sure it is a type that can carry an annotation.
-    if (isNodeType(atree@atype) || isADTType(atree@atype) || isNonTerminalType(atree@atype)) {
+    if (isNodeType(atree.atype) || isADTType(atree.atype) || isNonTerminalType(atree.atype)) {
         // Check to make sure that the annotation is actually declared on the receiver type. We do this
         // by grabbing back all the types on which this annotation is defined and making sure that
         // the current type is a subtype of one of these.
@@ -5284,22 +5285,22 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
 		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
 		        	failType = makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", assn@\loc);
-		        	return < c, annotationNode(atree,aname)[@atype=failType][@at=assn@\loc] >;
+		        	return < c, annotationNode(atree,aname)[atype=failType][at=assn@\loc] >;
 		        }
 	        }
 		     
-		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(atree@atype,c.store[annId].onType) };
+		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(atree.atype,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
 	            aType = getOneFrom(aTypes);
-	            return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
+	            return < c, annotationNode(atree,aname)[atype=aType][at=assn@\loc] >;
 	        }
         } else {
-            rt = makeFailType("Annotation <an> not declared on <prettyPrintType(atree@atype)> or its supertypes",assn@\loc);
-            return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
+            rt = makeFailType("Annotation <an> not declared on <prettyPrintType(atree.atype)> or its supertypes",assn@\loc);
+            return < c, annotationNode(atree,aname)[atype=rt][at=assn@\loc] >;
         }
     } else {
-        rt = makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(atree@atype)>", assn@\loc);
-        return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
+        rt = makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(atree.atype)>", assn@\loc);
+        return < c, annotationNode(atree,aname)[atype=rt][at=assn@\loc] >;
     }
 }
 
@@ -5307,7 +5308,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // Now, using the subject type, try to bind it to the assignable tree
     try {
@@ -5316,12 +5317,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5329,15 +5330,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
     
     // Check to ensure the division is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeDivisionType(atree@atype, st, l);
+    rt = computeDivisionType(atree.atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the resulting type, try to bind it to the assignable tree
@@ -5347,12 +5348,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5360,15 +5361,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
     
     // Check to ensure the product is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeProductType(atree@atype, st, l);
+    rt = computeProductType(atree.atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the result type, try to bind it to the assignable tree
@@ -5378,12 +5379,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5391,15 +5392,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
     
     // Check to ensure the intersection is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    < c, rt > = computeIntersectionType(c, atree@atype, st, l);
+    < c, rt > = computeIntersectionType(c, atree.atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the subject type, try to bind it to the assignable tree
@@ -5409,12 +5410,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5422,15 +5423,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
     
     // Check to ensure the subtraction is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    < c, rt > = computeSubtractionType(c, atree@atype, st, l);
+    < c, rt > = computeSubtractionType(c, atree.atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the result type, try to bind it to the assignable tree
@@ -5440,12 +5441,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5453,7 +5454,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // Now, using the subject type, try to bind it to the assignable tree
     try {
@@ -5462,12 +5463,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
         return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5475,15 +5476,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
     
     // Check to ensure the addition is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeAdditionType(atree@atype, st, l);
+    rt = computeAdditionType(atree.atype, st, l);
     if (isFailType(rt)) return markLocationType(c, l, rt);
 
     // Now, using the result type, try to bind it to the assignable tree
@@ -5493,12 +5494,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
         return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, l, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, l, atree.otype);
     }
 }
 
@@ -5513,15 +5514,15 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignab
 	// TODO: This isn't implemented yet, so we need to verify this is actually the correct type.
     cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
-    if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
+    if (isFailType(atree.atype)) return markLocationFailed(cbak, a@\loc, atree.atype);
 
     // If the assignment point is not concrete, we cannot do the assignment -- 
     // the subject type cannot influence the type here.
-    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a \<\< operation", a@\loc));
+    if (!concreteType(atree.atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a \<\< operation", a@\loc));
     
     // Check to ensure the append is valid. If so, the resulting type is the overall
     // type of the assignable, else it is the failure type generated by the operation.
-    rt = computeAppendType(atree@atype, st, a@\loc);
+    rt = computeAppendType(atree.atype, st, a@\loc);
     if (isFailType(rt)) return markLocationType(c, a@\loc, rt);
 
     // Now, using the result type, try to bind it to the assignable tree
@@ -5531,12 +5532,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignab
         return markLocationFailed(cbak, a@\loc, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", a@\loc));
     }
 
-    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    unresolved = { ati | /AssignableTree ati := atree, !((ati.otype)?) || !concreteType(ati.otype) };
     if (size(unresolved) > 0)
         return markLocationFailed(cbak, a@\loc, makeFailType("Type of assignable could not be computed", a@\loc));
     else {
-        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
-        return markLocationType(c, a@\loc, atree@otype);
+        c.locationTypes = c.locationTypes + ( atnode.at : atnode.atype | /AssignableTree atnode := atree, (atnode.atype)? );
+        return markLocationType(c, a@\loc, atree.otype);
     }
 }
 
@@ -5545,7 +5546,7 @@ public ATResult bindAssignable(AssignableTree atree:bracketNode(AssignableTree c
     // Since bracketing does not impact anything, binding just passes the type
     // information through to the bracketed assignable node.
     < c, newChild > = bindAssignable(child, st, c);
-    return < c, atree[@otype=newChild@otype][@atype=newChild@atype] >;
+    return < c, atree[otype=newChild.otype][atype=newChild.atype] >;
 }
 
 @doc{Bind variable types to variables in assignables: Variable}
@@ -5562,14 +5563,14 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
     // an ADT type (with fields) to a node type (without fields).
     
     if (RSimpleName("_") == name) {
-        varId = getOneFrom(atree@defs);
+        varId = getOneFrom(atree.defs);
         Symbol currentType = c.store[varId].rtype;
         if (isInferredType(currentType)) {
             c.store[varId].rtype = st;
         } else {
             c.store[varId].rtype = lub(currentType, st);
         }
-        return < c, atree[@otype=c.store[varId].rtype][@atype=c.store[varId].rtype] >;
+        return < c, atree[otype=c.store[varId].rtype][atype=c.store[varId].rtype] >;
     } else {
         Symbol currentType = c.store[c.fcvEnv[name]].rtype;
         if (c.store[c.fcvEnv[name]].inferred) {
@@ -5581,36 +5582,36 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
         } else if (!subtype(st, currentType)) {
             throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(currentType)>";
         }
-        return < c, atree[@otype=c.store[c.fcvEnv[name]].rtype][@atype=c.store[c.fcvEnv[name]].rtype] >;
+        return < c, atree[otype=c.store[c.fcvEnv[name]].rtype][atype=c.store[c.fcvEnv[name]].rtype] >;
     }
 }
 
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
     
-    if (isListType(receiver@atype)) { 
-        < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
-    } else if (isNodeType(receiver@atype)) {
+    if (isListType(receiver.atype)) { 
+        < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver.atype))), c);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=getListElementType(receiver.atype)] >;
+    } else if (isNodeType(receiver.atype)) {
         < c, receiver > = bindAssignable(receiver, Symbol::\node(), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=Symbol::\value()] >;
-    } else if (isTupleType(receiver@atype)) {
-        tupleFields = getTupleFields(receiver@atype);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=Symbol::\value()] >;
+    } else if (isTupleType(receiver.atype)) {
+        tupleFields = getTupleFields(receiver.atype);
         // This type is as exact as we can get. Assuming the subscript is
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
         < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=Symbol::\value()] >;
-    } else if (isMapType(receiver@atype)) {
-        < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver@atype), lub(st,getMapRangeType(receiver@atype))), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getMapRangeType(receiver@atype)] >;
-    } else if (isRelType(receiver@atype)) {
-        relFields = getRelFields(receiver@atype);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=Symbol::\value()] >;
+    } else if (isMapType(receiver.atype)) {
+        < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver.atype), lub(st,getMapRangeType(receiver.atype))), c);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=getMapRangeType(receiver.atype)] >;
+    } else if (isRelType(receiver.atype)) {
+        relFields = getRelFields(receiver.atype);
         < c, receiver > = bindAssignable(receiver, \rel([relFields[0],lub(relFields[1],st)]), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getRelFields(receiver@atype)[1]] >;
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=getRelFields(receiver.atype)[1]] >;
     } else {
-    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver.atype)>";
     }
 }
 
@@ -5621,33 +5622,33 @@ public default ATResult bindAssignable(AssignableTree atree, Symbol st, Configur
 
 @doc{Bind variable types to variables in assignables: Slice}
 public ATResult bindAssignable(AssignableTree atree:sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType), Symbol st, Configuration c) {    
-    if (isListType(receiver@atype) && isListType(st)) {
-        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
-    } else if (isNodeType(receiver@atype) && isListType(st)) {
+    if (isListType(receiver.atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver.atype), c);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=receiver.atype] >;
+    } else if (isNodeType(receiver.atype) && isListType(st)) {
         < c, receiver > = bindAssignable(receiver, Symbol::\node(), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=Symbol::\node()] >;
-    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=Symbol::\node()] >;
+    } else if (isStrType(receiver.atype) && isStrType(st)) {
         < c, receiver > = bindAssignable(receiver, \str(), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=\str()] >;
     } else {
-    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver.atype)>";
     }
 }
 
 @doc{Bind variable types to variables in assignables: Slice Step}
 public ATResult bindAssignable(AssignableTree atree:sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType), Symbol st, Configuration c) {    
-    if (isListType(receiver@atype) && isListType(st)) {
-        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
-    } else if (isNodeType(receiver@atype) && isListType(st)) {
+    if (isListType(receiver.atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver.atype), c);
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=receiver.atype] >;
+    } else if (isNodeType(receiver.atype) && isListType(st)) {
         < c, receiver > = bindAssignable(receiver, Symbol::\node(), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=Symbol::\node()] >;
-    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=Symbol::\node()] >;
+    } else if (isStrType(receiver.atype) && isStrType(st)) {
         < c, receiver > = bindAssignable(receiver, \str(), c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+        return < c, atree[receiver=receiver][otype=receiver.otype][atype=\str()] >;
     } else {
-    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver.atype)>";
     }
 }
 
@@ -5660,11 +5661,11 @@ public ATResult bindAssignable(AssignableTree atree:fieldAccessNode(AssignableTr
     // the current receiver type. We do, however, need to make sure the value being
     // assigned is of the correct type.
     
-    if (subtype(st, atree@atype)) {
-        < c, receiver > = bindAssignable(receiver, receiver@atype, c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype] >;
+    if (subtype(st, atree.atype)) {
+        < c, receiver > = bindAssignable(receiver, receiver.atype, c);
+        return < c, atree[receiver=receiver][otype=receiver.otype] >;
     } else {
-        throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree@atype)>";
+        throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree.atype)>";
     }
 }
 
@@ -5675,7 +5676,7 @@ public ATResult bindAssignable(AssignableTree atree:ifDefinedOrDefaultNode(Assig
     // correct, using the logic behind the proper receiver (subscript, etc).
     
     < c, receiver > = bindAssignable(receiver, st, c);
-    return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    return < c, atree[receiver=receiver][otype=receiver.otype][atype=receiver.atype] >;
 }
 
 @doc{Check the type of Rascal assignables: Constructor}
@@ -5697,7 +5698,7 @@ public ATResult bindAssignable(AssignableTree atree:tupleNodeAT(list[AssignableT
                 < c, newTree > = bindAssignable(children[idx], tflds[idx], c);
                 newChildren = newChildren + newTree;
             }
-            return < c, atree[children = newChildren][@otype=\tuple([child@otype|child <- newChildren])][@atype=\tuple([child@atype|child <- newChildren])] >; 
+            return < c, atree[children = newChildren][otype=\tuple([child.otype|child <- newChildren])][atype=\tuple([child.atype|child <- newChildren])] >; 
         } else {
             throw "Cannot bind tuple assignable with arity <size(children)> to value of tuple type <prettyPrintType(st)> with arity <size(tflds)>";
         }
@@ -5714,11 +5715,11 @@ public ATResult bindAssignable(AssignableTree atree:annotationNode(AssignableTre
     // need to push back anything other than the current receiver type. We do, 
     // however, need to make sure the value being assigned is of the correct type.
     
-    if (subtype(st, atree@atype)) {
-        < c, receiver > = bindAssignable(receiver, receiver@atype, c);
-        return < c, atree[receiver=receiver][@otype=receiver@otype] >;
+    if (subtype(st, atree.atype)) {
+        < c, receiver > = bindAssignable(receiver, receiver.atype, c);
+        return < c, atree[receiver=receiver][otype=receiver.otype] >;
     } else {
-        throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree@atype)>";
+        throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree.atype)>";
     }
 }
 
@@ -8107,8 +8108,8 @@ public CheckResult convertAndExpandSymbol(Sym t, Configuration c) {
 
 public CheckResult convertAndExpandType(Type t, Configuration c) {
     rt = convertType(t);
-    if ( (rt@errinfo)? && size(rt@errinfo) > 0) {
-        for (m <- rt@errinfo) {
+    if ( (rt.errinfo)? && size(rt.errinfo) > 0) {
+        for (m <- rt.errinfo) {
             c = addScopeMessage(c,m);
         }
     }
@@ -8122,22 +8123,22 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
-            c.usedIn[utc@at] = head(c.stack);
+            c.uses = c.uses + <c.fcvEnv[rn], utc.at>;
+            c.usedIn[utc.at] = head(c.stack);
             return <c, rt>;   
         }
     } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
-            c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
-            c.usedIn[utc@at] = head(c.stack);
+            c.uses = c.uses + <c.fcvEnv[rn], utc.at>;
+            c.usedIn[utc.at] = head(c.stack);
             return <c, rt>;   
         }
 	}
     
-    if ( (rt@errinfo)? && size(rt@errinfo) > 0 ) {
-        for (m <- rt@errinfo) {
+    if ( (rt.errinfo)? && size(rt.errinfo) > 0 ) {
+        for (m <- rt.errinfo) {
             c = addScopeMessage(c,m);
         }
     }
@@ -8146,8 +8147,8 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
 
 public CheckResult convertAndExpandTypeArg(TypeArg t, Configuration c) {
     rt = convertTypeArg(t);
-    if ( (rt@errinfo)? && size(rt@errinfo) > 0) {
-        for (m <- rt@errinfo) {
+    if ( (rt.errinfo)? && size(rt.errinfo) > 0) {
+        for (m <- rt.errinfo) {
             c = addScopeMessage(c,m);
         }
     }
@@ -8156,8 +8157,8 @@ public CheckResult convertAndExpandTypeArg(TypeArg t, Configuration c) {
 
 public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
     rt = convertUserType(t);
-    if ( (rt@errinfo)? && size(rt@errinfo) > 0) {
-        for (m <- rt@errinfo) {
+    if ( (rt.errinfo)? && size(rt.errinfo) > 0) {
+        for (m <- rt.errinfo) {
             c = addScopeMessage(c,m);
         }
     }
@@ -8185,9 +8186,9 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 		case utc:\user(rn,pl) : {
 			if (rn in c.typeEnv) {
 				ut = c.store[c.typeEnv[rn]].rtype;
-				if ((utc@at)?) {
-					c.uses = c.uses + < c.typeEnv[rn], utc@at >;
-					c.usedIn[utc@at] = head(c.stack);
+				if ((utc.at)?) {
+					c.uses = c.uses + < c.typeEnv[rn], utc.at >;
+					c.usedIn[utc.at] = head(c.stack);
 				} 
 				if (isAliasType(ut)) {
 					atps = getAliasTypeParameters(ut);
@@ -8401,7 +8402,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
     	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = Symbol::\value();
@@ -8427,7 +8428,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
         <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = Symbol::\value();
@@ -8913,14 +8914,18 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
     return c;
 }
 
-public anno map[loc,str] Tree@docStrings;
-public anno map[loc,set[loc]] Tree@docLinks;
+ 
+data Tree(map[loc,str] docStrings = ());
+ 
+data Tree(map[loc,set[loc]] docLinks = ());
 
 public anno map[loc,str] start[Module]@docStrings;
 public anno map[loc,set[loc]] start[Module]@docLinks;
 
-public anno map[loc,str] Module@docStrings;
-public anno map[loc,set[loc]] Module@docLinks;
+ 
+data Module(map[loc,str] docStrings = ());
+ 
+data Module(map[loc,set[loc]] docLinks = ());
 
 
 public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
@@ -8967,9 +8972,7 @@ public Module check(Module m) {
     }
     c = pushTiming(c,"Annotating", dt1, now());
     for (t <- c.timings) println("<t.tmsg>:<createDuration(t.tstart,t.tend)>");
-    return m[@messages = c.messages]
-            [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
-            [@docLinks = docLinks];
+    return m[messages=c.messages][docStrings=( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)][docLinks=docLinks];
 }
 
 public default Module check(Tree t) {
@@ -8982,8 +8985,8 @@ public default Module check(Tree t) {
 public default start[Module] check(loc l) {
   m = parse(#start[Module], l);
   m.top = check(m.top);
-  m@docLinks = m.top@docLinks;
-  m@docStrings = m.top@docStrings;
+  m.docLinks = m.top.docLinks;
+  m.docStrings = m.top.docStrings;
   return m;
 } 
 

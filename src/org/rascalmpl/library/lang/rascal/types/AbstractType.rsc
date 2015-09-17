@@ -230,8 +230,8 @@ public Symbol makeAliasType(str n, Symbol t) = Symbol::\alias(n,[],t);
 @doc{Create a new parameterized alias type with the given name, aliased type, and parameters.}
 public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = Symbol::\alias(n,params,t);
 
-@doc{Marks if a function is a var-args function.}
-public anno bool Symbol@isVarArgs;
+@doc{Marks if a function is a var-args function.} 
+data Symbol(bool isVarArgs = bool () { throw "no default value"; }());
 
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
@@ -240,7 +240,7 @@ public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes
 		//if (isVarArgs) { 
 		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
 		//} else {
-			return Symbol::\func(retType, paramTypes)[@isVarArgs=isVarArgs];
+			return Symbol::\func(retType, paramTypes)[isVarArgs=isVarArgs];
 		//}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
