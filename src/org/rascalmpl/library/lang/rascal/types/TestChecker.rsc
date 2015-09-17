@@ -36,6 +36,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		";
     moduleLoc = |test-modules:///CheckStatementsString.rsc|;
     writeFile(moduleLoc, moduleToCheck);
+    println("<moduleLoc>: <lastModified(moduleLoc)>");
 	c = newConfiguration();
 	try {
 		pt = parseModuleWithSpaces(moduleLoc);
