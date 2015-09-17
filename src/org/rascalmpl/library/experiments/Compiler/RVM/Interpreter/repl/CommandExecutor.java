@@ -158,10 +158,11 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		//stdout.println(modString);
+		stdout.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-
+			stdout.println("ConsoleInput.rsc: " + prelude.lastModified(consoleInputLocation));
+			stdout.flush();
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileFunId, compileArgs, makeCompileKwParams());
 			
 			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, useJVM);
