@@ -23,10 +23,10 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Symbols;
 
 @doc{Annotations for adding error and warning information to types}
-anno set[Message] Symbol@errinfo;
+data Symbol(set[Message] errinfo={});
 
 @doc{Mark the location of the type in the source file}
-anno loc Symbol@at;
+data Symbol(loc at = |unknown:///|);
 
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
 public Symbol convertBasicType(BasicType t) {
@@ -219,12 +219,12 @@ public Symbol convertFunctionType(FunctionType ft) {
 @doc{Convert Rascal user types into their abstract representation.}
 public Symbol convertUserType(UserType ut) {
     switch(ut) {
-        case (UserType) `<QualifiedName n>` : return \user(convertName(n),[])[@at=ut@\loc];
-        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return \user(convertName(n),[convertType(ti) | ti <- ts])[@at=ut@\loc];
+        case (UserType) `<QualifiedName n>` : return \user(convertName(n),[], at=ut@\loc);
+        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return \user(convertName(n),[convertType(ti) | ti <- ts],at=ut@\loc);
     }
 }
 
-public Symbol convertSymbol(Sym sym) = sym2symbol(sym)[@at=sym@\loc];  
+public Symbol convertSymbol(Sym sym) = sym2symbol(sym,at=sym@\loc);  
 
 @doc{Get the raw Name component from a user type.}
 public Name getUserTypeRawName(UserType ut) {

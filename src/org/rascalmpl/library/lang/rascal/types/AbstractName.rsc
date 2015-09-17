@@ -15,13 +15,10 @@ import ParseTree;
 import lang::rascal::\syntax::Rascal;
 
 @doc{Abstract syntax for names.} 
-data RName =
-	  RSimpleName(str name)
+data RName(loc at = |unknown:///|)
+	= RSimpleName(str name)
 	| RCompoundName(list[str] nameParts)     
 	;
-
-@doc{Annotate abstract names with locations.}
-anno loc RName@at;
 
 @doc{Convert RName to a simple name}
 public str getSimpleName(RSimpleName(str name)) = name;
@@ -32,9 +29,9 @@ public RName convertName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
 		nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
 		if (size(nameParts) > 1) {
-			return RCompoundName(nameParts)[@at = qn@\loc];
+			return RCompoundName(nameParts, at = qn@\loc);
 		} else {
-			return RSimpleName(head(nameParts))[@at = qn@\loc];
+			return RSimpleName(head(nameParts), at = qn@\loc);
 		} 
 	}
 	throw "Unexpected syntax for qualified name: <qn>";
@@ -43,9 +40,9 @@ public RName convertName(QualifiedName qn) {
 @doc{Convert names into an abstract representation.}
 public RName convertName(Name n) {
 	if (startsWith("<n>","\\"))
-		return RSimpleName(substring("<n>",1))[@at = n@\loc];
+		return RSimpleName(substring("<n>",1), at = n@\loc);
 	else
-		return RSimpleName("<n>");
+		return RSimpleName("<n>", at=n@\loc);
 }
 
 @doc{Get the last part of a qualified name.}

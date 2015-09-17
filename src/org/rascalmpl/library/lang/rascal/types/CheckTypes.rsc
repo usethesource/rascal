@@ -2894,7 +2894,7 @@ data PatternTree
     ;
     
 @doc{Mark pattern trees with the source location of the pattern}
-public anno loc PatternTree@at;
+data PatternTree(loc at = |unknown:///|);
 
 @doc{A shorthand for the results to expect from binding -- an updated configuration and an updated pattern tree.}
 public alias BindResult = tuple[Configuration,PatternTree];
@@ -3053,31 +3053,31 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <
 }
 
 @doc{Allows PatternTree nodes to be annotated with types.}
-public anno Symbol PatternTree@rtype;
+data PatternTree(Symbol rtype = \void());
 
 @doc{Allows PatternTree nodes to keep track of which ids they define.}
-public anno set[int] PatternTree@defs;
+data PatternTree(set[int] defs = {});
 
 @doc{Is this node in head position in a call or tree node?}
-public anno bool PatternTree@headPosition;
+data PatternTree(bool headPosition = false);
 
 @doc{Do we have possible constructors here that do not match arity?}
-public anno set[Symbol] PatternTree@arityMismatches;
+data PatternTree(set[Symbol] arityMismatches = {});
 
 @doc{Do we have too many matching constructors here?}
-public anno set[Symbol] PatternTree@tooManyMatches;
+data PatternTree(set[Symbol] tooManyMatches = {});
 
 @doc{A hint of the possible type passed down from above.}
-public anno Symbol PatternTree@typeHint;
+data PatternTree(Symbol typeHint = \value());
 
 @doc{A hint of the possible type passed down from above.}
-public anno Symbol Tree@typeHint;
+data Tree(Symbol typeHint = \value());
 
 @doc{A hint of the possible type passed down from above.}
-public anno Symbol Expression@typeHint;
+data Symbol(Symbol typeHint = \value());
 
 @doc{A hint of the possible type passed down from above.}
-public anno Symbol Statement@typeHint;
+data Statement(Symbol typeHint = \value());
 
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 

@@ -18,11 +18,8 @@ extend ParseTree;
 import lang::rascal::types::AbstractName;
 import lang::rascal::\syntax::Rascal;
 
-@doc{Annotation for parameterized types indicating whether the bound was explicitly given.}
-public anno bool Symbol@boundGiven;
-
 @doc{Extension to add new types used internally during name resolution and checking.}
-public data Symbol =
+public data Symbol(bool boundGiven=false) =
 	  \user(RName rname, list[Symbol] parameters)
 	| failure(set[Message] messages)
 	| \inferred(int uniqueId)
@@ -34,10 +31,10 @@ public data Symbol =
 public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
 
 @doc{Annotations to hold the type assigned to a tree.}
-public anno Symbol Tree@rtype;
+data Tree(Symbol rtype = \void());
 
 @doc{Annotations to hold the location at which a type is declared.}
-public anno loc Symbol@at; 
+data Symnol(loc at = |unknown:///|);
 
 @doc{Pretty printer for Rascal abstract types.}
 public str prettyPrintType(Symbol::\int()) = "int";
@@ -258,10 +255,10 @@ public Symbol makeFunctionTypeFromTuple(Symbol retType, bool isVarArgs, Symbol p
 public Symbol makeReifiedType(Symbol mainType) = Symbol::\reified(mainType);
 
 @doc{Create a type representing a type parameter (type variable).}
-public Symbol makeTypeVar(str varName) = Symbol::\parameter(varName, Symbol::\value())[@boundGiven=false];
+public Symbol makeTypeVar(str varName) = Symbol::\parameter(varName, Symbol::\value());
 
 @doc{Create a type representing a type parameter (type variable) and bound.}
-public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = Symbol::\parameter(varName, varBound)[@boundGiven=true];
+public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = Symbol::\parameter(varName, varBound,boundGiven=true);
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
 public Symbol unwrapType(Symbol::\alias(_,_,at)) = unwrapType(at);

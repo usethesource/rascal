@@ -1397,7 +1397,7 @@ public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessa
 alias CheckResult = tuple[Configuration conf, Symbol res];
 
 @doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.}
-public anno set[loc] Symbol@definedAt;
+data Symbol(set[loc] definedAt = {});
 
 @doc{Strip the label off a symbol, if it has one at the top.}
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
