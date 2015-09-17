@@ -94,6 +94,10 @@ loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool 
 	if(compressed){
 		bindir.scheme = "compressed+" + bindir.scheme;
 	}
+	if(src.scheme == "test-modules"){
+	   bindir.scheme = "test-modules";
+	   return (bindir + src.path)[extension=extension];
+	}
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){
 		//println("phys = <phys>, src.path = <src.path>");
