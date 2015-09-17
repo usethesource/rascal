@@ -178,6 +178,43 @@ public final class StringUtils {
 		}
 		return -1;
 	}
+
+	private static boolean validRascalLocation(char c) {
+		return ('\t' < c || c > '\n') 
+		    && (c != '\r')
+		    && (c != ' ')
+		    && (c != '<')
+		    && (c != '>')
+		    ;
+	}
+
+    public static int findRascalLocationStart(String line, int cursor) {
+        for (int pos = Math.min(cursor, line.length() - 1); pos >= 0; pos--) {
+            char c = line.charAt(pos);
+            if (c == '|') {
+                return pos;
+            }
+            else if (!validRascalLocation(c)) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+
+    public static int findRascalLocationEnd(String line, int locationStart) {
+        assert line.charAt(locationStart) == '|';
+        for (int pos = locationStart + 1; pos < line.length(); pos++) {
+            char c = line.charAt(pos);
+            if (c == '|') {
+                return pos - 1;
+            }
+            if (!validRascalLocation(c)) {
+                return pos;
+            }
+        }
+        return line.length() - 1;
+    }
 	
 	
 }

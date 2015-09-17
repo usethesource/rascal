@@ -22,8 +22,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
@@ -131,14 +129,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected CompletionResult completeFragment(String line, int cursor) {
-    OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
-    if (identifier != null) {
-      Collection<String> suggestions = eval.completePartialIdentifier(identifier.term);
-      if (suggestions != null && ! suggestions.isEmpty()) {
-        return new CompletionResult(identifier.offset, identifier.length, suggestions);
-      }
-    }
-    return null;
+  protected Collection<String> completePartialIdentifier(String term) {
+      return eval.completePartialIdentifier(term);
   }
 }
