@@ -47,6 +47,8 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 		case str s => "a" + s
 			when /^[ \t\n]*\<[ \t\<\>]*\>[ \t\n]*$/ := s
 		case str s => "a" + s
+			when /^[ \t\n]*\<([ \t]|[^\>,])*\>[ \t\n]*$/ := s
+		case str s => "a" + s
 			when /^[ \t\n]*[{(\[][ \t\n]*[)}\]][ \t\n]*$/ := s
 	};
 }
