@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,20 +27,30 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 
 /**
- * The scheme "test-modules" is used, amongst others, to generate modules during tests.
+ * This resolver is used for example for the scheme "test-modules", which amongst others 
+ * generates modules during tests.
  * These modules are implemented via an in-memory "file system" that guarantees
  * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
  * is ALWAYS larger than for the previous version of the same file.
  * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
  * unfortunately, not guaranteed on all operating systems.
+ * 
+ * So if you are writing temporary files very frequently and use lastModified to mark the fields 
+ * as dirty, use an instance of this of this resolver to guarantee the dirty marking.
  *
  */
 
-public class TestModuleResolver implements ISourceLocationInputOutput {
+public class InMemoryResolver implements ISourceLocationInputOutput {
 	
-	@Override
+    private final String scheme;
+
+	public InMemoryResolver(String scheme) {
+        this.scheme = scheme;
+    }
+
+    @Override
 	public String scheme() {
-		return "test-modules";
+		return scheme;
 	}
 	
 	private static final class File {
@@ -58,15 +69,10 @@ public class TestModuleResolver implements ISourceLocationInputOutput {
 			contents = byteArray;
 		}
 		public String toString(){
-			StringBuffer buf = new StringBuffer();
-			buf.append(String.valueOf(timestamp));
-			buf.append(":\n");
-			for(byte bt : contents){
-				buf.append(String.valueOf((char) bt));
-			}
-			return buf.toString();
+		    return String.valueOf(timestamp) + ":\n" +new String(contents, StandardCharsets.UTF_8);
 		}
 	}
+
 	
 	private final Map<ISourceLocation, File> files = new HashMap<>();
 
