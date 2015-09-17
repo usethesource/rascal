@@ -87,7 +87,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 		if (file == null) {
 			throw new IOException();
 		}
-		System.err.println("getInputStream: " + uri + "?" + file.toString());
+		//System.err.println("getInputStream: " + uri + "?" + file.toString());
 		return new ByteArrayInputStream(file.contents);
 	}
 
@@ -104,7 +104,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 				    fileSystem.fs.put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
-				System.err.println("getOutputStream.close " + uri + "?" + file.toString());
+				//System.err.println("getOutputStream.close " + uri + "?" + file.toString());
 			}
 		};
 	}
