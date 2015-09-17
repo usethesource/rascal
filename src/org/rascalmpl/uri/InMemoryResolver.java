@@ -37,6 +37,8 @@ import org.rascalmpl.uri.ISourceLocationInputOutput;
  * 
  * So if you are writing temporary files very frequently and use lastModified to mark the fields 
  * as dirty, use an instance of this of this resolver to guarantee the dirty marking.
+ * 
+ * The locations should not use the autority field, as that is ignored.
  *
  */
 
@@ -74,12 +76,12 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 	}
 
 	
-	private final Map<ISourceLocation, File> files = new HashMap<>();
+	private final Map<String, File> files = new HashMap<>();
 
 	@Override
 	public InputStream getInputStream(ISourceLocation uri)
 			throws IOException {
-		File file = files.get(uri);
+		File file = files.get(uri.getPath());
 		if (file == null) {
 			throw new IOException();
 		}
@@ -90,28 +92,24 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		File file = files.get(uri);
-		File result;
-		if(file == null) {
-			result = new File();
-			files.put(uri, result);
-		} else {
-			result = file;
-		}
 		return new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
 				super.close();
-				result.newContent(this.toByteArray());
-				files.put(uri, result);
-				System.err.println("getOutputStream.close " + uri + "?" + result.toString());
+				File file = files.get(uri.getPath());
+				if (file == null) {
+				    file = new File();
+				    files.put(uri.getPath(), file);
+				}
+				file.newContent(this.toByteArray());
+				System.err.println("getOutputStream.close " + uri + "?" + file.toString());
 			}
 		};
 	}
 	
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
-		File file = files.get(uri);
+		File file = files.get(uri.getPath());
 		if (file == null) {
 			throw new IOException();
 		}
@@ -125,7 +123,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean exists(ISourceLocation uri) {
-		return files.containsKey(uri);
+		return files.containsKey(uri.getPath());
 	}
 
 	@Override
@@ -135,7 +133,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean isFile(ISourceLocation uri) {
-		return files.containsKey(uri);
+		return files.containsKey(uri.getPath());
 	}
 
 	@Override
@@ -154,6 +152,6 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-		files.remove(uri);
+		files.remove(uri.getPath());
 	}
 }
