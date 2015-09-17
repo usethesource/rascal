@@ -62,9 +62,18 @@ test bool testSet3() {set[int] L = {1,2,3}; L += {4}; return  L=={1,2,3,4};}
 test bool testSet4() {set[int] L = {1,2,3}; L -= {2}; return L=={1,3};}
 test bool testSet5() {set[int] L = {1,2,3}; L ?= {4}; return L=={1,2,3};}
 
-data D = listfield(list[int] ints) | intfield(int i);
-  	
+// testRel
+
+test bool testRel1() {rel[int,str] R = {}; return R == {};}
+test bool testRelR2() {rel[int,str] R = {<1,"a">,<2,"b">,<3,"c">}; return R == {<1,"a">,<2,"b">,<3,"c">};}
+  		
+test bool testRel3() {rel[int,str] R = {<1,"a">,<2,"b">,<3,"c">}; R += {<4,"d">}; return  R == {<1,"a">,<2,"b">,<3,"c">,<4,"d">};}
+test bool testRel4() {rel[int,str] R = {<1,"a">,<2,"b">,<3,"c">}; R -= {<2,"b">}; return R == {<1,"a">,<3,"c">};}
+test bool testRel5() {rel[int,str] R = {<1,"a">,<2,"b">,<3,"c">}; R ?= {<4,"d">}; return R == {<1,"a">,<2,"b">,<3,"c">};}
+
 // testADT
+
+data D = listfield(list[int] ints) | intfield(int i);
   
 test bool testADT1() {
 		    D d = listfield([1,2]); 

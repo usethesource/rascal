@@ -1,6 +1,9 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
+
+
+
 import IO;
 import Set;
 import Map;
@@ -19,6 +22,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
+import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 
 //alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
 
@@ -78,17 +82,27 @@ public int getLoc2uid(loc l){
     if(loc2uid[l]?){
     	return loc2uid[l];
     }
-    l = normalize(l);
-    println("getLoc2uid: <l>");
-    iprintln(loc2uid);
-    assert loc2uid[l]? : "getLoc2uid <l>";
-    return loc2uid[l];
+    throw "getLoc2uid: <l>";
+ 	//l = normalize(l);
+  //  //println("getLoc2uid: <l>");
+  //  //iprintln(loc2uid);
+  //  assert loc2uid[l]? : "getLoc2uid <l>";
+  //  return loc2uid[l];
 }
 
 public loc normalize(loc l) {
+
     if(l.scheme == "std"){
-  	   return getSearchPathLocation(l.path)(l.offset, l.length, l.begin,l.end);
+      
+  	   res = getSearchPathLocation(l.path);
+  	   try {
+  	   		res = res(l.offset, l.length, l.begin,l.end);
+  	   } catch: ;
+  	   
+  	  println("**** normalize: <l> =\> <res>");
+  	   return res;
     }
+    println("**** normalize: unchanged: <l>");
     return l;
 }
 
@@ -130,6 +144,7 @@ private map[UID uid,int n] blocks = ();             // number of blocks within a
 private map[UID uid,int n] closures = ();           // number of closures within a scope
 private map[UID uid,int n] bool_scopes = ();        // number of boolean scopes within a scope
 private map[UID uid,int n] sig_scopes = ();         // number of signature scopes within a scope
+private map[loc, UID] blockScopes = ();				// map from location to blockscope.
 
 @doc{Handling nesting}
 private rel[UID,UID] declares = {};
@@ -137,8 +152,17 @@ private rel[UID,UID] containment = {};
 private rel[UID,UID] containmentPlus = {};			// containment+
 
 private map[UID,UID] declaredIn = ();				// inverse of declares
+private rel[UID,UID] declaredInPlus = {};			// declaredIn+
 private map[UID,UID] containedIn = ();				// inverse of containment
 private rel[UID,UID] containedInPlus = {};			// inverse of containment+
+
+private rel[UID, UID] containedOrDeclaredInPlus = {};
+
+private set[UID] importedModuleScopes = {};
+private map[tuple[list[UID], UID], list[UID]] accessibleFunctions = ();
+private map[UID, set[UID]] accessibleScopes = ();
+
+private map[tuple[UID,UID], bool] funInnerScopes = ();
 
 alias OFUN = tuple[str name, Symbol funType, str fuid, list[UID] alts];		// An overloaded function and all its possible resolutions
 
@@ -201,13 +225,21 @@ public void resetScopeExtraction() {
 	closures = ();
 	bool_scopes = ();
 	sig_scopes = ();
+	blockScopes = ();
 	declares = {};
 	containment = {};
 	containmentPlus = {};
 	
 	declaredIn = ();
+	declaredInPlus = {};
 	containedIn = ();
 	containedInPlus = {};
+	importedModuleScopes = {};
+	containedOrDeclaredInPlus = {};
+	accessibleFunctions = ();
+	accessibleScopes = ();
+	
+	funInnerScopes = ();
 	
 	uid2str = ();
 	uid2type = ();
@@ -254,8 +286,8 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   config = c;	
-   
+   //config = visit (c) { case loc l => normalize(l) };
+   config = c;
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
@@ -348,6 +380,7 @@ void extractScopes(Configuration c){
 			 if(inScope == 0){
 			 	outerScopes += uid;
 			 }
+			 blockScopes[src] = uid;
         }
         case booleanScope(inScope,src): { 
 		     containment += {<inScope, uid>}; 
@@ -396,15 +429,30 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ;//println("extractScopes: skipping <uid>: <item>");
+        default: ; //println("extractScopes: skipping <uid>: <item>");
       }
     }
+    
+    // Make sure that the original and the normalized location is present.
+    //for(l <- config.locationTypes){
+    //	config.locationTypes[l] = config.locationTypes[l];
+    //}
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
     containedInPlus = invert(containmentPlus);
     declaredIn = toMapUnique(invert(declares));
+    declaredInPlus = invert(declares)+;
 	containedIn = toMapUnique(invert(containment));
+	
+	//println("containment: <containment>");
+	//println("containmentPlus: <containmentPlus>");
+	//println("declares: <declares>");
+	
+	containedOrDeclaredInPlus = (invert(declares) + invert(containment))+;
+	
+	//println("containedOrDeclaredInPlus: <containedOrDeclaredInPlus>");
+	importedModuleScopes = range(config.modEnv);
     
     for(muid <- modules){
         module_name = uid2name[muid];
@@ -413,6 +461,9 @@ void extractScopes(Configuration c){
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
     	
+    	//println("topdecls:");
+    	//for(td <- topdecls){ println(td); }
+    	
  		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
  		
     	for(i <- index(topdecls)) {
@@ -420,10 +471,14 @@ void extractScopes(Configuration c){
             uid2addr[topdecls[i]] = <fuid_module_init, i + 1>;
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
+                //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
+                
             	if(config.store[os].at < config.store[topdecls[i]].at){
             		decls_inner_vars = sort([ uid | UID uid <- declares[os], variable(RName name,_,_,_,_) := config.store[uid] ]);
+            		//println("decls_inner_vars: <decls_inner_vars>");
     			    for(int j <- index(decls_inner_vars)) {
         			    uid2addr[decls_inner_vars[j]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
+        			    //println("add1: uid2ddr[<decls_inner_vars[j]> = <uid2addr[decls_inner_vars[j]]>");
         			    nmodule_var_init_locals += 1;
         		    }
             	}
@@ -446,6 +501,7 @@ void extractScopes(Configuration c){
     		
     		mvname = (variable(rname,_,_,_,_) := config.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
     		uid2addr[topdecls[i]] = <convert2fuid(muid) + mvname, -1>;
+    		//println("add2 uid2addr[<topdecls[i]>] = <uid2addr[topdecls[i]]>");
     	}
     }
 
@@ -557,16 +613,13 @@ void extractScopes(Configuration c){
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
     
+    //for(int uid <- sort(toList(domain(uid2addr)))){
+    //	println("<uid>: <uid2addr[uid]>");
+    //}
     //for(int uid <- uid2addr){
     //	if(uid in ofunctions)
     //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
-    
-   
-    
-    //// Finally, extract all declarations for the benefit of the type reifier
-    //
-    //getDeclarationInfo(config);
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
@@ -580,6 +633,7 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
      
     // Fill in uid2name
     uid2name[uid] = fuid;
+    //////loc2uid[normalize(src)] = uid;
     loc2uid[src] = uid;
     // Fill in uid2type to enable more precise overloading resolution
     uid2type[uid] = rtype;
@@ -597,8 +651,13 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
-    l = normalize(l);
-	assert config.locationTypes[l]? : "getType for <l>";
+   
+    if(config.locationTypes[l]?){
+    	return config.locationTypes[l];
+    }
+    //////l = normalize(l);
+    //iprintln(config.locationTypes);
+    assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
@@ -614,6 +673,9 @@ str getOuterType(Tree e) {
 	}
 	if(label(_, Symbol sym) := tp){
 	   return "<getName(sym)>";
+	}
+	if(\start(Symbol sym) := tp || sort(_) := tp){
+		return "nonterminal";
 	}
 	return "<getName(tp)>";
 }
@@ -737,6 +799,7 @@ str convert2fuid(UID uid) {
         	    }
         	    name = replaceAll(path, "/", "::") + "/" + name;
         	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");
+        	    //println("convert2fuid(<uid>) =\> <name>");
         	    return name;
 			}
         }
@@ -790,17 +853,19 @@ public int getTupleFieldIndex(Symbol s, str fieldName) =
     indexOf(getTupleFieldNames(s), fieldName);
 
 public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
-     l = normalize(l);
-     containmentPlus = containment+;
+     //l1 = normalize(l);
+     //containmentPlus = containment+;
      set[UID] decls = {};
-     if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+     //if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+     try {
+         UID uid = blockScopes[l];
          set[UID] innerScopes = containmentPlus[uid];
          for(UID inScope <- innerScopes) {
              decls = decls + declares[inScope];
          }
          return { addr | UID decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
-     }
-     throw "Block scope at <l> has not been found!";
+     } catch:
+     	throw "Block scope at <l> has not been found!";
 }
 
 
@@ -823,39 +888,86 @@ public MuExp mkCallToLibFun(str modName, str fname)
 // - First non-default functions (inner scope first, most recent last), 
 // - then default functions (also most inner scope first, then most recent last).
 
-bool funFirst(int n, int m) = funInnerScope(n,m) || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = preferInnerScope(n,m); // || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
-	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+	res = sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+	//println("sortOverloadedFunctions: <items> =\> <res>");
+	return res;
 }
 
-bool funInnerScope(int n, int m) =
-	config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
-
-public list[UID] sortFunctionsByRecentScope(list[UID] funs){
-	return sort(funs, funInnerScope);
+bool preferInnerScope(int n, int m) {
+    key = <n, m>;
+    if(funInnerScopes[key]?){
+       //println("preferInnerScope <key> =\> <funInnerScopes[key]> (cached)");
+       return funInnerScopes[key];
+    }
+    nContainer = config.store[n].containedIn;
+    nContainers = containedOrDeclaredInPlus[nContainer];
+    mContainer = config.store[m].containedIn;
+    mContainers = containedOrDeclaredInPlus[mContainer];
+    
+    bool res = false;
+   
+    if(nContainers == {} && mContainers == {}) { // global global
+      	  res = n < m;
+     } else
+     if(nContainers == {} && mContainers != {}){ // global non-global
+          res = false; //nContainer notin mContainers;
+     } else
+     if(nContainers != {} && mContainers == {}) { // non-global global
+       res = true; //mContainer in nContainers;
+     } else {							  // non-global non-global 
+       res =  nContainer in mContainers;// && mContainer notin nContainers;
+     }
+	funInnerScopes[key] = res;
+	//println("preferInnerScope <key> =\> <res>");
+	return res;
 }
 
-public set[UID] accessibleScopes(loc luse) {
-  luse = normalize(luse);
-//println("containmentPlus = <containmentPlus>");
-	 return {0, 1} +
-     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
-               //(  blockScope(int scope, loc l) := av 
-               //|| booleanScope(int scope, loc l) := av
-               //|| function(_,_,_, _, int scope, _, _, loc l) := av
-               //|| constructor(_,_,_,int scope, loc l) := av
-               //|| label(_,functionLabel(), int scope, loc l) := av
-               //|| closure(_,_, int scope, loc l)  := av
-               //|| \module(_, loc l) := av
-               //)
-               , luse < av.at || av.at.path != luse.path
-               };
-} 
- 
+//bool funInnerScope(int n, int m) {
+//    key = <n, m>;
+//    if(funInnerScopes[key]?){
+//       return funInnerScopes[key];
+//    }
+//	res = config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
+//	funInnerScopes[key] = res;
+//	return res;
+//}
+
+//public list[UID] sortFunctionsByRecentScope(list[UID] funs){
+//	return sort(funs, funInnerScope);
+//}
+
+//public set[UID] accessibleScopes(loc luse) {
+//  luse = normalize(luse);
+//  println("accessibleScopes, luse = <luse>, <loc2uid[luse]>");
+//  println("containmentPlus = <containmentPlus>");
+//   println("declares = <declares>");
+//   println("xxx <invert(containmentPlus)[loc2uid[luse]]>");
+//  
+//	 res1 = {0, 1} +
+//     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
+//               //(  blockScope(int scope, loc l) := av 
+//               //|| booleanScope(int scope, loc l) := av
+//               //|| function(_,_,_, _, int scope, _, _, loc l) := av
+//               //|| constructor(_,_,_,int scope, loc l) := av
+//               //|| label(_,functionLabel(), int scope, loc l) := av
+//               //|| closure(_,_, int scope, loc l)  := av
+//               //|| \module(_, loc l) := av
+//               //)
+//               , luse < av.at || av.at.path != luse.path
+//               };
+//  res2 = {0, 1} + { uid | uid <- carrier(containment), AbstractValue av := config.store[uid], av has at, luse < av.at || av.at.path != luse.path};
+//  if(res1 != res2){
+//  	println("res1 = <res1>");
+//  	println("res2 = <res2>");
+//  }
+//  return res1;
+//} 
+// 
 public UID declaredScope(UID uid) {
 	if(config.store[uid]?){
 		res = config.store[uid].containedIn;
@@ -866,8 +978,35 @@ public UID declaredScope(UID uid) {
 	return 0;
 }
 
+public list[UID] accessibleAlts(list[UID] uids, loc luse){
+  //////luse = normalize(luse);
+  inScope = config.usedIn[luse] ? 0; // All generated functions are placed in scope 0
+  
+  key = <uids, inScope>;
+  if(accessibleFunctions[key]?){
+  	res = accessibleFunctions[key];
+  	//println("CACHED ALTS: accessibleAlts(<uids>, <luse>): <res>");
+  	return res;
+  }
+  
+  set[UID] accessible = {};
+  bool cachedScope = true;
+  if(accessibleScopes[inScope]?){
+     accessible = accessibleScopes[inScope];
+  } else {
+     accessible = {0, 1, inScope} + containedOrDeclaredInPlus[inScope] + importedModuleScopes;
+     accessibleScopes[inScope] = accessible;
+     cachedScope = false;
+  }
+  
+  res = [ alt | UID alt <- uids, declaredScope(alt) in accessible ];
+  accessibleFunctions[key] = res;
+  //println("<cachedScope ? "CACHED SCOPES: " : "">accessibleAlts(<uids>, <luse>): <res>");
+  return res;
+}
+ 
 MuExp mkVar(str name, loc l) {
-  l = normalize(l);
+  //////l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
   uid = getLoc2uid(l);
@@ -886,7 +1025,7 @@ MuExp mkVar(str name, loc l) {
     //	println("<nnuid>: <config.store[nnuid]>");
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
+    str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
     
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
@@ -906,7 +1045,7 @@ MuExp mkVar(str name, loc l) {
 // Generate a MuExp to reference a variable
 
 MuExp mkVarRef(str name, loc l){
-  l = normalize(l);
+  //////l = normalize(l);
   <fuid, pos> = getVariableScope("<name>", l);
   return muVarRef("<name>", fuid, pos);
 }
@@ -1005,20 +1144,30 @@ Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
 Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
 												= \reified(translateType(arg));      
 
-Symbol translateType(t : (Type) `(<Type tp>)`) = translateType(tp);
-Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
-Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
-Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);
-Symbol translateType(t : (Type) `<BasicType basic>`)  = translateType(basic);
-Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  { throw "DataTypeSelector"; }
-Symbol translateType(t : (Type) `<TypeVar typeVar>`) = translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  = insertLayout(sym2symbol(symbol));	// make sure concrete lists have layout defined
+Symbol translateType(t : (Type) `(<Type tp>)`) 
+												= translateType(tp);
+Symbol translateType(t : (Type) `<UserType user>`) 
+												= translateType(user);
+Symbol translateType(t : (Type) `<FunctionType function>`) 
+												= translateType(function);
+Symbol translateType(t : (Type) `<StructuredType structured>`)  
+												= translateType(structured);
+Symbol translateType(t : (Type) `<BasicType basic>`)  
+												= translateType(basic);
+Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  
+												{ throw "DataTypeSelector"; }
+Symbol translateType(t : (Type) `<TypeVar typeVar>`) 
+												= translateType(typeVar);
+Symbol translateType(t : (Type) `<Sym symbol>`)  
+												= insertLayout(sym2symbol(symbol));		// make sure concrete lists have layout defined
+								 							   
+Symbol translateType(t : (TypeArg) `<Type tp>`) 
+												= translateType(tp);
+Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) 
+												= \label(getSimpleName(convertName(name)), translateType(tp));
 
-Symbol translateType(t : (TypeArg) `<Type tp>`)  = translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) = \label(getSimpleName(convertName(name)), translateType(tp));
-
-Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) = 
-									\func(translateType(tp), [ translateType(arg) | arg <- args]);
+Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
+												= \func(translateType(tp), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
@@ -1041,8 +1190,10 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
+Symbol translateType(t: (TypeVar) `& <Name name>`) 
+												= \parameter(getSimpleName(convertName(name)), Symbol::\value());  
+Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
+												= \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {
 	throw "Cannot translate type <t>";

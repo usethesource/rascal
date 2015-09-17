@@ -3072,7 +3072,7 @@ public class Prelude {
 	public IValue toReal(IRational s)
   //@doc{toReal -- convert a string s to a real}
   {
-      return s.toReal();
+      return s.toReal(values.getPrecision());
   }
 
 	// based on http://stackoverflow.com/a/6603018/11098

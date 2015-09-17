@@ -16,9 +16,9 @@ import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -37,7 +37,7 @@ public class StaticChecker {
 	
 	public StaticChecker(PrintWriter stderr, PrintWriter stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___static_checker___", heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$staticchecker$", heap));
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		checkerEnabled = false;

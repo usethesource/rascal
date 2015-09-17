@@ -46,7 +46,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
-public abstract class Result<T extends IValue> implements Iterator<Result<IValue>> {
+public abstract class Result<T extends IValue> implements Iterator<Result<IValue>>, IRascalResult {
 	private static final String INTERSECTION_STRING = "intersection";
 	private static final String NOTIN_STRING = "notin";
 	private static final String IN_STRING = "in";
@@ -137,6 +137,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		
 		return getType().toString() + ": " + lros.toString();
 	}
+	
 	
 	public Type getType() { 
 		return type;

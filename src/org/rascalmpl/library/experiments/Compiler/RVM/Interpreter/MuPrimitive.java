@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -26,12 +28,13 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -63,7 +66,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2]) + ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -78,7 +81,7 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			Object[] ar = (Object[]) stack[sp - 3];
-			Integer index = ((Integer) stack[sp - 2]);
+			int index = ((int) stack[sp - 2]);
 			ar[index] = stack[sp - 1];
 			stack[sp - 3] = stack[sp - 1];
 			return sp - 2;
@@ -111,7 +114,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2]) / ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2]) / ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -125,7 +128,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) == ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) == ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -467,7 +470,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) >= ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -482,7 +485,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) > ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -870,7 +873,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) <= ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) <= ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -885,7 +888,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) < ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -909,7 +912,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			int len = ((Integer) stack[sp - 1]);
+			int len = ((int) stack[sp - 1]);
 			stack[sp - 1] = new IValue[len];
 			return sp;
 		};
@@ -947,7 +950,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			int len = ((Integer) stack[sp - 1]);
+			int len = ((int) stack[sp - 1]);
 			stack[sp - 1] = new Object[len];
 			return sp;
 		};
@@ -955,71 +958,28 @@ public enum MuPrimitive {
 	
 	/**
 	 * Create a descendant descriptor given
-	 * 0: id, a string that identifies this descendant
-	 * 1: symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
-	 * 2: concreteMatch, indicates a concrete or abstract match
+	 * - a unique id
+	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * - concreteMatch, indicates a concrete or abstract match
+	 * - definitions needed for type reifier
 	 * 
-	 * The descriptor itself is an object array of length 3. Its elements can accessed using
-	 * - $descendant_get_id
-	 * - $descendant_get_symbolset
-	 * - $descendant_is_concrete_match
-	 * 
-	 * [ IString id, ISet symbolset, IBool concreteMatch] => descendant_descriptor
+	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
 	 */
 	make_descendant_descriptor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 4;
-			
-			Object[] desc =  new Object[3];
-			IValue id = (IValue) stack[sp - 4];
-			
-			ISet symbolset = (ISet) stack[sp - 3];
-			IBool concreteMatch = (IBool) stack[sp - 2];
-			IMap definitions = (IMap) stack[sp - 1];
-			HashSet<Object> mset = new HashSet<Object>();
-			TypeReifier reifier = new TypeReifier(vf);
-			for(IValue v : symbolset){
-				try {
-					IConstructor cons = (IConstructor) v;
-					Type consType= cons.getConstructorType();
-					if(cons.getName().equals("prod")){
-						mset.add(cons);							// Add the production itself to the set
-					//} else if(cons.getName().equals("regular")){
-					} else if(consType == RascalValueFactory.Symbol_IterPlus || 
-							  consType == RascalValueFactory.Symbol_IterStar ||
-							  consType == RascalValueFactory.Symbol_IterSepX || 
-							  consType == RascalValueFactory.Symbol_IterStarSepX){
-						mset.add(cons);							// Add as SYMBOL to the set
-					} else {
-						Type tp = reifier.symbolToType(cons, definitions);
-						mset.add(tp);							// Otherwise add as TYPE to the set
-					}
-				} catch (Throwable e) {
-					System.err.println("Problem with " + v + ", " + e);
-				}
+			IString id = (IString) stack[sp - 4];
+			DescendantDescriptor desc = descendantDescriptorMap.get(id);
+			if(desc == null){
+				ISet symbolset = (ISet) stack[sp - 3];
+				IBool concreteMatch = (IBool) stack[sp - 2];
+				IMap definitions = (IMap) stack[sp - 1];
+				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+				descendantDescriptorMap.put(id,  desc);
 			}
-			desc[0] = id;
-			desc[1] = mset;				// converted symbolset
-			desc[2] = concreteMatch;
-			
 			stack[sp - 4] = desc;
 			return sp - 3;
-		};
-	},
-	
-	/**
-	 * Given a descendant descriptor, fetch its "concreteMatch" field.
-	 * 
-	 * [ ..., descriptor ] => [ ..., mbool ]
-	 *
-	 */
-	descendant_is_concrete_match {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = $descendant_is_concrete_match((Object[]) stack[sp -1]);
-			return sp;
 		};
 	},
 	
@@ -1119,9 +1079,16 @@ public enum MuPrimitive {
 			Object iteratee = stack[sp - 1];
 			if(iteratee instanceof Object[]){
 				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+			} else 
+			if(iteratee instanceof AnnotatedAmbFacade){
+					stack[sp - 1] = ((AnnotatedAmbFacade) iteratee).getAlternatives().iterator();
+			} else
+			if(iteratee instanceof AnnotatedConstructorFacade){
+				stack[sp - 1] = ((AnnotatedConstructorFacade) iteratee).getChildren().iterator();
 			} else {
 				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
 			}
+			
 			return sp;
 		};
 	},
@@ -1155,8 +1122,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			Integer x = ((Integer) stack[sp - 2]);
-			Integer y = ((Integer) stack[sp - 1]);
+			int x = ((int) stack[sp - 2]);
+			int y = ((int) stack[sp - 1]);
 			stack[sp - 2] = x < y ? x : y;
 			return sp - 1;
 		};
@@ -1172,8 +1139,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			Integer x = ((Integer) stack[sp - 2]);
-			Integer y = ((Integer) stack[sp - 1]);
+			int x = ((int) stack[sp - 2]);
+			int y = ((int) stack[sp - 1]);
 			stack[sp - 2] = x > y ? x : y;
 			return sp - 1;
 		};
@@ -1223,8 +1190,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2])
-					% ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2])
+					% ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -1383,8 +1350,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2])
-					* ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2])
+					* ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -1523,7 +1490,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) != ((Integer) stack[sp - 1]));
+			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) != ((int) stack[sp - 1]));
 			return sp - 1;
 		};
 	},
@@ -1555,7 +1522,7 @@ public enum MuPrimitive {
 			IList sublist = ((IList) stack[sp - 3]);
 			int nsub = sublist.length();
 			IList list = ((IList) stack[sp - 2]);
-			Integer start = (Integer) stack[sp - 1];
+			int start = (int) stack[sp - 1];
 			int nlist = list.length();
 			stack[sp - 3] = Rascal_FALSE;
 			int newsp = sp - 2;
@@ -1570,6 +1537,15 @@ public enum MuPrimitive {
 
 			stack[sp - 3] = Rascal_TRUE;
 			return newsp;
+		};
+	},
+	
+	one_dot_zero {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 0;
+			stack[sp] = vf.real("1.0");
+			return sp + 1;
 		};
 	},
 	
@@ -1598,8 +1574,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			int n1 = ((Integer) stack[sp - 2]);
-			int n2 = ((Integer) stack[sp - 1]);
+			int n1 = ((int) stack[sp - 2]);
+			int n2 = ((int) stack[sp - 1]);
 			int pow = 1;
 			for (int i = 0; i < n2; i++) {
 				pow *= n1;
@@ -1618,7 +1594,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
-			stack[sp - 1] = vf.integer((Integer) stack[sp - 1]);
+			stack[sp - 1] = vf.integer((int) stack[sp - 1]);
 			return sp;
 		};
 	},
@@ -1664,31 +1640,31 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Start RegExp Matcher
+	 * Begin position of RegExp Match
 	 * 
-	 * [ ..., Matcher ] => [ ..., Matcher ]
+	 * [ ..., Matcher ] => [ ..., begin position ]
 	 */
 	regexp_begin {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
 			Matcher matcher = (Matcher) stack[sp - 1];
-			stack[sp - 1] = vf.integer(matcher.start());
+			stack[sp - 1] = matcher.start(); //vf.integer(matcher.start());
 			return sp;
 		};
 	},
 	
 	/**
-	 * Stop RegExp Matcher
+	 * End position of RegExp Match
 	 * 
-	 * [ ..., Matcher ] => [ ..., Matcher ]
+	 * [ ..., Matcher ] => [ ..., end position ]
 	 */
 	regexp_end {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
 			Matcher matcher = (Matcher) stack[sp - 1];
-			stack[sp - 1] = vf.integer(matcher.end());
+			stack[sp - 1] = matcher.end(); //vf.integer(matcher.end());
 			return sp;
 		};
 	},
@@ -1719,8 +1695,8 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			Matcher matcher = (Matcher) stack[sp - 3];
-			int start = ((Integer) stack[sp - 2]);
-			int end = ((Integer) stack[sp - 1]);
+			int start = ((int) stack[sp - 2]);
+			int end = ((int) stack[sp - 1]);
 			stack[sp - 1] = matcher.region(start, end);
 			return sp - 2;
 		};
@@ -1736,7 +1712,7 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
 			Matcher matcher = (Matcher) stack[sp - 2];
-			int idx = (Integer) stack[sp - 1];
+			int idx = (int) stack[sp - 1];
 			stack[sp - 2] = vf.string(matcher.group(idx));
 			return sp - 1;
 		};
@@ -1942,7 +1918,7 @@ public enum MuPrimitive {
 			assert arity == 3;
 			IList sublist = (IList) stack[sp - 3];
 			IList list = (IList) stack[sp - 2];
-			int start = (Integer) stack[sp - 1];
+			int start = (int) stack[sp - 1];
 			IBool eq = Rascal_TRUE;
 
 			if (start + sublist.length() <= list.length()) {
@@ -1967,8 +1943,8 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
-			int offset = ((Integer) stack[sp - 2]);
-			int length = ((Integer) stack[sp - 1]);
+			int offset = ((int) stack[sp - 2]);
+			int length = ((int) stack[sp - 1]);
 			stack[sp - 3] = lst.sublist(offset, length);
 			return sp - 2;
 		};
@@ -1984,7 +1960,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+			stack[sp - 2] = ((Object[]) stack[sp - 2])[((int) stack[sp - 1])];
 			return sp - 1;
 		};
 	},
@@ -2012,7 +1988,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((IList) stack[sp - 2]).get((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -2026,7 +2002,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((ITuple) stack[sp - 2]).get((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -2043,8 +2019,8 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IString subject = ((IString)  stack[sp - 3]);
-			Integer start = ((Integer)  stack[sp - 2]);
-			Integer end  = ((Integer)  stack[sp - 1]);
+			int start = ((int)  stack[sp - 2]);
+			int end  = ((int)  stack[sp - 1]);
 			//System.err.println("substring: " + subject + ", " + start + ", " + end);
 			stack[sp - 3] = subject.substring(start, end);
 			return sp - 2;
@@ -2061,7 +2037,7 @@ public enum MuPrimitive {
 			assert arity == 3;
 			IString subject = ((IString)  stack[sp - 3]);
 			IString substr = ((IString)  stack[sp - 2]);
-			Integer start = ((Integer)  stack[sp - 1]);
+			int start = ((int)  stack[sp - 1]);
 			if(start + substr.length() == subject.length()){
 				stack[sp - 3] = vf.bool(subject.substring(start, start + substr.length()).compare(substr) == 0);
 			} else {
@@ -2080,7 +2056,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2]) - ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -2166,7 +2142,7 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
-			stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
+			stack[sp - 2] = ((int) stack[sp - 2]) * ((int) stack[sp - 1]);
 			return sp - 1;
 		};
 	},
@@ -2199,8 +2175,19 @@ public enum MuPrimitive {
 			assert arity == 1;
 			Object[] subject = (Object[]) stack[sp - 1];
 			IList listSubject = (IList) subject[0];
-			Integer cursor = (Integer) subject[1];
-			stack[sp - 1] = listSubject.length() == cursor ? Rascal_TRUE : Rascal_FALSE;
+			int cursor = (int) subject[1];
+			int len = listSubject.length();
+			if(cursor == len){
+				stack[sp - 1] = Rascal_TRUE;
+				return sp;
+			}
+			for(int i = cursor; i < len; i++){				// Check wether only nullables follow
+				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
+					stack[sp - 1] = Rascal_FALSE;
+					return sp;
+				}
+			}
+			stack[sp - 1] = Rascal_TRUE;
 			return sp;
 		};
 	}
@@ -2217,7 +2204,11 @@ public enum MuPrimitive {
 	private static IBool Rascal_FALSE;
 	
 	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
-
+	
+	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
+	
+	private static long timeSpent[];
+	
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
 	}
@@ -2239,9 +2230,31 @@ public enum MuPrimitive {
 		vf = fact;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+		timeSpent = new long[values.length];
+	}
+	
+	public static void recordTime(int n, long duration){
+		timeSpent[n] += duration;
 	}
 
-	public static void exit() {
+	public static void exit(PrintWriter out) {
+		//printProfile(out);
+	}
+	
+	private static void printProfile(PrintWriter out){
+		out.println("\nMuPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+	
+		for(long t : data.descendingKeySet()){
+			out.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
 	}
 
 	/*******************************************************************
@@ -2258,39 +2271,19 @@ public enum MuPrimitive {
 		return false;
 	}
 	
-	private static boolean $is_layout(final IValue v){
-		if (isNonTerminalType(v.getType())) {
-			return TreeAdapter.isLayout((ITree) v);
+//	private static boolean $is_layout(final IValue v){
+//		if (isNonTerminalType(v.getType())) {
+//			return TreeAdapter.isLayout((ITree) v);
+//		}
+//		return false;
+//	}
+	
+	private static boolean $is_nullable(final IValue v){
+		if (v instanceof ITree) {
+			return TreeAdapter.getArgs((ITree) v).length() == 0;
 		}
 		return false;
 	}
-	
-	/**
-	 * @param descendantDescriptor
-	 * @return its 'id' element
-	 */
-	protected static IString $descendant_get_id(final Object[] descendantDescriptor){
-		return (IString) descendantDescriptor[0];
-	}
-	
-	/**
-	 * @param descendantDescriptor
-	 * @return its symbolset element
-	 */
-	@SuppressWarnings("unchecked")
-	protected static HashSet<Object> $descendant_get_symbolset(final Object[] descendantDescriptor){
-		return (HashSet<Object>) descendantDescriptor[1];
-	}
-	
-	/**
-	 * @param descendantDescriptor
-	 * @return its concreteMatch element
-	 */
-	protected static IBool $descendant_is_concrete_match(Object[] descendantDescriptor){
-		return (IBool) descendantDescriptor[2];
-	}
-	 
-	
 }
 
 class ArrayIterator<T> implements Iterator<T> {

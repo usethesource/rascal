@@ -18,11 +18,13 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
@@ -60,4 +62,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
+	
+	
+	public Collection<String> completePartialIdentifier(String partialIdentifier);
 }

@@ -1,11 +1,12 @@
 module lang::rascal::grammar::tests::ParserGeneratorTests
-
+ 
 import lang::rascal::grammar::ParserGenerator;
 import Grammar;
 import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Literals;
 import IO;
 import String;
+import ParseTree;
 
 // -------- Examples and tests -------------------
 

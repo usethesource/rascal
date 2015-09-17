@@ -95,7 +95,9 @@ public enum Opcode {
 	RESET               (77,    1),
 	SHIFT               (78,    1),
 	SWITCH   			(79,	2),
-	RESETLOCS			(80,	1)
+	RESETLOCS			(80,	1),
+	VISIT               (81,    3),
+	CHECKMEMO			(82,	1)
 	;
 	
 	
@@ -192,7 +194,8 @@ public enum Opcode {
 	static public final int OP_SHIFT = 78;
 	static public final int OP_SWITCH = 79;
 	static public final int OP_RESETLOCS = 80;
-	
+	static public final int OP_VISIT = 81;
+	static public final int OP_CHECKMEMO = 82;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -447,7 +450,7 @@ public enum Opcode {
 			
 		case CHECKARGTYPEANDCOPY:
 			return "CHECKARGTYPEANDCOPY " + cb.getConstantValue(arg1) + ", " 
-								  		  + cb.getConstantValue(arg2) + ", "
+								  		  + cb.getConstantType(arg2) + ", "
 								  		  + cb.finalCode[pc + 1];
 					 			  
 		case LOADLOC0:
@@ -510,10 +513,18 @@ public enum Opcode {
 			return "SWITCH " + cb.getConstantValue(arg1) + ", " 
 							 + arg2 + ", "
 							 + cb.finalCode[pc + 1];
-		
+			
 		case RESETLOCS:
 			return "RESETLOCS " + cb.getConstantValue(arg1);
-		
+			
+		case VISIT:
+			return "VISIT bottomUp=" 	+ cb.getConstantValue(arg1) + ", " +
+		                 "continuing="  + cb.getConstantValue(arg1) + ", " +
+			             "fixedpoint="  + cb.getConstantValue((int) cb.finalCode[pc + 1]) + ", " +
+		                 "rebuild="  	+ cb.getConstantValue((int) cb.finalCode[pc + 2]);
+		case CHECKMEMO:
+				return "CHECKMEMO";
+				
 		default:
 			break;
 		}	

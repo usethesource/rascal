@@ -44,11 +44,20 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 
 // -- assert statement -----------------------------------------------
 	
-MuExp translate(s: (Statement) `assert <Expression expression> ;`) = 
-    muCallPrim3("assertreport", [translate(expression), muCon(""), muCon(s@\loc)], s@\loc);
+MuExp translate(s: (Statement) `assert <Expression expression> ;`) {
+    ifname = nextLabel();
+    return muIfelse(ifname, translate(expression), 
+                    [ muCon(true) ],
+    				[ muCallPrim3("assert_fails", [muCon("")], s@\loc) ]);
+}    
 
-MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = 
-    muCallPrim3("assertreport", [translate(expression), translate(message), muCon(s@\loc)], s@\loc);
+MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) {
+    ifname = nextLabel();
+    return muIfelse(ifname, translate(expression), 
+                    [ muCon(true) ],
+    				[ muCallPrim3("assert_fails", [translate(message)], s@\loc) ]);
+}
+    
 
 // -- single expression statement ------------------------------------
 
@@ -112,7 +121,8 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `while ( <Expression con
                        *translateMiddle(indent, body),  
                        translateStats(postStats)
                      ], [ muBreak(whilename) ])
-                 ]) //,  muCon(666)
+                 ]),  
+              muCon(666)// make sure that while returns some value
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -157,7 +167,8 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `do { < Statement* preSt
                                translateStats(postStats),
                                muIfelse(ifname, makeBoolExp("ALL", [ translate(condition) ], condition@\loc), 
                                                 [ muContinue(doname) ], 
-                                                [ muBreak(doname) ])]) //,  muCon(666)
+                                                [ muBreak(doname) ])]),  
+             muCon(666)	// make sure that do returns some value
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -193,7 +204,7 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `for ( <{Expression ","}
                        *translateMiddle(indent, body),
                        translateStats(postStats)
                      ]),
-             muCon("")	// make sure that for results some value
+             muCon("")	// make sure that for returns some value
            ];
     leaveBacktrackingScope();
     leaveLoop();
@@ -322,13 +333,15 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
  *
  */
 
-bool isSpoiler(Pattern pattern){
+bool isSpoiler(Pattern pattern, int fp){
+    if(fp == fingerprintDefault)
+    	return true;
 	if(pattern is variableBecomes || pattern is typedVariableBecomes)
-		return isSpoiler(pattern.pattern);
+		return isSpoiler(pattern.pattern, fp);
 	if(pattern is splice || pattern is splicePlus || pattern is asType) 
-		return isSpoiler(pattern.argument);
+		return isSpoiler(pattern.argument, fp);
 		
-	return 
+	return
  	      pattern is qualifiedName
  	   || pattern is multiVariable
  	   || pattern is negative
@@ -365,9 +378,9 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
    
   for(c <- reverse(cases)){
 	  if(c is patternWithAction){
-	    if(!isSpoiler(c.patternWithAction.pattern)){
-	       pwa = c.patternWithAction;
-	       key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	    pwa = c.patternWithAction;
+	    key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	    if(!isSpoiler(c.patternWithAction.pattern, key)){
 	       table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, pwa, table, key);
 	    }
 	  } else {
@@ -375,26 +388,33 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
 	  }
    }
    default_table = (fingerprintDefault : default_code);
-   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern)){
+   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, useConcreteFingerprint))){
 	  default_table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, c.patternWithAction, default_table, fingerprintDefault);
    }
    
-   println("TABLE DOMAIN(<size(table)>): <domain(table)>");
+   //println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    return < [ muCase(key, table[key]) | key <- table], default_table[fingerprintDefault] >;
 }
 
 // Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
 
-int fingerprint(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
+int fingerprint(Pattern p, bool useConcreteFingerprint) {
+	fp = fingerprint1(p, useConcreteFingerprint);
+	//println("fingerprint(<p>, <useConcreteFingerprint>) = \> <fp>");
+	return fp;
+}
+
+int fingerprint1(p:(Pattern) `<Literal lit>`, bool useConcreteFingerprint) =
 	getFingerprint(readTextValueString("<lit>"), useConcreteFingerprint) when !(p.literal is regExp);
 
-int fingerprint(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
-	res = getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
-	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
+int fingerprint1(p:(Pattern) `<Concrete concrete>`, bool useConcreteFingerprint) {
+    t = parseConcrete(concrete);
+	res = isConcreteHole(t) ? fingerprintDefault : getFingerprint(parseConcrete(concrete), useConcreteFingerprint);
+	//println("fingerprint <res>, <useConcreteFingerprint>, <getType(p@\loc)> for <p>"); iprintln(parseConcrete(concrete));
 	return res;
 }
 
-int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, bool useConcreteFingerprint) { 
+int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, bool useConcreteFingerprint) { 
 	args = [a | a <- arguments];	// TODO: work around!
 	res = fingerprintDefault;
 	if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){	
@@ -402,20 +422,28 @@ int fingerprint(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <
 	   if(useConcreteFingerprint){	// Abstract pattern during concrete match
 	   		pr = getLabeledProduction(s, getType(p@\loc));
 	   		res = getFingerprintNode(pr);
-	   		//println("getProduction= <pr>, <res>");
-	   } else
-	   	 	res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments), useConcreteFingerprint);
+	   		//println("fingerprint1: <pr>, <res>");
+	   } else {						// Abstract pattern druing abstract match
+	        if(isNonTerminalType((getType(p@\loc)))){
+	        ;// an abstract pattern of a nonterminal type will use labels in a production
+	         // and requires an explicit match (as opposed to a selection by a fingerprint)
+	         // Therefore rely on the defaultFingerprint and force sequential matching during
+	         // handling of the default cases
+	        } else {
+	   	 		res = getFingerprint(s[0] == "\\" ? s[1..] : s, size(arguments), useConcreteFingerprint);
+	   	 	}
+	   }	
 	}
-	//println("fingerprint <res>, <getType(p@\loc)> for <p>");
+	//println("fingerprint <res>, <useConcreteFingerprint>, <getType(p@\loc)> for <p>");
 	return res;
 }
-int fingerprint(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
-int fingerprint(p:(Pattern) `\<<{Pattern ","}* pats>\>`, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
-int fingerprint(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
-int fingerprint(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
-int fingerprint(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint(argument, useConcreteFingerprint);
-int fingerprint(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint(pattern, useConcreteFingerprint);
-default int fingerprint(Pattern p, bool useConcreteFingerprint) {
+int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, bool useConcreteFingerprint) = fingerprint1(argument, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
+default int fingerprint1(Pattern p, bool useConcreteFingerprint) {
 	//println("fingerprint <fingerprintDefault> (default), <getType(p@\loc)> for <p>");
 	return fingerprintDefault;
 }	
@@ -623,9 +651,11 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpre
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
-    nelems = size(elements); // size_assignables
-    str tmp_name = nextTmp();
     elems = [ e | e <- elements];   // hack since elements[i] yields a value result;
+    nelems = size(elems); // size_assignables
+    
+    str tmp_name = nextTmp();
+ 
     return muBlock(
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("tuple_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
@@ -635,9 +665,10 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
 
 MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, str operator,  str rhs_type, MuExp rhs) { 
     str fuid = topFunctionScope();
+    elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
     nelems = size(arguments);// size_assignables
     str tmp_name = nextTmp();
-    elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
+   
     return muBlock(
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("adt_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
@@ -758,16 +789,29 @@ default MuExp translate(Statement s){
 /*                  End of Statements                                */
 /*********************************************************************/
 
+MuExp returnFromFunction(MuExp body, bool isMemo, loc src) {
+  res = muReturn1(body);
+  if(isMemo){
+     res = visit(res){
+     	case muReturn1(e) => muReturn1(muCallPrim3("memoize", [body], src))
+     }
+  }
+  return res;   
+}
+         
+MuExp functionBody(MuExp body, bool isMemo, loc src) =
+   isMemo ? muBlock([muCallPrim3("check_memo", [body], src), body])  // Directly mapped to the CHECKMEMO instruction that returns when args are in cache
+          : body;
 
-MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
+MuExp translateFormals(list[Pattern] formals, bool isVarArgs, bool isMemo, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
    if(isEmpty(formals)) {
       if(isEmpty(when_conditions)){
-        return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
+        return muBlock([ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, src) ]);
     } else {
         ifname = nextLabel();
         enterBacktrackingScope(ifname);
         conditions = [ translate(cond) | cond <- when_conditions];
-        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, src) ], [ muFailReturn() ]);
         leaveBacktrackingScope();
         return mubody;
     }
@@ -778,7 +822,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
-                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+                   [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
                    [ muFailReturn() ]
                   );
       leaveBacktrackingScope();
@@ -790,25 +834,32 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
+      //println("translateFormals:\ntp: ");
+      //iprintln(tp);
+      //println("translateType(tp): <translateType(tp)>");
       exp = muIfelse(ifname, muCallMuPrim("check_arg_type_and_copy", [ muCon(i), 
-                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ), 
+                                                        muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) 
+                                                                                                     : translateType(tp) ), 
                                                         muCon(pos)
                                                     ]),
-             [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
+             [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
              [ muFailReturn() ]);
       leaveBacktrackingScope();
+      //println("translateFormals returns:");
+      //iprintln(exp);
       return exp;
     }
 }
 
-MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
+MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, bool isMemo, list[Expression] when_conditions){
   bool simpleArgs = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
       simpleArgs = false;
   }
   if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-     return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
+     return functionBody(muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, isMemo, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]),
+                         isMemo, formals@\loc);
   } else {
      list[MuExp] conditions = [];
      int i = 0;
@@ -821,7 +872,8 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       };
       conditions += [ translate(cond) | cond <- when_conditions];
 
-      mubody = muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+      mubody = functionBody(muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, formals@\loc) ], [ muFailReturn() ]),
+                            isMemo, formals@\loc);
       leaveBacktrackingScope();
       return mubody;
   }

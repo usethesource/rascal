@@ -173,9 +173,11 @@ public class NodePattern extends AbstractMatchingResult {
 		else if (this.subject.mayHaveKeywordParameters()) {
 			Map<String, IValue> kwArgs = this.subject.asWithKeywordParameters().getParameters();
 			ConstructorFunction func = null;
+			Type paramType = tf.valueType();
 			
 			if (this.subject.getType().isAbstractData()) {
 				func = ctx.getCurrentEnvt().getConstructorFunction(((IConstructor) this.subject).getConstructorType());
+			
 			}
 			
 			for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
@@ -185,10 +187,15 @@ public class NodePattern extends AbstractMatchingResult {
 					subjectParam = func.computeDefaultKeywordParameter(entry.getKey(), (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
 				}
 				
+				if (func != null) {
+					// this works around the problem of imprecisely resolved types for constructors in patterns
+					paramType = ctx.getCurrentEnvt().getStore().getKeywordParameterType(func.getConstructorType(), entry.getKey());
+				}
+				
 				if (subjectParam != null) {
 					// we are matching a keyword parameter, and indeed the subject has one
 					IMatchingResult matcher = entry.getValue();
-					matcher.initMatch(ResultFactory.makeResult(tf.valueType(), subjectParam, ctx));
+					matcher.initMatch(ResultFactory.makeResult(paramType, subjectParam, ctx));
 					
 					if (!matcher.hasNext()) {
 						// the subject parameter can never match so we bail out early

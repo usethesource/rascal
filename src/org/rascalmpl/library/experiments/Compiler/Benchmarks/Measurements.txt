@@ -3960,3 +3960,167 @@ Maximal speedup: 8.8544
 ==========================================================
 
 
+New implemenation of visit in Java
+==========================================================
+Summary of Measurements $2015-07-29T22:11:39.466+00:00$:
+
+Number of samples = 5
+    BCompareComprehension: speedup: 0.987 x (+/-0.10); compiled: [457,248,250,242,295]; mean 264.33 msec (+/-26); interpreted: [270,273,251,261,252]; mean   261. msec (+/-9)
+              BCompareFor: speedup:  1.20 x (+/-0.037); compiled: [494,203,202,191,187]; mean 198.67 msec (+/-6); interpreted: [245,239,232,239,237]; mean 238.33 msec (+/-1)
+               BCompareIf: speedup:  2.30 x (+/-0.014); compiled: [374,180,180,177,176]; mean   179. msec (+/-1); interpreted: [392,411,419,414,412]; mean 412.33 msec (+/-1)
+                   BEmpty: speedup:  0E+9 x (+/-0.0); compiled: [157,4,4,3,3]; mean 3.6667 msec (+/-0); interpreted: [0,0,0,0,0]; mean     0. msec (+/-0)
+              BExceptions: speedup:  9.62 x (+/-0.44); compiled: [1744,313,350,320,340]; mean 336.67 msec (+/-15); interpreted: [3297,3241,3264,3162,3213]; mean 3239.3 msec (+/-25)
+                     BFor: speedup: 0.955 x (+/-0.024); compiled: [471,318,308,314,329]; mean 320.33 msec (+/-7); interpreted: [308,309,310,301,297]; mean   306. msec (+/-4)
+                 BForCond: speedup: 0.993 x (+/-0.041); compiled: [615,417,423,453,422]; mean 432.67 msec (+/-17); interpreted: [438,437,424,427,425]; mean 429.67 msec (+/-6)
+              BListMatch1: speedup: 0.789 x (+/-0.024); compiled: [757,572,602,600,553]; mean 591.33 msec (+/-16); interpreted: [456,473,473,461,466]; mean 466.67 msec (+/-6)
+              BListMatch2: speedup: 0.350 x (+/-0.015); compiled: [709,528,556,565,546]; mean 555.67 msec (+/-9); interpreted: [208,186,190,190,204]; mean 194.67 msec (+/-8)
+              BListMatch3: speedup: 0.321 x (+/-0.0088); compiled: [1154,991,973,953,1014]; mean 992.67 msec (+/-20); interpreted: [315,314,314,328,326]; mean 318.33 msec (+/-6)
+                      BOr: speedup: 0.390 x (+/-0.0095); compiled: [980,824,797,798,789]; mean 806.33 msec (+/-15); interpreted: [327,303,315,320,309]; mean 314.67 msec (+/-5)
+                BReverse1: speedup:  1.09 x (+/-0.052); compiled: [1515,504,546,597,565]; mean 569.33 msec (+/-25); interpreted: [647,614,635,616,606]; mean 621.67 msec (+/-11)
+                    BSet1: speedup:  2.62 x (+/-0.089); compiled: [957,784,824,832,781]; mean 813.33 msec (+/-25); interpreted: [2181,2109,2116,2103,2167]; mean 2130.7 msec (+/-31)
+               BSetMatch1: speedup:  1.30 x (+/-0.034); compiled: [677,475,462,462,471]; mean 469.33 msec (+/-6); interpreted: [718,589,594,619,620]; mean   611. msec (+/-14)
+               BSetMatch2: speedup:  12.8 x (+/-0.16); compiled: [1794,868,782,887,889]; mean 881.33 msec (+/-11); interpreted: [11791,11253,11211,11125,11260]; mean 11241. msec (+/-26)
+               BSetMatch3: speedup:  4.02 x (+/-0.10); compiled: [2568,2398,2509,2389,2406]; mean 2437.7 msec (+/-61); interpreted: [9796,9639,9830,9816,9785]; mean  9799. msec (+/-15)
+                  BVisit1: speedup:  1.31 x (+/-0.028); compiled: [147,141,137,150,145]; mean 144.33 msec (+/-3); interpreted: [204,185,188,191,190]; mean 189.67 msec (+/-1)
+                  BVisit2: speedup: 0.562 x (+/-0.13); compiled: [1343,705,760,458,471]; mean 645.33 msec (+/-153); interpreted: [440,358,369,359,360]; mean 362.67 msec (+/-5)
+                  BVisit3: speedup: 0.878 x (+/-0.040); compiled: [1063,532,551,502,469]; mean 528.33 msec (+/-24); interpreted: [501,467,458,464,461]; mean   464. msec (+/-3)
+                  BVisit4: speedup: 0.884 x (+/-0.30); compiled: [1312,923,563,499,499]; mean 661.67 msec (+/-228); interpreted: [599,588,580,583,583]; mean 584.67 msec (+/-2)
+                 BVisit6a: speedup: 0.494 x (+/-0.051); compiled: [245,32,25,30,21]; mean    29. msec (+/-3); interpreted: [14,15,17,14,14]; mean 14.333 msec (+/-0)
+                 BVisit6b: speedup:  1.04 x (+/-0.032); compiled: [1585,1391,1325,1322,1306]; mean  1346. msec (+/-39); interpreted: [1387,1415,1387,1418,1403]; mean 1401.7 msec (+/-14)
+                 BVisit6c: speedup:  1.83 x (+/-0.055); compiled: [550,295,312,297,314]; mean 307.67 msec (+/-9); interpreted: [558,548,569,567,566]; mean 563.67 msec (+/-4)
+                 BVisit6d: speedup:  1.93 x (+/-0.016); compiled: [553,298,303,300,293]; mean 300.33 msec (+/-2); interpreted: [617,584,580,572,577]; mean 580.33 msec (+/-3)
+                 BVisit6e: speedup:  1.18 x (+/-0.053); compiled: [547,320,304,327,307]; mean   318. msec (+/-10); interpreted: [365,393,389,376,355]; mean 376.67 msec (+/-12)
+                 BVisit6f: speedup:  1.62 x (+/-0.033); compiled: [713,401,384,404,388]; mean 397.67 msec (+/-8); interpreted: [644,650,629,649,644]; mean 645.67 msec (+/-2)
+                 BVisit6g: speedup:  1.26 x (+/-0.080); compiled: [306,114,107,98,101]; mean 107.33 msec (+/-6); interpreted: [141,132,133,131,141]; mean 135.33 msec (+/-4)
+                   BWhile: speedup:  2.76 x (+/-0.028); compiled: [498,344,330,350,346]; mean 346.67 msec (+/-3); interpreted: [1021,954,956,964,925]; mean   958. msec (+/-5)
+Average speedup: 1.9811
+Minimal speedup: 0E+9
+Maximal speedup: 12.755
+==========================================================
+=========================================================
+Summary of Measurements $2015-07-29T22:12:58.782+00:00$:
+
+Number of samples = 5
+                 BBottles: speedup:  1.81 x (+/-0.12); compiled: [506,185,186,181,207]; mean 192.67 msec (+/-12); interpreted: [342,355,351,344,354]; mean 349.67 msec (+/-5)
+                     BFac: speedup:  3.54 x (+/-0.057); compiled: [730,455,486,472,485]; mean   481. msec (+/-7); interpreted: [1721,1688,1717,1702,1693]; mean  1704. msec (+/-12)
+                     BFib: speedup:  3.93 x (+/-0.044); compiled: [1113,960,937,941,955]; mean   952. msec (+/-9); interpreted: [3765,3761,3735,3716,3641]; mean 3737.3 msec (+/-22)
+                BMarriage: speedup:  1.47 x (+/-0.26); compiled: [1464,238,176,168,176]; mean 196.67 msec (+/-35); interpreted: [347,294,290,283,221]; mean   289. msec (+/-5)
+           BSendMoreMoney: speedup:  1.64 x (+/-0.024); compiled: [5427,5012,4953,4889,4925]; mean 4963.3 msec (+/-44); interpreted: [8067,8269,8254,8147,8020]; mean  8156. msec (+/-93)
+   BSendMoreMoneyNotTyped: speedup:  1.67 x (+/-0.023); compiled: [5317,4925,4875,5017,4883]; mean 4941.7 msec (+/-68); interpreted: [8284,8236,8259,8041,8255]; mean  8250. msec (+/-12)
+                  BSudoku: speedup:  1.55 x (+/-0.019); compiled: [3242,1581,1563,1594,1575]; mean 1583.3 msec (+/-9); interpreted: [2480,2469,2423,2488,2429]; mean 2459.3 msec (+/-26)
+                BTemplate: speedup:  10.1 x (+/-0.28); compiled: [637,326,312,340,321]; mean   329. msec (+/-9); interpreted: [3378,3310,3330,3298,3325]; mean 3321.7 msec (+/-10)
+Average speedup: 3.2144
+Minimal speedup: 1.4695
+Maximal speedup: 10.096
+==========================================================
+
+Further optimizations to visit.
+==========================================================
+Summary of Measurements $2015-07-30T11:23:27.678+00:00$:
+
+Number of samples = 5
+    BCompareComprehension: speedup: 0.964 x (+/-0.016); compiled: [263,269,265,292,259]; mean 265.67 msec (+/-3); interpreted: [241,261,260,255,253]; mean   256. msec (+/-3)
+              BCompareFor: speedup:  1.03 x (+/-0.036); compiled: [217,226,211,229,230]; mean   224. msec (+/-6); interpreted: [227,239,225,229,238]; mean 231.33 msec (+/-5)
+               BCompareIf: speedup:  2.00 x (+/-0.020); compiled: [209,204,213,205,208]; mean 207.33 msec (+/-2); interpreted: [417,408,415,434,415]; mean 415.67 msec (+/-1)
+                   BEmpty: speedup:    0. x (+/-0.0); compiled: [2,2,2,2,2]; mean     2. msec (+/-0); interpreted: [0,0,0,0,0]; mean     0. msec (+/-0)
+              BExceptions: speedup:  9.16 x (+/-0.19); compiled: [395,446,390,379,379]; mean   388. msec (+/-8); interpreted: [3573,3527,3598,3544,3541]; mean 3552.7 msec (+/-17)
+                     BFor: speedup: 0.799 x (+/-0.013); compiled: [344,351,349,343,352]; mean   348. msec (+/-3); interpreted: [278,267,282,274,288]; mean   278. msec (+/-4)
+                 BForCond: speedup: 0.809 x (+/-0.0071); compiled: [481,473,474,481,493]; mean 478.67 msec (+/-4); interpreted: [386,388,374,388,397]; mean 387.33 msec (+/-1)
+              BListMatch1: speedup: 0.731 x (+/-0.014); compiled: [609,612,622,620,636]; mean   618. msec (+/-5); interpreted: [461,431,470,450,444]; mean 451.67 msec (+/-8)
+              BListMatch2: speedup: 0.318 x (+/-0.0046); compiled: [601,621,589,598,576]; mean   596. msec (+/-6); interpreted: [194,190,187,184,192]; mean 189.67 msec (+/-2)
+              BListMatch3: speedup: 0.304 x (+/-0.0078); compiled: [1055,1060,1083,1074,1074]; mean 1069.3 msec (+/-8); interpreted: [337,335,316,321,320]; mean 325.33 msec (+/-8)
+                      BOr: speedup: 0.339 x (+/-0.0025); compiled: [871,909,892,881,893]; mean 888.67 msec (+/-6); interpreted: [300,303,298,300,303]; mean   301. msec (+/-1)
+                BReverse1: speedup:  1.08 x (+/-0.025); compiled: [612,638,630,637,622]; mean 629.67 msec (+/-7); interpreted: [692,684,653,695,663]; mean 679.67 msec (+/-14)
+                    BSet1: speedup:  2.36 x (+/-0.034); compiled: [812,793,814,786,813]; mean   806. msec (+/-11); interpreted: [1879,1911,1905,1893,1923]; mean  1903. msec (+/-9)
+               BSetMatch1: speedup:  1.01 x (+/-0.018); compiled: [526,546,547,548,539]; mean   544. msec (+/-4); interpreted: [596,542,545,559,539]; mean 548.67 msec (+/-9)
+               BSetMatch2: speedup:  12.6 x (+/-0.12); compiled: [960,943,937,944,1004]; mean   949. msec (+/-9); interpreted: [12016,11895,11892,11951,11934]; mean 11927. msec (+/-28)
+               BSetMatch3: speedup:  3.76 x (+/-0.049); compiled: [2716,2615,2673,2769,2652]; mean 2680.3 msec (+/-32); interpreted: [10128,10033,10040,10138,10042]; mean 10070. msec (+/-50)
+                  BVisit1: speedup:  1.28 x (+/-0.036); compiled: [154,155,156,149,147]; mean 152.67 msec (+/-3); interpreted: [244,189,190,199,196]; mean   195. msec (+/-4)
+                  BVisit2: speedup:  1.35 x (+/-0.014); compiled: [286,294,291,292,291]; mean 291.33 msec (+/-0); interpreted: [459,390,375,398,391]; mean   393. msec (+/-4)
+                  BVisit3: speedup:  1.33 x (+/-0.011); compiled: [349,348,348,361,347]; mean 348.33 msec (+/-0); interpreted: [477,456,453,464,465]; mean 461.67 msec (+/-4)
+                  BVisit4: speedup:  1.19 x (+/-0.021); compiled: [548,537,550,530,535]; mean   540. msec (+/-7); interpreted: [640,632,611,649,661]; mean 640.33 msec (+/-8)
+                 BVisit6a: speedup:  1.07 x (+/-0.071); compiled: [17,15,13,14,16]; mean    15. msec (+/-1); interpreted: [15,18,16,16,16]; mean    16. msec (+/-0)
+                 BVisit6b: speedup: 0.950 x (+/-0.0069); compiled: [1381,1409,1428,1413,1398]; mean 1406.7 msec (+/-7); interpreted: [1323,1375,1343,1328,1338]; mean 1336.3 msec (+/-7)
+                 BVisit6c: speedup:  1.79 x (+/-0.025); compiled: [322,317,312,303,312]; mean 313.67 msec (+/-2); interpreted: [568,560,552,553,569]; mean 560.33 msec (+/-7)
+                 BVisit6d: speedup:  1.98 x (+/-0.037); compiled: [306,296,299,299,322]; mean 301.33 msec (+/-4); interpreted: [611,604,588,578,601]; mean 597.67 msec (+/-8)
+                 BVisit6e: speedup:  1.05 x (+/-0.011); compiled: [334,323,331,328,324]; mean 327.67 msec (+/-3); interpreted: [357,336,347,342,347]; mean 345.33 msec (+/-2)
+                 BVisit6f: speedup:  1.57 x (+/-0.023); compiled: [409,403,436,410,398]; mean 407.33 msec (+/-3); interpreted: [614,647,631,637,664]; mean 638.33 msec (+/-8)
+                 BVisit6g: speedup:  1.32 x (+/-0.040); compiled: [101,109,98,100,106]; mean 102.33 msec (+/-3); interpreted: [136,122,137,134,134]; mean 134.67 msec (+/-1)
+                   BWhile: speedup:  2.71 x (+/-0.039); compiled: [361,343,354,363,363]; mean 359.33 msec (+/-4); interpreted: [982,955,972,963,986]; mean 972.33 msec (+/-9)
+Average speedup: 1.9571
+Minimal speedup: 0.
+Maximal speedup: 12.568
+==========================================================
+
+==========================================================
+Summary of Measurements $2015-07-30T11:27:06.385+00:00$:
+
+Number of samples = 5
+                 BBottles: speedup:  2.17 x (+/-0.063); compiled: [187,196,178,203,186]; mean 189.67 msec (+/-5); interpreted: [403,407,419,418,409]; mean 411.33 msec (+/-5)
+                     BFac: speedup:  3.55 x (+/-0.054); compiled: [554,570,560,534,547]; mean 553.67 msec (+/-6); interpreted: [1960,1950,1949,1929,1985,1947,1963,2007,2082,1949]; mean 1963.8 msec (+/-21)
+                     BFib: speedup:  3.83 x (+/-0.044); compiled: [1100,1133,1183,1160,1150]; mean 1147.7 msec (+/-13); interpreted: [4390,4381,4371,4400,4434]; mean 4390.3 msec (+/-9)
+                BMarriage: speedup:  1.42 x (+/-0.14); compiled: [185,177,188,185,197]; mean   186. msec (+/-1); interpreted: [292,280,278,234,219]; mean   264. msec (+/-26)
+           BSendMoreMoney: speedup:  1.42 x (+/-0.018); compiled: [5514,5670,5476,5574,5652]; mean  5580. msec (+/-69); interpreted: [7941,7952,7889,7892,7898]; mean 7910.3 msec (+/-26)
+   BSendMoreMoneyNotTyped: speedup:  1.45 x (+/-0.0095); compiled: [5529,5459,5491,5530,5400]; mean  5493. msec (+/-35); interpreted: [7975,7996,7998,8107,7896]; mean 7989.7 msec (+/-12)
+                  BSudoku: speedup:  1.50 x (+/-0.011); compiled: [1764,1775,1742,1788,1814]; mean 1775.7 msec (+/-12); interpreted: [2667,2657,2634,2649,2726]; mean 2657.7 msec (+/-9)
+                BTemplate: speedup:  10.1 x (+/-0.096); compiled: [376,359,366,363,341]; mean 362.67 msec (+/-3); interpreted: [3689,3655,3633,3668,3720]; mean 3670.7 msec (+/-17)
+Average speedup: 3.1813
+Minimal speedup: 1.4176
+Maximal speedup: 10.121
+==========================================================
+Change in measurement method: all programs are now preexecuted once to create a serialized version
+
+==========================================================
+Summary of Measurements $2015-09-06T08:09:08.644+00:00$:
+
+Number of samples = 5
+    BCompareComprehension: speedup:    1. x (+/-0.013); compiled: [218,227,222,239,223]; mean   224. msec (+/-2); interpreted: [227,236,223,220,222]; mean   224. msec (+/-2)
+              BCompareFor: speedup:  1.11 x (+/-0.035); compiled: [185,181,175,185,175]; mean 180.33 msec (+/-5); interpreted: [215,186,198,200,205]; mean   201. msec (+/-3)
+               BCompareIf: speedup:  2.19 x (+/-0.029); compiled: [182,164,166,165,169]; mean 166.67 msec (+/-2); interpreted: [363,367,365,358,368]; mean   365. msec (+/-2)
+                   BEmpty: speedup:    0. x (+/-0.0); compiled: [2,2,3,2,2]; mean     2. msec (+/-0); interpreted: [0,0,0,0,0]; mean     0. msec (+/-0)
+              BExceptions: speedup:  8.56 x (+/-0.29); compiled: [360,353,355,380,379]; mean 364.67 msec (+/-12); interpreted: [3145,3099,3138,3123,3065]; mean  3120. msec (+/-19)
+                     BFor: speedup: 0.877 x (+/-0.012); compiled: [283,283,268,288,303]; mean 284.67 msec (+/-2); interpreted: [253,245,246,256,250]; mean 249.67 msec (+/-3)
+                 BForCond: speedup: 0.805 x (+/-0.012); compiled: [397,385,363,378,383]; mean   382. msec (+/-3); interpreted: [312,303,311,309,296]; mean 307.67 msec (+/-4)
+              BListMatch1: speedup: 0.790 x (+/-0.016); compiled: [512,515,510,498,521]; mean 512.33 msec (+/-2); interpreted: [447,395,414,403,397]; mean 404.67 msec (+/-8)
+              BListMatch2: speedup: 0.320 x (+/-0.0041); compiled: [531,498,500,501,490]; mean 499.67 msec (+/-1); interpreted: [162,160,155,164,157]; mean 159.67 msec (+/-2)
+              BListMatch3: speedup: 0.311 x (+/-0.0088); compiled: [920,952,1040,901,906]; mean   926. msec (+/-23); interpreted: [344,283,292,284,287]; mean 287.67 msec (+/-4)
+                      BOr: speedup: 0.360 x (+/-0.0084); compiled: [781,791,784,765,769]; mean   778. msec (+/-7); interpreted: [287,273,285,271,282]; mean   280. msec (+/-6)
+                BReverse1: speedup:  1.04 x (+/-0.016); compiled: [537,525,510,538,546]; mean 533.33 msec (+/-7); interpreted: [568,548,550,558,555]; mean 554.33 msec (+/-4)
+                    BSet1: speedup:  2.51 x (+/-0.014); compiled: [742,729,737,746,737]; mean 738.67 msec (+/-2); interpreted: [1859,1884,1861,1831,1844]; mean 1854.7 msec (+/-9)
+               BSetMatch1: speedup:  1.12 x (+/-0.020); compiled: [437,445,455,457,455]; mean 451.67 msec (+/-5); interpreted: [651,494,503,497,511]; mean 503.67 msec (+/-7)
+               BSetMatch2: speedup:  14.0 x (+/-0.20); compiled: [801,812,810,775,788]; mean 799.67 msec (+/-11); interpreted: [11235,11432,11144,11131,11118]; mean 11170. msec (+/-56)
+               BSetMatch3: speedup:  4.41 x (+/-0.046); compiled: [2131,2166,2178,2127,2090]; mean 2141.3 msec (+/-21); interpreted: [9467,9384,9445,9645,9400]; mean 9437.3 msec (+/-34)
+                  BVisit1: speedup:  1.33 x (+/-0.018); compiled: [128,133,131,132,133]; mean   132. msec (+/-1); interpreted: [230,179,168,174,175]; mean   176. msec (+/-2)
+                  BVisit2: speedup:  1.39 x (+/-0.051); compiled: [231,249,240,252,242]; mean 243.67 msec (+/-4); interpreted: [409,351,329,337,320]; mean   339. msec (+/-11)
+                  BVisit3: speedup:  1.41 x (+/-0.029); compiled: [292,292,293,285,288]; mean 290.67 msec (+/-2); interpreted: [413,417,414,399,393]; mean 408.67 msec (+/-8)
+                  BVisit4: speedup:  1.36 x (+/-0.018); compiled: [422,408,415,422,454]; mean 419.67 msec (+/-4); interpreted: [579,564,574,570,564]; mean 569.33 msec (+/-5)
+                 BVisit6a: speedup:  1.22 x (+/-0.083); compiled: [12,12,12,12,13]; mean    12. msec (+/-0); interpreted: [13,12,16,17,15]; mean 14.667 msec (+/-1)
+                 BVisit6b: speedup:  1.06 x (+/-0.013); compiled: [1168,1178,1140,1135,1147]; mean 1151.7 msec (+/-14); interpreted: [1215,1210,1219,1226,1221]; mean 1218.3 msec (+/-3)
+                 BVisit6c: speedup:  1.77 x (+/-0.015); compiled: [269,265,271,273,274]; mean   271. msec (+/-2); interpreted: [477,475,481,479,484]; mean   479. msec (+/-2)
+                 BVisit6d: speedup:  2.01 x (+/-0.017); compiled: [262,258,263,259,273]; mean 261.33 msec (+/-2); interpreted: [523,522,532,527,518]; mean   524. msec (+/-2)
+                 BVisit6e: speedup:  1.09 x (+/-0.011); compiled: [281,277,281,280,270]; mean 279.33 msec (+/-2); interpreted: [303,318,299,305,308]; mean 305.33 msec (+/-2)
+                 BVisit6f: speedup:  1.64 x (+/-0.026); compiled: [326,340,345,346,334]; mean 339.67 msec (+/-5); interpreted: [557,560,552,552,559]; mean   556. msec (+/-3)
+                 BVisit6g: speedup:  1.30 x (+/-0.023); compiled: [81,86,85,86,86]; mean 85.667 msec (+/-0); interpreted: [108,114,108,113,113]; mean 111.33 msec (+/-2)
+                   BWhile: speedup:  2.66 x (+/-0.066); compiled: [315,326,301,300,303]; mean 306.33 msec (+/-7); interpreted: [887,804,823,807,812]; mean   814. msec (+/-8)
+Average speedup: 2.0568
+Minimal speedup: 0.
+Maximal speedup: 13.968
+==========================================================
+==========================================================
+Summary of Measurements $2015-09-06T08:10:27.631+00:00$:
+
+Number of samples = 5
+                 BBottles: speedup:  1.95 x (+/-0.023); compiled: [167,173,168,165,172]; mean   169. msec (+/-2); interpreted: [329,330,341,331,330]; mean 330.33 msec (+/-0)
+                     BFac: speedup:  3.32 x (+/-0.058); compiled: [433,433,448,441,445]; mean 439.67 msec (+/-6); interpreted: [1597,1457,1484,1416,1438,1441,1456,1459,1461,1481]; mean 1459.6 msec (+/-16)
+                     BFib: speedup:  3.80 x (+/-0.040); compiled: [876,861,863,861,888]; mean 866.67 msec (+/-8); interpreted: [3313,3276,3310,3301,3275]; mean 3295.7 msec (+/-17)
+                BMarriage: speedup:  1.53 x (+/-0.32); compiled: [150,146,143,146,160]; mean 147.33 msec (+/-2); interpreted: [302,279,206,184,191]; mean 225.33 msec (+/-47)
+           BSendMoreMoney: speedup:  1.78 x (+/-0.026); compiled: [4645,4522,4630,4525,4532]; mean 4562.3 msec (+/-58); interpreted: [8148,8224,8084,8100,8231,8101,8795,8083,8110,8099]; mean 8137.1 msec (+/-58)
+   BSendMoreMoneyNotTyped: speedup:  1.76 x (+/-0.023); compiled: [4457,4564,4593,4561,4466]; mean 4530.3 msec (+/-55); interpreted: [7931,7966,8007,7922,8265]; mean  7968. msec (+/-38)
+                  BSudoku: speedup:  1.60 x (+/-0.024); compiled: [1348,1391,1379,1430,1401]; mean 1390.3 msec (+/-11); interpreted: [2274,2190,2250,2193,2213]; mean 2218.7 msec (+/-28)
+                BTemplate: speedup:  10.6 x (+/-0.22); compiled: [294,283,279,295,295]; mean 290.67 msec (+/-6); interpreted: [3071,3042,3064,3079,3080]; mean 3071.3 msec (+/-7)
+Average speedup: 3.2889
+Minimal speedup: 1.5294
+Maximal speedup: 10.567
+==========================================================
+
+

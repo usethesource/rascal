@@ -12,6 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public final class StringUtils {
 	
@@ -125,5 +128,56 @@ public final class StringUtils {
 		
 		return result.toString();
 	}
+	
+	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z:][\\-_a-zA-Z0-9]*)\\s*$");
+
+	public static class OffsetLengthTerm {
+	  public OffsetLengthTerm(int offset, int length, String term) {
+	    this.offset = offset;
+	    this.length = length;
+	    this.term = term;
+    }
+	  public final int offset;
+	  public final int length;
+	  public final String term;
+	}
+	public static OffsetLengthTerm findRascalIdentifierAtOffset(String buffer, int offset) {
+		Matcher m = getLastIdentifier.matcher(buffer);
+		int split = findSplitPoint(offset, buffer);
+		if (split > 0) {
+		  m.region(0, split + 1);
+		}
+		if (m.matches()) {
+			String originalTerm = m.group(1).trim();
+			int startPos = m.start(1);
+			if(originalTerm.startsWith(":") && startPos != 0){
+				if(originalTerm.length() > 1){
+					originalTerm = originalTerm.substring(1);
+					startPos++;
+				} else {
+					return null;
+				}
+			}
+			return new OffsetLengthTerm(startPos, originalTerm.length(), originalTerm);
+		}
+		return null;
+	}
+	
+	private static boolean validRascalIdentifier(char c) {
+		return (c >= 'A' && c <= 'Z') 
+			|| (c >= 'a' && c <= 'z')
+			|| (c >= '0' && c <= '9')
+			|| c == '_' || c == '-' || c == ':'
+			;
+	}
+
+	private static int findSplitPoint(int currentCursorPosition, String currentConsoleInput) {
+		for (int i = currentCursorPosition; i < currentConsoleInput.length(); i++) {
+			if (!validRascalIdentifier(currentConsoleInput.charAt(i)))
+				return i - 1;
+		}
+		return -1;
+	}
+	
 	
 }

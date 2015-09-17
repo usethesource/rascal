@@ -15,6 +15,7 @@ import Set;
 import List;
 import ListRelation;
 import util::Math;
+import Type;
 
 private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
 private list[&T] emptyList(type[&T] _) = [];
@@ -46,7 +47,8 @@ test bool equal3(map[&K,&V] M1, map[&K,&V] M2)
 	= (M1 == M2) ==>
 	( domain(M1) == domain(M2)
 	&& range(M1) == range(M2)
-	&& (isEmpty(M1) || all(x <- M1, M1[x] == M2[x])));
+	&& (isEmpty(M1) || all(x <- M1, eq(M1[x],M2[x]))));
+	
 test bool equal4()
 {
 	map[int,int] iie = ();
@@ -67,9 +69,9 @@ test bool equal6()
 test bool in1(map[&K,&V] M) = isEmpty(M) || all(&K k <- M, k in M);
 test bool in2(&K k) = k in (k:k); 
 test bool in3(&K k, &V v, map[&K,&V] M) = k in (M + (k:v)); 
-test bool in4(&K k, &V v, map[&K,&V] M) = v == (M + (k:v))[k]; 
+test bool in4(&K k, &V v, map[&K,&V] M) = eq(v, (M + (k:v))[k]); 
 test bool in5(&K k, &V v, map[&K,&V] M) = k in ((k:v) + M); 
-test bool in6(&K k, &V v, map[&K,&V] M) = k in M || v == ((k:v) + M)[k]; 
+test bool in6(&K k, &V v, map[&K,&V] M) = k in M || eq(v, ((k:v) + M)[k]); 
 
 // intersection
 test bool intersection1() = (1:10, 2:20) & (3:30) == ();
@@ -156,8 +158,8 @@ bool isUnion(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
      isEmpty(B) ==> C == A ||
      ( domain(A) + domain(B) == domain(C) &&
        range(C) <= range(A) + range(B) &&
-       all(x <- C,  x in domain(B) && C[x] == B[x] || x in domain(A) && C[x] == A[x]) &&
-       all(x <- C,  (x in domain(B) && x in domain(A)) ==> C[x] == B[x])
+       all(x <- C,  x in domain(B) && eq(C[x],B[x]) || x in domain(A) && eq(C[x],A[x])) &&
+       all(x <- C,  (x in domain(B) && x in domain(A)) ==> eq(C[x],B[x]))
      );
     
 test bool union(map[&K, &V] A, map[&K, &V] B) = isUnion(A,   B,  A + B);
@@ -170,7 +172,7 @@ bool isDiff(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
      
 test bool diff(map[&K, &V] A, map[&K, &V] B) = isDiff(A, B, A - B);
  
-test bool intersection(map[&K, &V] A, map[&K, &V] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B, A[x] == B[x]);
+test bool intersection(map[&K, &V] A, map[&K, &V] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B, eq(A[x], B[x]));
 
 
 test bool lesseq(map[&K, &V] A, map[&K, &V] B)  = A <= (B + A); // right overwrites left
@@ -178,7 +180,7 @@ test bool lesseq(map[&K, &V] A, map[&K, &V] B)  = A <= (B + A); // right overwri
 test bool less(map[&K, &V] A, map[&K, &V] B) = (A != B + A) ==> A < (B + A);
 
 test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (B + A) >= A;
-test bool greater(map[int, str] A, map[int, str] B)  = B <= A || (B + A) > A;
+test bool greater(map[int, str] A, map[int, str] B)  = A<0> & B<0> == {} ==> B <= A || (B + A) > A;
 
 test bool intKeyHandling(){
     N = 10000;

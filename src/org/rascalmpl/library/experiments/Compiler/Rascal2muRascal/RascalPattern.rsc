@@ -118,7 +118,7 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    i = 0;
    while(i < len){
       r = lrexps[i];
-      //println("regexp: <r>");
+      //println("lregex[<i>]: <r>\nfragmentCode = <fragmentCode>");
       if("<r>" == "\\"){
          fragment += "\\" + (i < len  - 1 ? "<lrexps[i + 1]>" : "");
          i += 2;
@@ -161,15 +161,19 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
                        [ muCallPrim3("stringwriter_add", [muTmp(swriter,fuid), exp], e@\loc) | exp <- fragmentCode ] +
                        muCallPrim3("stringwriter_close", [muTmp(swriter,fuid)], e@\loc));
-   return <buildRegExp, varrefs>;
-   
+   return  <buildRegExp, varrefs>;   
 }
 
 tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
    exps = [];
    str fragment = "(";
+   atStart = true;
    for(nr <- namedregexps){
        elm = "<nr>";
+       if(atStart && size(trim(elm)) == 0){
+       	 continue;
+       }
+       atStart = false;
        if(size(elm) == 1){
          fragment += escape(elm, regexpEscapes);
        } else if(elm[0] == "\\"){
@@ -218,7 +222,7 @@ syntax ConcreteHole
  *   aspects of concrete patterns:
  *   - MATCH_APPL_IN_LIST: match a list element of the form appl(prod(...), ...)
  *   - MATCH_LIT_IN_LIST: match a lsit element of the form appl(prod(lit(S),...)
- *   - MATCH_OPTIONAL_LAYOUTR_IN_LIST: skips potential layout between list elements
+ *   - MATCH_OPTIONAL_LAYOUT_IN_LIST: skips potential layout between list elements
  *   - MATCH_CONCRETE_MULTIVAR_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST
  *   - SKIP_OPTIONAL_SEPARATOR: match a separator before or after a multivariable
@@ -251,10 +255,10 @@ loc getConcreteHoleVarLoc(h: appl(Production prod, list[Tree] args)) {
 }	
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), Symbol symbol){
- //println("translateParsedConcretePattern: <prod>, <symbol>");
+  //println("translateParsedConcretePattern: <prod>, <symbol>");
   if(isConcreteHole(t)){
      <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
-     return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("ConcreteVar", fuid, pos)]);
+     return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(symbol), muVarRef("ConcreteVar", fuid, pos)]);
   }
   //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
   prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
@@ -278,7 +282,7 @@ MuExp translateParsedConcretePattern(amb(set[Tree] alts), Symbol symbol) {
 }
 
 default MuExp translateParsedConcretePattern(Tree c, Symbol symbol) {
-   iprintln(c);
+   //iprintln(c);
    throw "translateParsedConcretePattern: Cannot handle <c> at <c@\loc>";
 }
 
@@ -334,7 +338,7 @@ list[Tree] removeSeparators(list[Tree] pats){
 }
 
 MuExp translateConcreteListPattern(list[Tree] pats, bool isLex){
- //println("Before: <for(p <- pats){><p><}>");
+ //println("translateConcreteListPattern: <for(p <- pats){><p><}>, isLex = <isLex>");
  pats = removeSeparators(pats);
  //println("After: <for(p <- pats){><p><}>");
  lookahead = computeConcreteLookahead(pats);  
@@ -387,18 +391,26 @@ int nIter(Tree pat){
 }
 
 MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
-  //println("translatePatAsConcreteListElem: <applProd>");
+  //println("translatePatAsConcreteListElem:"); iprintln(applProd);
+  //println("lex: <lex(_) := applProd.def>");
+  if(lex(_) := applProd.def){
+  	isLex = true;
+  }
     if(isConcreteHole(t)){
      varloc = getConcreteHoleVarLoc(t);
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      //println("holeType = <holeType>");
+    
      if(isIter(holeType)){
         if(isIterWithSeparator(holeType)){
            sep = getSeparator(holeType);
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
+           if(!isLex){
+           		holeType = insertLayout(holeType);
+           }
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
            													  muCon(nIter(holeType)), 
            													  muCon(1000000), 
@@ -409,6 +421,9 @@ MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
            //println("libFun = <libFun>");
            //println("lookahead = <lookahead>");
+            if(!isLex){
+           		holeType = insertLayout(holeType);
+           }
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
            													  muCon(nIter(holeType)), 
            													  muCon(1000000), 
@@ -862,18 +877,35 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	int i = nextVisit();	
 	// Generate and add a nested function 'phi'
 	str descId = topFunctionScope() + "/" + "DESC_<i>";
-	concreteMatch = isConcretePattern(pattern);
+	//subjectType = stripStart(subjectType);
+	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
+	descendantFun = concreteMatch && (subjectType != \str()) ? "DESCENT_AND_MATCH_CONCRETE" : "DESCENT_AND_MATCH";
 	tc = getTypesAndConstructors(pattern);
-    reachable = getReachableTypes(Symbol::\value(), tc.constructors, tc.types, concreteMatch);
+    reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
     descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
-    return muApply(mkCallToLibFun("Library","DESCENT_AND_MATCH"), [translatePat(pattern, Symbol::\value()),  descriptor]);
+    return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 
-// is  a pattern a concretePattern?
+// Strip start if present
 
-bool isConcretePattern(Pattern p) =
-	isNonTerminalType(getType(p@\loc));
+Symbol stripStart(\start(Symbol s)) = s;
+default Symbol stripStart(Symbol s) = s;
 
+// Is  a pattern a concretePattern?
+// Note that a callOrTree pattern always requires a visit of the production to inspect labeled fields and is etherefore
+// NOT a concrete pattern
+
+bool isConcretePattern(Pattern p) = 
+	isNonTerminalType(getType(p@\loc)) && !(p is callOrTree);
+	
+bool isConcreteType(Symbol subjectType) =
+	(  isNonTerminalType(subjectType)
+	|| subtype(subjectType, adt("Tree", [])) && subjectType != adt("Tree",[])
+	);
+	
+bool concreteTraversalAllowed(Pattern pattern, Symbol subjectType) =
+    isConcretePattern(pattern) && isConcreteType(subjectType);
+	
 // get the types and constructor names from a pattern
 
 tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<QualifiedName qualifiedName>`) =

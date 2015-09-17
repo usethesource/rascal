@@ -43,10 +43,10 @@ test bool notEqual(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(
 test bool intersection(set[&T] A, set[&T] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B);
 
 test bool lesseq(set[int] A, set[int] B)  = A <= (A + B);
-test bool less(set[int] A, set[int] B) = isEmpty(B) || A < (A + B);
+test bool less(set[int] A, set[int] B) = (A & B == {} && !isEmpty(B)) ==> A < (A + B);
 
 test bool greatereq(set[int] A, set[int] B)  = (A + B) >= A;
-test bool greater(set[int] A, set[int] B)  = isEmpty(B) || (A + B) > A;
+test bool greater(set[int] A, set[int] B)  = (A & B == {} && !isEmpty(B)) ==> (A + B) > A;
 
 test bool tst_in(int A, set[int] B) = A in (A + B) && A in (B + A);
 test bool tst_notin(int A, set[int] B) = A notin (B - A);
@@ -119,7 +119,7 @@ data X = y(int y);
 data X(int z = 0);
 test bool tst_toMapAnnotations(int a, int b) {
 	m = toMap({<y(1)[z=a], a>, <y(1)[z=b], b>});
-	return m[y(1,z=a)] == {a};
+	return eq(m[y(1,z=a)], {a});
 }
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
@@ -139,8 +139,8 @@ test bool dtstDifference(set[&T] s) {
 	for(int i <- [0..size(s)]) {
 		&T elem = getOneFrom(s);
 		lhs = s - {elem};
-		rhs = { el | &T el <- s, el != elem };
-		check = check && lhs == rhs && typeOf(lhs) == typeOf(rhs);
+		rhs = { el | &T el <- s, !eq(el, elem) };
+		check = check && eq(lhs,rhs) && typeOf(lhs) == typeOf(rhs);
 	}
 	return check;
 }
@@ -152,7 +152,7 @@ test bool dtstIntersection(set[&T] s) {
 	for(set[&T] sub <- subs) {
 	lhs = s & sub;
 	rhs = { el | &T el <- s, el in sub };
-		check = check && lhs == rhs && typeOf(lhs) == typeOf(rhs);
+		check = check && eq(lhs,rhs) && typeOf(lhs) == typeOf(rhs);
 		}	
 	return check;
 }

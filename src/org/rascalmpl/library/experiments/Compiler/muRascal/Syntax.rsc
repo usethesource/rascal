@@ -8,27 +8,27 @@ module experiments::Compiler::muRascal::Syntax
  * Use of () to enable work around the manual layout  
  */
 
-layout LAYOUTLIST
-  = LAYOUT* !>> [\t \n \r \ ] !>> "//" !>> "/*";
+layout MuLayoutList
+  = MuLayout* !>> [\t \n \r \ ] !>> "//" !>> "/*";
 
 lexical NoNL
-  = Comment 
+  = MuComment 
   | [\t \ ];
   
 layout NoNLList
   = @manual NoNL* !>> [\t \ ] !>> "//" !>> "/*";
   
-lexical LAYOUT
-  = Comment 
+lexical MuLayout
+  = MuComment 
   | [\t-\n \r \ ];
     
-lexical Comment
+lexical MuComment
   = @category = "Comment" "/*" (![*] | [*] !>> [/])* "*/" 
   | @category = "Comment" "//" ![\n]* [\n]; 
 
 // lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = mulabel: ( [$][A-Za-z][A-Za-z0-9]+ !>> [A-Za-z0-9] ) \ Keywords;
+lexical MuLabel = mulabel: ( [$][A-Za-z][A-Za-z0-9]+ !>> [A-Za-z0-9] ) \ Keywords;
 lexical FConst = ( [A-Z][A-Z0-9_]* !>> [A-Z0-9_] )                 \ Keywords;
 lexical MConst = ( [A-Z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )           \ Keywords;
 lexical TConst = @category = "IType" ( [a-z][a-z]* !>> [a-z] )     \ Keywords;
@@ -151,9 +151,9 @@ syntax Exp  =
 			
 		
 			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}" 	
-		 	| preIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"			
+		 	| preIfelse: 				MuLabel label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"			
 			| preWhile: 				"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
-			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
+			| preWhile: 				MuLabel label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
 			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ type_cases "default" ":" Exp default ";"? "}"
 			// Note: switch has not been added to concrete muRascal

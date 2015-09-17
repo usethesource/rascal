@@ -5,6 +5,9 @@ import Set;
 import Map;
 import Type;
 
+// the only way two values can be equal while their run-time types are not is due to conversion between int, real, rat by `==`
+test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || size({typeOf(x), typeOf(y)} & {\int(), \real(), \rat()}) > 1;
+  
 // values have an equivalence relation
 test bool reflexEq(value x) = x == x;
 test bool transEq(value x, value y, value z) = (x == y && y == z) ==> (x == z);
@@ -89,7 +92,7 @@ test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= y + x; 
 java.lang.Exception: failed for arguments: (true:"",-1185257414:"1sn"({""()},"冖񓱍资"(|tmp:///|),-304421973r46873778,["R7jZ"()])) 
                                            (true:"",$3632-03-24T14:03:39.476+01:00$:["0Xo","",""],|tmp:///|:$2015-08-06T08:23:51.810+01:00$,|tmp:///R66k|:<"h7"()>) 
 */
-test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, y[e] == x[e]));
+test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, eq(y[e], x[e])));
 
 // maps are partially ordered
 test bool setReflexLTE(map[value,value] x) = (x <= x);

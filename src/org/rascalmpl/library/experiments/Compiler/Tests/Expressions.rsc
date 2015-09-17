@@ -137,7 +137,7 @@ test bool tst() = run("[1,2,3] + 4") == [1,2,3] + 4;
 @ignoreInterpreter{Not supported}
 test bool tst() = run(" 4 \>\> [1,2,3]") == 4 + [1,2,3];
 @ignoreInterpreter{Not supported}
-test bool tst() = run(" [1,2,3] \<\< 4") == 4 + [1,2,3];
+test bool tst() = run(" [1,2,3] \<\< 4") == [1,2,3] + 4;
 
 @ignoreInterpreter{Not supported}
 test bool tst() = run("[1,2,3] \<\< 4") == [1,2,3] << 4;
@@ -291,10 +291,21 @@ test bool tst() = run("all(int x \<- [1,2,13,3], x \> 20)") == all(int x <- [1,2
 test bool tst() = run("all(int x \<- [1,2,3], x \>= 2 )") == all(int x <- [1,2,3], x >= 2 );
 test bool tst() = run("all(int x \<- [1,2,3], x \<= 2 )") == all(int x <- [1,2,3], x <= 2 );
 
-// NOTE: incompatibilities interpreter/compiler:
+@ignoreCompiler{incompatibilities interpreter/compiler, note the ! on the right-hand side}
 test bool tst() = run("all(int x \<- [])") == !all(int x <- []);
+@ignoreInterpreter{incompatibilities interpreter/compiler, when running as compiled code both sides should be equal}
+test bool tst() = run("all(int x \<- [])") == all(int x <- []);
+
+@ignoreCompiler{incompatibilities interpreter/compiler, note the ! on the right-hand side}
 test bool tst() = run("all(i \<- [1,2,3], (i % 2 == 0 || i % 2 == 1))") == !all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1));
+@ignoreInterpreter{incompatibilities interpreter/compiler, when running as compiled code both sides should be equal}
+test bool tst() = run("all(i \<- [1,2,3], (i % 2 == 0 || i % 2 == 1))") == all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1));
+
+@ignoreCompiler{incompatibilities interpreter/compiler, note the ! on the right-hand side}
 test bool tst() = run("all([*x, *y] := [1,2,3], true)") == !all([*x, *y] := [1,2,3], true);
+@ignoreInterpreter{incompatibilities interpreter/compiler, when running as compiled code both sides should be equal}
+test bool tst() = run("all([*x, *y] := [1,2,3], true)") == all([*x, *y] := [1,2,3], true);
+
 
 test bool tst() = run("all(int M \<- {1,2}, M == 1, true)") == all(int M <- {1,2}, M == 1, true);
 

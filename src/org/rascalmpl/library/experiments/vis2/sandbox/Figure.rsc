@@ -20,9 +20,14 @@ import lang::json::IO;
 
 alias Position = tuple[num x, num y];
 
+alias Rotate = tuple[num angle, num x, num y];
+
 alias Rescale = tuple[tuple[num, num], tuple[num, num]];
 
+
 // Alignment for relative placement of figure in parent
+
+
 
 public alias Alignment = tuple[num hpos, num vpos];
 
@@ -43,8 +48,15 @@ public Alignment bottomRight	= <1.0, 1.0>;
 
 
 data Event 
-	= on()
-	| on(str eventName, void(str, str) callback)
+	= on(void(str, str, str) callBackS)
+	| on(void(str, str, real) callBackR)
+	| on(void(str, str, int) callBackI)
+	| on(str eventName, void(str, str, str) callbackS)
+	| on(str eventName, void(str, str, real) callbackR)
+	| on(str eventName, void(str, str, int) callbackI)
+	| on(list[str] eventList, void(str, str, str) callbackS)
+	| on(list[str] eventList, void(str, str, real) callbackR)
+	| on(list[str] eventList, void(str, str, int) callbackI)
 	;
 		
 //alias Cursor[&T] = &T;
@@ -108,9 +120,44 @@ public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
 
+void nullCallback(str x, str y, str z) = "";
+
+public data Attr (
+    int width = -1,
+    int height =  -1,
+    int r = -1,
+    num grow = 1.0  
+    ) = attr();
+    
+public data Property (
+     value \value = ""
+    ) = property();
+    
+public data Style (	
+    bool svg = false,
+    str visibility = "", 
+    int width = -1,
+    int height = -1,	
+    int lineWidth = -1,			
+    str lineColor = "", 
+    str fillColor= "", 
+    num fillOpacity = -1.0, 
+    num lineOpacity= -1.0   
+    ) = style();
+    
+    
+public data Text (		
+    str text = ""  
+    ) = text();
+    
+public alias Prop =
+    tuple[Attr attr, Style style,  Property property, Text text];
+    
+    
 public data Figure(
         // Naming
         str id = "",
+        str visibility = "", 
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
@@ -120,6 +167,7 @@ public data Figure(
 		int cellHeight = -1,
 		int cellWidth = -1,
 		Position at = <0,0>,
+		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
 		tuple[int,int] gap = <0,0>,
@@ -129,7 +177,7 @@ public data Figure(
     	// Line properties
     
 		int lineWidth = -1,			
-		str lineColor = "black", 		
+		str lineColor = "", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
@@ -150,10 +198,9 @@ public data Figure(
 		str fontWeight = "",// "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
 		str fontColor = "", // "black",
 		str textDecoration	= "", //"none",	// none|underline|overline|line-through|initial|inherit
-		
 		// Interaction
 	
-		Event event = on(),
+		Event event = on(nullCallback),
 		
 		// Tooltip
 		str tooltip = ""
@@ -164,7 +211,8 @@ public data Figure(
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | text(value text)		    			// text label
+   | text(value text)		    			// text label html
+   | label(value text)		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -172,7 +220,7 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | frame(Figure fig=emptyFigure())
+   | frame(Figure fig=emptyFigure()) // Invisible box
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
@@ -184,6 +232,7 @@ public data Figure(
      )	// regular polygon
    
    | polygon(Points points=[], bool fillEvenOdd = true,
+            bool yReverse = false,
             Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>)
    
@@ -191,14 +240,15 @@ public data Figure(
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
-   			bool fillEvenOdd = true,		// The fill rule to be used. (TODO: remove?)
+   			bool fillEvenOdd = true,
+   			bool yReverse = true,		// The fill rule to be used. (TODO: remove?)
    			Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>,
    			Figure startMarker=emptyFigure(),
    			Figure midMarker=emptyFigure(), 
    			Figure endMarker=emptyFigure())
    
-   | image(loc url=|home:///|)
+   | image(str src="")
 
 // Figure composers
                    
@@ -214,16 +264,17 @@ public data Figure(
    | atY(int y, Figure fig)
    
   	//TODO: avoid name clash with Math::util:scale
-   | SCALE(num factor, Figure fig)
+ //  | SCALE(num factor, Figure fig)
    
+   // Advised to embed the figure in a frame and use that frame as argument of rotate
    | rotate(num angle, Figure fig)
+   
 
 // Input elements
 
-   | buttonInput(str trueText = "", str falseText = "")
-   | button(str txt)
-   | checkboxInput()
-   | choiceInput(list[str] choices = [])
+   | buttonInput(str txt)
+   | checkboxInput(list[str] choices = ["0"], value \value = ())
+   | choiceInput(list[str] choices = ["0"], value \value = choices[0])
    | colorInput()
    
    // date
@@ -236,8 +287,8 @@ public data Figure(
    // url
    
    | numInput()
-   | rangeInput(int low=0, int high=100, int step=1)
-   | strInput()
+   | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
+   | strInput(int nchars=20, value \value="")
    
 // Visibility control elements
 
@@ -260,12 +311,14 @@ public data Figure(
 	| candlestickchart(GoogleData googleData =[], ChartOptions options = chartOptions())
 	| piechart(GoogleData googleData = [],  ChartOptions options = chartOptions())
 // Graphs
-
+// Must be used as innerfigure in box(fig=..., align = topLeft). 
+// Advised is to use the function graph(nodes, edges)
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, Dot] nodeProp = (), 
-     Figure marker = emptyFigure, GraphOptions options = graphOptions())
+     GraphOptions options = graphOptions())
  
 // Trees
-	| tree(Figure root, Figures children)
+	| tree(Figure root, Figures figs, int scaleX=5, int scaleY=5, int rasterHeight=100
+	       ,int xSeparation = 5, int ySeparation = 10)
    ;
    
 data GraphOptions = graphOptions(
@@ -276,7 +329,7 @@ data GraphOptions = graphOptions(
 data Dot = dot(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
-    ,str labelStyle="", str arrowStyle = "");
+     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "");
   
 data ChartArea ( 
      value left = "",
@@ -531,5 +584,172 @@ public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
 
+public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
+   int lineWidth = 1) =  
+   box(fig = graph(nodes = n, edges = e,
+               nodeProp = (), size = size, width = width, height = height,
+               options = graphOptions()), align = topLeft, lineWidth = lineWidth);
+               
+public Figure overlayBox(int width, int height, list[Figure] figs) {
+      list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
+      return overlay(figs = b);
+      }
+      
+public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
+      ,str lineColor = "", int lineWidth = -1, str fillColor = ""
+      , int width = -1, int height = -1
+      , bool fillEvenOdd = true
+      ) {
+      Vertices v = [move(head(xy)[0], head(xy)[1])]
+                  +[line(d[0], d[1])|d<-tail(xy)];
+      return shape(v, scaleX = x, scaleY = y, shapeCurved = shapeCurved,
+      lineColor = lineColor, lineWidth = lineWidth, fillColor = fillColor,
+      width = width, height = height, fillEvenOdd = fillEvenOdd);
+      }
+      
 
+public list[str] colors = 
+["aliceblue",
+            "antiquewhite",
+            "aqua",
+            "aquamarine",
+            "azure",
+            "beige",
+            "bisque",
+            "black",
+            "blanchedalmond",
+            "blue",
+            "blueviolet",
+            "brown",
+            "burlywood",
+            "cadetblue",
+            "chartreuse",
+            "chocolate",
+            "coral",
+            "cornflowerblue",
+            "cornsilk",
+            "crimson",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgoldenrod",
+            "darkgray",
+            "darkgreen",
+            "darkkhaki",
+            "darkmagenta",
+            "darkolivegreen",
+            "darkorange",
+            "darkorchid",
+            "darkred",
+            "darksalmon",
+            "darkseagreen",
+            "darkslateblue",
+            "darkslategray",
+            "darkturquoise",
+            "darkviolet",
+            "deeppink",
+            "deepskyblue",
+            "dimgray",
+            "dodgerblue",
+            "firebrick",
+            "floralwhite",
+            "forestgreen",
+            "fuchsia",
+            "gainsboro",
+            "ghostwhite",
+            "gold",
+            "goldenrod",
+            "gray",
+            "green",
+            "greenyellow",
+            "honeydew",
+            "hotpink",
+            "indianred",
+            "indigo",
+            "ivory",
+            "khaki",
+            "lavender",
+            "lavenderblush",
+            "lawngreen",
+            "lemonchiffon",
+            "lightblue",
+            "lightcoral",
+            "lightcyan",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightgreen",
+            "lightpink",
+            "lightsalmon",
+            "lightseagreen",
+            "lightskyblue",
+            "lightslategray",
+            "lightsteelblue",
+            "lightyellow",
+            "lime",
+            "limegreen",
+            "linen",
+            "magenta",
+            "maroon",
+            "mediumaquamarine",
+            "mediumblue",
+            "mediumorchid",
+            "mediumpurple",
+            "mediumseagreen",
+            "mediumslateblue",
+            "mediumspringgreen",
+            "mediumturquoise",
+            "mediumvioletred",
+            "midnightblue",
+            "mintcream",
+            "mistyrose",
+            "moccasin",
+            "navajowhite",
+            "navy",
+            "oldlace",
+            "olive",
+            "olivedrab",
+            "orange",
+            "orangered",
+            "orchid",
+            "palegoldenrod",
+            "palegreen",
+            "paleturquoise",
+            "palevioletred",
+            "papayawhip",
+            "peachpuff",
+            "peru",
+            "pink",
+            "plum",
+            "powderblue",
+            "purple",
+            "rebeccapurple",
+            "red",
+            "rosybrown",
+            "royalblue",
+            "saddlebrown",
+            "salmon",
+            "sandybrown",
+            "seagreen",
+            "seashell",
+            "sienna",
+            "silver",
+            "skyblue",
+            "slateblue",
+            "slategray",
+            "snow",
+            "springgreen",
+            "steelblue",
+            "tan",
+            "teal",
+            "thistle",
+            "tomato",
+            "turquoise",
+            "violet",
+            "wheat",
+            "white",
+            "whitesmoke",
+            "yellow",
+            "yellowgreen"
+        ];
+        
    

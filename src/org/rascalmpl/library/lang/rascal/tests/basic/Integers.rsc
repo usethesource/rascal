@@ -16,9 +16,9 @@ test bool neutralMulOne(int i) = 1 * i == i;
 
 test bool neutralDivOne(int i) = i / 1 == i;
 
-test bool dualMulDiv(int i, int j) = (i * j) / j == i;
+test bool dualMulDiv(int i, int j) = j != 0 ==> ((i * j) / j == i);
 
-test bool MulDivMod(int i, int j) = ((i / j) * j) + (i % j) == i;
+test bool MulDivMod(int i, int j) = j != 0 ==> (((i / j) * j) + (i % j) == i);
 
 test bool dualAddSub(int i, int j) = (i - j) + j == i && (i + j) - j == i;
 

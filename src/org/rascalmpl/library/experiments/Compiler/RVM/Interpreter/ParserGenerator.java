@@ -27,9 +27,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;						// remove import: NO
 import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import: YES
-import org.rascalmpl.interpreter.IRascalMonitor;					// remove import: NO
 import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import: LATER
 import org.rascalmpl.interpreter.env.GlobalEnvironment;				// TODO: remove import: YES
 import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove import: YES
@@ -48,13 +48,13 @@ public class ParserGenerator {
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment scope = new ModuleEnvironment("___parsergenerator___", heap);
+		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		this.evaluator.setBootstrapperProperty(true);
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
-		monitor.startJob("Loading parser generator", 100, 139);
+		monitor.startJob("Compiled -- Loading parser generator, 2", 100, 139);
 		try {
 			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 			evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
@@ -87,7 +87,7 @@ public class ParserGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		monitor.startJob("Generating parser:" + name, 100, 90);
+		monitor.startJob("Compiled -- Generating parser: " + name, 100, 90);
 
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
@@ -242,7 +242,7 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
   public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
-  	monitor.startJob("Generating parser:" + name, 100, 60);
+  	monitor.startJob("Compiled -- Generating new parser:" + name, 100, 60);
   	try {
 
   		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");

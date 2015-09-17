@@ -409,7 +409,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 	}
 
 	<U extends IValue> Result<U> widenToReal() {
-		return makeResult(getTypeFactory().realType(), getValue().toReal(), ctx);
+		return makeResult(getTypeFactory().realType(), getValue().toReal(getValueFactory().getPrecision()), ctx);
 	}
 
 	<U extends IValue> Result<U> widenToRational() {

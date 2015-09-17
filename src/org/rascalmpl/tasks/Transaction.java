@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.facts.AbstractFact;
 

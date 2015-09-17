@@ -67,7 +67,16 @@ function askServer(path, parameters, callback) {
  rxL= function(rx, ry) {return rx * Math.sqrt(rx*rx+ry*ry)/ry;};
  ryL= function(rx, ry) {return ry * Math.sqrt(rx*rx+ry*ry)/rx;};
  
- 
+ function svgStyle(s, svg) {
+     switch (s) {
+          case "fillColor": return svg?"fill":"background";
+          case "lineColor": return svg?"stroke":"border-color";
+          case "lineWidth": return svg?"stroke-width":"border-width";
+          case "fillOpacity": return svg?"fill-opacity":"opacity";
+          case "lineOpacity": return svg?"stroke-opacity":"opacity";
+          }
+     return s;
+     }
  
  function adjust0(id0, id1, lw, hpad, vpad) { 
     var d = d3.select("#"+id0);
@@ -103,7 +112,7 @@ function askServer(path, parameters, callback) {
                      height= 2*ry + lw;               
                     break; 
         };
-    // d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
+    d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
     d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
     d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
    }
@@ -286,5 +295,8 @@ function askServer(path, parameters, callback) {
        d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
        d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
        }
-       
+   
+function isObject (item) {
+  return (typeof item === "object" && !Array.isArray(item) && item !== null);
+  }    
   

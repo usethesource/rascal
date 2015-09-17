@@ -3,6 +3,8 @@ module experiments::Compiler::muRascal2RVM::mu2rvm
 import IO;
 import Type;
 import List;
+import Set;
+import Map;
 import ListRelation;
 import Node;
 import Message;
@@ -12,10 +14,6 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-//import experiments::Compiler::muRascal::Implode;
-
-//import experiments::Compiler::Rascal2muRascal::RascalModule;
-//import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
@@ -32,6 +30,7 @@ private int nlabel = -1;
 private str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 private str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
+private str surroundingFunctionScope = "";		// scope name of surrounding function
 
 public void setFunctionScope(str scopeId){
 	functionScope = scopeId;
@@ -180,11 +179,11 @@ void resetShiftCounter() {
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, 
+RVMModule mu2rvm(muModule(str module_name, 
 						   map[str,str] tags,
 						   set[Message] messages, 
-						   list[loc] imports,
-						   list[loc] extends, 
+						   list[str] imports,
+						   list[str] extends, 
 						   map[str,Symbol] types,  
 						   map[Symbol, Production] symbol_definitions,
                            list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, 
@@ -192,11 +191,13 @@ RVMProgram mu2rvm(muModule(str module_name,
                            map[str,int] resolver,
                            lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions, 
                            map[Symbol, Production] grammar, 
+                           rel[str,str] importGraph,
                            loc src), 
-                  bool listing=false){
+                  bool listing=false,
+                  bool verbose=true){
  
   if(any(m <- messages, error(_,_) := m)){
-    return errorRVMProgram(module_name, messages, src);
+    return errorRVMModule(module_name, messages, src);
   }
  
   main_fun = getUID(module_name,[],"MAIN",2);
@@ -225,7 +226,7 @@ RVMProgram mu2rvm(muModule(str module_name,
       case muAssignTmp(str id, str fuid, _): getTmp(id,fuid);
   }
     
-  println("mu2rvm: Compiling module <module_name>");
+  if(verbose) println("mu2rvm: Compiling module <module_name>");
   
   for(fun <- functions) {
     scopeIn[fun.qname] = fun.scopeIn;
@@ -233,6 +234,7 @@ RVMProgram mu2rvm(muModule(str module_name,
  
   for(fun <- functions){
     functionScope = fun.qname;
+    surroundingFunctionScope = fun.scopeIn;
     localNames = ();
     exceptionTable = [];
     catchBlocks = [[]];
@@ -334,7 +336,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, tags, messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, src);
+  res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
 
@@ -403,6 +405,7 @@ INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 // Variables and assignment
 
 INS tr(muVar(str id, str fuid, int pos)) {
+   
     if(fuid == functionScope){
        localNames[pos] = id;
        return [ LOADLOC(pos) ];
@@ -474,12 +477,28 @@ INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src))
 	= [ *tr(args),
 	    *tr(fun), 
 		OCALLDYN(types, size(args), src)];
+		
+// Visit
+INS tr(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd))
+	= [ *tr(phi),
+	    *tr(subject),
+	    *tr(refHasMatch),
+	    *tr(refBeenChanged),
+	    *tr(refLeaveVisit),
+	    *tr(refBegin),
+	    *tr(refEnd),
+	    *tr(descriptor),
+	    VISIT(direction, fixedpoint, progress, rebuild)
+	  ];
+
 
 // Calls to Rascal primitives
 
 INS tr(muCallPrim3("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
 INS tr(muCallPrim3("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
 INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
+INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
+
 
 default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
 

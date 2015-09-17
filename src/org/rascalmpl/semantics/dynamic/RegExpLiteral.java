@@ -216,7 +216,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
 		@Override
 		public String getString(IEvaluatorContext env) {
-			Result<IValue> variable = env.getCurrentEnvt().getVariable(name);
+			Result<IValue> variable = env.getCurrentEnvt().getFrameVariable(name);
 			
 			if (variable == null) {
 				throw new UndeclaredVariable(name, env.getCurrentAST());

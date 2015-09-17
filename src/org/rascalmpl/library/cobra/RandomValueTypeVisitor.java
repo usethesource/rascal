@@ -245,7 +245,16 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitInteger(Type type) {
-		return vf.integer(stRandom.nextInt());
+	  if (stRandom.nextFloat() > 0.6) {
+	    return vf.integer(stRandom.nextInt());
+	  }
+	  if (stRandom.nextFloat() > 0.6) {
+	    return vf.integer(stRandom.nextInt(10));
+	  }
+	  if (stRandom.nextFloat() > 0.6) {
+	    return vf.integer(-stRandom.nextInt(10));
+	  }
+	  return vf.integer(0);
 	}
 	
 	private IValue genList(Type type){
@@ -351,7 +360,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitReal(Type type) {
-		return vf.real(stRandom.nextDouble());
+	  if (stRandom.nextDouble() > 0.6) {
+	    return vf.real(stRandom.nextDouble());
+	  }
+	  if (stRandom.nextDouble() > 0.6) {
+	    return vf.real(-stRandom.nextDouble());
+	  }
+	  return vf.real(0.0);
 	}
 
 	@Override

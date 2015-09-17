@@ -116,7 +116,7 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted4.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted6.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
@@ -154,7 +154,7 @@ void initialize(int n){
 
 void precompile(list[str] jobs) {
   for(job <- jobs) {
-      compile(base + (job + ".rsc"), recompile=true);
+      execute(base + (job + ".rsc"), [], recompile=true, serialize=true);
   }
 }
 
@@ -200,8 +200,8 @@ void runInterpreted(str job) {
 // Remove the smalles and largest number from a list of observations
 
 list[num] removeExtremes(list[num] results){
-   results = delete(results, indexOf(results, min(results)));
-   return delete(results, indexOf(results, max(results)));
+   results = delete(results, indexOf(results, List::min(results)));
+   return delete(results, indexOf(results, List::max(results)));
 }
 
 // Analyze the timings for on benchmark job
@@ -250,8 +250,8 @@ void report(list[Analysis] results){
      report_one(a);
   }
   println("Average speedup: <precision(mean(results.speedup), 5)>");
-  println("Minimal speedup: <precision(min(results.speedup), 5)>");
-  println("Maximal speedup: <precision(max(results.speedup), 5)>");
+  println("Minimal speedup: <precision(List::min(results.speedup), 5)>");
+  println("Maximal speedup: <precision(List::max(results.speedup), 5)>");
   println("<sep>");
 }
 
@@ -275,20 +275,32 @@ void main(){
   run_benchmarks(10, toList(domain(jobs)));
 }
 
+void main_visit(){
+	run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"]);	
+}
+
+void main_fac(){
+	run_benchmarks(10, ["BFac"]);	
+}
+
+void main_money(){
+	run_benchmarks(10, ["BSendMoreMoney"]);	
+}
+
 void main_paper(){
   main_paper1();
   main_paper2();
 }
 
 void main_paper1(){
-   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
              		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
              	]);
 }
 
 void main_paper2(){
-   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
+   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
    						//"BRSFCalls",
    						"BSendMoreMoney",
    						"BSendMoreMoneyNotTyped",

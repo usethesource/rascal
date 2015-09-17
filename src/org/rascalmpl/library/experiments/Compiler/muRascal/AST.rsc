@@ -18,8 +18,8 @@ public data MuModule =
               muModule(str name, 
               		   map[str,str] tags,
                        set[Message] messages,
-                       list[loc] imports,
-                       list[loc] extends,
+                       list[str] imports,
+                       list[str] extends,
               		   map[str,Symbol] types, 
               		   map[Symbol, Production] symbol_definitions,
                        list[MuFunction] functions, 
@@ -29,10 +29,11 @@ public data MuModule =
                        map[str,int] resolver,
                        lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
                        map[Symbol, Production] grammar,
+                       rel[str,str] importGraph,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], 0, (), [], (), src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], 0, (), [], (), {}, src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -194,6 +195,8 @@ public data MuExp =
           //| muContVar(str fuid)
           //| muReset(MuExp fun)
           //| muShift(MuExp exp)
+          
+          | muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd)
           ;
           
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);

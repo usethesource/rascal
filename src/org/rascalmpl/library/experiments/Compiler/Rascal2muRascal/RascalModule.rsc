@@ -64,19 +64,19 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 //   	warnings = [ w | w:warning(_,_) <- config.messages ];
 //   
 //   	if(size(errors) > 0) {
-//   	    return errorMuModule("<M.header.name>", config.messages, M.origin);
+//   	    return errorMuModule("<M.header.name>", config.messages, M@\loc);
 //   	 }
 //   	 
 //   	 return r2mu(M, config);
 //}
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
    try {
     resetModuleInfo();
     module_name = "<M.header.name>";
     setModuleName(module_name);
-    println("r2mu: entering ... <module_name>");
+    if(verbose) println("r2mu: entering ... <module_name>");
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
    	  
@@ -140,7 +140,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
    	 
-   	  generate_tests(modName, M.origin);
+   	  generate_tests(modName, M@\loc);
    	  
    	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
@@ -169,14 +169,15 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config){
    	  				  getOverloadingResolver(),
    	  				  overloaded_functions, 
    	  				  getGrammar(),
-   	  				  M.origin);
+   	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
+   	  				  M@\loc);
 
    } 
    //catch Java("ParseError","Parse error"): {
-   //	   return errorMuModule(getModuleName(), {error("Syntax errors in module <M.header.name>", M.origin)}, M.origin);
+   //	   return errorMuModule(getModuleName(), {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
    //} 
    catch e: {
-        return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M.origin)}, M.origin);
+        return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M@\loc)}, M@\loc);
    }
    finally {
    	   resetModuleInfo();
@@ -195,13 +196,13 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    addImportToModule(getModuleLocation(qualifiedNameToPath(qname)));
+    addImportToModule("<qname>");
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){
-	moduleLoc = getModuleLocation(qualifiedNameToPath(qname));
-	addImportToModule(moduleLoc);
-	addExtendToModule(moduleLoc);
+	moduleName = "<qname>";
+	addImportToModule(moduleName);
+	addExtendToModule(moduleName);
 }
 
 private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }

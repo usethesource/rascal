@@ -21,8 +21,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: YES
-import org.rascalmpl.interpreter.IRascalMonitor;				// remove import: NO
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
@@ -48,6 +48,7 @@ public class ParsingTools {
 	private IValueFactory vf;
 	private IRascalMonitor monitor;
 	private List<ClassLoader> classLoaders;
+	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parsers;
 	private RascalExecutionContext rex;
@@ -56,6 +57,7 @@ public class ParsingTools {
 		super();
 		this.vf = vf; 
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
+		stdout = new PrintWriter(System.out);
 		stderr = new PrintWriter(System.err);
 	}
 	
@@ -66,6 +68,7 @@ public class ParsingTools {
 	public void setContext(RascalExecutionContext rex){
 		this.rex = rex;
 		monitor = rex.getMonitor();
+		stdout = rex.getStdOut();
 		stderr = rex.getStdErr();
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
 		classLoaders = rex.getClassLoaders();
@@ -94,7 +97,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		//stderr.println("Storing parser for " + moduleName + "/" + start);
+		stderr.println("Compiled -- Storing parser for " + moduleName /*+ "/" + start*/);
 		parsers.put(start, parser);
 	}
 
@@ -106,7 +109,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parsers.get(start);
-		//stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
+		stderr.println("Compiled -- Retrieving parser for " + moduleName + /* "/" + start + */ ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -306,7 +309,7 @@ public class ParsingTools {
 	private ParserGenerator parserGenerator;
 	
 	public ParserGenerator getParserGenerator() {
-		startJob("Loading parser generator", 40);
+		startJob("Compiled -- Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
 		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
@@ -327,7 +330,7 @@ public class ParsingTools {
 	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax) {
 
 		if(getBootstrap(name)){
-			stderr.println("getParser: " + name + " returns RascalParser");
+			//stderr.println("Compiled -- getParser: " + name + " returns RascalParser");
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator();
@@ -337,7 +340,7 @@ public class ParsingTools {
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
-	     //stderr.println("name = " + name);
+	     stderr.println("Compiled -- getParser: name = " + name);
 	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions);
 	      storeObjectParser(name, start, parser);
 	    }
@@ -360,18 +363,18 @@ public class ParsingTools {
 	  // Rascal library function (interpreter version)
 	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		  if(rex == null){
-			  rex = new RascalExecutionContext(vf, null, null, null, false, false, false, false, false, ctx, null);
+			  rex = new RascalExecutionContext(vf, new PrintWriter(stdout), new PrintWriter(stderr), null, null, null, false, false, false, false, false, false, null);
 		  }
 		  return parseFragment(name, start, tree, loc, grammar);
 	  }
 		
-	// Rascal library function (compiler version)
-	public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
-		if(this.rex == null){
-			this.rex = rex;
-		}
-		return parseFragment(name, start, tree, loc, grammar);
-	}
+	  // Rascal library function (compiler version)
+	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+		  if(this.rex == null){
+			  this.rex = rex;
+		  }
+		  return parseFragment(name, start, tree, loc, grammar);
+	  }
 	
 	/**
 	 * This function will reconstruct a parse tree of a single nested concrete syntax fragment
@@ -380,6 +383,14 @@ public class ParsingTools {
 	 */
 
 	ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation uri, IMap grammar) {
+		IConstructor prod = (IConstructor) tree.get("prod");
+		IConstructor def = (IConstructor) prod.get("def");
+		if(def.getName().equals("label")){
+			String defName = ((IString) def.get("name")).getValue();
+			boolean b = defName.equals("$parsed");
+			if(b) return (ITree) tree;
+		}
+		
 	    ITree symTree = TreeAdapter.getArg((ITree) tree, "symbol");
 	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
 	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();
