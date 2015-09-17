@@ -532,13 +532,7 @@ public class CommandExecutor {
 	
 	public Collection<String> completePartialIdentifier(String term) {
 		if(rvmConsoleExecutable != null){
-			NameCompleter completer = new NameCompleter();
-			String[] commandKeywords = {":set", "undeclare", ":help", ":unimport", 
-					":declarations", ":quit", ":test", ":modules", ":clear"};
-			for(String kw : commandKeywords){
-				completer.add(kw, term);
-			}
-			return rvmConsoleExecutable.completePartialIdentifier(completer, term).getResult();
+			return rvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
 		}
 		return null;
 	}
