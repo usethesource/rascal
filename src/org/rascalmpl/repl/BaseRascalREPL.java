@@ -229,6 +229,6 @@ public abstract class BaseRascalREPL extends BaseREPL {
   }
   
   private CompletionResult completeREPLCommand(String line, int cursor) {
-      return null;
+      return RascalCommandCompletion.complete(line, cursor, (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
   }
 }
