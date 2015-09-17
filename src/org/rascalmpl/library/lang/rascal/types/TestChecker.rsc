@@ -40,7 +40,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 	try {
 		pt = parseModuleWithSpaces(moduleLoc);
 
-		if (pt has top && Module m := pt.top) {
+		if (pt has top && lang::rascal::\syntax::Rascal::Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
 			c = addScopeError(c, "Unexpected parse result for module to check <pt>", |unknown:///|); 
