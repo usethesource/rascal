@@ -45,6 +45,8 @@ import org.rascalmpl.uri.ISourceLocationInputOutput;
 public class InMemoryResolver implements ISourceLocationInputOutput {
 	
     private final String scheme;
+    
+    private final JarTreeHierachy fileSystem = new JarTreeHierachy() { };
 
 	public InMemoryResolver(String scheme) {
         this.scheme = scheme;
@@ -55,33 +57,33 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 		return scheme;
 	}
 	
-	private static final class File {
+	private static final class File extends JarTreeHierachy.FSEntry {
 		byte[] contents;
-		long timestamp;
 		public File() {
-			contents = new byte[0];
-			timestamp = System.currentTimeMillis();
+		    super(System.currentTimeMillis());
+			contents = null;
 		}
 		public void newContent(byte[] byteArray) {
 			long newTimestamp = System.currentTimeMillis();
-			if (newTimestamp <= timestamp) {
-				newTimestamp =  timestamp +1;
+			if (newTimestamp <= lastModified) {
+				newTimestamp =  lastModified + 1;
 			}
-			timestamp = newTimestamp;
+			lastModified = newTimestamp;
 			contents = byteArray;
 		}
 		public String toString(){
-		    return String.valueOf(timestamp) + ":\n" +new String(contents, StandardCharsets.UTF_8);
+		    return String.valueOf(lastModified) + ":\n" +new String(contents, StandardCharsets.UTF_8);
 		}
 	}
 
+	private File get(ISourceLocation uri) {
+	    return (File)fileSystem.fs.get(uri.getPath());
+	}
 	
-	private final Map<String, File> files = new HashMap<>();
-
 	@Override
 	public InputStream getInputStream(ISourceLocation uri)
 			throws IOException {
-		File file = files.get(uri.getPath());
+		File file = get(uri);
 		if (file == null) {
 			throw new IOException();
 		}
@@ -96,10 +98,10 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 			@Override
 			public void close() throws IOException {
 				super.close();
-				File file = files.get(uri.getPath());
+				File file = get(uri);
 				if (file == null) {
 				    file = new File();
-				    files.put(uri.getPath(), file);
+				    fileSystem.fs.put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
 				System.err.println("getOutputStream.close " + uri + "?" + file.toString());
@@ -109,11 +111,11 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
-		File file = files.get(uri.getPath());
+		File file = get(uri);
 		if (file == null) {
 			throw new IOException();
 		}
-		return file.timestamp;
+		return file.lastModified;
 	}
 	
 	@Override
@@ -123,22 +125,22 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean exists(ISourceLocation uri) {
-		return files.containsKey(uri.getPath());
+		return fileSystem.exists(uri.getPath());
 	}
 
 	@Override
 	public boolean isDirectory(ISourceLocation uri) {
-		return false;
+	    return fileSystem.isDirectory(uri.getPath());
 	}
 
 	@Override
 	public boolean isFile(ISourceLocation uri) {
-		return files.containsKey(uri.getPath());
+	    return fileSystem.isFile(uri.getPath());
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-		return null;
+	    return fileSystem.directChildren(uri.getPath());
 	}
 
 	@Override
@@ -152,6 +154,6 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-		files.remove(uri.getPath());
+	    fileSystem.fs.remove(uri.getPath());
 	}
 }
