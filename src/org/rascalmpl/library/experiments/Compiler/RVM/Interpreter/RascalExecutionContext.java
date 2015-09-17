@@ -42,7 +42,7 @@ import org.rascalmpl.uri.HttpsURIResolver;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.TestModuleResolver;
+import org.rascalmpl.uri.InMemoryResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -329,7 +329,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 
-		ISourceLocationInputOutput testModuleResolver = new TestModuleResolver();
+		ISourceLocationInputOutput testModuleResolver = new InMemoryResolver("test-modules");
 
 		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		

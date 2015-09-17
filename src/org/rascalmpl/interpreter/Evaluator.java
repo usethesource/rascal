@@ -124,7 +124,7 @@ import org.rascalmpl.uri.HttpsURIResolver;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.TestModuleResolver;
+import org.rascalmpl.uri.InMemoryResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
@@ -400,7 +400,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 	
-		TestModuleResolver testModuleResolver = new TestModuleResolver();
+		InMemoryResolver testModuleResolver = new InMemoryResolver("test-modules");
 
 		resolverRegistry.registerInputOutput(testModuleResolver);
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
