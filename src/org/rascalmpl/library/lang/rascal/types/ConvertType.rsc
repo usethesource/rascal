@@ -224,7 +224,9 @@ public Symbol convertUserType(UserType ut) {
     }
 }
 
-public Symbol convertSymbol(Sym sym) = sym2symbol(sym,at=sym@\loc);  
+public Symbol convertSymbol(Sym sym) {
+   return sym2symbol(sym,at=sym@\loc);
+}  
 
 @doc{Get the raw Name component from a user type.}
 public Name getUserTypeRawName(UserType ut) {

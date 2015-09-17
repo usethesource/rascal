@@ -109,11 +109,12 @@ bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialD
 	//	"must have an actual type before assigning"
 	//], importedModules=importedModules, initialDecls=initialDecls);
 
-bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	check(stmts, [
+bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) { 
+return	check(stmts, [
 		"Name _ is not in scope", 
 		"Only constructors or productions with a different arity are available"
 	], importedModules=importedModules, initialDecls=initialDecls);
+}
 
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [

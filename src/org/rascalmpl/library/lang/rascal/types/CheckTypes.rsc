@@ -654,11 +654,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 
 		// TODO: To make this work for type hints with type vars we need to instantiate the vars; until we do that,
 		// just skip using the hint in those cases, since it then breaks cases where the hints are not needed.
-		if ( (exp.typeHint)? && (!typeContainsTypeVars(exp.typeHint))) {
-			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp.typeHint) };
-			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp.typeHint) };
-			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp.typeHint) };
-			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp.typeHint) };
+		if ( (exp@typeHint)? && (!typeContainsTypeVars(exp@typeHint))) {
+			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
+			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
+			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp@typeHint) };
+			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
 		}
         
 		set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
@@ -3071,13 +3071,11 @@ data PatternTree(set[Symbol] tooManyMatches = {});
 data PatternTree(Symbol typeHint = \value());
 
 @doc{A hint of the possible type passed down from above.}
-data Tree(Symbol typeHint = \value());
+anno Symbol Tree@typeHint;
+anno Symbol Statement@typeHint;
 
 @doc{A hint of the possible type passed down from above.}
 data Symbol(Symbol typeHint = \value());
-
-@doc{A hint of the possible type passed down from above.}
-data Statement(Symbol typeHint = \value());
 
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
@@ -3089,8 +3087,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     
     // Init: extract the pattern tree, which gives us an abstract representation of the pattern
     < c, pt > = extractPatternTree(pat,c);
-    if ( (pat.typeHint)? ) {
-    	pt.typeHint = pat.typeHint;
+    if ( (pat@typeHint)? ) {
+    	pt.typeHint = pat@typeHint;
     }
     
     Configuration cbak = c;
@@ -3690,14 +3688,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         cannotInstantiate = true;                                  	
                                 	}
                                 }
-                                //if (size(subjects) == 1) {
-                                //	try {
-                                //		bindings = match(matchType, getOneFrom(subjects),bindings);
-                                //	} catch : {
-                                //        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getOneFrom(subjects))>", ptn@at));
-                                //        cannotInstantiate = true;                                  	                                	
-                                //	}
-                                //}
+
                                 if (!cannotInstantiate) {
                                     try {
                                         matchType = instantiate(matchType, bindings);
@@ -3719,7 +3710,6 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 try {
                                     for (idx <- index(pargs)) {
-                                        //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
                                         < c, newarg > = bind(pargs[idx],unlabeledArgs[idx],c,bindings=bindings);
                                         newChildren += newarg;
                                     }
@@ -3820,7 +3810,6 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         arityProblems = arityFailures(pt);
         tooManyMatches = tooManyMatchesFailures(pt);
         if (size(unknowns) == 0 && size(arityProblems) == 0 && size(tooManyMatches) == 0) {
-            //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
             newMessages = c.messages - startingMessages;
             return < c, collapseFailTypes(extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) + { pti.rtype | /PatternTree pti := pt, (pti.rtype)?, isFailType(pti.rtype) }) >;
         } else {
@@ -3888,9 +3877,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             if (isListType(rt)) {
                 list[PatternTree] res = [ ];
                 for (csi <- cs) { 
-                    //println("<csi@at>: Binding <csi> to type <prettyPrintType(getListElementType(rt))>");
                     < c, pti > = bind(csi, getListElementType(rt), c); 
-                    //println("<csi@at>: Binding result is <pti>");
                     res += pti; 
                 }
                 return < c, pt[children = res] >; 
@@ -4278,7 +4265,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`assert <Expression e> : 
 
 @doc{Check the type of Rascal statements: Expression (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Expression e>;`, Configuration c) {
-    < c, t1 > = ( (stmt.typeHint)? ) ? checkExp(e[typeHint=stmt.typeHint],c) : checkExp(e,c);
+    < c, t1 > = ( (stmt@typeHint)? ) ? checkExp(e[@typeHint=stmt@typeHint],c) : checkExp(e,c);
     if (isFailType(t1))
         return markLocationFailed(c, stmt@\loc, t1);
     else
@@ -4903,7 +4890,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignme
 
 @doc{Check the type of Rascal statements: Return (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`return <Statement s>`, Configuration c) {
-    < c, t1 > = checkStmt(s[typeHint=c.expectedReturnType], c);
+    < c, t1 > = checkStmt(s[@typeHint=c.expectedReturnType], c);
     if (!isFailType(t1) && !subtype(t1, c.expectedReturnType))
         return markLocationFailed(c, stmt@\loc, makeFailType("Invalid return type <prettyPrintType(t1)>, expected return type <prettyPrintType(c.expectedReturnType)>", stmt@\loc)); 
     return markLocationType(c, stmt@\loc, Symbol::\void());
@@ -5033,9 +5020,9 @@ data AssignableTree(loc at = |unknown:///|);
 data AssignableTree(set[int] defs = {});
 
 @doc{Allows AssignableTree nodes to be annotated with types.} 
-data AssignableTree(Symbol otype = Symbol () { throw "no default value"; }());
+data AssignableTree(Symbol otype = \void());
  
-data AssignableTree(Symbol atype = Symbol () { throw "no default value"; }());
+data AssignableTree(Symbol atype = \void());
 
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
@@ -8402,7 +8389,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p[typeHint=expected], cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
     	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = Symbol::\value();
@@ -8428,7 +8415,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p[typeHint=expected], cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
         <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = Symbol::\value();
@@ -8978,8 +8965,10 @@ public Module check(Module m) {
 public default Module check(Tree t) {
 	if (t has top && Module m := t.top)
 		return check(m);
-	else
+	else {
+	    rprintln(t);
 		throw "Cannot check arbitrary trees";
+    }
 }
 
 public default start[Module] check(loc l) {

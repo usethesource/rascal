@@ -303,17 +303,22 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 								__eval.__getValue().getType(), this);
 					}
 
-					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
-					if (paramValue == null) {
-						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
-					}
-					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
+					try {
+					    IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
+					    if (paramValue == null) {
+					        paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    }
+					    __eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
 
-					IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
-					return __eval.recur(this,
-							org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(receiver.getType(), result, __eval
-									.__getEval()));
+					    IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
+					    return __eval.recur(this,
+					            org.rascalmpl.interpreter.result.ResultFactory
+					            .makeResult(receiver.getType(), result, __eval
+					                    .__getEval()));
+					}
+					catch (UnsupportedOperationException e) {
+					    throw new UnsupportedOperation("TODO: can not set keyword paramaters on an annotated node: " + receiver, this);
+					}
 				}
 				else {
 					throw new UndeclaredField(label, receiver.getValue().getType(), this);

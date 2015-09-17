@@ -1243,7 +1243,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        list[int] resolved = [];
        
-       bool isVarArgs(Symbol ftype) = ftype@isVarArgs? ? ftype@isVarArgs : false;
+       bool isVarArgs(Symbol ftype) = ftype.isVarArgs? ? ftype.isVarArgs : false;
        
        // match void in defining functions
        bool match_void([Symbol::\list(_), *Symbol tps1], [Symbol::\list(Symbol::\void()), *Symbol tps2]) = match_void(tps1, tps2);

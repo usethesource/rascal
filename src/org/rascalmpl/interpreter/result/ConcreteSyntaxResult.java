@@ -91,11 +91,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			}
 		}
 		
-		if (tree.getConstructorType().hasField(name)) {
-			return makeResult(tree.getConstructorType().getFieldType(name), tree.get(name), ctx);
-		}
-		
-		throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
+		return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
+//		if (tree.getConstructorType().hasField(name)) {
+//			return makeResult(tree.getConstructorType().getFieldType(name), tree.get(name), ctx);
+//		}
+//		
+//		throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	@Override

@@ -84,7 +84,7 @@ data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, S
 data Timing = timing(str tmsg,datetime tstart,datetime tend);
 
 private ModuleInfo createModInfo(Configuration c, RName modName) {
-	return modInfo(modName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	return modInfo(unset(modName), c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
 }
 
 data ModuleInfo = modInfo(RName modName,
@@ -184,6 +184,7 @@ public Configuration setExpectedReturn(Configuration c, Symbol t) {
 public bool labelExists(Configuration c, RName n) = n in c.labelEnv;
 
 public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
+    
     c.labelEnv[n] = c.nextLoc;
     c.store[c.nextLoc] = label(n,ls,head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
@@ -191,7 +192,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
     return c;
 }
 
-public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
+public bool fcvExists(Configuration c, RName n) = unset(n) in c.fcvEnv;
 
 @doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
@@ -271,6 +272,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
 
 @doc{Add a new top-level variable into the configuration.}
 public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
+    
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
@@ -313,6 +315,7 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, loc
 
 @doc{Add an imported top-level variable into the configuration.}
 public Configuration addImportedVariable(Configuration c, RName n, int varId, bool addFullName=false) {
+    
 	if (n in c.fcvEnv && c.fcvEnv[n] == varId) return c;
 
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
@@ -330,6 +333,7 @@ public Configuration addImportedVariable(Configuration c, RName n, int varId, bo
 
 @doc{Add a new local variable into the configuration.}
 public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
+    
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
@@ -380,6 +384,7 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 
 @doc{Add an annotation into the configuration}
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
+    
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 
@@ -443,6 +448,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 
 @doc{Add an imported annotation into the configuration}
 public Configuration addImportedAnnotation(Configuration c, RName n, int annId) {
+    
 	if (n in c.annotationEnv && c.annotationEnv[n] == annId) return c;
 
 	void updateAnnotation(int id) {
@@ -483,6 +489,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 
 @doc{Add a user-defined ADT into the configuration}
 public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true, bool updateType=false) {
+    
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -551,6 +558,8 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 @doc{Add an imported user-defined ADT into the configuration}
 public Configuration addImportedADT(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
+    
 	if (n in c.typeEnv && c.typeEnv[n] == itemId) return c;
 	
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -570,6 +579,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 
 @doc{Add a user-defined non-terminal type into the configuration}
 public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true, bool updateType=false) {
+    
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -643,6 +653,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 
 @doc{Add an imported non-terminal type into the configuration}
 public Configuration addImportedNonterminal(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
 	if (n in c.typeEnv && c.typeEnv[n] == itemId) return c;
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -662,6 +673,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 
 @doc{Add a new alias into the configuration}
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt, bool updateType=false) {
+    
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -705,6 +717,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 
 @doc{Add an imported alias into the configuration}
 public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
 	if (n in c.typeEnv && c.typeEnv[n] == itemId) return c;
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -724,6 +737,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 
 @doc{Add a constructor into the configuration}
 public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
+    
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -821,6 +835,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 	// the same ADT (we can add the ADT name to distinguish constructors from different
 	// ADTs).
 	void addConstructorItem(RName n, int constructorItemId) {
+	    
 		if (n notin c.fcvEnv) {
 			// Case 1: This is the first occurrence of this name.
 			c.fcvEnv[n] = constructorItemId;
@@ -898,12 +913,15 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 @doc{Add an imported constructor into the configuration}
 public Configuration addImportedConstructor(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
 	if (n in c.fcvEnv && c.fcvEnv[n] == itemId) return c;
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 
 	void addConstructorItem(RName n, int constructorItemId) {
+	    
+	    
 		if (n notin c.fcvEnv) {
 			c.fcvEnv[n] = constructorItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
@@ -939,6 +957,8 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 }
 
 private set[int] idsForName(Configuration c, RName n) {
+    
+    
 	set[int] unwindIds(int i) {
 		if (c.store[i] is overload) {
 			return c.store[i].items;
@@ -956,6 +976,7 @@ private set[int] idsForName(Configuration c, RName n) {
 
 @doc{Add a production into the configuration.}
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
+    
 	assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
  
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -994,6 +1015,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
 
 	void addProductionItem(RName n, int productionItemId) {
+	    
 		if (n notin c.fcvEnv) {
 			// Case 1: This is the first occurrence of this name.
 			c.fcvEnv[n] = productionItemId;
@@ -1111,12 +1133,15 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 
 @doc{Add an imported production into the configuration.}
 public Configuration addImportedProduction(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
 	if (n in c.fcvEnv && c.fcvEnv[n] == itemId) return c;
 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 
 	void addProductionItem(RName n, int productionItemId) {
+	    
+	    
 		if (n notin c.fcvEnv) {
 			c.fcvEnv[n] = productionItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
@@ -1153,6 +1178,7 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 
 @doc{Add a syntax definition into the configuration.}
 public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart, bool registerName=true) {
+    rn = unset(rn);
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
@@ -1185,7 +1211,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 
 @doc{Add a module into the configuration.}
 public Configuration addModule(Configuration c, RName n, loc l) {
-    c.modEnv[n] = c.nextLoc;
+    c.modEnv[unset(n)] = c.nextLoc;
     c.store[c.nextLoc] = \module(n,l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
@@ -1212,6 +1238,7 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
 
 @doc{Add a function into the configuration.}
 public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l, bool isDeferred=false) {
+    
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
     // TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -1246,6 +1273,8 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
 	// it should not refer to other names with different qualifiers).
 	void addFunctionItem(RName n, int functionId) {	
+	    
+	    
 	    if (n notin c.fcvEnv) {
 	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
 	        c.fcvEnv[n] = functionId;
@@ -1311,9 +1340,11 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 
 @doc{Add an imported function into the configuration.}
 public Configuration addImportedFunction(Configuration c, RName n, int itemId, bool addFullName=false) {
+    
 	if (n in c.fcvEnv && c.fcvEnv[n] == itemId) return c;
 
 	void addFunctionItem(RName n, int functionId) {	
+	    
 	    if (n notin c.fcvEnv) {
 	        c.fcvEnv[n] = functionId;
 	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
@@ -1366,6 +1397,7 @@ public Configuration addImportedFunction(Configuration c, RName n, int itemId, b
 }
 
 public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] onTypes, Vis visibility, loc l) {
+    
     // TODO: We currently always treat datatype declarations as public, so we just
     // ignore the visibility here. If we decide to allow private datatype declarations,
     // revisit this.

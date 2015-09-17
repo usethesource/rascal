@@ -231,7 +231,7 @@ public Symbol makeAliasType(str n, Symbol t) = Symbol::\alias(n,[],t);
 public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = Symbol::\alias(n,params,t);
 
 @doc{Marks if a function is a var-args function.} 
-data Symbol(bool isVarArgs = bool () { throw "no default value"; }());
+data Symbol(bool isVarArgs = false);
 
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {

@@ -67,7 +67,9 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		// Re-enter module scope
 		c.stack = c.modEnv[RSimpleName(modName)] + c.stack;
 		
-		for (Statement stmt <- stmts) < c, rt > = checkStmt(stmt, c);
+		for (lang::rascal::\syntax::Rascal::Statement stmt <- stmts) {
+		   < c, rt > = checkStmt(stmt, c);
+		}
 		
 		c.stack = tail(c.stack);
 

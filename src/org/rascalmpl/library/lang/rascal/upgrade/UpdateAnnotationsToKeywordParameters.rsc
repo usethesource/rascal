@@ -16,21 +16,21 @@ Tree update(Tree m) =
     case (Declaration) `<Tags tags> <Visibility _> anno <Type t> <Name adt>@<Name name>;` 
       => (Declaration) `<Tags tags> 
                        'data <Name adt>(<Type t> <Name name2> = <Expression init>);` 
-      when Expression init := getInitializer(t), Name name2 := getName(name)
+      when "<name>" != "\\loc", Expression init := getInitializer(t), Name name2 := getName(name)
       
     case (Expression) `<Expression e>@<Name name> ? <Expression _>` => (Expression) `<Expression e>.<Name name2>`
-      when Name name2 := getName(name)
+      when "<name>" != "\\loc", Name name2 := getName(name)
       
     case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name2>`
-      when Name name2 := getName(name)
+      when "<name>" != "\\loc", Name name2 := getName(name)
     
     case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name2>=<Expression def>]`
-      when Name name2 := getName(name)
+      when "<name>" != "\\loc", Name name2 := getName(name)
       
     case (Expression) `delAnnotations(<Expression e>)` => (Expression) `unset(<Expression e>)`
       
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
-      when Name name2 := getName(field)
+      when "<field>" != "\\loc", Name name2 := getName(field)
   };
 
 Name getName((Name) `\\loc`) = (Name) `origin`;
