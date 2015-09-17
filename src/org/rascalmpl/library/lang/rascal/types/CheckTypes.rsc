@@ -7591,7 +7591,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
 			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn)));    
-			if (t has top && Module m := t.top) {
+			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
 				moduleTrees[mn] = m;
 			}
 		} catch _ : {
