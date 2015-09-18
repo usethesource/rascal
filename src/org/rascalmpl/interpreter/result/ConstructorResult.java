@@ -54,7 +54,9 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public Result<IBool> has(Name name) {
 		String sname = Names.name(name);
-		return ResultFactory.bool(getValue().has(sname) || (ctx.getCurrentEnvt().getStore().getKeywordParameterType(getValue().getConstructorType(), sname) != null), ctx);
+		return ResultFactory.bool(getValue().has(sname) 
+		        || (ctx.getCurrentEnvt().getStore().getKeywordParameterType(getValue().getConstructorType(), sname) != null)
+		        || (getValue().isAnnotatable() && getValue().asAnnotatable().getAnnotation(sname) != null), ctx); 
 	}
 	
 	@Override
