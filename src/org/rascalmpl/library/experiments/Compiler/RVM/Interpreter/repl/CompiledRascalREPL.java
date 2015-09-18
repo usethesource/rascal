@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import jline.Terminal;
 
@@ -139,6 +141,19 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   @Override
   protected Collection<String> completePartialIdentifier(String qualifier, String term) {
       return executor.completePartialIdentifier(qualifier, term);
+  }
+  
+  private static final SortedSet<String> commandLineOptions = new TreeSet<String>();
+  static {
+     commandLineOptions.add("profiling"); 
+     commandLineOptions.add("tracing"); 
+     commandLineOptions.add("coverage"); 
+     commandLineOptions.add("debug"); 
+     commandLineOptions.add("testsuite"); 
+  }
+  @Override
+  protected SortedSet<String> getCommandLineOptions() {
+      return commandLineOptions;
   }
   
   @Override

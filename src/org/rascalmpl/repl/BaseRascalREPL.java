@@ -8,10 +8,9 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import jline.Terminal;
@@ -155,6 +154,11 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected abstract boolean isStatementComplete(String command);
   protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
   
+  /**
+   * provide which :set flags  (:set profiling true for example)
+   * @return strings that can be set
+   */
+  protected abstract SortedSet<String> getCommandLineOptions();
   protected abstract Collection<String> completePartialIdentifier(String qualifier, String identifier);
   protected abstract Collection<String> completeModule(String qualifier, String partialModuleName);
   
@@ -250,8 +254,9 @@ public abstract class BaseRascalREPL extends BaseREPL {
       return null;
   }
   
+  
 
   private CompletionResult completeREPLCommand(String line, int cursor) {
-      return RascalCommandCompletion.complete(line, cursor, (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
+      return RascalCommandCompletion.complete(line, cursor, getCommandLineOptions(), (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
   }
 }

@@ -13,11 +13,14 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import jline.Terminal;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -131,7 +134,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
   
   @Override
-    protected Collection<String> completeModule(String qualifier, String partialModuleName) {
+  protected Collection<String> completeModule(String qualifier, String partialModuleName) {
         List<String> entries = eval.getRascalResolver().listModuleEntries(qualifier);
         if (entries != null && entries.size() > 0) {
             if (entries.contains(partialModuleName)) {
@@ -150,5 +153,17 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
                 
         }
         return null;
-    }
+  }
+  
+  private static final SortedSet<String> commandLineOptions = new TreeSet<>();
+  static {
+      commandLineOptions.add(Configuration.GENERATOR_PROFILING_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.PROFILING_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.ERRORS_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.TRACING_PROPERTY.substring("rascal.".length()));
+  }
+  @Override
+  protected SortedSet<String> getCommandLineOptions() {
+      return commandLineOptions;
+  }
 }
