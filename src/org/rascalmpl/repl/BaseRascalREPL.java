@@ -155,7 +155,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
   
   protected abstract Collection<String> completePartialIdentifier(String qualifier, String identifier);
-  protected abstract Collection<String> completeModule(String subPath, String partialModuleName);
+  protected abstract Collection<String> completeModule(String qualifier, String partialModuleName);
   
   @Override
   protected CompletionResult completeFragment(String line, int cursor) {
