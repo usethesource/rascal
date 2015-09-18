@@ -56,6 +56,8 @@ test bool isDefined2() {
 data F = f3() | f3(int n) | g(int n) | deep(F f);
 anno int F @ pos;
 
+test bool isAnnoDefined() = (f3()[@pos=1])@pos?;
+
 test bool isDefined3(){
     X = f3(); 
     X @ pos ?= 3;
