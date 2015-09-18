@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
+import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.Completer;
 import jline.console.history.FileHistory;
 import jline.internal.ShutdownHooks;
@@ -74,12 +75,17 @@ public abstract class BaseREPL {
           return -1;
         }
       });
+      if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
+          ((CandidateListCompletionHandler)reader.getCompletionHandler()).setPrintSpaceAfterFullCompletion(printSpaceAfterFullCompletion());
+      }
       
     }
   }
 
 
-  /**
+
+
+/**
    * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
    * @param stdout the output stream to write normal output to.
    * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
@@ -104,6 +110,12 @@ public abstract class BaseREPL {
    * @return true if the completeFragment method can provide completions
    */
   protected abstract boolean supportsCompletion();
+
+  /**
+   * If the completion succeeded with one match, should a space be printed aftwards?
+   * @return true if completed fragment should be followed by a space
+   */
+  protected abstract boolean printSpaceAfterFullCompletion();
   
   /**
    * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.

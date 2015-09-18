@@ -183,6 +183,16 @@ public abstract class BaseRascalREPL extends BaseREPL {
       return null;
   }
   
+  @Override
+  protected boolean supportsCompletion() {
+      return true;
+  }
+  
+  @Override
+  protected boolean printSpaceAfterFullCompletion() {
+      return false;
+  }
+  
   private CompletionResult completeLocation(String line, int locationStart) {
       int locationEnd = StringUtils.findRascalLocationEnd(line, locationStart);
       try {
