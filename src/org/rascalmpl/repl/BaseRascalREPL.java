@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -220,17 +221,12 @@ public abstract class BaseRascalREPL extends BaseREPL {
                   return null;
               }
           }
-          // prefix is the directory location minus the |'s
-          String prefix = directory.toString().substring(1);
-          prefix = prefix.substring(0, prefix.length() - 1);
-          if (!prefix.endsWith("/")) {
-              prefix += "/";
-          }
           String[] filesInPath = reg.listEntries(directory);
+          URI directoryURI = directory.getURI();
           Set<String> result = new TreeSet<>(); // sort it up
           for (String currentFile : filesInPath) {
               if (currentFile.startsWith(fileName)) {
-                  result.add(prefix + currentFile);
+                  result.add(URIUtil.getChildURI(directoryURI, currentFile).toString());
               }
           }
           return new CompletionResult(locationStart + 1, result);
