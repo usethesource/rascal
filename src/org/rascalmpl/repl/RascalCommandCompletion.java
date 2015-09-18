@@ -51,7 +51,7 @@ public class RascalCommandCompletion {
                             .collect(Collectors.toList());
                     }
                     if (!result.isEmpty()) {
-                       return new CompletionResult(m.start("command"), m.end("command") - m.start("command"), result);
+                       return new CompletionResult(m.start("command"), result);
                     }
                 }
             }
