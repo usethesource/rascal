@@ -1824,7 +1824,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			        }
 			    }
 			}
-		    boolean inQualifiedModule = env.getName().equals(qualifier);
+		    boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
             if (inQualifiedModule) {
 		        for (String v : env.getVariables().keySet()) {
 			        addIt(result, v, qualifier, partialIdentifier);
