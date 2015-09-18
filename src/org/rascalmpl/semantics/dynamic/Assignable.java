@@ -311,7 +311,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
 					if (paramValue == null) {
-						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    __eval.__getOperator();
+                        if (__eval.__getOperator().name().equals(AssignmentOperator.IsDefined.name()) && __eval.__getValue() != null) {
+					        paramValue = __eval.__getValue().getValue();
+					    }
+					    else { // we use the default
+					        paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    }
 					}
 					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
 
