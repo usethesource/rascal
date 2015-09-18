@@ -129,7 +129,7 @@ public final class StringUtils {
 		return result.toString();
 	}
 	
-	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z]([\\-_a-zA-Z0-9]|::)*)\\s*$");
+	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z]([\\-_a-zA-Z0-9]|::[\\\\]?)*)\\s*$");
 
 	public static class OffsetLengthTerm {
 	  public OffsetLengthTerm(int offset, int length, String term) {
