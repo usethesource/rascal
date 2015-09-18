@@ -142,7 +142,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   @Override
-    protected Collection<String> completeModule(String subPath, String partialModuleName) {
+    protected Collection<String> completeModule(String qualifier, String partialModuleName) {
         return null;
     }
 }

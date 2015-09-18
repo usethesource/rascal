@@ -131,12 +131,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
   
   @Override
-    protected Collection<String> completeModule(String subPath, String partialModuleName) {
-        List<String> entries = eval.getRascalResolver().listModuleEntries(subPath);
+    protected Collection<String> completeModule(String qualifier, String partialModuleName) {
+        List<String> entries = eval.getRascalResolver().listModuleEntries(qualifier);
         if (entries != null && entries.size() > 0) {
             if (entries.contains(partialModuleName)) {
                 // we have a full directory name (at least the option)
-                List<String> subEntries = eval.getRascalResolver().listModuleEntries(subPath + "::" + partialModuleName);
+                List<String> subEntries = eval.getRascalResolver().listModuleEntries(qualifier + "::" + partialModuleName);
                 if (subEntries != null) {
                     entries.remove(partialModuleName);
                     subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));
@@ -144,7 +144,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             }
             return entries.stream()
                 .filter(m -> m.startsWith(partialModuleName))
-                .map(s -> subPath.isEmpty() ? s : subPath + "::" + s)
+                .map(s -> qualifier.isEmpty() ? s : qualifier + "::" + s)
                 .sorted()
                 .collect(Collectors.toList());
                 
