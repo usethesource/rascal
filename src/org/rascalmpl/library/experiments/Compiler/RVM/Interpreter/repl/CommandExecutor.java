@@ -513,7 +513,7 @@ public class CommandExecutor {
 		return stdout;
 	}
 	
-	public Collection<String> completePartialIdentifier(String term) {
+	public Collection<String> completePartialIdentifier(String qualifier, String term) {
 		if(rvmConsoleExecutable != null){
 			return rvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
 		}

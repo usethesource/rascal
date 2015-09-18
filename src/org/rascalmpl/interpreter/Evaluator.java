@@ -1792,7 +1792,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public TraversalEvaluator __popTraversalEvaluator() {
 		return teStack.pop();
 	}
-	public Collection<String> completePartialIdentifier(String partialIdentifier) {
+	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
 		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
 			throw new IllegalArgumentException("The behavior with empty string is undefined.");
 		}

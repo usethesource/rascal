@@ -124,7 +124,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected Collection<String> completePartialIdentifier(String term) {
-      return eval.completePartialIdentifier(term);
+  protected Collection<String> completePartialIdentifier(String qualifier, String term) {
+      return eval.completePartialIdentifier(qualifier, term);
   }
 }
