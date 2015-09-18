@@ -89,10 +89,15 @@ for source files in a separate directory.
 
 }
 
+@memo
 loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool compressed = false){
 	loc res;
 	if(compressed){
 		bindir.scheme = "compressed+" + bindir.scheme;
+	}
+	if(src.scheme == "test-modules"){
+	   bindir.scheme = "test-modules";
+	   return (bindir + src.path)[extension=extension];
 	}
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){

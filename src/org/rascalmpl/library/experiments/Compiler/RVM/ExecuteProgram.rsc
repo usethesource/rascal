@@ -7,8 +7,8 @@ import Type;
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}
 public java value executeProgram(
-                    loc executable,
-                    RVMProgram program,
+                    loc rvmProgramLoc,
+                    RVMProgram rvmProgram,
 					list[value] arguments, 
 					bool debug, 
 					bool testsuite,
@@ -22,7 +22,7 @@ public java value executeProgram(
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}
 public java value executeProgram(
-                    loc program,
+                    loc rvmExecutableLoc,
 					list[value] arguments, 
 					bool debug, 
 					bool testsuite,

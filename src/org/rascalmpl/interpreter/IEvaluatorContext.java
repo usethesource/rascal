@@ -64,5 +64,5 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Stack<Accumulator> getAccumulators();
 	
 	
-	public Collection<String> completePartialIdentifier(String partialIdentifier);
+	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
 }
