@@ -140,4 +140,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   protected Collection<String> completePartialIdentifier(String qualifier, String term) {
       return executor.completePartialIdentifier(qualifier, term);
   }
+  
+  @Override
+    protected Collection<String> completeModule(String subPath, String partialModuleName) {
+        return null;
+    }
 }

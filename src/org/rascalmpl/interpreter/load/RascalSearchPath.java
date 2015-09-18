@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -60,6 +61,9 @@ public class RascalSearchPath {
 			return null;
 		}
 	}
+	private String moduleToDir(String module) {
+		return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+	}
 
 	private String moduleToFile(String module) {
 		if (!module.endsWith(Configuration.RASCAL_FILE_EXT)) {
@@ -105,6 +109,43 @@ public class RascalSearchPath {
 		}
 		
 		return paths;
+	}
+	
+	public List<String> listModuleEntries(String moduleRoot) {
+	    assert !moduleRoot.endsWith("::");
+		try {
+		    String modulePath = moduleToDir(moduleRoot);
+		    List<String> result = new ArrayList<>();
+			for (ISourceLocation dir : collect()) {
+				ISourceLocation full = getFullURI(modulePath, dir);
+				if (reg.exists(full)) {
+				    try {
+				        String[] entries = reg.listEntries(full);
+				        if (entries == null) {
+				            continue;
+				        }
+                        for (String module: entries ) {
+                            if (module.endsWith(Configuration.RASCAL_FILE_EXT)) {
+                                result.add(module.substring(0, module.length() - Configuration.RASCAL_FILE_EXT.length()));
+                            }
+                            else if (module.indexOf('.') == -1 && reg.isDirectory(getFullURI(module, full))) {
+                                // a sub folder path
+                                result.add(module + "::");
+                            }
+                        }
+                    }
+                    catch (IOException e) {
+                    }
+				}
+			}
+			if (result.size() > 0) {
+			    return result;
+			}
+			return null;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	    
 	}
 
 	private ISourceLocation getFullURI(String path, ISourceLocation dir) throws URISyntaxException {
