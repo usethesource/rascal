@@ -129,7 +129,7 @@ public final class StringUtils {
 		return result.toString();
 	}
 	
-	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z:][\\-_a-zA-Z0-9]*)\\s*$");
+	private final static Pattern getLastIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z]([\\-_a-zA-Z0-9]|::)*)\\s*$");
 
 	public static class OffsetLengthTerm {
 	  public OffsetLengthTerm(int offset, int length, String term) {
@@ -148,17 +148,8 @@ public final class StringUtils {
 		  m.region(0, split + 1);
 		}
 		if (m.matches()) {
-			String originalTerm = m.group(1).trim();
-			int startPos = m.start(1);
-			if(originalTerm.startsWith(":") && startPos != 0){
-				if(originalTerm.length() > 1){
-					originalTerm = originalTerm.substring(1);
-					startPos++;
-				} else {
-					return null;
-				}
-			}
-			return new OffsetLengthTerm(startPos, originalTerm.length(), originalTerm);
+			String originalTerm = m.group(1);
+			return new OffsetLengthTerm( m.start(1), originalTerm.length(), originalTerm);
 		}
 		return null;
 	}
@@ -167,17 +158,35 @@ public final class StringUtils {
 		return (c >= 'A' && c <= 'Z') 
 			|| (c >= 'a' && c <= 'z')
 			|| (c >= '0' && c <= '9')
-			|| c == '_' || c == '-' || c == ':'
+			|| c == '_' || c == '-' 
+			|| c == '\\'
 			;
 	}
 
 	private static int findSplitPoint(int currentCursorPosition, String currentConsoleInput) {
 		for (int i = currentCursorPosition; i < currentConsoleInput.length(); i++) {
-			if (!validRascalIdentifier(currentConsoleInput.charAt(i)))
+			char currentChar = currentConsoleInput.charAt(i);
+			if (currentChar == ':' && i + 1 <  currentConsoleInput.length() && currentConsoleInput.charAt(i + 1) == ':') {
+			   i++;
+			   continue;
+			}
+            if (!validRascalIdentifier(currentChar))
 				return i - 1;
 		}
 		return -1;
 	}
+	
+	public static String[] splitQualifiedName(String name) {
+	    int splitPoint = name.lastIndexOf("::");
+	    if (splitPoint >= 0) {
+	        return new String[] {
+	            name.substring(0, splitPoint),
+	            name.substring(splitPoint + 2)
+	        };
+	    }
+	    return new String[] {name};
+	}
+	
 
 	private static boolean validRascalLocation(char c) {
 		return ('\t' < c || c > '\n') 

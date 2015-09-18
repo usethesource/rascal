@@ -152,7 +152,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected abstract boolean isStatementComplete(String command);
   protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
   
-  protected abstract Collection<String> completePartialIdentifier(String term);
+  protected abstract Collection<String> completePartialIdentifier(String qualifier, String identifier);
   
   @Override
   protected CompletionResult completeFragment(String line, int cursor) {
@@ -175,7 +175,10 @@ public abstract class BaseRascalREPL extends BaseREPL {
   private CompletionResult completeIdentifier(String line, int cursor) {
       OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
       if (identifier != null) {
-          Collection<String> suggestions = completePartialIdentifier(identifier.term);
+          String[] qualified = StringUtils.splitQualifiedName(identifier.term);
+          String qualifier = qualified.length == 2 ? qualified[0] : "";
+          String qualifee = qualified.length == 2 ? qualified[1] : qualified[0];
+          Collection<String> suggestions = completePartialIdentifier(qualifier, qualifee);
           if (suggestions != null && ! suggestions.isEmpty()) {
               return new CompletionResult(identifier.offset, identifier.length, suggestions);
           }
