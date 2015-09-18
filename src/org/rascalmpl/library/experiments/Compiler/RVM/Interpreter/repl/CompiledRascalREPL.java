@@ -137,11 +137,6 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected boolean supportsCompletion() {
-	  return true;
-  }
-
-  @Override
   protected Collection<String> completePartialIdentifier(String term) {
       return executor.completePartialIdentifier(term);
   }
