@@ -54,7 +54,13 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public Result<IBool> has(Name name) {
 		String sname = Names.name(name);
-		return ResultFactory.bool(getValue().has(sname) || (getValue().mayHaveKeywordParameters() && getValue().asWithKeywordParameters().hasParameter(sname)), ctx);
+		return ResultFactory.bool(getValue().has(sname) || (ctx.getCurrentEnvt().getStore().getKeywordParameterType(getValue().getConstructorType(), sname) != null), ctx);
+	}
+	
+	@Override
+	public Result<IBool> isDefined(Name name) {
+		String sname = Names.name(name);
+		return ResultFactory.bool(getValue().has(sname) || getValue().asWithKeywordParameters().hasParameter(sname), ctx);
 	}
 	
 	@Override
