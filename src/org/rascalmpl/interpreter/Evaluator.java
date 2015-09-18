@@ -1820,7 +1820,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			    for (AbstractFunction f : p.getSecond()) {
 			        String module = ((ModuleEnvironment)f.getEnv()).getName();
 			        if (module.startsWith(qualifier)) {
-			            addIt(result, p.getFirst(), module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+			            addIt(result, p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
 			        }
 			    }
 			}
