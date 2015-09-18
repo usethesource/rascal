@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -29,8 +30,93 @@ public class ExecuteProgram {
 		testResultListener = trl;
 	}
 	
+	// Library function to execute a RVMProgram
+	// (Interpreter version)
+
+	public IValue executeProgram(
+			ISourceLocation rvmProgramLoc,
+			IConstructor rvmProgram,
+			IList argumentsAsList,
+			IBool debug, 
+			IBool testsuite, 
+			IBool profile, 
+			IBool trackCalls, 
+			IBool coverage,
+			IBool useJVM,
+			IBool serialize, 
+			IEvaluatorContext ctx
+			) {
+
+		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
+
+		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		return executeProgram(executable, argumentsAsList, rex);
+	}
+
+	// Library function to execute an RVMProgram
+	// (Compiler version)
+
+	public IValue executeProgram(
+			ISourceLocation rvmProgramLoc,
+			IConstructor rvmProgram,
+			IList argumentsAsList,
+			IBool debug, 
+			IBool testsuite, 
+			IBool profile, 
+			IBool trackCalls, 
+			IBool coverage,
+			IBool useJVM,
+			IBool serialize, 
+			RascalExecutionContext rex
+			) {
+
+		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
+
+		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		return executeProgram(executable, argumentsAsList, rex2);
+	}
+
+	// Library function to link and execute a RVM program from file
+	// (Interpreter version)
+
+	public IValue executeProgram(
+			ISourceLocation rvmExecutableLoc,
+			IList argumentsAsList,
+			IBool debug, 
+			IBool testsuite, 
+			IBool profile, 
+			IBool trackCalls, 
+			IBool coverage,
+			IBool useJVM,
+			IEvaluatorContext ctx
+			) {
+
+		RVMExecutable executable = load(rvmExecutableLoc);
+		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		return executeProgram(executable, argumentsAsList, rex);
+		}
+		
+	// Library function to link and execute a RVM program from file
+	// (Compiler version)
+
+	public IValue executeProgram(
+			ISourceLocation rvmExecutableLoc,
+			IList argumentsAsList,
+			IBool debug, 
+			IBool testsuite, 
+			IBool profile, 
+			IBool trackCalls, 
+			IBool coverage,
+			IBool useJVM,
+			RascalExecutionContext rex
+			) {
+		RVMExecutable executable = load(rvmExecutableLoc);
+		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		return executeProgram(executable, argumentsAsList, rex2);
+	}
+	
 	private RascalExecutionContext makeRex(
-					RVMExecutable executable,
+					RVMExecutable rvmExecutable,
 					IBool debug, 
 					IBool testsuite, 
 					IBool profile, 
@@ -42,8 +128,8 @@ public class ExecuteProgram {
 					vf, 
 				   	new PrintWriter(System.out), 
 				   	new PrintWriter(System.err), 
-				   	executable.getModuleTags(), 
-				   	executable.getSymbolDefinitions(),
+				   	rvmExecutable.getModuleTags(), 
+				   	rvmExecutable.getSymbolDefinitions(),
 				   	new TypeStore(), 
 				   	debug.getValue(), 
 				   	testsuite.getValue(), 
@@ -56,40 +142,40 @@ public class ExecuteProgram {
 	
 	
 	public RVMExecutable loadProgram(
-					 ISourceLocation rvmProg,
-					 IConstructor program,
+					 ISourceLocation rvmProgramLoc,
+					 IConstructor rvmProgram,
 					 IBool useJVM	
     ) {
 		
 		return load(
-					rvmProg,
-				    program, 
+					rvmProgramLoc,
+				    rvmProgram, 
 				    useJVM,
 				    vf.bool(false)
 				    );
 	}
 	
-	// Read a RVM program from file
+	// Read a RVMExecutable from file
 	
-	public RVMExecutable load(ISourceLocation rvmProg) {
-		return RVMExecutable.read(rvmProg);
+	public RVMExecutable load(ISourceLocation rvmExecutableLoc) {
+		return RVMExecutable.read(rvmExecutableLoc);
 	}
 	
-	// Create an executable RVM program
+	// Create an RVMExecutable given an RVMProgram
 	
 	public RVMExecutable load(
-			 	ISourceLocation rvmProg,
-			 	IConstructor program,
+			 	ISourceLocation rvmProgramLoc,
+			 	IConstructor rvmProgram,
 			 	IBool useJVM, 
 			 	IBool serialize
 	) {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);
-		RVMExecutable executable = loader.load(program,	useJVM.getValue());
+		RVMExecutable executable = loader.load(rvmProgram,	useJVM.getValue());
 		
 		if(serialize.getValue()){
-			executable.write(rvmProg);			
+			executable.write(rvmProgramLoc);			
 
 //			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
 //			RVMLinked executable2 = RVMLinked.read(linkedRVM);
@@ -103,90 +189,9 @@ public class ExecuteProgram {
 		return executable;
 	}
 	
-	// Library function to link and execute a RVM program from file
-	// (Interpreter version)
 	
-	public IValue executeProgram(
-				ISourceLocation rvmProg,
-				IList argumentsAsList,
-				IBool debug, 
-				IBool testsuite, 
-				IBool profile, 
-				IBool trackCalls, 
-				IBool coverage,
-				IBool useJVM,
-				IEvaluatorContext ctx
-	) {
-		
-		RVMExecutable executable = load(rvmProg);
-		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
-		return executeProgram(executable, argumentsAsList, rex);
-	}
 	
-	// Library function to link and execute a RVM program from file
-	// (Compiler version)
-		
-	public IValue executeProgram(
-				ISourceLocation rvmProg,
-				IList argumentsAsList,
-				IBool debug, 
-				IBool testsuite, 
-				IBool profile, 
-				IBool trackCalls, 
-				IBool coverage,
-				IBool useJVM,
-				RascalExecutionContext rex
-	) {
-		RVMExecutable executable = load(rvmProg);
-		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
-		return executeProgram(executable, argumentsAsList, rex2);
-	}
 	
-	// Library function to execute a RVM program
-	// (Interpreter version)
-
-	public IValue executeProgram(
-				ISourceLocation rvmProg,
-				IConstructor program,
-				IList argumentsAsList,
-				IBool debug, 
-				IBool testsuite, 
-				IBool profile, 
-				IBool trackCalls, 
-				IBool coverage,
-				IBool useJVM,
-				IBool serialize, 
-				IEvaluatorContext ctx
-	) {
-		
-		RVMExecutable executable = load(rvmProg, program, useJVM, serialize);
-		
-		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
-		return executeProgram(executable, argumentsAsList, rex);
-	}
-	
-	// Library function to execute an RVM program
-	// (Compiler version)
-
-	public IValue executeProgram(
-				ISourceLocation rvmProg,
-				IConstructor program,
-				IList argumentsAsList,
-				IBool debug, 
-				IBool testsuite, 
-				IBool profile, 
-				IBool trackCalls, 
-				IBool coverage,
-				IBool useJVM,
-				IBool serialize, 
-			RascalExecutionContext rex
-	) {
-			
-		RVMExecutable executable = load(rvmProg, program, useJVM, serialize);
-			
-		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
-		return executeProgram(executable, argumentsAsList, rex2);
-	}
 		
 	public IValue executeProgram(RVMExecutable executable, IList argumentsAsList, RascalExecutionContext rex){
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
@@ -225,12 +230,6 @@ public class ExecuteProgram {
 					System.out.println("Testsuite: " + uid_testsuite);
 					IList test_results = (IList)rvm.executeProgram("TESTSUITE" + n++, uid_testsuite, arguments, null);
 					w.insertAll(test_results);
-//					try {
-//						Thread.sleep(5000);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
 				}
 				result = w.done();
 			} else {

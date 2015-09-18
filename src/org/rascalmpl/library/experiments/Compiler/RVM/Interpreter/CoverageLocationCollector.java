@@ -39,12 +39,14 @@ public class CoverageLocationCollector implements ILocationCollector, ILocationR
 	@Override
 	public void report(ISet data, PrintWriter out) {
 		Iterator<IValue> iter = data.iterator();
+		out.println(data.size() > 0 ? "COVERAGE:" : "NO COVERAGE DATA");
 		while(iter.hasNext()){
 			out.printf("%s\n",  iter.next());
 		}
 	}
 	
 	public void report(PrintWriter out) {
+		out.println(data.size() > 0 ? "COVERAGE:" : "NO COVERAGE DATA");
 		for(ISourceLocation src : data){
 			out.printf("%s\n",  src);
 		}

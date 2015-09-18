@@ -49,17 +49,17 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private final Prelude prelude;
 	private final ExecuteProgram execute;
-	private final RascalExecutionContext rex;
 	private RVM rvmCompiler;
 	
-	IBool debug;
-	IBool testsuite;
-	IBool profile;
-	IBool trackCalls;
-	IBool coverage;
-	IBool useJVM;
-	IBool verbose;
-	IBool serialize;
+	boolean debug;
+	boolean testsuite;
+	boolean profile;
+	boolean trackCalls;
+	boolean coverage;
+	boolean useJVM;
+	boolean verbose;
+	boolean serialize;
+	
 	private final IList executeArgs;
 	
 	private ArrayList<String> imports;
@@ -87,15 +87,15 @@ public class CommandExecutor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		debug = vf.bool(false);
-		testsuite = vf.bool(false);
-		profile = vf.bool(false);
-		trackCalls = vf.bool(false);
-		coverage = vf.bool(false);
-		useJVM = vf.bool(false);
-		verbose = vf.bool(true);
+		debug = false;
+		testsuite = false;
+		profile = false;
+		trackCalls = false;
+		coverage = false;
+		useJVM = false;
+		verbose = true;
 		
-		serialize = vf.bool(false);
+		serialize = false;
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -105,7 +105,7 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, false, false, false, false, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null);
 		rex.setCurrentModuleName(shellModuleName);
 		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
 		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
@@ -124,19 +124,6 @@ public class CommandExecutor {
 	private IMap makeCompileKwParams(){
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("verbose"), vf.bool(true));
-		return w.done();
-	}
-	
-	private IMap makeExecuteKwParams(){
-		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("debug"), debug);
-		w.put(vf.string("testsuite"), testsuite);
-		w.put(vf.string("profile"), profile);
-		w.put(vf.string("trackCalls"), trackCalls);
-		w.put(vf.string("coverage"), coverage);
-		w.put(vf.string("useJVM"), useJVM);
-		w.put(vf.string("verbose"), verbose);
-		w.put(vf.string("serialize"), serialize);
 		return w.done();
 	}
 	
@@ -161,18 +148,15 @@ public class CommandExecutor {
 		//stdout.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-
+			stdout.println("ConsoleInput.rsc: " + prelude.lastModified(consoleInputLocation));
+			stdout.flush();
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileFunId, compileArgs, makeCompileKwParams());
 			
-			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, useJVM);
+			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null);
+			rex.setCurrentModuleName(shellModuleName);
 			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.list(), rex);
-
-			if(profile.getValue()){
-				((ProfileLocationCollector) rvmCompiler.getLocationCollector()).report(rvmCompiler.getStdOut());
-			} else if(coverage.getValue()){
-				((CoverageLocationCollector) rvmCompiler.getLocationCollector()).report(rvmCompiler.getStdOut());
-			}
 			return val;
 		} catch (Exception e){
 			stderr.println(e.getMessage());
@@ -416,24 +400,24 @@ public class CommandExecutor {
 			
 			switch(name){
 			case "profile": case "profiling":
-				profile =  vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + profile.getValue());
+				profile =  getBooleanValue(val);
+				return report(name + " set to "  + profile);
 				
 			case "trace": case "tracing": case "trackCalls":
-				trackCalls = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + trackCalls.getValue());
+				trackCalls = getBooleanValue(val);
+				return report(name + " set to "  + trackCalls);
 				
 			case "coverage":
-				coverage = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + coverage.getValue());
+				coverage = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
 				
 			case "debug":
-				debug = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + coverage.getValue());
+				debug = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
 				
 			case "testsuite":
-				testsuite = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + coverage.getValue());
+				testsuite = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
 				
 			default:
 				return report("Unrecognized option : " + name);
@@ -529,15 +513,9 @@ public class CommandExecutor {
 		return stdout;
 	}
 	
-	public Collection<String> completePartialIdentifier(String term) {
+	public Collection<String> completePartialIdentifier(String qualifier, String term) {
 		if(rvmConsoleExecutable != null){
-			NameCompleter completer = new NameCompleter();
-			String[] commandKeywords = {":set", "undeclare", ":help", ":unimport", 
-					":declarations", ":quit", ":test", ":modules", ":clear"};
-			for(String kw : commandKeywords){
-				completer.add(kw, term);
-			}
-			return rvmConsoleExecutable.completePartialIdentifier(completer, term).getResult();
+			return rvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
 		}
 		return null;
 	}

@@ -623,7 +623,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
-	println("declareGeneratedFunction: <name>, <rtype>, <src>");
+	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?

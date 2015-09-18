@@ -6,7 +6,7 @@ import lang::csv::IO;
 import util::Math;
 import ParseTree;
 
-loc targetFile = |tmp:///test.csv|;
+loc targetFile = |test-modules:///test.csv|;
 
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {
@@ -46,6 +46,8 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 			when /^[ \t\n]*[0-9][ \t\n]*+r[ \t\n]*[0-9]*[ \t\n]*$/ := s
 		case str s => "a" + s
 			when /^[ \t\n]*\<[ \t\<\>]*\>[ \t\n]*$/ := s
+		case str s => "a" + s
+			when /^[ \t\n]*\<([ \t]|[^\>,])*\>[ \t\n]*$/ := s
 		case str s => "a" + s
 			when /^[ \t\n]*[{(\[][ \t\n]*[)}\]][ \t\n]*$/ := s
 	};
