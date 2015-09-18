@@ -1794,12 +1794,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	@Override
 	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
 		if (partialIdentifier.startsWith("\\")) {
 			partialIdentifier = partialIdentifier.substring(1);
 		}
+		String partialModuleName = qualifier + "::" + partialIdentifier;
 		SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
 			@Override
 			public int compare(String a, String b) {
@@ -1819,35 +1817,47 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		for (ModuleEnvironment env: todo) {
 			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
-				addIt(result, p.getFirst(), partialIdentifier);
+			    for (AbstractFunction f : p.getSecond()) {
+			        String module = ((ModuleEnvironment)f.getEnv()).getName();
+			        if (module.startsWith(qualifier)) {
+			            addIt(result, p.getFirst(), module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+			        }
+			    }
 			}
-			for (String v : env.getVariables().keySet()) {
-				addIt(result, v, partialIdentifier);
-			}
-			for (IValue key: env.getSyntaxDefinition()) {
-				addIt(result, ((IString)key).getValue(), partialIdentifier);
-			}
-			for (Type t: env.getAbstractDatatypes()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			for (Type t: env.getAliases()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			Map<Type, Map<String, Type>> annos = env.getAnnotations();
-			for (Type t: annos.keySet()) {
-				for (String k: annos.get(t).keySet()) {
-					addIt(result, k, partialIdentifier);
-				}
-			}
+		    boolean inQualifiedModule = env.getName().equals(qualifier);
+            if (inQualifiedModule) {
+		        for (String v : env.getVariables().keySet()) {
+			        addIt(result, v, qualifier, partialIdentifier);
+			    }
+		        for (Type t: env.getAbstractDatatypes()) {
+		            if (inQualifiedModule) {
+		                addIt(result, t.getName(), qualifier, partialIdentifier);
+		            }
+		        }
+		        for (Type t: env.getAliases()) {
+		            addIt(result, t.getName(), qualifier, partialIdentifier);
+		        }
+		    }
+            if (qualifier.isEmpty()) {
+                Map<Type, Map<String, Type>> annos = env.getAnnotations();
+                for (Type t: annos.keySet()) {
+                    for (String k: annos.get(t).keySet()) {
+                        addIt(result, k, "", partialIdentifier);
+                    }
+                }
+            }
 		}
 
 		return result;
 	}
 
-	private static void addIt(SortedSet<String> result, String v, String originalTerm) {
+	private static void addIt(SortedSet<String> result, String v, String qualifier, String originalTerm) {
 		if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
 			if (v.contains("-")) {
 				v = "\\" + v;
+			}
+			if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
+			    v = qualifier + "::" + v;
 			}
 			result.add(v);
 		}
