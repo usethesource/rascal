@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -153,6 +155,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
   
   protected abstract Collection<String> completePartialIdentifier(String qualifier, String identifier);
+  protected abstract Collection<String> completeModule(String subPath, String partialModuleName);
   
   @Override
   protected CompletionResult completeFragment(String line, int cursor) {
@@ -180,7 +183,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
           String qualifee = qualified.length == 2 ? qualified[1] : qualified[0];
           Collection<String> suggestions = completePartialIdentifier(qualifier, qualifee);
           if (suggestions != null && ! suggestions.isEmpty()) {
-              return new CompletionResult(identifier.offset, identifier.length, suggestions);
+              return new CompletionResult(identifier.offset, suggestions);
           }
       }
       return null;
@@ -230,7 +233,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
                   result.add(prefix + currentFile);
               }
           }
-          return new CompletionResult(locationStart + 1, (locationEnd - locationStart) - 1, result);
+          return new CompletionResult(locationStart + 1, result);
       }
       catch (URISyntaxException|IOException e) {
           return null;
@@ -238,9 +241,20 @@ public abstract class BaseRascalREPL extends BaseREPL {
   }
 
   private CompletionResult completeModule(String line, int cursor) {
+      OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, line.length());
+      if (identifier != null) {
+          String[] qualified = StringUtils.splitQualifiedName(identifier.term);
+          String qualifier = qualified.length == 2 ? qualified[0] : "";
+          String qualifee = qualified.length == 2 ? qualified[1] : qualified[0];
+          Collection<String> suggestions = completeModule(qualifier, qualifee);
+          if (suggestions != null && ! suggestions.isEmpty()) {
+              return new CompletionResult(identifier.offset, suggestions);
+          }
+      }
       return null;
   }
   
+
   private CompletionResult completeREPLCommand(String line, int cursor) {
       return RascalCommandCompletion.complete(line, cursor, (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
   }

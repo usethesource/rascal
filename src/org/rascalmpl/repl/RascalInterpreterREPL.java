@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jline.Terminal;
 
@@ -127,4 +129,26 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   protected Collection<String> completePartialIdentifier(String qualifier, String term) {
       return eval.completePartialIdentifier(qualifier, term);
   }
+  
+  @Override
+    protected Collection<String> completeModule(String subPath, String partialModuleName) {
+        List<String> entries = eval.getRascalResolver().listModuleEntries(subPath);
+        if (entries != null && entries.size() > 0) {
+            if (entries.contains(partialModuleName)) {
+                // we have a full directory name (at least the option)
+                List<String> subEntries = eval.getRascalResolver().listModuleEntries(subPath + "::" + partialModuleName);
+                if (subEntries != null) {
+                    entries.remove(partialModuleName);
+                    subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));
+                }
+            }
+            return entries.stream()
+                .filter(m -> m.startsWith(partialModuleName))
+                .map(s -> subPath.isEmpty() ? s : subPath + "::" + s)
+                .sorted()
+                .collect(Collectors.toList());
+                
+        }
+        return null;
+    }
 }
