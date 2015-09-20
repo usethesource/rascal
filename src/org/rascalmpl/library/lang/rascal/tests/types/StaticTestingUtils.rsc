@@ -161,15 +161,7 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 
 	
 void makeModule(str name, str body){
-	tmpdir = getSystemProperty("java.io.tmpdir");
-	test_modules = |file:///| + tmpdir + "/test-modules";
-	if(!exists(test_modules)){
-		mkDirectory(test_modules);
-	}
-   
 	mloc = |test-modules:///<name>.rsc|;
     writeFile(mloc, "module <name>
                      <body>");
-    println("makeModule: <name>, <body>");
-    println("<test_modules>/<name>.rsc: <readFile(mloc)>");
 }
