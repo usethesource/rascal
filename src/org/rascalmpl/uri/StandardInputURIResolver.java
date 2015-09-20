@@ -14,6 +14,7 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -58,5 +59,15 @@ public class StandardInputURIResolver implements ISourceLocationInput {
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert stdin to File URI");
 	}
 }

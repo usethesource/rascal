@@ -15,6 +15,7 @@ package org.rascalmpl.uri;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -84,5 +85,15 @@ public class HttpURIResolver implements ISourceLocationInput {
 		catch (IOException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert HTTP to File URI");
 	}
 }

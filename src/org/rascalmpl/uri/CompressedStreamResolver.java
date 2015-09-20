@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
@@ -157,5 +159,15 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	@Override
 	public boolean supportsHost() {
 		return true;
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert Compressed streams to File URI");
 	}
 }

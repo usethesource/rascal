@@ -203,7 +203,7 @@ public class URIResolverRegistry {
 
 	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
 
-	private ISourceLocationInput getInputResolver(String scheme) {
+	public ISourceLocationInput getInputResolver(String scheme) {
 		synchronized (inputResolvers) {
 			ISourceLocationInput result = inputResolvers.get(scheme);
 			if (result == null) {

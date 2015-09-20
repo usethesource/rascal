@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
@@ -109,5 +110,15 @@ public class FileURIResolver implements ISourceLocationInputOutput {
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return true;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		return uri.getURI();
 	}
 }

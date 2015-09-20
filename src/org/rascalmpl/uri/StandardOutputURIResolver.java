@@ -15,6 +15,7 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
@@ -42,5 +43,15 @@ public class StandardOutputURIResolver implements ISourceLocationOutput {
 	@Override
 	public boolean supportsHost() {
 		return false;
+	}
+	
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert stdout to File URI");
 	}
 }
