@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -40,7 +41,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 /**
  * MuPrimitive defines all primitives that are necessary for running muRascal programs.
  * This includes all operations with at least one operand that is not an IValue:
- * 		- mbool	(PDB IBool)
  * 		- mint	(Java Integer)
  * 		- mstr  (Java String)
  * 		- mset	(Java HashSet<IValue>)
@@ -48,6 +48,16 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * 		- array	(Java Object[])
  * 
  * All operations with only IValues as arguments are defined in RascalPrimitive
+ * 
+ * Each MuPrimitive has an execute function with as arguments
+ * - stack in the current stack frame
+ * - stackpointer (sp) in that stack
+ * - arity of the primitive
+ * 
+ * and returns a new values for the stackpointer.
+ * 
+ * TODO: Earlier we use Java booleans to represent booleans but we have switched to using IBool instead.
+ * 		 Some primitives using booleans now work on IValues only and should be moved to RascalPrimitives.
  */
 
 /**
@@ -120,8 +130,8 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 == mint2)
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * bool = (mint1 == mint2)
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	equal_mint_mint {
@@ -134,9 +144,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Equality on IValues or Types: mbool = (IValueOrType1 == IValueOrType2)
+	 * Equality on IValues or Types: bool = (IValueOrType1 == IValueOrType2)
 	 * 
-	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., mbool ]
+	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., bool ]
 	 *
 	 */
 	equal {
@@ -156,9 +166,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Equality on ISet and mset: mbool = (ISet == mset)
+	 * Equality on ISet and mset: bool = (ISet == mset)
 	 * 
-	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 * [ ..., ISet, mset ] => [ ..., bool ]
 	 *
 	 */
 	equal_set_mset {
@@ -461,9 +471,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 >= mint2)
+	 * bool = (mint1 >= mint2)
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	greater_equal_mint_mint {
@@ -476,9 +486,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = mint1 > mint2
+	 * bool = mint1 > mint2
 	 * 
-	 *  [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *  [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	greater_mint_mint {
@@ -493,7 +503,7 @@ public enum MuPrimitive {
 	/**
 	 * Has a concrete term a given label?
 	 * 
-	 * [ ..., IValue, IString label ] => [ ..., mbool ]
+	 * [ ..., IValue, IString label ] => [ ..., bool ]
 	 */
 	// TODO rename to more parse tree specific?
 	has_label {
@@ -518,9 +528,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool 3 = (mbool1 ==> mbool2)
+	 * bool3 = (bool1 ==> bool2)
 	 * 
-	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 * [ ..., bool1, bool2 ] => [ ..., bool3 ]
 	 *
 	 */
 	implies_mbool_mbool {
@@ -535,7 +545,7 @@ public enum MuPrimitive {
 	/**
 	 * Check that a Reference refers to a non-null variable
 	 * 
-	 * [ ..., Reference ] => [ ..., mbool ]
+	 * [ ..., Reference ] => [ ..., bool ]
 	 *
 	 */
 	is_defined {
@@ -551,7 +561,7 @@ public enum MuPrimitive {
 	/**
 	 * Check that IValue is element of mset
 	 * 
-	 * [ ..., IValue, mset ] => [ ..., mbool ]
+	 * [ ..., IValue, mset ] => [ ..., bool ]
 	 *
 	 */
 	is_element_mset {
@@ -567,7 +577,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IBool?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_bool {
@@ -582,7 +592,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue a constructor?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_constructor {
@@ -601,7 +611,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue a IDateTime?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_datetime {
@@ -616,7 +626,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IInteger?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_int {
@@ -631,7 +641,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IList?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_list {
@@ -646,7 +656,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IListRelation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_lrel {
@@ -661,7 +671,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ISourceLocation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_loc {
@@ -676,7 +686,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IMap?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_map {
@@ -691,7 +701,7 @@ public enum MuPrimitive {
 	/**
 	 * Is Object an mmap?
 	 * 
-	 * [ ..., Object ] => [ ..., mbool ]
+	 * [ ..., Object ] => [ ..., bool ]
 	 *
 	 */
 	is_mmap {
@@ -706,7 +716,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an INode?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_node {
@@ -721,7 +731,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an INumber?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_num {
@@ -736,7 +746,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IReal?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_real {
@@ -751,7 +761,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IRational?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_rat {
@@ -766,7 +776,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IRelation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_rel {
@@ -781,7 +791,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ISet?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_set {
@@ -796,7 +806,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IString?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_str {
@@ -811,7 +821,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ITuple?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_tuple {
@@ -864,9 +874,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool= mint1 <= mint2
+	 * bool= mint1 <= mint2
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	less_equal_mint_mint {
@@ -879,9 +889,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = mint1 < mint2
+	 * bool = mint1 < mint2
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	less_mint_mint {
@@ -1056,7 +1066,7 @@ public enum MuPrimitive {
 	/**
 	 * Does a keyword map with <String, IValue> entries contain a given key (as String)?
 	 * 
-	 * [ ..., mmap, String] => [ ..., mbool ]
+	 * [ ..., mmap, String] => [ ..., bool ]
 	 *
 	 */
 	mmap_contains_key {
@@ -1481,9 +1491,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 != mint2)
+	 * bool = (mint1 != mint2)
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	not_equal_mint_mint {
@@ -1496,9 +1506,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool2 = !mbool1
+	 * bool2 = !bool1
 	 * 
-	 * [ ..., mbool1 ] => [ ..., mbool2 ]
+	 * [ ..., bool1 ] => [ ..., bool2 ]
 	 *
 	 */
 	not_mbool {
@@ -1511,9 +1521,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = IList2 is a sublist of IList1 at start
+	 * bool = IList2 is a sublist of IList1 at start
 	 * 
-	 * [ ..., IList1, IList2, start ] => [ ..., mbool ]
+	 * [ ..., IList1, IList2, start ] => [ ..., bool ]
 	 */
 	occurs_list_list_mint {
 		@Override
@@ -1550,9 +1560,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool3 = (mbool1 || mbool2)
+	 * bool3 = (bool1 || bool2)
 	 * 
-	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 * [ ..., bool1, bool2 ] => [ ..., bool3 ]
 	 *
 	 */
 	or_mbool_mbool {
@@ -1672,7 +1682,7 @@ public enum MuPrimitive {
 	/**
 	 * Find next RegExp match
 	 * 
-	 * [ ..., Matcher ] => [ ..., mbool ]
+	 * [ ..., Matcher ] => [ ..., bool ]
 	 */
 	regexp_find {
 		@Override
@@ -1758,9 +1768,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (ISet < mset)
+	 * bool = (ISet < mset)
 	 *
-	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 * [ ..., ISet, mset ] => [ ..., bool ]
 	 */
 	set_is_subset_of_mset {
 		@Override
@@ -1909,7 +1919,7 @@ public enum MuPrimitive {
 	/**
 	 * 	IList2 occurs as subslist in IList1 at position start
 	 * 
-	 * [ ..., IList1, IList2, start] => [ ..., mbool ]
+	 * [ ..., IList1, IList2, start] => [ ..., bool ]
 	 *
 	 */
 	starts_with {
@@ -2028,8 +2038,8 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = IString2 is tail of IString1 at start
-	 *	[ ..., IString1, IString2, start ] => [ ..., mbool ]
+	 * bool = IString2 is tail of IString1 at start
+	 *	[ ..., IString1, IString2, start ] => [ ..., bool ]
 	 */
 	is_tail_str_str_mint {
 		@Override
@@ -2062,9 +2072,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = Type1 < Type2
+	 * bool = Type1 < Type2
 	 * 
-	 * [ ..., Type1, Type2 ] => [ ..., mbool ]
+	 * [ ..., Type1, Type2 ] => [ ..., bool ]
 	 */
 	subtype {
 		@Override
@@ -2078,7 +2088,7 @@ public enum MuPrimitive {
 	/**
 	 * Get type of an IValue or mint
 	 * 
-	 * [ ..., IValueOrMint ] => [ ..., mbool ]
+	 * [ ..., IValueOrMint ] => [ ..., bool ]
 	 */
 	typeOf {
 		@Override
@@ -2194,20 +2204,21 @@ public enum MuPrimitive {
 	
 	;
 
-	private static IValueFactory vf;
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	// Changed values to public (Ferry)
 	public static final MuPrimitive[] values = MuPrimitive.values();
+	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 	
-	private static IBool Rascal_TRUE;
-	private static IBool Rascal_FALSE;
+	private static final IBool Rascal_TRUE = vf.bool(true);
 	
-	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
+	private static final IBool Rascal_FALSE = vf.bool(false);
+	
+	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>();
 	
 	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
 	
-	private static long timeSpent[];
+	private static final long timeSpent[] = new long[values.length];
 	
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
@@ -2221,27 +2232,16 @@ public enum MuPrimitive {
 		System.err.println("Not implemented mufunction");
 		return 0;
 	}
-	/**
-	 * Initialize the primitive methods.
-	 * 
-	 * @param fact the value factory to be used
-	 */
-	public static void init(IValueFactory fact) {
-		vf = fact;
-		Rascal_TRUE = vf.bool(true);
-		Rascal_FALSE = vf.bool(false);
-		timeSpent = new long[values.length];
-	}
 	
 	public static void recordTime(int n, long duration){
 		timeSpent[n] += duration;
 	}
 
 	public static void exit(PrintWriter out) {
-		//printProfile(out);
+		printProfile(out);
 	}
 	
-	private static void printProfile(PrintWriter out){
+	static void printProfile(PrintWriter out){
 		out.println("\nMuPrimitive execution times (ms)");
 		long total = 0;
 		TreeMap<Long,String> data = new TreeMap<Long,String>();
@@ -2270,13 +2270,6 @@ public enum MuPrimitive {
 		}
 		return false;
 	}
-	
-//	private static boolean $is_layout(final IValue v){
-//		if (isNonTerminalType(v.getType())) {
-//			return TreeAdapter.isLayout((ITree) v);
-//		}
-//		return false;
-//	}
 	
 	private static boolean $is_nullable(final IValue v){
 		if (v instanceof ITree) {
