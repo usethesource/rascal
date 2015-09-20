@@ -44,7 +44,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove impor
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
@@ -60,6 +59,7 @@ public class RVM implements java.io.Serializable {
 	private static final long serialVersionUID = 2178453095307370332L;
 	
 	public final IValueFactory vf;
+
 	private final TypeFactory tf;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
@@ -130,23 +130,20 @@ public class RVM implements java.io.Serializable {
 	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		
 		super();
-
+		this.rex = rex;
+		rex.setRVM(this);
+		
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
-		//typeStore = rex.getTypeStore();
+
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.classCache = new HashMap<String, Class<?>>();
 		
-		this.rex = rex;
-		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
 		this.trackCalls = rex.getTrackCalls();
-		//this.finalized = false;
-		
-		//this.types = new Types(this.vf);
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -162,9 +159,7 @@ public class RVM implements java.io.Serializable {
 		this.overloadedStore = rrs.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
-		
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(this, rex);
+
 		Opcode.init(stdout, rex.getProfile());
 		
 		this.locationCollector = NullLocationCollector.getInstance();
@@ -377,7 +372,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
+		//RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -408,7 +403,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
+		//RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o);
 	}
 	
@@ -424,7 +419,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
+		//RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -450,7 +445,7 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
+		//RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 			
@@ -788,13 +783,13 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		long start = Timing.getCpuTime();
+		//long start = Timing.getCpuTime();
 		//trackCalls = true;
 		Object res = executeProgram(root, cf, null);
-		long duration = (Timing.getCpuTime() - start)/1000000;
-		if(duration > 50){
-			System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
-		}
+		//long duration = (Timing.getCpuTime() - start)/1000000;
+		//if(duration > 50){
+		//	System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
+		//}
 		return res;
 	}
 	
@@ -1537,7 +1532,7 @@ public class RVM implements java.io.Serializable {
 //							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
 //							RascalPrimitive.recordTime(n, System.nanoTime() - start);
 //						} else {
-							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
+							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf, rex);
 //						}
 						//assert sp == sp1 - arity + 1;
 					} catch (Thrown exception) {
