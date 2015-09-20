@@ -36,21 +36,15 @@ loc getMergedImportsLocation(loc mainSourceLoc, loc bindir = |home:///bin|){
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
-private map[loc,tuple[datetime modified, RVMModule rvmModule]] importCache = ();
+//private map[loc,tuple[datetime modified, RVMModule rvmModule]] importCache = ();
 
 RVMModule getImport(loc importedLoc){
-    lastMod = lastModified(importedLoc);
-    if(importCache[importedLoc]?){
-       <lastModifiedAtImport, rvmMod> = importCache[importedLoc];
-       if(lastMod <= lastModifiedAtImport){
-          println("getImport: use cached version for <importedLoc>");
-          return rvmMod;
-       }
-    }
-    rvmMod = readBinaryValueFile(#RVMModule, importedLoc);
-    importCache[importedLoc] = <lastMod, rvmMod>;
-    println("getImport: import new version for <importedLoc>");
-    return rvmMod;
+    return getImport1(importedLoc, lastModified(importedLoc));
+}
+
+@memo
+RVMModule getImport1(loc importedLoc, datetime lastModified){
+    return readBinaryValueFile(#RVMModule, importedLoc);
 }
  
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(bool verbose = false, loc bindir = |home:///bin|){
@@ -81,7 +75,18 @@ bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, loc
     if(mergedProgram.imports == program.imports && mergedProgram.extends == program.extends){
         mm = lastModified(mergedImportsLoc);
         for(imp <- mergedProgram.imports){
+            if(contains(imp, "\\")){
+               imp1 = replaceAll(imp, "\\", "");
+               println("valid: <imp> -\> <imp1>");
+               imp = imp1;
+            }
             if(lastModified(RVMModuleLocation(getModuleLocation(imp), bindir)) > mm){
+                return false;
+            }
+        }
+        
+        for(ext <- mergedProgram.extends){
+            if(lastModified(RVMModuleLocation(getModuleLocation(ext), bindir)) > mm){
                 return false;
             }
         }
@@ -250,7 +255,7 @@ RVMProgram mergeImports(RVMModule mainModule, bool useJVM = false, bool serializ
             );
  
    //if(serialize){        
-      //writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
+      writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
    //}
    
    pos_delta = size(imported_overloaded_functions);
