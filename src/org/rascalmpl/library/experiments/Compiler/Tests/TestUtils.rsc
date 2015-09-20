@@ -34,12 +34,6 @@ value run(str exp, list[str] imports, bool debug=false, bool recompile=true, boo
 data D = d1(int n, str s) | d2(str s, bool b) | d3(list[int] l, list[int] r);
 
 loc makeTMP(){
-	tmpdir = getSystemProperty("java.io.tmpdir");
-	test_modules = |file:///| + tmpdir + "/test-modules";
-	if(!exists(test_modules)){
-		mkDirectory(test_modules);
-	}
 	mloc = |test-modules:///TMP.rsc|;
-	
     return mloc;
 }
