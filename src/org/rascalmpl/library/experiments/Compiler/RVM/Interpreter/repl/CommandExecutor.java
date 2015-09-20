@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -19,10 +18,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CoverageLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -105,11 +102,11 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
 		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
-		RascalPrimitive.init(rvmCompiler, rex);
+		//RascalPrimitive.init(rvmCompiler, rex);
 		
 		compileFunId = "experiments::Compiler::Execute/compileAndLink(\\loc();)#318";
 		compileArgs = new IValue[] {consoleInputLocation};
@@ -154,7 +151,7 @@ public class CommandExecutor {
 			
 			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null);
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
 			rex.setCurrentModuleName(shellModuleName);
 			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.list(), rex);
 			return val;

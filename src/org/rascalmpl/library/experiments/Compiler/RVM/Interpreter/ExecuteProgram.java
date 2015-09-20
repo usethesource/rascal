@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
@@ -49,7 +50,7 @@ public class ExecuteProgram {
 
 		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
-		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
 		return executeProgram(executable, argumentsAsList, rex);
 	}
 
@@ -72,7 +73,7 @@ public class ExecuteProgram {
 
 		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
-		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
 		return executeProgram(executable, argumentsAsList, rex2);
 	}
 
@@ -92,7 +93,7 @@ public class ExecuteProgram {
 			) {
 
 		RVMExecutable executable = load(rvmExecutableLoc);
-		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
 		return executeProgram(executable, argumentsAsList, rex);
 		}
 		
@@ -111,7 +112,7 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) {
 		RVMExecutable executable = load(rvmExecutableLoc);
-		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM);
+		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
 		return executeProgram(executable, argumentsAsList, rex2);
 	}
 	
@@ -122,7 +123,7 @@ public class ExecuteProgram {
 					IBool profile, 
 					IBool trackCalls, 
 					IBool coverage, 
-					IBool useJVM
+					IBool useJVM, RascalSearchPath rascalSearchPath
 	) {
 		return new RascalExecutionContext(
 					vf, 
@@ -137,7 +138,8 @@ public class ExecuteProgram {
 				   	trackCalls.getValue(), 
 				   	coverage.getValue(), 
 				   	useJVM.getValue(), 
-				   	null);
+				   	null, 
+				   	rascalSearchPath);
 	}
 	
 	
@@ -209,13 +211,14 @@ public class ExecuteProgram {
 	 */
 	public IValue executeProgram(RVM rvm, RVMExecutable executable, IList argumentsAsList, RascalExecutionContext rex){
 		
+		rex.setRVM(rvm);
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
 		}
-		
+
 		try {
-			long start = Timing.getCpuTime();
+			//long start = Timing.getCpuTime();
 			IValue result = null;
 			if(rex.getTestSuite()){
 				/*
@@ -226,7 +229,7 @@ public class ExecuteProgram {
 				IListWriter w = vf.listWriter();
 				int n = 0;
 				for(String uid_testsuite: executable.getTestSuites()){
-					RascalPrimitive.reset();
+					//RascalPrimitive.reset();
 					System.out.println("Testsuite: " + uid_testsuite);
 					IList test_results = (IList)rvm.executeProgram("TESTSUITE" + n++, uid_testsuite, arguments, null);
 					w.insertAll(test_results);
@@ -241,12 +244,12 @@ public class ExecuteProgram {
 				}
 				String moduleName = executable.getModuleName();
 				rvm.executeProgram(moduleName, executable.getUidModuleInit(), arguments, null);
-				System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
+				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeProgram(moduleName, executable.getUidModuleMain(), arguments, null);
 			}
-			long now = Timing.getCpuTime();
+			//long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
-			RascalPrimitive.exit();
+			RascalPrimitive.exit(rex);
 			Opcode.exit();
 			if(rex.getProfile()){
 				((ProfileLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
@@ -254,7 +257,7 @@ public class ExecuteProgram {
 				((CoverageLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
 			}
 			
-			System.out.println("Executing: " + (now - start)/1000000 + "ms");
+			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
 		} catch(Thrown e) {
