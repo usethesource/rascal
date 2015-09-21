@@ -153,7 +153,7 @@ public class CommandExecutor {
 			
 			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
 			rex.setCurrentModuleName(shellModuleName);
-			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.list(), rex);
+			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			return val;
 		} catch (Exception e){
 			stderr.println(e.getMessage());

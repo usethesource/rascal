@@ -9,4 +9,4 @@ import ParseTree;
 @ignore{This test seems to be too demanding}
 test bool tstPrettyPrintType(Symbol s) = parse(#Type, prettyPrintType(s)) == s;
 
-value main(list[value] args) = subtype(sort("Program"), adt("Tree",[]));
+value main() = subtype(sort("Program"), adt("Tree",[]));

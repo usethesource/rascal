@@ -75,6 +75,6 @@ int generateAndTimeCParser() {
 	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) { return generateAndTimeCParser(); }
+value main() { return generateAndTimeCParser(); }
 
 test bool tstGenerateCParser() = sameLines(generateCParser(), readFile(CParserLoc));

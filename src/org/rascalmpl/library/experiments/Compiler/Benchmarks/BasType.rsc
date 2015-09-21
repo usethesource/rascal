@@ -6,7 +6,7 @@ syntax As = A+;
 syntax B = "b";
 syntax Bs = B+;
 
-value main(list[value] args) {
+value main() {
     for(i <- [1 .. 100]){
 		<[As] "aaaa", [Bs] "bbb" >;
 	}
