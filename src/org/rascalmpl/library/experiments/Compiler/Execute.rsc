@@ -351,7 +351,7 @@ RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=t
 
 value executeTests(loc rascalSource){
    mainModule = compile(rascalSource);
-   return execute(mainModule, [], testsuite=true);
+   return execute(mainModule, testsuite=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
@@ -377,12 +377,4 @@ bool printTestReport(value results){
   } else {
     throw "cannot create report for test results: <results>";
   }
-}
-
-value main() {
-   println("Execute.main: <args>");
-   if(loc src := args[0]){
-      return execute(src, []);
-   }
-   throw "Cannot execute <args[0]>";
 }
