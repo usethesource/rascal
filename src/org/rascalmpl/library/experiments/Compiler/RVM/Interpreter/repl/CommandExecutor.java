@@ -228,7 +228,7 @@ public class CommandExecutor {
 	
 	public IValue evalExpression(String src, ITree exp){
 		try {
-			return executeModule("\nvalue main(list[value] args) = " + src + ";\n");
+			return executeModule("\nvalue main() = " + src + ";\n");
 		} catch (Thrown e){
 			return null;
 		}
@@ -262,7 +262,7 @@ public class CommandExecutor {
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
 			try {
-				return executeModule("\nvalue main(list[value] args) = " + innerExp + ";\n");
+				return executeModule("\nvalue main() = " + innerExp + ";\n");
 			} catch (Exception e){
 				return null;
 			}
@@ -276,7 +276,7 @@ public class CommandExecutor {
 			if(name != null){
 				Variable var = variables.get(name);
 				if(var != null){
-					IValue val = executeModule("\nvalue main(list[value] args) { " + src + "}\n");
+					IValue val = executeModule("\nvalue main() { " + src + "}\n");
 					var.value = val.toString();
 					return val;
 				} else {
@@ -306,7 +306,7 @@ public class CommandExecutor {
 			}
 		}
 		
-		return executeModule("\nvalue main(list[value] args) = true;\n");
+		return executeModule("\nvalue main() = true;\n");
 	}
 	
 	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
@@ -317,7 +317,7 @@ public class CommandExecutor {
 			}
 			imports.add(impName);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				imports.remove(impName);
 				return null;
@@ -326,7 +326,7 @@ public class CommandExecutor {
 		if(is(imp, "syntax")){
 			syntaxDefinitions.add(src);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
 				return null;
@@ -351,7 +351,7 @@ public class CommandExecutor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
-					return executeModule("\nvalue main(list[value] args) = " + name + ";\n");
+					return executeModule("\nvalue main() = " + name + ";\n");
 				} catch (Exception e){
 					this.variables.remove(name);
 					return null;
@@ -364,7 +364,7 @@ public class CommandExecutor {
 		declarations.add(src);
 	
 		try {
-			return executeModule("\nvalue main(list[value] args) = true;\n");
+			return executeModule("\nvalue main() = true;\n");
 		} catch (Exception e){
 			declarations.remove(src);
 			return null;
