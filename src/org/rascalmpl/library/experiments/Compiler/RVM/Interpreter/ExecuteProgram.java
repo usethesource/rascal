@@ -211,7 +211,7 @@ public class ExecuteProgram {
 	 */
 	public IValue executeProgram(RVM rvm, RVMExecutable executable, IList argumentsAsList, RascalExecutionContext rex){
 		
-		rex.setRVM(rvm);
+//		rex.setRVM(rvm);
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
