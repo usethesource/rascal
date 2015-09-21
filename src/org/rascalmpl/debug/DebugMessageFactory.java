@@ -21,7 +21,6 @@ public class DebugMessageFactory {
 	/*
 	 * Interpreter requests.
 	 */
-	
 	public static IDebugMessage requestSuspension() {
 		return new DebugMessage(IDebugMessage.Action.SUSPEND, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.CLIENT_REQUEST);
 	}

@@ -47,10 +47,10 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		if (pt has top && lang::rascal::\syntax::Rascal::Module m := pt.top) {
 			c = checkModule(m, c);
 		} else {
-			c = addScopeError(c, "Unexpected parse result for module to check <pt>", |unknown:///|); 
+			c = addScopeError(c, "Unexpected parse result for module to check <pt>", moduleLoc); 
 		}
 	} catch perror : {
-		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", |unknown:///|);
+		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleLoc);
 	}
 			
 	// Now, parse each statement, then check them in turn, using the environment
