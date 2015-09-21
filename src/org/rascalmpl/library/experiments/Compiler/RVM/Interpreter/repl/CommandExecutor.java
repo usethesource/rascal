@@ -108,7 +108,7 @@ public class CommandExecutor {
 		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
 		//RascalPrimitive.init(rvmCompiler, rex);
 		
-		compileFunId = "experiments::Compiler::Execute/compileAndLink(\\loc();)#318";
+		compileFunId = "experiments::Compiler::Execute/compileAndLink(\\loc();)#323";
 		compileArgs = new IValue[] {consoleInputLocation};
 		
 		executeArgs =  vf.list();
