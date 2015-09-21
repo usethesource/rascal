@@ -1,4 +1,0 @@
-org.rascalmpl.uri.file.FileURIResolver
-org.rascalmpl.uri.CompressedStreamResolver
-org.rascalmpl.uri.libraries.TestModuleURIResolver
-org.rascalmpl.uri.file.TempURIResolver

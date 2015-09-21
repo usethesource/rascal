@@ -34,7 +34,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class ClassResourceInput implements ISourceLocationInput {
 	protected final Class<?> clazz;
 	protected final String scheme;
-	protected final URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	protected final String prefix;
 
 	public ClassResourceInput(String scheme, Class<?> clazz, String prefix) {
@@ -85,7 +84,7 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 			URL res = clazz.getResource(getPath(uri));
 			if(res == null)
 				return false;
-			return registry.isDirectory(ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI()));
+			return URIResolverRegistry.getInstance().isDirectory(ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI()));
 		} catch (URISyntaxException e) {
 			return false;
 		}
@@ -93,7 +92,7 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 
 	public boolean isFile(ISourceLocation uri) {
 		try {
-			return registry.isFile(resolve(uri));
+			return URIResolverRegistry.getInstance().isFile(resolve(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -116,12 +115,12 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 	}
 	
 	public long lastModified(ISourceLocation uri) throws IOException {
-		return registry.lastModified(resolve(uri));
+		return URIResolverRegistry.getInstance().lastModified(resolve(uri));
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-		return registry.listEntries(resolve(uri)); 
+		return URIResolverRegistry.getInstance().listEntries(resolve(uri)); 
 	}
 	
 	public boolean supportsHost() {
@@ -130,6 +129,6 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		return registry.getCharset(resolve(uri));
+		return URIResolverRegistry.getInstance().getCharset(resolve(uri));
 	}
 }
