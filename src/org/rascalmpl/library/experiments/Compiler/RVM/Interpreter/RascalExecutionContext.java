@@ -117,9 +117,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 		currentModuleName = "UNDEFINED";
 		
 		if(rascalSearchPath == null){
+			System.err.println(this + " RascalExecutionContext: create new RascalSearchPath");
 			this.rascalSearchPath = new RascalSearchPath();
 			registerCommonSchemes();
 		} else {
+			System.err.println(this + " RascalExecutionContext: reuse RascalSearchPath");
 			this.rascalSearchPath = rascalSearchPath;
 		}
 	
@@ -133,13 +135,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		parsingTools = new ParsingTools(this);
 	}
 
-	
 	public ParsingTools getParsingTools(){
 		return parsingTools;
 	}
-	
-	
-	
 	
 	IValueFactory getValueFactory(){ return vf; }
 	
@@ -163,7 +161,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ this.rvm = rvm; }
+	void setRVM(RVM rvm){ 
+		if(this.rvm == null){
+			this.rvm = rvm; 
+		} else if(this.rvm != rvm){
+			 System.err.println("*** rvm already set, reset with different one ***");
+			 this.rvm = rvm;
+		}
+	}
 	
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
