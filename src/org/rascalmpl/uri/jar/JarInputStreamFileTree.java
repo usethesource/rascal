@@ -18,7 +18,7 @@ import java.util.jar.JarInputStream;
 
 import org.rascalmpl.uri.FileTree;
 
-public class JarInputStreamTreeHierachy extends FileTree {
+public class JarInputStreamFileTree extends FileTree {
 
   private static class IndexFSEntry extends FSEntry {
     public int position;
@@ -30,7 +30,7 @@ public class JarInputStreamTreeHierachy extends FileTree {
 
   }
 
-  public JarInputStreamTreeHierachy(InputStream in) {
+  public JarInputStreamFileTree(InputStream in) {
     super();
     totalSize = 0;
 

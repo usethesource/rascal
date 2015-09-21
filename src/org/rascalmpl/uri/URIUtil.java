@@ -208,6 +208,9 @@ public class URIUtil {
 	public static URI changeQuery(URI uri, String newQuery) throws URISyntaxException {
 		return create(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), newQuery, uri.getFragment());
 	}
+	public static ISourceLocation changeQuery(ISourceLocation uri, String newQuery) throws URISyntaxException {
+		return  vf.sourceLocation(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), newQuery, uri.getFragment());
+	}
 	public static URI changeFragment(URI uri, String newFragment) throws URISyntaxException {
 		return create(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), uri.getQuery(), newFragment);
 	}

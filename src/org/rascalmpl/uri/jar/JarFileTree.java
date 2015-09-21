@@ -19,9 +19,9 @@ import java.util.jar.JarFile;
 
 import org.rascalmpl.uri.FileTree;
 
-public class JarFileTreeHierachy extends FileTree {
+public class JarFileTree extends FileTree {
 
-  public JarFileTreeHierachy(File jar) {
+  public JarFileTree(File jar) {
     super();
     totalSize = 0;
     try (JarFile jarFile = new JarFile(jar)) {
