@@ -360,7 +360,7 @@ public class ParsingTools {
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
-	     stderr.println("Compiled -- getParser: name = " + name);
+	      stderr.println("Compiled -- getParser: name = " + name);
 	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions);
 	      storeObjectParser(name, start, parser);
 	    }
