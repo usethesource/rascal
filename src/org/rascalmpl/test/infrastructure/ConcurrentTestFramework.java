@@ -20,18 +20,10 @@ package org.rascalmpl.test.infrastructure;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.After;
 import org.rascalmpl.interpreter.Evaluator;
@@ -39,7 +31,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -51,77 +42,6 @@ public class ConcurrentTestFramework {
 
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
-
-	/**
-	 * This class allows us to load modules from string values.
-	 */
-	private static class TestModuleResolver implements ISourceLocationInput {
-		private Map<String,String> modules = new HashMap<String,String>();
-
-		public void addModule(String name, String contents) {
-			name = name.replaceAll("::", "/");
-			if (!name.startsWith("/")) {
-				name = "/" + name;
-			}
-			if (!name.endsWith(".rsc")) {
-				name = name + ".rsc";
-			}
-			modules.put(name, contents);
-		}
-
-		@Override
-		public boolean exists(ISourceLocation uri) {
-			return modules.containsKey(uri.getPath());
-		}
-
-		@Override
-		public InputStream getInputStream(ISourceLocation uri) throws IOException {
-			String contents = modules.get(uri.getPath());
-			if (contents != null) {
-				return new ByteArrayInputStream(contents.getBytes());
-			}
-			return null;
-		}
-
-		public void reset(){
-			modules = new HashMap<String,String>();
-		}
-
-		@Override
-		public String scheme() {
-			return "test-modules";
-		}
-
-		@Override
-		public boolean isDirectory(ISourceLocation uri) {
-			return false;
-		}
-
-		@Override
-		public boolean isFile(ISourceLocation uri) {
-			return false;
-		}
-
-		@Override
-		public long lastModified(ISourceLocation uri) {
-			return 0;
-		}
-
-		@Override
-		public String[] list(ISourceLocation uri) {
-			return new String[] { };
-		}
-
-		@Override
-		public boolean supportsHost() {
-			return false;
-		}
-
-		@Override
-		public Charset getCharset(ISourceLocation uri) throws IOException {
-			return null;
-		}
-	}
 
 	static{
 		GlobalEnvironment heap = new GlobalEnvironment();
@@ -141,7 +61,6 @@ public class ConcurrentTestFramework {
 	private void reset() {
 		evaluator.getHeap().clear();
 		evaluator.__getRootScope().reset();
-		modules.reset();
 		evaluators = null; 
 		evaluator.getAccumulators().clear();
 	}
@@ -235,12 +154,6 @@ public class ConcurrentTestFramework {
 			throw new AssertionError(e.getMessage());
 		}
 		return this;
-	}
-
-	public boolean prepareModule(String name, String module) throws FactTypeUseException {
-		reset();
-		modules.addModule(name, module);
-		return true;
 	}
 
 	private boolean execute(String command, Evaluator eval){
