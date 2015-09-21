@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.remote;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ISourceLocationInput;
 
 public class HttpURIResolver implements ISourceLocationInput {
 

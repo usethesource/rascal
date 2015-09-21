@@ -13,7 +13,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.file.FileURIResolver;
 
 public class FileResult extends ResourceResult {
 

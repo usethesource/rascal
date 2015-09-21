@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public abstract class JarTreeHierachy {
+public abstract class FileTree {
 
-  protected static class FSEntry {
+  public static class FSEntry {
     public long lastModified;
 
     public FSEntry(long lastModified) {
@@ -32,7 +32,7 @@ public abstract class JarTreeHierachy {
   protected long totalSize;
   protected IOException throwMe;
 
-  public JarTreeHierachy() {
+  public FileTree() {
     fs = new TreeMap<String, FSEntry>();
     totalSize = 0;
     throwMe = null;

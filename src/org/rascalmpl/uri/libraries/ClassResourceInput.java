@@ -11,7 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.libraries;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -29,7 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * some functionality may or may not work. Typically, the user will eventually get a "SchemeNotSupportedException" 
  * if an operation is not provided. 
  */
-public class ClassResourceInput implements ISourceLocationInput {
+public abstract class ClassResourceInput implements ISourceLocationInput {
 	protected final Class<?> clazz;
 	protected final String scheme;
 	protected final URIResolverRegistry registry = URIResolverRegistry.getInstance();
