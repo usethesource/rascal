@@ -31,7 +31,7 @@ public class JarURIResolver implements ISourceLocationInput {
     private static String getInsideJarPath(ISourceLocation uri) {
         String path = uri.getPath();
         if (path != null && !path.isEmpty()) {
-            int bang = path.indexOf('!');
+            int bang = path.lastIndexOf('!');
             if (bang != -1) {
                 path = path.substring(bang + 1);
                 while (path.startsWith("/")) { 
@@ -48,7 +48,7 @@ public class JarURIResolver implements ISourceLocationInput {
         try {
             String path = uri.getPath();
             if (path != null && !path.isEmpty()) {
-                int bang = path.indexOf('!');
+                int bang = path.lastIndexOf('!');
                 if (bang != -1) {
                     return VF.sourceLocation(
                         isWrapped ? uri.getScheme().substring("jar+".length()) : "file",
