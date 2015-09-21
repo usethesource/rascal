@@ -104,9 +104,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				((IRascalJUnitTestSetup) instance).setup(evaluator);
 			}
 			else {
-				ISourceLocationInput resolver = new ClassResourceInput("junit", clazz, "/");
-				URIResolverRegistry.getInstance().registerInput(resolver);
-				evaluator.addRascalSearchPath(URIUtil.rootLocation("junit"));
 				evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
 			}
 		} catch (InstantiationException e) {

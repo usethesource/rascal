@@ -88,6 +88,7 @@ Export-Package:
  org.rascalmpl.test.infrastructure,
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
+ org.rascalmpl.uri.libraries,
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
