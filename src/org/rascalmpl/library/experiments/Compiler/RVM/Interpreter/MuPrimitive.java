@@ -1102,6 +1102,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_hasNext {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1112,6 +1113,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_next {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1122,6 +1124,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1974,6 +1977,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Object = array[int]
 	 * 
@@ -2218,6 +2222,8 @@ public enum MuPrimitive {
 	
 	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
 	
+	private static final boolean profileMuPrimitives = false;
+
 	private static final long timeSpent[] = new long[values.length];
 	
 	public static MuPrimitive fromInteger(int muprim) {
@@ -2238,7 +2244,9 @@ public enum MuPrimitive {
 	}
 
 	public static void exit(PrintWriter out) {
-		printProfile(out);
+		if(profileMuPrimitives){
+			printProfile(out);
+		}
 	}
 	
 	static void printProfile(PrintWriter out){
