@@ -48,7 +48,7 @@ public class URIResolverRegistry {
 	}
 
 	private void loadServices() {
-	     for (ISourceLocationInput input :  ServiceLoader.load(ISourceLocationInput.class)) {
+	     for (ISourceLocationInput input :  ServiceLoader.load(ISourceLocationInput.class, getClass().getClassLoader())) {
 	         if (input instanceof ISourceLocationOutput) {
 	             registerInputOutput((ISourceLocationInputOutput) input);
 	         }
@@ -57,7 +57,7 @@ public class URIResolverRegistry {
 	         }
 	     }
 	     
-	     for (ISourceLocationOutput output :  ServiceLoader.load(ISourceLocationOutput.class)) {
+	     for (ISourceLocationOutput output :  ServiceLoader.load(ISourceLocationOutput.class, getClass().getClassLoader())) {
              if (!(output instanceof ISourceLocationInput)) {
                  registerOutput(output);
              }
