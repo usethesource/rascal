@@ -21,12 +21,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -49,27 +46,6 @@ public class RascalTutor {
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		
-		if (isEditMode()) {
-		   FileURIResolver fileURIResolver = new FileURIResolver() {
-		    @Override
-		    public String scheme() {
-		      return "courses";
-		    }
-		    
-		    @Override
-		    protected String getPath(ISourceLocation uri) {
-		      String path = uri.getPath();
-		      return getCoursesLocation() + (path.startsWith("/") ? path : ("/" + path));
-		    }
-		  };
-		  
-		  URIResolverRegistry.getInstance().registerInputOutput(fileURIResolver);
-		}
-		else {
-			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-			URIResolverRegistry.getInstance().registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
-		}
-		
 		eval.addRascalSearchPath(URIUtil.rootLocation("tutor"));
 		eval.addRascalSearchPath(URIUtil.rootLocation("courses"));
 
@@ -77,21 +53,7 @@ public class RascalTutor {
 			final String libSrc = System.getProperty("rascal.courses.lib." + lib);
 
 			if (libSrc != null) {
-				FileURIResolver fileURIResolver = new FileURIResolver() {
-					@Override
-					public String scheme() {
-						return "clib-" + lib;
-					}
-
-					@Override
-					protected String getPath(ISourceLocation uri) {
-						String path = uri.getPath();
-						return libSrc + (path.startsWith("/") ? path : ("/" + path));
-					}
-				};
-
-				URIResolverRegistry.getInstance().registerInputOutput(fileURIResolver);
-				eval.addRascalSearchPath(URIUtil.rootLocation("clib-" + lib));
+			    throw new NotYetImplemented("need to re-think editable courses: use Eclipse to generate tutor files instead");
 			}
 		}
 	}

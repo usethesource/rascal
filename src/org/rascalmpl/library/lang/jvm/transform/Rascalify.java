@@ -46,7 +46,6 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -57,7 +56,6 @@ public class Rascalify {
 	
 	static {
 		_resolver = URIResolverRegistry.getInstance();
-		_resolver.registerInputOutput(new FileURIResolver());
 		_labels = new ArrayList<LabelNode>();
 	}
 	

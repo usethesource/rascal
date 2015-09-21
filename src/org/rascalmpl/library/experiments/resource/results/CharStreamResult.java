@@ -14,7 +14,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.library.experiments.resource.results.buffers.CharStreamFiller;
 import org.rascalmpl.library.experiments.resource.results.buffers.LazyList;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.file.FileURIResolver;
 
 public class CharStreamResult extends ResourceResult {
 

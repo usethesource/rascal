@@ -9,7 +9,7 @@
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
  *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.jar;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +20,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.FileTree;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class JarInputStreamURIResolver extends JarURIResolver {
   private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
@@ -51,7 +53,7 @@ public class JarInputStreamURIResolver extends JarURIResolver {
   }
 
   @Override
-  protected JarTreeHierachy getFileHierchyCache(File jar) {
+  protected FileTree getFileHierchyCache(File jar) {
     JarInputStreamTreeHierachy result = index.get();
     if (result ==null) {
       try {

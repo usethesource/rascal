@@ -16,12 +16,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
-	private final URIResolverRegistry ctx;
+	private final URIResolverRegistry ctx = URIResolverRegistry.getInstance();
 
-	public CompressedStreamResolver(URIResolverRegistry ctx) {
-		this.ctx = ctx;
-	}
-	
 	@Override
 	public String scheme() {
 		return "compressed";

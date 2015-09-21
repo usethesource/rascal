@@ -9,7 +9,7 @@
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
  *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.jar;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,9 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class JarFileTreeHierachy extends JarTreeHierachy {
+import org.rascalmpl.uri.FileTree;
+
+public class JarFileTreeHierachy extends FileTree {
 
   public JarFileTreeHierachy(File jar) {
     super();

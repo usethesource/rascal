@@ -39,9 +39,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.ISourceLocationInput;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -50,7 +48,6 @@ public class ConcurrentTestFramework {
 	private final static int N = 12;
 	private final static Evaluator evaluator;
 	private Evaluator[] evaluators = null;
-	private final static TestModuleResolver modules;
 
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
@@ -129,18 +126,11 @@ public class ConcurrentTestFramework {
 	static{
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___test___", heap));
-		modules = new TestModuleResolver();
-
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-
 		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		resolverRegistry.registerInput(modules);
-
 		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInput("benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 
 	}
 

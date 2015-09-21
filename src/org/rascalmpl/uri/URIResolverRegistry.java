@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +43,30 @@ public class URIResolverRegistry {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
 	
-	private URIResolverRegistry() { }
+	private URIResolverRegistry() { 
+	    loadServices();
+	}
 
-	public static URIResolverRegistry getInstance() {
+	private void loadServices() {
+	     for (ISourceLocationInput input :  ServiceLoader.load(ISourceLocationInput.class)) {
+	         if (input instanceof ISourceLocationOutput) {
+	             registerInputOutput((ISourceLocationInputOutput) input);
+	         }
+	         else {
+	             registerInput(input);
+	         }
+	     }
+	     
+	     for (ISourceLocationOutput output :  ServiceLoader.load(ISourceLocationOutput.class)) {
+             if (!(output instanceof ISourceLocationInput)) {
+                 registerOutput(output);
+             }
+         }
+	     
+	     // TODO: catch common exceptions here and report better 
+    }
+
+    public static URIResolverRegistry getInstance() {
 		return InstanceHolder.sInstance;
 	}
 

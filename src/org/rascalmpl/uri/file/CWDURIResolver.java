@@ -11,9 +11,11 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.file;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
+import org.rascalmpl.uri.URIUtil;
 
 /**
  * For reading and writing files relative to the current working directory.

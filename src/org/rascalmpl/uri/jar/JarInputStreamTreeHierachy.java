@@ -9,14 +9,16 @@
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
  *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.jar;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-public class JarInputStreamTreeHierachy extends JarTreeHierachy {
+import org.rascalmpl.uri.FileTree;
+
+public class JarInputStreamTreeHierachy extends FileTree {
 
   private static class IndexFSEntry extends FSEntry {
     public int position;
