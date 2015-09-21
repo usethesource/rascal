@@ -129,7 +129,6 @@ public class RVM implements java.io.Serializable {
 
 	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		
-		super();
 		this.rex = rex;
 		rex.setRVM(this);
 		
