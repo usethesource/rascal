@@ -52,7 +52,7 @@ test bool Issue435() {
 
 test bool Issue442() =
 	checkOK("true;", initialDecls=["syntax A = \"a\";",
-								   "value main(list[value] args) = [A] \"a\" := [A] \"a\";"]);
+								   "value main() = [A] \"a\" := [A] \"a\";"]);
 	
 // 	https://github.com/cwi-swat/rascal/issues/448
 
@@ -110,19 +110,19 @@ test bool Issue452() =
 
 test bool Issue456() =
 	checkOK("true;", initialDecls = ["data POINT1 = point1(int x, int y, int z = 3, list[str] colors = []);",
-									  "value main(list[value] args) =  point1(1,2);"]);
+									  "value main() =  point1(1,2);"]);
 
 // https://github.com/cwi-swat/rascal/issues/457
 
 test bool Issue457() =
 	checkOK("true;", initialDecls = ["data Exp1[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);", 
-									  "value main(list[value] args) {m = tval2(\"abc\", \"def\"); str s2 = m.tval2; return s2 == \"def\";}"]);   
+									  "value main() {m = tval2(\"abc\", \"def\"); str s2 = m.tval2; return s2 == \"def\";}"]);   
 
 // https://github.com/cwi-swat/rascal/issues/459
 
 test bool Issue459() =
 	checkOK("true;",  importedModules = ["Exception", "Set"],
-					initialDecls = ["value main(list[value] args) = toMap({});"]);
+					initialDecls = ["value main() = toMap({});"]);
 
 // https://github.com/cwi-swat/rascal/issues/467
 
@@ -240,7 +240,7 @@ test bool Issue473() =
 test bool Issue478() =
 	checkOK("true;", 
 					initialDecls = ["data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);",
- 									 "public value main(list[value] args) = f1(1, M=10)  := f1(1);"]); 
+ 									 "public value main() = f1(1, M=10)  := f1(1);"]); 
 
 // https://github.com/cwi-swat/rascal/issues/481
 
@@ -270,7 +270,7 @@ test bool Issue480(){
   					| ellipse(Figure inner = emptyFigure()) 
   					| box(Figure inner = emptyFigure());
 
- 				value main(list[value] args) = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
+ 				value main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
 	return checkOK("true;", importedModules=["MMM"]);
 } 
  

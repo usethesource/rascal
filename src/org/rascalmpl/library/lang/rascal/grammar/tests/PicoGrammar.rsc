@@ -44,6 +44,6 @@ int generateAndTimePicoParser() {
 	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) = generateAndTimePicoParser();
+value main() = generateAndTimePicoParser();
 
 test bool tstgeneratePicoParser() = sameLines(generatePicoParser(), readFile(PicoParserLoc));

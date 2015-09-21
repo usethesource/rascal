@@ -19,14 +19,14 @@ loc makeTMP(){
 }
 
 value run(str exp, bool debug=false, bool recompile=true, bool profile=false) {
-    msrc = "module experiments::Compiler::Tests::TMP  value main(list[value] args) = <exp>;";
+    msrc = "module experiments::Compiler::Tests::TMP  value main() = <exp>;";
     TMP = makeTMP();
 	writeFile(TMP, msrc);
 	
 	return execute(TMP, [], debug=debug, recompile=recompile, profile=profile);
 }	
 
-void main(list[value] args){
+void main(){
 	createConsole("Compiled Rascal Console",
 	              "Welcome to the first (but stupid) Compiled Rascal Console",
 	              str (str inp) {

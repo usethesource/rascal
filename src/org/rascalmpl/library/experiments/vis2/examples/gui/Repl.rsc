@@ -60,7 +60,7 @@ void runRepl(){
 }
 
 /*
-void main(list[value] args){
+void main(){
 
 	Repl r1 =  repl([output(text("Welcome to the Awesome Rascal REPL"))], "");
 	

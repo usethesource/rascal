@@ -18,4 +18,4 @@ test bool tstGetPatternNames4() =  domain(getPatternNames((Pattern) `\<x, y\>`))
 test bool tstGetPatternNames5() =  domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) == {RSimpleName("x")};
 test bool tstGetPatternNames6() =  domain(getPatternNames((Pattern) `/^\<x:[a-z]+\>aaa\<y:[0-9]+\>$/`)) == {RSimpleName("x"),RSimpleName("y")};
 
-value main(list[value] args) = domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) ;
+value main() = domain(getPatternNames((Pattern) `/\<x:[a-z]+\>/`)) ;

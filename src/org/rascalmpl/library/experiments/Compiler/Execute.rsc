@@ -271,12 +271,12 @@ RVMProgram mergeImports(RVMModule mainModule, bool useJVM = false, bool serializ
            );
 }
 
-value execute(RVMProgram program, list[value] arguments, bool debug=false, 
+value execute(RVMProgram program, map[str,value] keywordArguments = (), bool debug=false, 
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
     v = executeProgram(RVMExecutableLocation(program.main_module.src, bindir),
                            program,
-                           arguments, 
+                           keywordArguments, 
                            debug, 
                            testsuite, 
                            profile, 
@@ -287,23 +287,23 @@ value execute(RVMProgram program, list[value] arguments, bool debug=false,
    return v;                            
 }
 
-value execute(RVMModule mainModule, list[value] arguments, bool debug=false, 
+value execute(RVMModule mainModule, map[str,value] keywordArguments = (), bool debug=false, 
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
     start_linking = cpuTime();   
     merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir);
     link_time = cpuTime() - start_linking;
     println("linking: <link_time/1000000> msec");
-    return execute(merged, arguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose,bindir=bindir);             
+    return execute(merged, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose,bindir=bindir);             
 }
 
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=true, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=true, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
       if(exists(compressed)){
          if(verbose) println("Using <compressed>");
-         v = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
+         v = executeProgram(compressed, keywordArguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
          if(!testsuite && verbose){
             println("Result = <v>");
          }  
@@ -315,7 +315,7 @@ value execute(loc rascalSource, list[value] arguments, bool debug=false, bool te
    println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
-   v = execute(mainModule, arguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+   v = execute(mainModule, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
    println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;
 }
@@ -379,7 +379,7 @@ bool printTestReport(value results){
   }
 }
 
-value main(list[value] args) {
+value main() {
    println("Execute.main: <args>");
    if(loc src := args[0]){
       return execute(src, []);

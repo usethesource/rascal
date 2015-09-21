@@ -54,7 +54,7 @@ void myWriteCSV(lrel[num, num, num, num, num] csv, loc out) {
 }
 
 
-void main(list[value] args) {
+void main() {
   benchmarkAll();
 }
 

@@ -71,7 +71,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
   return all_test_results;
 }
   
-value main(list[value] args){
+value main(){
   timestamp = now();
   crashes = [];
   partial_results = [];

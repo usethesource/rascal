@@ -27,4 +27,4 @@ test bool tstPrettyPrintName2() = prettyPrintName(RCompoundName(["a","b","c","x"
 test bool tstConvertNameString1() = convertNameString("x") == RSimpleName("x");
 test bool tstConvertNameString2() = convertNameString("a::b::c::x") == RCompoundName(["a","b","c","x"]);
 
-value main(list[value] args) = convertName((QualifiedName) `a::b::c::x`);
+value main() = convertName((QualifiedName) `a::b::c::x`);
