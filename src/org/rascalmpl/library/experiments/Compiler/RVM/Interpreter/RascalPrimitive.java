@@ -58,17 +58,21 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * The primitives that can be called via the CALLPRIM instruction are defined here.
  * Each primitive with name P (e.g., int_add_int) is defined by:
  * - an enumeration constant P (e.g., int_add_int)
- * - a method int execute(Object[] stack, int sp) associated with that enumeration constant
+ * - a method 
+ *     int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalexecutionContext rex) 
+ *   associated with that enumeration constant.
  * 
- * Each primitive implementation gets as arguments
+ * The arguments of 'execute' have the following meaning:
  * 
  * - the current stack
- * - the current stack pointer
+ * - the current stack pointer (an index in 'stack')
  * - its arity
  * - the current stack frame
  * - the current RascalExecutionContext
  * 
- * and returns a new stack pointer. It may make modifications to the stack.
+ * and returns a new stack pointer (an index in 'stack'). 
+ * 
+ * 'execute' is only allowed to make modifications to the stack.
  */
 
 /*
@@ -6550,7 +6554,6 @@ public enum RascalPrimitive {
 		}
 	},
 
-
 	/**
 	 * typeOf a value
 	 * 
@@ -7251,6 +7254,7 @@ public enum RascalPrimitive {
 	 * [ ..., IListRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
 	 */
 	lrel_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7266,6 +7270,7 @@ public enum RascalPrimitive {
 	 * [ ..., IRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
 	 */
 	rel_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7415,6 +7420,7 @@ public enum RascalPrimitive {
 	 * [ ..., ITuple tup, IString fieldName ] => [ ...,  IValue value of field fieldName  ]
 	 */
 	tuple_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7430,6 +7436,7 @@ public enum RascalPrimitive {
 	 */
 
 	tuple_field_update {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 3;
@@ -7444,6 +7451,7 @@ public enum RascalPrimitive {
 	 * [ ..., ITuple tup, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new ITuple containing the projected elements ]
 	 */
 	tuple_field_project {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -8830,6 +8838,21 @@ public enum RascalPrimitive {
 		}
 	}
 	;
+	
+	/********************************************************************************************************/
+	/*								End of enumeration														*/
+	/********************************************************************************************************/
+
+	/**
+	 * Abstract declaration for the execute method in each RascalPrimitive:
+	 * @param stack			stack in currentFrame
+	 * @param sp			stack pointer in currentFrame
+	 * @param arity			arity of this primitive
+	 * @param currentFrame	the stackFram of the function that calls this primitive
+	 * @param rex			the current RascalExecutionContext
+	 * @return				new value for stack pointer (sp)
+	 */
+	public abstract int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) ;
 
 	/**
 	 * Array of all RascalPrimitives
@@ -8842,23 +8865,13 @@ public enum RascalPrimitive {
 	public static RascalPrimitive fromInteger(int prim){
 		return values[prim];
 	}
-
-	/**
-	 * Abstract declaration for the execute method in each RascalPrimitive:
-	 * @param stack			stack in currentFrame
-	 * @param sp			stack pointer in currentFrame
-	 * @param arity			arity of this primitive
-	 * @param currentFrame	the stackFram of the function that calls this primitive
-	 * @param rex			the current RascalExecutionContext
-	 * @return				new value for stack pointer (sp)
-	 */
-	public abstract int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) ;
 	
 	// Some global variables and constants
 	
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
+	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
@@ -8869,6 +8882,11 @@ public enum RascalPrimitive {
 	private static final ISet emptySet = vf.setWriter().done();
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
+	
+	// Constants for test generation
+	
+	private static final int MAXDEPTH = 5;
+	private static final int TRIES = 500;
 	
 	// For profiling of RascalPrimitives
 	
@@ -8885,7 +8903,6 @@ public enum RascalPrimitive {
 		timeSpent[n] += duration;
 	}
 
-	
 	/**
 	 * Generic exit function that allows some post execution actions (like printing a profile)
 	 * @param rex
@@ -8909,18 +8926,6 @@ public enum RascalPrimitive {
 			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
 		}
 	}
-
-	/************************************************************************************
-	 * 					AUXILIARY VARIABLES USED BY AUXILIARY FUNCTIONS					*	
-	 ************************************************************************************/
-
-	/* 
-	 * testreport_...
-	 */
-	
-	private static final int MAXDEPTH = 5;
-	private static final int TRIES = 500;
-	
 
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $) used in RascalPrimitives	*	
