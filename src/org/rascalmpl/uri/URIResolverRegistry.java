@@ -65,20 +65,26 @@ public class URIResolverRegistry {
        for (String name : readConfigFile(nextElement)) {
            try {
                Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+               Object instance = clazz.newInstance();
+               boolean ok = false;
                
-               if (ISourceLocationInput.class.isAssignableFrom(clazz)) {
-                   ISourceLocationInput input = (ISourceLocationInput) clazz.newInstance();
-                   registerInput(input);
-                   
-                   if (input instanceof ISourceLocationOutput) {
-                       registerOutput((ISourceLocationOutput) input);
-                   }
+               if (instance instanceof ILogicalSourceLocationResolver) {
+                   registerLogical((ILogicalSourceLocationResolver) instance);
+                   ok = true;
                }
-               else if (ISourceLocationOutput.class.isAssignableFrom(clazz)) {
-                   registerOutput((ISourceLocationOutput) clazz.newInstance());
+               
+               if (instance instanceof ISourceLocationInput) {
+                   registerInput((ISourceLocationInput) instance);
+                   ok = true;
                }
-               else {
-                   System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput");
+               
+               if (instance instanceof ISourceLocationOutput) {
+                   registerOutput((ISourceLocationOutput) instance);
+                   ok = true;
+               }
+
+               if (!ok) {
+                   System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
                }
            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
                System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
