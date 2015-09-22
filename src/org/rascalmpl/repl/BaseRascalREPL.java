@@ -23,6 +23,7 @@ import jline.Terminal;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.IRascalResult;
@@ -55,6 +56,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   private StringBuffer currentCommand;
   private final StandardTextWriter indentedPrettyPrinter;
   private final StandardTextWriter singleLinePrettyPrinter;
+  private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
   
   public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory,Terminal terminal)
       throws IOException {
@@ -318,7 +320,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
           if (!locCandidate.contains("://")) {
               return null;
           }
-          ISourceLocation directory = ValueFactoryFactory.getValueFactory().sourceLocation(new URI(locCandidate));
+          ISourceLocation directory = VF.sourceLocation(new URI(locCandidate));
           String fileName = "";
           URIResolverRegistry reg = URIResolverRegistry.getInstance();
           if (!reg.isDirectory(directory)) {
@@ -327,7 +329,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
               int lastSeparator = fullPath.lastIndexOf('/');
               fileName = fullPath.substring(lastSeparator +  1);
               fullPath = fullPath.substring(0, lastSeparator);
-              directory = ValueFactoryFactory.getValueFactory().sourceLocation(directory.getScheme(), directory.getAuthority(), fullPath);
+              directory = VF.sourceLocation(directory.getScheme(), directory.getAuthority(), fullPath);
               if (!reg.isDirectory(directory)) {
                   return null;
               }
@@ -337,10 +339,15 @@ public abstract class BaseRascalREPL extends BaseREPL {
           Set<String> result = new TreeSet<>(); // sort it up
           for (String currentFile : filesInPath) {
               if (currentFile.startsWith(fileName)) {
-                  result.add(URIUtil.getChildURI(directoryURI, currentFile).toString());
+                  URI currentDir = URIUtil.getChildURI(directoryURI, currentFile);
+                  boolean isDirectory = reg.isDirectory(VF.sourceLocation(currentDir));
+                  result.add(currentDir.toString() + (isDirectory ? "/" : "|"));
               }
           }
-          return new CompletionResult(locationStart + 1, result);
+          if (result.size() > 0) {
+              return new CompletionResult(locationStart + 1, result);
+          }
+          return null;
       }
       catch (URISyntaxException|IOException e) {
           return null;
