@@ -150,6 +150,20 @@ void leaveTryCatchFinally() {
 	tryCatchFinally = tail(tryCatchFinally);
 }
 
+private list[loc] functionDeclarations = []; // *** state
+
+void enterFunctionDeclaration(loc src){
+    functionDeclarations = src + functionDeclarations;
+}
+
+void leaveFunctionDeclaration(){
+    functionDeclarations = tail(functionDeclarations);
+}
+
+loc currentFunctionDeclaration(){
+    return top(functionDeclarations);
+}
+
 // Administration of function scopes; 
 // needed to translate 'visit' expressions and generate function declarations for 'visit' cases
 
