@@ -16,7 +16,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
-	private final URIResolverRegistry ctx = URIResolverRegistry.getInstance();
 
 	@Override
 	public String scheme() {
@@ -38,7 +37,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		InputStream result = ctx.getInputStream(getActualURI(uri));
+		InputStream result = URIResolverRegistry.getInstance().getInputStream(getActualURI(uri));
 		if (result != null) {
 			try {
 				String detectedCompression = detectCompression(uri);
@@ -58,7 +57,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		OutputStream result = ctx.getOutputStream(getActualURI(uri), append);
+		OutputStream result = URIResolverRegistry.getInstance().getOutputStream(getActualURI(uri), append);
 		if (result != null) {
 			String detectedCompression = detectCompression(uri);
 			if (detectedCompression == null) {
@@ -101,7 +100,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	@Override
 	public boolean exists(ISourceLocation uri) {
 		try {
-			return ctx.exists(getActualURI(uri));
+			return URIResolverRegistry.getInstance().exists(getActualURI(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -109,13 +108,13 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		return ctx.getCharset(getActualURI(uri));
+		return URIResolverRegistry.getInstance().getCharset(getActualURI(uri));
 	}
 	
 	@Override
 	public boolean isDirectory(ISourceLocation uri) {
 		try {
-			return ctx.isDirectory(getActualURI(uri));
+			return URIResolverRegistry.getInstance().isDirectory(getActualURI(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -124,7 +123,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	@Override
 	public boolean isFile(ISourceLocation uri) {
 		try {
-			return ctx.isFile(getActualURI(uri));
+			return URIResolverRegistry.getInstance().isFile(getActualURI(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -132,22 +131,22 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
-		return ctx.lastModified(getActualURI(uri));
+		return URIResolverRegistry.getInstance().lastModified(getActualURI(uri));
 	}
 	
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-		return ctx.listEntries(getActualURI(uri));
+		return URIResolverRegistry.getInstance().listEntries(getActualURI(uri));
 	}
 	
 	@Override
 	public void mkDirectory(ISourceLocation uri) throws IOException {
-		ctx.mkDirectory(getActualURI(uri));
+	    URIResolverRegistry.getInstance().mkDirectory(getActualURI(uri));
 	}
 	
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-		ctx.remove(getActualURI(uri));
+	    URIResolverRegistry.getInstance().remove(getActualURI(uri));
 	}
 	
 	@Override

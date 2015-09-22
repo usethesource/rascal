@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,9 +62,7 @@ public class URIResolverRegistry {
     }
 
 	private void loadServices(URL nextElement) throws IOException {
-	    String[] config = readConfigFile(nextElement);
-	    System.err.println(Arrays.toString(config));
-	    for (String name : config) {
+	    for (String name : readConfigFile(nextElement)) {
 	        name = name.trim();
 
 	        if (name.startsWith("#")) { 
@@ -237,14 +234,12 @@ public class URIResolverRegistry {
 	
 	private void registerInput(ISourceLocationInput resolver) {
 		synchronized (inputResolvers) {
-		    System.err.println("Registered input: " + resolver.scheme());
 			inputResolvers.put(resolver.scheme(), resolver);
 		}
 	}
 
 	private void registerOutput(ISourceLocationOutput resolver) {
 		synchronized (outputResolvers) {
-		    System.err.println("Registered output: " + resolver.scheme());
 			outputResolvers.put(resolver.scheme(), resolver);
 		}
 	}
