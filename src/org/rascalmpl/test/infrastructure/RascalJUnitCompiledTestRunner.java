@@ -72,12 +72,15 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
+		
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.getConfiguration().setErrors(true);
-        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
-        URIResolverRegistry.getInstance().registerInput(rascalProject);
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
+
+		// this can not work reliably with the current URIResolverRegistry:
+//        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
+//        URIResolverRegistry.getInstance().registerInput(rascalProject);
+//        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
 
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();

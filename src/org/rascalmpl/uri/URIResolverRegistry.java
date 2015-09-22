@@ -225,23 +225,18 @@ public class URIResolverRegistry {
 		return resolved != null ? resolved : loc;
 	}
 	
-	public void registerInput(ISourceLocationInput resolver) {
+	private void registerInput(ISourceLocationInput resolver) {
 		synchronized (inputResolvers) {
 		    System.err.println("Registered input: " + resolver.scheme());
 			inputResolvers.put(resolver.scheme(), resolver);
 		}
 	}
 
-	public void registerOutput(ISourceLocationOutput resolver) {
+	private void registerOutput(ISourceLocationOutput resolver) {
 		synchronized (outputResolvers) {
 		    System.err.println("Registered output: " + resolver.scheme());
 			outputResolvers.put(resolver.scheme(), resolver);
 		}
-	}
-
-	public void registerInputOutput(ISourceLocationInputOutput resolver) {
-		registerInput(resolver);
-		registerOutput(resolver);
 	}
 
 	public void registerLogical(ILogicalSourceLocationResolver resolver) {
