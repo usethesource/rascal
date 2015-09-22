@@ -193,9 +193,9 @@ public class Frame {
 	
 	public String toString(){
 		StringBuilder s = new StringBuilder();
-		if(src != null){
-			s.append("\uE007[");
-	    }
+//		if(src != null){
+//			s.append("\uE007[");
+//	    }
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals; i++){
 			if(i > 0) s.append(", ");
@@ -213,9 +213,9 @@ public class Frame {
 			}
 			
 			s.append(abbrev(repr));
-			if(src != null){
-			  s.append("](").append(src).append(")");
-			}
+//			if(src != null){
+//			  s.append("](").append(src).append(")");
+//			}
 		}
 	
 //		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -251,7 +251,7 @@ public class Frame {
 	}
 	
 	public void printBack(PrintWriter stdout, Object rval){
-		stdout.println(indent().append("\uE007 ").append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
+		stdout.println(indent()./*append("\uE007 ").*/append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	
 }
