@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class URIResolverRegistry {
 
 	private void loadServices() {
 	    try {
-            Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(RESOLVERS_CONFIG);
+            Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
             while (resources.hasMoreElements()) {
                 loadServices(resources.nextElement());
             }
@@ -61,37 +62,46 @@ public class URIResolverRegistry {
         }
     }
 
-    private void loadServices(URL nextElement) throws IOException {
-       for (String name : readConfigFile(nextElement)) {
-           try {
-               Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-               Object instance = clazz.newInstance();
-               boolean ok = false;
-               
-               if (instance instanceof ILogicalSourceLocationResolver) {
-                   registerLogical((ILogicalSourceLocationResolver) instance);
-                   ok = true;
-               }
-               
-               if (instance instanceof ISourceLocationInput) {
-                   registerInput((ISourceLocationInput) instance);
-                   ok = true;
-               }
-               
-               if (instance instanceof ISourceLocationOutput) {
-                   registerOutput((ISourceLocationOutput) instance);
-                   ok = true;
-               }
+	private void loadServices(URL nextElement) throws IOException {
+	    String[] config = readConfigFile(nextElement);
+	    System.err.println(Arrays.toString(config));
+	    for (String name : config) {
+	        name = name.trim();
 
-               if (!ok) {
-                   System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
-               }
-           } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
-               System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
-               e.printStackTrace();
-           }
-       }
-    }
+	        if (name.startsWith("#")) { 
+	            // source code comment
+	            continue;
+	        }
+
+	        try {
+	            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+	            Object instance = clazz.newInstance();
+	            boolean ok = false;
+
+	            if (instance instanceof ILogicalSourceLocationResolver) {
+	                registerLogical((ILogicalSourceLocationResolver) instance);
+	                ok = true;
+	            }
+
+	            if (instance instanceof ISourceLocationInput) {
+	                registerInput((ISourceLocationInput) instance);
+	                ok = true;
+	            }
+
+	            if (instance instanceof ISourceLocationOutput) {
+	                registerOutput((ISourceLocationOutput) instance);
+	                ok = true;
+	            }
+
+	            if (!ok) {
+	                System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+	            }
+	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
+	            System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
+	}
 
     private String[] readConfigFile(URL nextElement) throws IOException {
         try (Reader in = new InputStreamReader(nextElement.openStream())) {
