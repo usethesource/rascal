@@ -87,7 +87,7 @@ public class RVMJVM extends RVM {
 	}
 
 	boolean useRVMInterpreter = false;
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, IMap kwArgs) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 		if (useRVMInterpreter) {
 			return super.executeProgram(moduleName, uid_main, args, kwArgs);
 		} else {
