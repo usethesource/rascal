@@ -34,10 +34,8 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.libraries.ClassResourceInput;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
