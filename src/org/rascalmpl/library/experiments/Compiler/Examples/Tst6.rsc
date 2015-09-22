@@ -1,39 +1,25 @@
 module experiments::Compiler::Examples::Tst6
 
-import lang::rascal::tests::types::StaticTestingUtils;
+data D = d1(int n, str s = "abc", bool b = true);
 
-// Sanity check on the testing utilities themselves
-
-test bool testUtils01() = checkOK("13;");
-
-test bool testUtils02() = checkOK("x;", initialDecls=["int x = 5;"]);
-
-test bool testUtils03() = checkOK("d();", initialDecls=["data D = d();"]);
-
-test bool testUtils04() = checkOK("d();", initialDecls=["data D = d() | d(int n);"]);
-
-test bool testUtils05() = checkOK("d(3);", initialDecls=["data D = d() | d(int n);"]);
-
-test bool testUtils06() = checkOK("t();", initialDecls=["data Bool = and(Bool, Bool) | t();"]);
+    //x = d1(3, s = "def");
+    // veld n heeft waarde 3
+    // keyword parameter s heeft waarde "def" en is opgeslagen in d1 instantie
+    // keyword parameter b is niet gezet en ook niet opgeslagen in d1 instantie
     
-test bool testUtils07() = checkOK("and(t(),t());", initialDecls=["data Bool = and(Bool, Bool) | t();"]);
-
-test bool testUtils08() =  checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
-
-test bool testUtils09() = checkOK("NODE N = f(0, \"a\", 3.5);", initialDecls = ["data NODE = f(int a, str b, real c);"]);
-
-test bool testUtils10() = checkOK("13;", importedModules = ["util::Math"]);
+    //x.s;
+    // field selectie heeft extra argument: str s = "abc", bool b = true
+    // x.s heeft waarde, deze wordt uit d1 instantie opgehaald en waarde is "def"
+    // x.s? is true
+    // x.b heeft waarde, maar deze wordt opgehaald uit extra argument, waarde is true
+    // x.b? is false [ wat raar is want hij heeft wel een waarde, maar dit terzijde]
     
-test bool testUtils11() = checkOK("max(3, 4);", importedModules = ["util::Math"]);
+    
+  value main() {
+    x = d1(3);
+    x.s ?= "pqr";
+    return x;
 
-test bool testUtils12() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
-
-test bool testUtils13(){
-    makeModule("MMM", "int x = 3;"); 
-    return checkOK("13;", importedModules=["MMM"]);
-}
-test bool testUtils14(){
-    makeModule("MMM", "int x = 3;"); 
-    return undeclaredVariable("x;", importedModules=["MMM"]);
-}   
-
+   } 
+    
+           
