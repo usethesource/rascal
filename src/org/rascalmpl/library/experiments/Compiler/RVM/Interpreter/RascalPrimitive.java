@@ -6769,8 +6769,9 @@ public enum RascalPrimitive {
 			IString field = ((IString) stack[sp - 1]);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
+			
 			try {
-				if(tp.hasField(fieldName)){
+				if(tp.hasField(fieldName)){	// A positional field
 					int fld_index = tp.getFieldIndex(fieldName);
 					stack[sp - 2] = cons.get(fld_index);
 					return sp - 1;
@@ -6779,10 +6780,11 @@ public enum RascalPrimitive {
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v != null){
+				if(v != null){				// A default field that was set
 					stack[sp - 2] = v;
 					return sp - 1;
 				}
+				
 				// TODO jurgen rewrite to ITree API
 				if(TreeAdapter.isTree(cons)){
 					ITree tree = (ITree) cons;
@@ -6801,30 +6803,96 @@ public enum RascalPrimitive {
 							}
 						}
 					}
-
 				}
-				//				if(cons.getName().equals("appl")){
-				//					IList appl_args = (IList) cons.get("args");
-				//					IConstructor prod = (IConstructor) cons.get("prod");
-				//					IList prod_symbols = (IList) prod.get("symbols");
-				//
-				//					for(int i = 0; i < prod_symbols.length(); i++){
-				//						IConstructor arg = (IConstructor) prod_symbols.get(i);
-				//						if(arg.getName().equals("label")){
-				//							if(((IString) arg.get(0)).equals(field)){
-				//								stack[sp - 2] = appl_args.get(i);
-				//								return sp - 1;
-				//							}
-				//						}
-				//					}
-				//				}
+				
+				// Final resort: an unset default field
+				String consName = cons.getName();
+				Function getDefaults = rex.getFunction(consName, tp);
+				if(getDefaults != null){
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, new IValue[0], emptyMap);
+					Entry<Type, IValue> def = defaults.get(fieldName);
+					if(def != null){
+						stack[sp - 2] = def.getValue();
+						return sp - 1;
+					}
+				}
+				
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			}
 		}
 	},
-
+	
+	/**
+	 * Is a named field of a constructor defined? Returns fale when:
+	 * - constructor does not have the field
+	 * - the field is a default field with unset value.
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., bool ]
+	 */
+	is_defined_adt_field_access_get {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			IConstructor cons = (IConstructor) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			Type tp = cons.getConstructorType();
+			
+			try {
+				if(tp.hasField(fieldName)){	// A positional field
+					temp_array_of_2[0] = Rascal_TRUE;
+					int fld_index = tp.getFieldIndex(fieldName);
+					temp_array_of_2[1] = cons.get(fld_index);
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
+				} 
+				IValue v = null;
+				if(cons.mayHaveKeywordParameters()){
+					v = cons.asWithKeywordParameters().getParameter(fieldName);
+				}
+				if(v != null){				// A default field that was set
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = v;
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
+				}
+				
+				// TODO jurgen rewrite to ITree API
+				if(TreeAdapter.isTree(cons)){
+					ITree tree = (ITree) cons;
+					if(TreeAdapter.isAppl(tree)){
+						IConstructor prod = tree.getProduction();
+						IList prod_symbols = (IList) prod.get("symbols");
+						int n = prod_symbols.length();
+						IList appl_args = (IList) tree.get("args"); // TODO getArgs() gives UnsupportedOperation
+						for(int i = 0; i < n; i++){
+							IConstructor arg = (IConstructor) prod_symbols.get(i);
+							if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
+								if(((IString) arg.get(0)).equals(field)){
+									temp_array_of_2[0] = Rascal_TRUE;
+									temp_array_of_2[1] = appl_args.get(i);
+									stack[sp - 2] =  temp_array_of_2;
+									return sp - 1;
+								}
+							}
+						}
+					}
+				}
+				
+				// Final resort: an unset default field: fall through and return false
+				
+			} catch(FactTypeUseException e) {
+				
+			}
+			temp_array_of_2[0] = Rascal_FALSE;
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
 	/**
 	 * Retrieve value of named field of datetime value
 	 * 
@@ -7476,12 +7544,30 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 3;
+			IConstructor cons = (IConstructor) stack[sp - 3];
+			IString field = ((IString) stack[sp - 2]);
+			String fieldName = field.getValue();
+			IValue repl = (IValue) stack[sp - 1];
+			
+			Type tp = cons.getConstructorType();
 			try {
-				stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp -1]);
+				//stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp -1]);
+				if(tp.hasField(fieldName)){	// A positional field
+					int fld_index = tp.getFieldIndex(fieldName);
+					stack[sp - 3] = cons.set(fld_index, repl);
+					return sp - 2;
+				} 
+
+				if(cons.mayHaveKeywordParameters()){
+					stack[sp - 3] = cons.asWithKeywordParameters().setParameter(fieldName, repl);
+					return sp - 2;
+				}
+				
+				throw new CompilerError("Assignment to parse tree field not yet implemented");
+				
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame);
 			}
-			return sp - 2;
 		}
 	},
 
@@ -8061,7 +8147,7 @@ public enum RascalPrimitive {
 				}
 				try {
 					//System.err.println("Before executing test " + fun);
-					IValue res = rex.getRVM().executeFunction(fun, args, null); 
+					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
 					if(!passed){
