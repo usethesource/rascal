@@ -213,6 +213,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
 	
+	public Function getFunction(String name, Type ftype){
+		return rvm.getFunction(name, ftype);
+	}
+	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
 			IMap tags = (IMap) moduleTags.get(vf.string(moduleName));
