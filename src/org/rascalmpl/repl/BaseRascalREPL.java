@@ -293,11 +293,8 @@ public abstract class BaseRascalREPL extends BaseREPL {
   }
   private static String unescapeKeyword(String s) {
       assureKeywordsAreScrapped();
-      if (s.startsWith("\\")) {
-          String result = s.substring(1);
-          if (RASCAL_KEYWORDS.contains(result)) {
-              return result;
-          }
+      if (s.startsWith("\\") && !s.contains("-")) {
+          return s.substring(1);
       }
       return s;
   }
