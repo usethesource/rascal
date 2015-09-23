@@ -58,17 +58,21 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * The primitives that can be called via the CALLPRIM instruction are defined here.
  * Each primitive with name P (e.g., int_add_int) is defined by:
  * - an enumeration constant P (e.g., int_add_int)
- * - a method int execute(Object[] stack, int sp) associated with that enumeration constant
+ * - a method 
+ *     int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalexecutionContext rex) 
+ *   associated with that enumeration constant.
  * 
- * Each primitive implementation gets as arguments
+ * The arguments of 'execute' have the following meaning:
  * 
  * - the current stack
- * - the current stack pointer
+ * - the current stack pointer (an index in 'stack')
  * - its arity
  * - the current stack frame
  * - the current RascalExecutionContext
  * 
- * and returns a new stack pointer. It may make modifications to the stack.
+ * and returns a new stack pointer (an index in 'stack'). 
+ * 
+ * 'execute' is only allowed to make modifications to the stack.
  */
 
 /*
@@ -6550,7 +6554,6 @@ public enum RascalPrimitive {
 		}
 	},
 
-
 	/**
 	 * typeOf a value
 	 * 
@@ -6766,8 +6769,9 @@ public enum RascalPrimitive {
 			IString field = ((IString) stack[sp - 1]);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
+			
 			try {
-				if(tp.hasField(fieldName)){
+				if(tp.hasField(fieldName)){	// A positional field
 					int fld_index = tp.getFieldIndex(fieldName);
 					stack[sp - 2] = cons.get(fld_index);
 					return sp - 1;
@@ -6776,10 +6780,11 @@ public enum RascalPrimitive {
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v != null){
+				if(v != null){				// A default field that was set
 					stack[sp - 2] = v;
 					return sp - 1;
 				}
+				
 				// TODO jurgen rewrite to ITree API
 				if(TreeAdapter.isTree(cons)){
 					ITree tree = (ITree) cons;
@@ -6798,30 +6803,96 @@ public enum RascalPrimitive {
 							}
 						}
 					}
-
 				}
-				//				if(cons.getName().equals("appl")){
-				//					IList appl_args = (IList) cons.get("args");
-				//					IConstructor prod = (IConstructor) cons.get("prod");
-				//					IList prod_symbols = (IList) prod.get("symbols");
-				//
-				//					for(int i = 0; i < prod_symbols.length(); i++){
-				//						IConstructor arg = (IConstructor) prod_symbols.get(i);
-				//						if(arg.getName().equals("label")){
-				//							if(((IString) arg.get(0)).equals(field)){
-				//								stack[sp - 2] = appl_args.get(i);
-				//								return sp - 1;
-				//							}
-				//						}
-				//					}
-				//				}
+				
+				// Final resort: an unset default field
+				String consName = cons.getName();
+				Function getDefaults = rex.getFunction(consName, tp);
+				if(getDefaults != null){
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, new IValue[0], emptyMap);
+					Entry<Type, IValue> def = defaults.get(fieldName);
+					if(def != null){
+						stack[sp - 2] = def.getValue();
+						return sp - 1;
+					}
+				}
+				
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			}
 		}
 	},
-
+	
+	/**
+	 * Is a named field of a constructor defined? Returns fale when:
+	 * - constructor does not have the field
+	 * - the field is a default field with unset value.
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., bool ]
+	 */
+	is_defined_adt_field_access_get {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			IConstructor cons = (IConstructor) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			Type tp = cons.getConstructorType();
+			
+			try {
+				if(tp.hasField(fieldName)){	// A positional field
+					temp_array_of_2[0] = Rascal_TRUE;
+					int fld_index = tp.getFieldIndex(fieldName);
+					temp_array_of_2[1] = cons.get(fld_index);
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
+				} 
+				IValue v = null;
+				if(cons.mayHaveKeywordParameters()){
+					v = cons.asWithKeywordParameters().getParameter(fieldName);
+				}
+				if(v != null){				// A default field that was set
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = v;
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
+				}
+				
+				// TODO jurgen rewrite to ITree API
+				if(TreeAdapter.isTree(cons)){
+					ITree tree = (ITree) cons;
+					if(TreeAdapter.isAppl(tree)){
+						IConstructor prod = tree.getProduction();
+						IList prod_symbols = (IList) prod.get("symbols");
+						int n = prod_symbols.length();
+						IList appl_args = (IList) tree.get("args"); // TODO getArgs() gives UnsupportedOperation
+						for(int i = 0; i < n; i++){
+							IConstructor arg = (IConstructor) prod_symbols.get(i);
+							if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
+								if(((IString) arg.get(0)).equals(field)){
+									temp_array_of_2[0] = Rascal_TRUE;
+									temp_array_of_2[1] = appl_args.get(i);
+									stack[sp - 2] =  temp_array_of_2;
+									return sp - 1;
+								}
+							}
+						}
+					}
+				}
+				
+				// Final resort: an unset default field: fall through and return false
+				
+			} catch(FactTypeUseException e) {
+				
+			}
+			temp_array_of_2[0] = Rascal_FALSE;
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
 	/**
 	 * Retrieve value of named field of datetime value
 	 * 
@@ -7251,6 +7322,7 @@ public enum RascalPrimitive {
 	 * [ ..., IListRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
 	 */
 	lrel_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7266,6 +7338,7 @@ public enum RascalPrimitive {
 	 * [ ..., IRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
 	 */
 	rel_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7415,6 +7488,7 @@ public enum RascalPrimitive {
 	 * [ ..., ITuple tup, IString fieldName ] => [ ...,  IValue value of field fieldName  ]
 	 */
 	tuple_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
@@ -7430,6 +7504,7 @@ public enum RascalPrimitive {
 	 */
 
 	tuple_field_update {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 3;
@@ -7444,6 +7519,7 @@ public enum RascalPrimitive {
 	 * [ ..., ITuple tup, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new ITuple containing the projected elements ]
 	 */
 	tuple_field_project {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -7468,12 +7544,30 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 3;
+			IConstructor cons = (IConstructor) stack[sp - 3];
+			IString field = ((IString) stack[sp - 2]);
+			String fieldName = field.getValue();
+			IValue repl = (IValue) stack[sp - 1];
+			
+			Type tp = cons.getConstructorType();
 			try {
-				stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp -1]);
+				//stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp -1]);
+				if(tp.hasField(fieldName)){	// A positional field
+					int fld_index = tp.getFieldIndex(fieldName);
+					stack[sp - 3] = cons.set(fld_index, repl);
+					return sp - 2;
+				} 
+
+				if(cons.mayHaveKeywordParameters()){
+					stack[sp - 3] = cons.asWithKeywordParameters().setParameter(fieldName, repl);
+					return sp - 2;
+				}
+				
+				throw new CompilerError("Assignment to parse tree field not yet implemented");
+				
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame);
 			}
-			return sp - 2;
 		}
 	},
 
@@ -8053,7 +8147,7 @@ public enum RascalPrimitive {
 				}
 				try {
 					//System.err.println("Before executing test " + fun);
-					IValue res = rex.getRVM().executeFunction(fun, args, null); 
+					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
 					if(!passed){
@@ -8830,6 +8924,21 @@ public enum RascalPrimitive {
 		}
 	}
 	;
+	
+	/********************************************************************************************************/
+	/*								End of enumeration														*/
+	/********************************************************************************************************/
+
+	/**
+	 * Abstract declaration for the execute method in each RascalPrimitive:
+	 * @param stack			stack in currentFrame
+	 * @param sp			stack pointer in currentFrame
+	 * @param arity			arity of this primitive
+	 * @param currentFrame	the stackFram of the function that calls this primitive
+	 * @param rex			the current RascalExecutionContext
+	 * @return				new value for stack pointer (sp)
+	 */
+	public abstract int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) ;
 
 	/**
 	 * Array of all RascalPrimitives
@@ -8842,23 +8951,13 @@ public enum RascalPrimitive {
 	public static RascalPrimitive fromInteger(int prim){
 		return values[prim];
 	}
-
-	/**
-	 * Abstract declaration for the execute method in each RascalPrimitive:
-	 * @param stack			stack in currentFrame
-	 * @param sp			stack pointer in currentFrame
-	 * @param arity			arity of this primitive
-	 * @param currentFrame	the stackFram of the function that calls this primitive
-	 * @param rex			the current RascalExecutionContext
-	 * @return				new value for stack pointer (sp)
-	 */
-	public abstract int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) ;
 	
 	// Some global variables and constants
 	
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
+	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
@@ -8869,6 +8968,11 @@ public enum RascalPrimitive {
 	private static final ISet emptySet = vf.setWriter().done();
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
+	
+	// Constants for test generation
+	
+	private static final int MAXDEPTH = 5;
+	private static final int TRIES = 500;
 	
 	// For profiling of RascalPrimitives
 	
@@ -8885,7 +8989,6 @@ public enum RascalPrimitive {
 		timeSpent[n] += duration;
 	}
 
-	
 	/**
 	 * Generic exit function that allows some post execution actions (like printing a profile)
 	 * @param rex
@@ -8909,18 +9012,6 @@ public enum RascalPrimitive {
 			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
 		}
 	}
-
-	/************************************************************************************
-	 * 					AUXILIARY VARIABLES USED BY AUXILIARY FUNCTIONS					*	
-	 ************************************************************************************/
-
-	/* 
-	 * testreport_...
-	 */
-	
-	private static final int MAXDEPTH = 5;
-	private static final int TRIES = 500;
-	
 
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $) used in RascalPrimitives	*	

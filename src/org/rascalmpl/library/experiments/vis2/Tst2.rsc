@@ -6,7 +6,7 @@ import lang::json::IO;
 import experiments::vis2::Figure;
 import Type;
 
-void main(list[value] args){
+void main(){
 
 	r1 =  text("Welcome to the Awesome Rascal REPL");
 	jj = toJSON(r1);
@@ -26,7 +26,7 @@ void main(list[value] args){
 
 //data D = d(int n, str opt = "abc");
 //
-//void main(list[value] args){
+//void main(){
 //
 //	r1 = d(3);
 //	j = toJSON(r1);

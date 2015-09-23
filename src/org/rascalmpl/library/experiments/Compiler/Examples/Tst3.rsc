@@ -6,4 +6,4 @@ test bool formalsAreLocal(){
     return true;
 }
 
-value main(list[value] args) = formalsAreLocal();
+value main() = formalsAreLocal();

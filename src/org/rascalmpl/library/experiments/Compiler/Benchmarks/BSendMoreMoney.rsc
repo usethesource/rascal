@@ -19,4 +19,4 @@ public set[list[int]] sendMoreMoney(){
     return res;
 }
 
-value main(list[value] args)  = sendMoreMoney();
+value main()  = sendMoreMoney();

@@ -1,6 +1,6 @@
 module experiments::Compiler::Benchmarks::BWhile
 
-value main(list[value] args){
+value main(){
     i = 2000000;
     while(i > 0)
     	i = i - 1;

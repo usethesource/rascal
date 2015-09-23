@@ -1039,7 +1039,7 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keword map with <String_i, IValue_i> as entries
+	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keyword map with <String_i, IValue_i> as entries
 	 *
 	 * [ ..., IString_1, IValue_1, ..., IString_n, IValue_n ] => [ ..., mmap ]
 	 */
@@ -1054,6 +1054,41 @@ public enum MuPrimitive {
 			}
 			Map<String, IValue> writer = new HashMap<String, IValue>();
 			for (int i = arity; i > 0; i -= 2) {
+				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = writer;
+
+			return sp1;
+		}
+	},
+	
+	/**
+	 * Given defPos, IString_1, IValue_1, ..., IString_n, IValue_n, 
+	 * copy the default map at stack[defPos] and insert the entries <String_i, IValue_i> in it
+	 *
+	 * [ ..., defPos, IString_1, IValue_1, ..., IString_n, IValue_n ] => [ ..., mmap ]
+	 * 
+	 * Note: this implements downward keyword parameter propagation that is not (yet) supported by the interpreter
+	 */
+	copy_and_update_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity >= 1;
+			
+			int defPos = ((IInteger) stack[sp - arity]).intValue();
+			@SuppressWarnings("unchecked")
+			HashMap<String, IValue> oldMap = (HashMap<String, IValue>) stack[defPos];
+			
+			if(arity == 1){
+				stack[sp - 1] = oldMap;
+				return sp;
+			}
+			
+			@SuppressWarnings("unchecked")
+			HashMap<String, IValue> writer = (HashMap<String, IValue>) oldMap.clone();
+			
+			for (int i = arity - 1; i > 0; i -= 2) {
 				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
 			}
 			int sp1 = sp - arity + 1;
@@ -1102,6 +1137,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_hasNext {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1112,6 +1148,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_next {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1122,6 +1159,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1974,6 +2012,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Object = array[int]
 	 * 
@@ -2218,6 +2257,8 @@ public enum MuPrimitive {
 	
 	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
 	
+	private static final boolean profileMuPrimitives = false;
+
 	private static final long timeSpent[] = new long[values.length];
 	
 	public static MuPrimitive fromInteger(int muprim) {
@@ -2238,7 +2279,9 @@ public enum MuPrimitive {
 	}
 
 	public static void exit(PrintWriter out) {
-		printProfile(out);
+		if(profileMuPrimitives){
+			printProfile(out);
+		}
 	}
 	
 	static void printProfile(PrintWriter out){

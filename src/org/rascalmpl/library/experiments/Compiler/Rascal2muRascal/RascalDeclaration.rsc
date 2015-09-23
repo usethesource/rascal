@@ -76,7 +76,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
-  //setFunctionUID(fd@\loc);
+  enterFunctionDeclaration(fd@\loc);
 
   try {
   ttags =  translateTags(fd.tags);
@@ -97,8 +97,6 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   // Keyword parameters
   list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
- 
-  
   
   if(ttags["javaClass"]?){
      paramTypes = \tuple([param | param <- ftype.parameters]);
@@ -156,6 +154,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      addTestToModule(muCallPrim3("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ], fd@\loc));
   }
   leaveFunctionScope();
+  leaveFunctionDeclaration();
   
   } catch e: {
         throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
