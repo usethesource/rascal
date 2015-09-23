@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -206,5 +207,9 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 */
 	public boolean isBreakable() {
 		return false;
+	}
+	
+	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+		return ResultFactory.makeResult(TF.boolType(), VF.bool(false), __eval);
 	}
 }
