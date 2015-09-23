@@ -42,6 +42,11 @@ public abstract class FileTree {
     if (throwMe != null) {
       return false;
     }
+    
+    if ("/".equals(path)) {
+        return true;
+    }
+    
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the actual file itself
@@ -76,9 +81,15 @@ public abstract class FileTree {
     if (throwMe != null) {
       return false;
     }
+    
     if (!path.endsWith("/")) {
       path += "/";
     }
+    
+    if ("/".equals(path)) {
+        return true;
+    }
+    
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the first file greater than the directory

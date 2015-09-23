@@ -15,21 +15,15 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.NavigableMap;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
-
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 /**
  * This resolver is used for example for the scheme "test-modules", which amongst others 
