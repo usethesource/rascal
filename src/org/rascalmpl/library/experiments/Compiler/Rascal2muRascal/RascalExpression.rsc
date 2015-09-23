@@ -160,7 +160,8 @@ private MuExp translateComposeFunction(Expression e){
   }
     
   enterFunctionScope(comp_fuid);
-  kwargs = muCallMuPrim("make_mmap", []);
+  //kwargs = muCallMuPrim("make_mmap", []);
+  kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
   rhsCall = muOCall4(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
@@ -1208,8 +1209,9 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
    //println("translate: <e>");
+  
    MuExp kwargs = translateKeywordArguments(keywordArguments);
-      
+   
    MuExp receiver = translate(expression);
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | a <- arguments ];
@@ -1370,7 +1372,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        for(UID alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
-assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
            	   //println("alt <alt> matches");
@@ -1413,6 +1414,21 @@ assert uid2type[alt]? : "cannot find type of alt";
 
 private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
+   
+   // Version that propagates values of set keyword parameters downwards
+   
+   // defPos = getFormals(currentFunctionDeclaration()) - 1;
+   // //println("translateKeywordArguments: <keywordArguments>, <defPos>");
+   // if(keywordArguments is \default){
+   //   kwargs = [ muCon(unescape("<kwarg.name>")), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
+   //   if(size(kwargs) > 0){
+   //      return muCallMuPrim("copy_and_update_keyword_mmap", muCon(defPos) + kwargs );
+   //   }
+   //}
+   //return muCallMuPrim("copy_and_update_keyword_mmap", [muCon(defPos)]);
+   
+    // Version that does not propagates values of set keyword parameters downwards and is compatible with the interpreter
+    
    if(keywordArguments is \default){
       kwargs = [ muCon(unescape("<kwarg.name>")), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
@@ -1420,15 +1436,6 @@ private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<Keyword
       }
    }
    return muCallMuPrim("make_mmap", []);
-   
-   //str fuid = topFunctionScope();
-   //list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", fuid, muCallPrim("mapwriter_open",[])) ];
-   //if(keywordArguments is \default) {
-   //    for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
-   //        kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments",fuid), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
-   //    }
-   //}
-   //return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments",fuid) ]) ]);
 }
 
 // -- any expression ------------------------------------------------
@@ -1765,6 +1772,8 @@ private MuExp translateIsDefined(Expression exp){
 			return translateSubscript(exp, true);
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
+		case (Expression) `<Expression expression> . <Name field>`:
+		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
@@ -1786,7 +1795,18 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
     						[translate(rhs)])
     			  ]);
-    		}				
+    		}	
+    	case (Expression) `<Expression expression> . <Name field>`:	{
+    	   str fuid = topFunctionScope();
+           str varname = asTmp(nextLabel());
+    	   return muBlock([
+                   muAssignTmp(varname, fuid, muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], e@\loc)),
+                   muIfelse(nextLabel(), 
+                            muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+                            [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
+                            [translate(rhs)])
+                  ]);
+            }      		
 		default:
     		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 	}

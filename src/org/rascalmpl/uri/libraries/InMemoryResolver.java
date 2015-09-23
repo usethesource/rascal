@@ -15,9 +15,12 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.NavigableMap;
@@ -26,19 +29,25 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 /**
  * This resolver is used for example for the scheme "test-modules", which amongst others 
  * generates modules during tests.
  * These modules are implemented via an in-memory "file system" that guarantees
  * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
  * is ALWAYS larger than for the previous version of the same file.
- * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
+ * When files are written at high speeed (e.g. with 10-30 ms intervals), this property is, 
  * unfortunately, not guaranteed on all operating systems.
  * 
  * So if you are writing temporary files very frequently and use lastModified to mark the fields 
- * as dirty, use an instance of this of this resolver to guarantee the dirty marking.
+ * as dirty, use an instance of this resolver to guarantee the dirty marking.
  * 
  * The locations should not use the autority field, as that is ignored.
+ * 
+ * BE AWARE that the information in this in-memory file system is volatile and does not survive:
+ * - program execution
+ * - replacement by another in-memory filesystem for the same scheme
  *
  */
 
@@ -55,6 +64,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
     private InMemoryFileTree fileSystem = new InMemoryFileTree();
     
 	public InMemoryResolver(String scheme) {
+		//System.err.println("CREATE InMemoryResolver: " + scheme + ": " + this);
         this.scheme = scheme;
     }
 
@@ -78,7 +88,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 			contents = byteArray;
 		}
 		public String toString(){
-		    return String.valueOf(lastModified) + ":\n" +new String(contents, StandardCharsets.UTF_8);
+		    return String.valueOf(lastModified) ;//+ ":\n" +new String(contents, StandardCharsets.UTF_8);
 		}
 	}
 
@@ -91,15 +101,17 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 			throws IOException {
 		File file = get(uri);
 		if (file == null) {
+			System.err.println(this + " getInputStream: null");
 			throw new IOException();
 		}
-		//System.err.println("getInputStream: " + uri + "?" + file.toString());
+		//System.err.println(this + " getInputStream: " + uri + "?" + file.lastModified);
 		return new ByteArrayInputStream(file.contents);
 	}
 
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
+		//System.err.println(this + " getOutputStream " + uri);
 		return new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
@@ -110,7 +122,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
-				//System.err.println("getOutputStream.close " + uri + "?" + file.toString());
+				//System.err.println(this + " getOutputStream.close " + uri + "?" + file.lastModified);
 			}
 		};
 	}

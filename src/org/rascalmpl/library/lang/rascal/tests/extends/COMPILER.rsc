@@ -35,4 +35,4 @@ test bool CMsubtype7() = subtype(SORT(D()), TREE());
 test bool CMsubtype8() = subtype(C(), E());
 test bool CMsubtype9() = subtype(Z(), A());
 
-value main(list[value] args) = subtype(Z(), A());
+value main() = subtype(Z(), A());

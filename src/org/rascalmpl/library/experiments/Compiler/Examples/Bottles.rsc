@@ -12,4 +12,4 @@ public str sing() =
   'Go to the store and buy some more, 99 bottles of beer on the wall.
   <}>";
   
-value main(list[value] args) = sing();
+value main() = sing();

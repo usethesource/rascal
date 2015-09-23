@@ -105,10 +105,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 		currentModuleName = "UNDEFINED";
 		
 		if(rascalSearchPath == null){
+			System.err.println(this + " RascalExecutionContext: create new RascalSearchPath");
 			this.rascalSearchPath = new RascalSearchPath();
 			addRascalSearchPath(URIUtil.rootLocation("test-modules"));
             addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		} else {
+			System.err.println(this + " RascalExecutionContext: reuse RascalSearchPath");
 			this.rascalSearchPath = rascalSearchPath;
 		}
 	
@@ -122,13 +124,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		parsingTools = new ParsingTools(this);
 	}
 
-	
 	public ParsingTools getParsingTools(){
 		return parsingTools;
 	}
-	
-	
-	
 	
 	IValueFactory getValueFactory(){ return vf; }
 	
@@ -152,7 +150,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ this.rvm = rvm; }
+	void setRVM(RVM rvm){ 
+		if(this.rvm == null){
+			this.rvm = rvm; 
+		} else if(this.rvm != rvm){
+			 System.err.println("*** rvm already set, reset with different one ***");
+			 this.rvm = rvm;
+		}
+	}
 	
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
@@ -196,6 +201,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	IListWriter getTestResults() { return test_results; }
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
+	
+	public Function getFunction(String name, Type ftype){
+		return rvm.getFunction(name, ftype);
+	}
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
