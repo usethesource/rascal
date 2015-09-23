@@ -215,8 +215,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new NullPointerException();
 		}
 		
-		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
