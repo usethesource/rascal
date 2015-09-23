@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -59,6 +60,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String ADDITION_STRING = "addition";
 	private static final String IS_STRING = "is";
 	private static final String HAS_STRING = "has";
+	private static final String IS_DEFINED_STRING = "?";
 	private static final String FIELD_ACCESS_STRING = "field access";
 	private static final String FIELD_UPDATE_STRING = "field update";
 	private static final String RANGE_STRING = "range construction";
@@ -1042,6 +1044,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(HAS_STRING, this);
 	}
 	
+	public Result<IBool> isDefined(Name name) {
+		return undefinedError(IS_DEFINED_STRING, this);
+	}
+	
 	public boolean isPublic() {
 		return isPublic;
 	}
@@ -1070,5 +1076,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	public Type getKeywordArgumentTypes(Environment env) {
 		return TypeFactory.getInstance().voidType();
+	}
+
+	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
+		return bool(false, ctx);
 	}
 }
