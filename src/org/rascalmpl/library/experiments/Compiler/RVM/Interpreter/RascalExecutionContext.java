@@ -1,19 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -40,14 +36,20 @@ import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.HttpsURIResolver;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
+import org.rascalmpl.uri.InMemoryResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.TestModuleResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 /**
- * Provide all context information that is needed during the execution of a compiled Rascal program
+ * Provides all context information that is needed during the execution of a compiled Rascal program
+ * and contains:
+ * - I/O streams
+ * - class loaders
+ * - RascalSearchPath
+ * - execution flags
+ * - state variables need by RascalPrimitives
  *
  */
 public class RascalExecutionContext implements IRascalMonitor {
@@ -57,7 +59,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final Configuration config;
 	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
-	//private final IEvaluatorContext ctx;
+	
 	private final IValueFactory vf;
 	private final TypeStore typeStore;
 	private final boolean debug;
@@ -69,11 +71,20 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
-	//private ILocationCollector locationReporter;
 	private RVM rvm;
 	private boolean coverage;
 	private boolean useJVM;
 	private final IMap moduleTags;
+	
+	// State for RascalPrimitive
+	
+	private final ParsingTools parsingTools; 
+	private final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
+	Stack<String> indentStack = new Stack<String>();
+	static final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
+	StringBuilder templateBuilder = null;
+	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
+	private IListWriter test_results;
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
@@ -88,7 +99,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean trackCalls, 
 			boolean coverage, 
 			boolean useJVM, 
-			ITestResultListener testResultListener
+			ITestResultListener testResultListener, 
+			RascalSearchPath rascalSearchPath
 	){
 		
 		this.vf = vf;
@@ -104,8 +116,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		currentModuleName = "UNDEFINED";
 		
-		this.rascalSearchPath = new RascalSearchPath();
-		registerCommonSchemes();
+		if(rascalSearchPath == null){
+			System.err.println(this + " RascalExecutionContext: create new RascalSearchPath");
+			this.rascalSearchPath = new RascalSearchPath();
+			registerCommonSchemes();
+		} else {
+			System.err.println(this + " RascalExecutionContext: reuse RascalSearchPath");
+			this.rascalSearchPath = rascalSearchPath;
+		}
 	
 		monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
 		this.stdout = stdout;
@@ -114,8 +132,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
 															  : testResultListener;
+		parsingTools = new ParsingTools(this);
 	}
 
+	public ParsingTools getParsingTools(){
+		return parsingTools;
+	}
+	
 	IValueFactory getValueFactory(){ return vf; }
 	
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
@@ -138,7 +161,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ this.rvm = rvm; }
+	void setRVM(RVM rvm){ 
+		if(this.rvm == null){
+			this.rvm = rvm; 
+		} else if(this.rvm != rvm){
+			 System.err.println("*** rvm already set, reset with different one ***");
+			 this.rvm = rvm;
+		}
+	}
 	
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
@@ -166,6 +196,26 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public String getCurrentModuleName(){ return currentModuleName; }
 	
 	public void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	
+	public Stack<String> getIndentStack() { return indentStack; }
+	
+	public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
+	
+	public Map<Type,Map<Type,Boolean>> getSubtypeCache() { return subtypeCache; }
+	
+	StringBuilder getTemplateBuilder() { return templateBuilder; }
+	
+	void setTemplateBuilder(StringBuilder sb) { templateBuilder = sb; }
+	
+	Stack<StringBuilder> getTemplateBuilderStack() { return  templateBuilderStack; }
+	
+	IListWriter getTestResults() { return test_results; }
+	
+	void setTestResults(IListWriter writer) { test_results = writer; }
+	
+	public Function getFunction(String name, Type ftype){
+		return rvm.getFunction(name, ftype);
+	}
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
@@ -233,13 +283,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 		stdout.flush();
 	}
 
-	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
+	public RascalSearchPath getRascalSearchPath() { 
+		return rascalSearchPath; 
+	}
 	
-	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+	private void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
 		rascalSearchPath.addPathContributor(contrib);
 	}
 	
-	public void addRascalSearchPath(final ISourceLocation uri) {
+	private void addRascalSearchPath(final ISourceLocation uri) {
 		rascalSearchPath.addPathContributor(new URIContributor(uri));
 	}
 	/**
@@ -329,17 +381,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 			resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
 		}
 
-		ISourceLocationInputOutput testModuleResolver = new TestModuleResolver();
-
-		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		
+		ISourceLocationInputOutput testModuleResolver = new InMemoryResolver("test-modules");
 		resolverRegistry.registerInputOutput(testModuleResolver);
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+
+		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
 		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
 		resolverRegistry.registerInput(tutor);
 	}
-
 
 	private static final class CourseResolver extends FileURIResolver {
 		private final String courseSrc;
@@ -359,115 +409,4 @@ public class RascalExecutionContext implements IRascalMonitor {
 			return courseSrc + (path.startsWith("/") ? path : ("/" + path));
 		}
 	}
-
-//	/**
-//	 * The scheme "test-modules" is used, amongst others, to generate modules during tests.
-//	 * These modules are implemented via an in-memory "file system" that guarantees
-//	 * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
-//	 * is ALWAYS larger than for the previous version of the same file.
-//	 * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
-//	 * unfortunately, not guaranteed on all operating systems.
-//	 *
-//	 */
-//	private static final class TestModuleResolver implements ISourceLocationInputOutput {
-//		
-//		@Override
-//		public String scheme() {
-//			return "test-modules";
-//		}
-//		
-//		private static final class File {
-//			byte[] contents;
-//			long timestamp;
-//			public File() {
-//				contents = new byte[0];
-//				timestamp = System.currentTimeMillis();
-//			}
-//			public void newContent(byte[] byteArray) {
-//				long newTimestamp = System.currentTimeMillis();
-//				if (newTimestamp <= timestamp) {
-//					newTimestamp =  timestamp +1;
-//				}
-//				timestamp = newTimestamp;
-//				contents = byteArray;
-//			}
-//		}
-//		
-//		private final Map<ISourceLocation, File> files = new HashMap<>();
-//
-//		@Override
-//		public InputStream getInputStream(ISourceLocation uri)
-//				throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return new ByteArrayInputStream(file.contents);
-//		}
-//
-//		@Override
-//		public OutputStream getOutputStream(ISourceLocation uri, boolean append)
-//				throws IOException {
-//			File file = files.get(uri);
-//			final File result = file == null ? new File() : file; 
-//			return new ByteArrayOutputStream() {
-//				@Override
-//				public void close() throws IOException {
-//					super.close();
-//					result.newContent(this.toByteArray());
-//					files.put(uri, result);
-//				}
-//			};
-//		}
-//		
-//		@Override
-//		public long lastModified(ISourceLocation uri) throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return file.timestamp;
-//		}
-//		
-//		@Override
-//		public Charset getCharset(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean exists(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public boolean isDirectory(ISourceLocation uri) {
-//			return false;
-//		}
-//
-//		@Override
-//		public boolean isFile(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public String[] list(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean supportsHost() {
-//			return false;
-//		}
-//
-//		@Override
-//		public void mkDirectory(ISourceLocation uri) throws IOException {
-//		}
-//
-//		@Override
-//		public void remove(ISourceLocation uri) throws IOException {
-//			files.remove(uri);
-//		}
-//	}
-
-	
 }

@@ -60,7 +60,7 @@ public set[ENGAGED] stableMarriage(map[str,list[str]] male_preferences, map[str,
   return engagements;    
 }
 
-value main(list[value] args){
+value main(){
   
    for(i <- [1 .. 200]){
      stableMarriage(male_preferences, female_preferences);

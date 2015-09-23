@@ -12,18 +12,21 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import jline.Terminal;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
@@ -126,19 +129,41 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected boolean supportsCompletion() {
-    return true;
+  protected Collection<String> completePartialIdentifier(String qualifier, String term) {
+      return eval.completePartialIdentifier(qualifier, term);
   }
-
+  
   @Override
-  protected CompletionResult completeFragment(String line, int cursor) {
-    OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
-    if (identifier != null) {
-      Collection<String> suggestions = eval.completePartialIdentifier(identifier.term);
-      if (suggestions != null && ! suggestions.isEmpty()) {
-        return new CompletionResult(identifier.offset, identifier.length, suggestions);
-      }
-    }
-    return null;
+  protected Collection<String> completeModule(String qualifier, String partialModuleName) {
+        List<String> entries = eval.getRascalResolver().listModuleEntries(qualifier);
+        if (entries != null && entries.size() > 0) {
+            if (entries.contains(partialModuleName)) {
+                // we have a full directory name (at least the option)
+                List<String> subEntries = eval.getRascalResolver().listModuleEntries(qualifier + "::" + partialModuleName);
+                if (subEntries != null) {
+                    entries.remove(partialModuleName);
+                    subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));
+                }
+            }
+            return entries.stream()
+                .filter(m -> m.startsWith(partialModuleName))
+                .map(s -> qualifier.isEmpty() ? s : qualifier + "::" + s)
+                .sorted()
+                .collect(Collectors.toList());
+                
+        }
+        return null;
+  }
+  
+  private static final SortedSet<String> commandLineOptions = new TreeSet<>();
+  static {
+      commandLineOptions.add(Configuration.GENERATOR_PROFILING_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.PROFILING_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.ERRORS_PROPERTY.substring("rascal.".length()));
+      commandLineOptions.add(Configuration.TRACING_PROPERTY.substring("rascal.".length()));
+  }
+  @Override
+  protected SortedSet<String> getCommandLineOptions() {
+      return commandLineOptions;
   }
 }

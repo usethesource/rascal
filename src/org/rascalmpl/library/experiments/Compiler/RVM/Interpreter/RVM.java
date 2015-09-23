@@ -44,7 +44,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove impor
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
@@ -60,7 +59,9 @@ public class RVM implements java.io.Serializable {
 	private static final long serialVersionUID = 2178453095307370332L;
 	
 	public final IValueFactory vf;
+
 	private final TypeFactory tf;
+	
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
@@ -129,24 +130,20 @@ public class RVM implements java.io.Serializable {
 
 	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		
-		super();
-
+		this.rex = rex;
+		rex.setRVM(this);
+		
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
-		//typeStore = rex.getTypeStore();
+
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.classCache = new HashMap<String, Class<?>>();
 		
-		this.rex = rex;
-		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
 		this.trackCalls = rex.getTrackCalls();
-		//this.finalized = false;
-		
-		//this.types = new Types(this.vf);
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -162,9 +159,7 @@ public class RVM implements java.io.Serializable {
 		this.overloadedStore = rrs.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
-		
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(this, rex);
+
 		Opcode.init(stdout, rex.getProfile());
 		
 		this.locationCollector = NullLocationCollector.getInstance();
@@ -352,6 +347,18 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
+	public Function getFunction(String name, Type ftype){
+		System.err.println("getFunction: " + name + ", " + ftype + ", " + ftype.getAbstractDataType());
+		for(Function f : functionStore){
+			if(f.name.contains("companion-defaults") && f.name.contains("::" + name)){
+				System.err.println(f.name + ": " + f.ftype);
+				// TODO: check types
+				return f;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * execute a single function, on-overloaded, function
 	 * 
@@ -360,10 +367,24 @@ public class RVM implements java.io.Serializable {
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public IValue executeFunction(String uid_func, IValue[] args, IMap kwArgs){
+	public Object executeFunction(String uid_func, IValue[] args, IMap kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
+		return executeFunction(func, args, kwArgs);
+	}
+	
+	/**
+	 * execute a single function, on-overloaded, function
+	 * 
+	 * @param uid_func	Internal function name
+	 * @param args		Argumens
+	 * @param kwArgs	Keyword arguments
+	 * @return
+	 */
+	public Object executeFunction(Function func, IValue[] args, IMap kwArgs){
+		// Assumption here is that the function called is not a nested one
+		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		Frame cf = root;
 		
@@ -377,8 +398,8 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
-		return narrow(o); 
+		//return narrow(o); 
+		return o;
 	}
 	
 	public Frame makeFrameForVisit(FunctionInstance func){
@@ -408,7 +429,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o);
 	}
 	
@@ -424,7 +444,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -450,7 +469,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 			
@@ -478,7 +496,7 @@ public class RVM implements java.io.Serializable {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, IMap kwArgs) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 		
 		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
@@ -495,8 +513,8 @@ public class RVM implements java.io.Serializable {
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		//cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
+		cf.stack[0] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		cf.src = main_function.src;
 		
 		Object o = executeProgram(root, cf);
@@ -788,13 +806,13 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		long start = Timing.getCpuTime();
+		//long start = Timing.getCpuTime();
 		//trackCalls = true;
 		Object res = executeProgram(root, cf, null);
-		long duration = (Timing.getCpuTime() - start)/1000000;
-		if(duration > 50){
-			System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
-		}
+		//long duration = (Timing.getCpuTime() - start)/1000000;
+		//if(duration > 50){
+		//	System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
+		//}
 		return res;
 	}
 	
@@ -1537,7 +1555,7 @@ public class RVM implements java.io.Serializable {
 //							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
 //							RascalPrimitive.recordTime(n, System.nanoTime() - start);
 //						} else {
-							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
+							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf, rex);
 //						}
 						//assert sp == sp1 - arity + 1;
 					} catch (Thrown exception) {

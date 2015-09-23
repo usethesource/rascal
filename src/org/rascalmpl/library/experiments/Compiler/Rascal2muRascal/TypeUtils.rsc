@@ -1,9 +1,6 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
-
-
-
 import IO;
 import Set;
 import Map;
@@ -136,8 +133,8 @@ public set[UID] outerScopes= {};					// outermost scopes, i.e. scopes directly c
 
 public set[str] moduleNames = {};					// encountered module names
 
-
 public map[UID uid,str name] uid2name = (); 		// map uid to simple names, used to recursively compute qualified names
+
 @doc{Counters for different scopes}
 
 private map[UID uid,int n] blocks = ();             // number of blocks within a scope
@@ -171,7 +168,7 @@ public map[UID,str] uid2str = ();					// map uids to str
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions 
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -192,7 +189,6 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 public map[str,int] getOverloadingResolver() = overloadingResolver;
-
 
 bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 
@@ -562,7 +558,7 @@ void extractScopes(Configuration c){
             keywordParams = config.store[fuid1].keywordParams;
             
             if(size(keywordParams) > 0){
-                // There may be default expressions with variables, so introduce avariable ddresses inside the companion function
+                // There may be default expressions with variables, so introduce variable addresses inside the companion function
                // println("fuid1 = <fuid1>, nformals = <nformals>, innerScopes = <innerScopes>, keywordParams = <keywordParams>");
                 // Filter all the non-keyword variables within the function scope
                 // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
@@ -623,7 +619,7 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
-	println("declareGeneratedFunction: <name>, <rtype>, <src>");
+	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
@@ -769,6 +765,8 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 
 
 str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
+
+str getCompanionDefaultsForUID(UID uid) = uid2str[uid] + "::companion-defaults";
 
 str qualifiedNameToPath(QualifiedName qname){
     str path = replaceAll("<qname>", "::", "/");

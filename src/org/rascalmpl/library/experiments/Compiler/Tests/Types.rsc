@@ -18,11 +18,11 @@ syntax D2 = "d";
 data D1 = d1(int \int) | d2(str \str);
 
 
-value run1(str \type) = execute("module TMP data D1 = d1(int \\int) | d2(str \\str); value main(list[value] args) = #<\type>;",[],recompile=true);
-value run2() = execute("module TMP layout LAYOUT = [\\ \\n\\t]*; syntax D2 = \"d\"; value main(list[value] args) = #D2;",[],recompile=true);
-value run3() = execute("module TMP import lang::rascal::\\syntax::Rascal; import ParseTree; value main(list[value] args) = #Statement;",[],recompile=true);
-value run4() = execute("module TMP import experiments::Compiler::muRascal2RVM::B; import ParseTree; value main(list[value] args) = #A;",[],recompile=true);
-value run5() = execute("module TMP import lang::rascal::\\syntax::Rascal; import ParseTree; value main(list[value] args) = #Module;",[],recompile=true);
+value run1(str \type) = execute("module TMP data D1 = d1(int \\int) | d2(str \\str); value main() = #<\type>;",[],recompile=true);
+value run2() = execute("module TMP layout LAYOUT = [\\ \\n\\t]*; syntax D2 = \"d\"; value main() = #D2;",[],recompile=true);
+value run3() = execute("module TMP import lang::rascal::\\syntax::Rascal; import ParseTree; value main() = #Statement;",[],recompile=true);
+value run4() = execute("module TMP import experiments::Compiler::muRascal2RVM::B; import ParseTree; value main() = #A;",[],recompile=true);
+value run5() = execute("module TMP import lang::rascal::\\syntax::Rascal; import ParseTree; value main() = #Module;",[],recompile=true);
 
 test bool tst1() = run1("list[int]") == #list[int];
 test bool tst2() = run1("lrel[int id]") == #lrel[int id];

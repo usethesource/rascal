@@ -5,7 +5,7 @@ import List;
 import String;
 import Set;
 
-value main(list[value] args) = compare3();
+value main() = compare3();
 
 value compare1() {
  INT = split("\n", readFile(|std:///lang/rascal/grammar/tests/generated_parsers/CParserINT.java|));
