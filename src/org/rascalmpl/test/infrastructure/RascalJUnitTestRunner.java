@@ -34,8 +34,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -68,9 +66,6 @@ public class RascalJUnitTestRunner extends Runner {
         ((IRascalJUnitTestSetup) instance).setup(evaluator);
       }
       else {
-        ISourceLocationInput resolver = new ClassResourceInput("junit", clazz, "/");
-        URIResolverRegistry.getInstance().registerInput(resolver);
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("junit"));
         evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
       }
     } catch (InstantiationException e) {

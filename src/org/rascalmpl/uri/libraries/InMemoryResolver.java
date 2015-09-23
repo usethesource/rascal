@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,20 +11,19 @@
  *   * Davy Landman -davy.landman@gmail.com - CWI
 *******************************************************************************/
 
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.libraries;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.NavigableMap;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.FileTree;
+import org.rascalmpl.uri.ISourceLocationInputOutput;
 
 /**
  * This resolver is used for example for the scheme "test-modules", which amongst others 
@@ -46,12 +45,18 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
  *
  */
 
-public class InMemoryResolver implements ISourceLocationInputOutput {
+public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	
     private final String scheme;
     
-    private final JarTreeHierachy fileSystem = new JarTreeHierachy() { };
-
+    private final class InMemoryFileTree extends FileTree { 
+        public NavigableMap<String, FSEntry> getFileSystem() {
+            return fs;
+        }
+    }
+    
+    private InMemoryFileTree fileSystem = new InMemoryFileTree();
+    
 	public InMemoryResolver(String scheme) {
 		//System.err.println("CREATE InMemoryResolver: " + scheme + ": " + this);
         this.scheme = scheme;
@@ -62,7 +67,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 		return scheme;
 	}
 	
-	private static final class File extends JarTreeHierachy.FSEntry {
+	private static final class File extends FileTree.FSEntry {
 		byte[] contents;
 		public File() {
 		    super(System.currentTimeMillis());
@@ -82,7 +87,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 	}
 
 	private File get(ISourceLocation uri) {
-	    return (File)fileSystem.fs.get(uri.getPath());
+	    return (File) fileSystem.getFileSystem().get(uri.getPath());
 	}
 	
 	@Override
@@ -108,7 +113,7 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 				File file = get(uri);
 				if (file == null) {
 				    file = new File();
-				    fileSystem.fs.put(uri.getPath(), file);
+				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
 				//System.err.println(this + " getOutputStream.close " + uri + "?" + file.lastModified);
@@ -161,6 +166,6 @@ public class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-	    fileSystem.fs.remove(uri.getPath());
+	    fileSystem.getFileSystem().remove(uri.getPath());
 	}
 }

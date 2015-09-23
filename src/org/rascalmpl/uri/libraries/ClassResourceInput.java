@@ -11,7 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.libraries;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -29,10 +31,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * some functionality may or may not work. Typically, the user will eventually get a "SchemeNotSupportedException" 
  * if an operation is not provided. 
  */
-public class ClassResourceInput implements ISourceLocationInput {
+public abstract class ClassResourceInput implements ISourceLocationInput {
 	protected final Class<?> clazz;
 	protected final String scheme;
-	protected final URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	protected final String prefix;
 
 	public ClassResourceInput(String scheme, Class<?> clazz, String prefix) {
@@ -83,7 +84,7 @@ public class ClassResourceInput implements ISourceLocationInput {
 			URL res = clazz.getResource(getPath(uri));
 			if(res == null)
 				return false;
-			return registry.isDirectory(ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI()));
+			return URIResolverRegistry.getInstance().isDirectory(ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI()));
 		} catch (URISyntaxException e) {
 			return false;
 		}
@@ -91,7 +92,7 @@ public class ClassResourceInput implements ISourceLocationInput {
 
 	public boolean isFile(ISourceLocation uri) {
 		try {
-			return registry.isFile(resolve(uri));
+			return URIResolverRegistry.getInstance().isFile(resolve(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -114,12 +115,12 @@ public class ClassResourceInput implements ISourceLocationInput {
 	}
 	
 	public long lastModified(ISourceLocation uri) throws IOException {
-		return registry.lastModified(resolve(uri));
+		return URIResolverRegistry.getInstance().lastModified(resolve(uri));
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-		return registry.listEntries(resolve(uri)); 
+		return URIResolverRegistry.getInstance().listEntries(resolve(uri)); 
 	}
 	
 	public boolean supportsHost() {
@@ -128,6 +129,6 @@ public class ClassResourceInput implements ISourceLocationInput {
 
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		return registry.getCharset(resolve(uri));
+		return URIResolverRegistry.getInstance().getCharset(resolve(uri));
 	}
 }
