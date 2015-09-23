@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -19,10 +18,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CoverageLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -105,13 +102,13 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
 		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
-		RascalPrimitive.init(rvmCompiler, rex);
+		//RascalPrimitive.init(rvmCompiler, rex);
 		
-		compileFunId = "experiments::Compiler::Execute/compileAndLink(\\loc();)#318";
+		compileFunId = "experiments::Compiler::Execute/compileAndLink(\\loc();)#323";
 		compileArgs = new IValue[] {consoleInputLocation};
 		
 		executeArgs =  vf.list();
@@ -154,9 +151,9 @@ public class CommandExecutor {
 			
 			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null);
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
 			rex.setCurrentModuleName(shellModuleName);
-			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.list(), rex);
+			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			return val;
 		} catch (Exception e){
 			stderr.println(e.getMessage());
@@ -231,7 +228,7 @@ public class CommandExecutor {
 	
 	public IValue evalExpression(String src, ITree exp){
 		try {
-			return executeModule("\nvalue main(list[value] args) = " + src + ";\n");
+			return executeModule("\nvalue main() = " + src + ";\n");
 		} catch (Thrown e){
 			return null;
 		}
@@ -265,7 +262,7 @@ public class CommandExecutor {
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
 			try {
-				return executeModule("\nvalue main(list[value] args) = " + innerExp + ";\n");
+				return executeModule("\nvalue main() = " + innerExp + ";\n");
 			} catch (Exception e){
 				return null;
 			}
@@ -279,7 +276,7 @@ public class CommandExecutor {
 			if(name != null){
 				Variable var = variables.get(name);
 				if(var != null){
-					IValue val = executeModule("\nvalue main(list[value] args) { " + src + "}\n");
+					IValue val = executeModule("\nvalue main() { " + src + "}\n");
 					var.value = val.toString();
 					return val;
 				} else {
@@ -309,7 +306,7 @@ public class CommandExecutor {
 			}
 		}
 		
-		return executeModule("\nvalue main(list[value] args) = true;\n");
+		return executeModule("\nvalue main() = true;\n");
 	}
 	
 	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
@@ -320,7 +317,7 @@ public class CommandExecutor {
 			}
 			imports.add(impName);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				imports.remove(impName);
 				return null;
@@ -329,7 +326,7 @@ public class CommandExecutor {
 		if(is(imp, "syntax")){
 			syntaxDefinitions.add(src);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
 				return null;
@@ -354,7 +351,7 @@ public class CommandExecutor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
-					return executeModule("\nvalue main(list[value] args) = " + name + ";\n");
+					return executeModule("\nvalue main() = " + name + ";\n");
 				} catch (Exception e){
 					this.variables.remove(name);
 					return null;
@@ -367,7 +364,7 @@ public class CommandExecutor {
 		declarations.add(src);
 	
 		try {
-			return executeModule("\nvalue main(list[value] args) = true;\n");
+			return executeModule("\nvalue main() = true;\n");
 		} catch (Exception e){
 			declarations.remove(src);
 			return null;

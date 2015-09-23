@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -266,12 +265,12 @@ public class PreludeCompiled extends Prelude {
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

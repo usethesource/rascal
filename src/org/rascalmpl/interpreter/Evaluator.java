@@ -48,7 +48,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -116,9 +115,9 @@ import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.HttpsURIResolver;
+import org.rascalmpl.uri.InMemoryResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.InMemoryResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
@@ -144,115 +143,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-//	/**
-//	 * The scheme "test-modules" is used, amongst others, to generate modules during tests.
-//	 * These modules are implemented via an in-memory "file system" that guarantees
-//	 * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
-//	 * is ALWAYS larger than for the previous version of the same file.
-//	 * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
-//	 * unfortunately, not guaranteed on all operating systems.
-//	 *
-//	 */
-//	private static final class TestModuleResolver implements ISourceLocationInputOutput {
-//		
-//		@Override
-//		public String scheme() {
-//			return "test-modules";
-//		}
-//		
-//		private static final class File {
-//			byte[] contents;
-//			long timestamp;
-//			public File() {
-//				contents = new byte[0];
-//				timestamp = System.currentTimeMillis();
-//			}
-//			public void newContent(byte[] byteArray) {
-//				long newTimestamp = System.currentTimeMillis();
-//				if (newTimestamp <= timestamp) {
-//					newTimestamp =  timestamp +1;
-//				}
-//				timestamp = newTimestamp;
-//				contents = byteArray;
-//			}
-//		}
-//		
-//		private final Map<ISourceLocation, File> files = new HashMap<>();
-//
-//		@Override
-//		public InputStream getInputStream(ISourceLocation uri)
-//				throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return new ByteArrayInputStream(file.contents);
-//		}
-//
-//		@Override
-//		public OutputStream getOutputStream(ISourceLocation uri, boolean append)
-//				throws IOException {
-//			File file = files.get(uri);
-//			final File result = file == null ? new File() : file; 
-//			return new ByteArrayOutputStream() {
-//				@Override
-//				public void close() throws IOException {
-//					super.close();
-//					result.newContent(this.toByteArray());
-//					files.put(uri, result);
-//				}
-//			};
-//		}
-//		
-//		@Override
-//		public long lastModified(ISourceLocation uri) throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return file.timestamp;
-//		}
-//		
-//		@Override
-//		public Charset getCharset(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean exists(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public boolean isDirectory(ISourceLocation uri) {
-//			return false;
-//		}
-//
-//		@Override
-//		public boolean isFile(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public String[] list(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean supportsHost() {
-//			return false;
-//		}
-//
-//		@Override
-//		public void mkDirectory(ISourceLocation uri) throws IOException {
-//		}
-//
-//		@Override
-//		public void remove(ISourceLocation uri) throws IOException {
-//			files.remove(uri);
-//		}
-//	}
-
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
@@ -1818,7 +1708,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			        }
 			    }
 			}
-		    boolean inQualifiedModule = env.getName().equals(qualifier);
+		    boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
             if (inQualifiedModule) {
 		        for (String v : env.getVariables().keySet()) {
 			        addIt(result, v, qualifier, partialIdentifier);

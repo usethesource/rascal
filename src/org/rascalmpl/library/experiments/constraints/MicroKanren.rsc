@@ -127,7 +127,7 @@ GOAL a_and_b2 () =
 //
 //GOAL do_fives() = call_fresh(fives);
                   
-value main(list[value] args){
+value main(){
     //return q()(empty_state);
     //return a()(empty_state);
     //return a_and_b1()(empty_state);
