@@ -19,9 +19,13 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,17 +38,91 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
-	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
 	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
+	
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
 	
-	private URIResolverRegistry() { }
+	private URIResolverRegistry() { 
+	    loadServices();
+	}
 
-	public static URIResolverRegistry getInstance() {
+	private void loadServices() {
+	    try {
+            Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
+            while (resources.hasMoreElements()) {
+                loadServices(resources.nextElement());
+            }
+        } catch (IOException e) {
+            System.err.println("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG);
+        }
+    }
+
+	private void loadServices(URL nextElement) throws IOException {
+	    for (String name : readConfigFile(nextElement)) {
+	        name = name.trim();
+
+	        if (name.startsWith("#")) { 
+	            // source code comment
+	            continue;
+	        }
+
+	        try {
+	            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+	            Object instance;
+	            
+	            try {
+	                instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+	            }
+	            catch (NoSuchMethodException e) {
+	                instance = clazz.newInstance();
+	            }
+	            
+	            boolean ok = false;
+
+	            if (instance instanceof ILogicalSourceLocationResolver) {
+	                registerLogical((ILogicalSourceLocationResolver) instance);
+	                ok = true;
+	            }
+
+	            if (instance instanceof ISourceLocationInput) {
+	                registerInput((ISourceLocationInput) instance);
+	                ok = true;
+	            }
+
+	            if (instance instanceof ISourceLocationOutput) {
+	                registerOutput((ISourceLocationOutput) instance);
+	                ok = true;
+	            }
+
+	            if (!ok) {
+	                System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+	            }
+	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+	            System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
+    private String[] readConfigFile(URL nextElement) throws IOException {
+        try (Reader in = new InputStreamReader(nextElement.openStream())) {
+            StringBuilder res = new StringBuilder();
+            char[] chunk = new char[1024];
+            int read;
+            while ((read = in.read(chunk, 0, chunk.length)) != -1) {
+                res.append(chunk, 0, read);
+            }
+            return res.toString().split("\n");
+        }
+    }
+
+    public static URIResolverRegistry getInstance() {
 		return InstanceHolder.sInstance;
 	}
 
@@ -164,21 +242,16 @@ public class URIResolverRegistry {
 		return resolved != null ? resolved : loc;
 	}
 	
-	public void registerInput(ISourceLocationInput resolver) {
+	private void registerInput(ISourceLocationInput resolver) {
 		synchronized (inputResolvers) {
 			inputResolvers.put(resolver.scheme(), resolver);
 		}
 	}
 
-	public void registerOutput(ISourceLocationOutput resolver) {
+	private void registerOutput(ISourceLocationOutput resolver) {
 		synchronized (outputResolvers) {
 			outputResolvers.put(resolver.scheme(), resolver);
 		}
-	}
-
-	public void registerInputOutput(ISourceLocationInputOutput resolver) {
-		registerInput(resolver);
-		registerOutput(resolver);
 	}
 
 	public void registerLogical(ILogicalSourceLocationResolver resolver) {
