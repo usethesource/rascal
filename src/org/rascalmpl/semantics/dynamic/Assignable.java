@@ -17,6 +17,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -92,6 +93,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			// result.getValue()).setAnnotation(label, value.getValue()));
 			// return recur(this, result);
 
+		}
+
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getField()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
@@ -305,7 +311,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
 					if (paramValue == null) {
-						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    __eval.__getOperator();
+                        if (__eval.__getOperator().name().equals(AssignmentOperator.IsDefined.name()) && __eval.__getValue() != null) {
+					        paramValue = __eval.__getValue().getValue();
+					    }
+					    else { // we use the default
+					        paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    }
 					}
 					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
 
@@ -337,6 +349,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UndeclaredField(label, receiver.getType(), this);
 			}
 
+		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).isDefined(getField()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
@@ -405,26 +422,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			try {
-				this.getReceiver().interpret((Evaluator) __eval.__getEval()); // notice
-				// we
-				// use
-				// 'eval'
-				// here
-				// not
-				// '__eval'
-				// if it was not defined, __eval would have thrown an exception,
-				// so now we can just go on
-				return this.getReceiver().assignment(__eval);
-			} catch (Throw e) {
+			if (getReceiver().isDefined(__eval.getEvaluator()).getValue().getValue()) {
+				return getReceiver().assignment(__eval);
+			}
+			else {
 				__eval.__setValue(__eval.newResult(this.getDefaultExpression()
 						.interpret((Evaluator) __eval.__getEval()), __eval
 						.__getValue()));
 				__eval.__setOperator(AssignmentOperator.Default);
 				return this.getReceiver().assignment(__eval);
 			}
-
 		}
 
 		@Override
@@ -447,7 +454,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
+			__eval.__getEval().setCurrentAST(this);
 			Result<IValue> rec = this.getReceiver().interpret(
 					(Evaluator) __eval.__getEval());
 			Result<IValue> subscript = this.getSubscript().interpret(
@@ -637,6 +644,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			throw new UnsupportedOperation("subscript",
 					receiver.getType(), this);
 
+		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> subscript = this.getSubscript().interpret(__eval);
+			return getReceiver().interpret(__eval.getEvaluator()).isKeyDefined(new Result<?>[] { subscript });
 		}
 
 	}
