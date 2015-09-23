@@ -16,14 +16,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIUtil;
 
 import com.github.benmanes.caffeine.cache.Cache;

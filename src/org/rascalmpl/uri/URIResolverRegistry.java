@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
@@ -42,6 +43,7 @@ public class URIResolverRegistry {
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
 	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
+	
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
@@ -72,7 +74,15 @@ public class URIResolverRegistry {
 
 	        try {
 	            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-	            Object instance = clazz.newInstance();
+	            Object instance;
+	            
+	            try {
+	                instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+	            }
+	            catch (NoSuchMethodException e) {
+	                instance = clazz.newInstance();
+	            }
+	            
 	            boolean ok = false;
 
 	            if (instance instanceof ILogicalSourceLocationResolver) {
@@ -93,7 +103,7 @@ public class URIResolverRegistry {
 	            if (!ok) {
 	                System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
 	            }
-	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
+	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 	            System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
 	            e.printStackTrace();
 	        }

@@ -8,20 +8,24 @@ import java.nio.charset.Charset;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JarURIResolver implements ISourceLocationInput {
-    
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	private static final JarFileResolver file = new JarFileResolver();
-	private static final JarFileResolver inputStream = new JarInputStreamResolver();
+	private final JarFileResolver file = new JarFileResolver();
+	private final JarFileResolver inputStream;
 
+	public JarURIResolver(URIResolverRegistry registry) {
+	    inputStream = new JarInputStreamResolver(registry);
+    }
+	
     @Override
     public String scheme() {
         return "jar";
     }
     
-    private static JarFileResolver getTargetResolver(ISourceLocation uri) {
+    private JarFileResolver getTargetResolver(ISourceLocation uri) {
        if (uri.getScheme().startsWith("jar+")) {
            return inputStream;
        }

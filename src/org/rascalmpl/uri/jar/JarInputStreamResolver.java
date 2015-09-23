@@ -23,9 +23,11 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class JarInputStreamResolver extends JarFileResolver {
-
-	private static final URIResolverRegistry CTX = URIResolverRegistry.getInstance();
-
+	private final URIResolverRegistry CTX;
+	
+	public JarInputStreamResolver(URIResolverRegistry registry) {
+	    this.CTX = registry;
+    }
 	
 	@Override
     protected FileTree getFileHierchyCache(ISourceLocation jarLocation) {
