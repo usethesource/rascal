@@ -6809,8 +6809,16 @@ public enum RascalPrimitive {
 				String consName = cons.getName();
 				Function getDefaults = rex.getFunction(consName, tp);
 				if(getDefaults != null){
+					
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+
+					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
+					
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, new IValue[0], emptyMap);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, kwArgs);
 					Entry<Type, IValue> def = defaults.get(fieldName);
 					if(def != null){
 						stack[sp - 2] = def.getValue();
