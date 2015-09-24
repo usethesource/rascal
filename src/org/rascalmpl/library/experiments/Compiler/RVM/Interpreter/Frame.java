@@ -11,16 +11,27 @@ import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
-	public final int scopeId;
-    public Frame previousCallFrame;
+	public final int scopeId;				// Name of the scope introduced by this frame
+    public Frame previousCallFrame;			// Backpointer to caller
     public final Frame previousScope;
-	public final Object[] stack;
-	public int sp;
-	int pc;
-	public ISourceLocation src;
-	public final Function function;
+	public final Object[] stack;			// The local stack
+	public int sp;							// Stack pointer
 	
-	final boolean isCoroutine;
+	/*
+	 * Layout of the stack for a function with 'nformals' formals arguments and 'nlocals' local variables:
+	 * 
+	 * stack[0] ... stack[nformals-1] 		  : the given actual parameters
+	 * stack[nformals-1] 					  : actual keyword parameters
+	 * stack[nformals]                        : defaul keyword parameters
+	 * stack[nformals+1] ... stack[nlocals-1] : local variables and temporaries
+	 * stack[nlocals] ... stack[stackSize-1]  : intermediate results during execution
+	 * 
+	 */
+	int pc;									// Program counter in RVM code
+	public ISourceLocation src;				// Most recent source location
+	public final Function function;			// The function that is being called
+	
+	final boolean isCoroutine;				// Is this a coroutine?
 		
 	public Frame(final int scopeId, final Frame previousCallFrame,final int stackSize, final Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
