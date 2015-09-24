@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -118,10 +119,10 @@ public class CommandExecutor {
 		declarations = new ArrayList<String>();
 	}
 	
-	private IMap makeCompileKwParams(){
-		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("verbose"), vf.bool(true));
-		return w.done();
+	private Map<String, IValue> makeCompileKwParams(){
+		HashMap<String, IValue> w = new HashMap<>();
+		w.put("verbose", vf.bool(true));
+		return w;
 	}
 	
 	IValue executeModule(String main){
