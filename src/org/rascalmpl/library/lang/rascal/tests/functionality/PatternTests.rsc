@@ -807,7 +807,7 @@ test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
 test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
 test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
   		
-@ignoreCompiler{Not yet implemented in typechcker}
+@ignoreCompiler{Not yet implemented in typechecker}
 test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
   	
 //	matchNode
