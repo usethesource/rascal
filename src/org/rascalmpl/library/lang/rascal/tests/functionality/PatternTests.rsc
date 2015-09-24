@@ -845,7 +845,7 @@ test bool matchNodeWithKeywords13() ="f1"(1, M=10, B=false)!:= "f1"(1, B=false, 
 test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, M=20);
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
-@ignoreCompiler{Not yet implemented in typechcker}
+@ignoreCompiler{Not yet implemented in typechecker}
 test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
   	
 //	matchSet1
@@ -1474,10 +1474,8 @@ test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],
   
 // variableBecomesEquality
           
-@ignoreCompiler{NoSuchKey in TypeUtils}
 test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
 
-@ignoreCompiler{NoSuchKey in TypeUtils}
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
 @ignoreCompiler{Not yet implemented in typechecker}
