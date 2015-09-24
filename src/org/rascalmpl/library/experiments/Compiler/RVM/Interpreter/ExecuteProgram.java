@@ -191,10 +191,6 @@ public class ExecuteProgram {
 		}
 		return executable;
 	}
-	
-	
-	
-	
 		
 	public IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
@@ -212,7 +208,7 @@ public class ExecuteProgram {
 	 */
 	public IValue executeProgram(RVM rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		
-//		rex.setRVM(rvm);
+		MuPrimitive.setRascalExecutionContext(rex);
 		IValue[] arguments = new IValue[0];
 		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
 		
