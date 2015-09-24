@@ -565,7 +565,7 @@ void extractScopes(Configuration c){
                 // Sort variable declarations to ensure that formal parameters get first positions preserving their order
                 decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
                 
-                fuid_str = getCompanionForUID(fuid1);
+                fuid_str = getCompanionDefaultsForUID(fuid1);
                 //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
                 for(int i <- index(decls_non_kwp)) {
                     // Note: we need to reserve positions for variables that will replace formal parameter patterns
