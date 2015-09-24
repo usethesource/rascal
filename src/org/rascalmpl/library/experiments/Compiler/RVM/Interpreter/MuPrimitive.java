@@ -313,11 +313,7 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i + 1] = v.get(i);
 			}
-			if(v.mayHaveKeywordParameters()){
-				elems[cons_arity + 1] = v.asWithKeywordParameters().getParameters();
-			} else {
-				elems[cons_arity + 1] = emptyKeywordMap;
-			}
+			elems[cons_arity + 1] = $getAllKeywordParameters(v);
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -340,11 +336,7 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i] = v.get(i);
 			}
-			if(v.mayHaveKeywordParameters()){
-				elems[cons_arity] = v.asWithKeywordParameters().getParameters();
-			} else {
-				elems[cons_arity] = emptyKeywordMap;
-			}
+			elems[cons_arity] = $getAllKeywordParameters(v);
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -361,11 +353,7 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
-			if(v.mayHaveKeywordParameters()){
-				stack[sp - 1] = v.asWithKeywordParameters().getParameters();
-			} else {
-				stack[sp - 1] = emptyKeywordMap;
-			}
+			stack[sp - 1] = $getAllKeywordParameters(v);
 			return sp;
 		};
 	},
@@ -430,12 +418,8 @@ public enum MuPrimitive {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
 			int cons_arity = v.arity();
-			Map<String, IValue> m ;
-			if(v.mayHaveKeywordParameters()){
-				m = v.asWithKeywordParameters().getParameters();
-			} else {
-				m = emptyKeywordMap;
-			}
+			Map<String, IValue> m = $getAllKeywordParameters(v);
+
 			int kw_arity = m.size();
 			Object[] elems = new Object[cons_arity + kw_arity];
 			for (int i = 0; i < cons_arity; i++) {
@@ -2255,11 +2239,19 @@ public enum MuPrimitive {
 	
 	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>();
 	
-	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
-	
 	private static final boolean profileMuPrimitives = false;
 
 	private static final long timeSpent[] = new long[values.length];
+	
+	// TODO: remaining global state, remove
+	
+	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap = new HashMap<IString,DescendantDescriptor>();
+	
+	private static RascalExecutionContext rex;
+	
+	public static RascalExecutionContext getRascalExecutionContext() { return rex; }
+	
+	public static void setRascalExecutionContext(RascalExecutionContext otherRex) { rex = otherRex; }
 	
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
@@ -2319,6 +2311,54 @@ public enum MuPrimitive {
 			return TreeAdapter.getArgs((ITree) v).length() == 0;
 		}
 		return false;
+	}
+	
+	private static Map<String,IValue> $getAllKeywordParameters(IValue v){
+		Type tp = v.getType();
+		
+		if(tp.isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			Type consType = cons.getConstructorType();
+			if(cons.mayHaveKeywordParameters()){
+				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
+				String consName = cons.getName();
+				Function getDefaults = rex.getFunction(consName, tp);
+				if(getDefaults != null){
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+					
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
+
+					HashMap<String, IValue> allKwArgs = new HashMap<>();
+					for(String key : defaults.keySet()){
+						IValue val = setKwArgs.get(key);
+						if(val != null){
+							allKwArgs.put(key,  val);
+						} else {
+							allKwArgs.put(key, defaults.get(key).getValue());
+						}
+					}
+					return allKwArgs;
+					
+				}
+			} else {
+				return emptyKeywordMap;
+			}
+		}
+		
+		if(tp.isNode()){
+			INode nd = (INode) v;
+			if(nd.mayHaveKeywordParameters()){
+				return nd.asWithKeywordParameters().getParameters();
+			} else {
+				return emptyKeywordMap;
+			}
+		}
+		
+		throw new CompilerError("getAllKeywordParameters");
 	}
 }
 
