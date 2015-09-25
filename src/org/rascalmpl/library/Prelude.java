@@ -24,6 +24,8 @@
  */
 package org.rascalmpl.library;
 
+import iguana.utils.input.Input;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -99,7 +101,6 @@ import org.iguana.parser.GLLParser;
 import org.iguana.parser.ParseResult;
 import org.iguana.parser.ParserFactory;
 import org.iguana.util.Configuration;
-import org.iguana.util.Input;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -2041,7 +2042,7 @@ public class Prelude {
 		try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(input)) {
 			char[] data = InputConverter.toChar(textStream);
 			Input in = Input.fromCharArray(data, input.getURI());
-			GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
+			GLLParser parser = ParserFactory.getParser();
 			Nonterminal startSymbol = Nonterminal.withName(((IString)((IConstructor)((IConstructor) grammar).get("symbol")).get("name")).getValue());
 			ParseResult result = parser.parse(in, g, startSymbol);
 			ctx.getStdErr().println(result);
@@ -2055,7 +2056,7 @@ public class Prelude {
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
 		char[] data = input.getValue().toCharArray();
 		Input in = Input.fromCharArray(data, URIUtil.rootScheme("TODO"));
-		GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, in, g);
+		GLLParser parser = ParserFactory.getParser();
 		Nonterminal startSymbol = Nonterminal.withName(((IString)((IConstructor)((IConstructor) grammar).get("symbol")).get("name")).getValue());
 		ParseResult result = parser.parse(in, g, startSymbol);
 		ctx.getStdErr().println(result);
