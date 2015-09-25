@@ -233,10 +233,8 @@ public class RascalToIguanaGrammarConverter {
  			}
 		}
 		
-		// List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
-		// List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
-		List<PrecedencePattern> precedencePatterns = new ArrayList<>();
-	    List<ExceptPattern> exceptPatterns = new ArrayList<>();
+		List<PrecedencePattern> precedencePatterns = getPrecedencePatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("notAllowed"));
+		List<ExceptPattern> exceptPatterns = getExceptPatterns((IMap) rascalGrammar.asWithKeywordParameters().getParameter("excepts"));
 		builder.addPrecedencePatterns(precedencePatterns);
 		builder.addExceptPatterns(exceptPatterns);
 		

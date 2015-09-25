@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
+import iguana.utils.input.Input;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -28,7 +30,6 @@ import org.iguana.parser.ParseError;
 import org.iguana.parser.ParseResult;
 import org.iguana.parser.ParserFactory;
 import org.iguana.util.Configuration;
-import org.iguana.util.Input;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -62,7 +63,7 @@ public class Parser {
 	public IConstructor parseObject(Grammar grammar, String nt, char[] data, URI location) {
 		Input input = Input.fromCharArray(data, location);
 		
-  		GLLParser parser = ParserFactory.getParser(Configuration.DEFAULT, input, grammar);
+  		GLLParser parser = ParserFactory.getParser();
 		ParseResult result = parser.parse(input, grammar, Nonterminal.withName(nt));
 
   		if (result.isParseError()) {
