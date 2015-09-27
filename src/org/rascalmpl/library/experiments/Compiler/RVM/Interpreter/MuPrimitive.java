@@ -103,7 +103,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue arg, Type type ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	check_arg_type {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -150,7 +149,6 @@ public enum MuPrimitive {
 	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	equal {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -318,8 +316,6 @@ public enum MuPrimitive {
 	 * 
 	 * [ ..., node nd ] => [ ..., nodeName]
 	 */
-	
-	// TODO: move to RascalPrimitive?
 	
 	get_name {
 		@Override
@@ -550,7 +546,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue, IString label ] => [ ..., bool ]
 	 */
 	// TODO rename to more parse tree specific?
-	// TODO: move to RascalPrimitive?
 	has_label {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -624,9 +619,10 @@ public enum MuPrimitive {
 	 * Is IValue an IBool?
 	 * 
 	 * [ ..., IValue ] => [ ..., bool ]
+	 * 
+	 * Note: all is_* primitives are introduced by Implode and are only used in Library.mu
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_bool {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -642,7 +638,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_constructor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -660,7 +655,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_datetime {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -676,7 +670,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_int {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -692,7 +685,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_list {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -708,7 +700,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_lrel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -724,7 +715,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_loc {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -740,7 +730,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_map {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -771,7 +760,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_node {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -787,7 +775,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_num {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -803,7 +790,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_real {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -819,7 +805,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_rat {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -835,7 +820,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_rel {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -851,7 +835,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_set {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -867,7 +850,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_str {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -883,7 +865,6 @@ public enum MuPrimitive {
 	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
-	// TODO: move to RascalPrimitive?
 	is_tuple {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
