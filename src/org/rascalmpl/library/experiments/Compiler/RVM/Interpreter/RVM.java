@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
@@ -347,13 +348,37 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
-	public Function getFunction(String name, Type ftype){
-		System.err.println("getFunction: " + name + ", " + ftype + ", " + ftype.getAbstractDataType());
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		all:
+			for(Function f : functionStore){
+				if(f.name.contains("companion-defaults") && f.name.contains("::" + name + "(")){
+					FunctionType ft = (FunctionType) f.ftype;
+					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
+						if(ftype.isAbstractData()){
+							return f;
+						}
+						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
+							for(int i = 0; i < ftype.getFieldTypes().getArity(); i++){
+								if(!ftype.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+									continue all;
+								}
+							}
+							return f;
+						}
+					}
+				}
+			}
+	return null;
+	}
+	
+	public Function getFunction(String name, Type returnType, Type argumentTypes){
 		for(Function f : functionStore){
-			if(f.name.contains("companion-defaults") && f.name.contains("::" + name)){
-				System.err.println(f.name + ": " + f.ftype);
-				// TODO: check types
-				return f;
+			if(f.name.contains("/" + name + "(")){
+				FunctionType ft = (FunctionType) f.ftype;
+				if(returnType.equals(ft.getReturnType()) &&
+				   argumentTypes.equals(ft.getArgumentTypes())){
+					return f;
+				}
 			}
 		}
 		return null;
