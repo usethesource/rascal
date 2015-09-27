@@ -523,23 +523,21 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    str fun_name;
    int nKwArgs = (keywordArguments is none) ? 0 : size([kw | kw <- keywordArguments.keywordArgumentList]);
    
-   matchFun = nKwArgs == 0 ? "MATCH_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS" : "MATCH_SIMPLE_CALL_OR_TREE";
+   noKwParams = nKwArgs == 0 ? "_NO_KEYWORD_PARAMS" : "";
    argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ];
    if(nKwArgs > 0){
       argCode += translatePatKWArguments(keywordArguments); //TODO: compute type per argument
    }
    
-   //iprintln(expression);
    if(expression is qualifiedName){
       fun_name = "<getType(expression@\loc).name>";
-      //fun_pat = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(fun_name)]);
-      return muApply(mkCallToLibFun("Library",matchFun), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+      return muApply(mkCallToLibFun("Library", "MATCH_SIMPLE_CALL_OR_TREE<noKwParams>"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else if(expression is literal){ // StringConstant
       fun_name = "<expression>"[1..-1];
-      return muApply(mkCallToLibFun("Library", matchFun), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+      return muApply(mkCallToLibFun("Library", "MATCH_SIMPLE_CALL_OR_TREE<noKwParams>"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression, getType(expression@\loc));
-     return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE"), [muCallMuPrim("make_array", fun_pat + argCode)]);
+     return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE<noKwParams>"), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
 }
 
