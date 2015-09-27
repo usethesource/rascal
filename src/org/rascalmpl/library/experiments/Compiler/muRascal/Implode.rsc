@@ -1,6 +1,5 @@
 module experiments::Compiler::muRascal::Implode
 
-//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import IO;
 import ValueIO;
@@ -8,9 +7,7 @@ import Set;
 import List;
 import String;
 import Type;
-//import ParseTree;
 import Map;
-//import Ambiguity;
 
 import experiments::Compiler::muRascal::MuBoolExp;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -235,6 +232,7 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
   			   case muCall(preVar(mvar("get_children_and_keyword_mmap")), [exp1])			    => muCallMuPrim("get_children_and_keyword_mmap", [exp1])
 			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
 			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])		=> muCallMuPrim("get_name_and_children_and_keyword_mmap", [exp1])
+			   case muCall(preVar(mvar("get_name_and_children")), [exp1])                       => muCallMuPrim("get_name_and_children", [exp1])
 			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])				=> muCallMuPrim("get_children_and_keyword_values", [exp1])
 			   case muCall(preVar(mvar("get_keyword_mmap")), [exp1])							=> muCallMuPrim("get_keyword_mmap", [exp1])
 			   case muCall(preVar(mvar("make_keyword_mmap")), [exp1, exp2])					    => muCallMuPrim("make_keyword_mmap", [exp1, exp2])
