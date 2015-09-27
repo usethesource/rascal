@@ -389,9 +389,14 @@ guard {
     plen == slen 
 } 
 {
-    var ipats = make_array(plen),
+    var ipats,
         j = 0, 
         pat
+    if(plen == 0){
+       yield
+       exhaust
+    }
+    ipats = make_array(plen)
     ipats[j] = create(pats[j], subjects[j])
     //println("MATCH_N, plen, slen", plen, slen);
     while((j >= 0) && (j < plen)) {
@@ -417,18 +422,33 @@ guard
 	iSubject is node
 {
     var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats)
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iSubject) 
     
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_mmap(iSubject);
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
         MATCH_N(pats, args)
         exhaust
     }
     if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, case 2", size_array(args), size_array(pats), pats, args);
+        args = get_children_without_layout_or_separators_with_keyword_map(iSubject)
+        MATCH_N(pats, args)
+    }
+}
+
+// Match a call pattern with a simple string as function symbol
+
+coroutine MATCH_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    var args 
+    
+    if(equal(iName, get_name(iSubject))) {
+        args = get_children(iSubject);
+        MATCH_N(pats, args)
+        exhaust
+    }
+    if(has_label(iSubject, iName)) {
+        args = get_children_without_layout_or_separators_without_keyword_map(iSubject)
         MATCH_N(pats, args)
     }
 }
