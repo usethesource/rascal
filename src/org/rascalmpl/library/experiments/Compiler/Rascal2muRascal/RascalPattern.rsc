@@ -524,6 +524,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    int nKwArgs = (keywordArguments is none) ? 0 : size([kw | kw <- keywordArguments.keywordArgumentList]);
    
    noKwParams = nKwArgs == 0 ? "_NO_KEYWORD_PARAMS" : "";
+   
    argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ];
    if(nKwArgs > 0){
       argCode += translatePatKWArguments(keywordArguments); //TODO: compute type per argument

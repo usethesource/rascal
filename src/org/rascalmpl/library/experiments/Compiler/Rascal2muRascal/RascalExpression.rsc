@@ -1216,11 +1216,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | a <- arguments ];
    
-   //println("BACK at translate <e>");
-   
    if(getOuterType(expression) == "str"){
    		return muCallPrim3("node_create", [receiver, *args, *kwargs], e@\loc);
-       //return muCallPrim3("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
    }
   
    if(getOuterType(expression) == "loc"){
@@ -1233,7 +1230,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Now overloading resolution...
    ftype = getType(expression@\loc); // Get the type of a receiver
                                      // and a version with type parameters uniquely renamed
-   ftype_renamed = visit(ftype) { case parameter(str name, Symbol sym) => parameter("1" + name, sym) };
    
    if(isOverloadedFunction(receiver) && hasOverloadingResolver(receiver.fuid)){
        // Get the types of arguments
@@ -1279,7 +1275,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		}
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
-       	//println("function_subtype(<fuse>, <fdef>) =\> <subtype(upar, dpar) || match_void(upar, dpar)>");
        	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        
@@ -1288,11 +1283,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    ftype_selected = ftype;
-                   //common = {name | /parameter(str name, _) := t} & {name | /parameter(str name, _) := ftype};
-                   //if(!isEmpty(common)){
-                   //println("USING RENAMED");
-                   // ftype_selected = ftype_renamed;
-                   //}
+                   
                    try {
                        if(isConstructorType(t) && isConstructorType(ftype_selected)) {
                            bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),     label(_,Symbol a) := arg || Symbol a := arg ]),
@@ -1301,24 +1292,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            return instantiate(t.\adt,bindings) == ftype_selected.\adt;
                        }
                        if(isFunctionType(t) && isFunctionType(ftype_selected)) {
-                          // println("t:              <t>");
-                          // println("ftype_selected: <ftype_selected>");
                  
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype_selected),());
                            
-                           //println("bindings1: <bindings>");
-                           
                            bindings = bindings + ( name : Symbol::\void() | /parameter(str name,_) := t, name notin bindings );
-                           
-                           //println("bindings2: <bindings>");
-                           //println("t.ret:               <t.ret> becomes <instantiate(t.ret,bindings)>");
-                           //println("ftype_selected.ret:  <ftype_selected.ret> becomes <instantiate(ftype_selected.ret,bindings)>");
-                           
-                           bool res =  instantiate(t.ret,bindings) == ftype_selected.ret;
-                           
-                           //println("res: <res>");
-                           
-                           return res;
+                   
+                           return instantiate(t.ret,bindings) == ftype_selected.ret;
                        }
                        return false;
                    } catch invalidMatch(_,_,_): {
@@ -1329,8 +1308,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
-               //println("matches returns: <function_subtype(ftype, t)>");
-               //return t == ftype;
                return function_subtype(ftype, t);
            }           
            if(isOverloadedType(ftype)) {
@@ -1359,16 +1336,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    }
                    return false;
            	   }
-               //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
                return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
            throw "Unexpected type <ftype> of call receiver expression";
        }
-       
-  //     println("e = <expression@\loc>");
-  //     println("of = <of>");
-  //     println("ftype = <ftype>, of.alts = <of.alts>");
-  //
        
        for(UID alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
@@ -1378,7 +1349,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                resolved += alt;
            }
        }
-      // resolved = sortOverloadedFunctions(toSet(resolved));
        
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
@@ -1393,9 +1363,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
        		str fname = unescape("<expression>");
        		try {
-       			res = translateConstantCall(fname, args);
-       			//println("REPLACED <name>, <args> BY CONSTANT");
-       			return res;
+       			return translateConstantCall(fname, args);
        		} 
        		catch "NotConstant":  /* pass */;
        }
