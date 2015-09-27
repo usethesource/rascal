@@ -464,6 +464,17 @@ guard
     MATCH_N(pats, args)
 }
 
+// Match a call pattern with an arbitrary pattern as function symbol, but without keyword params
+
+coroutine MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS(pats, iSubject)
+guard
+    iSubject is node
+{
+    var args = get_name_and_children(iSubject)
+    //println("MATCH_CALL_OR_TREE", args)
+    MATCH_N(pats, args)
+}
+
 // Match a concrete syntax tree of the form appl(prod, args)
 
 coroutine MATCH_CONCRETE_TREE(prod, pat, iSubject)
