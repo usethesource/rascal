@@ -4,6 +4,12 @@ import Type;
 import Message;
 import ParseTree;
 
+/*
+ * Abstract syntax for RVM (Rascal Virtual Machine).
+ * 
+ * Position in the compiler pipeline: Rascal -> muRascal -> RVM
+ */
+ 
 // Declarations for functions and coroutines
 
 public data Declaration = 
