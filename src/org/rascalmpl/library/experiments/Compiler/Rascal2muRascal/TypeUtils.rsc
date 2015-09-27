@@ -2,6 +2,7 @@
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
 import IO;
+import ValueIO;
 import Set;
 import Map;
 import Node;
@@ -115,6 +116,8 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
 private set[UID] constructors = {};					// declared constructors
 
+private map[Symbol, map[str, map[str,value]]] constructorConstantDefaultExpressions;
+
 public bool isConstructor(UID uid) = uid in constructors;
 //public set[UID] getConstructors() = constructors;
 
@@ -209,6 +212,7 @@ public void resetScopeExtraction() {
 	functions = {};
 	defaultFunctions = {};
 	constructors = {};
+	constructorConstantDefaultExpressions = ();
 	variables = {};
 	module_var_init_locals = ();
 	keywordParameters = {};
@@ -584,8 +588,6 @@ void extractScopes(Configuration c){
 
     }
     
-    //println("ofunctions = <ofunctions>");
-    
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
@@ -608,14 +610,64 @@ void extractScopes(Configuration c){
     	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
+     extractConstantDefaultExpressions();
+}
+
+// extractConstantDefaultExpressions:
+// For every ADT, for every constructor, find the default fields with constant default expression
+// Note: the notion of "constant" is weaker than use din other parts of the compiler and is here equated to "literal"
+//       as a consequence, e.g. "abc" + "def" will not be classified as constant.
+
+void extractConstantDefaultExpressions(){
+
+    // TODO: the following hack is needed to convince the interpreter of the correct type.
+    constructorConstantDefaultExpressions = (adt("XXX", []) : ("c1" : ("f1": true, "f2" : 0)));
+     for(tp <- config.dataKeywordDefaults){
+         uid = tp[0];
+         the_constructor = config.store[uid];
+         Symbol the_adt = the_constructor.rtype.\adt;
+         str the_cons = the_constructor.rtype.name;
+         str fieldName = prettyPrintName(tp[1]);
+         defaultVal = tp[2];
+         if(Expression defaultExpr := defaultVal &&  defaultExpr is literal){
+            try {
+               constValue = getConstantValue(defaultExpr.literal);
+               map[str, map[str,value]] adtMap = constructorConstantDefaultExpressions[the_adt] ? ();
+               map[str,value] consMap = adtMap[the_cons] ? ();
+               
+               consMap[fieldName] = constValue;
+               adtMap[the_cons] = consMap;
+               constructorConstantDefaultExpressions += (the_adt : adtMap);
+               
+            } catch:
+                ;// ok, non-constant
+         } 
+    }
+}
+
+// Identify constant expressions and compute their value
+
+value getConstantValue((Literal) `<BooleanLiteral b>`) = 
+    "<b>" == "true" ? true : false;
+
+// -- integer literal  -----------------------------------------------
+ 
+value getConstantValue((Literal) `<IntegerLiteral n>`) = 
+    toInt("<n>");
+
+// -- string literal  ------------------------------------------------
     
-    //for(int uid <- sort(toList(domain(uid2addr)))){
-    //	println("<uid>: <uid2addr[uid]>");
-    //}
-    //for(int uid <- uid2addr){
-    //	if(uid in ofunctions)
-    //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
-    //}
+value getConstantValue((StringLiteral)`<StringConstant constant>`) =
+    readTextValueString("<constant>");
+
+value getConstantValue((Literal) `<LocationLiteral src>`) = 
+    readTextValueString("<src>");
+
+default value getConstantValue((Literal) `<Literal s>`) = 
+    readTextValueString("<s>");
+    
+default value getConstantValue(Expression e) {
+    throw "Not constant";
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
@@ -710,6 +762,11 @@ AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
 }
 					
 KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].keywordParams;
+
+map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
+    tp = getType(location);
+    return constructorConstantDefaultExpressions[tp] ? ();
+}
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //println("getVariableScope: <name>, <l>)");
