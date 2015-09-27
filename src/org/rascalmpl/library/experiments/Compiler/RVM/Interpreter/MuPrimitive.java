@@ -212,11 +212,12 @@ public enum MuPrimitive {
 	
 	/**
 	 * Given a ParseTree of the form appl(Symbol, list[Tree]) get
-	 * its children without layout. Also handles concrete lists with separators
+	 * its children without layout as well as its keyword map.
+	 * Also handles concrete lists with separators
 	 * [ ... IConstructor tree ] => [ ..., array ]
 	 *
 	 */
-	get_children_without_layout_or_separators {
+	get_children_without_layout_or_separators_with_keyword_map {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
@@ -227,19 +228,9 @@ public enum MuPrimitive {
 			IList args = (IList) cons.get(1);
 			IConstructor symbol = (IConstructor) prod.get(0);
 
-			int step;
-
-			switch(symbol.getName()){
-
-			case "iter":
-			case "iter-star":
-				step = 2; break;
-			case "iter-seps":
-			case "iter-seps-star":
-				step = 4; break;
-			default:
-				step = 2;
-			}
+			int step = RascalPrimitive.$getIterDelta(symbol);
+			if(step < 0) step = 2;
+			
 			int non_lit_len = 0;
 
 			for(int i = 0; i < args.length(); i += step){
@@ -256,6 +247,47 @@ public enum MuPrimitive {
 				}
 			}
 			elems[non_lit_len] = emptyKeywordMap;
+			stack[sp - 1] = elems;
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a ParseTree of the form appl(Symbol, list[Tree]) get
+	 * its children without layout and without its keyword map.
+	 * Also handles concrete lists with separators
+	 * [ ... IConstructor tree ] => [ ..., array ]
+	 *
+	 */
+	get_children_without_layout_or_separators_without_keyword_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			IConstructor cons = (IConstructor) stack[sp - 1];
+			
+			// TODO use TreeAdapter.getNonLayoutArgs(cons);
+			IConstructor prod = (IConstructor) cons.get(0);
+			IList args = (IList) cons.get(1);
+			IConstructor symbol = (IConstructor) prod.get(0);
+			
+			int step = RascalPrimitive.$getIterDelta(symbol);
+			if(step < 0) step = 2;
+			
+			int non_lit_len = 0;
+
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					non_lit_len++;
+				}
+			}
+			Object[] elems = new Object[non_lit_len];
+			
+			int j = 0;
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					elems[j++] = args.get(i);
+				}
+			}
 			stack[sp - 1] = elems;
 			return sp;
 		}
@@ -1653,7 +1685,6 @@ public enum MuPrimitive {
 				try {
 					TreeAdapter.unparse(c, w);
 				} catch (FactTypeUseException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				subject = w.toString();
@@ -2214,7 +2245,7 @@ public enum MuPrimitive {
 				stack[sp - 1] = Rascal_TRUE;
 				return sp;
 			}
-			for(int i = cursor; i < len; i++){				// Check wether only nullables follow
+			for(int i = cursor; i < len; i++){				// Check whether only nullables follow
 				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
 					stack[sp - 1] = Rascal_FALSE;
 					return sp;
@@ -2318,11 +2349,10 @@ public enum MuPrimitive {
 		
 		if(tp.isAbstractData()){
 			IConstructor cons = (IConstructor) v;
-			Type consType = cons.getConstructorType();
 			if(cons.mayHaveKeywordParameters()){
 				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
 				String consName = cons.getName();
-				Function getDefaults = rex.getFunction(consName, tp);
+				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				if(getDefaults != null){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
