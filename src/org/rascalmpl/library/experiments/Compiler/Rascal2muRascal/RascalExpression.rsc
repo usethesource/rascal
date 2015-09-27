@@ -1657,12 +1657,19 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression@\loc);
+ 
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
-   op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
-   //if(op == "label") println("field_access: <tp>, <e>");
-   return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
+   if(isNonTerminalType(tp)){
+      return muCallPrim3("nonterminal_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
+   }
+   op = getOuterType(expression);
+   if(op == "adt"){
+       cde = getConstantConstructorDefaultExpressions(expression@\loc);
+       return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")), muCon(cde) ], e@\loc);
+    }
+    return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);   
 }
 
 // -- field update expression ---------------------------------------

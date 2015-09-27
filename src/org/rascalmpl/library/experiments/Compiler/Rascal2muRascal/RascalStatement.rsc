@@ -701,8 +701,12 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpressi
     //translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
-list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = 
-    [ muCallPrim3("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon(unescape("<field>"))], a@\loc) ];
+list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) { 
+    outerType = getOuterType(receiver);
+    cde = outerType == "adt" ? [ muCon(getConstantConstructorDefaultExpressions(receiver@\loc)) ] : [ ];
+   
+    return [ muCallPrim3("<outerType>_field_access", [ *getValues(receiver), muCon(unescape("<field>")), *cde], a@\loc) ];
+}    
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
      [ translateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression), a@\loc) ];
