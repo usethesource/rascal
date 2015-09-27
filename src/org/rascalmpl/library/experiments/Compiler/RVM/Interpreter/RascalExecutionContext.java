@@ -30,6 +30,9 @@ import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.URIUtil;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 /**
  * Provides all context information that is needed during the execution of a compiled Rascal program
  * and contains:
@@ -105,12 +108,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 		currentModuleName = "UNDEFINED";
 		
 		if(rascalSearchPath == null){
-			System.err.println(this + " RascalExecutionContext: create new RascalSearchPath");
 			this.rascalSearchPath = new RascalSearchPath();
 			addRascalSearchPath(URIUtil.rootLocation("test-modules"));
             addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		} else {
-			System.err.println(this + " RascalExecutionContext: reuse RascalSearchPath");
 			this.rascalSearchPath = rascalSearchPath;
 		}
 	
@@ -151,12 +152,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public RVM getRVM(){ return rvm; }
 	
 	void setRVM(RVM rvm){ 
-		if(this.rvm == null){
-			this.rvm = rvm; 
-		} else if(this.rvm != rvm){
-			 System.err.println("*** rvm already set, reset with different one ***");
-			 this.rvm = rvm;
-		}
+		this.rvm = rvm; 
 	}
 	
 	public void addClassLoader(ClassLoader loader) {
@@ -202,8 +198,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
 	
-	public Function getFunction(String name, Type ftype){
-		return rvm.getFunction(name, ftype);
+	private final Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().build();
+	
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		String key = name + ftype;
+		return companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
 	}
 	
 	boolean bootstrapParser(String moduleName){
