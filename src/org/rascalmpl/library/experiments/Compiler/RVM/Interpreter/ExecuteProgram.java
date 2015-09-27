@@ -274,6 +274,8 @@ public class ExecuteProgram {
 		
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
+		MuPrimitive.setRascalExecutionContext(rex);
+		
 		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;
 		
