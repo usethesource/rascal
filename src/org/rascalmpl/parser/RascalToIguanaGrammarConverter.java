@@ -336,9 +336,9 @@ public class RascalToIguanaGrammarConverter {
 		List<Symbol> symbols = getSymbolList((IList) alt.get("symbols"));
 
 		if (symbols.size() == 1)
-			return Terminal.builder((RegularExpression) symbols.get(0)).setName(getName(constructor)).build();
+			return Terminal.builder((RegularExpression) symbols.get(0)).asToken().setName(getName(constructor)).build();
 		else 
-			return Terminal.builder(Sequence.from(symbols)).setName(getName(constructor)).build();
+			return Terminal.builder(Sequence.from(symbols)).asToken().setName(getName(constructor)).build();
 	}
 	
 	private List<Rule> computeEnds(IValue nonterminal, IMap definitions) {
