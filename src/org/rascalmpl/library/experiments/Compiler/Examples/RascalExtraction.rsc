@@ -8,7 +8,7 @@ import IO;
 import ValueIO;
 import util::Reflective;
 
-value main() = compareAll(args);
+value main() = compareAll();
 
 value compareAll() {
 	moduleLoc = |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;

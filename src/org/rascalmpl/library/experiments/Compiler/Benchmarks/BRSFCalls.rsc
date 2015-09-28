@@ -19,7 +19,7 @@ import lang::rsf::IO;
 import IO;
 
 public value main(){
-  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz"/*, "Eclipse202a.rsf"*/]);
+  return measure([/*"JHotDraw52.rsf", "JDK140AWT.rsf", */"JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz" /*, "Eclipse202a.rsf.xz"*/]);
 }
 
 public bool measureOne(){
