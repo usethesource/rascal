@@ -199,5 +199,6 @@ public data Instruction =
 		        bool progress, bool rebuild)		// Visit expression
 		        
 		| CHECKMEMO()								// Check args of memo function
+		| LOADEMPTYKWMAP()                          // Load an empty keyword map
 ;
 	
