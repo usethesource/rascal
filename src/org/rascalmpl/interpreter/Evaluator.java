@@ -108,40 +108,13 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.CompressedStreamResolver;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.HomeURIResolver;
-import org.rascalmpl.uri.HttpURIResolver;
-import org.rascalmpl.uri.HttpsURIResolver;
-import org.rascalmpl.uri.InMemoryResolver;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-	private static final class CourseResolver extends FileURIResolver {
-		private final String courseSrc;
-
-		private CourseResolver(String courseSrc) {
-			this.courseSrc = courseSrc;
-		}
-
-		@Override
-		public String scheme() {
-		  return "courses";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-		  String path = uri.getPath();
-		  return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		}
-	}
+	
 	
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
@@ -242,55 +215,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new NullPointerException();
 		}
 		
-		// register some schemes
-		FileURIResolver files = new FileURIResolver();
-		resolverRegistry.registerInputOutput(files);
-
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
-		
-		//added
-		HttpsURIResolver https = new HttpsURIResolver();
-		resolverRegistry.registerInput(https);
-
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerLogical(cwd);
-
-		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-
-		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
-		
-		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
-		resolverRegistry.registerInput(benchmarkdata);
-		
-		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerLogical(new HomeURIResolver());
-		resolverRegistry.registerInputOutput(new TempURIResolver());
-		
-		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
-		
-		// here we have code that makes sure that courses can be edited by
-		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
-		final String courseSrc = System.getProperty("rascal.courses");
-		if (courseSrc != null) {
-		   FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
-		  
-		  resolverRegistry.registerInputOutput(fileURIResolver);
-		}
-		else {
-		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
-		}
-	
-		InMemoryResolver testModuleResolver = new InMemoryResolver("test-modules");
-
-		resolverRegistry.registerInputOutput(testModuleResolver);
-		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
 
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
