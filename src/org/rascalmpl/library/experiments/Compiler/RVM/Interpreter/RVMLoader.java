@@ -843,9 +843,15 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								getBooleanField(instruction, "progress"),
 								getBooleanField(instruction, "rebuild"));
 				break;
+				
 			case "CHECKMEMO":
 				codeblock.CHECKMEMO();
 				break;
+				
+			case "LOADEMPTYKWMAP":
+				codeblock.LOADEMPTYKWMAP();
+				break;
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}

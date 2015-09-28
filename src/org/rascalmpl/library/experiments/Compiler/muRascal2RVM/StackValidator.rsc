@@ -312,3 +312,4 @@ int simulate(VISIT(bool direction, bool fixedpoint,
                    bool progress, bool rebuild),
                    int sp)          					= sp - 8 + 1;
 int simulate(CHECKMEMO(), int sp)    					= sp + 1;
+int simulate(LOADEMPTYKWMAP(), int sp)                  = sp + 1;
