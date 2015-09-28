@@ -2023,19 +2023,20 @@ public class Prelude {
 	}
 	
 	public INode delAnnotations(INode node) {
-		return node.asAnnotatable().removeAnnotations();
+		return node.isAnnotatable() ? node.asAnnotatable().removeAnnotations() : node;
+		
 	}
 	
 	public INode delAnnotation(INode node, IString label) {
-		return node.asAnnotatable().removeAnnotation(label.getValue());
+		return node.isAnnotatable() ? node.asAnnotatable().removeAnnotation(label.getValue()) : node;
 	}
 	
 	public INode unset(INode node, IString label) {
-        return node.asWithKeywordParameters().unsetParameter(label.getValue());
+        return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;
     }
     
     public INode unset(INode node) {
-        return node.asWithKeywordParameters().unsetAll();
+        return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
 	
 	/*
