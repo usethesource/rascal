@@ -248,6 +248,7 @@ public class RascalFunction extends NamedFunction {
     Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
     try {
+    	  ctx.setCurrentAST(ast);
     	if (callTracing) {
     		printStartTrace(actuals);
     	}
