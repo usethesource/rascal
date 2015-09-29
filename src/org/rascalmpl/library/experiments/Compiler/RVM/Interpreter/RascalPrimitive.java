@@ -158,7 +158,7 @@ public enum RascalPrimitive {
 			for(int i = 0; i < arity - 2; i ++){
 				args[i] = (IValue) stack[sp - arity + 1 + i];
 			}
-			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
+			stack[sp - arity] = vf.node(name, args, (Map<String, IValue>)stack[sp - 1]);
 			return sp - arity + 1;
 		}
 	},
@@ -6891,8 +6891,8 @@ public enum RascalPrimitive {
 				// Final resort: an unset default field with a computed value?
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
+				
 				if(getDefaults != null){
-
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -9719,7 +9719,7 @@ public enum RascalPrimitive {
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
 
-	static int $getIterDelta(final IConstructor cons){
+	static int $getIterDelta(final IConstructor cons){		
 		Type tp = cons.getConstructorType();
 		if(tp == RascalValueFactory.Symbol_IterPlus || tp == RascalValueFactory.Symbol_IterStar){
 			return 2;
