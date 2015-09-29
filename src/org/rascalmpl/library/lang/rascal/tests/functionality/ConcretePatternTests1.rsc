@@ -316,7 +316,7 @@ test bool matchInsideSyntax()
 test bool matchInsideSyntax2()
     = /A2 _ := [AB2]"AABBAA";
 
-value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
+value main() = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
 test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

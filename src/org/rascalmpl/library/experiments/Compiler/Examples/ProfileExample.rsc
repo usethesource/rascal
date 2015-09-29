@@ -28,7 +28,7 @@ void g(){
 	}
 } 
                                                              
-public value main(list[value] args) {
+public value main() {
 println("Start of program");
 
   fac(24);

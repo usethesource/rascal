@@ -8,15 +8,20 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.file;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-public class HttpsURIResolver extends HttpURIResolver {
-
+public class TempURIResolver extends FileURIResolver {
 	@Override
 	public String scheme() {
-		return "https";
+		return "tmp";
+	}
+	
+	@Override
+	protected String getPath(ISourceLocation uri) {
+		String path = super.getPath(uri);
+		return System.getProperty("java.io.tmpdir") + (path.startsWith("/") ? path : ("/" + path));
 	}
 }

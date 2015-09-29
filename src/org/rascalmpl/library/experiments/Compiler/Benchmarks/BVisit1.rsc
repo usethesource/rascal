@@ -1,6 +1,6 @@
 module experiments::Compiler::Benchmarks::BVisit1
 
-value main(list[value] args) {
+value main() {
 	res = [];
 	for(j <- [1 .. 10000]) {
 		res = visit([1,2,3]) {

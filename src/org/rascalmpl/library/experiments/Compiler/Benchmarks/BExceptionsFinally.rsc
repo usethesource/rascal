@@ -56,7 +56,7 @@ value tryToCatchMe() {
 	return n; // result: 0 1 2 6 9 10 14 and last finally, then before return!
 }
 
-value main(list[value] args){
+value main(){
 	value x;
     for(i <- [1 .. 100000]){
        x = tryToCatchMe();

@@ -12,7 +12,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.file;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,6 +25,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.ISourceLocationInputOutput;
+import org.rascalmpl.uri.URIUtil;
 
 public class FileURIResolver implements ISourceLocationInputOutput {
 	public FileURIResolver(){

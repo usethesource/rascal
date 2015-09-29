@@ -109,7 +109,7 @@ map[str name,  value(int n) job] jobs = (
 "countZeroes": countZeroes
 );
 
-int main(list[value] args){
+int main(){
 	total = 0;
 	for(jb <- jobs){
 		  t1 = cpuTime();
@@ -123,6 +123,6 @@ int main(list[value] args){
 	return total;
 }
 
-//public value main(list[value] args) {
+//public value main() {
 //  return [countReturnStatementsReducer(), countReturnStatementsVisit(), countCCLikeMetric(), getMethodsWhichThrow(), getVariableNamesTwice(), getVariableNamesOnce(), countZeroes()];
 //}

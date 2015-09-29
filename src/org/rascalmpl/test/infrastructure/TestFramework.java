@@ -19,13 +19,13 @@ package org.rascalmpl.test.infrastructure;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -39,8 +39,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -50,99 +48,22 @@ public class TestFramework {
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
-	private final static TestModuleResolver modules;
 	
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
-
-	/**
-	 * This class allows us to load modules from string values.
-	 */
-	private static class TestModuleResolver implements ISourceLocationInput {
-		private Map<String,String> modules = new HashMap<String,String>();
-
-		public void addModule(String name, String contents) {
-			name = name.replaceAll("::", "/");
-			if (!name.startsWith("/")) {
-				name = "/" + name;
-			}
-			if (!name.endsWith(".rsc")) {
-				name = name + ".rsc";
-			}
-			modules.put(name, contents);
-		}
-		
-		@Override
-		public boolean exists(ISourceLocation uri) {
-			return modules.containsKey(uri.getPath());
-		}
-
-		@Override
-		public InputStream getInputStream(ISourceLocation uri) throws IOException {
-			String contents = modules.get(uri.getPath());
-			if (contents != null) {
-				return new ByteArrayInputStream(contents.getBytes());
-			}
-			return null;
-		}
-		
-		public void reset(){
-			modules = new HashMap<String,String>();
-		}
-
-		@Override
-		public String scheme() {
-			return "test-modules";
-		}
-
-		@Override
-		public boolean isDirectory(ISourceLocation uri) {
-			return false;
-		}
-
-		@Override
-		public boolean isFile(ISourceLocation uri) {
-			return false;
-		}
-
-		@Override
-		public long lastModified(ISourceLocation uri) {
-			return 0;
-		}
-
-		@Override
-		public String[] list(ISourceLocation uri) {
-			return new String[0];
-		}
-
-		@Override
-		public boolean supportsHost() {
-			return false;
-		}
-
-		@Override
-		public Charset getCharset(ISourceLocation uri) throws IOException {
-			return null;
-		}
-	}
 	
 	static{
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
-		modules = new TestModuleResolver();
 		
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
 		
 		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		resolverRegistry.registerInput(modules);
-		
 		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInput("benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");
@@ -152,6 +73,8 @@ public class TestFramework {
 		}
 	}
 	
+	private Set<ISourceLocation> generatedModules = new HashSet<>();
+	
 	public TestFramework() {
 		super();
 	}
@@ -159,8 +82,16 @@ public class TestFramework {
 	private void reset() {
 		heap.clear();
 		root.reset();
+
+		for (ISourceLocation mod : generatedModules) {
+		    try {
+                URIResolverRegistry.getInstance().remove(mod);
+            }
+            catch (IOException e) {
+            }
+		}
+		generatedModules.clear();
 		
-		modules.reset();
 		
 		evaluator.getAccumulators().clear();
 	}
@@ -233,7 +164,21 @@ public class TestFramework {
 
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		reset();
-		modules.addModule(name, module);
+        try {
+            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("test-modules", null, "/" + name.replace("::", "/") + ".rsc");
+            generatedModules.add(moduleLoc);
+            try (OutputStream target = URIResolverRegistry.getInstance().getOutputStream(moduleLoc, false)) {
+                target.write(module.getBytes(StandardCharsets.UTF_8));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        catch (URISyntaxException e1) {
+            e1.printStackTrace();
+            return false;
+        }
 		return true;
 	}
 
