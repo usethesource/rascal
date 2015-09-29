@@ -64,11 +64,13 @@ public class NodeResult extends ElementResult<INode> {
 	
 	@Override
 	public Result<IBool> has(Name name) {
-		INode node = getValue();
-		if(node instanceof IConstructor)
-			return ResultFactory.bool(((IConstructor) node).has(Names.name(name)), ctx);
-		else
-			return ResultFactory.bool(false, ctx);
+		return isDefined(name);
+	}
+	
+	@Override
+	public Result<IBool> isDefined(Name name) {
+		String sname = Names.name(name);
+		return ResultFactory.bool(getValue().asWithKeywordParameters().hasParameter(sname), ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
