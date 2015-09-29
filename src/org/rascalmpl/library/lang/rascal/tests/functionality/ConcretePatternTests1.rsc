@@ -158,7 +158,7 @@ test bool concreteMatchVisit() {
   return result == 3;
 }
 
-@ignoreInterpreter{While this should work, the fix is to large, and there are workarounds}
+@ignoreInterpreter{While this should work, the fix is too large, and there are workarounds}
 test bool concreteMatchVisitLayout() {
   result = false;
   visit ([start[XorY]] ".x.") {
