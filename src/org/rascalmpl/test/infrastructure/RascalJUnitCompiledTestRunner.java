@@ -34,8 +34,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -72,12 +70,15 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
+		
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.getConfiguration().setErrors(true);
-        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
-        URIResolverRegistry.getInstance().registerInput(rascalProject);
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
+
+		// this can not work reliably with the current URIResolverRegistry:
+//        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
+//        URIResolverRegistry.getInstance().registerInput(rascalProject);
+//        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
 
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
@@ -104,9 +105,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				((IRascalJUnitTestSetup) instance).setup(evaluator);
 			}
 			else {
-				ISourceLocationInput resolver = new ClassResourceInput("junit", clazz, "/");
-				URIResolverRegistry.getInstance().registerInput(resolver);
-				evaluator.addRascalSearchPath(URIUtil.rootLocation("junit"));
 				evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
 			}
 		} catch (InstantiationException e) {

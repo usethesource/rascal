@@ -4,5 +4,5 @@ import experiments::Compiler::Execute;
 import ParseTree;
 
 
-value main(list[value] args) =
+value main() =
    execute(|std:///experiments/Compiler/Examples/Tst2.rsc|, [], recompile=true);

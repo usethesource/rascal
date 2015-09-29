@@ -192,9 +192,7 @@ public class RVMRun extends RVM {
 		constructorMap = new HashMap<String, Integer>();
 
 		moduleVariables = new HashMap<IValue, IValue>();
-
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(this, rex);
+		
 		Opcode.init(stdout, rex.getProfile());
 
 		this.locationCollector = NullLocationCollector.getInstance();

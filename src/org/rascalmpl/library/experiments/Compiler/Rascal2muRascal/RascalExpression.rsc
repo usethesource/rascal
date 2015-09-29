@@ -160,7 +160,8 @@ private MuExp translateComposeFunction(Expression e){
   }
     
   enterFunctionScope(comp_fuid);
-  kwargs = muCallMuPrim("make_mmap", []);
+  //kwargs = muCallMuPrim("make_mmap", []);
+  kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
   rhsCall = muOCall4(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
@@ -1208,17 +1209,15 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
    //println("translate: <e>");
+  
    MuExp kwargs = translateKeywordArguments(keywordArguments);
-      
+   
    MuExp receiver = translate(expression);
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | a <- arguments ];
    
-   //println("BACK at translate <e>");
-   
    if(getOuterType(expression) == "str"){
    		return muCallPrim3("node_create", [receiver, *args, *kwargs], e@\loc);
-       //return muCallPrim3("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
    }
   
    if(getOuterType(expression) == "loc"){
@@ -1231,7 +1230,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Now overloading resolution...
    ftype = getType(expression@\loc); // Get the type of a receiver
                                      // and a version with type parameters uniquely renamed
-   ftype_renamed = visit(ftype) { case parameter(str name, Symbol sym) => parameter("1" + name, sym) };
    
    if(isOverloadedFunction(receiver) && hasOverloadingResolver(receiver.fuid)){
        // Get the types of arguments
@@ -1277,7 +1275,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		}
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
-       	//println("function_subtype(<fuse>, <fdef>) =\> <subtype(upar, dpar) || match_void(upar, dpar)>");
        	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        
@@ -1286,11 +1283,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    ftype_selected = ftype;
-                   //common = {name | /parameter(str name, _) := t} & {name | /parameter(str name, _) := ftype};
-                   //if(!isEmpty(common)){
-                   //println("USING RENAMED");
-                   // ftype_selected = ftype_renamed;
-                   //}
+                   
                    try {
                        if(isConstructorType(t) && isConstructorType(ftype_selected)) {
                            bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),     label(_,Symbol a) := arg || Symbol a := arg ]),
@@ -1299,24 +1292,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            return instantiate(t.\adt,bindings) == ftype_selected.\adt;
                        }
                        if(isFunctionType(t) && isFunctionType(ftype_selected)) {
-                          // println("t:              <t>");
-                          // println("ftype_selected: <ftype_selected>");
                  
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype_selected),());
                            
-                           //println("bindings1: <bindings>");
-                           
                            bindings = bindings + ( name : Symbol::\void() | /parameter(str name,_) := t, name notin bindings );
-                           
-                           //println("bindings2: <bindings>");
-                           //println("t.ret:               <t.ret> becomes <instantiate(t.ret,bindings)>");
-                           //println("ftype_selected.ret:  <ftype_selected.ret> becomes <instantiate(ftype_selected.ret,bindings)>");
-                           
-                           bool res =  instantiate(t.ret,bindings) == ftype_selected.ret;
-                           
-                           //println("res: <res>");
-                           
-                           return res;
+                   
+                           return instantiate(t.ret,bindings) == ftype_selected.ret;
                        }
                        return false;
                    } catch invalidMatch(_,_,_): {
@@ -1327,8 +1308,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
-               //println("matches returns: <function_subtype(ftype, t)>");
-               //return t == ftype;
                return function_subtype(ftype, t);
            }           
            if(isOverloadedType(ftype)) {
@@ -1357,27 +1336,19 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    }
                    return false;
            	   }
-               //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
                return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
            throw "Unexpected type <ftype> of call receiver expression";
        }
        
-  //     println("e = <expression@\loc>");
-  //     println("of = <of>");
-  //     println("ftype = <ftype>, of.alts = <of.alts>");
-  //
-       
        for(UID alt <- accessibleAlts(of.alts, expression@\loc)){
        	   assert uid2type[alt]? : "cannot find type of alt";
-assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
            	   //println("alt <alt> matches");
                resolved += alt;
            }
        }
-      // resolved = sortOverloadedFunctions(toSet(resolved));
        
        //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
@@ -1392,9 +1363,7 @@ assert uid2type[alt]? : "cannot find type of alt";
        if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
        		str fname = unescape("<expression>");
        		try {
-       			res = translateConstantCall(fname, args);
-       			//println("REPLACED <name>, <args> BY CONSTANT");
-       			return res;
+       			return translateConstantCall(fname, args);
        		} 
        		catch "NotConstant":  /* pass */;
        }
@@ -1413,6 +1382,21 @@ assert uid2type[alt]? : "cannot find type of alt";
 
 private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
+   
+   // Version that propagates values of set keyword parameters downwards
+   
+   // defPos = getFormals(currentFunctionDeclaration()) - 1;
+   // //println("translateKeywordArguments: <keywordArguments>, <defPos>");
+   // if(keywordArguments is \default){
+   //   kwargs = [ muCon(unescape("<kwarg.name>")), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
+   //   if(size(kwargs) > 0){
+   //      return muCallMuPrim("copy_and_update_keyword_mmap", muCon(defPos) + kwargs );
+   //   }
+   //}
+   //return muCallMuPrim("copy_and_update_keyword_mmap", [muCon(defPos)]);
+   
+    // Version that does not propagates values of set keyword parameters downwards and is compatible with the interpreter
+    
    if(keywordArguments is \default){
       kwargs = [ muCon(unescape("<kwarg.name>")), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
@@ -1420,15 +1404,6 @@ private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<Keyword
       }
    }
    return muCallMuPrim("make_mmap", []);
-   
-   //str fuid = topFunctionScope();
-   //list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", fuid, muCallPrim("mapwriter_open",[])) ];
-   //if(keywordArguments is \default) {
-   //    for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
-   //        kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments",fuid), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
-   //    }
-   //}
-   //return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments",fuid) ]) ]);
 }
 
 // -- any expression ------------------------------------------------
@@ -1650,12 +1625,19 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression@\loc);
+ 
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
-   op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
-   //if(op == "label") println("field_access: <tp>, <e>");
-   return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
+   if(isNonTerminalType(tp)){
+      return muCallPrim3("nonterminal_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
+   }
+   op = getOuterType(expression);
+   if(op == "adt"){
+       cde = getConstantConstructorDefaultExpressions(expression@\loc);
+       return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")), muCon(cde) ], e@\loc);
+    }
+    return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);   
 }
 
 // -- field update expression ---------------------------------------
@@ -1765,6 +1747,8 @@ private MuExp translateIsDefined(Expression exp){
 			return translateSubscript(exp, true);
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
+		case (Expression) `<Expression expression> . <Name field>`:
+		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
@@ -1786,7 +1770,18 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
     						[translate(rhs)])
     			  ]);
-    		}				
+    		}	
+    	case (Expression) `<Expression expression> . <Name field>`:	{
+    	   str fuid = topFunctionScope();
+           str varname = asTmp(nextLabel());
+    	   return muBlock([
+                   muAssignTmp(varname, fuid, muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], e@\loc)),
+                   muIfelse(nextLabel(), 
+                            muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+                            [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
+                            [translate(rhs)])
+                  ]);
+            }      		
 		default:
     		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 	}

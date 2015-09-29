@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -40,7 +41,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 /**
  * MuPrimitive defines all primitives that are necessary for running muRascal programs.
  * This includes all operations with at least one operand that is not an IValue:
- * 		- mbool	(PDB IBool)
  * 		- mint	(Java Integer)
  * 		- mstr  (Java String)
  * 		- mset	(Java HashSet<IValue>)
@@ -48,6 +48,16 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * 		- array	(Java Object[])
  * 
  * All operations with only IValues as arguments are defined in RascalPrimitive
+ * 
+ * Each MuPrimitive has an execute function with as arguments
+ * - stack in the current stack frame
+ * - stackpointer (sp) in that stack
+ * - arity of the primitive
+ * 
+ * and returns a new values for the stackpointer.
+ * 
+ * TODO: Earlier we use Java booleans to represent booleans but we have switched to using IBool instead.
+ * 		 Some primitives using booleans now work on IValues only and should be moved to RascalPrimitives.
  */
 
 /**
@@ -120,8 +130,8 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 == mint2)
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * bool = (mint1 == mint2)
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	equal_mint_mint {
@@ -134,9 +144,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Equality on IValues or Types: mbool = (IValueOrType1 == IValueOrType2)
+	 * Equality on IValues or Types: bool = (IValueOrType1 == IValueOrType2)
 	 * 
-	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., mbool ]
+	 * [ ..., IValueOrType1, IValueOrType2 ] => [ ..., bool ]
 	 *
 	 */
 	equal {
@@ -156,9 +166,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Equality on ISet and mset: mbool = (ISet == mset)
+	 * Equality on ISet and mset: bool = (ISet == mset)
 	 * 
-	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 * [ ..., ISet, mset ] => [ ..., bool ]
 	 *
 	 */
 	equal_set_mset {
@@ -202,11 +212,12 @@ public enum MuPrimitive {
 	
 	/**
 	 * Given a ParseTree of the form appl(Symbol, list[Tree]) get
-	 * its children without layout. Also handles concrete lists with separators
+	 * its children without layout as well as its keyword map.
+	 * Also handles concrete lists with separators
 	 * [ ... IConstructor tree ] => [ ..., array ]
 	 *
 	 */
-	get_children_without_layout_or_separators {
+	get_children_without_layout_or_separators_with_keyword_map {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
@@ -217,19 +228,9 @@ public enum MuPrimitive {
 			IList args = (IList) cons.get(1);
 			IConstructor symbol = (IConstructor) prod.get(0);
 
-			int step;
-
-			switch(symbol.getName()){
-
-			case "iter":
-			case "iter-star":
-				step = 2; break;
-			case "iter-seps":
-			case "iter-seps-star":
-				step = 4; break;
-			default:
-				step = 2;
-			}
+			int step = RascalPrimitive.$getIterDelta(symbol);
+			if(step < 0) step = 2;
+			
 			int non_lit_len = 0;
 
 			for(int i = 0; i < args.length(); i += step){
@@ -246,6 +247,47 @@ public enum MuPrimitive {
 				}
 			}
 			elems[non_lit_len] = emptyKeywordMap;
+			stack[sp - 1] = elems;
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a ParseTree of the form appl(Symbol, list[Tree]) get
+	 * its children without layout and without its keyword map.
+	 * Also handles concrete lists with separators
+	 * [ ... IConstructor tree ] => [ ..., array ]
+	 *
+	 */
+	get_children_without_layout_or_separators_without_keyword_map {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			IConstructor cons = (IConstructor) stack[sp - 1];
+			
+			// TODO use TreeAdapter.getNonLayoutArgs(cons);
+			IConstructor prod = (IConstructor) cons.get(0);
+			IList args = (IList) cons.get(1);
+			IConstructor symbol = (IConstructor) prod.get(0);
+			
+			int step = RascalPrimitive.$getIterDelta(symbol);
+			if(step < 0) step = 2;
+			
+			int non_lit_len = 0;
+
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					non_lit_len++;
+				}
+			}
+			Object[] elems = new Object[non_lit_len];
+			
+			int j = 0;
+			for(int i = 0; i < args.length(); i += step){
+				if(!$is_literal(args.get(i))){
+					elems[j++] = args.get(i);
+				}
+			}
 			stack[sp - 1] = elems;
 			return sp;
 		}
@@ -274,6 +316,7 @@ public enum MuPrimitive {
 	 * 
 	 * [ ..., node nd ] => [ ..., nodeName]
 	 */
+	
 	get_name {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -303,10 +346,29 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i + 1] = v.get(i);
 			}
-			if(v.mayHaveKeywordParameters()){
-				elems[cons_arity + 1] = v.asWithKeywordParameters().getParameters();
-			} else {
-				elems[cons_arity + 1] = emptyKeywordMap;
+			elems[cons_arity + 1] = $getAllKeywordParameters(v);
+			stack[sp - 1] = elems;
+			return sp;
+		};
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - node/constructor name 
+	 * - positional arguments 
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
+	get_name_and_children {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 1];
+			elems[0] = vf.string(v.getName());
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i + 1] = v.get(i);
 			}
 			stack[sp - 1] = elems;
 			return sp;
@@ -330,11 +392,7 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i] = v.get(i);
 			}
-			if(v.mayHaveKeywordParameters()){
-				elems[cons_arity] = v.asWithKeywordParameters().getParameters();
-			} else {
-				elems[cons_arity] = emptyKeywordMap;
-			}
+			elems[cons_arity] = $getAllKeywordParameters(v);
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -351,11 +409,7 @@ public enum MuPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
-			if(v.mayHaveKeywordParameters()){
-				stack[sp - 1] = v.asWithKeywordParameters().getParameters();
-			} else {
-				stack[sp - 1] = emptyKeywordMap;
-			}
+			stack[sp - 1] = $getAllKeywordParameters(v);
 			return sp;
 		};
 	},
@@ -420,12 +474,8 @@ public enum MuPrimitive {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
 			int cons_arity = v.arity();
-			Map<String, IValue> m ;
-			if(v.mayHaveKeywordParameters()){
-				m = v.asWithKeywordParameters().getParameters();
-			} else {
-				m = emptyKeywordMap;
-			}
+			Map<String, IValue> m = $getAllKeywordParameters(v);
+
 			int kw_arity = m.size();
 			Object[] elems = new Object[cons_arity + kw_arity];
 			for (int i = 0; i < cons_arity; i++) {
@@ -461,9 +511,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 >= mint2)
+	 * bool = (mint1 >= mint2)
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	greater_equal_mint_mint {
@@ -476,9 +526,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = mint1 > mint2
+	 * bool = mint1 > mint2
 	 * 
-	 *  [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 *  [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	greater_mint_mint {
@@ -493,7 +543,7 @@ public enum MuPrimitive {
 	/**
 	 * Has a concrete term a given label?
 	 * 
-	 * [ ..., IValue, IString label ] => [ ..., mbool ]
+	 * [ ..., IValue, IString label ] => [ ..., bool ]
 	 */
 	// TODO rename to more parse tree specific?
 	has_label {
@@ -518,11 +568,12 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool 3 = (mbool1 ==> mbool2)
+	 * bool3 = (bool1 ==> bool2)
 	 * 
-	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 * [ ..., bool1, bool2 ] => [ ..., bool3 ]
 	 *
 	 */
+	// TODO: move to RascalPrimitive?
 	implies_mbool_mbool {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -535,7 +586,7 @@ public enum MuPrimitive {
 	/**
 	 * Check that a Reference refers to a non-null variable
 	 * 
-	 * [ ..., Reference ] => [ ..., mbool ]
+	 * [ ..., Reference ] => [ ..., bool ]
 	 *
 	 */
 	is_defined {
@@ -551,7 +602,7 @@ public enum MuPrimitive {
 	/**
 	 * Check that IValue is element of mset
 	 * 
-	 * [ ..., IValue, mset ] => [ ..., mbool ]
+	 * [ ..., IValue, mset ] => [ ..., bool ]
 	 *
 	 */
 	is_element_mset {
@@ -567,7 +618,9 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IBool?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
+	 * 
+	 * Note: all is_* primitives are introduced by Implode and are only used in Library.mu
 	 *
 	 */
 	is_bool {
@@ -582,7 +635,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue a constructor?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_constructor {
@@ -594,14 +647,12 @@ public enum MuPrimitive {
 			stack[sp - 1] = vf.bool(t.isAbstractData() || isNonTerminalType(t));
 			return sp;
 		}
-
-		
 	},
 	
 	/**
 	 * Is IValue a IDateTime?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_datetime {
@@ -616,7 +667,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IInteger?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_int {
@@ -631,7 +682,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IList?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_list {
@@ -646,7 +697,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IListRelation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_lrel {
@@ -661,7 +712,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ISourceLocation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_loc {
@@ -676,7 +727,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IMap?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_map {
@@ -691,7 +742,7 @@ public enum MuPrimitive {
 	/**
 	 * Is Object an mmap?
 	 * 
-	 * [ ..., Object ] => [ ..., mbool ]
+	 * [ ..., Object ] => [ ..., bool ]
 	 *
 	 */
 	is_mmap {
@@ -706,7 +757,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an INode?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_node {
@@ -721,7 +772,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an INumber?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_num {
@@ -736,7 +787,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IReal?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_real {
@@ -751,7 +802,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IRational?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_rat {
@@ -766,7 +817,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IRelation?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_rel {
@@ -781,7 +832,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ISet?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_set {
@@ -796,7 +847,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an IString?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_str {
@@ -811,7 +862,7 @@ public enum MuPrimitive {
 	/**
 	 * Is IValue an ITuple?
 	 * 
-	 * [ ..., IValue ] => [ ..., mbool ]
+	 * [ ..., IValue ] => [ ..., bool ]
 	 *
 	 */
 	is_tuple {
@@ -864,9 +915,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool= mint1 <= mint2
+	 * bool= mint1 <= mint2
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	less_equal_mint_mint {
@@ -879,9 +930,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = mint1 < mint2
+	 * bool = mint1 < mint2
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	less_mint_mint {
@@ -965,6 +1016,7 @@ public enum MuPrimitive {
 	 * 
 	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
 	 */
+	// TODO: move to RascalPrimitive?
 	make_descendant_descriptor {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -1029,7 +1081,7 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keword map with <String_i, IValue_i> as entries
+	 * Given IString_1, IValue_1, ..., IString_n, IValue_n, create a keyword map with <String_i, IValue_i> as entries
 	 *
 	 * [ ..., IString_1, IValue_1, ..., IString_n, IValue_n ] => [ ..., mmap ]
 	 */
@@ -1054,9 +1106,44 @@ public enum MuPrimitive {
 	},
 	
 	/**
+	 * Given defPos, IString_1, IValue_1, ..., IString_n, IValue_n, 
+	 * copy the default map at stack[defPos] and insert the entries <String_i, IValue_i> in it
+	 *
+	 * [ ..., defPos, IString_1, IValue_1, ..., IString_n, IValue_n ] => [ ..., mmap ]
+	 * 
+	 * Note: this implements downward keyword parameter propagation that is not (yet) supported by the interpreter
+	 */
+	copy_and_update_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity >= 1;
+			
+			int defPos = ((IInteger) stack[sp - arity]).intValue();
+			@SuppressWarnings("unchecked")
+			HashMap<String, IValue> oldMap = (HashMap<String, IValue>) stack[defPos];
+			
+			if(arity == 1){
+				stack[sp - 1] = oldMap;
+				return sp;
+			}
+			
+			@SuppressWarnings("unchecked")
+			HashMap<String, IValue> writer = (HashMap<String, IValue>) oldMap.clone();
+			
+			for (int i = arity - 1; i > 0; i -= 2) {
+				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
+			}
+			int sp1 = sp - arity + 1;
+			stack[sp1 - 1] = writer;
+
+			return sp1;
+		}
+	},
+	
+	/**
 	 * Does a keyword map with <String, IValue> entries contain a given key (as String)?
 	 * 
-	 * [ ..., mmap, String] => [ ..., mbool ]
+	 * [ ..., mmap, String] => [ ..., bool ]
 	 *
 	 */
 	mmap_contains_key {
@@ -1092,6 +1179,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_hasNext {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1102,6 +1190,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	iterator_next {
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1112,6 +1201,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
 	/**
 	 * mint3 = min(mint1, mint2)
 	 * 
@@ -1481,9 +1571,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (mint1 != mint2)
+	 * bool = (mint1 != mint2)
 	 * 
-	 * [ ..., mint1, mint2 ] => [ ..., mbool ]
+	 * [ ..., mint1, mint2 ] => [ ..., bool ]
 	 *
 	 */
 	not_equal_mint_mint {
@@ -1496,11 +1586,12 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool2 = !mbool1
+	 * bool2 = !bool1
 	 * 
-	 * [ ..., mbool1 ] => [ ..., mbool2 ]
+	 * [ ..., bool1 ] => [ ..., bool2 ]
 	 *
 	 */
+	// TODO: move to RascalPrimitive?
 	not_mbool {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -1511,9 +1602,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = IList2 is a sublist of IList1 at start
+	 * bool = IList2 is a sublist of IList1 at start
 	 * 
-	 * [ ..., IList1, IList2, start ] => [ ..., mbool ]
+	 * [ ..., IList1, IList2, start ] => [ ..., bool ]
 	 */
 	occurs_list_list_mint {
 		@Override
@@ -1550,11 +1641,13 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool3 = (mbool1 || mbool2)
+	 * bool3 = (bool1 || bool2)
 	 * 
-	 * [ ..., mbool1, mbool2 ] => [ ..., mbool3 ]
+	 * [ ..., bool1, bool2 ] => [ ..., bool3 ]
 	 *
 	 */
+	
+	// TODO: move to RascalPrimitive?
 	or_mbool_mbool {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
@@ -1621,7 +1714,6 @@ public enum MuPrimitive {
 				try {
 					TreeAdapter.unparse(c, w);
 				} catch (FactTypeUseException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				subject = w.toString();
@@ -1672,7 +1764,7 @@ public enum MuPrimitive {
 	/**
 	 * Find next RegExp match
 	 * 
-	 * [ ..., Matcher ] => [ ..., mbool ]
+	 * [ ..., Matcher ] => [ ..., bool ]
 	 */
 	regexp_find {
 		@Override
@@ -1758,9 +1850,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = (ISet < mset)
+	 * bool = (ISet < mset)
 	 *
-	 * [ ..., ISet, mset ] => [ ..., mbool ]
+	 * [ ..., ISet, mset ] => [ ..., bool ]
 	 */
 	set_is_subset_of_mset {
 		@Override
@@ -1909,7 +2001,7 @@ public enum MuPrimitive {
 	/**
 	 * 	IList2 occurs as subslist in IList1 at position start
 	 * 
-	 * [ ..., IList1, IList2, start] => [ ..., mbool ]
+	 * [ ..., IList1, IList2, start] => [ ..., bool ]
 	 *
 	 */
 	starts_with {
@@ -1964,6 +2056,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	
 	/**
 	 * Object = array[int]
 	 * 
@@ -2028,8 +2121,8 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = IString2 is tail of IString1 at start
-	 *	[ ..., IString1, IString2, start ] => [ ..., mbool ]
+	 * bool = IString2 is tail of IString1 at start
+	 *	[ ..., IString1, IString2, start ] => [ ..., bool ]
 	 */
 	is_tail_str_str_mint {
 		@Override
@@ -2062,9 +2155,9 @@ public enum MuPrimitive {
 	},
 	
 	/**
-	 * mbool = Type1 < Type2
+	 * bool = Type1 < Type2
 	 * 
-	 * [ ..., Type1, Type2 ] => [ ..., mbool ]
+	 * [ ..., Type1, Type2 ] => [ ..., bool ]
 	 */
 	subtype {
 		@Override
@@ -2078,7 +2171,7 @@ public enum MuPrimitive {
 	/**
 	 * Get type of an IValue or mint
 	 * 
-	 * [ ..., IValueOrMint ] => [ ..., mbool ]
+	 * [ ..., IValueOrMint ] => [ ..., bool ]
 	 */
 	typeOf {
 		@Override
@@ -2181,7 +2274,7 @@ public enum MuPrimitive {
 				stack[sp - 1] = Rascal_TRUE;
 				return sp;
 			}
-			for(int i = cursor; i < len; i++){				// Check wether only nullables follow
+			for(int i = cursor; i < len; i++){				// Check whether only nullables follow
 				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
 					stack[sp - 1] = Rascal_FALSE;
 					return sp;
@@ -2194,20 +2287,31 @@ public enum MuPrimitive {
 	
 	;
 
-	private static IValueFactory vf;
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	// Changed values to public (Ferry)
 	public static final MuPrimitive[] values = MuPrimitive.values();
+	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 	
-	private static IBool Rascal_TRUE;
-	private static IBool Rascal_FALSE;
+	private static final IBool Rascal_TRUE = vf.bool(true);
 	
-	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
+	private static final IBool Rascal_FALSE = vf.bool(false);
 	
-	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap= new HashMap<IString,DescendantDescriptor>();
+	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>();
 	
-	private static long timeSpent[];
+	private static final boolean profileMuPrimitives = false;
+
+	private static final long timeSpent[] = new long[values.length];
+	
+	// TODO: remaining global state, remove
+	
+	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap = new HashMap<IString,DescendantDescriptor>();
+	
+	private static RascalExecutionContext rex;
+	
+	public static RascalExecutionContext getRascalExecutionContext() { return rex; }
+	
+	public static void setRascalExecutionContext(RascalExecutionContext otherRex) { rex = otherRex; }
 	
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
@@ -2221,27 +2325,18 @@ public enum MuPrimitive {
 		System.err.println("Not implemented mufunction");
 		return 0;
 	}
-	/**
-	 * Initialize the primitive methods.
-	 * 
-	 * @param fact the value factory to be used
-	 */
-	public static void init(IValueFactory fact) {
-		vf = fact;
-		Rascal_TRUE = vf.bool(true);
-		Rascal_FALSE = vf.bool(false);
-		timeSpent = new long[values.length];
-	}
 	
 	public static void recordTime(int n, long duration){
 		timeSpent[n] += duration;
 	}
 
 	public static void exit(PrintWriter out) {
-		//printProfile(out);
+		if(profileMuPrimitives){
+			printProfile(out);
+		}
 	}
 	
-	private static void printProfile(PrintWriter out){
+	static void printProfile(PrintWriter out){
 		out.println("\nMuPrimitive execution times (ms)");
 		long total = 0;
 		TreeMap<Long,String> data = new TreeMap<Long,String>();
@@ -2271,18 +2366,58 @@ public enum MuPrimitive {
 		return false;
 	}
 	
-//	private static boolean $is_layout(final IValue v){
-//		if (isNonTerminalType(v.getType())) {
-//			return TreeAdapter.isLayout((ITree) v);
-//		}
-//		return false;
-//	}
-	
 	private static boolean $is_nullable(final IValue v){
 		if (v instanceof ITree) {
 			return TreeAdapter.getArgs((ITree) v).length() == 0;
 		}
 		return false;
+	}
+	
+	private static Map<String,IValue> $getAllKeywordParameters(IValue v){
+		Type tp = v.getType();
+		
+		if(tp.isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			if(cons.mayHaveKeywordParameters()){
+				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
+				String consName = cons.getName();
+				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
+				if(getDefaults != null){
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+					
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
+
+					HashMap<String, IValue> allKwArgs = new HashMap<>();
+					for(String key : defaults.keySet()){
+						IValue val = setKwArgs.get(key);
+						if(val != null){
+							allKwArgs.put(key,  val);
+						} else {
+							allKwArgs.put(key, defaults.get(key).getValue());
+						}
+					}
+					return allKwArgs;
+					
+				}
+			} else {
+				return emptyKeywordMap;
+			}
+		}
+		
+		if(tp.isNode()){
+			INode nd = (INode) v;
+			if(nd.mayHaveKeywordParameters()){
+				return nd.asWithKeywordParameters().getParameters();
+			} else {
+				return emptyKeywordMap;
+			}
+		}
+		
+		throw new CompilerError("getAllKeywordParameters");
 	}
 }
 

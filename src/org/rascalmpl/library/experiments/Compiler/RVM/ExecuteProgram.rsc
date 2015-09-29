@@ -9,7 +9,7 @@ import Type;
 public java value executeProgram(
                     loc rvmProgramLoc,
                     RVMProgram rvmProgram,
-					list[value] arguments, 
+					map[str,value] keywordArguments, 
 					bool debug, 
 					bool testsuite,
 					bool profile,
@@ -23,7 +23,7 @@ public java value executeProgram(
 @reflect{Uses execution context}
 public java value executeProgram(
                     loc rvmExecutableLoc,
-					list[value] arguments, 
+					map[str,value] keywordArguments, 
 					bool debug, 
 					bool testsuite,
 					bool profile,

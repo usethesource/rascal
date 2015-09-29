@@ -23,8 +23,6 @@ import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-import Ambiguity;
-
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
 loc RVMModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
@@ -55,11 +53,11 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
    	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
    	    start_checking = cpuTime();
    		M = parse(#start[Module], moduleLoc).top;
-   		dia = diagnose(M);
-        if(dia != []){                          // TODO Temporary defense against ambiguities
-           iprintln(dia);
-           throw  "*** Ambiguities in muRascal code, see above report";
-        }
+   		//dia = diagnose(M);
+     //   if(dia != []){                          // TODO Temporary defense against ambiguities
+     //      iprintln(dia);
+     //      throw  "*** Ambiguities in muRascal code, see above report";
+     //   }
    		//M = parseModuleAndGetTop(moduleLoc);
    	    config  = checkModule(M, newConfiguration(), verbose=verbose, bindir=bindir);
    	    println("Checking <moduleLoc>: <(cpuTime() - start_checking)/1000000> ms");

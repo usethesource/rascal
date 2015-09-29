@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -65,6 +66,7 @@ public class StandardLibraryContributor implements
 			l.add(vf.sourceLocation("cwd","",""));
 			l.add(vf.sourceLocation("std","",""));
 			l.add(vf.sourceLocation("testdata","",""));
+		    l.add(vf.sourceLocation("test-modules","",""));
 			l.add(vf.sourceLocation("benchmarks","",""));
 		}
 		catch (URISyntaxException e) {
