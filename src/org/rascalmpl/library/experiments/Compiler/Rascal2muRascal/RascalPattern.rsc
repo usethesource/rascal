@@ -558,22 +558,6 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma option
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
 
-// TODO: extend the following with all pattern cases, however this requires translating 
-// from expression to pattern!
-
-//MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = translateLitPat(lit);
-//
-//MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) = translateQualifiedNamePat(name);
-//
-//default MuExp translatePatKWValue(e: (Expression) `<Expression exp>`) {
-//  if(isConstant(exp)){
-//     return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(getConstantValue(exp))]);
-//  } else {
-//    throw "Non-constant expressions in keyword parameters not yet supported";
-//  }
-//}
-
-
 // -- set pattern ----------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType) = translateSetPat(p, subjectType);
