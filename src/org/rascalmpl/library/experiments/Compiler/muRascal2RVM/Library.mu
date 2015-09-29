@@ -442,11 +442,6 @@ guard
 {
     var args 
     
-    //if(equal(iName, get_name(iSubject))) {
-    //    args = get_children_and_keyword_mmap(iSubject);
-    //    MATCH_N(pats, args)
-    //    exhaust
-    //}
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators_with_keyword_map(iSubject)
         MATCH_N(pats, args)
@@ -466,10 +461,6 @@ guard
         MATCH_N(pats, args)
         exhaust
     }
-    if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators_without_keyword_map(iSubject)
-        MATCH_N(pats, args)
-   }
 }
 
 // Match a concrete call pattern with a simple string as function symbol, without keyword fields
@@ -480,11 +471,6 @@ guard
 {
     var args 
     
-    //if(equal(iName, get_name(iSubject))) {
-    //    args = get_children(iSubject);
-    //    MATCH_N(pats, args)
-    //    exhaust
-    //}
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators_without_keyword_map(iSubject)
         MATCH_N(pats, args)
@@ -509,7 +495,7 @@ guard
     iSubject is node
 {
     var args = get_name_and_children(iSubject)
-    //println("MATCH_CALL_OR_TREE", args)
+    //println("MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS", args)
     MATCH_N(pats, args)
 }
 
