@@ -230,6 +230,7 @@ public class ExecuteProgram {
 				int n = 0;
 				for(String uid_testsuite: executable.getTestSuites()){
 					//RascalPrimitive.reset();
+					rex.resetCaches();
 					System.out.println("Testsuite: " + uid_testsuite);
 					IList test_results = (IList)rvm.executeProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
 					w.insertAll(test_results);
