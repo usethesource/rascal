@@ -6917,7 +6917,7 @@ public enum RascalPrimitive {
 	},
 	
 	/**
-	 * Is a named field of a constructor defined? Returns fale when:
+	 * Is a named field of a constructor defined? Returns false when:
 	 * - constructor does not have the field
 	 * - the field is a default field with unset value.
 	 * 
@@ -6977,6 +6977,46 @@ public enum RascalPrimitive {
 							}
 						}
 					}
+				}
+				
+			// Final resort: an unset default field: fall through and return false
+				
+			} catch(FactTypeUseException e) {
+				
+			}
+			temp_array_of_2[0] = Rascal_FALSE;
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
+	/**
+	 * Is a named field of a node defined? Returns true when:
+	 * - the field is a default field with set value.
+	 * 
+	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., bool ]
+	 */
+	is_defined_node_field_access_get {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			INode nd = (INode) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			
+			try {
+				
+				// A default field that was set?
+				
+				IValue v = null;
+				if(nd.mayHaveKeywordParameters()){
+					v = nd.asWithKeywordParameters().getParameter(fieldName);
+				}
+				if(v != null){
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = v;
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
 				}
 				
 			// Final resort: an unset default field: fall through and return false

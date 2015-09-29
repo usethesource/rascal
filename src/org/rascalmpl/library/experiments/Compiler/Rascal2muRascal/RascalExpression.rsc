@@ -1625,6 +1625,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression@\loc);
+    println("field access: <tp>");
  
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
@@ -1633,6 +1634,7 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
       return muCallPrim3("nonterminal_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
    }
    op = getOuterType(expression);
+   println("field access: <op>");
    if(op == "adt"){
        cde = getConstantConstructorDefaultExpressions(expression@\loc);
        return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")), muCon(cde) ], e@\loc);
@@ -1748,7 +1750,7 @@ private MuExp translateIsDefined(Expression exp){
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
 		case (Expression) `<Expression expression> . <Name field>`:
-		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
+		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
