@@ -269,7 +269,7 @@ public enum MuPrimitive {
 			IConstructor prod = (IConstructor) cons.get(0);
 			IList args = (IList) cons.get(1);
 			IConstructor symbol = (IConstructor) prod.get(0);
-			
+
 			int step = RascalPrimitive.$getIterDelta(symbol);
 			if(step < 0) step = 2;
 			
@@ -452,7 +452,7 @@ public enum MuPrimitive {
 			String[] keywords = (String[]) stack[sp - 2];
 			Object[] values = (Object[]) stack[sp - 1];
 			assert keywords.length == values.length;
-			Map<String,IValue> mmap = new HashMap<String,IValue>();
+			Map<String,IValue> mmap = new HashMap<String,IValue>(keywords.length);
 			for(int i = 0; i< keywords.length; i++){
 				mmap.put(keywords[i], (IValue) values[i]);
 			}
@@ -1091,10 +1091,10 @@ public enum MuPrimitive {
 			assert arity >= 0;
 			
 			if(arity == 0){
-				stack[sp] = new HashMap<String, IValue>();
+				stack[sp] = new HashMap<String, IValue>(0);
 				return sp + 1;
 			}
-			Map<String, IValue> writer = new HashMap<String, IValue>();
+			Map<String, IValue> writer = new HashMap<String, IValue>((arity+1)/2);
 			for (int i = arity; i > 0; i -= 2) {
 				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
 			}
@@ -2297,7 +2297,7 @@ public enum MuPrimitive {
 	
 	private static final IBool Rascal_FALSE = vf.bool(false);
 	
-	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>();
+	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>(0);
 	
 	private static final boolean profileMuPrimitives = false;
 
@@ -2391,7 +2391,7 @@ public enum MuPrimitive {
 					@SuppressWarnings("unchecked")
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
 
-					HashMap<String, IValue> allKwArgs = new HashMap<>();
+					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
 					for(String key : defaults.keySet()){
 						IValue val = setKwArgs.get(key);
 						if(val != null){
@@ -2400,6 +2400,8 @@ public enum MuPrimitive {
 							allKwArgs.put(key, defaults.get(key).getValue());
 						}
 					}
+					System.err.print(", returns " + allKwArgs);
+					
 					return allKwArgs;
 					
 				}
