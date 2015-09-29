@@ -198,11 +198,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
 	
-	private final Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().build();
+	private Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().build();
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		String key = name + ftype;
 		return companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+	}
+	
+	public void resetCaches(){
+		companionDefaultFunctionCache = Caffeine.newBuilder().build();
 	}
 	
 	boolean bootstrapParser(String moduleName){
