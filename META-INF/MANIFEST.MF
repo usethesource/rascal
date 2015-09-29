@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BuddyPolicy: registered
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
@@ -88,6 +89,10 @@ Export-Package:
  org.rascalmpl.test.infrastructure,
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
+ org.rascalmpl.uri.file,
+ org.rascalmpl.uri.jar,
+ org.rascalmpl.uri.libraries,
+ org.rascalmpl.uri.remote,
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,

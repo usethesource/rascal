@@ -26,7 +26,7 @@ import util::UUID;
 import util::Math;
 
 public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = [], list[str] syntaxDecls = []) {
-    str modName = "CheckStatementsString<abs(uuidi())>";
+    str modName = "CheckStatementsString";
     
 	str moduleToCheck =
 		"module <modName>

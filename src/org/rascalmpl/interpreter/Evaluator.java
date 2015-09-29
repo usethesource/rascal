@@ -215,7 +215,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new NullPointerException();
 		}
 		
-
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}

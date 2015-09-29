@@ -73,9 +73,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * and returns a new stack pointer (an index in 'stack'). 
  * 
  * 'execute' is only allowed to make modifications to the stack.
- */
-
-/*
+ *
  * This enumeration is organized in the following sections:
  * - Creation of values and some utilities on them (~ line 90)
  * - Readers and writers (~ line 605)
@@ -90,6 +88,15 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * - Type reachability for descendant match (~ line 8792)
  * - Miscellaneous  (~ line 8871)
  * - Initialization and auxiliary functions (> line 9000)
+ * 
+ * Some further clarifications:
+ * - Completely generic primitives like 'add', 'subtract', and 'join' are needed
+ *   in cases where they operate on a parameter type. For a function that uses 
+ *   one or more type parameters, still a single translation is generated that 
+ *   is shared across all type instantiations of the parameters. Under those circumstances,
+ *   there is no static knowldege of the argument types of these primitives and they have to
+ *   determined at run-time.
+ * 
  */
 
 public enum RascalPrimitive {
@@ -715,6 +722,9 @@ public enum RascalPrimitive {
 	 * }
 	 */
 
+	/**
+	 * See general remark about generic primitives
+	 */
 	add {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -1382,6 +1392,10 @@ public enum RascalPrimitive {
 	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * }
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 	subtract {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -1853,6 +1867,10 @@ public enum RascalPrimitive {
 	 *		set[&L] x set[&R]                    -> rel[&L,&R]
 	 * }
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 	product {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -2217,6 +2235,9 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 % val2 ]
 	 */
+	/**
+	 * See general remark about generic primitives
+	 */
 	remainder {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -2256,6 +2277,9 @@ public enum RascalPrimitive {
 	 * }
 	 */
 
+	/**
+	 * See general remark about generic primitives
+	 */
 	compose {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -2329,6 +2353,10 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue val1, IValue val2] => [ ..., val1 mod val2]
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 	mod {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -2361,6 +2389,10 @@ public enum RascalPrimitive {
 	 *  * [ ... IValue val1, IValue val2] => [ ..., val1 / val2]
 	 * 
 	 * infix Division "/" { &L <: num x &R <: num        -> LUB(&L, &R) }
+	 */
+	
+	/**
+	 * See general remark about generic primitives
 	 */
 
 	divide {
@@ -2987,6 +3019,10 @@ public enum RascalPrimitive {
 	 * equal on arbitrary types
 	 * 
 	 * [ ... IValue val1, IValue val2] => [ ..., val1 == val2]
+	 */
+	
+	/**
+	 * See general remark about generic primitives
 	 */
 	equal {
 		@Override
@@ -3862,6 +3898,10 @@ public enum RascalPrimitive {
 	 * 		map[&K1,&V1] x map[&K2,&V2]          -> map[LUB(&K1,&K2), LUB(&V1,&V2)]
 	 * } 
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 
 	intersect {
 		@Override
@@ -4022,6 +4062,10 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 in val2 ]
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 	in {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -4126,6 +4170,9 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 notin val2 ]
 	 */	
+	/**
+	 * See general remark about generic primitives
+	 */
 	notin {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -4238,9 +4285,11 @@ public enum RascalPrimitive {
 	},
 
 	// ==== join
-
-	// Generic join
-	// TODO note: how can join not know the types of its arguments yet?
+	
+	/**
+	 * See general remark about generic primitives
+	 */
+	
 	join {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -4251,7 +4300,6 @@ public enum RascalPrimitive {
 			IValue right = (IValue) stack[sp - 2];
 			Type rightType = right.getType();
 
-			// TODO: why dynamic dispatch here if the type checker should know about these cases?
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -4569,6 +4617,10 @@ public enum RascalPrimitive {
 	 * less-than on arbitrary values
 	 * 
 	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 < val2 ]
+	 */
+	
+	/**
+	 * See general remark about generic primitives
 	 */
 	less {
 		@Override
@@ -5190,6 +5242,10 @@ public enum RascalPrimitive {
 	 * less-than-or-equal on arbitrary values
 	 * 
 	 * [ ... IValue val1, IValue val2 ] => [ ..., val1 <= val2 ]
+	 */
+	
+	/**
+	 * See general remark about generic primitives
 	 */
 	lessequal {
 		@Override
@@ -5852,6 +5908,10 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IValue val1, IValue val2 ] => [ ..., val1 != val2 ]
 	 */
+	
+	/**
+	 * See general remark about generic primitives
+	 */
 	notequal {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
@@ -6093,6 +6153,10 @@ public enum RascalPrimitive {
 	 * [ ..., IValue val ] => [ ..., -val ]
 	 * 
 	 * prefix UnaryMinus "-" { &L <: num -> &L }
+	 */
+	
+	/**
+	 * See general remark about generic primitives
 	 */
 	negative {
 		@Override
@@ -6764,25 +6828,44 @@ public enum RascalPrimitive {
 	adt_field_access {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor cons = (IConstructor) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+			assert arity == 3;
+			IConstructor cons = (IConstructor) stack[sp - 3];
+			IString field = ((IString) stack[sp - 2]);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
 			
 			try {
-				if(tp.hasField(fieldName)){	// A positional field
-					int fld_index = tp.getFieldIndex(fieldName);
-					stack[sp - 2] = cons.get(fld_index);
-					return sp - 1;
+				
+				// A positional field?
+				
+				if(tp.hasField(fieldName)){	
+					stack[sp - 3] = cons.get(fieldName);
+					return sp - 2;
 				} 
+				
+				// A default field that was set?
+				
 				IValue v = null;
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v != null){				// A default field that was set
-					stack[sp - 2] = v;
-					return sp - 1;
+				if(v != null){				
+					stack[sp - 3] = v;
+					return sp - 2;
+				}
+				
+				// A default field that was not set but has a constant value?
+				
+				String consName = cons.getName();
+				IMap constructorConstantDefaultExpressions = (IMap) stack[sp - 1];
+				IMap constantFields = (IMap) constructorConstantDefaultExpressions.get(vf.string(consName));
+				
+				if(constantFields != null){
+					IValue constantValue = constantFields.get(vf.string(fieldName));
+					if(constantValue != null){
+						stack[sp - 3] = constantValue;
+						return sp - 2;
+					}
 				}
 				
 				// TODO jurgen rewrite to ITree API
@@ -6797,24 +6880,32 @@ public enum RascalPrimitive {
 							IConstructor arg = (IConstructor) prod_symbols.get(i);
 							if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 								if(((IString) arg.get(0)).equals(field)){
-									stack[sp - 2] = appl_args.get(i);
-									return sp - 1;
+									stack[sp - 3] = appl_args.get(i);
+									return sp - 2;
 								}
 							}
 						}
 					}
 				}
 				
-				// Final resort: an unset default field
-				String consName = cons.getName();
-				Function getDefaults = rex.getFunction(consName, tp);
+				// Final resort: an unset default field with a computed value?
+				
+				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				if(getDefaults != null){
+
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+
+					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
+
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, new IValue[0], emptyMap);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, kwArgs);
 					Entry<Type, IValue> def = defaults.get(fieldName);
 					if(def != null){
-						stack[sp - 2] = def.getValue();
-						return sp - 1;
+						stack[sp - 3] = def.getValue();
+						return sp - 2;
 					}
 				}
 				
@@ -6842,18 +6933,24 @@ public enum RascalPrimitive {
 			Type tp = cons.getConstructorType();
 			
 			try {
-				if(tp.hasField(fieldName)){	// A positional field
+				
+				// A positional field?
+				
+				if(tp.hasField(fieldName)){	
 					temp_array_of_2[0] = Rascal_TRUE;
 					int fld_index = tp.getFieldIndex(fieldName);
 					temp_array_of_2[1] = cons.get(fld_index);
 					stack[sp - 2] = temp_array_of_2;
 					return sp - 1;
 				} 
+				
+				// A default field that was set?
+				
 				IValue v = null;
 				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
-				if(v != null){				// A default field that was set
+				if(v != null){
 					temp_array_of_2[0] = Rascal_TRUE;
 					temp_array_of_2[1] = v;
 					stack[sp - 2] = temp_array_of_2;
@@ -6882,7 +6979,7 @@ public enum RascalPrimitive {
 					}
 				}
 				
-				// Final resort: an unset default field: fall through and return false
+			// Final resort: an unset default field: fall through and return false
 				
 			} catch(FactTypeUseException e) {
 				
@@ -8035,7 +8132,7 @@ public enum RascalPrimitive {
 			IList nonterm_args = (IList) nonterm.get("args");
 			//			stdout.println("nonterm_args = " + nonterm_args);
 
-			if($getIter((IConstructor) ((IConstructor) nonterm.get("prod")).get(0)) >= 0){
+			if($getIterDelta((IConstructor) ((IConstructor) nonterm.get("prod")).get(0)) >= 0){
 				for(IValue v : nonterm_args) {
 					//					stdout.println("append: " + v);
 					writer.append(v);
@@ -8571,36 +8668,19 @@ public enum RascalPrimitive {
 			IList appl_args = (IList) appl.get("args");
 			IConstructor prod = (IConstructor) appl.getProduction();
 			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-			int delta = $getIter(symbol);
+			int delta = $getIterDelta(symbol);
 			if(delta < 0){
 				if(appl_args.length() == 1){
 					IConstructor child = (IConstructor) appl_args.get(0);
 					prod = (IConstructor) child.get("prod");
 					symbol = $removeLabel((IConstructor) prod.get("def"));
 					appl_args = (IList) child.get(1);
-					delta = $getIter(symbol);
+					delta = $getIterDelta(symbol);
 					if(delta < 0){
 						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
 					}
 				}
 			}
-			//			IConstructor appl = (IConstructor) stack[sp - 2];
-			//			IList appl_args = (IList) appl.get("args");
-			//			IConstructor prod = (IConstructor) appl.get("prod");
-			//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-			//			int delta = $getIter(symbol);
-			//			if(delta < 0){
-			//				if(appl_args.length() == 1){
-			//					IConstructor child = (IConstructor) appl_args.get(0);
-			//					prod = (IConstructor) child.get("prod");
-			//					symbol = $removeLabel((IConstructor) prod.get("def"));
-			//					appl_args = (IList) child.get(1);
-			//					delta = $getIter(symbol);
-			//					if(delta < 0){
-			//					  throw new CompilerError("subscript not supported on " + symbol, currentFrame);
-			//					}
-			//				}
-			//			}
 			int index = ((IInteger) stack[sp - 1]).intValue();
 			stack[sp - 2] = appl_args.get(index * delta);
 			return sp - 1;
@@ -9639,12 +9719,13 @@ public enum RascalPrimitive {
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
 
-	private static int $getIter(final IConstructor cons){
-		// TODO: optimize away string equality
-		switch(cons.getName()){
-		case "iter": case "iter-star":
+	static int $getIterDelta(final IConstructor cons){
+		Type tp = cons.getConstructorType();
+		if(tp == RascalValueFactory.Symbol_IterPlus || tp == RascalValueFactory.Symbol_IterStar){
 			return 2;
-		case "iter-seps": case "iter-star-seps":
+		}
+		
+		if(tp == RascalValueFactory.Symbol_IterSepX || tp == RascalValueFactory.Symbol_IterStarSepX){
 			return 4;
 		}
 		return -1;

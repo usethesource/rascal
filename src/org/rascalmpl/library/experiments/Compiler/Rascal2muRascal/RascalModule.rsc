@@ -40,36 +40,6 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /*                  Translate one module                            */
 /********************************************************************/
 
-//@doc{Compile a Rascal source module (given as string) to muRascal}
-//MuModule r2mu(str moduleStr){
-//	return r2mu(parse(#start[Module], moduleStr).top); // .top is needed to remove start! Ugly!
-//}
-//
-//@doc{Compile a Rascal source module (given at a location) to muRascal}
-//MuModule r2mu(loc moduleLoc){
-//    //println(readFile(moduleLoc));   
-//   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-//}
-//
-//MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
-//   	Configuration config;
-//   	try {
-//   	    config  = checkModule(M, newConfiguration());
-//   	} catch e: {
-//   	    throw e;
-//   	}
-//   	// Uncomment to dump the type checker configuration:
-//   	//text(config);
-//   	errors = [ e | e:error(_,_) <- config.messages];
-//   	warnings = [ w | w:warning(_,_) <- config.messages ];
-//   
-//   	if(size(errors) > 0) {
-//   	    return errorMuModule("<M.header.name>", config.messages, M@\loc);
-//   	 }
-//   	 
-//   	 return r2mu(M, config);
-//}
-
 @doc{Compile a parsed Rascal source module to muRascal}
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
    try {
@@ -156,6 +126,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
          tuple[str fuid,int pos] addr = uid2addr[uid];
          int nformals = size(\type.parameters) + 1;
+         int defaults_pos = nformals;
         
          enterFunctionScope(fuid);
          
@@ -169,9 +140,10 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
         // Create companion for computing defaults
         
          str fuidDefaults = getCompanionDefaultsForUID(uid);
-         Symbol ftypeDefaults = Symbol::func(\map(\str(),\value()), [ ]);
+
          tuple[str fuid,int pos] addrDefaults = uid2addr[uid];
-         int defaults_pos = 0;
+         addrDefaults.fuid = fuidDefaults;
+         
          enterFunctionScope(fuidDefaults);
          
          list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
@@ -190,7 +162,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);
          
          leaveFunctionScope();
-         addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, 1, 2, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+         addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
          
      }
    	 				  

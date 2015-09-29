@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
@@ -347,13 +348,37 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
-	public Function getFunction(String name, Type ftype){
-		System.err.println("getFunction: " + name + ", " + ftype + ", " + ftype.getAbstractDataType());
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		all:
+			for(Function f : functionStore){
+				if(f.name.contains("companion-defaults") && f.name.contains("::" + name + "(")){
+					FunctionType ft = (FunctionType) f.ftype;
+					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
+						if(ftype.isAbstractData()){
+							return f;
+						}
+						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
+							for(int i = 0; i < ftype.getFieldTypes().getArity(); i++){
+								if(!ftype.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+									continue all;
+								}
+							}
+							return f;
+						}
+					}
+				}
+			}
+	return null;
+	}
+	
+	public Function getFunction(String name, Type returnType, Type argumentTypes){
 		for(Function f : functionStore){
-			if(f.name.contains("companion-defaults") && f.name.contains("::" + name)){
-				System.err.println(f.name + ": " + f.ftype);
-				// TODO: check types
-				return f;
+			if(f.name.contains("/" + name + "(")){
+				FunctionType ft = (FunctionType) f.ftype;
+				if(returnType.equals(ft.getReturnType()) &&
+				   argumentTypes.equals(ft.getArgumentTypes())){
+					return f;
+				}
 			}
 		}
 		return null;
@@ -363,37 +388,37 @@ public class RVM implements java.io.Serializable {
 	 * execute a single function, on-overloaded, function
 	 * 
 	 * @param uid_func	Internal function name
-	 * @param args		Argumens
+	 * @param posArgs		Arguments
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public Object executeFunction(String uid_func, IValue[] args, IMap kwArgs){
+	public Object executeFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
-		return executeFunction(func, args, kwArgs);
+		return executeFunction(func, posArgs, kwArgs);
 	}
 	
 	/**
 	 * execute a single function, on-overloaded, function
 	 * 
 	 * @param uid_func	Internal function name
-	 * @param args		Argumens
+	 * @param posArgs		Argumens
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public Object executeFunction(Function func, IValue[] args, IMap kwArgs){
+	public Object executeFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		Frame cf = root;
 		
 		// Pass the program arguments to main
-		for(int i = 0; i < args.length; i++){
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++){
+			cf.stack[i] = posArgs[i]; 
 		}
-		cf.stack[func.nformals-1] =  new HashMap<String, IValue>();
-		cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
+		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -670,8 +695,8 @@ public class RVM implements java.io.Serializable {
 			if (f.scopeId == varScope) {	
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+						Map<String, IValue> kargs = (Map<String,IValue>) okargs;
 						if(kargs.containsKey(name)) {
 							IValue val = kargs.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -702,8 +727,8 @@ public class RVM implements java.io.Serializable {
 			if (f.scopeId == varScope) {
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+						Map<String, IValue> kargs = (Map<String,IValue>) f.stack[f.function.nformals - 1];
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -716,7 +741,8 @@ public class RVM implements java.io.Serializable {
 						if(defaults.containsKey(name)) {
 							Entry<Type, IValue> defaultValue = defaults.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							stack[sp++] = defaultValue.getValue();
+							kargs.put(name,val);
+							stack[sp++] = val;
 							return sp;
 							//}
 						}
@@ -730,12 +756,15 @@ public class RVM implements java.io.Serializable {
 	int LOADLOCKWP(String name, Frame cf, Object[] stack, int sp){
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 		Map.Entry<Type, IValue> defaultValue = defaults.get(name);
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		Frame f = cf;
+		
+		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
+		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
 			int nf = f.function.nformals;
 			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
 				Object okargs = f.stack[nf - 1];
-				if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-					HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
 					if(kargs.containsKey(name)) {
 						IValue val = kargs.get(name);
 						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -745,7 +774,7 @@ public class RVM implements java.io.Serializable {
 					}
 				}
 			}
-		}				
+		//}				
 		stack[sp++] = defaultValue.getValue();
 		return sp;
 	}
