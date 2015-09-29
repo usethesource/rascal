@@ -89,9 +89,7 @@ public class RVM implements java.io.Serializable {
 	
 	//private Frame currentFrame;	// used for profiling
 	private ILocationCollector locationCollector;
-	
-	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>();
-	
+		
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
@@ -998,7 +996,10 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADEMPTYKWMAP:
-					stack[sp++] = emptyKeywordMap;
+					// TODO: use unique copy of emptyKeywordMap and delay creation of new copy to assignment
+					// to keyword parameter
+					//stack[sp++] = emptyKeywordMap;
+					stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM:	
@@ -1713,7 +1714,7 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
+					Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
 					kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					
