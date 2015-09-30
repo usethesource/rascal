@@ -87,6 +87,8 @@ public class RVM implements java.io.Serializable {
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
+	private final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
+	
 	//private Frame currentFrame;	// used for profiling
 	private ILocationCollector locationCollector;
 		
