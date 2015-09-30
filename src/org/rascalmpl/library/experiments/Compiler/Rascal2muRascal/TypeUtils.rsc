@@ -117,6 +117,7 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 private set[UID] constructors = {};					// declared constructors
 
 private map[Symbol, map[str, map[str,value]]] constructorConstantDefaultExpressions;
+private map[Symbol, map[str,set[str]]] constructorFields;
 
 public bool isConstructor(UID uid) = uid in constructors;
 //public set[UID] getConstructors() = constructors;
@@ -213,6 +214,7 @@ public void resetScopeExtraction() {
 	defaultFunctions = {};
 	constructors = {};
 	constructorConstantDefaultExpressions = ();
+	constructorFields = ();
 	variables = {};
 	module_var_init_locals = ();
 	keywordParameters = {};
@@ -620,14 +622,33 @@ void extractScopes(Configuration c){
 
 void extractConstantDefaultExpressions(){
 
-    // TODO: the following hack is needed to convince the interpreter of the correct type.
-    constructorConstantDefaultExpressions = (adt("XXX", []) : ("c1" : ("f1": true, "f2" : 0)));
+     // TODO: the following hacks are needed to convince the interpreter of the correct type.
+     constructorConstantDefaultExpressions = (adt("XXX", []) : ("c1" : ("f1": true, "f2" : 0)));
+     constructorFields = (adt("XXX", []) : ("c1" : {"a", "b"}));
+     for(cuid <- constructors){
+        a_constructor = config.store[cuid];
+        consName = prettyPrintName(a_constructor.name);
+        if(a_constructor is constructor){
+           fieldSet = { fieldName | field <- a_constructor.rtype.parameters, label(fieldName, _) := field };
+           constructorFields[a_constructor.rtype.\adt] += (consName : fieldSet);
+        } else if (a_constructor is production){
+            pr = a_constructor.p;
+            fieldSet = { fieldName | field <- pr.symbols, label(fieldName, _) := field };
+            constructorFields[a_constructor.rtype] += (consName : fieldSet);
+        }  
+     }
      for(tp <- config.dataKeywordDefaults){
          uid = tp[0];
          the_constructor = config.store[uid];
          Symbol the_adt = the_constructor.rtype.\adt;
          str the_cons = the_constructor.rtype.name;
          str fieldName = prettyPrintName(tp[1]);
+         
+         map[str, set[str]] adtFieldMap = constructorFields[the_adt] ? ();
+         set[str] fieldSet = adtFieldMap[the_cons] ? {};
+         adtFieldMap[the_cons] = fieldSet + fieldName;
+         constructorFields += (the_adt : adtFieldMap);
+         
          defaultVal = tp[2];
          if(Expression defaultExpr := defaultVal &&  defaultExpr is literal){
             try {
@@ -766,6 +787,11 @@ KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].k
 map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
     tp = getType(location);
     return constructorConstantDefaultExpressions[tp] ? ();
+}
+
+map[str, set[str]] getAllConstructorFields(loc location){
+    tp = getType(location);
+    return constructorFields[tp] ? ();
 }
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
