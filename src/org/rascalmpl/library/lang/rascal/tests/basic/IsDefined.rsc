@@ -1,6 +1,10 @@
 module lang::rascal::tests::basic::IsDefined
 
 import Exception;
+import util::Math;
+import List;
+
+test bool isDefined0(list[int] L) = L == [] || L[arbInt(size(L))]?;
 
 test bool isDefined1() {
 	str trace = "";
