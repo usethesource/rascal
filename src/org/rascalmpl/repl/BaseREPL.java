@@ -5,6 +5,7 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import jline.console.history.FileHistory;
 import jline.internal.ShutdownHooks;
 import jline.internal.ShutdownHooks.Task;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
@@ -80,6 +82,12 @@ public abstract class BaseREPL {
       }
       
     }
+  }
+
+
+  public BaseREPL(InputStream in, PrintStream out, boolean prettyPrompt2,
+      boolean allowColors2, ISourceLocation iSourceLocation, Terminal terminal) {
+	  throw new RuntimeException("make it so davy");
   }
 
 
