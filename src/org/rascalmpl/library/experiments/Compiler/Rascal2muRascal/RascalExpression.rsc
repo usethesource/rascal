@@ -1715,8 +1715,11 @@ MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     					op = "nonterminal";
     	default:
      		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
-    }	
-    
+    }
+    if(op == "adt"){	
+        af = getAllConstructorFields(expression@\loc);
+        return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>")), muCon(af)], e@\loc);  
+    }
     return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc);				    
 }
 // -- transitive closure expression ---------------------------------
@@ -1748,7 +1751,7 @@ private MuExp translateIsDefined(Expression exp){
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
 		case (Expression) `<Expression expression> . <Name field>`:
-		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
+		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }

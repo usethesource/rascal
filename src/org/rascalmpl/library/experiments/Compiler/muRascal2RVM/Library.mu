@@ -415,7 +415,7 @@ guard {
     }   
 }
 
-// Match a call pattern with a simple string as function symbol
+// Match an (abstract or concrete) call pattern with a simple string as function symbol, with keyword fields
 
 coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
 guard
@@ -434,7 +434,21 @@ guard
     }
 }
 
-// Match a call pattern with a simple string as function symbol
+// Match a concrete call pattern with a simple string as function symbol, with keyword fields
+
+coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    var args 
+    
+    if(has_label(iSubject, iName)) {
+        args = get_children_without_layout_or_separators_with_keyword_map(iSubject)
+        MATCH_N(pats, args)
+    }
+}
+
+// Match an (abstract or concrete) call pattern with a simple string as function symbol, without keyword fields
 
 coroutine MATCH_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
 guard
@@ -447,13 +461,23 @@ guard
         MATCH_N(pats, args)
         exhaust
     }
+}
+
+// Match a concrete call pattern with a simple string as function symbol, without keyword fields
+
+coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    var args 
+    
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators_without_keyword_map(iSubject)
         MATCH_N(pats, args)
     }
 }
 
-// Match a call pattern with an arbitrary pattern as function symbol
+// Match a call pattern with an arbitrary pattern as function symbol, with keyword fields
 
 coroutine MATCH_CALL_OR_TREE(pats, iSubject)
 guard
@@ -471,7 +495,7 @@ guard
     iSubject is node
 {
     var args = get_name_and_children(iSubject)
-    //println("MATCH_CALL_OR_TREE", args)
+    //println("MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS", args)
     MATCH_N(pats, args)
 }
 

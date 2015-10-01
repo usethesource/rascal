@@ -67,6 +67,28 @@ public class PreludeCompiled extends Prelude {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+    public INode delAnnotations(INode node, RascalExecutionContext ctx) {
+        if (node.isAnnotatable()) {
+            return node.asAnnotatable().removeAnnotations();
+        }
+        else {
+            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
+            return node;
+        }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public INode delAnnotation(INode node, IString label, RascalExecutionContext ctx) {
+        if (node.isAnnotatable()) {
+            return node.asAnnotatable().removeAnnotation(label.getValue());
+        }
+        else {
+            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
+            return node;
+        }
+    }
+    
 	public void iprint(IValue arg, RascalExecutionContext rex){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		

@@ -158,7 +158,7 @@ public enum RascalPrimitive {
 			for(int i = 0; i < arity - 2; i ++){
 				args[i] = (IValue) stack[sp - arity + 1 + i];
 			}
-			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
+			stack[sp - arity] = vf.node(name, args, (Map<String, IValue>)stack[sp - 1]);
 			return sp - arity + 1;
 		}
 	},
@@ -6789,31 +6789,54 @@ public enum RascalPrimitive {
 	/**
 	 * Runtime check whether given constructor has a named field
 	 * 
-	 * [ ..., IConstructor cons, IString fieldName ] => [ ..., IBool true if cons does have fieldName ]
+	 * [ ..., IConstructor cons, IString fieldName, IMap fieldMap ] => [ ..., IBool true if cons does have fieldName ]
 	 */
 	adt_has_field {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor cons = (IConstructor) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+			assert arity == 3;
+			IConstructor cons = (IConstructor) stack[sp - 3];
+			IString field = ((IString) stack[sp - 2]);
 			String fieldName = field.getValue();
-			Type tp = cons.getConstructorType();
-			if (tp.hasField(fieldName) || (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameter(fieldName) != null)){
-				stack[sp - 2] = Rascal_TRUE;
-			} 
-			else {
+			IMap fieldNames = (IMap) stack[sp - 1];
+			
+			ISet fields = (ISet) fieldNames.get(vf.string(cons.getName()));
+			if(fields != null && fields.contains(field)){
+				stack[sp - 3] = Rascal_TRUE;
+			} else {
 				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
 					IConstructor prod = ((ITree) cons).getProduction();
 
 					for(IValue elem : ProductionAdapter.getSymbols(prod)) {
 						IConstructor arg = (IConstructor) elem;
 						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-							stack[sp - 2] = Rascal_TRUE;
-							return sp - 1;
+							stack[sp - 3] = Rascal_TRUE;
+							return sp - 2;
 						}
 					}
 				}
+				stack[sp - 3] = Rascal_FALSE;
+			}
+			return sp - 2;
+		}
+	},
+	
+	/**
+	 * Runtime check whether a node has a named field
+	 * 
+	 * [ ..., INode nd, IString fieldName ] => [ ..., IBool true if cons does have fieldName ]
+	 */
+	node_has_field {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			INode nd = (INode) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
+				stack[sp - 2] = Rascal_TRUE;
+			} 
+			else {
 				stack[sp - 2] = Rascal_FALSE;
 			}
 			return sp - 1;
@@ -6891,8 +6914,8 @@ public enum RascalPrimitive {
 				// Final resort: an unset default field with a computed value?
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
+				
 				if(getDefaults != null){
-
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -6917,7 +6940,7 @@ public enum RascalPrimitive {
 	},
 	
 	/**
-	 * Is a named field of a constructor defined? Returns fale when:
+	 * Is a named field of a constructor defined? Returns false when:
 	 * - constructor does not have the field
 	 * - the field is a default field with unset value.
 	 * 
@@ -6977,6 +7000,46 @@ public enum RascalPrimitive {
 							}
 						}
 					}
+				}
+				
+			// Final resort: an unset default field: fall through and return false
+				
+			} catch(FactTypeUseException e) {
+				
+			}
+			temp_array_of_2[0] = Rascal_FALSE;
+			stack[sp - 2] = temp_array_of_2;
+			return sp - 1;
+		}
+	},
+	
+	/**
+	 * Is a named field of a node defined? Returns true when:
+	 * - the field is a default field with set value.
+	 * 
+	 * [ ..., INode nd, IString fieldName ] => [ ..., bool ]
+	 */
+	is_defined_node_field_access_get {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			INode nd = (INode) stack[sp - 2];
+			IString field = ((IString) stack[sp - 1]);
+			String fieldName = field.getValue();
+			
+			try {
+				
+				// A default field that was set?
+				
+				IValue v = null;
+				if(nd.mayHaveKeywordParameters()){
+					v = nd.asWithKeywordParameters().getParameter(fieldName);
+				}
+				if(v != null){
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = v;
+					stack[sp - 2] = temp_array_of_2;
+					return sp - 1;
 				}
 				
 			// Final resort: an unset default field: fall through and return false
@@ -9719,7 +9782,7 @@ public enum RascalPrimitive {
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
 	}
 
-	static int $getIterDelta(final IConstructor cons){
+	static int $getIterDelta(final IConstructor cons){		
 		Type tp = cons.getConstructorType();
 		if(tp == RascalValueFactory.Symbol_IterPlus || tp == RascalValueFactory.Symbol_IterStar){
 			return 2;

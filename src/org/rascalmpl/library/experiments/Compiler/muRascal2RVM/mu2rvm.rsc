@@ -513,6 +513,7 @@ INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDIN
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
 INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
+INS tr(muCallMuPrim("make_mmap", [])) = [ LOADEMPTYKWMAP() ];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 

@@ -45,6 +45,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadEmptyKwMap;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
@@ -715,7 +716,7 @@ public class CodeBlock implements Serializable {
 		return add(new ResetLocs(this, getConstantIndex(positions)));
 	}
 	
-	public CodeBlock VISIT ( boolean direction, boolean progress, boolean fixedpoint, boolean rebuild){
+	public CodeBlock VISIT(boolean direction, boolean progress, boolean fixedpoint, boolean rebuild){
 		return add(new Visit(this, 
 				getConstantIndex(vf.bool(direction)),
 				getConstantIndex(vf.bool(progress)),
@@ -725,6 +726,10 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock CHECKMEMO(){
 		return add(new CheckMemo(this));
+	}
+	
+	public CodeBlock LOADEMPTYKWMAP(){
+		return add(new LoadEmptyKwMap(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
