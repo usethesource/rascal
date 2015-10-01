@@ -1,14 +1,5 @@
 module experiments::Compiler::Examples::Tst3
 
-value main( int counter = 0){
-   
-    void inc1(int counter = 10){
-        counter += 1;
-    }
-    void inc2(){
-        counter += 1;
-    }
-   inc1();
-   inc2();
-   return counter;
-}
+data D = d1() |  d2(int n) | d3(str s, bool b = true);
+
+value main() = d3("a") has b;
