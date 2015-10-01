@@ -76,17 +76,16 @@ public class ConstructorResult extends NodeResult {
 		try {
 			Type consType = getValue().getConstructorType();
 			ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
-			Type kwTypes = cons != null ? cons.getKeywordArgumentTypes(ctx.getCurrentEnvt()) : getTypeFactory().voidType();
 			
-			
-			if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
+			if (!getType().hasField(name, store) && !getType().hasKeywordField(name, store)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 
-			if (!consType.hasField(name) && !kwTypes.hasField(name)) {
+			if (!consType.hasField(name) && !consType.hasKeywordField(name, store)) {
 				throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 			}
 			
+			Type kwTypes = cons != null ? cons.getKeywordArgumentTypes(ctx.getCurrentEnvt()) : getTypeFactory().voidType();
 			if (kwTypes.hasField(name)) { // it's a keyword parameter
 				IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 				
