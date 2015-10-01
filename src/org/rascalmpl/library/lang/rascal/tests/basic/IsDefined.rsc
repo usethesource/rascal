@@ -100,21 +100,11 @@ data D = d1() | d2(int n) | d3(int n, str s = "abc");
 @expected{NoSuchField}
 test bool getField1() = d1().n == 0;
 
-@ignoreCompiler{Different exception}
-@expected{UndeclaredField}
-test bool getField2() = d1().s == "abc";
-
-@ignoreInterpreter{Different exception}
 @expected{NoSuchField}
 test bool getField2() = d1().s == "abc";
 
 test bool getField3() = d2(10).n == 10;
 
-@ignoreCompiler{Different exception}
-@expected{UndeclaredField}
-test bool getField4() = d2(10).s == "abc";
-
-@ignoreInterpreter{Different exception}
 @expected{NoSuchField}
 test bool getField4() = d2(10).s == "abc";
 
