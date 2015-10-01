@@ -1,12 +1,20 @@
 module util::REPL
 
+import Message;
 
-data REPLFeature
-  = inputProcessing(tuple[str result, str prompt] (str line) cmd)
-  | fragmentCompletion(tuple[int fragmentOffset, int fragmentLength, list[str] suggestions] (str line, int cursorOffset) completion)
-  | fileChanges(set[loc] () monitor, tuple[str result, str error] (loc changed) changed)
-  | style(bool prettyPrompt = true, bool allowColors = true, bool useVT102Features = true)
-  | title(str name)
+alias Completion
+ = tuple[int offset, list[str] suggestions];
+
+alias CommandResult
+  = tuple[str result, list[Message] messages, str prompt] 
   ;
 
-java void startREPL(str headerText, str initialPrompt, set[REPLFeature] features);
+data REPL
+  = repl(str title, str welcome, str prompt, loc history, 
+         CommandResult (str line) handler,
+         Completion(str line, int cursor) completor);
+
+
+@javaClass{org.rascalmpl.library.util.TermREPL}
+@reflect
+java void startREPL(REPL repl);
