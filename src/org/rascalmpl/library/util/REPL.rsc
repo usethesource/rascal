@@ -1,5 +1,6 @@
 module util::REPL
 
+import Message;
 
 alias Completion
  = tuple[int offset, list[str] suggestions];
@@ -15,5 +16,5 @@ data REPL
 
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
-@Reflective
+@reflect
 java void startREPL(REPL repl);
