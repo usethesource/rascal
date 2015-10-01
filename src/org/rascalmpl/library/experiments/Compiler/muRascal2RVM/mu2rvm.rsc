@@ -67,13 +67,13 @@ str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 
 // Manage locals
 
-int newLocal() {
+private int newLocal() {
     n = nlocal[functionScope];
     nlocal[functionScope] = n + 1;
     return n;
 }
 
-int newLocal(str fuid) {
+private int newLocal(str fuid) {
     n = nlocal[fuid];
     nlocal[fuid] = n + 1;
     return n;
@@ -81,10 +81,10 @@ int newLocal(str fuid) {
 
 // Manage temporaries
 
-map[tuple[str,str],int] temporaries = ();
-str asUnwrappedThrown(str name) = name + "_unwrapped";
+private map[tuple[str,str],int] temporaries = ();
+private str asUnwrappedThrown(str name) = name + "_unwrapped";
 
-int getTmp(str name, str fuid){
+private int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
    		return temporaries[<name,fuid>];
    n = newLocal(fuid);
@@ -877,7 +877,7 @@ INS tr_cond(muOne1(MuExp exp), str continueLab, str failLab, str falseLab) =
         JMPFALSE(falseLab)
       ];
 
-// muMultiL explore all successful evaluations
+// muMulti: explore all successful evaluations
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
@@ -891,26 +891,6 @@ INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
              JMPFALSE(falseLab)
            ];
 }
-
-// Specific to delimited continuations (experimental)
-//INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
-//    co = newLocal();
-//    return [ *tr(exp),
-//             RESET(),
-//             STORELOC(co),
-//             POP(),
-//             *[ LABEL(continueLab), LABEL(failLab) ],
-//             LOADLOC(co),
-//             CALL("Library/NEXT(1)",1),
-//             JMPFALSE(falseLab),
-//             LOADLOC(co),
-//             LOADCON("cont"),
-//             CALLPRIM("adt_field_access",2),
-//             CALLDYN(0),
-//             STORELOC(co),
-//             POP()
-//           ];
-//}
 
 default INS tr_cond(MuExp exp, str continueLab, str failLab, str falseLab) 
 	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];
