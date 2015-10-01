@@ -7403,7 +7403,7 @@ void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
 }
 
 public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
 }
 
 data IGComponent = singleton(RName item) | component(set[RName] items);
