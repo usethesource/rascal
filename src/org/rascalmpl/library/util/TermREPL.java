@@ -50,7 +50,7 @@ public class TermREPL {
         private final ICallableValue completor;
 
         public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException {
-            super(System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get());
+            super(ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal());
             this.ctx = ctx;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
