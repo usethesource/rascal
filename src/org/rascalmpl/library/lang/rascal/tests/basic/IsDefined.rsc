@@ -7,7 +7,6 @@ import List;
 
 // Strings
 
-@ignoreInterpreter{bug}
 test bool isDefinedStr1() = ("abc"[0])?;
 
 test bool isDefinedStr2() = !("abc"[5])?;
@@ -135,7 +134,6 @@ test bool isDefinedMap9(){
 
 // Tuples
 
-@ignoreInterpreter{bug}
 test bool isDefinedTuple1(){
     return (<0,1,2>[1])?;
 }
@@ -147,7 +145,6 @@ test bool isDefinedTuple2(){
 
 // Relation
 
-@ignoreInterpreter{bug}
 test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
@@ -158,7 +155,6 @@ test bool isDefinedRel2(){
 
 // ListRelation
 
-@ignoreInterpreter{bug}
 test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
@@ -182,7 +178,7 @@ test bool isDefinedADT2(){
 }
 
 // node
-@ignoreInterpreter{bug}
+
 test bool isDefinedNode1(){
     return ("f"(0,1,2)[0])?;
 }
