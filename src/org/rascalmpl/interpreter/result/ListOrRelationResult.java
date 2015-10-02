@@ -33,24 +33,6 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	ListOrRelationResult(Type type, T value, IEvaluatorContext ctx) {
 		super(type, value, ctx);
 	}
-	
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
-//		if (subscripts.length != 1) { 
-//			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
-//		} 
-//		Result<IValue> key = (Result<IValue>) subscripts[0];
-//		if (getTypeFactory().integerType().comparable(key.getType())) {
-//			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
-//		}
-//		int idx = ((IInteger) key.getValue()).intValue();
-//		if (idx < 0 || idx > getValue().length()){
-//			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
-//		}
-//		
-//		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
-//	}
 
 	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
 				return bool(getValue().contains(elementResult.getValue()), ctx);

@@ -47,6 +47,17 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 		public ListRelationResult(Type type, IList rel, IEvaluatorContext ctx) {
 			super(type, rel, ctx);
 		}
+		
+		@Override
+		public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
+			int len = getValue().getElementType().getArity();
+			
+			if (subscripts.length >= len){
+				return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+			}
+			
+			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+		}
 
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
