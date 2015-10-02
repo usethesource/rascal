@@ -4,65 +4,156 @@ import Exception;
 import util::Math;
 import List;
 
-test bool isDefined0(list[int] L) = L == [] || L[arbInt(size(L))]?;
+// Lists
 
-test bool isDefined1() {
-	str trace = "";
-	map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
-	try {
-		m[3];
-	} catch NoSuchKey(k): {
-		trace += "Caught no such key: <k>;";
-	}
-	
-	if(m[2]?) {
-		trace += " <m[2]>;";
-	} else {
-		trace += " not found the key <2>;";
-	}
-	
-	if(m[3]?) {
-		trace += " <m[3]>;";
-	} else {
-		trace += " did not find the key <3>;";
-	}
-	
-	return trace == "Caught no such key: 3; 2; did not find the key 3;";
+test bool isDefinedList1(list[int] L) = L == [] || L[arbInt(size(L))]?;
+
+test bool isDefinedList2(list[int] L) = !L[size(L) + 1]?;
+
+test bool isDefinedList3() {
+    str trace = "";
+    lst = [0,1,2];
+    try {
+       lst[3];
+       trace = "bad";
+    } catch IndexOutOfBounds(k): {
+      trace = "good: <k>";
+    }
+    return trace == "good: 3";
 }
 
-test bool isDefined2() {
-
-	str trace = "";
-	
-	map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
-	
-	trace += m[2] ? " Not found the key <2>;";
-	trace += m[3] ? " Did not find the key <3>;";
-	
-	int x;
-	
-	x = x ? 1;
-	x = x ? 2;
-	
-	
-	trace += " <x>;";
-	try {
-		x = [0,1,2,3][5] ? 3;
-	} catch IndexOutOfBounds(index) : {
-		x = x - 100;
-	}
-	
-	trace += " <x>";
-	
-	return trace == "2 Did not find the key 3; 1; 3";
+test bool isDefinedList4() {
+    str trace = "";
+    lst = [0,1,2];
+    if(lst[3]?){
+       trace = "bad";
+    } else {
+      trace = "good";
+    }
+    return trace == "good";
 }
+
+test bool isDefinedList5() {
+   int x;
+   try {
+     x = [0,1,2,3][2] ? 100;
+   } catch IndexOutOfBounds(idx) : {
+     x = 200;
+   }
+   return x == 2;
+}
+
+test bool isDefinedList6() {
+   int x;
+   try {
+     x = [0,1,2,3][5] ? 100;
+   } catch IndexOutOfBounds(idx) : {
+     x = 200;
+   }
+   return x == 100;
+}
+
+test bool isDefinedList7() {
+   list[int] lst = [0,1,2];
+   lst[2] ? 0 += 1;
+   return lst[2] == 3;
+}
+
+// Maps
+
+test bool isDefinedMap1() = (0 : "0", 1 : "1", 2 : "2")[2]?;
+
+test bool isDefinedMap2() = !((0 : "0", 1 : "1", 2 : "2")[3])?;
+
+test bool isDefinedMap3() {
+    str trace = "";
+    map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
+    try {
+       m[3];
+       trace = "bad";
+    } catch NoSuchKey(k): {
+      trace = "good: <k>";
+    }
+    return trace == "good: 3";
+}
+
+test bool isDefinedMap4(){
+   str trace = "";
+   map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
+
+   if(m[2]?) {
+      trace = "good";
+    } else {
+      trace = "bad";
+    }
+    return trace == "good";
+}
+
+test bool isDefinedMap5(){
+   str trace = "";
+   map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
+
+   if(m[3]?) {
+      trace = "bad";
+    } else {
+      trace = "good";
+    }
+    return trace == "good";
+}
+
+test bool isDefinedMap6(){
+    map[int,int] m = (0: 10, 1: 20);
+    m[3] ? 0 += 1;
+    return m[3] == 1;
+}
+
+test bool isDefinedMap7(){
+    map[int,int] m = (0: 10, 1: 20);
+    m[0] ? 0 += 1;
+    return m[0] == 11;
+}
+
+test bool isDefinedMap8(){
+    map[int,int] m = (0: 10, 1: 20);
+    m[0] ?= 100;
+    return m[0] == 10;
+}
+
+test bool isDefinedMap9(){
+    map[int,int] m = (0: 10, 1: 20);
+    m[5] ?= 100;
+    return m[5] == 100;
+}
+
+// Tuples
+
+@ignoreInterpreter{bug}
+test bool isDefinedTuple1(){
+    return (<0,1,2>[1])?;
+}
+
+@ignoreInterpreter{bug}
+test bool isDefinedTuple2(){
+    return (<0,1,2><1>)?;
+}
+
+test bool isDefinedTuple3(){
+    return !(<0,1,2>[5])?;
+}
+
+test bool tst() { int x = 10; y = x ? 1; return y == 10; }
+
+// The status of unitialized variables is in transit
+//test bool tst() { int x; y = x ? 1; return x == 1; }
+
+// Annotations
 
 data F = f3() | f3(int n) | g(int n) | deep(F f);
 anno int F @ pos;
 
-test bool isAnnoDefined() = (f3()[@pos=1])@pos?;
+test bool isDefinedAnno1() = (f3()[@pos=1])@pos?;
 
-test bool isDefined3(){
+test bool isDefinedAnno2(){
     X = f3(); 
     X @ pos ?= 3;
     if(X @ pos != 3) return false;
