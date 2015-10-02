@@ -137,8 +137,28 @@ test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
 }
 
-test bool isDefinedTuple3(){
-    return !(<0,1,2>[5])?;
+// ADT
+
+data A = a(int x, int y, str s);
+
+@ignoreInterpreter{bug}
+test bool isDefinedADT1(){
+    return (a(1,2,"abc")[0])?;
+}
+
+
+test bool isDefinedADT2(){
+    return !(a(1,2,"abc")[5])?;
+}
+
+// node
+@ignoreInterpreter{bug}
+test bool isDefinedNode1(){
+    return ("f"(0,1,2)[0])?;
+}
+
+test bool isDefinedNode1(){
+    return !("f"(0,1,2)[5])?;
 }
 
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }
@@ -169,8 +189,8 @@ test bool isDefined5() = !("aap"(boot=1).noot?);
 
 // e has f : e is of an ADT type and its constructor has a positional or keyword field f.
 // e[k]?   : list or map contains given index k
-// e.f?    :  e is a node or constructor that has a keyword field f with an explicitly set value
-// e?      : debatbale whther we allow the general case
+// e.f?    : e is a node or constructor that has a keyword field f with an explicitly set value
+// e?      : debatable whether we allow the general case
 
 data F = z(int l = 2) | u();
 
