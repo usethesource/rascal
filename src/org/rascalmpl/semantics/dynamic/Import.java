@@ -539,11 +539,6 @@ public abstract class Import {
     ParserGenerator pg = eval.getParserGenerator();
     IMap definitions = currentModule.getSyntaxDefinition();
     
-    System.err.println("Interpreted:");
-    for(IValue key : definitions){
-    	System.err.println(key + ": " + definitions.get(key));
-    }
-    
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
 
     if (parser == null || force) {
