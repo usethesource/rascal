@@ -40,7 +40,7 @@ public abstract class BaseREPL {
   	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
   }
   
-  public BaseREPL(InputStream stdin, PrintStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException {
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException {
   	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
   }
   
@@ -95,6 +95,7 @@ public abstract class BaseREPL {
 
 
  
+
 
 
 
