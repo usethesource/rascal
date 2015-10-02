@@ -4,6 +4,14 @@ import Exception;
 import util::Math;
 import List;
 
+
+// Strings
+
+@ignoreInterpreter{bug}
+test bool isDefinedStr1() = ("abc"[0])?;
+
+test bool isDefinedStr2() = !("abc"[5])?;
+
 // Lists
 
 test bool isDefinedList1(list[int] L) = L == [] || L[arbInt(size(L))]?;
@@ -135,6 +143,28 @@ test bool isDefinedTuple1(){
 @ignoreInterpreter{bug}
 test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
+}
+
+// Relation
+
+@ignoreInterpreter{bug}
+test bool isDefinedRel1(){
+    return ({<1, "a">, <2, "b">}[0])?;
+}
+
+test bool isDefinedRel2(){
+    return !({<1, "a">, <2, "b">}[1,2,3])?;
+}
+
+// ListRelation
+
+@ignoreInterpreter{bug}
+test bool isDefinedLRel1(){
+    return ([<1, "a">, <2, "b">][0])?;
+}
+
+test bool isDefinedLRel2(){
+    return !([<1, "a">, <2, "b">][1,2,3])?;
 }
 
 // ADT
