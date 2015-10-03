@@ -4,6 +4,19 @@ import Exception;
 import util::Math;
 import List;
 
+syntax As = "a"*;
+
+syntax Bs = {"b" ","}*;
+
+// Concrete lists
+
+test bool isDefinedConcrete1() = (([As] "aaa")[0])?;
+
+test bool isDefinedConcrete2() = !(([As] "aaa")[5])?;
+
+test bool isDefinedConcrete3() = (([Bs] "b,b,b")[0])?;
+
+test bool isDefinedConcrete4() = !(([Bs] "b,b,b")[5])?;
 
 // Strings
 
@@ -167,7 +180,6 @@ test bool isDefinedLRel2(){
 
 data A = a(int x, int y, str s);
 
-@ignoreInterpreter{bug}
 test bool isDefinedADT1(){
     return (a(1,2,"abc")[0])?;
 }
