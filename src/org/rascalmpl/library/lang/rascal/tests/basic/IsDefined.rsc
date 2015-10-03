@@ -242,10 +242,13 @@ test bool isDefinedNode3() = "aap"(noot=1).noot?;
 
 test bool isDefinedNode4() = !("aap"(boot=1).noot?);
 
+@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode1() = "aap"(noot=1) has noot;
 
+@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode2() = !("aap"(boot=1) has noot);
 
+@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode3() = !("aap"() has noot);
 
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }

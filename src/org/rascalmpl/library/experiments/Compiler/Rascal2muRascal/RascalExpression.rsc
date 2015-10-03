@@ -1747,11 +1747,19 @@ private MuExp translateIsDefined(Expression exp){
 		case (Expression) `( <Expression exp1> )`:
 			return translateIsDefined(exp1);
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
-			return translateSubscript(exp, true);
+		    if(getOuterType(exp1) notin {"rel", "lrel", "nonterminal"}){
+			 return translateSubscript(exp, true);
+			} else {
+			 fail;
+			}
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
 		case (Expression) `<Expression expression> . <Name field>`:
-		    return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
+		    if(getOuterType(expression) notin {"tuple"}){
+		       return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
+		    } else {
+		      fail;
+		    }
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
