@@ -6815,7 +6815,11 @@ public enum RascalPrimitive {
 						}
 					}
 				}
-				stack[sp - 3] = Rascal_FALSE;
+				if(cons.isAnnotatable()){
+					stack[sp - 3] = cons.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
+				} else {
+				  stack[sp - 3] = Rascal_FALSE;
+				}
 			}
 			return sp - 2;
 		}
@@ -6835,9 +6839,12 @@ public enum RascalPrimitive {
 			String fieldName = field.getValue();
 			if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 				stack[sp - 2] = Rascal_TRUE;
-			} 
-			else {
-				stack[sp - 2] = Rascal_FALSE;
+			} else {
+				if(nd.isAnnotatable()){
+					stack[sp - 3] = nd.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
+				} else {
+				   stack[sp - 2] = Rascal_FALSE;
+				}
 			}
 			return sp - 1;
 		}
