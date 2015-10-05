@@ -117,6 +117,11 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
   }
   
+  @Override
+  protected void handleReset() throws InterruptedException {
+      handleInput("");
+  }
+
   private void printResult(IRascalResult result) throws IOException {
     if (result == null) {
       return;
