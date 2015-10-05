@@ -155,6 +155,7 @@ test bool isDefinedTuple1(){
     return tup.n?;
 }
 
+@ignoreCompiler{Contains type error: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
 test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
