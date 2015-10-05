@@ -906,7 +906,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<Field> fields = this.getFields();
 			return base.fieldSelect(fields.toArray(new Field[0]));
 		}
-
+		
 	}
 
 	static public class FieldUpdate extends

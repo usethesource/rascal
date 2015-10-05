@@ -146,19 +146,16 @@ test bool isDefinedTuple1(){
     return (<0,1,2>[1])?;
 }
 
-@ignoreInterpreter{bug}
 test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
 }
 
-@ignoreInterpreter{bug}
 test bool isDefinedTuple1(){
     tuple[int n, str s] tup = <0, "a">;
     return tup.n?;
 }
 
-@ignoreInterpreter{bug}
-@ignoreCompiler{Caught by type checker}
+@expected{UndeclaredField}
 test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
@@ -180,7 +177,7 @@ test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
 
-@ignoreCompiler{Caught by type checker}
+@expected{UnsupportedSubscriptArity}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
 }
@@ -201,7 +198,7 @@ test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
 
-@ignoreCompiler{Caught by type checker}
+@expected{UnsupportedSubscriptArity}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
 }
@@ -263,21 +260,18 @@ anno int F @ pos;
 
 test bool isDefinedAnno1() = (f3()[@pos=1])@pos?;
 
-@ignoreInterpreter{bug}
 test bool isDefinedAnno2() = !(f3()@pos)?;
 
 test bool isDefinedAnno3() = ((f3()[@pos=1])@pos ? 10) == 1;
 
 test bool isDefinedAnno4() = ((f3())@pos ? 10) == 10;
 
-@ignoreInterpreter{bug}
 test bool isDefinedAnno5(){
     X = f3(); 
     X @ pos ? 0 += 1;
     return X@pos == 1;
 }
 
-@ignoreInterpreter{bug}
 test bool isDefinedAnno6(){
     X = f3()[@pos=1];
     X @ pos ? 0 += 1;

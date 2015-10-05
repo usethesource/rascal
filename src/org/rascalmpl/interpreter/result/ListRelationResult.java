@@ -53,7 +53,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 			int len = getValue().getElementType().getArity();
 			
 			if (subscripts.length >= len){
-				return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+			    throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 			}
 			
 			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);

@@ -72,6 +72,16 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
+	public Result<IBool> isDefined(Name name) {
+	    if (type.hasField(Names.name(name))) {
+	        return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+	    }
+	    
+	    // if it's not visible then this is statically wrong:
+	    throw new UndeclaredField(Names.name(name), getType(), ctx.getCurrentAST());
+	}
+	
+	@Override
 	public Result<IValue> fieldSelect(Field[] selectedFields) {
 		int nFields = selectedFields.length;
 		int fieldIndices[] = new int[nFields];
