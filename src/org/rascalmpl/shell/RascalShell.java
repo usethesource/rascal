@@ -52,6 +52,7 @@ public class RascalShell  {
     }
     catch (Throwable e) {
       System.err.println("\n\nunexpected error: " + e.getMessage());
+      e.printStackTrace(System.err);
       System.exit(1);
     }
     finally {
