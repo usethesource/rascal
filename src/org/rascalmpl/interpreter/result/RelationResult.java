@@ -48,10 +48,10 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
-			int len = getValue().getElementType().getArity();
+			int len = getType().getElementType().getArity();
 			
 			if (subscripts.length >= len){
-				return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+			    throw new UnsupportedSubscriptArity(getType(), len, ctx.getCurrentAST());
 			}
 			
 			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
