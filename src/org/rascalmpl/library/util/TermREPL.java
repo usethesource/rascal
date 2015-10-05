@@ -134,6 +134,12 @@ public class TermREPL {
 
             return new CompletionResult(offset, suggestions);
         }
+        
+        @Override
+        protected void handleReset() throws InterruptedException {
+            // TODO: add a rascal callback for this?
+            handleInput("");
+        }
 
     }
 
