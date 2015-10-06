@@ -1625,7 +1625,7 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	//if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
+	if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1638,7 +1638,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	   // println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 //}
+	 }
 	 pat(iVal) 
 }
 
