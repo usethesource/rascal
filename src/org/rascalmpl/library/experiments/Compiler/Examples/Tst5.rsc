@@ -1,11 +1,5 @@
 module experiments::Compiler::Examples::Tst5
 
-data F = z(int l = 2) | u();
+int inc (int n, int delta = 1, int mul = 1) = (n + delta) * mul;
 
-
-
-value main() {
-  e = z();
-  e.l ?= 3; // set l to 3 if the field is not set, otherwise leave it
-  return e.l == 3;
-}
+value main() = inc(5, mul=2, delta=10);
