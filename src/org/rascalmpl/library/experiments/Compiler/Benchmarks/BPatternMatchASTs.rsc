@@ -1,6 +1,7 @@
 module experiments::Compiler::Benchmarks::BPatternMatchASTs
 
 import Message;
+import analysis::m3::AST;
 import lang::java::m3::AST;
 import analysis::m3::TypeSymbol;
 import ValueIO;
@@ -81,14 +82,14 @@ list[str] getVariableNamesTwice(int n) {
 	return result;
 }
 
-list[str] getVariableNamesOnce(int n) {
-	dt = getData();
-	list[str] result = [];
-	for (i <- [0..n]) {
-		result = [ e.name | /Expression e := dt, e is variable];
-	}
-	return result;
-}
+//list[str] getVariableNamesOnce(int n) {
+//	dt = getData();
+//	list[str] result = [];
+//	for (i <- [0..n]) {
+//		result = [ e.name | /Expression e := dt, e is variable];
+//	}
+//	return result;
+//}
 
 int countZeroes(int n) {
 	dt = getData();
@@ -105,7 +106,7 @@ map[str name,  value(int n) job] jobs = (
 "countCCLikeMetric": 			countCCLikeMetric,
 "getMethodsWhichThrow":			getMethodsWhichThrow,
 "getVariableNamesTwice":		getVariableNamesTwice,
-"getVariableNamesOnce":			getVariableNamesOnce,
+//"getVariableNamesOnce":			getVariableNamesOnce,
 "countZeroes": countZeroes
 );
 
