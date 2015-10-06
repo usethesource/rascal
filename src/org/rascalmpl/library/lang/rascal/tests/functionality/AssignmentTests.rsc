@@ -135,3 +135,41 @@ test bool testKwParams2() {
   X.kw1 = 2;
   return X.kw1 == 2;
 }
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment1() {
+  m = ();
+  m[0] += 1;
+}
+
+test bool testInitAssignment1() {
+  m = ();
+  m[0]?0 += 1;
+  return m[0] == 1;
+}
+
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment2() {
+  m = ();
+  m[0] -= 1;
+}
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment3() {
+  m = ();
+  m[0] *= 1;
+}
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment4() {
+  m = ();
+  m[0] /= 1;
+}
+
+@expected{IndexOutOfBounds}
+test bool testUnInitAssignment5() {
+  m = [];
+  m[0] += 1;
+}
+
