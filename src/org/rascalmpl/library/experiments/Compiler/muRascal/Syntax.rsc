@@ -59,7 +59,7 @@ lexical String = @category = "Constant" [\"] StrChar* [\"];
 
 syntax Sep = () ";" () | {[\n \r] NoNLList}+ ;	
 
-start syntax Module =
+start syntax MuPreModule =
 			  preMod: 		"module" MConst name TypeDeclaration* types Function* functions
 			;
 			

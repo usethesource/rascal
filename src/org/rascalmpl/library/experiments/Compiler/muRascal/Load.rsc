@@ -9,7 +9,7 @@ import experiments::Compiler::muRascal::Syntax;
 MuModule load(loc l) = implodeMuRascal(parseMuRascal(l));
 MuModule load(str src) = implodeMuRascal(parseMuRascal(src));
 
-MuModule implodeMuRascal(Tree t) = preprocess(implode(#experiments::Compiler::muRascal::AST::Module, t));
+MuModule implodeMuRascal(Tree t) = preprocess(implode(#experiments::Compiler::muRascal::AST::MuPreModule, t));
 
 /*
 MuExp loadstr(str src) = ip(parse(#Exp, src));

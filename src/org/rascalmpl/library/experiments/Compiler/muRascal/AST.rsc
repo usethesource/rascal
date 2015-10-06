@@ -211,7 +211,7 @@ anno loc MuCase@\location;
 anno loc Identifier@\location;
 anno loc VarDecl@\location;
 
-anno loc Module@\location;
+anno loc MuPreModule@\location;
 anno loc TypeDeclaration@\location;
 anno loc Guard@\location;
 anno loc Function@\location;
@@ -231,7 +231,7 @@ data Identifier =
 				| mvar(str var)
 				;
 
-public data Module =
+public data MuPreModule =
             preMod(str name, list[TypeDeclaration] types, list[Function] functions)
           ;
 

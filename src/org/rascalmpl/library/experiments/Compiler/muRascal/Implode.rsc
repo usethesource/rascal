@@ -28,7 +28,7 @@ private str nextLabel() {
   return "<nLabel>";
 }
 
-MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
+MuModule preprocess(experiments::Compiler::muRascal::AST::MuPreModule pmod){
    global_functions = {};
    vardefs = ();
    functions_in_module = [];
