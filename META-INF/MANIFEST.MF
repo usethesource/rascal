@@ -5,7 +5,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.3.qualifier
+Bundle-Version: 0.8.0.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
