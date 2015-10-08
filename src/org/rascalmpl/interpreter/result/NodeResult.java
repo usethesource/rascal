@@ -20,7 +20,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
